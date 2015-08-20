@@ -258,7 +258,8 @@ public class Table extends Widget implements Serializable {
 				col.getUpdateCondition().getExpression().evaluate(ooeeContext);
 			}
 		} catch (Exception e) {
-			logger.error("error occurrs while updating table conditions. "  + this.getId(), e);
+			logger.error("error occurrs while updating table conditions. "  + this.getId() 
+					+ ", expr: " + col.getUpdateCondition().getExpression().getExpressionString(), e);
 		}
 	}
 	

@@ -51,9 +51,9 @@ function org_shaolin_bmdp_workflow_page_FlowManagement(json)
 
     Form.openWorkflow = org_shaolin_bmdp_workflow_page_FlowManagement_openWorkflow;
 
-    Form.addFlow = org_shaolin_bmdp_workflow_page_FlowManagement_addFlow;
-
     Form.editFlow = org_shaolin_bmdp_workflow_page_FlowManagement_editFlow;
+
+    Form.addFlow = org_shaolin_bmdp_workflow_page_FlowManagement_addFlow;
 
     Form.removeFlow = org_shaolin_bmdp_workflow_page_FlowManagement_removeFlow;
 
@@ -110,25 +110,25 @@ function org_shaolin_bmdp_workflow_page_FlowManagement(json)
 
 
     /* auto generated eventlistener function declaration */
-    function org_shaolin_bmdp_workflow_page_FlowManagement_addFlow(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_FlowManagement_addFlow */
-
-        // cal ajax function. 
-
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"addFlow543543",UIMaster.getValue(eventsource),this.__entityName);
-
-        var UIEntity = this;
-    }/* Gen_Last:org_shaolin_bmdp_workflow_page_FlowManagement_addFlow */
-
-
-    /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_workflow_page_FlowManagement_editFlow(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_FlowManagement_editFlow */
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"editFlow-20150816-1118",UIMaster.getValue(eventsource),this.__entityName);
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"editFlow-20150819-0930",UIMaster.getValue(eventsource),this.__entityName);
 
         var UIEntity = this;
     }/* Gen_Last:org_shaolin_bmdp_workflow_page_FlowManagement_editFlow */
+
+
+    /* auto generated eventlistener function declaration */
+    function org_shaolin_bmdp_workflow_page_FlowManagement_addFlow(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_FlowManagement_addFlow */
+
+        // cal ajax function. 
+
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"addFlow-20150816-1118",UIMaster.getValue(eventsource),this.__entityName);
+
+        var UIEntity = this;
+    }/* Gen_Last:org_shaolin_bmdp_workflow_page_FlowManagement_addFlow */
 
 
     /* auto generated eventlistener function declaration */

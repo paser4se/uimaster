@@ -191,6 +191,10 @@ public class RefForm extends Container implements Serializable
     {
         this.variableReconfigurationMap = variableReconfigurationMap;
     }
+    
+	public Object getInputParameter(String key) {
+		return inputParams != null ? inputParams.get(key) : null;
+	}
 
     public Map ui2Data()
     {

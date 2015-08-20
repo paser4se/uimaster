@@ -82,7 +82,7 @@
         </ns2:totalCount>
         <ns2:defaultRowSize>20</ns2:defaultRowSize>
         <ns2:showActionBar>true</ns2:showActionBar>
-        <ns2:showFilter>false</ns2:showFilter>
+        <ns2:showFilter>true</ns2:showFilter>
         <ns2:rowFilter>
           <ns2:expression>
             <expressionString><![CDATA[{ return true; }]]></expressionString>
@@ -106,23 +106,39 @@
           </ns2:title>
           <ns2:beFieldId>rowBE.varType</ns2:beFieldId>
           <ns2:uiType>
-            <ns2:type>Text</ns2:type>
+            <ns2:type>ComBox</ns2:type>
           </ns2:uiType>
-          <ns2:rowExpression xsi:type="ns2:ExpressionPropertyType">
+          <ns2:comboxExpression xsi:type="ns2:ExpressionPropertyType">
           	<ns2:expression xsi:type="ns2:ExpressionType">
                 <ns2:expressionString><![CDATA[
+                import java.util.ArrayList;
                 import org.shaolin.bmdp.runtime.AppContext;
+                import org.shaolin.bmdp.datamodel.common.VariableCategoryType;
                 {
-                	return $rowBE.getCategory().value();
+                 ArrayList values = new ArrayList(3);
+                 values.add(VariableCategoryType.JAVA_PRIMITIVE.value());
+                 values.add(VariableCategoryType.JAVA_CLASS.value());
+                 values.add(VariableCategoryType.BUSINESS_ENTITY.value());
+                 
+                 return new ArrayList[] {values, values};
                 }]]></ns2:expressionString>
             </ns2:expression>
+          </ns2:comboxExpression>
+          <ns2:rowExpression xsi:type="ns2:ExpressionPropertyType">
+             <ns2:expression xsi:type="ns2:ExpressionType">
+                  <ns2:expressionString><![CDATA[
+                  import org.shaolin.bmdp.runtime.AppContext;
+                  {
+                   return $rowBE.getCategory().value();
+                  }]]></ns2:expressionString>
+              </ns2:expression>
           </ns2:rowExpression>
           <ns2:updateCondition xsi:type="ns2:ExpressionPropertyType">
              <ns2:expression xsi:type="ns2:ExpressionType">
                  <ns2:expressionString><![CDATA[
                  import org.shaolin.bmdp.runtime.AppContext;
                  {
-                     $rowBE.setCategory(org.shaolin.bmdp.datamodel.common.VariableCategoryType.JAVA_CLASS);
+                     $rowBE.setCategory(org.shaolin.bmdp.datamodel.common.VariableCategoryType.fromValue($value));
                  }]]></ns2:expressionString>
              </ns2:expression>
           </ns2:updateCondition>

@@ -34,6 +34,7 @@ import org.shaolin.uimaster.page.ajax.TreeItem;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.ajax.json.JSONArray;
 import org.shaolin.uimaster.page.cache.UIFormObject;
+import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 
 public class HTMLWebTreeType extends HTMLWidgetType {
@@ -76,6 +77,19 @@ public class HTMLWebTreeType extends HTMLWidgetType {
 			context.generateHTML("<div id=\"");
 			context.generateHTML(getName());
 			context.generateHTML("\" class=\"uimaster_tree\">");
+			
+			if (actions != null && actions.size() > 0) {
+				context.generateHTML("<span style=\"display:none;\">");
+				for (UITableActionType action: actions){
+					context.generateHTML("<span event=\"javascript:defaultname.");
+					context.generateHTML(this.getPrefix() + action.getFunction());
+					context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\" title='");
+					context.generateHTML(UIVariableUtil.getI18NProperty(action.getTitle()));
+					context.generateHTML("'></span>");
+					
+				}
+				context.generateHTML("</span>");
+			}
 			
 			List<TreeItem> result = (List<TreeItem>)this.removeAttribute("initValue");
 			JSONArray jsonArray = new JSONArray(result);

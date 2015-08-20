@@ -94,8 +94,8 @@
                 </ns2:exp>
             </ns2:ops>
         </ns2:eventHandler>
-        <ns2:eventHandler functionName="addFlow">
-           <ns2:ops xsi:type="ns2:OpCallAjaxType" name="addFlow543543">
+        <ns2:eventHandler functionName="editFlow">
+           <ns2:ops xsi:type="ns2:OpCallAjaxType" name="editFlow-20150819-0930">
                 <ns2:exp>
                     <ns2:expressionString><![CDATA[
                     import java.util.HashMap;
@@ -135,8 +135,8 @@
                 </ns2:exp>
             </ns2:ops>
         </ns2:eventHandler>
-        <ns2:eventHandler functionName="editFlow">
-           <ns2:ops xsi:type="ns2:OpCallAjaxType" name="editFlow-20150816-1118">
+        <ns2:eventHandler functionName="addFlow">
+           <ns2:ops xsi:type="ns2:OpCallAjaxType" name="addFlow-20150816-1118">
                 <ns2:exp>
                     <ns2:expressionString><![CDATA[
                     import java.util.HashMap;

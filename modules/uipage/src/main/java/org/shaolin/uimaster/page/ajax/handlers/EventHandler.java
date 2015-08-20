@@ -59,6 +59,7 @@ public class EventHandler implements IAjaxHandler {
 				ops = uiEntity.getEventHandler(actionName);
 			}
 			if (ops == null) {
+				log.warn("The action name " + actionName + " can't be found from current page!");
 				return "";
 			}
 			for (OpType op : ops) {

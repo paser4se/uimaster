@@ -286,14 +286,14 @@ public class HTMLTableType extends HTMLContainerType {
 				for (UITableColumnType col : columns) {
 					HTMLUtil.generateTab(context, depth + 3);
 					context.generateHTML("<th>");
-					if ("Text".equals(col.getUiType().getType())) {
+					if ("Text".equalsIgnoreCase(col.getUiType().getType())) {
 						HTMLTextFieldType textField = new HTMLTextFieldType(context, col.getBeFieldId());
 						textField.addAttribute("placeholder", "Search " + UIVariableUtil.getI18NProperty(col.getTitle()));
 						textField.addAttribute("title", UIVariableUtil.getI18NProperty(col.getTitle()));
 						textField.addStyle("width", "100%");
 						textField.generateBeginHTML(context, ownerEntity, depth+1);
 						textField.generateEndHTML(context, ownerEntity, depth+1);
-					} else if ("ComBox".equals(col.getUiType().getType())) {
+					} else if ("ComBox".equalsIgnoreCase(col.getUiType().getType())) {
 						List<String> optionValues = new ArrayList<String>();
 						List<String> optionDisplayValues = new ArrayList<String>();
 						if (col.getComboxExpression() != null) {
@@ -317,17 +317,17 @@ public class HTMLTableType extends HTMLContainerType {
 						combox.addStyle("width", "100%");
 						combox.generateBeginHTML(context, ownerEntity, depth+1);
 						combox.generateEndHTML(context, ownerEntity, depth+1);
-					} else if ("CheckBox".equals(col.getUiType().getType())) {
+					} else if ("CheckBox".equalsIgnoreCase(col.getUiType().getType())) {
 						HTMLCheckBoxType checkBox = new HTMLCheckBoxType(context, col.getBeFieldId());
 						checkBox.addAttribute("title", UIVariableUtil.getI18NProperty(col.getTitle()));
 						checkBox.addAttribute("label", "");
 						checkBox.generateBeginHTML(context, ownerEntity, depth+1);
 						checkBox.generateEndHTML(context, ownerEntity, depth+1);
-					} else if ("Date".equals(col.getUiType().getType())) {
+					} else if ("Date".equalsIgnoreCase(col.getUiType().getType())) {
 						HTMLDateType date = new HTMLDateType(context, col.getBeFieldId());
 						date.generateBeginHTML(context, ownerEntity, depth+1);
 						date.generateEndHTML(context, ownerEntity, depth+1);
-					} else if ("DateRange".equals(col.getUiType().getType())) {
+					} else if ("DateRange".equalsIgnoreCase(col.getUiType().getType())) {
 						HTMLDateType start = new HTMLDateType(context, col.getUiType().getStartCondition());
 						start.setRange(true);
 						start.addStyle("width", "100px");
@@ -339,7 +339,7 @@ public class HTMLTableType extends HTMLContainerType {
 						context.generateHTML("&nbsp;&nbsp;");
 						end.generateBeginHTML(context, ownerEntity, depth+1);
 						end.generateEndHTML(context, ownerEntity, depth+1);
-					} else if ("Label".equals(col.getUiType().getType())) {
+					} else if ("Label".equalsIgnoreCase(col.getUiType().getType())) {
 						//Label column does not need to look for search.
 					} 
 					context.generateHTML("</th>");
