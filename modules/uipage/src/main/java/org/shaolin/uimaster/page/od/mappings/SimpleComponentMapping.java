@@ -365,8 +365,8 @@ public class SimpleComponentMapping extends ComponentMapping {
 			
 			long end = System.currentTimeMillis();
 			long time = end - start;
-			if (logger.isInfoEnabled()) {
-				logger.info("od entity execution time: " + time + "ms");
+			if (logger.isDebugEnabled()) {
+				logger.debug("od entity execution time: " + time + "ms");
 			}
 		}
 	}

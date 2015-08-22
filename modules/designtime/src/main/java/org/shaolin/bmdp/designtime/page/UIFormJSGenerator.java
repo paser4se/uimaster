@@ -10,6 +10,8 @@ import java.util.Map;
 
 import org.shaolin.bmdp.datamodel.common.DiagramType;
 import org.shaolin.bmdp.datamodel.page.FunctionReconfigurationType;
+import org.shaolin.bmdp.datamodel.page.FunctionType;
+import org.shaolin.bmdp.datamodel.page.OpInvokeWorkflowType;
 import org.shaolin.bmdp.datamodel.page.ReconfigurationType;
 import org.shaolin.bmdp.datamodel.page.UIContainerType;
 import org.shaolin.bmdp.datamodel.page.UIEntity;
@@ -98,6 +100,13 @@ public final class UIFormJSGenerator extends UIFormJSGenerator0 implements IEnti
 			rootPanelValidators = new ArrayList();
 			refJS = new ArrayList();
 			entityName = uiEntity.getEntityName();
+			FunctionType function = new FunctionType();
+			function.setFunctionName("invokeDynamicFunction");
+			OpInvokeWorkflowType op0 = new OpInvokeWorkflowType();
+			function.getOps().add(op0);
+			
+	        uiEntity.getEventHandlers().add(function);
+			
 			Map pageOuts = null;
 			// Don't need
 			// jsText = JSMerge.getSingleText(rootPath.getAbsolutePath(), jsName);

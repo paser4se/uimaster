@@ -197,7 +197,7 @@ public class HTMLUtil
         return PageCacheManager.getUIPageObject(pageName);
     }
 
-    public static UIFormObject parseUIEntity(String entityName)
+    public static UIFormObject parseUIForm(String entityName)
     {
         if (logger.isDebugEnabled())
         {

@@ -12,6 +12,7 @@ import org.shaolin.bmdp.datamodel.page.EntityPropertyType;
 import org.shaolin.bmdp.datamodel.page.FunctionType;
 import org.shaolin.bmdp.datamodel.page.OpCallAjaxType;
 import org.shaolin.bmdp.datamodel.page.OpExecuteScriptType;
+import org.shaolin.bmdp.datamodel.page.OpInvokeWorkflowType;
 import org.shaolin.bmdp.datamodel.page.OpType;
 import org.shaolin.bmdp.datamodel.page.PropertyValueType;
 import org.shaolin.bmdp.datamodel.page.ReconfigurablePropertyType;
@@ -294,6 +295,9 @@ public class UIFormJSGenerator0 {
 						out.write("\n        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),\"");
 						out.print(((OpCallAjaxType)op).getName());
 				      	out.write("\",UIMaster.getValue(eventsource),this.__entityName);\n");
+					} else if (op instanceof OpInvokeWorkflowType) {
+						out.write("\n        // cal ajax function. \n");
+						out.write("\n        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),event,UIMaster.getValue(eventsource),this.__entityName);\n");
 					}
 				}
 				out.write("\n        var UIEntity = this;\n");

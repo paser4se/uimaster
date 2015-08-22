@@ -29,16 +29,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
-import org.shaolin.bmdp.datamodel.common.NameExpressionType;
 import org.shaolin.bmdp.datamodel.common.ParamType;
 import org.shaolin.bmdp.datamodel.common.VariableType;
 import org.shaolin.bmdp.datamodel.page.ArrayPropertyType;
 import org.shaolin.bmdp.datamodel.page.BooleanPropertyType;
+import org.shaolin.bmdp.datamodel.page.ClickListenerType;
 import org.shaolin.bmdp.datamodel.page.ColorPropertyType;
+import org.shaolin.bmdp.datamodel.page.ComponentConstraintType;
 import org.shaolin.bmdp.datamodel.page.CustomListenerType;
 import org.shaolin.bmdp.datamodel.page.EventListenerType;
 import org.shaolin.bmdp.datamodel.page.ExpressionPropertyType;
 import org.shaolin.bmdp.datamodel.page.FontPropertyType;
+import org.shaolin.bmdp.datamodel.page.FunctionCallType;
 import org.shaolin.bmdp.datamodel.page.FunctionReconfigurationType;
 import org.shaolin.bmdp.datamodel.page.FunctionType;
 import org.shaolin.bmdp.datamodel.page.ImagePropertyType;
@@ -56,7 +58,9 @@ import org.shaolin.bmdp.datamodel.page.ReconfigurableVariableType;
 import org.shaolin.bmdp.datamodel.page.ReconfigurationType;
 import org.shaolin.bmdp.datamodel.page.ResourceBundlePropertyType;
 import org.shaolin.bmdp.datamodel.page.StringPropertyType;
+import org.shaolin.bmdp.datamodel.page.TableLayoutConstraintType;
 import org.shaolin.bmdp.datamodel.page.TableLayoutType;
+import org.shaolin.bmdp.datamodel.page.UIButtonType;
 import org.shaolin.bmdp.datamodel.page.UIChartType;
 import org.shaolin.bmdp.datamodel.page.UICheckBoxType;
 import org.shaolin.bmdp.datamodel.page.UIChoiceType;
@@ -90,6 +94,7 @@ import org.shaolin.bmdp.datamodel.page.UIWebTreeType;
 import org.shaolin.bmdp.datamodel.page.ValidatorPropertyType;
 import org.shaolin.bmdp.datamodel.page.ValidatorsPropertyType;
 import org.shaolin.bmdp.datamodel.page.VariableReconfigurationType;
+import org.shaolin.bmdp.datamodel.workflow.MissionNodeType;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.VariableUtil;
 import org.shaolin.bmdp.runtime.be.BEUtil;
@@ -142,7 +147,9 @@ public class UIFormObject implements java.io.Serializable
     private Map<String, Object> funcMap = new HashMap<String, Object>();
 
     //App Name, UIPanel Name, UI Widgets.
-    private Map<String, Map<String, List<HTMLDynamicUIItem>>> dynamicItems = new HashMap<String, Map<String, List<HTMLDynamicUIItem>>>();
+    private Map<String, Map<String, List<HTMLDynamicUIItem>>> dynamicItems; 
+    
+    private List<String> workflowActions; 
     
     private Map<String, List<OpType>> callServerSideOpMap = new HashMap<String, List<OpType>>();
 
@@ -176,7 +183,7 @@ public class UIFormObject implements java.io.Serializable
     {
         if (logger.isInfoEnabled())
         {
-            logger.info("Load uientity: " + name);
+            logger.info("Load form: " + name);
         }
         this.name = name;
         
@@ -210,22 +217,21 @@ public class UIFormObject implements java.io.Serializable
 
     private void parseUI(OOEEContext parsingContext, UIEntity entity, Map extraInfo)
     {
+    	this.clear();
+    	
 		if (logger.isDebugEnabled()) {
-			logger.debug("parse reconfigurable for uientity: " + name);
+			logger.debug("parse reconfigurable for form: " + name);
 		}
         parseReconfigurable(entity);
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("parse body of uientity: " + name);
+			logger.debug("parse body of form: " + name);
 		}
         UIContainerType body = entity.getBody();
         bodyName = body.getUIID();
         parseComponent(body, parsingContext);
-        if (body.getLayout() instanceof TableLayoutType)
-        {
-            bodyLayout = new HTMLCellLayout((UIPanelType)body, this, parsingContext);
-            bodyLayout.setContainer(bodyName + "-");
-        }
+        bodyLayout = new HTMLCellLayout((UIPanelType)body, this, parsingContext);
+        bodyLayout.setContainer(bodyName + "-");
         parseEventHandler(entity, parsingContext);
     }
 
@@ -328,7 +334,7 @@ public class UIFormObject implements java.io.Serializable
                 {
                     logger.error(
                             "Exception occured when pass the value for the reconfig variable: "
-                                    + vr.getOriginVarName() + " in uientity: " + name, e);
+                                    + vr.getOriginVarName() + " in form: " + name, e);
                 }
                 variableReconfiguration.put(vr.getOriginVarName(), expression);
             }
@@ -377,7 +383,7 @@ public class UIFormObject implements java.io.Serializable
 						logger.error(
 								"Exception occured when parse the server operation of event handler: "
 										+ func.getFunctionName()
-										+ " in uientity: " + name, e);
+										+ " in form: " + name, e);
 					}
 				}
 			}
@@ -389,23 +395,17 @@ public class UIFormObject implements java.io.Serializable
     {
     	String callAjaxName = null;
     	List<OpType> opsList = new ArrayList<OpType>();
-        for (OpType op: ops)
-        {
-            if (op instanceof OpCallAjaxType)
-            {
+        for (OpType op: ops) {
+            if (op instanceof OpCallAjaxType) {
                 OpCallAjaxType callAjaxOp = (OpCallAjaxType)op;
                 callAjaxName = callAjaxOp.getName();
             	callAjaxOp.parse(context);
             	opsList.add(callAjaxOp);
             } else if (op instanceof OpInvokeWorkflowType) {
-            	OpInvokeWorkflowType wfOp = (OpInvokeWorkflowType)op;
-            	wfOp.getCondition().parse(context);
-            	for (NameExpressionType nameExpr : wfOp.getOutDataMappings()) {
-            		if (nameExpr.getExpression() != null) {
-            			nameExpr.getExpression().parse(context);
-            		}
-            	}
-            	opsList.add(wfOp);
+            	OpInvokeWorkflowType workflowOp = (OpInvokeWorkflowType)op;
+            	callAjaxName = workflowOp.getOperationId();
+            	workflowOp.parse(context);
+            	opsList.add(workflowOp);
             }
         }
         
@@ -462,7 +462,7 @@ public class UIFormObject implements java.io.Serializable
                 {
                     logger.debug("parse reference entity: " + referenceEntity);
                 }
-                UIFormObject refEntity = HTMLUtil.parseUIEntity(referenceEntity);
+                UIFormObject refEntity = HTMLUtil.parseUIForm(referenceEntity);
                 includeMap.put(refEntity, Long.valueOf(refEntity.lastModifyTime));
                 refereneEntityList.add(referenceEntity);
                 if (logger.isDebugEnabled())
@@ -484,7 +484,7 @@ public class UIFormObject implements java.io.Serializable
 	                    String referenceEntity = tab.getRefEntity().getReferenceEntity()
 	                            .getEntityName();
 	
-	                    UIFormObject refEntity = HTMLUtil.parseUIEntity(referenceEntity);
+	                    UIFormObject refEntity = HTMLUtil.parseUIForm(referenceEntity);
 	                    includeMap.put(refEntity, Long.valueOf(refEntity.lastModifyTime));
 	                    refereneEntityList.add(referenceEntity);
 	
@@ -511,7 +511,7 @@ public class UIFormObject implements java.io.Serializable
 						flow.getLoadFlow().getExpression().parse(parsingContext);
 					} catch (ParsingException e) {
 						logger.error("Exception occured when pass the table expression: "
-                                + component.getUIID() + " in uientity: " + this.name, e);
+                                + component.getUIID() + " in form: " + this.name, e);
 					}
             		getAttribute("loadFlow", flow.getLoadFlow(), propMap, i18nMap,
                             expMap, "", parsingContext);
@@ -762,10 +762,10 @@ public class UIFormObject implements java.io.Serializable
 					}
 				} catch (ClassNotFoundException e) {
 					logger.error("Exception occured when pass the table expression: "
-                                    + component.getUIID() + " in uientity: " + this.name, e);
+                                    + component.getUIID() + " in form: " + this.name, e);
 				} catch (ParsingException e) {
 					logger.error("Exception occured when pass the table expression: "
-                                    + component.getUIID() + " in uientity: " + this.name, e);
+                                    + component.getUIID() + " in form: " + this.name, e);
 				}
             }
             else if (component instanceof UIWebTreeType)
@@ -833,10 +833,10 @@ public class UIFormObject implements java.io.Serializable
 					}
 				} catch (ClassNotFoundException e) {
 					logger.error("Exception occured when pass the table expression: "
-                                    + component.getUIID() + " in uientity: " + this.name, e);
+                                    + component.getUIID() + " in form: " + this.name, e);
 				} catch (ParsingException e) {
 					logger.error("Exception occured when pass the table expression: "
-                                    + component.getUIID() + " in uientity: " + this.name, e);
+                                    + component.getUIID() + " in form: " + this.name, e);
 				}
             }
             else
@@ -863,7 +863,7 @@ public class UIFormObject implements java.io.Serializable
                     catch (ParsingException e)
                     {
                         logger.error("Exception occured when pass the expression for the uiskin of the component: "
-                                        + component.getUIID() + " in uientity: " + this.name, e);
+                                        + component.getUIID() + " in form: " + this.name, e);
                     }
                 }
             }
@@ -1165,7 +1165,7 @@ public class UIFormObject implements java.io.Serializable
             catch (ParsingException e)
             {
                 logger.error("Exception occured when pass the expression for the attribute: "
-                                + name + " in uientity: " + this.name, e);
+                                + name + " in form: " + this.name, e);
             }
             expMap.put(name, expression);
         }
@@ -1238,7 +1238,7 @@ public class UIFormObject implements java.io.Serializable
                 catch (ParsingException e)
                 {
                     logger.error("Exception occured when pass the expression for the list attribute: "
-                                    + name + " in uientity: " + this.name, e);
+                                    + name + " in form: " + this.name, e);
                 }
             }
             else
@@ -1408,7 +1408,7 @@ public class UIFormObject implements java.io.Serializable
                     catch (EvaluationException e)
                     {
                         logger.error("Exception occured when evaluate the value of the reconfig variable: "
-                                        + key + " in uientity: " + name, e);
+                                        + key + " in form: " + name, e);
                     }
                 }
             }
@@ -1424,16 +1424,20 @@ public class UIFormObject implements java.io.Serializable
             String entityName = (String)iterator.next();
             if (!entityMap.containsKey(entityName))
             {
-                UIFormObject entityObj = HTMLUtil.parseUIEntity(entityName);
+                UIFormObject entityObj = HTMLUtil.parseUIForm(entityName);
                 entityObj.parseReferenceEntity(entityMap);
                 entityMap.put(entityName, entityObj);
             }
         }
     }
 
-    public List<OpType> getEventHandler(String callAjaxOpName)
+    public List<OpType> getEventHandler(String opName)
     {
-        return callServerSideOpMap.get(callAjaxOpName);
+        List<OpType> ops = callServerSideOpMap.get(opName);
+        if (ops != null) {
+        	return ops;
+        }
+        return null;
     }
 
     public DefaultParsingContext getVariablePContext()
@@ -1480,6 +1484,118 @@ public class UIFormObject implements java.io.Serializable
         return (Map)expressionMap.get(componentID);
     }
     
+	public void addWorkflowAction(String eventConsumer, MissionNodeType node) throws ParsingException {
+		if (workflowActions == null) {
+			workflowActions = new ArrayList();
+		} else {
+			clearWorkflowActions();
+		}
+		workflowActions.add(node.getActionName());
+
+		// internal refresh.
+		UIEntity entity = IServerServiceManager.INSTANCE.getEntityManager()
+    			.getEntity(name, UIEntity.class);
+		
+		boolean hasActionPanel = false;
+		List<UIComponentType> panelList = entity.getBody().getComponents();
+		for (UIComponentType panel : panelList) {
+			if ("actionPanel".equals(panel.getUIID())) {
+				UIPanelType actionPanel = (UIPanelType) panel;
+				
+				UIButtonType button = new UIButtonType();
+				button.setUIID(node.getActionName());
+				ExpressionPropertyType property = new ExpressionPropertyType();
+				ExpressionType expr = new ExpressionType();
+				expr.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; \n{ return UserContext.hasRole(\""
+											+ node.getPartyType() + "\"); }");
+				property.setExpression(expr);
+				button.setVisible(property);
+				
+				StringPropertyType strProperty = new StringPropertyType();
+				if (node.getActionText() == null) {
+					node.setActionText("Approve");
+				}
+				strProperty.setValue(node.getActionText());
+				button.setText(strProperty);
+				ClickListenerType clickListener = new ClickListenerType();
+				FunctionCallType func = new FunctionCallType();
+				func.setFunctionName("invokeDynamicFunction(this, '" + node.getActionName() + "')");
+				clickListener.setHandler(func);
+				button.getEventListeners().add(clickListener);
+				
+				ComponentConstraintType constraint = new ComponentConstraintType();
+				constraint.setComponentId(node.getActionName());
+				TableLayoutConstraintType position = new TableLayoutConstraintType();
+				position.setX(actionPanel.getComponents().size());
+				position.setY(0);
+				constraint.setConstraint(position);
+				actionPanel.getComponents().add(button);
+				actionPanel.getLayoutConstraints().add(constraint);
+				TableLayoutType tableLayout = (TableLayoutType) actionPanel.getLayout();
+				tableLayout.getColumnWidthWeights().add(1.0D);
+				
+				FunctionType function = new FunctionType();
+				function.setFunctionName(node.getActionName());
+				OpInvokeWorkflowType op = new OpInvokeWorkflowType();
+				op.setEventConsumer(eventConsumer);
+				op.setExpression(node.getActionExpression());
+				op.setPartyType(node.getPartyType());
+				op.setOperationId(node.getActionName());
+				function.getOps().add(op);
+				entity.getEventHandlers().add(function);
+				
+				hasActionPanel = true;
+				break;
+			}
+		}
+		if (!hasActionPanel) {
+			throw new IllegalStateException("Workflow action has to be added on ActionPanel, this panel is not defined!");
+		}
+		
+		logger.info("reload form {} due to workflow customization", name);
+		load();
+	}
+    
+    public void clearWorkflowActions() {
+		if (this.workflowActions != null && this.workflowActions.size() > 0) {
+			UIEntity entity = IServerServiceManager.INSTANCE.getEntityManager()
+					.getEntity(name, UIEntity.class);
+			for (String actionName : workflowActions) {
+				boolean hasActionPanel = false;
+				List<UIComponentType> panelList = entity.getBody().getComponents();
+				for (UIComponentType panel : panelList) {
+					if ("actionPanel".equals(panel.getUIID())) {
+						logger.info("remove workflow action {} from form {}", name);
+						UIPanelType actionPanel = (UIPanelType) panel;
+						for (UIComponentType comp : actionPanel.getComponents()) {
+							if (actionName.equals(comp.getUIID())) {
+								actionPanel.getComponents().remove(comp);
+								break;
+							}
+						}
+						
+						((TableLayoutType)actionPanel.getLayout()).getColumnWidthWeights().remove(0);
+						for (ComponentConstraintType constraint : actionPanel.getLayoutConstraints()) {
+							if (actionName.equals(constraint.getComponentId())) {
+								actionPanel.getLayoutConstraints().remove(constraint);
+								break;
+							}
+						}
+						
+						for (FunctionType func : entity.getEventHandlers()) {
+							if (actionName.equals(func.getFunctionName())) {
+								entity.getEventHandlers().remove(func);
+								break;
+							}
+						}
+					}
+				}
+			}
+			this.workflowActions.clear();
+		}
+		
+	}
+    
     public void addDynamicLink(String uipanel, String uiwidget, String linkInfo) {
     	Map prop = getComponentProperty(uiwidget);
     	if (prop == null) {
@@ -1491,6 +1607,10 @@ public class UIFormObject implements java.io.Serializable
     
     public void addDynamicItem(HTMLDynamicUIItem item) throws EntityNotFoundException, 
 		ParsingException, ClassNotFoundException {
+    	if (this.dynamicItems == null) {
+    		this.dynamicItems = new HashMap<String, Map<String, List<HTMLDynamicUIItem>>>();
+    	}
+    	
 		if (!this.dynamicItems.containsKey(AppContext.get().getAppName())) {
 			this.dynamicItems.put(AppContext.get().getAppName(), new HashMap());
 		}
@@ -1505,7 +1625,7 @@ public class UIFormObject implements java.io.Serializable
 	}
 	
 	public List<HTMLDynamicUIItem> getDynamicItems(String panelId, String filter) {
-		if (AppContext.get() == null) {
+		if (AppContext.get() == null || this.dynamicItems == null) {
 			// App is not ready yet.
 			return null;
 		}
@@ -1527,10 +1647,15 @@ public class UIFormObject implements java.io.Serializable
 	}
 	
 	public void clearDynamicItems() {
-		this.dynamicItems.clear();
+		if (this.dynamicItems != null) {
+			this.dynamicItems.clear();
+		}
 	}
 	
 	public boolean hasDynamicItems() {
+		if (this.dynamicItems == null) {
+			return false;
+		}
 		return this.dynamicItems.size() > 0;
 	}
     

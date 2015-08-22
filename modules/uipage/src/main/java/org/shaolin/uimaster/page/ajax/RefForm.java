@@ -340,7 +340,7 @@ public class RefForm extends Container implements Serializable
             //in this method, the process sequence is from inside to outside
             //then call HTMLUIEntity.parse to process the security controls configured on lower level(in this case, security controls configured within uientity1)
             //in this method, the process sequence is from outside to inside
-            UIFormObject entity = HTMLUtil.parseUIEntity(this.getUIEntityName());
+            UIFormObject entity = HTMLUtil.parseUIForm(this.getUIEntityName());
             
             OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
             DefaultEvaluationContext evaContext = new DefaultEvaluationContext();

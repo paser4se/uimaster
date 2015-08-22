@@ -150,8 +150,11 @@ public class ODEntityContext extends ODContext
 					try
 					{
 						Object variableValue = dEContext.getVariableValue(keys[i]);
-						if(variableValue == null)
-							logger.info("Local variable["+keys[i]+"] value is null.");
+						if(variableValue == null) {
+							if (logger.isDebugEnabled()) {
+								logger.debug("Local variable["+keys[i]+"] value is null.");
+							}
+						}
 					}catch(Exception e){}
 				}
 			}

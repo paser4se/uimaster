@@ -806,7 +806,7 @@ public class HTMLSnapshotContext implements Serializable
         Object entityObj = refEntityMap.get(entityName);
         if (entityObj == null)
         {
-            entityObj = HTMLUtil.parseUIEntity(entityName);
+            entityObj = HTMLUtil.parseUIForm(entityName);
             addRefEntity(entityName, entityObj);
         }
         return entityObj;

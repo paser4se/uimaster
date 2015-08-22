@@ -442,13 +442,17 @@
 			<xs:extension base="wf:generalNodeType">
 				<xs:sequence>
 					<xs:element name="filter" type="wf:destWithFilterType" minOccurs="0"></xs:element>
-					<xs:element name="actionPage" type="xs:string" minOccurs="0"></xs:element>
-					<xs:element name="actionPosition" type="xs:string" minOccurs="0"></xs:element>
-					<xs:element name="actionProperty" type="xs:string" minOccurs="0"></xs:element>
+					<!-- the action defines which page triggers this mission. -->
+					<xs:element name="actionExpression" type="Common:ExpressionType" minOccurs="0" />
 				</xs:sequence>
 				<xs:attribute name="expiredDays" type="xs:int" />
 				<xs:attribute name="expiredHours" type="xs:int" />
 				<xs:attribute name="expiredAction" type="xs:string" />
+				<xs:attribute name="actionPage" type="xs:string" />
+				<xs:attribute name="actionName" type="xs:string" />
+				<xs:attribute name="actionText" type="xs:string" />
+				<xs:attribute name="beforeActionWidget" type="xs:string" />
+				<xs:attribute name="nextActionWidget" type="xs:string" />
 				<xs:attribute name="partyType" type="xs:string">
 							<xs:annotation>
 								<xs:documentation>

@@ -15,10 +15,11 @@
 */
 package org.shaolin.uimaster.page.ajax.handlers;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.shaolin.bmdp.datamodel.common.NameExpressionType;
 import org.shaolin.bmdp.datamodel.page.OpCallAjaxType;
 import org.shaolin.bmdp.datamodel.page.OpInvokeWorkflowType;
 import org.shaolin.bmdp.datamodel.page.OpType;
@@ -69,15 +70,18 @@ public class EventHandler implements IAjaxHandler {
 						value = callAjaxOp.getExp().evaluate(context);
 					} else if (op instanceof OpInvokeWorkflowType) {
 						OpInvokeWorkflowType wfOp = (OpInvokeWorkflowType) op;
-						Boolean flag = (Boolean)wfOp.getCondition().evaluate(context);
-						if (flag.booleanValue()) {
-							FlowEvent e = new FlowEvent(wfOp.getEventProducer());
-							for (NameExpressionType nameExpr : wfOp.getOutDataMappings()) {
-								e.setAttribute(nameExpr.getName(), nameExpr.getExpression().evaluate(context));
+						FlowEvent e = new FlowEvent(wfOp.getEventConsumer());
+						Map value0 = (Map)wfOp.getExpression().evaluate(context);
+						if (value0 != null && value0.size() > 0) {
+							Iterator i = value0.keySet().iterator();
+							while (i.hasNext()) {
+								String key = (String)i.next();
+								e.setAttribute(key, value0.get(key));
 							}
-							EventProcessor processor = AppContext.get().getService(EventProcessor.class);
-							processor.process(e);
 						}
+						EventProcessor processor = (EventProcessor)AppContext.get().getService(
+								Class.forName("org.shaolin.bmdp.workflow.internal.WorkFlowEventProcessor"));
+						processor.process(e);
 					}
 				} catch (EvaluationException ex) {
 					log.warn("This statement can not be evaluated: \n" + op.toString());

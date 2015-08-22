@@ -53,10 +53,12 @@
 		<xs:complexContent>
 			<xs:extension base="Page:OpType">
 				<xs:sequence>
-					<xs:element name="condition" type="Common:ExpressionType"/>
-					<xs:element maxOccurs="unbounded" minOccurs="0" name="outDataMapping" type="Common:NameExpressionType"/>
+					 <xs:element name="expression" type="Common:ExpressionType" minOccurs="0" />
 				</xs:sequence>
-				<xs:attribute name="eventProducer" type="xs:string" use="required"/>
+				<xs:attribute name="eventConsumer" type="xs:string" use="required"/>
+				<xs:attribute name="partyType" type="xs:string" use="required"/>
+				<xs:attribute name="beforeActionWidget" type="xs:string" />
+    <xs:attribute name="nextActionWidget" type="xs:string" />
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>

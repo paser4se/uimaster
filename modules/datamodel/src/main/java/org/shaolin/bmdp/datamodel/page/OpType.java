@@ -40,7 +40,8 @@ import javax.xml.bind.annotation.XmlType;
     OpSetVariableType.class,
     OpExecuteScriptType.class,
     CallComponentMappingOp.class,
-    OpCallAjaxType.class
+    OpCallAjaxType.class,
+    OpInvokeWorkflowType.class
 })
 public class OpType
     implements Serializable

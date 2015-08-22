@@ -400,26 +400,26 @@ public class FlowObject implements java.io.Serializable {
             	if (m.getActionPage() == null) {
             		continue;
             	}
+            	if (logger.isDebugEnabled()) {
+            		logger.debug("register {} Dyanmic workflow action to UI: {}", n.toString(), m.getActionPage());
+            	}
             	try {
-            		//TODO: add the dynamic ui.
         			UIFormObject uiCache = PageCacheManager.getUIFormObject(m.getActionPage());
-        			m.getActionPosition();
-        			m.getActionProperty();
-//        			uiCache.addDynamicItem(object);
+        			uiCache.addWorkflowAction(n.getFlow().getEventConsumer(), m);
         		} catch (EntityNotFoundException e0) {
         			try {
         				UIPageObject uiCache = PageCacheManager.getUIPageObject(m.getActionPage());
-        				m.getActionPosition();
-            			m.getActionProperty();
-        				//uiCache.getUIForm().addDynamicItem(object);
+        				uiCache.getUIForm().addWorkflowAction(n.getFlow().getEventConsumer(), m);
         			} catch (Exception e1) {
-        				logger.error("Error to load the dynamic UI items: " + e0.getMessage(), e0);
+        				logger.error("Error to load the workflow action: " + e1.getMessage() 
+            					+ ",ActionPage: " + m.getActionPage()
+            					+ ",Node Info: " + n.toString(), e1);
         			} 
-        		} 
-//            	catch (ParsingException | ClassNotFoundException e1) {
-//        			logger.error("Error to load the dynamic UI items: " + e1.getMessage(), e1);
-//        		}
-//            	
+        		} catch (ParsingException e1) {
+        			logger.error("Error to load the workflow action: " + e1.getMessage() 
+        					+ ",ActionPage: " + m.getActionPage()
+        					+ ",Node Info: " + n.toString(), e1);
+				} 
                 Set<String> set = initialEventNodes.get(n.getAppName() + "-" + n.getFlowName());
                 if (set != null && set.contains(n.getName())) {
                     l.add(n);

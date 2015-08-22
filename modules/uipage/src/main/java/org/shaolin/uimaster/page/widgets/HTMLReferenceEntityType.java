@@ -323,7 +323,7 @@ public class HTMLReferenceEntityType extends HTMLWidgetType implements Serializa
 
     private void generateHTML(HTMLSnapshotContext context) throws JspException
     {
-    	UIFormObject entity = HTMLUtil.parseUIEntity(getReferenceEntity());
+    	UIFormObject entity = HTMLUtil.parseUIForm(getReferenceEntity());
     	
     	EvaluationContext evaContext = context.getODMapperContext(this.getName());
     	if (evaContext == null) {

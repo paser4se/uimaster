@@ -478,8 +478,12 @@ public abstract class HTMLWidgetType implements Serializable
         }
 
         String functionName = "defaultname." + functionPrefix + handler;
-        String parameter = "defaultname." + getName() + ",event";
-        return "javascript:" + functionName + "(" + parameter + ")";
+        if (handler.indexOf('(') == -1) {  
+	        String parameter = "defaultname." + getName() + ",event";
+	        return "javascript:" + functionName + "(" + parameter + ")";
+        } else {
+        	return "javascript:" + functionName;
+        }
     }
 
     public String getEventListener(String name)
@@ -706,11 +710,11 @@ public abstract class HTMLWidgetType implements Serializable
 
     public void generateWidget(HTMLSnapshotContext context)
     {
-        String visibleValue = (String)getAllAttribute("visible");
+        Object visibleValue = getAllAttribute("visible");
         boolean unVisible = false;
         if ( visibleValue != null )
         {
-            unVisible = visibleValue.equals("false");
+            unVisible = visibleValue.toString().equals("false");
         }
         if ( unVisible )
         {
