@@ -102,7 +102,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 	
 	@Override
-	public List<ITask> getAllTasks(TaskStatusType status) {
+	public List<ITask> getTasks(TaskStatusType status) {
 		List<ITask> partyTasks = new ArrayList<ITask>();
 		Collection<ITask> tasks= workingTasks.values();
 		for (ITask t : tasks) {
@@ -114,8 +114,25 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 	
 	@Override
+	public List<ITask> getTasksBySessionId(String sessionId) {
+		if (sessionId == null || sessionId.trim().length() == 0) {
+			throw new IllegalArgumentException("Session Id can't be empty.");
+		}
+		
+		List<ITask> sessionTasks = new ArrayList<ITask>();
+		Collection<ITask> tasks= workingTasks.values();
+		for (ITask t : tasks) {
+			if (t.getSessionId().equals(sessionId)) {
+				sessionTasks.add(t);
+			}
+		}
+		return sessionTasks;
+	}
+	
+	
+	@Override
 	public List<ITask> getAllExpiredTasks() {
-		return getAllTasks(TaskStatusType.EXPIRED);
+		return getTasks(TaskStatusType.EXPIRED);
 	}
 	
 	@Override
@@ -333,6 +350,8 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		history.setSendSMS(task.getSendSMS());
 		history.setStatus(task.getStatus());
 		history.setSubject(task.getSubject());
+		history.setComments(task.getComments());
+		history.setSessionId(history.getSessionId());
 		
 		session.save(history);
 		session.delete(task);

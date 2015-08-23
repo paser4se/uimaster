@@ -164,9 +164,11 @@ public class FlowContainer {
             logger.trace("Schedule timer on {}, dealy time is {}", 
             		currentNode.toString(), timeout.toString());
         }
+    	
         //Notify the parties
         ICoordinatorService coordinator = AppContext.get().getService(ICoordinatorService.class);
         ITask task = new TaskImpl();
+        task.setSessionId(flowContext.getSession().getID());
         task.setSubject("Task: " + mission.getName());
         task.setDescription(mission.getDescription());
         task.setPartyType(mission.getPartyType());

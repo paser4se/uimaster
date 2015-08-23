@@ -217,30 +217,6 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
         // Child flow input rule : Child flow first node can only access the previous node output
         // of the child flow node. 
         stacks.push(new FlowState(nodeInfo, globalVarNames, globalVarNamesSet, globalVariables));
-        for (int i = 0, t = childGlobalVarNames.size(); i < t; i++) {
-            String childVarName = childGlobalVarNames.get(i);
-            //TODO:
-			/**if (!outputVariables.copyValue(childVarName, inputVariables)) {
-				
-				if (globalVariables.getValue(childVarName) != null) {
-					outputVariables.copyValue(childVarName, globalVariables);
-				} else {
-					// childVarName doesn't exist from invoker flow, try to initial it.
-					List<ScriptParamInfo> params = childInfo.getFlow().getConf().getParams();
-					for (ScriptParamInfo param : params) {
-						if (param.getName().equals(childVarName)) {
-							if (primitiveDefaultValues2.containsKey(param.getType())) {
-								outputVariables.putValue(childVarName,
-										primitiveDefaultValues2.get(param.getType()));
-							} else {
-								outputVariables.putValue(childVarName, null);
-							}
-							break;
-						}
-					}
-				}	
-			}*/
-        }
         globalVarNames = childGlobalVarNames;
         globalVarNamesSet = childGlobalVarNamesSet;
         localVariables.getVariableObjects().clear();

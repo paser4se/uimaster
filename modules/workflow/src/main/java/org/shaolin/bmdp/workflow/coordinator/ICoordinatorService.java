@@ -45,12 +45,20 @@ public interface ICoordinatorService {
 	List<ITask> getAllTasks();
 	
 	/**
+	 * Get tasks by session id.
+	 * 
+	 * @param sessionId
+	 * @return
+	 */
+	List<ITask> getTasksBySessionId(String sessionId);
+	
+	/**
 	 * How many tasks that the organization/company is running.
 	 * 
 	 * @param status
 	 * @return
 	 */
-	List<ITask> getAllTasks(TaskStatusType status);
+	List<ITask> getTasks(TaskStatusType status);
 	
 	List<ITask> getAllExpiredTasks();	
 	

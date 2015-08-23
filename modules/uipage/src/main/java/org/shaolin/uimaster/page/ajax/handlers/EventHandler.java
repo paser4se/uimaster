@@ -79,6 +79,7 @@ public class EventHandler implements IAjaxHandler {
 								e.setAttribute(key, value0.get(key));
 							}
 						}
+						e.setComments(context.getRequest().getParameter("_comments"));
 						EventProcessor processor = (EventProcessor)AppContext.get().getService(
 								Class.forName("org.shaolin.bmdp.workflow.internal.WorkFlowEventProcessor"));
 						processor.process(e);

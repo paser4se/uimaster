@@ -169,6 +169,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
             if (scFlow.getId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.id", scFlow.getId()));
             }
+            if (scFlow.getSessionId() != null && scFlow.getSessionId().length() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sessionId", scFlow.getSessionId()));
+            }
             if (true) {
                 inFlowCriteria.add(createCriterion(Operator.IN, "inFlow.statusInt", org.shaolin.bmdp.workflow.ce.TaskStatusType.NOTSTARTED.getIntValue()));
             }
@@ -195,6 +198,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
             if (scFlow.getId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.id", scFlow.getId()));
             }
+            if (scFlow.getSessionId() != null && scFlow.getSessionId().length() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sessionId", scFlow.getSessionId()));
+            }
             if (true) {
                 inFlowCriteria.add(createCriterion(Operator.IN, "inFlow.statusInt", org.shaolin.bmdp.workflow.ce.TaskStatusType.NOTSTARTED.getIntValue()));
             }
@@ -217,6 +223,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
             if (scFlow.getId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.id", scFlow.getId()));
             }
+            if (scFlow.getSessionId() != null && scFlow.getSessionId().length() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sessionId", scFlow.getSessionId()));
+            }
             if (true) {
                 inFlowCriteria.add(createCriterion(Operator.IN, "inFlow.statusInt", org.shaolin.bmdp.workflow.ce.TaskStatusType.NOTSTARTED.getIntValue()));
             }
@@ -236,6 +245,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
 
             if (scFlow.getId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.id", scFlow.getId()));
+            }
+            if (scFlow.getSessionId() != null && scFlow.getSessionId().length() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sessionId", scFlow.getSessionId()));
             }
             if (true) {
                 inFlowCriteria.add(createCriterion(Operator.IN, "inFlow.statusInt", org.shaolin.bmdp.workflow.ce.TaskStatusType.NOTSTARTED.getIntValue()));
@@ -262,6 +274,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
 
             if (scFlow.getId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.id", scFlow.getId()));
+            }
+            if (scFlow.getSessionId() != null && scFlow.getSessionId().length() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sessionId", scFlow.getSessionId()));
             }
             if (scFlow.getSubject() != null && scFlow.getSubject().length() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.START_WITH_RIGHT, "inFlow.subject", scFlow.getSubject()));
@@ -297,6 +312,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
 
             if (scFlow.getId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.id", scFlow.getId()));
+            }
+            if (scFlow.getSessionId() != null && scFlow.getSessionId().length() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sessionId", scFlow.getSessionId()));
             }
             if (scFlow.getSubject() != null && scFlow.getSubject().length() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.START_WITH_RIGHT, "inFlow.subject", scFlow.getSubject()));
@@ -329,6 +347,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
             if (scFlow.getId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.id", scFlow.getId()));
             }
+            if (scFlow.getSessionId() != null && scFlow.getSessionId().length() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sessionId", scFlow.getSessionId()));
+            }
             if (scFlow.getSubject() != null && scFlow.getSubject().length() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.START_WITH_RIGHT, "inFlow.subject", scFlow.getSubject()));
             }
@@ -357,6 +378,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
 
             if (scFlow.getId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.id", scFlow.getId()));
+            }
+            if (scFlow.getSessionId() != null && scFlow.getSessionId().length() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sessionId", scFlow.getSessionId()));
             }
             if (scFlow.getSubject() != null && scFlow.getSubject().length() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.START_WITH_RIGHT, "inFlow.subject", scFlow.getSubject()));

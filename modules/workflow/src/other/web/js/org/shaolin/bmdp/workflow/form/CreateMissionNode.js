@@ -156,6 +156,8 @@ function org_shaolin_bmdp_workflow_form_CreateMissionNode(json)
 
     Form.Cancel = org_shaolin_bmdp_workflow_form_CreateMissionNode_Cancel;
 
+    Form.invokeDynamicFunction = org_shaolin_bmdp_workflow_form_CreateMissionNode_invokeDynamicFunction;
+
     Form.__entityName="org.shaolin.bmdp.workflow.form.CreateMissionNode";
 
     Form.init();
@@ -193,6 +195,17 @@ function org_shaolin_bmdp_workflow_form_CreateMissionNode(json)
 
         var UIEntity = this;
     }/* Gen_Last:org_shaolin_bmdp_workflow_form_CreateMissionNode_Cancel */
+
+
+    /* auto generated eventlistener function declaration */
+    function org_shaolin_bmdp_workflow_form_CreateMissionNode_invokeDynamicFunction(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_CreateMissionNode_invokeDynamicFunction */
+
+        // cal ajax function. 
+
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),event,UIMaster.getValue(eventsource),this.__entityName);
+
+        var UIEntity = this;
+    }/* Gen_Last:org_shaolin_bmdp_workflow_form_CreateMissionNode_invokeDynamicFunction */
 
 
 

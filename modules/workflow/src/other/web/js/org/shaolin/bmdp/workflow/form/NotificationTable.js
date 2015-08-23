@@ -70,6 +70,8 @@ function org_shaolin_bmdp_workflow_form_NotificationTable(json)
 
     Form.Cancel = org_shaolin_bmdp_workflow_form_NotificationTable_Cancel;
 
+    Form.invokeDynamicFunction = org_shaolin_bmdp_workflow_form_NotificationTable_invokeDynamicFunction;
+
     Form.__entityName="org.shaolin.bmdp.workflow.form.NotificationTable";
 
     Form.init();
@@ -122,6 +124,17 @@ function org_shaolin_bmdp_workflow_form_NotificationTable(json)
 
         var UIEntity = this;
     }/* Gen_Last:org_shaolin_bmdp_workflow_form_NotificationTable_Cancel */
+
+
+    /* auto generated eventlistener function declaration */
+    function org_shaolin_bmdp_workflow_form_NotificationTable_invokeDynamicFunction(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_NotificationTable_invokeDynamicFunction */
+
+        // cal ajax function. 
+
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),event,UIMaster.getValue(eventsource),this.__entityName);
+
+        var UIEntity = this;
+    }/* Gen_Last:org_shaolin_bmdp_workflow_form_NotificationTable_invokeDynamicFunction */
 
 
 

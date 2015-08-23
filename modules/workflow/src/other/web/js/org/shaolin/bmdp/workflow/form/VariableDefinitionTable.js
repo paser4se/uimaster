@@ -43,6 +43,8 @@ function org_shaolin_bmdp_workflow_form_VariableDefinitionTable(json)
 
     Form.deleteItem = org_shaolin_bmdp_workflow_form_VariableDefinitionTable_deleteItem;
 
+    Form.invokeDynamicFunction = org_shaolin_bmdp_workflow_form_VariableDefinitionTable_invokeDynamicFunction;
+
     Form.__entityName="org.shaolin.bmdp.workflow.form.VariableDefinitionTable";
 
     Form.init();
@@ -73,6 +75,17 @@ function org_shaolin_bmdp_workflow_form_VariableDefinitionTable(json)
 
         var UIEntity = this;
     }/* Gen_Last:org_shaolin_bmdp_workflow_form_VariableDefinitionTable_deleteItem */
+
+
+    /* auto generated eventlistener function declaration */
+    function org_shaolin_bmdp_workflow_form_VariableDefinitionTable_invokeDynamicFunction(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_VariableDefinitionTable_invokeDynamicFunction */
+
+        // cal ajax function. 
+
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),event,UIMaster.getValue(eventsource),this.__entityName);
+
+        var UIEntity = this;
+    }/* Gen_Last:org_shaolin_bmdp_workflow_form_VariableDefinitionTable_invokeDynamicFunction */
 
 
 

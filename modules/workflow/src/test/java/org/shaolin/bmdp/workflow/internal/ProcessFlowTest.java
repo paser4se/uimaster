@@ -18,14 +18,11 @@ public class ProcessFlowTest extends TestContext {
 	
 	private MockEventProducer producer = new MockEventProducer();
 	
-	private MockSessionService sessionService = new MockSessionService();
-	
 	public ProcessFlowTest() {
 	}
 	
 	@Test
 	public void testExecuteFlow() throws Exception {
-		AppContext.get().register(sessionService);
 		AppContext.get().register(coordinator);
 		AppContext.get().register(resourceManager);
 		wfservice.startService();
@@ -68,6 +65,9 @@ public class ProcessFlowTest extends TestContext {
         coordinator.completeTask(coordinator.getAllTasks().get(0));// on delivery
         Thread.sleep(waitSeconds);
         
+        //TODO: verify session.
+        
+        
         Assert.assertEquals(0, coordinator.getAllTasks().size());
     }
 	
@@ -81,6 +81,11 @@ public class ProcessFlowTest extends TestContext {
 		@Override
 		public void assignOnwer(ITask task) {
 			task.setPartyId(1);
+		}
+
+		@Override
+		public Object getResource(long partyId) {
+			return null;
 		}
 		
 	}

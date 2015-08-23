@@ -20,10 +20,13 @@
 			<bediagram:type xsi:type="bediagram:LongType" />
 		</bediagram:member>
 		<bediagram:member>
-			<!-- the login user id -->
 			<bediagram:name>partyType</bediagram:name>
 			<bediagram:type xsi:type="bediagram:StringType" />
 		</bediagram:member>
+		<bediagram:member>
+   <bediagram:name>sessionId</bediagram:name>
+   <bediagram:type xsi:type="bediagram:StringType" />
+  </bediagram:member>
 		<bediagram:member>
 			<bediagram:name>subject</bediagram:name>
 			<bediagram:type xsi:type="bediagram:StringType" />
@@ -32,6 +35,10 @@
 			<bediagram:name>description</bediagram:name>
 			<bediagram:type xsi:type="bediagram:StringType" />
 		</bediagram:member>
+		<bediagram:member>
+   <bediagram:name>comments</bediagram:name>
+   <bediagram:type xsi:type="bediagram:StringType" />
+  </bediagram:member>
 
  <bediagram:member>
 			<bediagram:name>expiredTime</bediagram:name>
@@ -98,10 +105,13 @@
 			<bediagram:type xsi:type="bediagram:LongType" />
 		</bediagram:member>
 		<bediagram:member>
-			<!-- the login user id -->
 			<bediagram:name>partyType</bediagram:name>
 			<bediagram:type xsi:type="bediagram:StringType" />
 		</bediagram:member>
+		<bediagram:member>
+   <bediagram:name>sessionId</bediagram:name>
+   <bediagram:type xsi:type="bediagram:StringType" />
+  </bediagram:member>
 		<bediagram:member>
 			<bediagram:name>subject</bediagram:name>
 			<bediagram:type xsi:type="bediagram:StringType" />
@@ -110,6 +120,10 @@
 			<bediagram:name>description</bediagram:name>
 			<bediagram:type xsi:type="bediagram:StringType" />
 		</bediagram:member>
+		<bediagram:member>
+   <bediagram:name>comments</bediagram:name>
+   <bediagram:type xsi:type="bediagram:StringType" />
+  </bediagram:member>
 
  <bediagram:member>
 			<bediagram:name>expiredTime</bediagram:name>

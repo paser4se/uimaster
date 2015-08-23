@@ -29,6 +29,8 @@ public class FlowEvent implements Event {
 
 	private String id_;
 	
+	private String comments;
+	
 	private final String eventProducer_;
 	
 	public FlowEvent(String eventProducer) {
@@ -89,4 +91,11 @@ public class FlowEvent implements Event {
 		this.id_ = id;
 	}
 
+	public String getComments() {
+		return comments;
+	}
+
+	public void setComments(String comments) {
+		this.comments = comments;
+	}
 }

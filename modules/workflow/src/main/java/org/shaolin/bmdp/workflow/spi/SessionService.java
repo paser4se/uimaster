@@ -32,6 +32,9 @@ import org.shaolin.bmdp.runtime.spi.Event;
  * 
  */
 public interface SessionService {
+	
+	public static final String SESSION_ID = "SessionId";
+    
     /**
      * Return related sessionid of the event.
      * 
