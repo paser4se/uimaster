@@ -43,6 +43,7 @@ import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
 import org.shaolin.bmdp.workflow.coordinator.IResourceManager;
 import org.shaolin.bmdp.workflow.coordinator.ITaskListener;
 import org.shaolin.bmdp.workflow.dao.CoordinatorModel;
+import org.shaolin.bmdp.workflow.internal.FlowContainer.MissionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -374,6 +375,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		List<TaskImpl> tasks = CoordinatorModel.INSTANCE.searchTasks(condition, null, 0, -1);
 		for (TaskImpl t : tasks) {
 			workingTasks.put(t.getId(), t);
+			t.setListener(new MissionListener(t));
 			
 			if (t.getStatus() == TaskStatusType.NOTSTARTED || t.getStatus() == TaskStatusType.INPROGRESS) {
 				if (System.currentTimeMillis() < t.getExpiredTime().getTime()) {

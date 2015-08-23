@@ -56,27 +56,6 @@ import org.slf4j.LoggerFactory;
  * Flow engine is the container of a flow template. A flow template has 
  * its owner flow engine accordingly. When engine starts that all defined 
  * producers will be generated as EventConsumers for event processing.
- * <br>
- * The EventProducer can be many or one such CCR event producer, flow 
- * timeout event producer or etc.
- * <br>
- * The engine is created by AppInfo.name which represents the "engineName" here.
- * <br>
- * For example:
- * <br>1. template AppInfo.name = OCSEventProducer
- * <br>2. template AppInfo.name = OCSEventProducer1
- * <br>Thus, each flow template has a FlowEngine created accordingly. 
- * <br>
- * <br> An event driven process:
- * An event received --> EventProcessor --> EventConsumers --> EventProducer
- * <br>
- * For example: wired Connector with Workflow instance while engine initialing.
- * <br>1. Connector ProtocolNode will be exposed as EventProcessor service.
- * <br>2. Define the EventProducer in worklfow template which wires to connector identifier.
- * <br>3. the all real EventProcessor services will be available in com.hp.atom.commons.container.Container
- * <br>4. Flow engine created by template and generated EventConsumers according to the defined EventProcessor.
- * <br>5. create WorkFlowEventProcessor with EventConsumers together.
- * <br>6. FlowContainer registers WorkFlowEventProcessor to all EventProcessor service after flow engine ready.
  * 
  *  Shaolin Wu(July 20th, 2013)
  */
@@ -682,7 +661,7 @@ public class FlowEngine {
                     events.add(event);
                     pendingEvents.put(sessionId, events);
                 }
-                event.setAttribute(BuiltInAttributeConstant.KEY_NODE, destNode);
+                //event.setAttribute(BuiltInAttributeConstant.KEY_NODE, destNode);
                 event.setAttribute(BuiltInAttributeConstant.KEY_RUNTIME, newFlowContext);
                 slaveLock.releaseLock(sessionId);
                 if (logger.isTraceEnabled()) {

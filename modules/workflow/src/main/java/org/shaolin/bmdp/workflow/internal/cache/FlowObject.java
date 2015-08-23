@@ -77,6 +77,9 @@ public class FlowObject implements java.io.Serializable {
 		DefaultParsingContext local = new DefaultParsingContext();
 		for (VariableType var : variables) {
 			Class<?> clazz = VariableUtil.getVariableClass(var);
+			if (!Serializable.class.isAssignableFrom(clazz)) {
+				throw new IllegalArgumentException("Variable " + var.getName() + " is not implemented Serializable interface.");
+			}
 			local.setVariableClass(var.getName(), clazz);
 		}
 		local.setVariableClass(FlowEngine.EVENT_VAR_NAME, Event.class);
@@ -526,6 +529,10 @@ public class FlowObject implements java.io.Serializable {
             return context;
         }
         for (VariableType param : flow.getConf().getParams()) {
+        	Class c = VariableUtil.getVariableClass(param);
+        	if (!Serializable.class.isAssignableFrom(c)) {
+				throw new IllegalArgumentException("Variable " + param.getName() + " is not implemented Serializable interface.");
+			}
             if (!globalVarsSet.contains(param.getName())) {
                 globalVarsSet.add(param.getName());
             }
@@ -542,6 +549,10 @@ public class FlowObject implements java.io.Serializable {
     	if (node.getProcessHandler() != null && node.getProcessHandler().getVars().size() > 0) {
 			HashMap<String, Object> values = new HashMap<String, Object>();
 			for (ParamType param : node.getProcessHandler().getVars()) {
+				Class c = VariableUtil.getVariableClass(param);
+				if (!Serializable.class.isAssignableFrom(c)) {
+					throw new IllegalArgumentException("Variable " + param.getName() + " is not implemented Serializable interface.");
+				}
 				values.put(param.getName(), VariableUtil.createVariableObject(param));
 			}
     		localDefaultValues.put(node.toString(), values);

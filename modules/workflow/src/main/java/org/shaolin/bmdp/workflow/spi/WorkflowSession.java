@@ -15,7 +15,7 @@
 */
 package org.shaolin.bmdp.workflow.spi;
 
-public interface WorkflowSession {
+public interface WorkflowSession extends java.io.Serializable {
 	
 	public static final int COMMIT = 1;
 	public static final int ROLLBACK = 0;

@@ -39,7 +39,7 @@
 		<ns2:mission-node name="createdOrder" expiredDays="0" expiredHours="1" partyType="productionManager">
 			<ns2:process>
 				<ns2:var name="orderObject" category="JavaPrimitive" xsi:type="ParamType"	scope="InOut">
-					<type entityName="java.lang.Object"></type>
+					<type entityName="java.lang.String"></type>
 				</ns2:var>
 				<ns2:expression>
 					<expressionString><![CDATA[{
@@ -54,7 +54,7 @@
 		<ns2:mission-node name="onProduction" expiredDays="0" expiredHours="1" partyType="productionManager">
 			<ns2:process>
 				<ns2:var name="orderObject" category="JavaPrimitive" xsi:type="ParamType"	scope="InOut">
-					<type entityName="java.lang.Object"></type>
+					<type entityName="java.lang.String"></type>
 				</ns2:var>
 				<ns2:expression>
 					<expressionString><![CDATA[{
@@ -69,7 +69,7 @@
 		<ns2:mission-node name="onDelivery" expiredDays="0" expiredHours="1" partyType="productionManager">
 			<ns2:process>
 				<ns2:var name="orderObject" category="JavaPrimitive" xsi:type="ParamType"	scope="InOut">
-					<type entityName="java.lang.Object"></type>
+					<type entityName="java.lang.String"></type>
 				</ns2:var>
 				<ns2:expression>
 					<expressionString><![CDATA[{

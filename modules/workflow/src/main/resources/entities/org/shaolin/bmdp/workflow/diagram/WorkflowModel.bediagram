@@ -28,21 +28,6 @@
 		</bediagram:member>
 	</bediagram:beEntity>
 	
-	<!-- flow instances, the FlowRuntimeContext will be stored in this table. -->
-	<bediagram:beEntity needPersist="true" needHistory="true">
-		<common:entityName>FlowInstance</common:entityName>
-		<bediagram:member pk="true">
-			<bediagram:name>id</bediagram:name>
-			<bediagram:type xsi:type="bediagram:LongType" />
-		</bediagram:member>
-		<bediagram:member>
-			<bediagram:name>bytes</bediagram:name>
-			<bediagram:type xsi:type="bediagram:JavaObjRefType">
-				<bediagram:targetJava name="byte[]"></bediagram:targetJava>
-			</bediagram:type>
-		</bediagram:member>
-	</bediagram:beEntity>
-	
 	<bediagram:beEntity needPersist="true">
 		<common:entityName>UIFlows</common:entityName>
 		<bediagram:member pk="true">

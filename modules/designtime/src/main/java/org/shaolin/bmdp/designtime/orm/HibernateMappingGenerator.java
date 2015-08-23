@@ -11,6 +11,7 @@ import org.shaolin.bmdp.datamodel.bediagram.BEObjRefType;
 import org.shaolin.bmdp.datamodel.bediagram.BusinessEntityType;
 import org.shaolin.bmdp.datamodel.bediagram.CEObjRefType;
 import org.shaolin.bmdp.datamodel.bediagram.DateTimeType;
+import org.shaolin.bmdp.datamodel.bediagram.JavaObjRefType;
 import org.shaolin.bmdp.datamodel.bediagram.MemberType;
 import org.shaolin.bmdp.datamodel.bediagram.TimeType;
 import org.shaolin.bmdp.datamodel.common.DiagramType;
@@ -296,7 +297,12 @@ public class HibernateMappingGenerator implements IEntityEventListener<TableType
 					out.write("\" type=\"timestamp");
 				} else if (field.getType() instanceof CEObjRefType) {
 					out.write("\" type=\"integer");
-				} 
+				} else if (field.getType() instanceof JavaObjRefType) {
+					JavaObjRefType objRef = (JavaObjRefType)field.getType();
+					if ("javax.sql.rowset.serial.SerialBlob".equals(objRef.getTargetJava().getName())) {
+						out.write("\" type=\"blob");
+					}
+				}
 				return;
 			}
 		}

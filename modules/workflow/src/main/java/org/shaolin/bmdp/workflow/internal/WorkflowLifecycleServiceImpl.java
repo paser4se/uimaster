@@ -45,21 +45,6 @@ public class WorkflowLifecycleServiceImpl implements ILifeCycleProvider, IServic
 	
 	private final FlowContainer flowContainer;
 
-	public class WorkflowService implements IServiceProvider {
-
-		WorkflowLifecycleServiceImpl impl;
-		
-		public WorkflowService(WorkflowLifecycleServiceImpl impl) {
-			this.impl = impl;
-		}
-		
-		@Override
-		public Class getServiceInterface() {
-			return null;
-		}
-		
-	}
-
 	public WorkflowLifecycleServiceImpl() {
 		this.flowContainer = new FlowContainer(AppContext.get().getAppName());
 	}
@@ -127,7 +112,7 @@ public class WorkflowLifecycleServiceImpl implements ILifeCycleProvider, IServic
 
 	@Override
 	public void stopService() {
-		
+		this.flowContainer.stopService();
 	}
 
 	@Override
@@ -156,6 +141,10 @@ public class WorkflowLifecycleServiceImpl implements ILifeCycleProvider, IServic
 		return IWorkflowService.class;
 	}
 
+	FlowContainer getFlowContainer() {
+        return flowContainer;
+    }
+	
 	@Override
 	public FlowObject getFlowObject(String flowName) {
 		return flowContainer.getFlowObject(flowName);

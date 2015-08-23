@@ -31,7 +31,7 @@ public class FlowContextImpl implements FlowContext, Serializable {
 	private static final long serialVersionUID = -132145046230765346L;
 
 	private final FlowRuntimeContext runtime;
-	private volatile NodeInfo waitingNode;
+	private transient volatile NodeInfo waitingNode;
 
 	public FlowContextImpl(FlowRuntimeContext runtime) {
 		this.runtime = runtime;

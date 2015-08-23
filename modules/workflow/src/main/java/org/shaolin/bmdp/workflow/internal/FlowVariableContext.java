@@ -15,13 +15,15 @@
 */
 package org.shaolin.bmdp.workflow.internal;
 
+import java.io.Serializable;
+
 import org.shaolin.bmdp.runtime.spi.Event;
 import org.shaolin.bmdp.workflow.spi.WorkflowSession;
 
 /**
  * Interface for accessing workflow global and local variables.
  */
-public interface FlowVariableContext {
+public interface FlowVariableContext extends Serializable {
     
     /**
      * Get current global variable. 

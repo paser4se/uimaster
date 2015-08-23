@@ -53,6 +53,7 @@ public class ProcessFlowTest extends TestContext {
         evt = new FlowEvent(eventConsumer);
         evt.setAttribute("Request", nodeName);
         evt.setAttribute("NodeName", nodeName);
+        evt.setAttribute("orderObject", "orderObject");
         producer.sendEvent(evt);//place and order
         Thread.sleep(waitSeconds);
         
@@ -64,9 +65,6 @@ public class ProcessFlowTest extends TestContext {
         
         coordinator.completeTask(coordinator.getAllTasks().get(0));// on delivery
         Thread.sleep(waitSeconds);
-        
-        //TODO: verify session.
-        
         
         Assert.assertEquals(0, coordinator.getAllTasks().size());
     }

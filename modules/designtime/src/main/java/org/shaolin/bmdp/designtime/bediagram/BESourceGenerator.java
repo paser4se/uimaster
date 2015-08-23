@@ -295,7 +295,7 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			out.write(" implements ");
 			out.print(interfaceJava);
 			out.write("\n{\n    private static final long serialVersionUID = 0x90B1123CE87B50FFL;");
-			out.write("\n\n    private final IConstantService ceService = AppContext.get().getConstantService();");
+			out.write("\n\n    private final transient IConstantService ceService = AppContext.get().getConstantService();");
 			out.write("\n\n    protected String getBusinessEntityName()\n    {\n        return \"");
 			out.print(businessEntity.getEntityName());
 			out.write("\";\n    }\n\n    public ");

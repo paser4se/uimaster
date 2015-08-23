@@ -27,6 +27,13 @@
    <bediagram:name>sessionId</bediagram:name>
    <bediagram:type xsi:type="bediagram:StringType" />
   </bediagram:member>
+  <!-- flow instances, the FlowRuntimeContext will be stored in this table. -->
+  <bediagram:member>
+   <bediagram:name>flowState</bediagram:name>
+   <bediagram:type xsi:type="bediagram:JavaObjRefType">
+    <bediagram:targetJava name="javax.sql.rowset.serial.SerialBlob"></bediagram:targetJava>
+   </bediagram:type>
+  </bediagram:member>
 		<bediagram:member>
 			<bediagram:name>subject</bediagram:name>
 			<bediagram:type xsi:type="bediagram:StringType" />

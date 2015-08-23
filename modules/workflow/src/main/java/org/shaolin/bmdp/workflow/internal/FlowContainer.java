@@ -72,6 +72,10 @@ public class FlowContainer {
     public List<String> getActiveEngines() {
         return new ArrayList<String>(allEngines.keySet());
     }
+    
+    public FlowEngine getFlowEngine(String key) {
+        return allEngines.get(key);
+    }
 
     void startService(List<Workflow> appInfos) {
         Map<String, FlowEngine> engineMap = new HashMap<String, FlowEngine>();
@@ -96,6 +100,8 @@ public class FlowContainer {
     }
     
     void stopService() {
+    	allEngines.clear();
+    	appflowCache.clear();
     }
 
     /**
@@ -159,7 +165,7 @@ public class FlowContainer {
     }
 
     public ITask scheduleTask(Date timeout, final FlowRuntimeContext flowContext, final FlowEngine engine, 
-    		final NodeInfo currentNode, final MissionNodeType mission) {
+    		final NodeInfo currentNode, final MissionNodeType mission) throws Exception {
     	if (logger.isTraceEnabled()) {
             logger.trace("Schedule timer on {}, dealy time is {}", 
             		currentNode.toString(), timeout.toString());
@@ -174,7 +180,10 @@ public class FlowContainer {
         task.setPartyType(mission.getPartyType());
         task.setExpiredTime(timeout);
         task.setEnabled(true);
-        task.setListener(new MissionListener(engine, flowContext));
+        task.setListener(new MissionListener(task));
+        javax.sql.rowset.serial.SerialBlob blob = new javax.sql.rowset.serial.SerialBlob(FlowRuntimeContext.marshall(flowContext));
+        task.setFlowState(blob);
+        
         coordinator.addTask(task);
         return task;
     }
@@ -211,25 +220,33 @@ public class FlowContainer {
     }
 
     public static final class MissionListener implements ITaskListener {
-        private final FlowEngine engine;
-        private final FlowRuntimeContext flowContext;
-
-        private MissionListener(FlowEngine engine, FlowRuntimeContext flowContext) {
-            this.engine = engine;
-            this.flowContext = flowContext;
+        private final ITask task;
+        public MissionListener(ITask task) {
+        	this.task = task;
         }
 
 		@Override
 		public void notifyCompleted() {
 			//forward to the next mission.
-			flowContext.getEvent().setFlowContext(flowContext.getFlowContextInfo());
-			WorkFlowEventProcessor processor = AppContext.get().getService(WorkFlowEventProcessor.class);
-			processor.process(flowContext.getEvent());
+			try {
+				FlowRuntimeContext flowContext = FlowRuntimeContext.unmarshall(task.getFlowState());
+				flowContext.getFlowContextInfo().setWaitingNode(flowContext.getCurrentNode());
+				flowContext.getEvent().setFlowContext(flowContext.getFlowContextInfo());
+				WorkFlowEventProcessor processor = AppContext.get().getService(WorkFlowEventProcessor.class);
+				processor.process(flowContext.getEvent());
+			} catch (Exception e) {
+				logger.error("Continue processing task error: " + e.getMessage(), e);
+			}
 		}
 
 		@Override
 		public void notifyExpired() {
-			this.engine.timeout(flowContext.getFlowContextInfo());
+			try {
+				FlowRuntimeContext flowContext = FlowRuntimeContext.unmarshall(task.getFlowState());
+				flowContext.getEngine().timeout(flowContext.getFlowContextInfo());
+			} catch (Exception e) {
+				logger.error("Continue processing task error: " + e.getMessage(), e);
+			}
 		}
 
 		@Override

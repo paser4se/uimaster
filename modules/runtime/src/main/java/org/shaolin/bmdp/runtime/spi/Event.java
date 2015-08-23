@@ -15,18 +15,19 @@
 */
 package org.shaolin.bmdp.runtime.spi;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map.Entry;
 
-public interface Event {
+public interface Event extends Serializable {
 
 	public String getEventConsumer();
 	
-	public Collection<Entry<String, Object>> getAllAttributes();
+	public Collection<Entry<String, Serializable>> getAllAttributes();
 
-	public Object getAttribute(String key);
+	public Serializable getAttribute(String key);
 
-	public void setAttribute(String key, Object value);
+	public void setAttribute(String key, Serializable value);
 
 	public Object removeAttribute(String key);
 
