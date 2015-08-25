@@ -353,6 +353,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		history.setSubject(task.getSubject());
 		history.setComments(task.getComments());
 		history.setSessionId(history.getSessionId());
+		history.setCreateTime(task.getCreateTime());
 		
 		session.save(history);
 		session.delete(task);

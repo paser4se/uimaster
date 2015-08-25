@@ -299,8 +299,10 @@ public class HibernateMappingGenerator implements IEntityEventListener<TableType
 					out.write("\" type=\"integer");
 				} else if (field.getType() instanceof JavaObjRefType) {
 					JavaObjRefType objRef = (JavaObjRefType)field.getType();
-					if ("javax.sql.rowset.serial.SerialBlob".equals(objRef.getTargetJava().getName())) {
-						out.write("\" type=\"blob");
+					if ("byte[]".equals(objRef.getTargetJava().getName())) {
+						//http://redleaf.iteye.com/blog/100718
+						//hibernate with blob solution.
+						out.write("\" type=\"binary");
 					}
 				}
 				return;

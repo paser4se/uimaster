@@ -24,4 +24,6 @@ public interface BuiltInAttributeConstant {
     public static final String KEY_RUNTIME = FlowRuntimeContext.class.getName();
     public static final String KEY_FLOWCONTEXT = FlowContext.class.getName();
     public static final String KEY_VARIABLECONTEXT = FlowVariableContext.class.getName();
+    public static final String KEY_SESSION = "session";
+    
 }

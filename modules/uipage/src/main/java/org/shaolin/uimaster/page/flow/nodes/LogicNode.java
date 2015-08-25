@@ -88,16 +88,17 @@ public class LogicNode extends WebNode {
 			}
 			InvokeWorkflowOpsType invokeworkflowOps = type.getInvokeworkflowOps();
 			if (invokeworkflowOps != null) {
-				Boolean passed = (Boolean)invokeworkflowOps.getCondition().evaluate(inContext);
-				if (passed) {
-					FlowEvent e = new FlowEvent(invokeworkflowOps.getEventProducer());
-					List<NameExpressionType> nameExprs = invokeworkflowOps.getOutDataMappingToNodes();
-					for (NameExpressionType nameExpr : nameExprs) {
-						e.setAttribute(nameExpr.getName(), nameExpr.getExpression().evaluate(inContext));
-					}
-					EventProcessor processor = AppContext.get().getService(EventProcessor.class);
-					processor.process(e);
-				}
+				//TODO:
+//				Boolean passed = (Boolean)invokeworkflowOps.().evaluate(inContext);
+//				if (passed) {
+//					FlowEvent e = new FlowEvent(invokeworkflowOps.getEventProducer());
+//					List<NameExpressionType> nameExprs = invokeworkflowOps.getOutDataMappingToNodes();
+//					for (NameExpressionType nameExpr : nameExprs) {
+//						e.setAttribute(nameExpr.getName(), nameExpr.getExpression().evaluate(inContext));
+//					}
+//					EventProcessor processor = AppContext.get().getService(EventProcessor.class);
+//					processor.process(e);
+//				}
 			}
 		} catch (Exception ex) {
 			rollbackTransaction(inContext);

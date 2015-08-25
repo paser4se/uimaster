@@ -194,6 +194,7 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
     	context.globalVariables.getVariableObjects().remove(BuiltInAttributeConstant.KEY_VARIABLECONTEXT);
     	context.globalVariables.getVariableObjects().remove(BuiltInAttributeConstant.KEY_RUNTIME);
     	context.globalVariables.getVariableObjects().remove(BuiltInAttributeConstant.KEY_FLOWCONTEXT);
+    	context.globalVariables.getVariableObjects().remove(BuiltInAttributeConstant.KEY_SESSION);
     	if (context.engine.getServices() != null) {
     		Set<String> keys = context.engine.getServices().keySet();
     		for (String key: keys) {
@@ -205,6 +206,7 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
     			 context.globalVarNamesSet, context.globalVariables);
     	state.localVariables = context.localVariables;
     	state.session = context.session;
+    	state.sessionId = context.session.getID();
     	state.engineId = context.engine.getEngineName();
     	state.event = context.event;
     	state.startNode = context.startNode;
@@ -216,9 +218,10 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
     	return SerializeUtil.serializeData(state); 
     }
     
-    public static FlowRuntimeContext unmarshall(java.sql.Blob instance) throws Exception {
-    	byte[] bytes = new byte[instance.getBinaryStream().available()];
-    	instance.getBinaryStream().read(bytes);
+    public static FlowRuntimeContext unmarshall(byte[] bytes) throws Exception {
+//    	java.sql.Blob instance
+//    	byte[] bytes = new byte[instance.getBinaryStream().available()];
+//    	instance.getBinaryStream().read(bytes);
 		FlowState state = SerializeUtil.readData(bytes, FlowState.class);
 		state.recover();
 		
@@ -244,7 +247,8 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
 		context.setEvaluationContextObject("@", context.globalVariables);
 		context.setEvaluationContextObject("$", context.localVariables);
 		context.session = state.session;
-		context.sessionId = state.session.getID();
+		context.globalVariables.getVariableObjects().put(BuiltInAttributeConstant.KEY_SESSION, context.session);
+		context.sessionId = state.sessionId;
 		context.startNode = state.startNode;
 		context.eventNode = state.eventNode;
 		context.waitResponse = state.waitResponse;

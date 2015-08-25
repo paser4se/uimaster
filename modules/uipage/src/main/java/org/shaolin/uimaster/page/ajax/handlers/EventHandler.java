@@ -15,6 +15,7 @@
 */
 package org.shaolin.uimaster.page.ajax.handlers;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +77,12 @@ public class EventHandler implements IAjaxHandler {
 							Iterator i = value0.keySet().iterator();
 							while (i.hasNext()) {
 								String key = (String)i.next();
-								e.setAttribute(key, value0.get(key));
+								Object v = value0.get(key);
+								if (v instanceof Serializable) {
+									e.setAttribute(key, (Serializable)v);
+								} else {
+									log.warn("Variable " + key + " is not seriablizable.");
+								}
 							}
 						}
 						e.setComments(context.getRequest().getParameter("_comments"));

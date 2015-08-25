@@ -46,6 +46,7 @@ public final class FlowState implements java.io.Serializable {
 
 	Event event;
 	WorkflowSession session;
+	String sessionId;
 	String engineId;
 	boolean waitResponse;
 	boolean responseBack;
