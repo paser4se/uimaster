@@ -803,6 +803,11 @@ public class UIFormObject implements java.io.Serializable
 					localP.setVariableClass("value",  String.class);
 					localP.setVariableClass("filterId",  String.class);
 					
+					if (chart.getQuery() != null) {
+						chart.getQuery().getExpression().parse(parsingContext);
+					}
+					propMap.put("queryExpr", chart.getQuery().getExpression());
+					
 					List<UITableColumnType> columns = chart.getColumns();
 					for (UITableColumnType col : columns) {
 						if(col.getRowExpression() == null) {

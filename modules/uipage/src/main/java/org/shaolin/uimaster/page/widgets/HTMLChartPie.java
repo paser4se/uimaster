@@ -15,19 +15,13 @@
  */
 package org.shaolin.uimaster.page.widgets;
 
+import java.util.List;
+
+import org.shaolin.bmdp.datamodel.page.UITableColumnType;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
-import org.shaolin.uimaster.page.ajax.Chart;
-import org.shaolin.uimaster.page.ajax.Layout;
-import org.shaolin.uimaster.page.ajax.Widget;
-import org.shaolin.uimaster.page.cache.UIFormObject;
-import org.shaolin.uimaster.page.javacc.VariableEvaluator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HTMLChartPie extends HTMLChartSuper {
 	private static final long serialVersionUID = -5232602952223828765L;
-
-	private static Logger logger = LoggerFactory.getLogger(HTMLChartPie.class);
 
 	public HTMLChartPie() {
 	}
@@ -41,26 +35,17 @@ public class HTMLChartPie extends HTMLChartSuper {
 	}
 
 	@Override
-	public void generateBeginHTML(HTMLSnapshotContext context,
-			UIFormObject ownerEntity, int depth) {
-
+	public void generateData(List<UITableColumnType> columns,
+			HTMLSnapshotContext context, int depth) throws Exception {
+		List<Integer> listData = (List<Integer>)this.removeAttribute("query");
+		if (!listData.isEmpty()) {
+			StringBuffer sb = new StringBuffer("[");
+			for (Integer v : listData) {
+				sb.append("{").append("value: ").append(v).append("},");
+			}
+			sb.deleteCharAt(sb.length()-1);
+			sb.append("]");
+			context.generateHTML(sb.toString());
+		}
 	}
-
-	@Override
-	public void generateEndHTML(HTMLSnapshotContext context,
-			UIFormObject ownerEntity, int depth) {
-	}
-
-	public Widget createAjaxWidget(VariableEvaluator ee) {
-		Chart chart = new Chart(getName(), Layout.NULL, HTMLChartLinear.class);
-
-		chart.setReadOnly(getReadOnly());
-		chart.setUIEntityName(getUIEntityName());
-
-		chart.setListened(true);
-		chart.setFrameInfo(getFrameInfo());
-
-		return chart;
-	}
-
 }

@@ -15,20 +15,18 @@
  */
 package org.shaolin.uimaster.page.widgets;
 
+import java.util.List;
+
+import org.shaolin.bmdp.datamodel.page.UITableColumnType;
+import org.shaolin.javacc.context.DefaultEvaluationContext;
+import org.shaolin.javacc.context.OOEEContext;
+import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
-import org.shaolin.uimaster.page.ajax.Chart;
-import org.shaolin.uimaster.page.ajax.Layout;
-import org.shaolin.uimaster.page.ajax.Widget;
-import org.shaolin.uimaster.page.cache.UIFormObject;
-import org.shaolin.uimaster.page.javacc.VariableEvaluator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.od.ODContext;
 
 public class HTMLChartRadar extends HTMLChartSuper {
 	private static final long serialVersionUID = -5232602952223828765L;
-
-	private static Logger logger = LoggerFactory
-			.getLogger(HTMLChartRadar.class);
 
 	public HTMLChartRadar() {
 	}
@@ -41,27 +39,62 @@ public class HTMLChartRadar extends HTMLChartSuper {
 		super(context, id);
 	}
 
+	/**
+	 * var data = {
+		    labels: ["Eating", "Drinking", "Sleeping", "Designing", "Coding", "Cycling", "Running"],
+		    datasets: [
+		        {
+		            label: "My First dataset",
+		            fillColor: "rgba(220,220,220,0.2)",
+		            strokeColor: "rgba(220,220,220,1)",
+		            pointColor: "rgba(220,220,220,1)",
+		            pointStrokeColor: "#fff",
+		            pointHighlightFill: "#fff",
+		            pointHighlightStroke: "rgba(220,220,220,1)",
+		            data: [65, 59, 90, 81, 56, 55, 40]
+		        },
+		        {
+		            label: "My Second dataset",
+		            fillColor: "rgba(151,187,205,0.2)",
+		            strokeColor: "rgba(151,187,205,1)",
+		            pointColor: "rgba(151,187,205,1)",
+		            pointStrokeColor: "#fff",
+		            pointHighlightFill: "#fff",
+		            pointHighlightStroke: "rgba(151,187,205,1)",
+		            data: [28, 48, 40, 19, 96, 27, 100]
+		        }
+		    ]
+		};
+	 * 
+	 */
 	@Override
-	public void generateBeginHTML(HTMLSnapshotContext context,
-			UIFormObject ownerEntity, int depth) {
-
-	}
-
-	@Override
-	public void generateEndHTML(HTMLSnapshotContext context,
-			UIFormObject ownerEntity, int depth) {
-	}
-
-	public Widget createAjaxWidget(VariableEvaluator ee) {
-		Chart chart = new Chart(getName(), Layout.NULL, HTMLChartRadar.class);
-
-		chart.setReadOnly(getReadOnly());
-		chart.setUIEntityName(getUIEntityName());
-
-		chart.setListened(true);
-		chart.setFrameInfo(getFrameInfo());
-
-		return chart;
+	public void generateData(List<UITableColumnType> columns, HTMLSnapshotContext context, int depth) throws Exception {
+		List<Object> listData = (List<Object>)this.removeAttribute("query");
+		if (!listData.isEmpty() && listData.size() > 0) {
+			context.generateHTML("datasets: [");
+			StringBuffer sb = new StringBuffer();
+			// vertical iterator.
+			for (int columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
+				sb.append("{ data:[");
+				for (int i = 0; i < listData.size(); i++) {
+					OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+					DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+					evaContext.setVariableValue("rowBE", listData.get(i));
+					ooeeContext.setDefaultEvaluationContext(evaContext);
+					ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+					
+					HTMLUtil.generateTab(context, depth + 3);
+					Object value = columns.get(columnIndex).getRowExpression().getExpression().evaluate(
+							ooeeContext);
+					sb.append(value).append(",");
+				}
+				sb.deleteCharAt(sb.length()-1);
+				sb.append("]},");
+			}
+			sb.deleteCharAt(sb.length()-1);
+			context.generateHTML(sb.toString());
+			context.generateHTML("]");
+		}
 	}
 
 }

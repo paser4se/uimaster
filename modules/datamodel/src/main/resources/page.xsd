@@ -721,6 +721,7 @@ in simple component mapping, the paramName is required</xs:documentation>
             <xs:extension base="Page:UIComponentType">
                 <xs:sequence>
                 	<xs:element name="beElement" type="xs:string" />
+                	<xs:element name="query" type="Page:ExpressionPropertyType"/>
                 	<xs:element name="color" type="xs:string" default="rgba(151,187,205,0.2)"/>
                 	<xs:element name="strokeColor" type="xs:string" default="#fff"/>
                 	<!-- reusing the table column definition -->

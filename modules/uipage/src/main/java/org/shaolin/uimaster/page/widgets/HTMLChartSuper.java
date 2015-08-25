@@ -15,12 +15,16 @@
 */
 package org.shaolin.uimaster.page.widgets;
 
-import java.io.IOException;
 import java.util.List;
 
+import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.UITableColumnType;
+import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.WebConfig;
+import org.shaolin.uimaster.page.ajax.Chart;
+import org.shaolin.uimaster.page.ajax.Layout;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.UIVariableUtil;
@@ -28,9 +32,9 @@ import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HTMLChartSuper extends HTMLWidgetType
+public abstract class HTMLChartSuper extends HTMLWidgetType
 {
-    private static Logger logger = LoggerFactory.getLogger(HTMLChartSuper.class);
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public HTMLChartSuper()
     {
@@ -49,43 +53,64 @@ public class HTMLChartSuper extends HTMLWidgetType
     @Override
 	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
     	generateWidget(context);
+    	String root = WebConfig.getResourceContextRoot();
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/uimaster-chart.js\"></script>\n");
     	
-    	List<UITableColumnType> columns = (List<UITableColumnType>)this.removeAttribute("columns");
-    	context.generateHTML("<div id=\"");
+    	int width = (int)this.removeAttribute("width");
+    	int height = (int)this.removeAttribute("height");
+    	context.generateHTML("<canvas id=\"");
 		context.generateHTML(getName());
-		context.generateHTML("\" style=\"display:none\">");
+		context.generateHTML("\" width=\""+width+"px;\" width=\""+height+"px;\">");
+		HTMLUtil.generateTab(context, depth + 2);
+		List<UITableColumnType> columns = (List<UITableColumnType>)this.removeAttribute("columns");
+		context.generateHTML("{ type: \"" + this.getClass().getSimpleName() + "\",");
+		HTMLUtil.generateTab(context, depth + 2);
+		context.generateHTML(" labels:[");
+		StringBuffer sb = new StringBuffer();
 		for (UITableColumnType col : columns) {
-			HTMLUtil.generateTab(context, depth + 3);
-			context.generateHTML("<div id=\"");
-			context.generateHTML(col.getBeFieldId());
-			context.generateHTML("\" htmlType=\"");
-			context.generateHTML(col.getUiType().getType());
-			context.generateHTML("\" title=\"");
-			context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
-			context.generateHTML("\">");
-			context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
-			context.generateHTML("</div>");
+			sb.append("\"");
+			sb.append(UIVariableUtil.getI18NProperty(col.getTitle()));
+			sb.append("\",");
 		}
-		context.generateHTML("</div>");
+		sb.deleteCharAt(sb.length()-1);
+		context.generateHTML(sb.toString());
+		context.generateHTML("],");
+		HTMLUtil.generateTab(context, depth + 2);
+		try {
+			generateData(columns, context, depth + 2);
+		} catch (Exception e) {
+			logger.error("Failed to generate chart: " + e.getMessage(), e);
+		}
+		context.generateHTML("}");
+		HTMLUtil.generateTab(context, depth);
+		context.generateHTML("</canvas>");
 	}
+    
+    public abstract void generateData(List<UITableColumnType> columns, HTMLSnapshotContext context, int depth) throws Exception;
     
     @Override
     public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
     {
     }
 
-    private void generateContent(HTMLSnapshotContext context)
-    {
-    }
+	public Widget createAjaxWidget(VariableEvaluator ee) {
+		try {
+			ExpressionType queryExpr = (ExpressionType) this.removeAttribute("queryExpr");
+			Object result = ee.evaluateExpression(queryExpr);
+			this.addAttribute("query", result);
+			Chart chart = new Chart(getName(), Layout.NULL, this.getClass());
 
-    public void generateAttribute(HTMLSnapshotContext context, String attributeName, Object attributeValue) throws IOException
-    {
-    }
+			chart.setReadOnly(getReadOnly());
+			chart.setUIEntityName(getUIEntityName());
 
-    public Widget createAjaxWidget(VariableEvaluator ee)
-    {
-        return null;
-    }
+			chart.setListened(true);
+			chart.setFrameInfo(getFrameInfo());
+
+			return chart;
+		} catch (EvaluationException e) {
+			throw new IllegalStateException(e);
+		}
+	}
 
     
     private static final long serialVersionUID = -5232602952223828765L;

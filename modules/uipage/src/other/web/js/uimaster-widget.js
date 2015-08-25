@@ -2568,3 +2568,28 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
     	return $("#titles-container-" + this.id).children().length;
     }
 });
+UIMaster.ui.chart= function(conf){
+    conf = conf || {};
+    UIMaster.apply(this, conf);
+    return this;
+};
+UIMaster.ui.chart=UIMaster.extend(UIMaster.ui,{
+    type:null,
+    chart:null,
+    init:function() {
+       var ctx = $(this).get(0).getContext("2d");
+       if (this.type == "HTMLChartBar") {
+    	   this.chart = new Chart(ctx).Bar(data, options);
+       } else if (this.type == "HTMLChartDoughnut") {
+    	   this.chart = new Chart(ctx).Doughnut(data, options);
+       } else if (this.type == "HTMLChartLinear") {
+    	   this.chart = new Chart(ctx).Line(data, options);
+       } else if (this.type == "HTMLChartPie") {
+    	   this.chart = new Chart(ctx).Pie(data, options);
+       } else if (this.type == "HTMLChartPolarPie") {
+    	   this.chart = new Chart(ctx).PolarArea(data, options);
+       } else if (this.type == "HTMLChartRadar") {
+    	   this.chart = new Chart(ctx).Radar(data, options);
+       }
+    }
+});
