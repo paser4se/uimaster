@@ -56,33 +56,33 @@ public abstract class HTMLChartSuper extends HTMLWidgetType
     	String root = WebConfig.getResourceContextRoot();
     	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/uimaster-chart.js\"></script>\n");
     	
-    	int width = (int)this.removeAttribute("width");
-    	int height = (int)this.removeAttribute("height");
+    	Object widthProp = this.removeAttribute("width");
+    	Object heightProp = this.removeAttribute("height");
+    	int width = widthProp == null? 100: Integer.valueOf(widthProp.toString());
+    	int height = heightProp == null? 100: Integer.valueOf(heightProp.toString());
     	context.generateHTML("<canvas id=\"");
 		context.generateHTML(getName());
 		context.generateHTML("\" width=\""+width+"px;\" width=\""+height+"px;\">");
-		HTMLUtil.generateTab(context, depth + 2);
-		List<UITableColumnType> columns = (List<UITableColumnType>)this.removeAttribute("columns");
-		context.generateHTML("{ type: \"" + this.getClass().getSimpleName() + "\",");
-		HTMLUtil.generateTab(context, depth + 2);
-		context.generateHTML(" labels:[");
+		context.generateHTML("{type: '" + this.getClass().getSimpleName() + "',");
+		context.generateHTML("labels:[");
 		StringBuffer sb = new StringBuffer();
+		List<UITableColumnType> columns = (List<UITableColumnType>)this.removeAttribute("columns");
 		for (UITableColumnType col : columns) {
-			sb.append("\"");
+			sb.append("'");
 			sb.append(UIVariableUtil.getI18NProperty(col.getTitle()));
-			sb.append("\",");
+			sb.append("',");
 		}
-		sb.deleteCharAt(sb.length()-1);
-		context.generateHTML(sb.toString());
+		if (sb.length() > 0) {
+			sb.deleteCharAt(sb.length()-1);
+			context.generateHTML(sb.toString());
+		}
 		context.generateHTML("],");
-		HTMLUtil.generateTab(context, depth + 2);
 		try {
 			generateData(columns, context, depth + 2);
 		} catch (Exception e) {
 			logger.error("Failed to generate chart: " + e.getMessage(), e);
 		}
 		context.generateHTML("}");
-		HTMLUtil.generateTab(context, depth);
 		context.generateHTML("</canvas>");
 	}
     

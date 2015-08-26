@@ -16,64 +16,41 @@
 package org.shaolin.uimaster.page.widgets;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.shaolin.bmdp.datamodel.page.UITableColumnType;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
-import org.shaolin.uimaster.page.ajax.Chart;
-import org.shaolin.uimaster.page.ajax.Layout;
-import org.shaolin.uimaster.page.ajax.Widget;
-import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 
-public class HTMLChartDoughnut extends HTMLChartSuper {
-	
+public class HTMLChartPieType extends HTMLChartSuper {
 	private static final long serialVersionUID = -5232602952223828765L;
 
-	public HTMLChartDoughnut() {
+	public HTMLChartPieType() {
 	}
 
-	public HTMLChartDoughnut(HTMLSnapshotContext context) {
+	public HTMLChartPieType(HTMLSnapshotContext context) {
 		super(context);
 	}
 
-	public HTMLChartDoughnut(HTMLSnapshotContext context, String id) {
+	public HTMLChartPieType(HTMLSnapshotContext context, String id) {
 		super(context, id);
 	}
 
-	/**
-	 * var data = [
-	    {
-	        value: 300,
-	        color:"#F7464A",
-	        highlight: "#FF5A5E",
-	        label: "Red"
-	    },
-	    {
-	        value: 50,
-	        color: "#46BFBD",
-	        highlight: "#5AD3D1",
-	        label: "Green"
-	    },
-	    {
-	        value: 100,
-	        color: "#FDB45C",
-	        highlight: "#FFC870",
-	        label: "Yellow"
-	    }
-	]
-	 */
 	@Override
 	public void generateData(List<UITableColumnType> columns,
 			HTMLSnapshotContext context, int depth) throws Exception {
-		List<Integer> listData = (List<Integer>)this.removeAttribute("query");
-		if (!listData.isEmpty()) {
-			StringBuffer sb = new StringBuffer("[");
-			for (Integer v : listData) {
-				sb.append("{").append("value: ").append(v).append("},");
+		Map<String, Integer> listData = (Map<String, Integer>)this.removeAttribute("query");
+		if (listData != null && !listData.isEmpty()) {
+			StringBuffer sb = new StringBuffer("data: [");
+			Set<String> keys = listData.keySet();
+			for (String key : keys) {
+				sb.append("{").append("value: ").append(listData.get(key));
+				sb.append(",").append("label: '").append(key).append("'");
+				sb.append("},");
 			}
 			sb.deleteCharAt(sb.length()-1);
 			sb.append("]");
 			context.generateHTML(sb.toString());
 		}
 	}
-
 }

@@ -25,47 +25,46 @@ import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.od.ODContext;
 
-public class HTMLChartRadar extends HTMLChartSuper {
+public class HTMLChartLinearType extends HTMLChartSuper {
 	private static final long serialVersionUID = -5232602952223828765L;
 
-	public HTMLChartRadar() {
+	public HTMLChartLinearType() {
 	}
 
-	public HTMLChartRadar(HTMLSnapshotContext context) {
+	public HTMLChartLinearType(HTMLSnapshotContext context) {
 		super(context);
 	}
 
-	public HTMLChartRadar(HTMLSnapshotContext context, String id) {
+	public HTMLChartLinearType(HTMLSnapshotContext context, String id) {
 		super(context, id);
 	}
 
 	/**
 	 * var data = {
-		    labels: ["Eating", "Drinking", "Sleeping", "Designing", "Coding", "Cycling", "Running"],
-		    datasets: [
-		        {
-		            label: "My First dataset",
-		            fillColor: "rgba(220,220,220,0.2)",
-		            strokeColor: "rgba(220,220,220,1)",
-		            pointColor: "rgba(220,220,220,1)",
-		            pointStrokeColor: "#fff",
-		            pointHighlightFill: "#fff",
-		            pointHighlightStroke: "rgba(220,220,220,1)",
-		            data: [65, 59, 90, 81, 56, 55, 40]
-		        },
-		        {
-		            label: "My Second dataset",
-		            fillColor: "rgba(151,187,205,0.2)",
-		            strokeColor: "rgba(151,187,205,1)",
-		            pointColor: "rgba(151,187,205,1)",
-		            pointStrokeColor: "#fff",
-		            pointHighlightFill: "#fff",
-		            pointHighlightStroke: "rgba(151,187,205,1)",
-		            data: [28, 48, 40, 19, 96, 27, 100]
-		        }
-		    ]
-		};
-	 * 
+	    labels: ["January", "February", "March", "April", "May", "June", "July"],
+	    datasets: [
+	        {
+	            label: "My First dataset",
+	            fillColor: "rgba(220,220,220,0.2)",
+	            strokeColor: "rgba(220,220,220,1)",
+	            pointColor: "rgba(220,220,220,1)",
+	            pointStrokeColor: "#fff",
+	            pointHighlightFill: "#fff",
+	            pointHighlightStroke: "rgba(220,220,220,1)",
+	            data: [65, 59, 80, 81, 56, 55, 40]
+	        },
+	        {
+	            label: "My Second dataset",
+	            fillColor: "rgba(151,187,205,0.2)",
+	            strokeColor: "rgba(151,187,205,1)",
+	            pointColor: "rgba(151,187,205,1)",
+	            pointStrokeColor: "#fff",
+	            pointHighlightFill: "#fff",
+	            pointHighlightStroke: "rgba(151,187,205,1)",
+	            data: [28, 48, 40, 19, 86, 27, 90]
+	        }
+	    ]
+	};
 	 */
 	@Override
 	public void generateData(List<UITableColumnType> columns, HTMLSnapshotContext context, int depth) throws Exception {

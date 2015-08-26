@@ -799,18 +799,16 @@ public class UIFormObject implements java.io.Serializable
             			beClass = Class.forName(chart.getBeElement());
             		}
             		localP.setVariableClass("rowBE", beClass);
-					// for condition update.
-					localP.setVariableClass("value",  String.class);
-					localP.setVariableClass("filterId",  String.class);
 					
 					if (chart.getQuery() != null) {
 						chart.getQuery().getExpression().parse(parsingContext);
 					}
 					propMap.put("queryExpr", chart.getQuery().getExpression());
+					propMap.put("columns", chart.getColumns());
 					
 					List<UITableColumnType> columns = chart.getColumns();
 					for (UITableColumnType col : columns) {
-						if(col.getRowExpression() == null) {
+						if(col.getRowExpression() != null) {
 							if (col.getBeFieldId() == null) {
 								throw new IllegalArgumentException("This column must have a befieldid in " + chart.getUIID() + " chart.");
 							}
@@ -819,22 +817,8 @@ public class UIFormObject implements java.io.Serializable
 							ExpressionPropertyType p = new ExpressionPropertyType();
 							p.setExpression(expr);
 							col.setRowExpression(p);
+							col.getRowExpression().getExpression().parse(parsingContext);
 						}
-						if(col.getUpdateCondition() == null && !"Label".equals(col.getUiType().getType())) {
-							if (col.getBeFieldId() == null) {
-								throw new IllegalArgumentException("This column must have a befieldid in " + chart.getUIID() + " chart.");
-							}
-							ExpressionType expr = new ExpressionType();
-							expr.setExpressionString("$" + ComponentMappingHelper.getIndexedComponentPath(col.getBeFieldId(), true, "$value"));
-							ExpressionPropertyType p = new ExpressionPropertyType();
-							p.setExpression(expr);
-							col.setUpdateCondition(p);
-						}
-						col.getRowExpression().getExpression().parse(parsingContext);
-						if (col.getUpdateCondition() != null) {
-							col.getUpdateCondition().getExpression().parse(parsingContext);
-						}
-
 					}
 				} catch (ClassNotFoundException e) {
 					logger.error("Exception occured when pass the table expression: "

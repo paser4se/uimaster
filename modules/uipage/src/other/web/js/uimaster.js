@@ -2057,7 +2057,7 @@ function focusFirstTextField(){
     }
 }
 function getElementListSingle(obj){//div[id!=''],
-    var el = $(obj).find("div[id!=''],input[name!='__resourcebundle'][name!='isLeftToRight'],select,textarea,button,table,iframe");
+    var el = $(obj).find("div[id!=''],input[name!='__resourcebundle'][name!='isLeftToRight'],select,textarea,button,table,iframe,canvas");
     for (var i = 0; i < el.length; i++) {
         var e = el[i], t = elementList[e.name];
         if (e && e.type=="")

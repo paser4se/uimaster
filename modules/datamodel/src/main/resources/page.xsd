@@ -730,30 +730,35 @@ in simple component mapping, the paramName is required</xs:documentation>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:complexType name="UIBarChartType">
+    <xs:complexType name="UIChartBarType">
         <xs:complexContent>
             <xs:extension base="Page:UIChartType"/>
         </xs:complexContent>
     </xs:complexType>
-    <xs:complexType name="UIRadarChartType">
+    <xs:complexType name="UIChartDoughnutType">
+        <xs:complexContent>
+            <xs:extension base="Page:UIChartType"/>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="UIChartRadarType">
         <xs:complexContent>
             <xs:extension base="Page:UIChartType">
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:complexType name="UIPolarChartType">
+    <xs:complexType name="UIChartPolarPieType">
         <xs:complexContent>
             <xs:extension base="Page:UIChartType">
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:complexType name="UIPieChartType">
+    <xs:complexType name="UIChartPieType">
         <xs:complexContent>
             <xs:extension base="Page:UIChartType">
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:complexType name="UILinearChartType">
+    <xs:complexType name="UIChartLinearType">
         <xs:complexContent>
             <xs:extension base="Page:UIChartType">
             </xs:extension>

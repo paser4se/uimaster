@@ -181,6 +181,7 @@ public class FlowContainer {
         task.setExpiredTime(timeout);
         task.setEnabled(true);
         task.setListener(new MissionListener(task));
+        task.setCreateTime(new Date());
         //javax.sql.rowset.serial.SerialBlob blob = new javax.sql.rowset.serial.SerialBlob();
         task.setFlowState(FlowRuntimeContext.marshall(flowContext));
         

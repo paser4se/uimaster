@@ -56,7 +56,7 @@
         </ns2:layout>
         <ns2:component xsi:type="ns2:UIHiddenType" UIID="CENameUI"></ns2:component>
         <ns2:component xsi:type="ns2:UITabPaneType" UIID="functionsTab">
-			     <ns2:ajaxLoad>false</ns2:ajaxLoad>
+			     <ns2:ajaxLoad>true</ns2:ajaxLoad>
               <ns2:tab uiid="tasksTablePanel">
                <ns2:title xsi:type="ns2:ResourceBundlePropertyType">
                    <ns2:bundle>org_shaolin_bmdp_workflow_i18n</ns2:bundle>
@@ -365,6 +365,111 @@
 			                <ns2:constraint xsi:type="ns2:TableLayoutConstraintType"
 			                    x="0" y="0" align="FULL"></ns2:constraint>
 			            </ns2:layoutConstraint>
+            </ns2:panel>
+            </ns2:tab>
+            <ns2:tab uiid="tasksAnalysisPanel">
+              <ns2:title xsi:type="ns2:ResourceBundlePropertyType">
+                  <ns2:bundle>org_shaolin_bmdp_workflow_i18n</ns2:bundle>
+                  <ns2:key>org.shaolin.bmdp.workflow.page.TaskManager.tasksAnalysis</ns2:key>
+              </ns2:title>
+              <ns2:panel UIID="tasksAnalysisPanel">
+              <ns2:layout xsi:type="ns2:TableLayoutType">
+                  <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+                  <ns2:columnWidthWeight>0.0</ns2:columnWidthWeight>
+                  <ns2:columnWidthWeight>0.0</ns2:columnWidthWeight>
+              </ns2:layout>
+              <ns2:component xsi:type="ns2:UIChartPieType" UIID="currentTasksPie">
+                  <ns2:Property name="width">
+											         <ns2:value xsi:type="ns2:NumericPropertyType">
+											            <value>400</value>
+											         </ns2:value>
+									         </ns2:Property>
+									         <ns2:Property name="height">
+                    <ns2:value xsi:type="ns2:NumericPropertyType">
+                       <value>200</value>
+                    </ns2:value>
+                  </ns2:Property>
+                  <ns2:widgetLabel xsi:type="ns2:StringPropertyType">
+                      <ns2:value>Current Tasks Distribution</ns2:value>
+                  </ns2:widgetLabel>
+                  <ns2:beElement>org.shaolin.bmdp.workflow.be.Task</ns2:beElement>
+                  <ns2:query xsi:type="ns2:ExpressionPropertyType">
+                       <ns2:expression xsi:type="ns2:ExpressionType">
+                           <ns2:expressionString><![CDATA[
+                           import java.util.List;
+                           import java.util.HashMap;
+                           import org.shaolin.uimaster.page.ajax.TableConditions;
+                           import org.shaolin.bmdp.workflow.ce.TaskStatusType;
+                           import org.shaolin.bmdp.runtime.AppContext;
+                           import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
+                           {
+                               HashMap list = new HashMap();
+                               ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class);
+                               list.put(TaskStatusType.INPROGRESS.getDisplayName(), new Integer(service.getTasks(TaskStatusType.INPROGRESS).size()));
+                               list.put(TaskStatusType.EXPIRED.getDisplayName(), new Integer(service.getTasks(TaskStatusType.EXPIRED).size()));
+                               
+                               return list;
+                           }]]></ns2:expressionString>
+                       </ns2:expression>
+                   </ns2:query>
+                  <ns2:column xsi:type="ns2:UITableColumnType">
+                       <ns2:title xsi:type="ns2:StringPropertyType">
+                           <ns2:value>Description</ns2:value>
+                       </ns2:title>
+                       <ns2:beFieldId>rowBE.status</ns2:beFieldId>
+                   </ns2:column>
+              </ns2:component>
+              <ns2:component xsi:type="ns2:UIChartPieType" UIID="historyTasksPie">
+                  <ns2:Property name="width">
+                    <ns2:value xsi:type="ns2:NumericPropertyType">
+                       <value>400</value>
+                    </ns2:value>
+                  </ns2:Property>
+                  <ns2:Property name="height">
+                    <ns2:value xsi:type="ns2:NumericPropertyType">
+                       <value>200</value>
+                    </ns2:value>
+                  </ns2:Property>
+                  <ns2:widgetLabel xsi:type="ns2:StringPropertyType">
+                      <ns2:value>History Tasks Distribution</ns2:value>
+                  </ns2:widgetLabel>
+                  <ns2:beElement>org.shaolin.bmdp.workflow.be.Task</ns2:beElement>
+                  <ns2:query xsi:type="ns2:ExpressionPropertyType">
+                       <ns2:expression xsi:type="ns2:ExpressionType">
+                           <ns2:expressionString><![CDATA[
+                           import java.util.List;
+                           import java.util.HashMap;
+                           import org.shaolin.uimaster.page.ajax.TableConditions;
+                           import org.shaolin.bmdp.workflow.ce.TaskStatusType;
+                           import org.shaolin.bmdp.runtime.AppContext;
+                           import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
+                           {
+                               HashMap list = new HashMap();
+                               ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class);
+                               list.put(TaskStatusType.INPROGRESS.getDisplayName(), new Integer(service.getTasks(TaskStatusType.INPROGRESS).size()));
+                               list.put(TaskStatusType.EXPIRED.getDisplayName(), new Integer(service.getTasks(TaskStatusType.EXPIRED).size()));
+                               
+                               return list;
+                           }]]></ns2:expressionString>
+                       </ns2:expression>
+                   </ns2:query>
+                  <ns2:column xsi:type="ns2:UITableColumnType">
+                       <ns2:title xsi:type="ns2:StringPropertyType">
+                           <ns2:value>Description</ns2:value>
+                       </ns2:title>
+                       <ns2:beFieldId>rowBE.status</ns2:beFieldId>
+                   </ns2:column>
+              </ns2:component>
+               <ns2:layoutConstraint>
+                   <ns2:componentId>currentTasksPie</ns2:componentId>
+                   <ns2:constraint xsi:type="ns2:TableLayoutConstraintType"
+                       x="0" y="0" align="FULL"></ns2:constraint>
+               </ns2:layoutConstraint>
+               <ns2:layoutConstraint>
+                   <ns2:componentId>historyTasksPie</ns2:componentId>
+                   <ns2:constraint xsi:type="ns2:TableLayoutConstraintType"
+                       x="1" y="0" align="FULL"></ns2:constraint>
+               </ns2:layoutConstraint>
             </ns2:panel>
             </ns2:tab>
         </ns2:component>

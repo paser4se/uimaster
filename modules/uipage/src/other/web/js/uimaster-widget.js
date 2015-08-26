@@ -1934,13 +1934,17 @@ UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
 	_treeObj:null,
 	init:function(){
 		var t = this;
-		var config = $($(this).children()[0]);
+		var config = $($(this).children().length == 2? $(this).children()[1]:$(this).children()[0]);
 		var d = eval("("+config.text()+")");
 		var children = d[0].children;
 		for (var i=0; i<children.length; i++){
 			if(children[i].hasChildren && children[i].children.length==0) {
 				children[i].children = true;
 			}
+		}
+
+		if ($(this).children().length == 2) {
+		    this.custItems = $($(this).children()[0]).children();
 		}
 		var clickEvent = config.attr("clickevent");
 		var expandEvent = config.attr("expendevent");
@@ -2041,6 +2045,18 @@ UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
 				ref.refresh_node(t._sel);
 			}};
 		}
+		
+		var custItems = this.element[0].custItems;
+		if (custItems != null) {
+		  for (var i=0;i<custItems.length;i++) {
+		     var a = $(custItems[i]);
+			 //TODO
+		     items["item"+i] = {label: a.attr("title"), action: function (e) {
+				eval(a.attr("event"));
+			}};
+		  }
+		}
+		//TODO: add customized menu.
 		return items;
 	},
 	sync:function(){
@@ -2568,28 +2584,25 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
     	return $("#titles-container-" + this.id).children().length;
     }
 });
-UIMaster.ui.chart= function(conf){
-    conf = conf || {};
-    UIMaster.apply(this, conf);
-    return this;
-};
 UIMaster.ui.chart=UIMaster.extend(UIMaster.ui,{
     type:null,
     chart:null,
     init:function() {
+	   var obj = eval("("+$(this).text()+")");
+	   this.type = obj.type;
        var ctx = $(this).get(0).getContext("2d");
-       if (this.type == "HTMLChartBar") {
-    	   this.chart = new Chart(ctx).Bar(data, options);
-       } else if (this.type == "HTMLChartDoughnut") {
-    	   this.chart = new Chart(ctx).Doughnut(data, options);
-       } else if (this.type == "HTMLChartLinear") {
-    	   this.chart = new Chart(ctx).Line(data, options);
-       } else if (this.type == "HTMLChartPie") {
-    	   this.chart = new Chart(ctx).Pie(data, options);
-       } else if (this.type == "HTMLChartPolarPie") {
-    	   this.chart = new Chart(ctx).PolarArea(data, options);
-       } else if (this.type == "HTMLChartRadar") {
-    	   this.chart = new Chart(ctx).Radar(data, options);
+       if (this.type == "HTMLChartBarType") {
+    	   this.chart = new Chart(ctx).Bar(obj, {});
+       } else if (this.type == "HTMLChartDoughnutType") {
+    	   this.chart = new Chart(ctx).Doughnut(obj.obj, {});
+       } else if (this.type == "HTMLChartLinearType") {
+    	   this.chart = new Chart(ctx).Line(obj, {});
+       } else if (this.type == "HTMLChartPieType") {
+    	   this.chart = new Chart(ctx).Pie(obj.data, {});
+       } else if (this.type == "HTMLChartPolarPieType") {
+    	   this.chart = new Chart(ctx).PolarArea(obj.data, {});
+       } else if (this.type == "HTMLChartRadarType") {
+    	   this.chart = new Chart(ctx).Radar(obj, {});
        }
     }
 });

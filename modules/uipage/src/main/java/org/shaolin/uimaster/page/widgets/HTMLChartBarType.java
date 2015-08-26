@@ -29,18 +29,18 @@ import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.shaolin.uimaster.page.od.ODContext;
 
-public class HTMLChartBar extends HTMLChartSuper {
+public class HTMLChartBarType extends HTMLChartSuper {
 
 	private static final long serialVersionUID = -5232602952223828765L;
 
-	public HTMLChartBar() {
+	public HTMLChartBarType() {
 	}
 
-	public HTMLChartBar(HTMLSnapshotContext context) {
+	public HTMLChartBarType(HTMLSnapshotContext context) {
 		super(context);
 	}
 
-	public HTMLChartBar(HTMLSnapshotContext context, String id) {
+	public HTMLChartBarType(HTMLSnapshotContext context, String id) {
 		super(context, id);
 	}
 

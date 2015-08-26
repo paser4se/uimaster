@@ -24,6 +24,8 @@ public class JSConstants
     
     public static final String TABLE = "UIMaster.ui.objectlist";
     
+    public static final String CHART = "UIMaster.ui.chart";
+    
     public static final String FLOW = "UIMaster.ui.flow";
     
     public static final String LABEL = "UIMaster.ui.label";

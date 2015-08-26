@@ -21,6 +21,7 @@ import org.shaolin.bmdp.datamodel.page.ResourceBundlePropertyType;
 import org.shaolin.bmdp.datamodel.page.StringPropertyType;
 import org.shaolin.bmdp.datamodel.page.UIBaseType;
 import org.shaolin.bmdp.datamodel.page.UIButtonType;
+import org.shaolin.bmdp.datamodel.page.UIChartType;
 import org.shaolin.bmdp.datamodel.page.UICheckBoxGroupType;
 import org.shaolin.bmdp.datamodel.page.UICheckBoxType;
 import org.shaolin.bmdp.datamodel.page.UIComboBoxType;
@@ -596,6 +597,10 @@ public class UIFormJSGenerator0 {
 			out.write(" = new ");
 			out.print(JSConstants.TABLE);
 			out.write("\n");
+		} else if (component instanceof UIChartType) {
+			out.write(" = new ");
+			out.print(JSConstants.CHART);
+			out.write("\n");
 		}  else if (component instanceof UIFlowDiagramType) {
 			out.write(" = new ");
 			out.print(JSConstants.FLOW);
@@ -605,6 +610,24 @@ public class UIFormJSGenerator0 {
         out.write("    ({\n");
         processCommonField(out, component, uiEntity);
         out.write("    });\n");
+        
+        if (component instanceof UITabPaneType) {
+	        List<UITabPaneItemType> tabs = ((UITabPaneType) component).getTabs();
+			for (UITabPaneItemType t : tabs) {
+				if (t.getRefEntity() != null) {
+					genRefComponentJS(out, t.getRefEntity(), uiEntity);
+				} else if (t.getPanel() != null) {
+					UIComponentType[] subComponents = new UIComponentType[t.getPanel().getComponents().size()];
+					t.getPanel().getComponents().toArray(subComponents);
+					for (UIComponentType cType: subComponents)
+					{
+						genRefJS(out, cType);
+						genCommonComponentJS(out, cType, uiEntity);
+					}
+					genUIContainerJS(out, (UIContainerType)t.getPanel(), false, subComponents, uiEntity);
+				}
+			}
+        }
     
     }
     

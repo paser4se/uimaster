@@ -403,7 +403,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 
 	@Override
 	public int getRunLevel() {
-		return 1;
+		return 20;
 	}
 	
 	private void taskToNotification(ITask t) {
