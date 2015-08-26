@@ -15,12 +15,14 @@
  */
 package org.shaolin.uimaster.page.widgets;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.shaolin.bmdp.datamodel.page.UITableColumnType;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 
 public class HTMLChartPieType extends HTMLChartSuper {
 	private static final long serialVersionUID = -5232602952223828765L;
@@ -39,6 +41,10 @@ public class HTMLChartPieType extends HTMLChartSuper {
 	@Override
 	public void generateData(List<UITableColumnType> columns,
 			HTMLSnapshotContext context, int depth) throws Exception {
+		Map<String, String> cssStyles = new HashMap<String, String>();
+		for (UITableColumnType col: columns) {
+			cssStyles.put(UIVariableUtil.getI18NProperty(col.getTitle()), col.getCssStype());
+		}
 		Map<String, Integer> listData = (Map<String, Integer>)this.removeAttribute("query");
 		if (listData != null && !listData.isEmpty()) {
 			StringBuffer sb = new StringBuffer("data: [");
@@ -46,6 +52,10 @@ public class HTMLChartPieType extends HTMLChartSuper {
 			for (String key : keys) {
 				sb.append("{").append("value: ").append(listData.get(key));
 				sb.append(",").append("label: '").append(key).append("'");
+				String css = cssStyles.get(key);
+				if (css != null) {
+					sb.append(",").append(css);
+				}
 				sb.append("},");
 			}
 			sb.deleteCharAt(sb.length()-1);

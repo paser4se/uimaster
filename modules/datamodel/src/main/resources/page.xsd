@@ -682,6 +682,7 @@ in simple component mapping, the paramName is required</xs:documentation>
         <xs:sequence>
             <xs:element name="title" type="Page:PropertyValueType"/>
             <xs:element name="beFieldId" type="xs:string"/>
+            <xs:element name="cssStype" type="xs:string"/>
             <xs:element name="uiType" type="Page:UITableColHTMLType"/>
             <!-- for dynamic combox values -->
             <xs:element name="comboxExpression" type="Page:ExpressionPropertyType" minOccurs="0"/>
