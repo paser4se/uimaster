@@ -381,7 +381,7 @@
               <ns2:component xsi:type="ns2:UIChartPieType" UIID="currentTasksPie">
                   <ns2:Property name="width">
 											         <ns2:value xsi:type="ns2:NumericPropertyType">
-											            <value>400</value>
+											            <value>200</value>
 											         </ns2:value>
 									         </ns2:Property>
 									         <ns2:Property name="height">
@@ -466,9 +466,21 @@
                        </ns2:expression>
                    </ns2:query>
                   <ns2:column xsi:type="ns2:UITableColumnType">
-                       <ns2:title xsi:type="ns2:StringPropertyType">
-                           <ns2:value>Description</ns2:value>
+                       <ns2:title xsi:type="ns2:ExpressionPropertyType">
+                           <ns2:expression>
+                             <expressionString>{return TaskStatusType.INPROGRESS.getDisplayName();}</expressionString>
+                           </ns2:expression>
                        </ns2:title>
+                       <ns2:cssStype>color:'#46BFBD',highlight:'#5AD3D1'</ns2:cssStype>
+                       <ns2:beFieldId>rowBE.status</ns2:beFieldId>
+                   </ns2:column>
+                   <ns2:column xsi:type="ns2:UITableColumnType">
+                       <ns2:title xsi:type="ns2:ExpressionPropertyType">
+                           <ns2:expression>
+                             <expressionString>{return TaskStatusType.EXPIRED.getDisplayName();}</expressionString>
+                           </ns2:expression>
+                       </ns2:title>
+                       <ns2:cssStype>color:'#F7464A',highlight:'#FF5A5E'</ns2:cssStype>
                        <ns2:beFieldId>rowBE.status</ns2:beFieldId>
                    </ns2:column>
               </ns2:component>

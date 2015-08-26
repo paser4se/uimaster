@@ -15,6 +15,7 @@
  */
 package org.shaolin.uimaster.page.widgets;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.shaolin.bmdp.datamodel.page.UITableColumnType;
@@ -23,6 +24,7 @@ import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.od.ODContext;
 
 public class HTMLChartRadarType extends HTMLChartSuper {
@@ -69,13 +71,22 @@ public class HTMLChartRadarType extends HTMLChartSuper {
 	 */
 	@Override
 	public void generateData(List<UITableColumnType> columns, HTMLSnapshotContext context, int depth) throws Exception {
+		List<String> cssStyles = new ArrayList<String>();
+		for (UITableColumnType col: columns) {
+			cssStyles.add("label: '" + UIVariableUtil.getI18NProperty(col.getTitle()) + "'," + col.getCssStype());
+		}
 		List<Object> listData = (List<Object>)this.removeAttribute("query");
 		if (!listData.isEmpty() && listData.size() > 0) {
 			context.generateHTML("datasets: [");
 			StringBuffer sb = new StringBuffer();
 			// vertical iterator.
 			for (int columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
-				sb.append("{ data:[");
+				sb.append("{");
+				String css = cssStyles.get(columnIndex);
+				if (css != null) {
+					sb.append(css).append(",");
+				}
+				sb.append(" data:[");
 				for (int i = 0; i < listData.size(); i++) {
 					OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 					DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
