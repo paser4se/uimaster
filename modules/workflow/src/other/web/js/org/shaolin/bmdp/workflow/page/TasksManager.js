@@ -13,27 +13,63 @@ function org_shaolin_bmdp_workflow_page_TasksManager(json)
         ui: elementList[prefix + "tasksTable"]
     });
 
+    var functionsTab = new UIMaster.ui.tab
+    ({
+        ui: elementList[prefix + "functionsTab"]
+    });
+    var tasksTable = new UIMaster.ui.objectlist
+    ({
+        ui: elementList[prefix + "tasksTable"]
+    });
+
+    var tasksTablePanel = new UIMaster.ui.panel
+    ({
+        ui: elementList[prefix + "tasksTablePanel"]
+        ,items: []
+        ,subComponents: [prefix + "tasksTable"]
+    });
     var tasksHistoryTable = new UIMaster.ui.objectlist
     ({
         ui: elementList[prefix + "tasksHistoryTable"]
     });
 
-    var functionsTab = new UIMaster.ui.tab
+    var tasksHistoryTablePanel = new UIMaster.ui.panel
     ({
-        ui: elementList[prefix + "functionsTab"]
+        ui: elementList[prefix + "tasksHistoryTablePanel"]
+        ,items: []
+        ,subComponents: [prefix + "tasksHistoryTable"]
+    });
+    var currentTasksPie = new UIMaster.ui.chart
+    ({
+        ui: elementList[prefix + "currentTasksPie"]
+    });
+
+    var historyTasksPie = new UIMaster.ui.chart
+    ({
+        ui: elementList[prefix + "historyTasksPie"]
+    });
+
+    var historyTasksRadar = new UIMaster.ui.chart
+    ({
+        ui: elementList[prefix + "historyTasksRadar"]
+    });
+
+    var tasksAnalysisPanel = new UIMaster.ui.panel
+    ({
+        ui: elementList[prefix + "tasksAnalysisPanel"]
+        ,items: []
+        ,subComponents: [prefix + "currentTasksPie",prefix + "historyTasksPie",prefix + "historyTasksRadar"]
     });
 
     var Form = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "Form"]
-        ,items: [CENameUI,tasksTable,tasksHistoryTable,functionsTab]
+        ,items: [CENameUI,tasksTable,functionsTab]
     });
 
     Form.CENameUI=CENameUI;
 
     Form.tasksTable=tasksTable;
-
-    Form.tasksHistoryTable=tasksHistoryTable;
 
     Form.functionsTab=functionsTab;
 

@@ -126,7 +126,7 @@ public class FlowContainer {
     }
 
     public void runTask(final WorkFlowEventProcessor timeoutEventProcessor, final TimeoutEvent event) {
-        executorService.submit(new TimeoutEventTask(timeoutEventProcessor, event));
+        //executorService.submit(new TimeoutEventTask(timeoutEventProcessor, event));
     }
 
     public void startTransaction() {

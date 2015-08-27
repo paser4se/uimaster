@@ -808,15 +808,7 @@ public class UIFormObject implements java.io.Serializable
 					
 					List<UITableColumnType> columns = chart.getColumns();
 					for (UITableColumnType col : columns) {
-						if(col.getRowExpression() != null) {
-							if (col.getBeFieldId() == null) {
-								throw new IllegalArgumentException("This column must have a befieldid in " + chart.getUIID() + " chart.");
-							}
-							ExpressionType expr = new ExpressionType();
-							expr.setExpressionString("$" + ComponentMappingHelper.getIndexedComponentPath(col.getBeFieldId(), false, ""));
-							ExpressionPropertyType p = new ExpressionPropertyType();
-							p.setExpression(expr);
-							col.setRowExpression(p);
+						if(col.getRowExpression() != null && col.getRowExpression().getExpression() != null) {
 							col.getRowExpression().getExpression().parse(parsingContext);
 						}
 					}
