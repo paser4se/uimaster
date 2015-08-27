@@ -369,6 +369,7 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 		out.write("import org.shaolin.bmdp.runtime.be.IExtensibleEntity;\n");
 		out.write("import org.shaolin.bmdp.runtime.be.IPersistentEntity;\n");
 		out.write("import org.shaolin.bmdp.runtime.be.IHistoryEntity;\n");
+		out.write("import org.shaolin.bmdp.runtime.be.ITaskEntity;\n");
 		out.write("import org.shaolin.bmdp.runtime.be.BEExtensionInfo;\n\n");
 		out.write("import org.shaolin.bmdp.runtime.spi.IConstantService;\n\n");
 		out.write("import org.shaolin.bmdp.runtime.AppContext;\n\n");
@@ -395,10 +396,11 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 		String parentInterface = null;
 		if (businessEntity.isNeedPersist()) {
 			parentInterface = "IPersistentEntity";
+			if (businessEntity.isNeedTask()) {
+				parentInterface = "ITaskEntity";
+			} 
 		} else if (businessEntity.isNeedHistory()) {
 			parentInterface = "IHistoryEntity";
-		} else if (businessEntity.isNeedTask()) {
-			parentInterface = "ITaskEntity";
 		} else {
 			parentInterface = "IBusinessEntity";
 		}
@@ -701,7 +703,7 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 				out.write("    /**\n");
 				out.write("     *  set taskId\n");
 				out.write("     */\n");
-				out.write("    private void setTaskId(long taskId) {\n");
+				out.write("    public void setTaskId(long taskId) {\n");
 				out.write("        this._taskId = taskId;\n");
 				out.write("    }\n        ");
 			}

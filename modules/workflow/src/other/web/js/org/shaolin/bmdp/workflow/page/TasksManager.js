@@ -83,6 +83,12 @@ function org_shaolin_bmdp_workflow_page_TasksManager(json)
 
     Form.openTask = org_shaolin_bmdp_workflow_page_TasksManager_openTask;
 
+    Form.postponeTask = org_shaolin_bmdp_workflow_page_TasksManager_postponeTask;
+
+    Form.completeTask = org_shaolin_bmdp_workflow_page_TasksManager_completeTask;
+
+    Form.cancelTask = org_shaolin_bmdp_workflow_page_TasksManager_cancelTask;
+
     Form.deleteUser = org_shaolin_bmdp_workflow_page_TasksManager_deleteUser;
 
     Form.initPageJs = org_shaolin_bmdp_workflow_page_TasksManager_initPageJs;
@@ -121,6 +127,39 @@ function org_shaolin_bmdp_workflow_page_TasksManager(json)
 
         var UIEntity = this;
     }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_openTask */
+
+
+    /* auto generated eventlistener function declaration */
+    function org_shaolin_bmdp_workflow_page_TasksManager_postponeTask(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_TasksManager_postponeTask */
+
+        // cal ajax function. 
+
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"postponeTask-20150827-1152",UIMaster.getValue(eventsource),this.__entityName);
+
+        var UIEntity = this;
+    }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_postponeTask */
+
+
+    /* auto generated eventlistener function declaration */
+    function org_shaolin_bmdp_workflow_page_TasksManager_completeTask(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_TasksManager_completeTask */
+
+        // cal ajax function. 
+
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"completeTask-20150827-1152",UIMaster.getValue(eventsource),this.__entityName);
+
+        var UIEntity = this;
+    }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_completeTask */
+
+
+    /* auto generated eventlistener function declaration */
+    function org_shaolin_bmdp_workflow_page_TasksManager_cancelTask(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_TasksManager_cancelTask */
+
+        // cal ajax function. 
+
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"cancelTask-20150827-1152",UIMaster.getValue(eventsource),this.__entityName);
+
+        var UIEntity = this;
+    }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_cancelTask */
 
 
     /* auto generated eventlistener function declaration */
