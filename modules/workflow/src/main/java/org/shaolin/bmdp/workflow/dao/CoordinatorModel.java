@@ -25,7 +25,7 @@ public class CoordinatorModel extends BEEntityDaoObject {
     private CoordinatorModel() {
     }
 
-    public List<org.shaolin.bmdp.workflow.be.TaskImpl> searchTasks(org.shaolin.bmdp.workflow.be.TaskImpl scFlow,
+    public List<org.shaolin.bmdp.workflow.be.ITask> searchTasks(org.shaolin.bmdp.workflow.be.TaskImpl scFlow,
            List<Order> orders, int offset, int count) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
@@ -62,7 +62,7 @@ public class CoordinatorModel extends BEEntityDaoObject {
         }
     }
 
-    public List<org.shaolin.bmdp.workflow.be.TaskImpl> searchTasks(org.shaolin.bmdp.workflow.be.TaskImpl scFlow,
+    public List<org.shaolin.bmdp.workflow.be.ITask> searchTasks(org.shaolin.bmdp.workflow.be.TaskImpl scFlow,
            Session session, List<Order> orders, int offset, int count) {
         try {
             Criteria inFlowCriteria = this._createCriteria(session, org.shaolin.bmdp.workflow.be.TaskImpl.class, "inFlow");
@@ -155,7 +155,7 @@ public class CoordinatorModel extends BEEntityDaoObject {
         }
     }
 
-    public List<org.shaolin.bmdp.workflow.be.TaskImpl> searchPendingTasks(org.shaolin.bmdp.workflow.be.TaskImpl scFlow,
+    public List<org.shaolin.bmdp.workflow.be.ITask> searchPendingTasks(org.shaolin.bmdp.workflow.be.TaskImpl scFlow,
            List<Order> orders, int offset, int count) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
@@ -186,7 +186,7 @@ public class CoordinatorModel extends BEEntityDaoObject {
         }
     }
 
-    public List<org.shaolin.bmdp.workflow.be.TaskImpl> searchPendingTasks(org.shaolin.bmdp.workflow.be.TaskImpl scFlow,
+    public List<org.shaolin.bmdp.workflow.be.ITask> searchPendingTasks(org.shaolin.bmdp.workflow.be.TaskImpl scFlow,
            Session session, List<Order> orders, int offset, int count) {
         try {
             Criteria inFlowCriteria = this._createCriteria(session, org.shaolin.bmdp.workflow.be.TaskImpl.class, "inFlow");
@@ -261,7 +261,7 @@ public class CoordinatorModel extends BEEntityDaoObject {
         }
     }
 
-    public List<org.shaolin.bmdp.workflow.be.TaskHistoryImpl> searchTasksHistory(org.shaolin.bmdp.workflow.be.TaskHistoryImpl scFlow,
+    public List<org.shaolin.bmdp.workflow.be.ITaskHistory> searchTasksHistory(org.shaolin.bmdp.workflow.be.TaskHistoryImpl scFlow,
            List<Order> orders, int offset, int count) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
@@ -301,7 +301,7 @@ public class CoordinatorModel extends BEEntityDaoObject {
         }
     }
 
-    public List<org.shaolin.bmdp.workflow.be.TaskHistoryImpl> searchTasksHistory(org.shaolin.bmdp.workflow.be.TaskHistoryImpl scFlow,
+    public List<org.shaolin.bmdp.workflow.be.ITaskHistory> searchTasksHistory(org.shaolin.bmdp.workflow.be.TaskHistoryImpl scFlow,
            Session session, List<Order> orders, int offset, int count) {
         try {
             Criteria inFlowCriteria = this._createCriteria(session, org.shaolin.bmdp.workflow.be.TaskHistoryImpl.class, "inFlow");

@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.shaolin.bmdp.workflow.be.INotification;
 import org.shaolin.bmdp.workflow.be.ITask;
+import org.shaolin.bmdp.workflow.be.ITaskHistory;
 import org.shaolin.bmdp.workflow.ce.TaskStatusType;
 
 public interface ICoordinatorService {
@@ -69,6 +70,22 @@ public interface ICoordinatorService {
 	 * @return
 	 */
 	List<ITask> getPartyTasks(long partyId);
+	
+	/**
+	 * Get the history tasks.
+	 * 
+	 * @param status
+	 * @return
+	 */
+	List<ITaskHistory> getHistoryTasks(TaskStatusType status);
+	
+	/**
+	 * Get the history tasks by session id.
+	 * 
+	 * @param status
+	 * @return
+	 */
+	List<ITaskHistory> getHistoryTasksBySessionId(String sessionId);
 	
 	ITask getTask(long taskId);
 	

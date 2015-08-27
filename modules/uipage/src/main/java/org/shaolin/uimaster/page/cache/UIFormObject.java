@@ -1487,11 +1487,20 @@ public class UIFormObject implements java.io.Serializable
 				button.setUIID(node.getActionName());
 				ExpressionPropertyType property = new ExpressionPropertyType();
 				ExpressionType expr = new ExpressionType();
-				expr.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; \n{ return UserContext.hasRole(\""
-											+ node.getPartyType() + "\"); }");
+				expr.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; "
+						+ "\n{ return UserContext.hasRole(\"" + node.getPartyType() + "\"); }");
 				property.setExpression(expr);
 				button.setVisible(property);
-				
+				ExpressionPropertyType property1 = new ExpressionPropertyType();
+				ExpressionType expr1 = new ExpressionType();
+				expr1.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; \n"
+						+ "import org.shaolin.bmdp.runtime.AppContext; \n"
+						+ "import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService; \n"
+						+ "\n{ "
+						+ "\n ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class);"
+						+ "\n return true; }");
+				property1.setExpression(expr1);
+				button.setReadOnly(property1);
 				StringPropertyType strProperty = new StringPropertyType();
 				if (node.getActionText() == null) {
 					node.setActionText("Approve");

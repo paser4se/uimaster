@@ -397,6 +397,8 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			parentInterface = "IPersistentEntity";
 		} else if (businessEntity.isNeedHistory()) {
 			parentInterface = "IHistoryEntity";
+		} else if (businessEntity.isNeedTask()) {
+			parentInterface = "ITaskEntity";
 		} else {
 			parentInterface = "IBusinessEntity";
 		}
@@ -548,6 +550,16 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			out.write("    private boolean get_enable() {\n");
 			out.write("        return _enable;\n");
 			out.write("    }\n        ");
+			if (beEntity.isNeedTask()) {
+				out.write("    /**\n");
+				out.write("     *  Get taskId\n");
+				out.write("     *\n");
+				out.write("     *  @return long\n");
+				out.write("     */\n");
+				out.write("    public long getTaskId() {\n");
+				out.write("        return _taskId;\n");
+				out.write("    }\n        ");
+			}
 		}
 		
 		if (isSelfNeedHistory(beEntity)) {
@@ -685,6 +697,14 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			out.write("    private void set_enable(boolean enable) {\n");
 			out.write("        _enable = enable;\n");
 			out.write("    }\n\n    ");
+			if (beEntity.isNeedTask()) {
+				out.write("    /**\n");
+				out.write("     *  set taskId\n");
+				out.write("     */\n");
+				out.write("    private void setTaskId(long taskId) {\n");
+				out.write("        this._taskId = taskId;\n");
+				out.write("    }\n        ");
+			}
 		}
 			
 		if (isSelfNeedHistory(beEntity)) {
@@ -845,6 +865,12 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			out.write("     * Enable record\n");
 			out.write("     */\n");
 			out.write("    private boolean _enable = true;\n\n");
+			if (beEntity.isNeedTask()) {
+				out.write("    /**\n");
+				out.write("     * task id\n");
+				out.write("     */\n");
+				out.write("    private long _taskId;\n\n");
+			}
 		}
 
 		if (isSelfNeedHistory(beEntity)) {

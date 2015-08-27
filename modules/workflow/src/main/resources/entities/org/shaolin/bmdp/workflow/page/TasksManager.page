@@ -48,6 +48,87 @@
             </ns2:exp>
         </ns2:ops>
     </ns2:eventHandler>
+    <ns2:eventHandler functionName="postponeTask">
+       <ns2:ops xsi:type="ns2:OpCallAjaxType" name="postponeTask-20150827-1152">
+            <ns2:exp>
+                <ns2:expressionString><![CDATA[
+                import java.util.HashMap;
+                import org.shaolin.uimaster.page.AjaxContext;
+                import org.shaolin.uimaster.page.ajax.*;
+                import org.shaolin.bmdp.workflow.be.TaskImpl;
+                import org.shaolin.bmdp.runtime.AppContext;
+                import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
+                {
+                    Table tasksTable = (Table)@page.getElement("tasksTable");
+                    if (tasksTable.getSelectedRow() == null) {
+                        return;
+                    }
+                    
+                    TaskImpl defaultUser = (TaskImpl)tasksTable.getSelectedRow();
+                    ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class);
+                    service.postponeTask(defaultUser);
+                    
+                    TableCallBack callBack = new TableCallBack("tasksTable");
+                    callBack.execute();
+                }
+                ]]></ns2:expressionString>
+            </ns2:exp>
+        </ns2:ops>
+    </ns2:eventHandler>
+    <ns2:eventHandler functionName="completeTask">
+       <ns2:ops xsi:type="ns2:OpCallAjaxType" name="completeTask-20150827-1152">
+            <ns2:exp>
+                <ns2:expressionString><![CDATA[
+                import java.util.HashMap;
+                import org.shaolin.uimaster.page.AjaxContext;
+                import org.shaolin.uimaster.page.ajax.*;
+                import org.shaolin.bmdp.workflow.be.TaskImpl;
+                import org.shaolin.bmdp.runtime.AppContext;
+                import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
+                {
+                    Table tasksTable = (Table)@page.getElement("tasksTable");
+                    if (tasksTable.getSelectedRow() == null) {
+                        return;
+                    }
+                    
+                    TaskImpl defaultUser = (TaskImpl)tasksTable.getSelectedRow();
+                    ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class);
+                    service.completeTask(defaultUser);
+                    
+                    TableCallBack callBack = new TableCallBack("tasksTable");
+                    callBack.execute();
+                }
+                ]]></ns2:expressionString>
+            </ns2:exp>
+        </ns2:ops>
+    </ns2:eventHandler>
+    <ns2:eventHandler functionName="cancelTask">
+       <ns2:ops xsi:type="ns2:OpCallAjaxType" name="cancelTask-20150827-1152">
+            <ns2:exp>
+                <ns2:expressionString><![CDATA[
+                import java.util.HashMap;
+                import org.shaolin.uimaster.page.AjaxContext;
+                import org.shaolin.uimaster.page.ajax.*;
+                import org.shaolin.bmdp.workflow.be.TaskImpl;
+                import org.shaolin.bmdp.runtime.AppContext;
+                import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
+                {
+                    Table tasksTable = (Table)@page.getElement("tasksTable");
+                    if (tasksTable.getSelectedRow() == null) {
+                        return;
+                    }
+                    
+                    TaskImpl defaultUser = (TaskImpl)tasksTable.getSelectedRow();
+                    ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class);
+                    service.cancelTask(defaultUser);
+                    
+                    TableCallBack callBack = new TableCallBack("tasksTable");
+                    callBack.execute();
+                }
+                ]]></ns2:expressionString>
+            </ns2:exp>
+        </ns2:ops>
+    </ns2:eventHandler>
     <ns2:eventHandler functionName="deleteUser"></ns2:eventHandler>
     <ns2:body UIID="Form" xsi:type="ns2:UIPanelType">
         <ns2:layout xsi:type="ns2:TableLayoutType">
@@ -232,19 +313,33 @@
 			                    <ns2:defaultNewAction>createTask</ns2:defaultNewAction>
 			                    <ns2:defaultOpenAction>openTask</ns2:defaultOpenAction>
 			                </ns2:defaultActions>
-			                <!-- 
 			                <ns2:actionGroup>
-                          <ns2:type>radio</ns2:type>
-                          <ns2:action>
-                              <ns2:uiid>openPAccount</ns2:uiid>
-                              <ns2:title xsi:type="ns2:StringPropertyType">
-                                  <ns2:value>Continue</ns2:value>
-                              </ns2:title>
-                              <ns2:icon>ui-icon-note</ns2:icon>
-                              <ns2:function>openPersonalAccount</ns2:function>
-                          </ns2:action>
-                      </ns2:actionGroup>
-                       -->
+                       <ns2:type>radio</ns2:type>
+                       <ns2:action>
+                           <ns2:uiid>postponeTask</ns2:uiid>
+                           <ns2:title xsi:type="ns2:StringPropertyType">
+                               <ns2:value>Postpone Task</ns2:value>
+                           </ns2:title>
+                           <ns2:icon>ui-icon-note</ns2:icon>
+                           <ns2:function>postponeTask</ns2:function>
+                       </ns2:action>
+                       <ns2:action>
+                           <ns2:uiid>completeTask</ns2:uiid>
+                           <ns2:title xsi:type="ns2:StringPropertyType">
+                               <ns2:value>Complete Task</ns2:value>
+                           </ns2:title>
+                           <ns2:icon>ui-icon-note</ns2:icon>
+                           <ns2:function>completeTask</ns2:function>
+                       </ns2:action>
+                       <ns2:action>
+                           <ns2:uiid>cancelTask</ns2:uiid>
+                           <ns2:title xsi:type="ns2:StringPropertyType">
+                               <ns2:value>Cancel Task</ns2:value>
+                           </ns2:title>
+                           <ns2:icon>ui-icon-note</ns2:icon>
+                           <ns2:function>cancelTask</ns2:function>
+                       </ns2:action>
+                   </ns2:actionGroup>
 			            </ns2:component>
 			            <ns2:layoutConstraint>
 			                <ns2:componentId>tasksTable</ns2:componentId>

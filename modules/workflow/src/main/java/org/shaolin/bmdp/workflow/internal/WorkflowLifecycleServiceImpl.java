@@ -33,6 +33,7 @@ import org.shaolin.bmdp.runtime.spi.IEntityManager;
 import org.shaolin.bmdp.runtime.spi.ILifeCycleProvider;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.shaolin.bmdp.workflow.be.FlowEntityImpl;
+import org.shaolin.bmdp.workflow.be.IFlowEntity;
 import org.shaolin.bmdp.workflow.dao.WorkflowModel;
 import org.shaolin.bmdp.workflow.internal.cache.FlowObject;
 import org.shaolin.bmdp.workflow.spi.IWorkflowService;
@@ -54,8 +55,8 @@ public class WorkflowLifecycleServiceImpl implements ILifeCycleProvider, IServic
 		IEntityManager entityManager = AppContext.get().getEntityManager();
 
 		FlowEntityImpl searchCriteria = new FlowEntityImpl();
-		List<FlowEntityImpl> allFlowEntities = WorkflowModel.INSTANCE.searchFlowEntities(searchCriteria, null, 0, -1);
-		for (FlowEntityImpl wf : allFlowEntities) {
+		List<IFlowEntity> allFlowEntities = WorkflowModel.INSTANCE.searchFlowEntities(searchCriteria, null, 0, -1);
+		for (IFlowEntity wf : allFlowEntities) {
 			try {
 				Workflow workflow = EntityUtil.unmarshaller(Workflow.class, new StringReader(wf.getContent()));
 				// add the customized workflow to current application entity manager.

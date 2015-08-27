@@ -35,6 +35,7 @@ import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.shaolin.bmdp.workflow.be.INotification;
 import org.shaolin.bmdp.workflow.be.ITask;
+import org.shaolin.bmdp.workflow.be.ITaskHistory;
 import org.shaolin.bmdp.workflow.be.NotificationImpl;
 import org.shaolin.bmdp.workflow.be.TaskHistoryImpl;
 import org.shaolin.bmdp.workflow.be.TaskImpl;
@@ -103,7 +104,30 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 	
 	@Override
+	public List<ITaskHistory> getHistoryTasksBySessionId(String sessionId) {
+		if (sessionId == null || sessionId.length() == 0) {
+			throw new IllegalArgumentException("Session id must not be empty.");
+		}
+		TaskHistoryImpl condition = new TaskHistoryImpl();
+		condition.setSessionId(sessionId);
+		return CoordinatorModel.INSTANCE.searchTasksHistory(condition, null, 0, -1);
+	}
+
+	@Override
+	public List<ITaskHistory> getHistoryTasks(TaskStatusType status) {
+		TaskHistoryImpl condition = new TaskHistoryImpl();
+		condition.setStatus(TaskStatusType.EXPIRED);
+		return CoordinatorModel.INSTANCE.searchTasksHistory(condition, null, 0, -1);
+	}
+	
+	@Override
 	public List<ITask> getTasks(TaskStatusType status) {
+		if (status == TaskStatusType.EXPIRED) {
+			TaskImpl condition = new TaskImpl();
+			condition.setStatus(TaskStatusType.EXPIRED);
+			return CoordinatorModel.INSTANCE.searchTasks(condition, null, 0, -1);
+		}
+		
 		List<ITask> partyTasks = new ArrayList<ITask>();
 		Collection<ITask> tasks= workingTasks.values();
 		for (ITask t : tasks) {
@@ -258,7 +282,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		workingTasks.remove(task.getId());
 		
 		task.setStatus(TaskStatusType.EXPIRED);
-		task.setCompleteRate(100);
+		task.setCompleteRate(0);
 		
 		if (!testCaseFlag) {
 			// only update the task that give the customer change to make the decision.
@@ -373,8 +397,8 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		}
 		// load all pending tasks when system up.
 		TaskImpl condition = new TaskImpl();
-		List<TaskImpl> tasks = CoordinatorModel.INSTANCE.searchTasks(condition, null, 0, -1);
-		for (TaskImpl t : tasks) {
+		List<ITask> tasks = CoordinatorModel.INSTANCE.searchTasks(condition, null, 0, -1);
+		for (ITask t : tasks) {
 			workingTasks.put(t.getId(), t);
 			t.setListener(new MissionListener(t));
 			

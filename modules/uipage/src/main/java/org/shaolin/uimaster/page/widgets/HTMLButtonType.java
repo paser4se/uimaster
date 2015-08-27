@@ -77,7 +77,7 @@ public class HTMLButtonType extends HTMLTextWidgetType
             context.generateHTML("\"");
             if (getReadOnly() != null && getReadOnly().booleanValue())
             {
-                context.generateHTML(" disabled=\"true\"");
+                context.generateHTML(" disabled=\"true\" onclick=\'\'");
             }
             context.generateHTML(" />");
             generateEndWidget(context);

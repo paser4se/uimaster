@@ -35,7 +35,7 @@ public class WorkflowModel extends BEEntityDaoObject {
         return count(IFlowEntity.class);
     }
 
-    public List<org.shaolin.bmdp.workflow.be.FlowEntityImpl> searchFlowEntities(org.shaolin.bmdp.workflow.be.FlowEntityImpl scFlow,
+    public List<org.shaolin.bmdp.workflow.be.IFlowEntity> searchFlowEntities(org.shaolin.bmdp.workflow.be.FlowEntityImpl scFlow,
            List<Order> orders, int offset, int count) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
@@ -57,7 +57,7 @@ public class WorkflowModel extends BEEntityDaoObject {
         }
     }
 
-    public List<org.shaolin.bmdp.workflow.be.FlowEntityImpl> searchFlowEntities(org.shaolin.bmdp.workflow.be.FlowEntityImpl scFlow,
+    public List<org.shaolin.bmdp.workflow.be.IFlowEntity> searchFlowEntities(org.shaolin.bmdp.workflow.be.FlowEntityImpl scFlow,
            Session session, List<Order> orders, int offset, int count) {
         try {
             Criteria inFlowCriteria = this._createCriteria(session, org.shaolin.bmdp.workflow.be.FlowEntityImpl.class, "inFlow");
@@ -105,7 +105,7 @@ public class WorkflowModel extends BEEntityDaoObject {
         }
     }
 
-    public List<org.shaolin.bmdp.workflow.be.UIFlowsImpl> searchFlows(org.shaolin.bmdp.workflow.be.UIFlowsImpl scFlow,
+    public List<org.shaolin.bmdp.workflow.be.IUIFlows> searchFlows(org.shaolin.bmdp.workflow.be.UIFlowsImpl scFlow,
            List<Order> orders, int offset, int count) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
@@ -133,7 +133,7 @@ public class WorkflowModel extends BEEntityDaoObject {
         }
     }
 
-    public List<org.shaolin.bmdp.workflow.be.UIFlowsImpl> searchFlows(org.shaolin.bmdp.workflow.be.UIFlowsImpl scFlow,
+    public List<org.shaolin.bmdp.workflow.be.IUIFlows> searchFlows(org.shaolin.bmdp.workflow.be.UIFlowsImpl scFlow,
            Session session, List<Order> orders, int offset, int count) {
         try {
             Criteria inFlowCriteria = this._createCriteria(session, org.shaolin.bmdp.workflow.be.UIFlowsImpl.class, "inFlow");
