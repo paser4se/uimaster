@@ -84,11 +84,11 @@ public class EventHandler implements IAjaxHandler {
 									log.warn("Variable " + key + " is not seriablizable.");
 								}
 							}
+							e.setComments(context.getRequest().getParameter("_comments"));
+							EventProcessor processor = (EventProcessor)AppContext.get().getService(
+									Class.forName("org.shaolin.bmdp.workflow.internal.WorkFlowEventProcessor"));
+							processor.process(e);
 						}
-						e.setComments(context.getRequest().getParameter("_comments"));
-						EventProcessor processor = (EventProcessor)AppContext.get().getService(
-								Class.forName("org.shaolin.bmdp.workflow.internal.WorkFlowEventProcessor"));
-						processor.process(e);
 					}
 				} catch (EvaluationException ex) {
 					log.warn("This statement can not be evaluated: \n" + op.toString());

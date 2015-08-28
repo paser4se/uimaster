@@ -54,6 +54,11 @@ public final class WorkFlowEventProcessor implements EventProcessor, IServicePro
 //    			.createExecutorService("system", "wf-processor", Runtime.getRuntime().availableProcessors() * 2);
     }
     
+    Map<String, EventConsumer> getConsumers() {
+    	return allConsumers;
+    }
+    
+    
     @Override
 	public void process(final Event event) {
 		// Generate a unique id for the event.

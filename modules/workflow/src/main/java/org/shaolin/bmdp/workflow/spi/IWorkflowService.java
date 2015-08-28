@@ -29,6 +29,13 @@ public interface IWorkflowService {
 	Workflow getWorkflowEntity(String flowName);
 	
 	/**
+	 * Refresh the workflow engine.
+	 * 
+	 * @param name
+	 */
+	public void refreshWorkflow(String name);
+	
+	/**
 	 * Get a runtime workflow object.
 	 * 
 	 * @param flowName

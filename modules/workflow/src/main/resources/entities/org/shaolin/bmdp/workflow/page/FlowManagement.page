@@ -335,6 +335,7 @@
                     import org.shaolin.bmdp.workflow.ce.ModuleType;
                     import org.shaolin.bmdp.workflow.be.FlowEntityImpl;
                     import org.shaolin.bmdp.runtime.spi.IEntityManager;
+                    import org.shaolin.bmdp.workflow.spi.IWorkflowService;
                     {
                         WorkFlowDiagram flow = (WorkFlowDiagram)@page.getElement("flowDiagram");
                         FlowEntityImpl flowModel = new FlowEntityImpl();
@@ -366,6 +367,9 @@
                         
                         IEntityManager entityManager = AppContext.get().getEntityManager();
                         entityManager.appendEntity(flow.getWorflowModel());
+                        
+                        IWorkflowService wfService = (IWorkflowService)AppContext.get().getService(IWorkflowService.class);
+                        wfService.refreshWorkflow(flowModel.getEntityName());
                         
                         flow.saveSuccess();
                     }

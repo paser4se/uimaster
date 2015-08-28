@@ -121,9 +121,15 @@ public class WorkflowLifecycleServiceImpl implements ILifeCycleProvider, IServic
 		return 20;
 	}
 	
+	@Override
 	public Workflow getWorkflowEntity(String name) {
 		IEntityManager entityManager = AppContext.get().getEntityManager();
 		return entityManager.getEntity(name, Workflow.class);
+	}
+	
+	@Override
+	public void refreshWorkflow(String name) {
+		flowContainer.restartService(getWorkflowEntity(name));
 	}
 	
 	/**

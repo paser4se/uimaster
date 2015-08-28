@@ -1497,8 +1497,8 @@ public class UIFormObject implements java.io.Serializable
 						+ "import org.shaolin.bmdp.runtime.AppContext; \n"
 						+ "import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService; \n"
 						+ "\n{ "
-						+ "\n ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class);"
-						+ "\n return true; }");
+						+ "\n return $beObject.getTaskId() == 0; "
+						+ "\n}");
 				property1.setExpression(expr1);
 				button.setReadOnly(property1);
 				StringPropertyType strProperty = new StringPropertyType();
@@ -1555,7 +1555,7 @@ public class UIFormObject implements java.io.Serializable
 				List<UIComponentType> panelList = entity.getBody().getComponents();
 				for (UIComponentType panel : panelList) {
 					if ("actionPanel".equals(panel.getUIID())) {
-						logger.info("remove workflow action {} from form {}", name);
+						logger.info("remove workflow action {} from {}", panel.getUIID(), name);
 						UIPanelType actionPanel = (UIPanelType) panel;
 						for (UIComponentType comp : actionPanel.getComponents()) {
 							if (actionName.equals(comp.getUIID())) {

@@ -19,6 +19,7 @@
         import org.shaolin.bmdp.runtime.spi.IEntityManager;
         import org.shaolin.bmdp.runtime.entity.EntityUtil;
         import org.shaolin.bmdp.datamodel.workflow.Workflow;
+        import org.shaolin.bmdp.workflow.spi.IWorkflowService;
         { 
             TextArea textArea = @page.getTextArea("xmlContentUI");
             String entityName = @page.getHidden("entityNameUI").getValue();
@@ -44,6 +45,9 @@
                 flowModel.setContent(xmlContent);
                 WorkflowModel.INSTANCE.update(flowModel);
             }
+            
+            IWorkflowService wfService = (IWorkflowService)AppContext.get().getService(IWorkflowService.class);
+            wfService.refreshWorkflow(entityName);
             
             String flowId = @page.getHidden("idUI").getValue();
 												WorkFlowDiagram diagram = (WorkFlowDiagram)@page.getElement(flowId);

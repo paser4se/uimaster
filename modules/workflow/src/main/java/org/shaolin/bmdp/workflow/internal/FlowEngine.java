@@ -15,16 +15,12 @@
 */
 package org.shaolin.bmdp.workflow.internal;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.shaolin.bmdp.datamodel.workflow.ChildFlowNodeType;
 import org.shaolin.bmdp.datamodel.workflow.ConditionNodeType;
@@ -44,7 +40,6 @@ import org.shaolin.bmdp.workflow.internal.cache.FlowObject;
 import org.shaolin.bmdp.workflow.internal.type.AppInfo;
 import org.shaolin.bmdp.workflow.internal.type.FlowInfo;
 import org.shaolin.bmdp.workflow.internal.type.NodeInfo;
-import org.shaolin.bmdp.workflow.spi.EventProducer.ErrorType;
 import org.shaolin.bmdp.workflow.spi.ExceptionEvent;
 import org.shaolin.bmdp.workflow.spi.SessionService;
 import org.shaolin.bmdp.workflow.spi.TimeoutEvent;
@@ -68,11 +63,6 @@ public class FlowEngine {
 
     private final String engineName;
     private final FlowContainer flowContainer;
-
-    private final LockManager<Object> masterLock = new LockManager<Object>();
-    private final ConcurrentMap<String, Queue<Event>> pendingEvents = 
-            new ConcurrentHashMap<String, Queue<Event>>();
-    private final LockManager<Object> slaveLock = new LockManager<Object>();
 
     private final WorkFlowEventProcessor timeoutEventProcessor;
 
@@ -122,11 +112,10 @@ public class FlowEngine {
      * @param processors
      */
     public void start(Map<String, EventConsumer> processors) {
-        this.pendingEvents.clear();
         Map<String, String> consumerNames = flowInfo.getEventConsumers();
         for (Map.Entry<String, String> e : consumerNames.entrySet()) {
         	if (processors.containsKey(e.getKey())) {
-        		throw new IllegalStateException("The even consumer name is duplicated! " + e.getKey());
+        		logger.warn("The even consumer name {} is duplicated! ", e.getKey());
         	}
         	
             EventConsumer processor = new EventConsumer(this, e.getKey());
@@ -144,7 +133,6 @@ public class FlowEngine {
     }
 
     public void stop() {
-        this.pendingEvents.clear();
     }
 
     public String getEngineName() {
@@ -637,86 +625,10 @@ public class FlowEngine {
 
     public boolean lockSession(String sessionId, Event event, FlowRuntimeContext newFlowContext,
             NodeInfo destNode) {
-        if (masterLock.tryLock(sessionId)) {
-            masterLock.detachLock(sessionId);
-            if (logger.isTraceEnabled()) {
-                logger.trace("{}:lock {}", engineName, sessionId);
-            }
-            return true;
-        } else {
-            slaveLock.acquireLock(sessionId);
-            if (masterLock.tryLock(sessionId)) {
-                slaveLock.releaseLock(sessionId);
-                masterLock.detachLock(sessionId);
-                if (logger.isTraceEnabled()) {
-                    logger.trace("{}:lock {}", engineName, sessionId);
-                }
-                return true;
-            } else {
-                Queue<Event> events = pendingEvents.get(sessionId);
-                if (events != null) {
-                    events.offer(event);
-                } else {
-                    events = new ArrayDeque<Event>();
-                    events.add(event);
-                    pendingEvents.put(sessionId, events);
-                }
-                //event.setAttribute(BuiltInAttributeConstant.KEY_NODE, destNode);
-                event.setAttribute(BuiltInAttributeConstant.KEY_RUNTIME, newFlowContext);
-                slaveLock.releaseLock(sessionId);
-                if (logger.isTraceEnabled()) {
-                    logger.trace("{}: Queue a event on session {}", engineName, sessionId);
-                }
-                return false;
-            }
-        }
+        return true;
     }
 
     public Event unlockSession(String sessionId, boolean isSessionDestroyed) {
-        Event pendingEvent = null;
-
-        slaveLock.acquireLock(sessionId);
-
-        Queue<Event> discardEvents = null;
-        if (!isSessionDestroyed) {
-            Queue<Event> events = pendingEvents.get(sessionId);
-            if (events != null) {
-                pendingEvent = events.poll();
-                if (pendingEvent == null || events.isEmpty()) {
-                    pendingEvents.remove(sessionId);
-                }
-            }
-        } else {
-            Queue<Event> events = pendingEvents.remove(sessionId);
-            if (events != null) {
-                discardEvents = events;
-            }
-        }
-
-        if (pendingEvent != null) {
-            slaveLock.releaseLock(sessionId);
-            if (logger.isTraceEnabled()) {
-                logger.trace("Keep locking session {}, next event is {}", sessionId, pendingEvent);
-            }
-            return pendingEvent;
-        } else {
-            masterLock.attachLock(sessionId);
-            masterLock.releaseLock(sessionId);
-            slaveLock.releaseLock(sessionId);
-            if (logger.isTraceEnabled()) {
-                logger.trace("Unlock {}", sessionId);
-            }
-            if (discardEvents != null) {
-                if (logger.isTraceEnabled()) {
-                    logger.trace(
-                            "Discard pending events {} on {}, since the session was destroyed",
-                            discardEvents, sessionId);
-                }
-                for (Event request : discardEvents) {
-                    discardRequest(request, ErrorType.SESSION_CLOSED);
-                }
-            }
-        }
         return null;
     }
 
@@ -728,10 +640,6 @@ public class FlowEngine {
             flowContainer.rollbackTransaction();
             activeTranstactionFlag.set(null);
         }
-    }
-
-    private void discardRequest(Event request, ErrorType type) {
-        logger.info("Discard event {}, since the session was closed", request);
     }
 
     public NodeInfo matchExceptionNode(Event event) {

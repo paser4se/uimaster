@@ -561,6 +561,9 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 				out.write("    public long getTaskId() {\n");
 				out.write("        return _taskId;\n");
 				out.write("    }\n        ");
+				out.write("    private long get_taskId() {\n");
+				out.write("        return _taskId;\n");
+				out.write("    }\n        ");
 			}
 		}
 		
@@ -704,6 +707,9 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 				out.write("     *  set taskId\n");
 				out.write("     */\n");
 				out.write("    public void setTaskId(long taskId) {\n");
+				out.write("        this._taskId = taskId;\n");
+				out.write("    }\n        ");
+				out.write("    private void set_taskId(long taskId) {\n");
 				out.write("        this._taskId = taskId;\n");
 				out.write("    }\n        ");
 			}

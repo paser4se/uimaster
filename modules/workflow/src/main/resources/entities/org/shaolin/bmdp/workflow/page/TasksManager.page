@@ -66,7 +66,8 @@
                     
                     TaskImpl defaultUser = (TaskImpl)tasksTable.getSelectedRow();
                     ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class);
-                    service.postponeTask(defaultUser);
+                    service.postponeTask(defaultUser, null);
+                    //TODO: select a calendar first.
                     
                     TableCallBack callBack = new TableCallBack("tasksTable");
                     callBack.execute();

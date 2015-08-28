@@ -1,6 +1,7 @@
 package org.shaolin.uimaster.page;
 
 import java.io.File;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +36,6 @@ import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.exception.WebFlowException;
-import org.shaolin.uimaster.page.flow.WebflowConstants;
 import org.shaolin.uimaster.page.flow.nodes.UIPageNode;
 import org.shaolin.uimaster.page.flow.nodes.WebChunk;
 import org.shaolin.uimaster.test.be.ICustomer;
@@ -64,6 +64,8 @@ public class WebflowTest {
 	@Test
 	public void testCreateWebflow() {
 		System.out.println("File.separator:" + File.separator);
+		System.out.println("Yes or No: " + (new Integer(1) instanceof Serializable));
+		
 	}
 	
 	@Test

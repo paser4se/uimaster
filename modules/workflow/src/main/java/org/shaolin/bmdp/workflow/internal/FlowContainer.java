@@ -77,7 +77,23 @@ public class FlowContainer {
         return allEngines.get(key);
     }
 
+    void restartService(Workflow appInfo) {
+    	FlowObject flowInfo = new FlowObject(new AppInfo(appInfo));
+    	if (appInfo.getConf().isBootable() != null && appInfo.getConf().isBootable()) {
+    		WorkFlowEventProcessor processor = AppContext.get().getService(WorkFlowEventProcessor.class);
+    		
+    		logger.info("Recreate workflow engine: {}",  flowInfo.getAppInfo().getName());
+    		FlowEngine engine = initFlowEngine(flowInfo, false);
+    		logger.info("Start workflow engine: {}", engine.getEngineName());
+    		engine.start(processor.getConsumers());
+    		allEngines.put(engine.getEngineName(), engine);
+    	}
+    	appflowCache.put(appInfo.getEntityName(), flowInfo);
+    }
+    
     void startService(List<Workflow> appInfos) {
+    	allEngines.clear();
+    	
         Map<String, FlowEngine> engineMap = new HashMap<String, FlowEngine>();
         List<FlowObject> activeFlows = new ArrayList<FlowObject>();
         for (Workflow flow : appInfos) {
@@ -114,7 +130,6 @@ public class FlowContainer {
         Map<String, EventConsumer> tempProcessors = new HashMap<String, EventConsumer>();
 
         // init all EventConsumers.
-        allEngines.clear();
         for (FlowEngine engine : engineMap.values()) {
             logger.info("Start workflow engine: {}", engine.getEngineName());
             engine.start(tempProcessors);
