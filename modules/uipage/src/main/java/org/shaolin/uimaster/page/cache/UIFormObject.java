@@ -1495,7 +1495,6 @@ public class UIFormObject implements java.io.Serializable
 				ExpressionType expr1 = new ExpressionType();
 				expr1.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; \n"
 						+ "import org.shaolin.bmdp.runtime.AppContext; \n"
-						+ "import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService; \n"
 						+ "\n{ "
 						+ "\n return $beObject.getTaskId() == 0; "
 						+ "\n}");
@@ -1533,6 +1532,21 @@ public class UIFormObject implements java.io.Serializable
 				op.setOperationId(node.getActionName());
 				function.getOps().add(op);
 				entity.getEventHandlers().add(function);
+				
+				// find ok button.
+				for (UIComponentType b : actionPanel.getComponents()) {
+					if ("okbtn".equals(b.getUIID())) {
+						ExpressionPropertyType property2 = new ExpressionPropertyType();
+						ExpressionType expr2 = new ExpressionType();
+						expr2.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; \n"
+								+ "import org.shaolin.bmdp.runtime.AppContext; \n"
+								+ "\n{ "
+								+ "\n return $beObject.getTaskId() == 0; "
+								+ "\n}");
+						property2.setExpression(expr2);
+						b.setReadOnly(property2);
+					}
+				}
 				
 				hasActionPanel = true;
 				break;

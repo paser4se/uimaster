@@ -267,7 +267,14 @@ public class FlowContainer {
 
 		@Override
 		public void notifyCancelled() {
-			
+			try {
+				FlowRuntimeContext flowContext = FlowRuntimeContext.unmarshall(task.getFlowState());
+				flowContext.getFlowContextInfo().setWaitingNode(flowContext.getCurrentNode());
+				flowContext.getEvent().setFlowContext(flowContext.getFlowContextInfo());
+				flowContext.engine.destroySession(flowContext);
+			} catch (Exception e) {
+				logger.error("Continue processing task error: " + e.getMessage(), e);
+			}
 		}
     }
 

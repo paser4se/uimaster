@@ -500,7 +500,7 @@ public class FlowEngine {
         return null;
     }
 
-    private void destroySession(FlowRuntimeContext flowContext) {
+    void destroySession(FlowRuntimeContext flowContext) {
         String sessionId = flowContext.getSession().getID();
         if (logger.isTraceEnabled()) {
             logger.trace("{}:Destroy session {}", engineName, sessionId);

@@ -51,7 +51,7 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
     
     private Event event;
     
-    private final FlowEngine engine;
+    final FlowEngine engine;
     private final Event requestEvent;
     private FlowContextImpl flowContextInfo;
 
