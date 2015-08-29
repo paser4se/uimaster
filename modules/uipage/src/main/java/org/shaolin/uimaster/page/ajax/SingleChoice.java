@@ -22,9 +22,12 @@ abstract public class SingleChoice extends Choice implements Serializable
 {
     private static final long serialVersionUID = 329245687316770737L;
 
-    public SingleChoice(String id, Layout layout)
+    private final Class realValueDataType;
+    
+    public SingleChoice(String id, Layout layout, Class realValueDataType)
     {
         super(id, layout);
+        this.realValueDataType = realValueDataType;
     }
 
     public void generateAttribute(String name, Object value, StringBuffer sb)
@@ -92,6 +95,21 @@ abstract public class SingleChoice extends Choice implements Serializable
     	
         String value = String.valueOf(getAttribute("value"));
         return value == null ? "" : value;
+    }
+    
+    public Object getRealValue() {
+    	String value = getValue();
+    	if (this.realValueDataType == Long.class || this.realValueDataType == long.class) {
+			return Long.valueOf(value.equals("") ? "0" : value);
+    	} else if (this.realValueDataType == Integer.class || this.realValueDataType == int.class) {
+    		return Integer.valueOf(value.equals("") ? "0" : value);
+    	} else if (this.realValueDataType == Double.class || this.realValueDataType == double.class) {
+    		return Double.valueOf(value.equals("") ? "0" : value);
+    	} else if (this.realValueDataType == Float.class || this.realValueDataType == float.class) {
+    		return Float.valueOf(value.equals("") ? "0" : value);
+    	} else {
+    		return value;
+    	}
     }
 
 }

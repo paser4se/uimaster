@@ -209,7 +209,7 @@ public class HTMLRadioButtonGroupType extends HTMLSingleChoiceType
     
     public Widget createAjaxWidget(VariableEvaluator ee)
     {
-        RadioButtonGroup radioButtonGroup = new RadioButtonGroup(getName(), Layout.NULL);
+        RadioButtonGroup radioButtonGroup = new RadioButtonGroup(getName(), Layout.NULL, this.getRealValueDataType());
 
         radioButtonGroup.setReadOnly(getReadOnly());
         radioButtonGroup.setUIEntityName(getUIEntityName());

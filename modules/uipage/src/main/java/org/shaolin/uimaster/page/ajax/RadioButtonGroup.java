@@ -28,13 +28,13 @@ public class RadioButtonGroup extends SingleChoice implements Serializable
 
     public RadioButtonGroup(String uiid)
     {
-        this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
+        this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout(), String.class);
         this.setListened(true);
     }
 
-    public RadioButtonGroup(String id, Layout layout)
+    public RadioButtonGroup(String id, Layout layout, Class realValueDataType)
     {
-        super(id, layout);
+        super(id, layout, realValueDataType);
     }
     
     public boolean isHorizontalLayout()

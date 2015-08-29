@@ -65,35 +65,40 @@ public class EventHandler implements IAjaxHandler {
 				return "";
 			}
 			for (OpType op : ops) {
-				try {
 					if (op instanceof OpCallAjaxType) {
 						OpCallAjaxType callAjaxOp = (OpCallAjaxType) op;
+						try {
 						value = callAjaxOp.getExp().evaluate(context);
+						} catch (EvaluationException ex) {
+							log.warn("This statement can not be evaluated: \n"+ callAjaxOp.getExp().getExpressionString());
+							throw ex;
+						}
 					} else if (op instanceof OpInvokeWorkflowType) {
 						OpInvokeWorkflowType wfOp = (OpInvokeWorkflowType) op;
-						FlowEvent e = new FlowEvent(wfOp.getEventConsumer());
-						Map value0 = (Map)wfOp.getExpression().evaluate(context);
-						if (value0 != null && value0.size() > 0) {
-							Iterator i = value0.keySet().iterator();
-							while (i.hasNext()) {
-								String key = (String)i.next();
-								Object v = value0.get(key);
-								if (v instanceof Serializable) {
-									e.setAttribute(key, (Serializable)v);
-								} else {
-									log.warn("Variable " + key + " is not seriablizable.");
+						try {
+							FlowEvent e = new FlowEvent(wfOp.getEventConsumer());
+							Map value0 = (Map)wfOp.getExpression().evaluate(context);
+							if (value0 != null && value0.size() > 0) {
+								Iterator i = value0.keySet().iterator();
+								while (i.hasNext()) {
+									String key = (String)i.next();
+									Object v = value0.get(key);
+									if (v instanceof Serializable) {
+										e.setAttribute(key, (Serializable)v);
+									} else {
+										log.warn("Variable " + key + " is not seriablizable.");
+									}
 								}
+								e.setComments(context.getRequest().getParameter("_comments"));
+								EventProcessor processor = (EventProcessor)AppContext.get().getService(
+										Class.forName("org.shaolin.bmdp.workflow.internal.WorkFlowEventProcessor"));
+								processor.process(e);
 							}
-							e.setComments(context.getRequest().getParameter("_comments"));
-							EventProcessor processor = (EventProcessor)AppContext.get().getService(
-									Class.forName("org.shaolin.bmdp.workflow.internal.WorkFlowEventProcessor"));
-							processor.process(e);
+						} catch (EvaluationException ex) {
+							log.warn("This statement can not be evaluated: \n"+ wfOp.getExpression().getExpressionString());
+							throw ex;
 						}
 					}
-				} catch (EvaluationException ex) {
-					log.warn("This statement can not be evaluated: \n" + op.toString());
-					throw ex;
-				}
 			}
 
 			context.synchVariables();
@@ -119,9 +124,9 @@ public class EventHandler implements IAjaxHandler {
 				return context.getDataAsJSON();
 			}
 		} catch (Throwable ex) {
-			log.warn("Ajax executor has interrupted when execute " + actionName
-					+ " ajax calling: " + ex.getMessage(), ex);
-			throw new AjaxHandlerException("Ajax executor has interrupted.", ex);
+			String message = "Ajax executor has interrupted when execute " + actionName
+					+ " ajax calling: " + ex.getMessage();
+			throw new AjaxHandlerException(message, ex);
 		} 
 	}
 

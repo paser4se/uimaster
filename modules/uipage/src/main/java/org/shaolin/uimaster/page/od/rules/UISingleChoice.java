@@ -31,7 +31,8 @@ import org.shaolin.uimaster.page.widgets.HTMLSingleChoiceType;
 public class UISingleChoice implements IODMappingConverter {
 	private HTMLSingleChoiceType uisingleChoice;
 	private String uiid;
-	private String value;
+	private Object value;
+	private Class realDataType = String.class;
 	private List<String> optionValues;
 	private List<String> optionDisplayValues;
 
@@ -56,7 +57,10 @@ public class UISingleChoice implements IODMappingConverter {
 	}
 
 	public String getValue() {
-		return this.value;
+		if (this.value != null) {
+			return this.value.toString();
+		}
+		return null;
 	}
 
 	public void setValue(String Value) {
@@ -82,6 +86,7 @@ public class UISingleChoice implements IODMappingConverter {
 	public Map<String, Class<?>> getDataEntityClassInfo() {
 		HashMap<String, Class<?>> dataClassInfo = new LinkedHashMap<String, Class<?>>();
 
+		dataClassInfo.put("isNumber", Boolean.class);
 		dataClassInfo.put("Value", String.class);
 		dataClassInfo.put("OptionValues", List.class);
 		dataClassInfo.put("OptionDisplayValues", List.class);
@@ -126,7 +131,8 @@ public class UISingleChoice implements IODMappingConverter {
 			}
 			if (paramValue.containsKey("Value")) {
 				if (paramValue.get("Value") != null) {
-					this.value = paramValue.get("Value").toString();
+					this.realDataType = paramValue.get("Value").getClass();
+					this.value = paramValue.get("Value");
 				}
 			}
 			if (paramValue.containsKey("OptionValues")) {
@@ -170,8 +176,11 @@ public class UISingleChoice implements IODMappingConverter {
 
 	public void pushDataToWidget(HTMLSnapshotContext htmlContext) throws UIConvertException {
 		try {
-			this.uisingleChoice.setValue(this.value);
-
+			if (this.value != null) {
+				this.uisingleChoice.setValue(this.value.toString());
+				this.uisingleChoice.setRealValueDataType(this.realDataType);
+			}
+			
 			callChoiceOption(true, htmlContext);
 		} catch (Throwable t) {
 			if (t instanceof UIConvertException) {
@@ -186,7 +195,7 @@ public class UISingleChoice implements IODMappingConverter {
 		try {
 			SingleChoice singleChoice = (SingleChoice) AjaxActionHelper
 					.getCachedAjaxWidget(this.uiid, htmlContext);
-			this.value = singleChoice.getValue();
+			this.value = singleChoice.getRealValue();
 		} catch (Throwable t) {
 			if (t instanceof UIConvertException) {
 				throw ((UIConvertException) t);

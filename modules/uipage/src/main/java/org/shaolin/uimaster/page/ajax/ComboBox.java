@@ -30,13 +30,13 @@ public class ComboBox extends SingleChoice implements Serializable
 
     public ComboBox(String uiid)
     {
-        this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
+        this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout(), String.class);
         this.setListened(true);
     }
 
-    public ComboBox(String id, Layout layout)
+    public ComboBox(String id, Layout layout, Class realValueDataType)
     {
-        super(id, layout);
+        super(id, layout, realValueDataType);
     }
 
     public void addAttribute(String name, Object value, boolean update)
