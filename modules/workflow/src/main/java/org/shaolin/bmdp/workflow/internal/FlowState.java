@@ -44,6 +44,7 @@ public final class FlowState implements java.io.Serializable {
 	final List<String> globalVarNames;
 	final Set<String> globalVarNamesSet;
 
+	long taskId;
 	Event event;
 	WorkflowSession session;
 	String sessionId;

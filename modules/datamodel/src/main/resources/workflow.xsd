@@ -442,31 +442,39 @@
 			<xs:extension base="wf:generalNodeType">
 				<xs:sequence>
 					<xs:element name="filter" type="wf:destWithFilterType" minOccurs="0"></xs:element>
-					<!-- the action defines which page triggers this mission. -->
-					<xs:element name="actionExpression" type="Common:ExpressionType" minOccurs="0" />
+					<xs:element name="uiAction" type="wf:missionActionType" minOccurs="1"></xs:element>
+					<xs:element name="participant" type="wf:missionParticipantType" minOccurs="1"></xs:element>
 				</xs:sequence>
 				<xs:attribute name="expiredDays" type="xs:int" />
 				<xs:attribute name="expiredHours" type="xs:int" />
 				<xs:attribute name="expiredAction" type="xs:string" />
-				<xs:attribute name="actionPage" type="xs:string" />
-				<xs:attribute name="actionName" type="xs:string" />
-				<xs:attribute name="actionText" type="xs:string" />
-				<xs:attribute name="beforeActionWidget" type="xs:string" />
-				<xs:attribute name="nextActionWidget" type="xs:string" />
 				<xs:attribute name="autoTrigger" type="xs:boolean" />
-				<xs:attribute name="partyType" type="xs:string">
-							<xs:annotation>
-								<xs:documentation>
-									the party type that allows to acces this node. when we define a node,
-									we could assgin a specific party type for this node or keep empty. 
-									then only the party(login user) which has this type is capable to
-									process this node.
-								</xs:documentation>
-							</xs:annotation>
-						</xs:attribute>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
+ <xs:complexType name="missionActionType">
+    <xs:sequence>
+			    <!-- the action defines which page triggers this mission. -->
+       <xs:element name="expression" type="Common:ExpressionType" minOccurs="0" />
+		  </xs:sequence>
+		  <xs:attribute name="actionPage" type="xs:string" />
+    <xs:attribute name="actionName" type="xs:string" />
+    <xs:attribute name="actionText" type="xs:string" />
+    <xs:attribute name="beforeActionWidget" type="xs:string" />
+    <xs:attribute name="nextActionWidget" type="xs:string" />
+ </xs:complexType>
+ <xs:complexType name="missionParticipantType">
+    <xs:attribute name="partyType" type="xs:string">
+       <xs:annotation>
+        <xs:documentation>
+         the party type that allows to acces this node. when we define a node,
+         we could assgin a specific party type for this node or keep empty. 
+         then only the party(login user) which has this type is capable to
+         process this node.
+        </xs:documentation>
+       </xs:annotation>
+    </xs:attribute>
+ </xs:complexType>
 
 	<xs:complexType name="endNodeType">
 		<xs:annotation>

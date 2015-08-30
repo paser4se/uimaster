@@ -182,12 +182,18 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		}
 		return null;
 	}
+	
+	@Override
+	public boolean isPendingTask(long taskId) {
+		ITask task = getTask(taskId);
+		if (task == null) {
+			return false;
+		}
+		return task.getStatus() == TaskStatusType.INPROGRESS;
+	}
 
 	@Override
 	public void addTask(final ITask task) {
-		if (task.getId() > 0) {
-			throw new IllegalArgumentException("The existing task can't be created again!");
-		}
 		if (task.getStatus() == TaskStatusType.COMPLETED
 				|| task.getStatus() == TaskStatusType.CANCELLED) {
 			throw new IllegalArgumentException("Task is finished: " + task.getStatus());
@@ -195,7 +201,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		
 		task.setStatus(TaskStatusType.NOTSTARTED);
 		
-		if (!testCaseFlag) {
+		if (!testCaseFlag || task.getId() == 0) {
 			CoordinatorModel.INSTANCE.create(task);
 		}
 		if (workingTasks.putIfAbsent(task.getId(), task) == null) {

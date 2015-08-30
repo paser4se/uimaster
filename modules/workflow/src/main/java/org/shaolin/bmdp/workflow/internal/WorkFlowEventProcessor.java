@@ -15,12 +15,17 @@
 */
 package org.shaolin.bmdp.workflow.internal;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.shaolin.bmdp.runtime.AppContext;
+import org.shaolin.bmdp.runtime.be.ITaskEntity;
 import org.shaolin.bmdp.runtime.spi.Event;
 import org.shaolin.bmdp.runtime.spi.EventProcessor;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
+import org.shaolin.bmdp.workflow.be.ITask;
+import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +75,23 @@ public final class WorkFlowEventProcessor implements EventProcessor, IServicePro
 					.append(']').toString());
 		}
 		event.setAttribute(BuiltInAttributeConstant.KEY_ORIGINAL_EVENT, event);
-
+		Collection<String> keys = event.getAttributeKeys();
+        for (String key: keys) {
+        	Object var = event.getAttribute(key);
+        	if (var instanceof ITaskEntity && ((ITaskEntity)var).getTaskId() > 0) {
+        		try {
+        			// find the previous context.
+	        		ICoordinatorService coordinator = AppContext.get().getService(ICoordinatorService.class);
+	        		ITask task = coordinator.getTask(((ITaskEntity)var).getId());
+	        		FlowRuntimeContext flowContext = FlowRuntimeContext.unmarshall(task.getFlowState());
+	        		flowContext.getFlowContextInfo().setWaitingNode(flowContext.getCurrentNode());
+					flowContext.getEvent().setFlowContext(flowContext.getFlowContextInfo());
+					event.setFlowContext(flowContext.getFlowContextInfo());
+        		} catch (Exception e) {
+        			logger.warn(e.getMessage(), e);
+        		}
+        	}
+        }
 		if (logger.isTraceEnabled()) {
 			logger.trace("Assign Id {} to event {}", event.getId(), event);
 			logger.trace("Receive a event {}", event);

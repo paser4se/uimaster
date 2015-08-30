@@ -87,6 +87,8 @@ public interface ICoordinatorService {
 	 */
 	List<ITaskHistory> getHistoryTasksBySessionId(String sessionId);
 	
+	boolean isPendingTask(long taskId);
+	
 	ITask getTask(long taskId);
 	
 	void addTask(ITask task);

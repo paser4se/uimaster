@@ -1471,7 +1471,7 @@ public class UIFormObject implements java.io.Serializable
 		} else {
 			clearWorkflowActions();
 		}
-		workflowActions.add(node.getActionName());
+		workflowActions.add(node.getUiAction().getActionName());
 
 		// internal refresh.
 		UIEntity entity = IServerServiceManager.INSTANCE.getEntityManager()
@@ -1484,19 +1484,21 @@ public class UIFormObject implements java.io.Serializable
 				UIPanelType actionPanel = (UIPanelType) panel;
 				
 				UIButtonType button = new UIButtonType();
-				button.setUIID(node.getActionName());
+				button.setUIID(node.getUiAction().getActionName());
 				ExpressionPropertyType property = new ExpressionPropertyType();
 				ExpressionType expr = new ExpressionType();
 				expr.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; "
-						+ "\n{ return UserContext.hasRole(\"" + node.getPartyType() + "\"); }");
+						+ "\n{ return UserContext.hasRole(\"" + node.getParticipant().getPartyType() + "\"); }");
 				property.setExpression(expr);
 				button.setVisible(property);
 				ExpressionPropertyType property1 = new ExpressionPropertyType();
 				ExpressionType expr1 = new ExpressionType();
 				expr1.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; \n"
 						+ "import org.shaolin.bmdp.runtime.AppContext; \n"
+						+ "import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService; \n"
 						+ "\n{ "
-						+ "\n return $beObject.getTaskId() > 0; "
+						+ "\n ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class); "
+						+ "\n return !service.isPendingTask($beObject.getTaskId()); "
 						+ "\n}");
 				property1.setExpression(expr1);
 				button.setReadOnly(property1);
@@ -1518,12 +1520,12 @@ public class UIFormObject implements java.io.Serializable
 				button.setUIStyle("uimaster_workflow_action");
 				ClickListenerType clickListener = new ClickListenerType();
 				FunctionCallType func = new FunctionCallType();
-				func.setFunctionName("invokeDynamicFunction(this, '" + node.getActionName() + "')");
+				func.setFunctionName("invokeDynamicFunction(this, '" + node.getUiAction().getActionName() + "')");
 				clickListener.setHandler(func);
 				button.getEventListeners().add(clickListener);
 				
 				ComponentConstraintType constraint = new ComponentConstraintType();
-				constraint.setComponentId(node.getActionName());
+				constraint.setComponentId(node.getUiAction().getActionName());
 				TableLayoutConstraintType position = new TableLayoutConstraintType();
 				position.setX(0);
 				position.setY(0);
@@ -1541,12 +1543,12 @@ public class UIFormObject implements java.io.Serializable
 				tableLayout.getColumnWidthWeights().add(1.0D);
 				
 				FunctionType function = new FunctionType();
-				function.setFunctionName(node.getActionName());
+				function.setFunctionName(node.getUiAction().getActionName());
 				OpInvokeWorkflowType op = new OpInvokeWorkflowType();
 				op.setEventConsumer(eventConsumer);
-				op.setExpression(node.getActionExpression());
-				op.setPartyType(node.getPartyType());
-				op.setOperationId(node.getActionName());
+				op.setExpression(node.getUiAction().getExpression());
+				op.setPartyType(node.getParticipant().getPartyType());
+				op.setOperationId(node.getUiAction().getActionName());
 				function.getOps().add(op);
 				entity.getEventHandlers().add(function);
 				
@@ -1557,8 +1559,10 @@ public class UIFormObject implements java.io.Serializable
 						ExpressionType expr2 = new ExpressionType();
 						expr2.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; \n"
 								+ "import org.shaolin.bmdp.runtime.AppContext; \n"
+								+ "import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService; \n"
 								+ "\n{ "
-								+ "\n return $beObject.getTaskId() > 0; "
+								+ "\n ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class); "
+								+ "\n return !service.isPendingTask($beObject.getTaskId()); "
 								+ "\n}");
 						property2.setExpression(expr2);
 						b.setReadOnly(property2);

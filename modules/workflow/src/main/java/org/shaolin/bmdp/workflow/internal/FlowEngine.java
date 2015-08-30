@@ -34,6 +34,7 @@ import org.shaolin.bmdp.datamodel.workflow.SplitNodeType;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.spi.Event;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
+import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
 import org.shaolin.bmdp.workflow.exception.ConfigException;
 import org.shaolin.bmdp.workflow.exception.EventException;
 import org.shaolin.bmdp.workflow.internal.cache.FlowObject;
@@ -219,6 +220,8 @@ public class FlowEngine {
                 	break;
                 case MISSION:
             		currentNode = processGeneralNode(flowContext, currentNode);
+            		ICoordinatorService coordinator = AppContext.get().getService(ICoordinatorService.class);
+            		coordinator.completeTask(coordinator.getTask(flowContext.getTaskId()));
                     break;
                 case CONDITION:
                     currentNode = processConditionNode(flowContext, currentNode, flowContext.getEvent());

@@ -400,27 +400,28 @@ public class FlowObject implements java.io.Serializable {
             List<NodeInfo> l = new ArrayList<NodeInfo>();
             for (NodeInfo n : e.getValue()) {
             	MissionNodeType m = (MissionNodeType)n.getNode();
-            	if (m.getActionPage() == null) {
+            	String actionPage = m.getUiAction().getActionPage();
+				if (actionPage == null) {
             		continue;
             	}
             	if (logger.isDebugEnabled()) {
-            		logger.debug("register {} Dyanmic workflow action to UI: {}", n.toString(), m.getActionPage());
+            		logger.debug("register {} Dyanmic workflow action to UI: {}", n.toString(), actionPage);
             	}
             	try {
-        			UIFormObject uiCache = PageCacheManager.getUIFormObject(m.getActionPage());
+        			UIFormObject uiCache = PageCacheManager.getUIFormObject(actionPage);
         			uiCache.addWorkflowAction(n.getFlow().getEventConsumer(), m);
         		} catch (EntityNotFoundException e0) {
         			try {
-        				UIPageObject uiCache = PageCacheManager.getUIPageObject(m.getActionPage());
+        				UIPageObject uiCache = PageCacheManager.getUIPageObject(actionPage);
         				uiCache.getUIForm().addWorkflowAction(n.getFlow().getEventConsumer(), m);
         			} catch (Exception e1) {
         				logger.error("Error to load the workflow action: " + e1.getMessage() 
-            					+ ",ActionPage: " + m.getActionPage()
+            					+ ",ActionPage: " + actionPage
             					+ ",Node Info: " + n.toString(), e1);
         			} 
         		} catch (ParsingException e1) {
         			logger.error("Error to load the workflow action: " + e1.getMessage() 
-        					+ ",ActionPage: " + m.getActionPage()
+        					+ ",ActionPage: " + actionPage
         					+ ",Node Info: " + n.toString(), e1);
 				} 
                 Set<String> set = initialEventNodes.get(n.getAppName() + "-" + n.getFlowName());

@@ -195,11 +195,13 @@ public class FlowContainer {
         task.setSessionId(flowContext.getSession().getID());
         task.setSubject("Task: " + mission.getName());
         task.setDescription(mission.getDescription());
-        task.setPartyType(mission.getPartyType());
+        task.setPartyType(mission.getParticipant().getPartyType());
         task.setExpiredTime(timeout);
         task.setEnabled(true);
         task.setListener(new MissionListener(task));
         task.setCreateTime(new Date());
+        
+        CoordinatorModel.INSTANCE.create(task);
         
         List<ITaskEntity> taskRelatedEntities = new ArrayList<ITaskEntity>();
         Collection<String> keys = flowContext.getEvent().getAttributeKeys();
@@ -210,7 +212,7 @@ public class FlowContainer {
         		flowContext.getEvent().setAttribute(key, null);
         	}
         }
-        
+        flowContext.setTaskId(task.getId());
         task.setFlowState(FlowRuntimeContext.marshall(flowContext));
         
         coordinator.addTask(task);
@@ -261,16 +263,6 @@ public class FlowContainer {
 
 		@Override
 		public void notifyCompleted() {
-			//forward to the next mission.
-			try {
-				FlowRuntimeContext flowContext = FlowRuntimeContext.unmarshall(task.getFlowState());
-				flowContext.getFlowContextInfo().setWaitingNode(flowContext.getCurrentNode());
-				flowContext.getEvent().setFlowContext(flowContext.getFlowContextInfo());
-				WorkFlowEventProcessor processor = AppContext.get().getService(WorkFlowEventProcessor.class);
-				processor.process(flowContext.getEvent());
-			} catch (Exception e) {
-				logger.error("Continue processing task error: " + e.getMessage(), e);
-			}
 		}
 
 		@Override

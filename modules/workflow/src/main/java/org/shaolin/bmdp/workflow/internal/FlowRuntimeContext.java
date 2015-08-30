@@ -77,8 +77,9 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
     private NodeInfo startNode;
     private NodeInfo eventNode; // MissionNodeType
     private Throwable exception;
+    private long taskId;
 
-    @SuppressWarnings("rawtypes")
+	@SuppressWarnings("rawtypes")
     private static final Map<Class, Object> primitiveDefaultValues = new HashMap<Class, Object>();
     private static final Map<String, Object> primitiveDefaultValues2 = new HashMap<String, Object>();
     static {
@@ -209,6 +210,7 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
     	state.waitResponse = context.waitResponse;
     	state.responseBack = context.responseBack;
     	state.recoverable = context.recoverable;
+    	state.taskId = context.taskId;
     	state.ready();
     	return SerializeUtil.serializeData(state); 
     }
@@ -249,6 +251,7 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
 		context.waitResponse = state.waitResponse;
 		context.responseBack = state.responseBack;
 		context.recoverable = state.recoverable;
+		context.taskId = state.taskId;
     	return context;
     }
     
@@ -546,6 +549,14 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
         this.sessionId = sessionId;
     }
 
+    public long getTaskId() {
+		return taskId;
+	}
+
+	public void setTaskId(long taskId) {
+		this.taskId = taskId;
+	}
+    
     public NodeInfo getStartNode() {
         return startNode;
     }
