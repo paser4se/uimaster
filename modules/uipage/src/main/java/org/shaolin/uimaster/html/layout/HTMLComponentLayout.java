@@ -310,7 +310,11 @@ public class HTMLComponentLayout extends AbstractHTMLLayout
         
         htmlComponent.setContext(context);
         htmlComponent.setId(UIID);
-        htmlComponent.setReadOnly(readOnly);
+        if (tempValuesMap != null && tempValuesMap.containsKey("readOnly")) {
+        	htmlComponent.setReadOnly((Boolean)tempValuesMap.get("readOnly"));
+        } else {
+        	htmlComponent.setReadOnly(readOnly);
+        }
         htmlComponent.setPrefix(context.getHTMLPrefix());
         htmlComponent.setHTMLLayout(htmlLayout);
         htmlComponent.addAttribute(propMap);

@@ -1496,16 +1496,26 @@ public class UIFormObject implements java.io.Serializable
 				expr1.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; \n"
 						+ "import org.shaolin.bmdp.runtime.AppContext; \n"
 						+ "\n{ "
-						+ "\n return $beObject.getTaskId() == 0; "
+						+ "\n return $beObject.getTaskId() > 0; "
 						+ "\n}");
 				property1.setExpression(expr1);
 				button.setReadOnly(property1);
-				StringPropertyType strProperty = new StringPropertyType();
-				if (node.getActionText() == null) {
-					node.setActionText("Approve");
+				StringPropertyType originalStr = (StringPropertyType)button.getText();
+				if (originalStr == null) {
+					originalStr = new StringPropertyType();
+					originalStr.setValue("Approve");
+					button.setText(originalStr);
 				}
-				strProperty.setValue(node.getActionText());
+				ExpressionPropertyType strProperty = new ExpressionPropertyType();
+				ExpressionType strExpr = new ExpressionType();
+				strExpr.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; \n"
+						+ "import org.shaolin.bmdp.runtime.AppContext; \n"
+						+ "\n{ "
+						+ "\n return $beObject.getTaskId() > 0 ? \"" + originalStr.getValue() + "...\" : \"" + originalStr.getValue() + "\";"
+						+ "\n}");
+				strProperty.setExpression(strExpr);
 				button.setText(strProperty);
+				button.setUIStyle("uimaster_workflow_action");
 				ClickListenerType clickListener = new ClickListenerType();
 				FunctionCallType func = new FunctionCallType();
 				func.setFunctionName("invokeDynamicFunction(this, '" + node.getActionName() + "')");
@@ -1515,11 +1525,18 @@ public class UIFormObject implements java.io.Serializable
 				ComponentConstraintType constraint = new ComponentConstraintType();
 				constraint.setComponentId(node.getActionName());
 				TableLayoutConstraintType position = new TableLayoutConstraintType();
-				position.setX(actionPanel.getComponents().size());
+				position.setX(0);
 				position.setY(0);
 				constraint.setConstraint(position);
 				actionPanel.getComponents().add(button);
 				actionPanel.getLayoutConstraints().add(constraint);
+				int count = 0;
+				for (ComponentConstraintType ct: actionPanel.getLayoutConstraints()) {
+					if (count ++ > 0) {
+						((TableLayoutConstraintType)ct.getConstraint()).setX(0);
+					}
+				}
+				
 				TableLayoutType tableLayout = (TableLayoutType) actionPanel.getLayout();
 				tableLayout.getColumnWidthWeights().add(1.0D);
 				
@@ -1541,7 +1558,7 @@ public class UIFormObject implements java.io.Serializable
 						expr2.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; \n"
 								+ "import org.shaolin.bmdp.runtime.AppContext; \n"
 								+ "\n{ "
-								+ "\n return $beObject.getTaskId() == 0; "
+								+ "\n return $beObject.getTaskId() > 0; "
 								+ "\n}");
 						property2.setExpression(expr2);
 						b.setReadOnly(property2);
@@ -1584,6 +1601,10 @@ public class UIFormObject implements java.io.Serializable
 								actionPanel.getLayoutConstraints().remove(constraint);
 								break;
 							}
+						}
+						int count = 0;
+						for (ComponentConstraintType ct: actionPanel.getLayoutConstraints()) {
+							((TableLayoutConstraintType)ct.getConstraint()).setX(count ++);
 						}
 						
 						for (FunctionType func : entity.getEventHandlers()) {

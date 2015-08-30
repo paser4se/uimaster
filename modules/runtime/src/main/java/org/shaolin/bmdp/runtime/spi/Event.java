@@ -25,12 +25,16 @@ public interface Event extends Serializable {
 	
 	public Collection<Entry<String, Serializable>> getAllAttributes();
 
+	public Collection<String> getAttributeKeys();
+	
 	public Serializable getAttribute(String key);
 
 	public void setAttribute(String key, Serializable value);
 
 	public Object removeAttribute(String key);
 
+	public void clear();
+	
 	public String getId();
 
 	public void setId(String id);

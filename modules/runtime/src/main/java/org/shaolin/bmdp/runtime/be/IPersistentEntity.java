@@ -10,6 +10,13 @@ public interface IPersistentEntity extends IBusinessEntity {
 	public final static long TIMESTAMP_MAXVAL = Long.MAX_VALUE;
 
 	/**
+	 * Primary key.
+	 * 
+	 * @return
+	 */
+	public long getId();
+	
+	/**
 	 * Enable this record.
 	 * 
 	 * @return

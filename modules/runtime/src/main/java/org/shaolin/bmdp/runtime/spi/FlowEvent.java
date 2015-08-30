@@ -51,6 +51,11 @@ public class FlowEvent implements Event {
 	}
 
 	@Override
+	public Collection<String> getAttributeKeys() {
+		return content_.keySet();
+	}
+	
+	@Override
 	public Serializable getAttribute(String key) {
 		if (content_ == null) {
 			return null;
@@ -72,6 +77,12 @@ public class FlowEvent implements Event {
 			content_ = new HashMap<String, Serializable>();
 		}
 		content_.put(key, value);
+	}
+	
+	public void clear() {
+		if (content_ != null) {
+			content_.clear();
+		}
 	}
 
 	public Object getFlowContext() {

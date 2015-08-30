@@ -17,6 +17,8 @@ package org.shaolin.bmdp.workflow.coordinator;
 
 public interface ITaskListener {
 
+	public void notifyCreated();
+	
 	public void notifyCompleted();
 	
 	public void notifyExpired();

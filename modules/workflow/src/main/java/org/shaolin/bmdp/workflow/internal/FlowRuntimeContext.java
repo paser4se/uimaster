@@ -188,13 +188,8 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
     }
     
     public static byte[] marshall(FlowRuntimeContext context) throws Exception {
-    	context.event.removeAttribute(BuiltInAttributeConstant.KEY_VARIABLECONTEXT);
-    	context.event.removeAttribute(BuiltInAttributeConstant.KEY_RUNTIME);
-    	context.event.removeAttribute(BuiltInAttributeConstant.KEY_FLOWCONTEXT);
-    	context.globalVariables.getVariableObjects().remove(BuiltInAttributeConstant.KEY_VARIABLECONTEXT);
-    	context.globalVariables.getVariableObjects().remove(BuiltInAttributeConstant.KEY_RUNTIME);
-    	context.globalVariables.getVariableObjects().remove(BuiltInAttributeConstant.KEY_FLOWCONTEXT);
-    	context.globalVariables.getVariableObjects().remove(BuiltInAttributeConstant.KEY_SESSION);
+    	context.event.clear();
+    	context.globalVariables.getVariableObjects().clear();
     	if (context.engine.getServices() != null) {
     		Set<String> keys = context.engine.getServices().keySet();
     		for (String key: keys) {
@@ -334,13 +329,6 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
     }
 
     public void setEvent(Event evt) {
-        if (this.event != null) {
-            if(logger.isDebugEnabled()){
-                logger.debug("This event {} is under processing, it must not be interrupted by new event {}!!!",
-                		this.event.getId(), evt.getId());
-            }
-        }
-        
         this.event = evt;
         evt.setAttribute(BuiltInAttributeConstant.KEY_VARIABLECONTEXT, this);
         evt.setAttribute(BuiltInAttributeConstant.KEY_FLOWCONTEXT, flowContextInfo);

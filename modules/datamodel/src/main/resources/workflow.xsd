@@ -453,6 +453,7 @@
 				<xs:attribute name="actionText" type="xs:string" />
 				<xs:attribute name="beforeActionWidget" type="xs:string" />
 				<xs:attribute name="nextActionWidget" type="xs:string" />
+				<xs:attribute name="autoTrigger" type="xs:boolean" />
 				<xs:attribute name="partyType" type="xs:string">
 							<xs:annotation>
 								<xs:documentation>

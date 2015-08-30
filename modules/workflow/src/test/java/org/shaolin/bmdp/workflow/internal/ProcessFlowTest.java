@@ -57,8 +57,7 @@ public class ProcessFlowTest extends TestContext {
         producer.sendEvent(evt);//place and order
         Thread.sleep(waitSeconds);
         
-        coordinator.completeTask(coordinator.getAllTasks().get(0));//approved order
-        Thread.sleep(waitSeconds);
+        //auto approved order
         
         coordinator.completeTask(coordinator.getAllTasks().get(0));// on production
         Thread.sleep(waitSeconds);

@@ -102,6 +102,38 @@ label {
     width:200px;
 }
 
+.uimaster_button {
+ border: 1px solid #77d5f7;
+ background: #0078ae url("images/ui-bg_glass_45_0078ae_1x400.png") 50% 50% repeat-x;
+    font-weight: normal;
+    color: #ffffff;
+ border-bottom-right-radius: 5px;
+ border-bottom-left-radius: 5px;
+ border-top-right-radius: 5px;
+ border-top-left-radius: 5px;
+ display: inline-block;
+ padding: .5em .4em .5em .4em;
+ cursor: pointer;
+}
+
+.uimaster_button hover{
+ border: 1px solid #77d5f7;
+ background: #0078ae url("images/ui-bg_glass_45_0078ae_1x400.png") 50% 50% repeat-x;
+    font-weight: bold;
+    color: #ffffff;
+ border-bottom-right-radius: 5px;
+ border-bottom-left-radius: 5px;
+ border-top-right-radius: 5px;
+ border-top-left-radius: 5px;
+ display: inline-block;
+ padding: .5em .4em .5em .4em;
+ cursor: pointer;
+}
+
+.uimaster_workflow_action {
+ text-decoration: underline;
+}
+
 .no_margin {
     margin: 0px;
 }

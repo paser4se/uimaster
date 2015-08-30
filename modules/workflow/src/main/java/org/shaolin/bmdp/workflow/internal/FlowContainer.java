@@ -16,6 +16,7 @@
 package org.shaolin.bmdp.workflow.internal;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -27,12 +28,14 @@ import java.util.concurrent.ExecutorService;
 import org.shaolin.bmdp.datamodel.workflow.MissionNodeType;
 import org.shaolin.bmdp.datamodel.workflow.Workflow;
 import org.shaolin.bmdp.runtime.AppContext;
+import org.shaolin.bmdp.runtime.be.ITaskEntity;
 import org.shaolin.bmdp.runtime.cache.CacheManager;
 import org.shaolin.bmdp.runtime.cache.ICache;
 import org.shaolin.bmdp.workflow.be.ITask;
 import org.shaolin.bmdp.workflow.be.TaskImpl;
 import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
 import org.shaolin.bmdp.workflow.coordinator.ITaskListener;
+import org.shaolin.bmdp.workflow.dao.CoordinatorModel;
 import org.shaolin.bmdp.workflow.exception.ConfigException;
 import org.shaolin.bmdp.workflow.internal.cache.FlowObject;
 import org.shaolin.bmdp.workflow.internal.type.AppInfo;
@@ -197,10 +200,25 @@ public class FlowContainer {
         task.setEnabled(true);
         task.setListener(new MissionListener(task));
         task.setCreateTime(new Date());
-        //javax.sql.rowset.serial.SerialBlob blob = new javax.sql.rowset.serial.SerialBlob();
+        
+        List<ITaskEntity> taskRelatedEntities = new ArrayList<ITaskEntity>();
+        Collection<String> keys = flowContext.getEvent().getAttributeKeys();
+        for (String key: keys) {
+        	Object var = flowContext.getEvent().getAttribute(key);
+        	if (var instanceof ITaskEntity) {
+        		taskRelatedEntities.add((ITaskEntity)var);
+        		flowContext.getEvent().setAttribute(key, null);
+        	}
+        }
+        
         task.setFlowState(FlowRuntimeContext.marshall(flowContext));
         
         coordinator.addTask(task);
+        
+        for (ITaskEntity entity: taskRelatedEntities) {
+    		entity.setTaskId(task.getId());
+    		CoordinatorModel.INSTANCE.update(entity);
+        }
         return task;
     }
     
@@ -275,6 +293,11 @@ public class FlowContainer {
 			} catch (Exception e) {
 				logger.error("Continue processing task error: " + e.getMessage(), e);
 			}
+		}
+
+		@Override
+		public void notifyCreated() {
+			
 		}
     }
 

@@ -36,7 +36,7 @@
 			<ns2:dest name="createdOrder"></ns2:dest>
 		</ns2:start-node>
 		<!-- schedule somebody to approved the order once it created. anybody can place an order from business perspective. -->
-		<ns2:mission-node name="createdOrder" expiredDays="0" expiredHours="1" partyType="productionManager">
+		<ns2:mission-node name="createdOrder" expiredDays="0" expiredHours="1" partyType="productionManager" autoTrigger="true">
 			<ns2:process>
 				<ns2:var name="orderObject" category="JavaPrimitive" xsi:type="ParamType"	scope="InOut">
 					<type entityName="java.lang.String"></type>

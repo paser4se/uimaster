@@ -2,7 +2,7 @@
 .uimaster_widget_cell {             /* sets fluid layout for all DIVs with class "cell" */
     vertical-align: top;        /* vertical aligns elements within the cell */ 
     margin: 5px 0px 5px 0px;   /* controls spacing around cell DIVs */
-    padding: 0;	                /* zeros out the cell padding value, if any */
+    padding: 0;                 /* zeros out the cell padding value, if any */
     float: left;                /* floats the DIV to the left of the screen */
     clear: none;                /* positions the next floated cell to the right of the previous cell */
     max-width: 100%;             /* ensures that a cell will not exceed an unreasonable width */
@@ -102,6 +102,38 @@ label {
     width:270px;
 }
 
+.uimaster_button {
+ border: 1px solid #77d5f7;
+ background: #0078ae url("images/ui-bg_glass_45_0078ae_1x400.png") 50% 50% repeat-x;
+    font-weight: normal;
+    color: #ffffff;
+ border-bottom-right-radius: 5px;
+ border-bottom-left-radius: 5px;
+ border-top-right-radius: 5px;
+ border-top-left-radius: 5px;
+ display: inline-block;
+ padding: .5em .4em .5em .4em;
+ cursor: pointer;
+}
+
+.uimaster_button hover{
+ border: 1px solid #77d5f7;
+ background: #0078ae url("images/ui-bg_glass_45_0078ae_1x400.png") 50% 50% repeat-x;
+    font-weight: bold;
+    color: #ffffff;
+ border-bottom-right-radius: 5px;
+ border-bottom-left-radius: 5px;
+ border-top-right-radius: 5px;
+ border-top-left-radius: 5px;
+ display: inline-block;
+ padding: .5em .4em .5em .4em;
+ cursor: pointer;
+}
+
+.uimaster_workflow_action {
+ text-decoration: underline;
+}
+
 .no_margin {
     margin: 0px;
 }
@@ -156,21 +188,21 @@ html {
 .skin_titlepanel_table {}
 .skin_titlepanel_title {}
 .skin_titlepanel_content {
-	display:block;
-	border:2px solid #8DB9DB;
-	border-top-right-radius: 4px;
-	border-top-left-radius: 4px;
-	border-bottom-right-radius: 12px;
-	border-bottom-left-radius: 12px;
-	overflow: hidden;
+ display:block;
+ border:2px solid #8DB9DB;
+ border-top-right-radius: 4px;
+ border-top-left-radius: 4px;
+ border-bottom-right-radius: 12px;
+ border-bottom-left-radius: 12px;
+ overflow: hidden;
 }
 .cust_skin_titlepanel_content {
-	display:block;
-	border:1px solid #8DB9DB;
-	border-top-right-radius: 4px;
-	border-top-left-radius: 4px;
-	border-bottom-right-radius: 12px;
-	border-bottom-left-radius: 12px;
+ display:block;
+ border:1px solid #8DB9DB;
+ border-top-right-radius: 4px;
+ border-top-left-radius: 4px;
+ border-bottom-right-radius: 12px;
+ border-bottom-left-radius: 12px;
 }
 
 .uimaster_table {
@@ -179,8 +211,8 @@ html {
 
 .uimaster_table td{
     max-width:150px;
-	text-overflow:ellipsis;
-	overflow:hidden;
+ text-overflow:ellipsis;
+ overflow:hidden;
 }
 
 /**
@@ -404,20 +436,20 @@ html {
     border:1px dotted red;
 }
 .flowchart .aLabel {
- 	background-color:white; 
-	padding:0.4em; 
-	font:12px sans-serif; 
-	color:#444;
-	z-index:21;
-	border:1px dotted gray;
-	opacity:0.8;
-	filter:alpha(opacity=80);
-	cursor: pointer;
+  background-color:white; 
+ padding:0.4em; 
+ font:12px sans-serif; 
+ color:#444;
+ z-index:21;
+ border:1px dotted gray;
+ opacity:0.8;
+ filter:alpha(opacity=80);
+ cursor: pointer;
 }
 .flowchart .aLabel._jsPlumb_hover {
-	background-color:#5C96BC;
-	color:white;	
-	border:1px solid white;
+ background-color:#5C96BC;
+ color:white; 
+ border:1px solid white;
 }
 .flowchart ._jsPlumb_connector { z-index:4; }
 .flowchart ._jsPlumb_endpoint, .endpointTargetLabel, .endpointSourceLabel{ z-index:21;cursor:pointer; }

@@ -155,38 +155,31 @@ public class FlowEngine {
         NodeInfo nextNode = node;
         NodeInfo lastExpNode = null;
         List<NodeInfo> visitedExceptionNodes = null;
-        while (true) {
+        try {
+            executeNode(nextNode, flowContext);
+        } catch (Throwable e) {
+            if (logger.isTraceEnabled()) {
+                logger.trace("Exception when execute {} on {}",
+                        new Object[] { flowContext.getEvent(), nextNode });
+                logger.trace("Detail trace: " + e.getMessage(), e);
+            }
+            flowContext.setException(e);
             try {
-                executeNode(nextNode, flowContext);
-                break;
-            } catch (Throwable e) {
-                if (logger.isTraceEnabled()) {
-                    logger.trace("Exception when execute {} on {}",
-                            new Object[] { flowContext.getEvent(), nextNode });
-                    logger.trace("Detail trace: " + e.getMessage(), e);
-                }
+                nextNode = handleException(flowContext, e);
+            } catch (Throwable ex) {
+                logger.warn("Fail to handle exception for " + flowContext + ", " + e.getMessage(), ex);
                 flowContext.setException(e);
-                try {
-                    nextNode = handleException(flowContext, e);
-                } catch (Throwable ex) {
-                    logger.warn("Fail to handle exception for " + flowContext + ", " + e.getMessage(), ex);
+            }
+            if (nextNode != null) {
+                if (visitedExceptionNodes != null && visitedExceptionNodes.contains(nextNode)) {
                     flowContext.setException(e);
-                    break;
-                }
-                if (nextNode != null) {
-                    if (visitedExceptionNodes != null && visitedExceptionNodes.contains(nextNode)) {
-                        flowContext.setException(e);
-                        logger.warn("Inifnit loop detected when handle exception, the loop node is {}.", nextNode);
-                        break;
-                    } else {
-                        lastExpNode = nextNode;
-                        if (visitedExceptionNodes == null) {
-                            visitedExceptionNodes = new ArrayList<NodeInfo>();
-                        }
-                        visitedExceptionNodes.add(lastExpNode);
-                    }
+                    logger.warn("Inifnit loop detected when handle exception, the loop node is {}.", nextNode);
                 } else {
-                    break;
+                    lastExpNode = nextNode;
+                    if (visitedExceptionNodes == null) {
+                        visitedExceptionNodes = new ArrayList<NodeInfo>();
+                    }
+                    visitedExceptionNodes.add(lastExpNode);
                 }
             }
         }
@@ -225,17 +218,7 @@ public class FlowEngine {
                 	currentNode = processGeneralNode(flowContext, currentNode);
                 	break;
                 case MISSION:
-                	if (flowContext.hasResponse()){
-                		currentNode = processGeneralNode(flowContext, currentNode);
-                	} else {
-                		// must waiting for response trigger.
-                        // Removing existing pending timeout event first
-                		// notify the relevant parties to do the job.
-                		MissionNodeType m = (MissionNodeType)currentNode.getNode();
-                		processTimerNode(flowContext, currentNode, m);
-                		flowContext.markWaitResponse();
-                		currentNode = null;
-                	}
+            		currentNode = processGeneralNode(flowContext, currentNode);
                     break;
                 case CONDITION:
                     currentNode = processConditionNode(flowContext, currentNode, flowContext.getEvent());
@@ -270,6 +253,18 @@ public class FlowEngine {
                 logger.trace("{}:Leave node {}:{}:{}:{}", new Object[] {
                         flowContext.getEvent().getId(), engineName, previousNode.getAppName(),
                         previousNode.getFlowName(), previousNode.getName() });
+            }
+            if (currentNode != null && currentNode.getNodeType() == NodeInfo.Type.MISSION) {
+            	// must waiting for response trigger from next operator.
+        		// notify the relevant parties to do the job.
+        		MissionNodeType m = (MissionNodeType)currentNode.getNode();
+        		if (m.isAutoTrigger() == null || !m.isAutoTrigger()) {
+        			flowContext.setCurrentNode(currentNode);
+        			processTimerNode(flowContext, currentNode, m);
+        			flowContext.markWaitResponse();
+        			currentNode = null;
+        			break;
+        		}
             }
         } while (currentNode != null);
     }

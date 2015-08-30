@@ -2385,11 +2385,14 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
             	if(p.length > 0) {
             		$(p[0]).css("display", "none");
             		var buttons = $(p[0]).find("input[type='button']");
+					var count = 0;
             		for (var i=0;i<buttons.length;i++) {
             			var b = buttons[i];
-            			buttonset[i] = { text:b.value, 
+						if ($(b).attr("disabled") == null || $(b).attr("disabled") == "false") {
+							buttonset[count++] = { text:b.value, 
             					click:function(){var e=$(event.srcElement).text();for (var i=0;i<buttons.length;i++){ 
             						if(e==buttons[i].value){$(buttons[i]).click();break;}} } };
+						}
             		}
             	}
             }
@@ -2414,6 +2417,24 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
             defaultname.addComponent(eval(D+this.uiid),true);
             UIMaster.ui.window.addWindow(this.id,this);
             this.isOpen = true;
+			var p = this.content.find("div[id$='actionPanel']");
+            if(p.length > 0) {
+			    var dbuttons = $($(this.content.parent()).find("div[class*='ui-dialog-buttonpane']")[0]).find("button[type='button']");
+				var buttons = $(p[0]).find("input[type='button']");
+				var count = 0;
+				for (var i=0;i<buttons.length;i++) {
+				    var b = buttons[i];
+					if ($(b).attr("disabled") != null && $(b).attr("disabled") == "true") {
+					   continue;
+					}
+				    var btnClass = $(b).attr('class');
+					if(!$(dbuttons[count]).hasClass(btnClass)) {
+					   $(dbuttons[count]).addClass(btnClass);
+					   $(dbuttons[count]).removeClass("uimaster_button");
+					}
+					count++;
+				}
+			}
         }
     },
     close:function(e){
