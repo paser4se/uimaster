@@ -36,7 +36,25 @@
 			<ns2:dest name="createdOrder"></ns2:dest>
 		</ns2:start-node>
 		<!-- schedule somebody to approved the order once it created. anybody can place an order from business perspective. -->
-		<ns2:mission-node name="createdOrder" expiredDays="0" expiredHours="1" partyType="productionManager" autoTrigger="true">
+		<ns2:mission-node name="createdOrder" expiredDays="0" expiredHours="1" autoTrigger="true">
+		 <ns2:uiAction actionPage="org.shaolin.vogerp.order.form.SaleOrder" actionName="ApproveOrder" actionText="批准">
+     <ns2:expression>
+        <expressionString><![CDATA[
+        import java.util.HashMap;
+        import org.shaolin.uimaster.page.AjaxContext;
+        import org.shaolin.uimaster.page.ajax.*;
+        {
+             System.out.println("workflow action!!!");
+             RefForm form = (RefForm)@page.getElement(@page.getEntityUiid()); 
+             HashMap values = (HashMap)form.ui2Data();
+             form.closeIfinWindows(true);
+             @page.removeForm(@page.getEntityUiid()); 
+             return values;
+         }
+        ]]></expressionString>
+     </ns2:expression>
+   </ns2:uiAction>
+   <ns2:participant partyType="productionManager" />
 			<ns2:process>
 				<ns2:var name="orderObject" category="JavaPrimitive" xsi:type="ParamType"	scope="InOut">
 					<type entityName="java.lang.String"></type>
@@ -51,7 +69,25 @@
 			</ns2:process>
 			<ns2:dest name="onProduction"></ns2:dest>
 		</ns2:mission-node>
-		<ns2:mission-node name="onProduction" expiredDays="0" expiredHours="1" partyType="productionManager">
+		<ns2:mission-node name="onProduction" expiredDays="0" expiredHours="1">
+		 <ns2:uiAction actionPage="org.shaolin.vogerp.order.form.SaleOrder" actionName="ApproveOrder" actionText="批准">
+     <ns2:expression>
+        <expressionString><![CDATA[
+        import java.util.HashMap;
+        import org.shaolin.uimaster.page.AjaxContext;
+        import org.shaolin.uimaster.page.ajax.*;
+        {
+             System.out.println("workflow action!!!");
+             RefForm form = (RefForm)@page.getElement(@page.getEntityUiid()); 
+             HashMap values = (HashMap)form.ui2Data();
+             form.closeIfinWindows(true);
+             @page.removeForm(@page.getEntityUiid()); 
+             return values;
+         }
+        ]]></expressionString>
+     </ns2:expression>
+   </ns2:uiAction>
+   <ns2:participant partyType="productionManager" />
 			<ns2:process>
 				<ns2:var name="orderObject" category="JavaPrimitive" xsi:type="ParamType"	scope="InOut">
 					<type entityName="java.lang.String"></type>
@@ -67,6 +103,24 @@
 			<ns2:dest name="onDelivery"></ns2:dest>
 		</ns2:mission-node>
 		<ns2:mission-node name="onDelivery" expiredDays="0" expiredHours="1" partyType="productionManager">
+		 <ns2:uiAction actionPage="org.shaolin.vogerp.order.form.SaleOrder" actionName="ApproveOrder" actionText="批准">
+     <ns2:expression>
+        <expressionString><![CDATA[
+        import java.util.HashMap;
+        import org.shaolin.uimaster.page.AjaxContext;
+        import org.shaolin.uimaster.page.ajax.*;
+        {
+             System.out.println("workflow action!!!");
+             RefForm form = (RefForm)@page.getElement(@page.getEntityUiid()); 
+             HashMap values = (HashMap)form.ui2Data();
+             form.closeIfinWindows(true);
+             @page.removeForm(@page.getEntityUiid()); 
+             return values;
+         }
+        ]]></expressionString>
+     </ns2:expression>
+   </ns2:uiAction>
+   <ns2:participant partyType="productionManager" />
 			<ns2:process>
 				<ns2:var name="orderObject" category="JavaPrimitive" xsi:type="ParamType"	scope="InOut">
 					<type entityName="java.lang.String"></type>

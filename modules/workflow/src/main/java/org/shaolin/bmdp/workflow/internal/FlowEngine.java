@@ -221,7 +221,10 @@ public class FlowEngine {
                 case MISSION:
             		currentNode = processGeneralNode(flowContext, currentNode);
             		ICoordinatorService coordinator = AppContext.get().getService(ICoordinatorService.class);
-            		coordinator.completeTask(coordinator.getTask(flowContext.getTaskId()));
+            		if (flowContext.getTaskId() == 0) {
+            			throw new IllegalStateException("Current flow context does not have task id! " + flowContext.toString());
+            		}
+        			coordinator.completeTask(coordinator.getTask(flowContext.getTaskId()));
                     break;
                 case CONDITION:
                     currentNode = processConditionNode(flowContext, currentNode, flowContext.getEvent());
@@ -261,9 +264,12 @@ public class FlowEngine {
             	// must waiting for response trigger from next operator.
         		// notify the relevant parties to do the job.
         		MissionNodeType m = (MissionNodeType)currentNode.getNode();
-        		if (m.isAutoTrigger() == null || !m.isAutoTrigger()) {
-        			flowContext.setCurrentNode(currentNode);
-        			processTimerNode(flowContext, currentNode, m);
+        		flowContext.setCurrentNode(currentNode);
+        		processTimerNode(flowContext, currentNode, m);
+        		
+        		if (m.isAutoTrigger() != null && m.isAutoTrigger()) {
+        			//continue;
+        		} else {
         			flowContext.markWaitResponse();
         			currentNode = null;
         			break;

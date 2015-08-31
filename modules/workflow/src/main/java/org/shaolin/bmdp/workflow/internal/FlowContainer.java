@@ -201,7 +201,7 @@ public class FlowContainer {
         task.setListener(new MissionListener(task));
         task.setCreateTime(new Date());
         
-        CoordinatorModel.INSTANCE.create(task);
+    	CoordinatorModel.INSTANCE.create(task);
         
         List<ITaskEntity> taskRelatedEntities = new ArrayList<ITaskEntity>();
         Collection<String> keys = flowContext.getEvent().getAttributeKeys();

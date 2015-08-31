@@ -185,6 +185,9 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	
 	@Override
 	public boolean isPendingTask(long taskId) {
+		if (taskId == 0) {
+			return true; // new created.
+		}
 		ITask task = getTask(taskId);
 		if (task == null) {
 			return false;
@@ -201,8 +204,10 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		
 		task.setStatus(TaskStatusType.NOTSTARTED);
 		
-		if (!testCaseFlag || task.getId() == 0) {
-			CoordinatorModel.INSTANCE.create(task);
+		if (!testCaseFlag) {
+			if (task.getId() == 0) {
+				CoordinatorModel.INSTANCE.create(task);
+			}
 		}
 		if (workingTasks.putIfAbsent(task.getId(), task) == null) {
 			schedule(task);
