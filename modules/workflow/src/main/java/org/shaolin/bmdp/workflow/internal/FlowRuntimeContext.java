@@ -28,6 +28,7 @@ import java.util.Set;
 import org.shaolin.bmdp.datamodel.common.NameExpressionType;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.spi.Event;
+import org.shaolin.bmdp.runtime.spi.FlowEvent;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.shaolin.bmdp.utils.SerializeUtil;
 import org.shaolin.bmdp.workflow.internal.type.NodeInfo;
@@ -127,7 +128,7 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
 			Collection<Entry<String, Serializable>> attributes = event.getAllAttributes();
 			if (attributes != null && !attributes.isEmpty()) {
 				for (Entry<String, Serializable> attribute: attributes) {
-					globalVariables.setVariableValue(attribute.getKey(), attribute.getValue());
+					localVariables.setVariableValue(attribute.getKey(), attribute.getValue());
 				}
 			}
 			
@@ -189,22 +190,13 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
     }
     
     public static byte[] marshall(FlowRuntimeContext context) throws Exception {
-    	context.event.clear();
-    	context.globalVariables.getVariableObjects().clear();
-    	if (context.engine.getServices() != null) {
-    		Set<String> keys = context.engine.getServices().keySet();
-    		for (String key: keys) {
-    			context.globalVariables.getVariableObjects().remove(key);
-    		}
-    	}
-    	
     	FlowState state = new FlowState(context.currentNode, context.globalVarNames,
-    			 context.globalVarNamesSet, context.globalVariables);
-    	state.localVariables = context.localVariables;
+    			 context.globalVarNamesSet, null);
     	state.session = context.session;
     	state.sessionId = context.session.getID();
+    	state.eventConsumer = context.event.getEventConsumer();
+    	state.eventId = context.event.getId();
     	state.engineId = context.engine.getEngineName();
-    	state.event = context.event;
     	state.startNode = context.startNode;
     	state.eventNode = context.eventNode;
     	state.waitResponse = context.waitResponse;
@@ -216,24 +208,18 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
     }
     
     public static FlowRuntimeContext unmarshall(byte[] bytes) throws Exception {
-//    	java.sql.Blob instance
-//    	byte[] bytes = new byte[instance.getBinaryStream().available()];
-//    	instance.getBinaryStream().read(bytes);
 		FlowState state = SerializeUtil.readData(bytes, FlowState.class);
 		state.recover();
 		
 		WorkflowLifecycleServiceImpl wfservice = (WorkflowLifecycleServiceImpl)AppContext.get().getService(IWorkflowService.class);
 		FlowEngine flowEngine = wfservice.getFlowContainer().getFlowEngine(state.engineId);
-		FlowRuntimeContext context = new FlowRuntimeContext(state.event, flowEngine);
-		state.event.setAttribute(BuiltInAttributeConstant.KEY_VARIABLECONTEXT, context);
-		state.event.setAttribute(BuiltInAttributeConstant.KEY_RUNTIME, context);
-    	
-		FlowContextImpl flowContext0 = new FlowContextImpl(context);
-		state.event.setAttribute(BuiltInAttributeConstant.KEY_FLOWCONTEXT, flowContext0);
+		FlowEvent event = new FlowEvent(state.eventConsumer);
+		event.setId(state.eventId);
+		FlowRuntimeContext context = new FlowRuntimeContext(event, flowEngine);
 		context.currentNode = state.currentNode; 
 		context.globalVariables.getVariableObjects().put(BuiltInAttributeConstant.KEY_VARIABLECONTEXT, context);
 		context.globalVariables.getVariableObjects().put(BuiltInAttributeConstant.KEY_RUNTIME, context);
-		context.globalVariables.getVariableObjects().put(BuiltInAttributeConstant.KEY_FLOWCONTEXT, flowContext0);
+		context.globalVariables.getVariableObjects().put(BuiltInAttributeConstant.KEY_FLOWCONTEXT, context.getFlowContextInfo());
 		if (flowEngine.getServices() != null) {
 			context.globalVariables.getVariableObjects().putAll(flowEngine.getServices());
 		}
@@ -241,10 +227,9 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
 		context.globalVarNamesSet = state.globalVarNamesSet; 
 		context.globalVariables.getVariableObjects().putAll(state.globalVariables.getVariableObjects());
 		context.localVariables.getVariableObjects().putAll(state.localVariables.getVariableObjects());
-		context.setEvaluationContextObject("@", context.globalVariables);
-		context.setEvaluationContextObject("$", context.localVariables);
+		context.globalVariables.getVariableObjects().put(BuiltInAttributeConstant.KEY_SESSION, state.session);
+		
 		context.session = state.session;
-		context.globalVariables.getVariableObjects().put(BuiltInAttributeConstant.KEY_SESSION, context.session);
 		context.sessionId = state.sessionId;
 		context.startNode = state.startNode;
 		context.eventNode = state.eventNode;

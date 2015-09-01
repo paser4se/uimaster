@@ -1505,7 +1505,7 @@ public class UIFormObject implements java.io.Serializable
 				StringPropertyType originalStr = (StringPropertyType)button.getText();
 				if (originalStr == null) {
 					originalStr = new StringPropertyType();
-					originalStr.setValue("Approve");
+					originalStr.setValue(node.getUiAction().getActionText());
 					button.setText(originalStr);
 				}
 				ExpressionPropertyType strProperty = new ExpressionPropertyType();

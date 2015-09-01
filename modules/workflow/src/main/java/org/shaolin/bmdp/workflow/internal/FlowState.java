@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.shaolin.bmdp.runtime.AppContext;
-import org.shaolin.bmdp.runtime.spi.Event;
 import org.shaolin.bmdp.workflow.internal.type.NodeInfo;
 import org.shaolin.bmdp.workflow.spi.IWorkflowService;
 import org.shaolin.bmdp.workflow.spi.WorkflowSession;
@@ -45,10 +44,11 @@ public final class FlowState implements java.io.Serializable {
 	final Set<String> globalVarNamesSet;
 
 	long taskId;
-	Event event;
 	WorkflowSession session;
 	String sessionId;
 	String engineId;
+	String eventId;
+	String eventConsumer;
 	boolean waitResponse;
 	boolean responseBack;
 	boolean recoverable;
