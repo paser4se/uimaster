@@ -427,9 +427,13 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
 
     @SuppressWarnings("unchecked")
 	public void setLocallVariables(Map<String, Object> initVariables) {
-        localVariables.getVariableObjects().clear();
         if (initVariables != null) {
-        	localVariables.getVariableObjects().putAll(initVariables);
+        	Set<String> keys = initVariables.keySet();
+        	for (String key: keys) {
+        		if (!localVariables.getVariableObjects().containsKey(key)) {
+        			localVariables.getVariableObjects().put(key, initVariables.get(key));
+        		}
+        	}
         }
     }
 

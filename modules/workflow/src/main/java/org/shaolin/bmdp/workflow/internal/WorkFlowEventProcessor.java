@@ -84,6 +84,7 @@ public final class WorkFlowEventProcessor implements EventProcessor, IServicePro
 	        		ICoordinatorService coordinator = AppContext.get().getService(ICoordinatorService.class);
 	        		ITask task = coordinator.getTask(((ITaskEntity)var).getId());
 	        		FlowRuntimeContext flowContext = FlowRuntimeContext.unmarshall(task.getFlowState());
+	        		flowContext.changeEvent(event);
 	        		flowContext.getFlowContextInfo().setWaitingNode(flowContext.getCurrentNode());
 					flowContext.getEvent().setFlowContext(flowContext.getFlowContextInfo());
 					event.setFlowContext(flowContext.getFlowContextInfo());

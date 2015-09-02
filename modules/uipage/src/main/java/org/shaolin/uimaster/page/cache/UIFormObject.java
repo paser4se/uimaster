@@ -1437,7 +1437,7 @@ public class UIFormObject implements java.io.Serializable
 
     public String getName()
     {
-        return name;
+        return this.name;
     }
     
     public Map getComponentProperty(String componentID)
@@ -1469,13 +1469,13 @@ public class UIFormObject implements java.io.Serializable
 		if (workflowActions == null) {
 			workflowActions = new ArrayList();
 		} else {
-			clearWorkflowActions();
+			clearWorkflowActions(node.getUiAction().getActionName());
 		}
 		workflowActions.add(node.getUiAction().getActionName());
 
 		// internal refresh.
 		UIEntity entity = IServerServiceManager.INSTANCE.getEntityManager()
-    			.getEntity(name, UIEntity.class);
+    			.getEntity(this.name, UIEntity.class);
 		
 		boolean hasActionPanel = false;
 		List<UIComponentType> panelList = entity.getBody().getComponents();
@@ -1577,20 +1577,23 @@ public class UIFormObject implements java.io.Serializable
 			throw new IllegalStateException("Workflow action has to be added on ActionPanel, this panel is not defined!");
 		}
 		
-		logger.info("reload form {} due to workflow customization", name);
+		logger.info("reload form {} due to workflow customization", this.name);
 		load();
 	}
     
-    public void clearWorkflowActions() {
+    public void clearWorkflowActions(String newActionName) {
 		if (this.workflowActions != null && this.workflowActions.size() > 0) {
 			UIEntity entity = IServerServiceManager.INSTANCE.getEntityManager()
-					.getEntity(name, UIEntity.class);
+					.getEntity(this.name, UIEntity.class);
 			for (String actionName : workflowActions) {
+				if (!newActionName.equals(actionName)) {
+					continue;
+				}
 				boolean hasActionPanel = false;
 				List<UIComponentType> panelList = entity.getBody().getComponents();
 				for (UIComponentType panel : panelList) {
 					if ("actionPanel".equals(panel.getUIID())) {
-						logger.info("remove workflow action {} from {}", panel.getUIID(), name);
+						logger.info("remove workflow action {} from {}", panel.getUIID(), this.name);
 						UIPanelType actionPanel = (UIPanelType) panel;
 						for (UIComponentType comp : actionPanel.getComponents()) {
 							if (actionName.equals(comp.getUIID())) {
@@ -1619,8 +1622,9 @@ public class UIFormObject implements java.io.Serializable
 						}
 					}
 				}
+				this.workflowActions.remove(actionName);
+				break;
 			}
-			this.workflowActions.clear();
 		}
 		
 	}
