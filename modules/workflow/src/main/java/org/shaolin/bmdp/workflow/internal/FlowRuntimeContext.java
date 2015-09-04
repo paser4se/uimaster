@@ -220,14 +220,9 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
 		context.globalVariables.getVariableObjects().put(BuiltInAttributeConstant.KEY_VARIABLECONTEXT, context);
 		context.globalVariables.getVariableObjects().put(BuiltInAttributeConstant.KEY_RUNTIME, context);
 		context.globalVariables.getVariableObjects().put(BuiltInAttributeConstant.KEY_FLOWCONTEXT, context.getFlowContextInfo());
-		if (flowEngine.getServices() != null) {
-			context.globalVariables.getVariableObjects().putAll(flowEngine.getServices());
-		}
+		
 		context.globalVarNames = state.globalVarNames;
 		context.globalVarNamesSet = state.globalVarNamesSet; 
-		context.globalVariables.getVariableObjects().putAll(state.globalVariables.getVariableObjects());
-		context.localVariables.getVariableObjects().putAll(state.localVariables.getVariableObjects());
-		context.globalVariables.getVariableObjects().put(BuiltInAttributeConstant.KEY_SESSION, state.session);
 		
 		context.session = state.session;
 		context.sessionId = state.sessionId;

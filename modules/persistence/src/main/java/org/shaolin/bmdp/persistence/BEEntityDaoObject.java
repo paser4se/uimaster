@@ -35,8 +35,6 @@ public class BEEntityDaoObject {
 
 		session.save(entity);
 
-//		session.flush();
-//	    session.clear();
 		session.getTransaction().commit();
 	}
 
@@ -46,6 +44,9 @@ public class BEEntityDaoObject {
 	 * @param entity
 	 */
 	public void delete(IPersistentEntity entity) {
+		if (entity.getId() == 0) {
+			return;
+		}
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		session.beginTransaction();
 
@@ -82,7 +83,11 @@ public class BEEntityDaoObject {
 		session.beginTransaction();
 
 		for (IPersistentEntity entity: entities) {
-			session.save(entity);
+			if (entity.getId() > 0) {
+				session.update(entity);
+			} else {
+				session.save(entity);
+			}
 		}
 
 		session.getTransaction().commit();
@@ -102,7 +107,11 @@ public class BEEntityDaoObject {
 		session.beginTransaction();
 
 		for (IPersistentEntity entity: entities) {
-			session.update(entity);
+			if (entity.getId() == 0) {
+				session.save(entity);
+			} else {
+				session.update(entity);
+			}
 		}
 
 		session.getTransaction().commit();
@@ -122,7 +131,9 @@ public class BEEntityDaoObject {
 		session.beginTransaction();
 
 		for (IPersistentEntity entity: entities) {
-			session.delete(entity);
+			if (entity.getId() > 0) {
+				session.delete(entity);
+			}
 		}
 
 		session.getTransaction().commit();

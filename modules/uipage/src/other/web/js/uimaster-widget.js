@@ -338,7 +338,7 @@ UIMaster.ui.textfield = UIMaster.extend(UIMaster.ui.field, /** @lends UIMaster.u
                     result.push(this.lengthText);
                 if (this.regex && !this.regex.test(this.ui.value))
                     result.push(this.regexText);
-                if (this.validators.length != 0)
+                if (this.validators != null && this.validators.length != 0)
                     for (var i = 0; i < this.validators.length; i++)
                         this.validateCustConstraint(this.validators[i]) || result.push(this.validators[i].msg || '');
             }

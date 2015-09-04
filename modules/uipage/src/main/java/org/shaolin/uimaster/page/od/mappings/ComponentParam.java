@@ -275,7 +275,11 @@ public class ComponentParam extends DataParam {
 					componentPathValue);
 			globalEContext.setVariableValue(paramName, paramNameValue);
 
-			u2DExpression.evaluate(context);
+			try {
+				u2DExpression.evaluate(context);
+			} catch (EvaluationException e) {
+				throw new EvaluationException("UI to Data Expression: " + u2DExpression.getExpressionString(), e);
+			}
 		}
 	}
 

@@ -753,7 +753,7 @@ public class UIFormObject implements java.io.Serializable
 					
 					for (UITableColumnType col : table.getColumns()) {
 						col.getRowExpression().getExpression().parse(parsingContext);
-						if (table.isShowFilter() && col.getUpdateCondition() != null) {
+						if (col.getUpdateCondition() != null && col.getUpdateCondition().getExpression() != null) {
 							col.getUpdateCondition().getExpression().parse(parsingContext);
 						}
 						if(col.getComboxExpression() != null) {
