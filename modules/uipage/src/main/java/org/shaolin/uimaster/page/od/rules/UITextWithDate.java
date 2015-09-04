@@ -222,7 +222,7 @@ public class UITextWithDate implements IODMappingConverter {
 				throw ((UIConvertException) t);
 			}
 			throw new UIConvertException("EBOS_ODMAPPER_072", t,
-					new Object[] { getUIHTML().getUIID() });
+					new Object[] { this.uiid });
 		}
 	}
 

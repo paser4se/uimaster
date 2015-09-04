@@ -191,7 +191,7 @@ public class UIMultipleChoice implements IODMappingConverter {
 				throw ((UIConvertException) t);
 			}
 			throw new UIConvertException("EBOS_ODMAPPER_073", t,
-					new Object[] { getUIHTML().getUIID() });
+					new Object[] { this.uiid });
 		}
 	}
 

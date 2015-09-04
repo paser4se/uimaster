@@ -265,7 +265,7 @@ public class UITextWithFloatNumber implements IODMappingConverter {
 			}
 
 			throw new UIConvertException("EBOS_ODMAPPER_073", t,
-					new Object[] { getUIHTML().getUIID() });
+					new Object[] { this.uiid });
 		}
 	}
 
