@@ -1626,7 +1626,6 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		if (this.initialized)
 			return;
 		this.initialized = true;
-					
 		$(this).prev().children().each(function() { //#'+this.id+'ActionBar'
 			$(this).buttonset();
 			$(this).children().each(function(){
@@ -1635,9 +1634,11 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				}
 			});
 		});
+		this.tfoot = $($(this).find('tfoot')[0]);
+		this.editable = (this.tfoot!=null && typeof(this.tfoot.attr('editablecell'))!="undefined");
 		var othis = this;
 		var table = $(this).dataTable({
-			"paging": (this.editable == undefined?true:this.editable),
+			"paging": !this.editable,"ordering":!this.editable,"info":!this.editable,
 			"filter": false,
 			"recordsFiltered": $(this).attr("recordsFiltered"),
 			"recordsTotal": $(this).attr("recordsTotal"),
@@ -1659,9 +1660,9 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		this.dtable = table;
 		this.dtable.api().settings()[0].oFeatures.bServerSide=true;
 		//attach the event after initializing the table.
-		$(this).on("order.dt", function () { });
-		$(this).on("page.dt", function (event,settings) {});
-		$(this).on("length.dt", function (event,settings,integer) {});
+		//$(this).on("order.dt", function () { });
+		//$(this).on("page.dt", function (event,settings) {});
+		//$(this).on("length.dt", function (event,settings,integer) {});
 		var columnIds = new Array();
 		var coli = 0;
 		$(elementList[this.id]).find('thead th').each(function(){
@@ -1679,31 +1680,45 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			this.syncButtonGroup(false);
 		}
 		var t = this;
-		this.tfoot = $(elementList[this.id]).find('tfoot');
 		if (this.tfoot.length == 0) {
 			return;
 		}
 		this.tfoot = $(this.tfoot[0]);
-		if(typeof(this.tfoot.attr('editablecell'))!="undefined") {
+		if(this.editable) {
 			this.editablecell = true;
 			this.syncCellEvent(body);
-			return;
 		} 
-		var filters = this.tfoot.find('th');
+		this.refreshFoot();
+	},
+	refreshFoot:function(){
+	    var othis = this;
+	    var filters = this.tfoot.find('th');
 		filters.each(function(){
 			var c = $(this).children();
 			for (var i=0;i<c.length;i++) {
 				if(c[i].tagName.toLowerCase() == "input") {
 					$(c[i]).keydown(function(e){
 						if(e.keyCode == 13) {
-							t.sync();
-							t.refresh(0);
+						    if (othis.editable) {
+							   othis.hideEditorOnCell(othis.getTDIndex(othis.preCell),othis.preCell);
+							   othis.preCell = null;
+							   othis.refreshFoot();
+							} else {
+						       t.sync();
+							   t.refresh(0);
+							}
 						}
 					});
 				} else if(c[i].tagName.toLowerCase() == "select") {
 					$(c[i]).change(function(){
-						t.sync()
-						t.refresh(0);
+					    if (othis.editable) {
+							othis.hideEditorOnCell(othis.getTDIndex(othis.preCell),othis.preCell);
+							othis.preCell = null;
+							othis.refreshFoot();
+						} else {
+							t.sync()
+							t.refresh(0);
+						}
 					});
 				} else if(c[i].tagName.toLowerCase() == "img" && c[i].src.indexOf("calendar") != -1) {
 					//TODO: support data range
@@ -1723,9 +1738,16 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	syncCellEvent:function(body){
 		var othis = this;
 		$(body).find('td').each(function(){
-			$(this).hover(
-			function(){othis.showEditorOnCell(othis.getTDIndex(this),this);}, 
-			function(){othis.hideEditorOnCell(othis.getTDIndex(this),this);});
+			$(this).dblclick(function(){
+			    if (othis.preCell != null && othis.preCell == this) {
+				   return;
+				}
+				if (othis.preCell != null) {
+			       othis.hideEditorOnCell(othis.getTDIndex(othis.preCell),othis.preCell);
+				}
+				othis.showEditorOnCell(othis.getTDIndex(this),this);
+				othis.preCell = this;
+			});
 		});
 	},
 	rowEmpty:function(){
@@ -1743,7 +1765,6 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	},
 	showEditorOnCell:function(i, td){
 		if (this.rowEmpty()) {return;}
-		
 		var value = $(td).text();
 		this.tempCellValue = value;
 		var widget = this.tfoot.find('th');
@@ -1808,7 +1829,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
             UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"selectedIndex",_value:this.selectedIndex,_framePrefix:UIMaster.getFramePrefix(obj)});
             obj._selectedIndex = this.selectedIndex;
         }
-		if (this.editablecell) {
+		if (this.editable) {
 			return;//the editable cell and the filters are mutual exclusive.
 		}
         var filters = $(elementList[this.id]).find('tfoot th');
@@ -1826,7 +1847,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"conditions",_value:JSON.stringify(conditions),_framePrefix:UIMaster.getFramePrefix(obj)});
 	},
 	syncBodyDataToServer:function(){
-		if (this.editablecell) {
+		if (this.editable) {
 			var o = this;
 			var bodydata = new Array();
 		    //convert body cells to json.
@@ -1848,6 +1869,10 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	},
 	refreshBodyEvents:function(body, selectedByDefault) {
 		var othis = this;
+		if (othis.editable) {
+			othis.syncCellEvent(body);
+			return;
+		}
 		body.children().each(function(){
 		 $(this).bind('click', function(){
 			var tr = $(this);
@@ -1855,19 +1880,16 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			if (tr.hasClass('selected')){
 				tr.removeClass('selected');
 				othis.selectedIndex = -1;
-	        } else {
-	        	othis.dtable.$('tr.selected').removeClass('selected');
-	            tr.addClass('selected');
-	            othis.selectedIndex = tr[0]._DT_RowIndex;
-	            isselected=true;
-	        }
+			} else {
+				othis.dtable.$('tr.selected').removeClass('selected');
+				tr.addClass('selected');
+				othis.selectedIndex = tr[0]._DT_RowIndex;
+				isselected=true;
+			}
 			othis.syncButtonGroup(isselected);
-	    });
 		});
-		if (othis.editablecell) {
-			othis.syncCellEvent(body);
-		}
-		if (selectedByDefault == undefined || !selectedByDefault) {
+		});
+		if ((selectedByDefault == undefined || !selectedByDefault)) {
 			return;
 		}
 		var c = body.children();
