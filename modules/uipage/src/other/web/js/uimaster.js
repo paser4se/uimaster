@@ -552,7 +552,7 @@ UIMaster.init = function(){
  */
 UIMaster.require = function(_jsName, _nocheck){
     _jsName = (_jsName.indexOf('/') == 0 ? '' : '/') + _jsName;
-    if (_jsName.search(RESOURCE_CONTEXTPATH) != 0) {
+    if (_jsName.indexOf(WEB_CONTEXTPATH) == -1 && _jsName.search(RESOURCE_CONTEXTPATH) != 0) {
         _jsName = RESOURCE_CONTEXTPATH + _jsName;
     }
     if (!UIMaster.funclist[_jsName]){

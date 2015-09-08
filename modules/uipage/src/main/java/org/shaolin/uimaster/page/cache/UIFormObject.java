@@ -1795,7 +1795,7 @@ public class UIFormObject implements java.io.Serializable
 			
 			if (jsFileName.endsWith(".js")) {
 				jsFileName = jsFileName.replace("\\", "/");
-				jsFileName = jsFileName.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getResourceContextRoot());
+				jsFileName = jsFileName.replace(WebConfigFastCache.WebContextRoot, WebConfig.getWebContextRoot());
 				sb.append("UIMaster.require(\"").append(jsFileName).append("?_timestamp=").append(WebConfig.getTimeStamp()).append("\"");
 				sb.append(", true);");
 			}
