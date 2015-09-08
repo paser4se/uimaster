@@ -335,17 +335,34 @@ public class WebConfig {
 		return getCacheObject().hotdeployeable;
 	}
 	
+	/**
+	 * Import one ui form.
+	 * @param entityName
+	 * @return
+	 */
 	public static String getImportJS(String entityName) {
 		String name = entityName.replace('.', File.separatorChar);
-		return WebConfigFastCache.ResourceContextRoot + "/js/" + name + ".js";
+		return WebConfigFastCache.WebContextRoot + "/js/" + name + ".js";
 	}
 	
 	public static String replaceCssWebContext(String str) {
-		return str.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getResourceContextRoot());
+		if (str.indexOf(WebConfigFastCache.ResourceContextRoot) != -1) {
+			str = str.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getResourceContextRoot());
+		}
+		if (str.indexOf(WebConfigFastCache.WebContextRoot) != -1) {
+			return str.replace(WebConfigFastCache.WebContextRoot, WebConfig.getWebContextRoot());
+		}
+		return str;
 	}
 	
 	public static String replaceJsWebContext(String str) {
-		return str.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getResourceContextRoot());
+		if (str.indexOf(WebConfigFastCache.ResourceContextRoot) != -1) {
+			return str.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getResourceContextRoot());
+		}
+		if (str.indexOf(WebConfigFastCache.WebContextRoot) != -1) {
+			return str.replace(WebConfigFastCache.WebContextRoot, WebConfig.getWebContextRoot());
+		}
+		return str;
 	}
 	
 	public static String replaceWebContext(String str) {
@@ -359,7 +376,7 @@ public class WebConfig {
 	 */
 	public static String getImportCSS(String entityName) {
 		String name = entityName.replace('.', File.separatorChar);
-		return WebConfigFastCache.ResourceContextRoot + "/css/" + name + ".css";
+		return WebConfigFastCache.WebContextRoot + "/css/" + name + ".css";
 	}
 
 	public static String[] getCommonCss() {

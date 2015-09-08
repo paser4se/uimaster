@@ -97,9 +97,9 @@ public class HTMLSnapshotContext implements Serializable
 
     private transient Writer out;
 
-    private Map repository;
+    private transient Map repository;
 
-    private Map refEntityMap;
+    private transient Map refEntityMap;
 
     private StringBuffer htmlBuffer;
 
@@ -111,11 +111,11 @@ public class HTMLSnapshotContext implements Serializable
 
     private boolean ajaxSubmit;
 
-    private Map pageData;
+    private transient Map pageData;
 
     private Map<String, Widget> ajaxWidgetMap;
     
-    private Map componentPermissions;
+    private transient Map componentPermissions;
 
     private boolean noResponse = false;
 

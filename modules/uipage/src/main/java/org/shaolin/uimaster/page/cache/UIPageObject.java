@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.shaolin.bmdp.datamodel.page.UIPage;
-import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.uimaster.page.MobilitySupport;
@@ -103,13 +102,6 @@ public class UIPageObject implements java.io.Serializable {
 		} else {
 			importCSSCodeMap.put(locale, importCSSCode);
 		}
-	}
-
-	private void addCSSFile(String locale) {
-		String cssCode = "<link rel=\"stylesheet\" href=\""
-				+ WebConfig.getImportCSS(entityName)
-				+ "\" type=\"text/css\">\n";
-		cssCodeMap.put(locale, cssCode);
 	}
 
 	private void importCSS() {

@@ -33,7 +33,7 @@ public class PageCacheManager {
 
 	private static final String UI_CACHE = "__sys_uipage_cache";
 	
-	private static final String UI_Entity_CACHE = "__sys_uientity_cache";
+	private static final String UI_Entity_CACHE = "__sys_uiform_cache";
 
     private static ICache<String, UIPageObject> uipageCache;
     
