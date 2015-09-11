@@ -301,7 +301,7 @@ public class Table extends Widget implements Serializable {
 		IDataItem dataItem = AjaxActionHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
-		dataItem.setData(this.refresh());
+		dataItem.setData(this.refresh0());
 		dataItem.setFrameInfo(this.getFrameInfo());
 
 		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
@@ -327,7 +327,7 @@ public class Table extends Widget implements Serializable {
 		IDataItem dataItem = AjaxActionHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
-		dataItem.setData(this.refresh());
+		dataItem.setData(this.refresh0());
 		dataItem.setFrameInfo(this.getFrameInfo());
 
 		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
@@ -336,11 +336,20 @@ public class Table extends Widget implements Serializable {
 		return obj;
 	}
 	
+	public void refresh() {
+		IDataItem dataItem = AjaxActionHelper.createDataItem();
+		dataItem.setUiid(this.getId());
+		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
+		dataItem.setData(this.refresh0());
+		dataItem.setFrameInfo(this.getFrameInfo());
+        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+	}
+	
 	/**
 	 * After when called addRow,removeRow,removeAll,updateRow, we have to call
 	 * this method refreshing data set.
 	 */
-	public String refresh() {
+	public String refresh0() {
 		try {
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();

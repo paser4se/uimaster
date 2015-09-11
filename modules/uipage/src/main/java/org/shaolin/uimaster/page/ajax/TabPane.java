@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 
+import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.TableLayoutConstraintType;
 import org.shaolin.bmdp.datamodel.page.UIReferenceEntityType;
 import org.shaolin.bmdp.datamodel.page.UITabPaneItemType;
@@ -51,6 +52,8 @@ import org.shaolin.uimaster.page.od.ODPageContext;
 import org.shaolin.uimaster.page.spi.IJsGenerator;
 import org.shaolin.uimaster.page.widgets.HTMLCellLayoutType;
 import org.shaolin.uimaster.page.widgets.HTMLFrameType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Example:
@@ -72,11 +75,11 @@ import org.shaolin.uimaster.page.widgets.HTMLFrameType;
  *  <br>RefEntity refEntity3 = new RefEntity("refEntitytab3",ui);
  *  <br>taPane.addTabAt(0,"customer",refEntity3);
  *  <br>taPane.setSelectedIndex(1);
- * @author Pan, Yifeng
  *
  */
 public class TabPane extends Container implements Serializable 
 {
+	private static final Logger logger = LoggerFactory.getLogger(TabPane.class);
     private static final long serialVersionUID = -1744731434666233557L;
     private static final String CMD_ADDTAB = "addTab";
     private static final String CMD_REMOVETAB = "removeTab";
@@ -99,6 +102,7 @@ public class TabPane extends Container implements Serializable
     // clean the ajax loading objects if all tabs loaded.
     private AtomicInteger accessedIndex = new AtomicInteger();
     
+    private ExpressionType selectedAction;
     private String uiid;
     private int selectedIndex;
     
@@ -146,6 +150,10 @@ public class TabPane extends Container implements Serializable
         this.tabs = tabs;
         this.selectedIndex = selectedIndex;
         this.uiid = this.getId();
+    }
+    
+    public void setSelectedAction(ExpressionType selectedAction) {
+    	this.selectedAction = selectedAction;
     }
 
     public void setOwnerEntity(UIFormObject ownerEntity) {
@@ -215,7 +223,7 @@ public class TabPane extends Container implements Serializable
         return js.toString();
     }
     
-    public String loadContent(int index) throws JspException, EvaluationException {
+    public void loadContent(int index) throws JspException, EvaluationException {
     	if (this.tabs == null) {
     		throw new IllegalStateException("Please enable the ajax loading for this tab panel.");
     	}
@@ -289,9 +297,7 @@ public class TabPane extends Container implements Serializable
             dataItem.setData(htmlContext.getHTMLString());
             dataItem.setJs(js.toString());
             dataItem.setFrameInfo(this.getFrameInfo());
-			JSONArray array = new JSONArray();
-			array.put(new JSONObject(dataItem));
-			return array.toString();
+            AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
 			
         } else if (tab.getRefEntity() != null) {
         	//form support
@@ -304,9 +310,7 @@ public class TabPane extends Container implements Serializable
 			dataItem.setData(form.generateHTML());
 			dataItem.setJs(form.generateJSWithoutJsPath());
 			dataItem.setFrameInfo(this.getFrameInfo());
-			JSONArray array = new JSONArray();
-			array.put(new JSONObject(dataItem));
-			return array.toString();
+			AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
         } else if (tab.getFrame() != null) {
         	//page support
 			HttpServletRequest request = ajaxContext.getRequest();
@@ -323,11 +327,8 @@ public class TabPane extends Container implements Serializable
         	IDataItem dataItem = AjaxActionHelper.createAppendItemToTab(this.getId(), UIID);
             dataItem.setData(htmlContext.getHTMLString());
             dataItem.setFrameInfo(this.getFrameInfo());
-			JSONArray array = new JSONArray();
-			array.put(new JSONObject(dataItem));
-			return array.toString();
+            AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
         } 
-        return "";
     	} finally {
     		if (this.accessedIndex.get() >= this.tabs.size()) {
     			this.tabs = null;
@@ -338,6 +339,12 @@ public class TabPane extends Container implements Serializable
     	}
     }
 
+    public void syncSelectedAction(AjaxContext context) throws EvaluationException {
+    	if (this.selectedAction != null) {
+			this.selectedAction.evaluate(context);
+    	}
+    }
+    
     /**
      * Adds a component with a title which can be null at the end of the TabPane.
      * @param title

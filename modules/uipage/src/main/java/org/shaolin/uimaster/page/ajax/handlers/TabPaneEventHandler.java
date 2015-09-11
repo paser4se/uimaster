@@ -47,7 +47,10 @@ public class TabPaneEventHandler implements IAjaxHandler {
 				AjaxActionHelper.getAjaxContext().removeFramePage(index);
 				return "";
 			} else {
-				return comp.loadContent(Integer.valueOf(index));
+				comp.loadContent(Integer.valueOf(index));
+				comp.syncSelectedAction(context);
+				
+				return AjaxActionHelper.getAjaxContext().getDataAsJSON();
 			}
 		} catch (Exception e) {
 			throw new AjaxHandlerException("Error", e);

@@ -599,12 +599,13 @@ in simple component mapping, the paramName is required</xs:documentation>
     <xs:complexType name="UITabPaneType">
     	<xs:complexContent>
     		<xs:extension base="Page:UIComponentType">
-                <xs:sequence>
-                    <!-- whether ajax loading only supports for the frame and panel -->
-                    <xs:element name="ajaxLoad" type="xs:boolean" default="false"/>
-                    <xs:element name="tabSelected" type="xs:int"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="tab" type="Page:UITabPaneItemType"/>
-                </xs:sequence>
+          <xs:sequence>
+              <!-- whether ajax loading only supports for the frame and panel -->
+              <xs:element name="ajaxLoad" type="xs:boolean" default="false"/>
+              <xs:element name="tabSelected" type="xs:int"/>
+              <xs:element name="tabSelectedAction" type="Page:ExpressionPropertyType"/>
+              <xs:element maxOccurs="unbounded" minOccurs="0" name="tab" type="Page:UITabPaneItemType"/>
+          </xs:sequence>
     		</xs:extension>
     	</xs:complexContent>
     </xs:complexType>

@@ -60,7 +60,7 @@ public class TableEventHandler implements IAjaxHandler {
 				conditions.addOrder(isAscending ? Order.asc(colId) : Order
 						.desc(colId));
 			}
-			return comp.refresh();
+			return comp.refresh0();
 		} else {
 			throw new AjaxHandlerException("Unsupported table action: " + actionName);
 		}

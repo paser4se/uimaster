@@ -246,8 +246,14 @@ public class UIFormObject implements java.io.Serializable
 			}
 			DefaultParsingContext pContext = ODContextHelper.getParsingContext(variables);
 			pContext.setVariableClass("tableCondition", TableConditions.class);
+			pContext.setVariableClass("page", AjaxContext.class);
 			ooeeContext.setDefaultParsingContext(pContext);
 			ooeeContext.setParsingContextObject("$", pContext);
+			
+			DefaultParsingContext gContext = new DefaultParsingContext();
+			gContext.setVariableClass("page", AjaxContext.class);
+			ooeeContext.setParsingContextObject("@", gContext);
+			
 			return ooeeContext;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -266,8 +272,14 @@ public class UIFormObject implements java.io.Serializable
 			}
 			DefaultParsingContext pContext = ODContextHelper.getParsingContext(variables);
 			pContext.setVariableClass("tableCondition", TableConditions.class);
+			pContext.setVariableClass("page", AjaxContext.class);
 			ooeeContext.setDefaultParsingContext(pContext);
 			ooeeContext.setParsingContextObject("$", pContext);
+			
+			DefaultParsingContext gContext = new DefaultParsingContext();
+			gContext.setVariableClass("page", AjaxContext.class);
+			ooeeContext.setParsingContextObject("@", gContext);
+			
 			return ooeeContext;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -497,6 +509,15 @@ public class UIFormObject implements java.io.Serializable
                 }
 				propMap.put("ajaxLoad", tabPane.isAjaxLoad());
                 propMap.put("tabPaneItems", tabPane.getTabs());
+                if (tabPane.getTabSelectedAction() != null) {
+                	try {
+						tabPane.getTabSelectedAction().getExpression().parse(parsingContext);
+					} catch (ParsingException e) {
+						logger.error("Exception occured when pass the tab pane expression: "
+	                                    + component.getUIID() + " in form: " + this.name, e);
+					}
+                	propMap.put("selectedAction", tabPane.getTabSelectedAction().getExpression());
+                }
             }
             else if (component instanceof UIFlowDiagramType)
             {

@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.ResourceBundlePropertyType;
 import org.shaolin.bmdp.datamodel.page.StringPropertyType;
 import org.shaolin.bmdp.datamodel.page.TableLayoutConstraintType;
@@ -277,8 +278,10 @@ public class HTMLTabPaneType extends HTMLContainerType
 //        		tempVars = new HashMap(vars);
 //        	}
 //        }
+    	ExpressionType selectedAction = (ExpressionType)this.removeAttribute("selectedAction");
     	List<UITabPaneItemType> tabs = (List<UITabPaneItemType>)this.getAttribute("tabPaneItems");
     	TabPane panel = new TabPane(getName(), tabs, selectedIndex, new CellLayout());
+    	panel.setSelectedAction(selectedAction);
         panel.setReadOnly(getReadOnly());
         panel.setUIEntityName(getUIEntityName());
         
