@@ -2517,11 +2517,10 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
         currTitle.addClass("ui-tabs-active").addClass("ui-state-active").attr("style","border-bottom: 1px solid white");
         $("#"+currTitle.attr("id").replace("titles","body")).removeClass("tab-unselected-body").addClass("tab-selected-body");
         titleContainer.attr("selectedIndex",currTitle.attr("index"));
-        //$.ajax({url:AJAX_SERVICE_URL,async:false,data:{_ajaxUserEvent:false,_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix()}});
-        if (currTitle.attr("ajaxload") != null && currTitle.attr("ajaxload") == "true") {
+		if (currTitle.attr("ajaxload") != null && currTitle.attr("ajaxload") == "true") {
         	currTitle.attr("ajaxload", null);
-        	$.ajax({url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"tabpane",_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix()}});
-        }
+        } 
+		$.ajax({url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"tabpane",_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix()}});
     },
     addFrameTab:function(title,url){
     	if (this.links.length == 0) {

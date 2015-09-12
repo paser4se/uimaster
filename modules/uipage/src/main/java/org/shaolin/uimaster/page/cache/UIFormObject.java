@@ -759,6 +759,7 @@ public class UIFormObject implements java.io.Serializable
             			beClass = Class.forName(table.getBeElement());
             		}
             		localP.setVariableClass("rowBE", beClass);
+            		localP.setVariableClass("index", int.class);
 					localP.setVariableClass("tableCondition",  TableConditions.class);
 					
 					// for condition update.

@@ -211,10 +211,12 @@ public class HTMLTableType extends HTMLContainerType {
 			context.generateHTML("<tbody id=\"\" >");
 			List<Object> listData = (List<Object>)this.removeAttribute("query");
 			if (!listData.isEmpty()) {
+				int count = 0;
 				for (Object be : listData) {
 					OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 					DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
 					evaContext.setVariableValue("rowBE", be);
+					evaContext.setVariableValue("index", count ++);
 					ooeeContext.setDefaultEvaluationContext(evaContext);
 					ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
 					

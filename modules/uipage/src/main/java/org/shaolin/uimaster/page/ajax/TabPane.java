@@ -91,7 +91,11 @@ public class TabPane extends Container implements Serializable
     private List titles=new ArrayList();
     //List of entities(RefEntity)
     private List entities=new ArrayList();
-    
+    //
+    private Map<Integer, Boolean> loadedTabs = new HashMap<Integer, Boolean>();
+    {
+    	loadedTabs.put(0, true);
+    }
     /**
      * ajax loading objects.
      */
@@ -228,6 +232,11 @@ public class TabPane extends Container implements Serializable
     		throw new IllegalStateException("Please enable the ajax loading for this tab panel.");
     	}
     	this.selectedIndex = index;
+    	if (this.tabs.size() <= index || loadedTabs.containsKey(index)) {
+    		//prevent the dynamic frame tab or loaded tab.
+    		return;
+    	}
+    	loadedTabs.put(index, true);
     	this.accessedIndex.incrementAndGet();
     	
     	try {

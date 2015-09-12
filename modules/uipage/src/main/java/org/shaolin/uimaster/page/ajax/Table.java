@@ -374,8 +374,10 @@ public class Table extends Widget implements Serializable {
 	        sb.append("\"data\":[");
 	        List<Object> rows = (List<Object>)queryExpr.evaluate(ooeeContext);
 	        this.listData = rows;
+	        int count = 0;
 	        for (Object be : rows) {
 	        	evaContext.setVariableValue("rowBE", be);
+	        	evaContext.setVariableValue("index", count ++);
 	        	
 	        	sb.append("[");
 	        	for (UITableColumnType col : columns) {
@@ -450,6 +452,24 @@ public class Table extends Widget implements Serializable {
 		String name = "Data Report";
 		ImportTableToExcel importTable = new ImportTableToExcel(getEvaluatedResult());
 		importTable.createWorkbook(name, columnTitles).write(output);
+	}
+	
+	public void show() {
+		IDataItem dataItem = AjaxActionHelper.createDataItem();
+		dataItem.setUiid(this.getId());
+		dataItem.setJsHandler(IJSHandlerCollections.JAVASCRIPT);
+		dataItem.setJs("{ $($(elementList['"+this.getId()+"']).parent().parent().parent()).css(\"display\",\"block\");}");
+		dataItem.setFrameInfo(this.getFrameInfo());
+        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+	}
+	
+	public void hide() {
+		IDataItem dataItem = AjaxActionHelper.createDataItem();
+		dataItem.setUiid(this.getId());
+		dataItem.setJsHandler(IJSHandlerCollections.JAVASCRIPT);
+		dataItem.setJs("{ $($(elementList['"+this.getId()+"']).parent().parent().parent()).css(\"display\",\"none\");}");
+		dataItem.setFrameInfo(this.getFrameInfo());
+        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
 	}
 
 }
