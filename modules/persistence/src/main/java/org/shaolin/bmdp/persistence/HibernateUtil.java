@@ -5,7 +5,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.shaolin.bmdp.runtime.AppContext;
@@ -16,6 +18,11 @@ import org.slf4j.LoggerFactory;
 public class HibernateUtil {
 
 	private static final Logger logger = LoggerFactory.getLogger(HibernateUtil.class);
+	
+	// thread control session factory by out side.
+	private static final ThreadLocal<Session> sessionFactoryTL = new ThreadLocal<Session>();
+	
+	private static final ThreadLocal<AtomicLong> refCounterTL = new ThreadLocal<AtomicLong>();
 	
 	@SuppressWarnings("deprecation")
 	private synchronized static SessionFactory buildSessionFactory() {
@@ -53,6 +60,32 @@ public class HibernateUtil {
 
 	public static Configuration getConfiguration() {
 		return (Configuration)AppContext.get().getHibernateConfiguration();
+	}
+	
+	public static Session getSession() {
+		if (sessionFactoryTL.get() != null) {
+			return sessionFactoryTL.get();
+		}
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		session.beginTransaction();
+		sessionFactoryTL.set(session);
+		return session;
+	}
+	
+	public static void releaseSession(Session session, boolean isCommit) {
+		if (sessionFactoryTL.get() != null) {
+			 sessionFactoryTL.set(null);
+		}
+		
+		if (!session.isOpen()) {
+			return;
+		}
+		
+		if (isCommit) {
+			session.getTransaction().commit();
+		} else {
+			session.getTransaction().rollback();
+		}
 	}
 	
 	public static SessionFactory getSessionFactory() {

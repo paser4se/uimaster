@@ -83,7 +83,7 @@ public class SearchQeuryContext {
 		
 		StringBuffer headCriteria = new StringBuffer();
 		String criteriaName = info.tableAlias + "Criteria";
-		headCriteria.append("            Criteria ").append(criteriaName).append(" = this._createCriteria(session, ");
+		headCriteria.append("            Criteria ").append(criteriaName).append(" = this._createCriteria(");
 		headCriteria.append(info.pElementType.getName()).append(".class, \"").append(info.tableAlias).append("\");\n");
 		this.firstCriteria = headCriteria.toString();
 		

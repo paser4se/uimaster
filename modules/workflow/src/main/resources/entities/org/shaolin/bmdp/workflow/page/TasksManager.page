@@ -69,8 +69,7 @@
                     service.postponeTask(defaultUser, null);
                     //TODO: select a calendar first.
                     
-                    TableCallBack callBack = new TableCallBack("tasksTable");
-                    callBack.execute();
+                    tasksTable.refresh();
                 }
                 ]]></ns2:expressionString>
             </ns2:exp>
@@ -96,8 +95,7 @@
                     ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class);
                     service.completeTask(defaultUser);
                     
-                    TableCallBack callBack = new TableCallBack("tasksTable");
-                    callBack.execute();
+                    tasksTable.refresh();
                 }
                 ]]></ns2:expressionString>
             </ns2:exp>
@@ -123,8 +121,7 @@
                     ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class);
                     service.cancelTask(defaultUser);
                     
-                    TableCallBack callBack = new TableCallBack("tasksTable");
-                    callBack.execute();
+                    tasksTable.refresh();
                 }
                 ]]></ns2:expressionString>
             </ns2:exp>

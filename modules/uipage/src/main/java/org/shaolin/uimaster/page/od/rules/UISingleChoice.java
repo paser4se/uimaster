@@ -63,7 +63,7 @@ public class UISingleChoice implements IODMappingConverter {
 		return null;
 	}
 
-	public void setValue(String Value) {
+	public void setValue(Object Value) {
 		this.value = Value;
 	}
 
@@ -88,6 +88,8 @@ public class UISingleChoice implements IODMappingConverter {
 
 		dataClassInfo.put("isNumber", Boolean.class);
 		dataClassInfo.put("Value", String.class);
+		dataClassInfo.put("LongValue", Long.class);
+		dataClassInfo.put("IntValue", Long.class);
 		dataClassInfo.put("OptionValues", List.class);
 		dataClassInfo.put("OptionDisplayValues", List.class);
 
@@ -113,7 +115,6 @@ public class UISingleChoice implements IODMappingConverter {
 	public static Map<String, String> getRequiredDataParameters(String value, String optionValues) {
 		HashMap<String, String> dataClassInfo = new LinkedHashMap<String, String>();
 
-		dataClassInfo.put("Value", value);
 		dataClassInfo.put("OptionValues", optionValues);
 		
 		return dataClassInfo;
@@ -133,6 +134,16 @@ public class UISingleChoice implements IODMappingConverter {
 				if (paramValue.get("Value") != null) {
 					this.realDataType = paramValue.get("Value").getClass();
 					this.value = paramValue.get("Value");
+				}
+			} else if (paramValue.containsKey("IntValue")) {
+				if (paramValue.get("IntValue") != null) {
+					this.realDataType = Integer.class;
+					this.value = paramValue.get("IntValue");
+				}
+			} else if (paramValue.containsKey("LongValue")) {
+				if (paramValue.get("LongValue") != null) {
+					this.realDataType = Long.class;
+					this.value = paramValue.get("LongValue");
 				}
 			}
 			if (paramValue.containsKey("OptionValues")) {
@@ -156,6 +167,12 @@ public class UISingleChoice implements IODMappingConverter {
 		try {
 			paramValue.put(UI_WIDGET_TYPE, this.uisingleChoice);
 			paramValue.put("Value", this.value);
+			if (this.value != null && this.value instanceof Integer) {
+				paramValue.put("IntValue", (Integer)this.value);
+			}
+			if (this.value != null && this.value instanceof Long) {
+				paramValue.put("LongValue", (Long)this.value);
+			}
 			paramValue.put("OptionValues", this.optionValues);
 			paramValue.put("OptionDisplayValues", this.optionDisplayValues);
 		} catch (Throwable t) {

@@ -37,10 +37,7 @@ public class WorkflowModel extends BEEntityDaoObject {
 
     public List<org.shaolin.bmdp.workflow.be.IFlowEntity> searchFlowEntities(org.shaolin.bmdp.workflow.be.FlowEntityImpl scFlow,
            List<Order> orders, int offset, int count) {
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-        try {
-            Criteria inFlowCriteria = this._createCriteria(session, org.shaolin.bmdp.workflow.be.FlowEntityImpl.class, "inFlow");
+            Criteria inFlowCriteria = this._createCriteria(org.shaolin.bmdp.workflow.be.FlowEntityImpl.class, "inFlow");
             if (orders == null) {
             } else {
                 this._addOrders(inFlowCriteria, orders);
@@ -50,67 +47,23 @@ public class WorkflowModel extends BEEntityDaoObject {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.entityName", scFlow.getEntityName()));
             }
 
-            List result = this._list(offset, count, inFlowCriteria);
-            return result;
-        } finally {
-            session.getTransaction().commit();
-        }
-    }
-
-    public List<org.shaolin.bmdp.workflow.be.IFlowEntity> searchFlowEntities(org.shaolin.bmdp.workflow.be.FlowEntityImpl scFlow,
-           Session session, List<Order> orders, int offset, int count) {
-        try {
-            Criteria inFlowCriteria = this._createCriteria(session, org.shaolin.bmdp.workflow.be.FlowEntityImpl.class, "inFlow");
-            if (orders == null) {
-            } else {
-                this._addOrders(inFlowCriteria, orders);
-            }
-
-            if (scFlow.getEntityName() != null && scFlow.getEntityName().trim().length() > 0) {
-                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.entityName", scFlow.getEntityName()));
-            }
-
-            List result = this._list(offset, count, inFlowCriteria);
-            return result;
-        } finally {
-        }
+        List result = this._list(offset, count, inFlowCriteria);
+        return result;
     }
 
     public long searchFlowEntitiesCount(org.shaolin.bmdp.workflow.be.FlowEntityImpl scFlow) {
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-        try {
-            Criteria inFlowCriteria = this._createCriteria(session, org.shaolin.bmdp.workflow.be.FlowEntityImpl.class, "inFlow");
+            Criteria inFlowCriteria = this._createCriteria(org.shaolin.bmdp.workflow.be.FlowEntityImpl.class, "inFlow");
 
             if (scFlow.getEntityName() != null && scFlow.getEntityName().trim().length() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.entityName", scFlow.getEntityName()));
             }
 
-            return this._count(inFlowCriteria);
-        } finally {
-            session.getTransaction().commit();
-        }
-    }
-
-    public long searchFlowEntitiesCount(org.shaolin.bmdp.workflow.be.FlowEntityImpl scFlow, Session session) {
-        try {
-            Criteria inFlowCriteria = this._createCriteria(session, org.shaolin.bmdp.workflow.be.FlowEntityImpl.class, "inFlow");
-
-            if (scFlow.getEntityName() != null && scFlow.getEntityName().trim().length() > 0) {
-                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.entityName", scFlow.getEntityName()));
-            }
-
-            return this._count(inFlowCriteria);
-        } finally {
-        }
+        return this._count(inFlowCriteria);
     }
 
     public List<org.shaolin.bmdp.workflow.be.IUIFlows> searchFlows(org.shaolin.bmdp.workflow.be.UIFlowsImpl scFlow,
            List<Order> orders, int offset, int count) {
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-        try {
-            Criteria inFlowCriteria = this._createCriteria(session, org.shaolin.bmdp.workflow.be.UIFlowsImpl.class, "inFlow");
+            Criteria inFlowCriteria = this._createCriteria(org.shaolin.bmdp.workflow.be.UIFlowsImpl.class, "inFlow");
             if (orders == null) {
             } else {
                 this._addOrders(inFlowCriteria, orders);
@@ -126,43 +79,12 @@ public class WorkflowModel extends BEEntityDaoObject {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.name", scFlow.getName()));
             }
 
-            List result = this._list(offset, count, inFlowCriteria);
-            return result;
-        } finally {
-            session.getTransaction().commit();
-        }
-    }
-
-    public List<org.shaolin.bmdp.workflow.be.IUIFlows> searchFlows(org.shaolin.bmdp.workflow.be.UIFlowsImpl scFlow,
-           Session session, List<Order> orders, int offset, int count) {
-        try {
-            Criteria inFlowCriteria = this._createCriteria(session, org.shaolin.bmdp.workflow.be.UIFlowsImpl.class, "inFlow");
-            if (orders == null) {
-            } else {
-                this._addOrders(inFlowCriteria, orders);
-            }
-
-            if (scFlow.getModuleType() != null && scFlow.getModuleType() != org.shaolin.bmdp.workflow.ce.ModuleType.NOT_SPECIFIED) {
-                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.moduleTypeInt", scFlow.getModuleType().getIntValue()));
-            }
-            if (scFlow.getModuleItemId() != -1) {
-                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.moduleItemId", scFlow.getModuleItemId()));
-            }
-            if (scFlow.getName() != null && !scFlow.getName().isEmpty()) {
-                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.name", scFlow.getName()));
-            }
-
-            List result = this._list(offset, count, inFlowCriteria);
-            return result;
-        } finally {
-        }
+        List result = this._list(offset, count, inFlowCriteria);
+        return result;
     }
 
     public long searchFlowsCount(org.shaolin.bmdp.workflow.be.UIFlowsImpl scFlow) {
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-        try {
-            Criteria inFlowCriteria = this._createCriteria(session, org.shaolin.bmdp.workflow.be.UIFlowsImpl.class, "inFlow");
+            Criteria inFlowCriteria = this._createCriteria(org.shaolin.bmdp.workflow.be.UIFlowsImpl.class, "inFlow");
 
             if (scFlow.getModuleType() != null && scFlow.getModuleType() != org.shaolin.bmdp.workflow.ce.ModuleType.NOT_SPECIFIED) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.moduleTypeInt", scFlow.getModuleType().getIntValue()));
@@ -174,29 +96,7 @@ public class WorkflowModel extends BEEntityDaoObject {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.name", scFlow.getName()));
             }
 
-            return this._count(inFlowCriteria);
-        } finally {
-            session.getTransaction().commit();
-        }
-    }
-
-    public long searchFlowsCount(org.shaolin.bmdp.workflow.be.UIFlowsImpl scFlow, Session session) {
-        try {
-            Criteria inFlowCriteria = this._createCriteria(session, org.shaolin.bmdp.workflow.be.UIFlowsImpl.class, "inFlow");
-
-            if (scFlow.getModuleType() != null && scFlow.getModuleType() != org.shaolin.bmdp.workflow.ce.ModuleType.NOT_SPECIFIED) {
-                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.moduleTypeInt", scFlow.getModuleType().getIntValue()));
-            }
-            if (scFlow.getModuleItemId() != -1) {
-                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.moduleItemId", scFlow.getModuleItemId()));
-            }
-            if (scFlow.getName() != null && !scFlow.getName().isEmpty()) {
-                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.name", scFlow.getName()));
-            }
-
-            return this._count(inFlowCriteria);
-        } finally {
-        }
+        return this._count(inFlowCriteria);
     }
 
 }

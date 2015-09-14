@@ -171,21 +171,21 @@ public class FunctionExpression extends ExpressionNode
     		    String parameterInfo = "arguments"+argObjectList.toString()+"";
     			String classInfo = (methodClassName == null?"":(methodClassName+"."))+funcName;
     			EvaluationException ee = new EvaluationException(ExceptionConstants.EBOS_OOEE_080,new Object[]{classInfo,parameterInfo});
-    			throw new EvaluationException(ExceptionConstants.EBOS_OOEE_080, ee);
+    			throw new EvaluationException(ee.getMessage(), ee);
     		}
     		catch(InvocationTargetException e)
             {
     		    String parameterInfo = "arguments"+argObjectList.toString()+"";
                 String classInfo = (methodClassName == null?"":(methodClassName+"."))+funcName;
                 EvaluationException ee = new EvaluationException(ExceptionConstants.EBOS_OOEE_081, e, new Object[]{classInfo,parameterInfo});
-                throw new EvaluationException(ExceptionConstants.EBOS_OOEE_081, ee);
+                throw new EvaluationException(ee.getMessage(), ee);
             }
     		catch(Throwable e)
     		{
     			String parameterInfo = "arguments"+argObjectList.toString()+"";
                 String classInfo = (methodClassName == null?"":(methodClassName+"."))+funcName;
                 EvaluationException ee = new EvaluationException(ExceptionConstants.EBOS_OOEE_081, e, new Object[]{classInfo,parameterInfo});
-                throw new EvaluationException(ExceptionConstants.EBOS_OOEE_081, ee);
+                throw new EvaluationException(ee.getMessage(), ee);
     		}
     	}
     	

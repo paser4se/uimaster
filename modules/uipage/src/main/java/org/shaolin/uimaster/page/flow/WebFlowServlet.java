@@ -15,10 +15,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.NDC;
+import org.hibernate.Session;
 import org.shaolin.bmdp.datamodel.pagediagram.NextType;
 import org.shaolin.bmdp.datamodel.pagediagram.OutType;
 import org.shaolin.bmdp.exceptions.BusinessOperationException;
 import org.shaolin.bmdp.i18n.LocaleContext;
+import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 import org.shaolin.bmdp.runtime.security.IPermissionService;
@@ -528,6 +530,7 @@ public class WebFlowServlet extends HttpServlet
             	if (logger.isInfoEnabled()) {
 					logger.info("source node " + srcNode.toString());
 				}
+            	Session session = HibernateUtil.getSession();
                 try
                 {
                 	//validate and convert the output data of DisplayNode srcNode
@@ -535,6 +538,7 @@ public class WebFlowServlet extends HttpServlet
                 }
                 catch (Throwable ex)
                 {
+                	HibernateUtil.releaseSession(session, false);
                     if (ex instanceof ParsingException)
                     {
                         logger.error("ParsingException when  prepare OutputData for node "
@@ -568,7 +572,9 @@ public class WebFlowServlet extends HttpServlet
                         ProcessHelper.processForwardError(srcNode, request, response);
                     }
                     return;
-                }
+                } finally {
+					HibernateUtil.releaseSession(session, true);
+		        }
                 destNode = processDestWebNode(srcNode, request, attrAccessor);
             } 
             else
@@ -592,6 +598,7 @@ public class WebFlowServlet extends HttpServlet
                 logger.info("destination node " + destNode.toString());
             }
             
+            Session session = HibernateUtil.getSession();
             try
             {
                 while(destNode != null)
@@ -609,6 +616,7 @@ public class WebFlowServlet extends HttpServlet
             }
             catch (Throwable ex)
             {
+            	HibernateUtil.releaseSession(session, false);
                 if(ex instanceof NoWebflowAPException)
                 {
                     String key = destNode.getChunk().getEntityName() + ".access.error";
@@ -676,7 +684,9 @@ public class WebFlowServlet extends HttpServlet
         
                     rollbackTransaction(request, destNode);
                 }
-            }
+            }  finally {
+				HibernateUtil.releaseSession(session, true);
+	        }
         }
         finally
         {

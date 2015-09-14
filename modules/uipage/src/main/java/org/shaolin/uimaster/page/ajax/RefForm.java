@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
+import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
@@ -369,7 +371,7 @@ public class RefForm extends Container implements Serializable
     {
         if (logger.isDebugEnabled())
             logger.debug("callODMapper odmapper name: " + odmapperName);
-
+        
         ODProcessor processor = new ODProcessor(htmlContext, odmapperName, -1);
         processor.process();
     }

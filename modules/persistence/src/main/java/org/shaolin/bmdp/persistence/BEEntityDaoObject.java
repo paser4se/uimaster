@@ -9,7 +9,6 @@ import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
@@ -30,12 +29,8 @@ public class BEEntityDaoObject {
 	 * @param entity
 	 */
 	public void create(IPersistentEntity entity) {
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-		session.beginTransaction();
-
+		Session session = HibernateUtil.getSession();
 		session.save(entity);
-
-		session.getTransaction().commit();
 	}
 
 	/**
@@ -47,12 +42,8 @@ public class BEEntityDaoObject {
 		if (entity.getId() == 0) {
 			return;
 		}
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-		session.beginTransaction();
-
+		Session session = HibernateUtil.getSession();
 		session.delete(entity);
-
-		session.getTransaction().commit();
 	}
 
 	/**
@@ -61,12 +52,8 @@ public class BEEntityDaoObject {
 	 * @param entity
 	 */
 	public void update(IPersistentEntity entity) {
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-		session.beginTransaction();
-
+		Session session = HibernateUtil.getSession();
 		session.update(entity);
-
-		session.getTransaction().commit();
 	}
 	
 	/**
@@ -79,9 +66,7 @@ public class BEEntityDaoObject {
 			return;
 		}
 		
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-		session.beginTransaction();
-
+		Session session = HibernateUtil.getSession();
 		for (IPersistentEntity entity: entities) {
 			if (entity.getId() > 0) {
 				session.update(entity);
@@ -89,8 +74,6 @@ public class BEEntityDaoObject {
 				session.save(entity);
 			}
 		}
-
-		session.getTransaction().commit();
 	}
 	
 	/**
@@ -103,9 +86,7 @@ public class BEEntityDaoObject {
 			return;
 		}
 		
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-		session.beginTransaction();
-
+		Session session = HibernateUtil.getSession();
 		for (IPersistentEntity entity: entities) {
 			if (entity.getId() == 0) {
 				session.save(entity);
@@ -113,8 +94,6 @@ public class BEEntityDaoObject {
 				session.update(entity);
 			}
 		}
-
-		session.getTransaction().commit();
 	}
 
 	/**
@@ -127,16 +106,12 @@ public class BEEntityDaoObject {
 			return;
 		}
 		
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-		session.beginTransaction();
-
+		Session session = HibernateUtil.getSession();
 		for (IPersistentEntity entity: entities) {
 			if (entity.getId() > 0) {
 				session.delete(entity);
 			}
 		}
-
-		session.getTransaction().commit();
 	}
 	
 	/**
@@ -145,13 +120,9 @@ public class BEEntityDaoObject {
 	 * @param entity
 	 */
 	public void disable(IPersistentEntity entity) {
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-		session.beginTransaction();
-
+		Session session = HibernateUtil.getSession();
 		entity.setEnabled(false);
 		session.update(entity);
-
-		session.getTransaction().commit();
 	}
 
 	/**
@@ -160,15 +131,10 @@ public class BEEntityDaoObject {
 	 * @param entity
 	 */
 	public void enable(IPersistentEntity entity) {
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-		session.beginTransaction();
+		Session session = HibernateUtil.getSession();
 
 		entity.setEnabled(true);
 		session.update(entity);
-
-		session.flush();
-	    session.clear();
-		session.getTransaction().commit();
 	}
 	
 	public <T> List<T> list(int offset, int count, Class<T> elementType, 
@@ -205,36 +171,31 @@ public class BEEntityDaoObject {
 	@SuppressWarnings("unchecked")
 	public <T> List<T> list(int offset, int count, Class<T> elementType, 
 			Class<?> persistentType, String alias, List<Criterion> criterions, List<Order> orders) {
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-		session.beginTransaction();
-		try {
-			Criteria criteria = null;
-			if (alias != null) {
-				criteria = session.createCriteria(persistentType, alias);
-			} else {
-				criteria = session.createCriteria(persistentType);
-			}
-			if (count > 0) {
-				criteria.setFirstResult(offset);
-				criteria.setMaxResults(count);
-			}
-			
-			if (criterions != null) {
-				for (Criterion c : criterions) {
-					criteria.add(c);
-				}
-				// Restrictions
-			}
-			if (orders != null) {
-				for (Order c : orders) {
-					criteria.addOrder(c);
-				}
-			}
-			
-			return criteria.list();
-		} finally {
-			session.getTransaction().commit();
+		Session session = HibernateUtil.getSession();
+		Criteria criteria = null;
+		if (alias != null) {
+			criteria = session.createCriteria(persistentType, alias);
+		} else {
+			criteria = session.createCriteria(persistentType);
 		}
+		if (count > 0) {
+			criteria.setFirstResult(offset);
+			criteria.setMaxResults(count);
+		}
+		
+		if (criterions != null) {
+			for (Criterion c : criterions) {
+				criteria.add(c);
+			}
+			// Restrictions
+		}
+		if (orders != null) {
+			for (Order c : orders) {
+				criteria.addOrder(c);
+			}
+		}
+		
+		return criteria.list();
 	}
 	
 	/**
@@ -246,7 +207,8 @@ public class BEEntityDaoObject {
 	 * @param alias
 	 * @return
 	 */
-	protected Criteria _createCriteria(Session session, Class<?> persistentType, String alias) {
+	protected Criteria _createCriteria(Class<?> persistentType, String alias) {
+		Session session = HibernateUtil.getSession();
 		return session.createCriteria(persistentType, alias);
 	}
 
@@ -318,27 +280,21 @@ public class BEEntityDaoObject {
 	 */
 	public long count(Class<?> persistentType, String alias, 
 			List<Criterion> criterions) {
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-		session.beginTransaction();
-		
-		try {
-			Criteria criteria = null;
-			if (alias != null) {
-				criteria = session.createCriteria(persistentType, alias);
-			} else {
-				criteria = session.createCriteria(alias);
-			}
-			if (criterions != null && !criterions.isEmpty()) {
-				for (Criterion c : criterions) {
-					criteria.add(c);
-				}
-			}
-			
-			criteria.setProjection(Projections.rowCount());
-			return (Long)criteria.uniqueResult();
-		} finally {
-			session.getTransaction().commit();
+		Session session = HibernateUtil.getSession();
+		Criteria criteria = null;
+		if (alias != null) {
+			criteria = session.createCriteria(persistentType, alias);
+		} else {
+			criteria = session.createCriteria(alias);
 		}
+		if (criterions != null && !criterions.isEmpty()) {
+			for (Criterion c : criterions) {
+				criteria.add(c);
+			}
+		}
+		
+		criteria.setProjection(Projections.rowCount());
+		return (Long)criteria.uniqueResult();
 	}
 
 	/**
@@ -350,39 +306,34 @@ public class BEEntityDaoObject {
 	 * @return
 	 */
 	public <T> List<T> sqlList(int offset, int count, StringBuffer sql, List<Object> condition, List<SQLTableInfo> tableInfo) {
- 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
- 		Transaction tx = session.beginTransaction();
- 		try {
-	 		SQLQuery sqlQuery = session.createSQLQuery(sql.toString());
-	 		sqlQuery.setFirstResult(offset);
-	 		sqlQuery.setMaxResults(count);
-	 		
-			for (int i = 0; i < condition.size(); i++) {
-				Object value = condition.get(i);
-				if (value instanceof String) {
-					sqlQuery.setString(i, value.toString());
-				} else if (value instanceof Integer) {
-					sqlQuery.setInteger(i, (Integer)value);
-				} else if (value instanceof Long) {
-					sqlQuery.setLong(i, (Long)value);
-				} else if (value instanceof Boolean) {
-					sqlQuery.setBoolean(i, (Boolean)value);
-				} else if (value instanceof Date) {
-					sqlQuery.setDate(i, (Date)value);
-				} else if (value instanceof Calendar) {
-					sqlQuery.setCalendar(i, (Calendar)value);
-				} else {
-					sqlQuery.setString(i, value.toString());
-				}
+		Session session = HibernateUtil.getSession();
+ 		SQLQuery sqlQuery = session.createSQLQuery(sql.toString());
+ 		sqlQuery.setFirstResult(offset);
+ 		sqlQuery.setMaxResults(count);
+ 		
+		for (int i = 0; i < condition.size(); i++) {
+			Object value = condition.get(i);
+			if (value instanceof String) {
+				sqlQuery.setString(i, value.toString());
+			} else if (value instanceof Integer) {
+				sqlQuery.setInteger(i, (Integer)value);
+			} else if (value instanceof Long) {
+				sqlQuery.setLong(i, (Long)value);
+			} else if (value instanceof Boolean) {
+				sqlQuery.setBoolean(i, (Boolean)value);
+			} else if (value instanceof Date) {
+				sqlQuery.setDate(i, (Date)value);
+			} else if (value instanceof Calendar) {
+				sqlQuery.setCalendar(i, (Calendar)value);
+			} else {
+				sqlQuery.setString(i, value.toString());
 			}
-			for (SQLTableInfo info : tableInfo) {
-				sqlQuery.addEntity(info.tableAlias, info.pElementType);
-			}
-	 		
-	 		return sqlQuery.list();
- 		} finally {
- 			tx.commit();
 		}
+		for (SQLTableInfo info : tableInfo) {
+			sqlQuery.addEntity(info.tableAlias, info.pElementType);
+		}
+ 		
+ 		return sqlQuery.list();
 	}
 	
 	/**
@@ -392,35 +343,30 @@ public class BEEntityDaoObject {
 	 * @return
 	 */
 	public long sqlCount(StringBuffer sql, List<Object> condition) {
- 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
- 		Transaction tx = session.beginTransaction();
- 		try {
-	 		SQLQuery sqlQuery = session.createSQLQuery(sql.toString());
-	 		
-	 		for (int i = 0; i < condition.size(); i++) {
-	 			Object value = condition.get(i);
-				if (value instanceof String) {
-					sqlQuery.setString(i, value.toString());
-				} else if (value instanceof Integer) {
-					sqlQuery.setInteger(i, (Integer)value);
-				} else if (value instanceof Long) {
-					sqlQuery.setLong(i, (Long)value);
-				} else if (value instanceof Boolean) {
-					sqlQuery.setBoolean(i, (Boolean)value);
-				} else if (value instanceof Date) {
-					sqlQuery.setDate(i, (Date)value);
-				} else if (value instanceof Calendar) {
-					sqlQuery.setCalendar(i, (Calendar)value);
-				} else {
-					sqlQuery.setString(i, value.toString());
-				}
+		Session session = HibernateUtil.getSession();
+ 		SQLQuery sqlQuery = session.createSQLQuery(sql.toString());
+ 		
+ 		for (int i = 0; i < condition.size(); i++) {
+ 			Object value = condition.get(i);
+			if (value instanceof String) {
+				sqlQuery.setString(i, value.toString());
+			} else if (value instanceof Integer) {
+				sqlQuery.setInteger(i, (Integer)value);
+			} else if (value instanceof Long) {
+				sqlQuery.setLong(i, (Long)value);
+			} else if (value instanceof Boolean) {
+				sqlQuery.setBoolean(i, (Boolean)value);
+			} else if (value instanceof Date) {
+				sqlQuery.setDate(i, (Date)value);
+			} else if (value instanceof Calendar) {
+				sqlQuery.setCalendar(i, (Calendar)value);
+			} else {
+				sqlQuery.setString(i, value.toString());
 			}
-	 		
-			BigInteger result = (BigInteger)sqlQuery.uniqueResult();
-			return result.longValue();
- 		} finally {
- 			tx.commit();
 		}
+ 		
+		BigInteger result = (BigInteger)sqlQuery.uniqueResult();
+		return result.longValue();
 	}
 	
 	protected class SQLTableInfo {

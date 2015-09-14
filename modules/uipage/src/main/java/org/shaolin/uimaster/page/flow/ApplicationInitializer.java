@@ -16,6 +16,7 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 
+import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.cache.ConfigServerInvoker;
@@ -99,7 +100,10 @@ public class ApplicationInitializer {
 			}, "uimaster-config-server").start();
 			*/
 		} catch (Throwable e) {
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
 			logger.error("Fails to start Config server start! Error: " + e.getMessage(), e);
+		} finally {
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
 	}
 	
