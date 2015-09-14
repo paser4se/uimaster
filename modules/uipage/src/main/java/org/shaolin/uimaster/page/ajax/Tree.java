@@ -45,13 +45,13 @@ public class Tree extends Widget implements Serializable {
 
 	private final TreeConditions conditions = new TreeConditions();
 
-	private Map<String, Object> dataModel = new HashMap<String, Object>();
+	private transient Map<String, Object> dataModel = new HashMap<String, Object>();
 	
 	private String selectedParentNode;
 	
 	private String selectedNodeName;
 	
-	private final ExpressionType initExpr;
+	private transient final ExpressionType initExpr;
 	
 	public Tree(String tableId, HttpServletRequest request) {
 		super(tableId, null);

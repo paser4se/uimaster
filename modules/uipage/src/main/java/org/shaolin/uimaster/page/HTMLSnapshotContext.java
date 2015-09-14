@@ -103,9 +103,9 @@ public class HTMLSnapshotContext implements Serializable
 
     private StringBuffer htmlBuffer;
 
-    private ArrayList pageJs;
+    private transient ArrayList pageJs;
 
-    private ArrayList pageCSS;
+    private transient ArrayList pageCSS;
 
     private boolean jsonStyle;
 
@@ -113,7 +113,7 @@ public class HTMLSnapshotContext implements Serializable
 
     private transient Map pageData;
 
-    private Map<String, Widget> ajaxWidgetMap;
+    private transient Map<String, Widget> ajaxWidgetMap;
     
     private transient Map componentPermissions;
 
