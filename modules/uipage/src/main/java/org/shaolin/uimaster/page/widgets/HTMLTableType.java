@@ -76,6 +76,9 @@ public class HTMLTableType extends HTMLContainerType {
 			super.generateBeginHTML(context, ownerEntity, depth);
 
 			UITableSelectModeType selectMode = (UITableSelectModeType)this.removeAttribute("selectMode");
+			if (selectMode == null) {
+				selectMode = UITableSelectModeType.MULTIPLE;
+			}
 			int defaultRowSize = (Integer)this.removeAttribute("defaultRowSize");
 			String totalCount = String.valueOf(this.removeAttribute("totalCount"));
 			Boolean isShowActionBar = (Boolean)this.removeAttribute("isShowActionBar");
@@ -171,24 +174,26 @@ public class HTMLTableType extends HTMLContainerType {
 			context.generateHTML("<thead>");
 			HTMLUtil.generateTab(context, depth + 3);
 			context.generateHTML("<tr>");
-			if (selectMode != UITableSelectModeType.NORMAL) {
-				/**
-				HTMLUtil.generateTab(context, depth + 3);
-				context.generateHTML("<th id=\"");
-				context.generateHTML(getName());
-				context.generateHTML("_SelectColumn\" name=\"\" htmlType=\"");
-				context.generateHTML(selectMode.value());
-				context.generateHTML("\" selectMode=\"");
-				context.generateHTML(selectMode.value());
-				context.generateHTML("\" title=\"\" >");
-				if (selectMode == UITableSelectModeType.MULTIPLE) {
-					context.generateHTML("<input type=\"checkbox\" name=\"\" onclick=\"\" />");
-				} else {
-					context.generateHTML("<input type=\"radio\" name=\"\" onclick=\"\" />");
-				}
-				context.generateHTML("</th>");
-				*/
+			// generate selection at the first column
+			HTMLUtil.generateTab(context, depth + 3);
+			context.generateHTML("<th id=\"");
+			context.generateHTML(getName());
+			context.generateHTML("_SelectColumn\" name=\"\" orderable=\"false\" htmlType=\"");
+			context.generateHTML(selectMode.value());
+			context.generateHTML("\" selectMode=\"");
+			context.generateHTML(selectMode.value());
+			context.generateHTML("\" title=\"\" style=\"width:10px;padding:0px;");
+			if (selectMode == UITableSelectModeType.NORMAL) {
+				context.generateHTML("display:none;\">");
 			}
+			context.generateHTML("\">");
+			if (selectMode == UITableSelectModeType.MULTIPLE) {
+				context.generateHTML("<input type=\"checkbox\" name=\"\" onclick=\"\" />");
+			} else {
+				context.generateHTML("");
+			}
+			context.generateHTML("</th>");
+			
 			for (UITableColumnType col : columns) {
 				HTMLUtil.generateTab(context, depth + 3);
 				context.generateHTML("<th id=\"");
@@ -216,7 +221,7 @@ public class HTMLTableType extends HTMLContainerType {
 					OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 					DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
 					evaContext.setVariableValue("rowBE", be);
-					evaContext.setVariableValue("index", count ++);
+					evaContext.setVariableValue("index", count);
 					ooeeContext.setDefaultEvaluationContext(evaContext);
 					ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
 					
@@ -228,16 +233,13 @@ public class HTMLTableType extends HTMLContainerType {
 					
 					HTMLUtil.generateTab(context, depth + 3);
 					context.generateHTML("<tr>");
-					//TODO:
-					if (selectMode != UITableSelectModeType.NORMAL) {
-						/**
-						HTMLUtil.generateTab(context, depth + 3);
-						if (selectMode == UITableSelectModeType.MULTIPLE) {
-							context.generateHTML("<td><input type=\"checkbox\" name=\"\" onclick=\"\" /></td>");
-						} else {
-							context.generateHTML("<td><input type=\"radio\" name=\"\" onclick=\"\" /></td>");
-						}
-						*/
+					HTMLUtil.generateTab(context, depth + 3);
+					if (selectMode == UITableSelectModeType.MULTIPLE) {
+						context.generateHTML("<td>checkbox,"+count+"</td>");
+					} else if (selectMode == UITableSelectModeType.SINGLE) {
+						context.generateHTML("<td>radio,"+count+"</td>");
+					} else {
+						context.generateHTML("<td></td>");
 					}
 					for (UITableColumnType col : columns) {
 						HTMLUtil.generateTab(context, depth + 3);
@@ -255,6 +257,8 @@ public class HTMLTableType extends HTMLContainerType {
 					}
 					HTMLUtil.generateTab(context, depth + 3);
 					context.generateHTML("</tr>");
+					
+					count++;
 				}
 			}
 			HTMLUtil.generateTab(context, depth + 2);
@@ -270,6 +274,9 @@ public class HTMLTableType extends HTMLContainerType {
 				context.generateHTML(">");
 				HTMLUtil.generateTab(context, depth + 3);
 				context.generateHTML("<tr>");
+				//if (selectMode != UITableSelectModeType.NORMAL) {
+				HTMLUtil.generateTab(context, depth + 3);
+				context.generateHTML("<th></th>");
 				
 				String beElement = (String)this.removeAttribute("beElememt");
 				DefaultParsingContext pContext = new DefaultParsingContext();
@@ -405,6 +412,7 @@ public class HTMLTableType extends HTMLContainerType {
 			t.setListData((List)result);
 			t.setConditions((TableConditions)expressionContext.getVariableValue("tableCondition"));
 			t.setColumns((List)this.getAttribute("columns"));
+			t.setSelectMode((UITableSelectModeType)this.getAttribute("selectMode"));
 			t.setQueryExpr(queryExpr);
 			t.setTotalExpr(totalExpr);
 		} catch (EvaluationException e) {

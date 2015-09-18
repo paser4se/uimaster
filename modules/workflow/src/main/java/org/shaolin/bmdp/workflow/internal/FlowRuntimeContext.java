@@ -16,6 +16,7 @@
 package org.shaolin.bmdp.workflow.internal;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
@@ -27,10 +28,12 @@ import java.util.Set;
 
 import org.shaolin.bmdp.datamodel.common.NameExpressionType;
 import org.shaolin.bmdp.runtime.AppContext;
+import org.shaolin.bmdp.runtime.be.ITaskEntity;
 import org.shaolin.bmdp.runtime.spi.Event;
 import org.shaolin.bmdp.runtime.spi.FlowEvent;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.shaolin.bmdp.utils.SerializeUtil;
+import org.shaolin.bmdp.workflow.dao.CoordinatorModel;
 import org.shaolin.bmdp.workflow.internal.type.NodeInfo;
 import org.shaolin.bmdp.workflow.spi.IWorkflowService;
 import org.shaolin.bmdp.workflow.spi.WorkflowSession;
@@ -119,6 +122,7 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
 		        	globalVariables.setVariableValue(spi.getKey(), spi.getValue());
 		        }
 			}
+			globalVariables.setVariableValue("flowContext", this);
 			globalVariables.setVariableValue(FlowEngine.EVENT_VAR_NAME, event);
 			
 			Set<Map.Entry<String, Object>> set = this.engine.getDefaultGlobalVariables().entrySet();
@@ -566,6 +570,25 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
         this.exception = e;
     }
 
+    private transient List<ITaskEntity> newTaskEntities; 
+    
+    public void save(ITaskEntity entity) {
+    	if (entity.getId() == 0) {
+    		CoordinatorModel.INSTANCE.create(entity);
+    	} 
+    	
+    	if (entity.getTaskId() == 0) {
+    		if (newTaskEntities == null) {
+    			newTaskEntities = new ArrayList<ITaskEntity>();
+    		} 
+    		newTaskEntities.add(entity);
+    	}
+    }
+    
+    public List<ITaskEntity> getAllNewTaskEntities() {
+    	return newTaskEntities;
+    }
+    
     @Override
     public String toString() {
         return "FlowRuntimeContext [Node=" + currentNode + "]" + super.toString();

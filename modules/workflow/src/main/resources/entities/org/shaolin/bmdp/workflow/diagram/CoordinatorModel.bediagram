@@ -110,6 +110,10 @@
 			<bediagram:name>id</bediagram:name>
 			<bediagram:type xsi:type="bediagram:LongType" />
 		</bediagram:member>
+		<bediagram:member pk="true">
+   <bediagram:name>taskId</bediagram:name>
+   <bediagram:type xsi:type="bediagram:LongType" />
+  </bediagram:member>
 		<!-- the task owner -->
 		<bediagram:member>
 			<!-- the login user id -->

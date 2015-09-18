@@ -203,6 +203,15 @@ public class FlowContainer {
         
     	CoordinatorModel.INSTANCE.create(task);
         
+    	List<ITaskEntity> taskEntities = flowContext.getAllNewTaskEntities();
+    	if (taskEntities != null) {
+    		for (ITaskEntity entity: taskEntities) {
+    			entity.setTaskId(task.getId());
+    			CoordinatorModel.INSTANCE.update(entity);
+    		}
+			flowContext.getAllNewTaskEntities().clear();
+    	}
+    	
         List<ITaskEntity> taskRelatedEntities = new ArrayList<ITaskEntity>();
         Collection<String> keys = flowContext.getEvent().getAttributeKeys();
         for (String key: keys) {
@@ -219,7 +228,6 @@ public class FlowContainer {
         
         for (ITaskEntity entity: taskRelatedEntities) {
     		entity.setTaskId(task.getId());
-    		CoordinatorModel.INSTANCE.update(entity);
         }
         return task;
     }

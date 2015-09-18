@@ -104,16 +104,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 	
 	@Override
-	public List<ITaskHistory> getHistoryTasksBySessionId(String sessionId) {
-		if (sessionId == null || sessionId.length() == 0) {
-			throw new IllegalArgumentException("Session id must not be empty.");
-		}
-		TaskHistoryImpl condition = new TaskHistoryImpl();
-		condition.setSessionId(sessionId);
-		return CoordinatorModel.INSTANCE.searchTasksHistory(condition, null, 0, -1);
-	}
-
-	@Override
 	public List<ITaskHistory> getHistoryTasks(TaskStatusType status) {
 		TaskHistoryImpl condition = new TaskHistoryImpl();
 		condition.setStatus(TaskStatusType.EXPIRED);
@@ -151,9 +141,34 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 				sessionTasks.add(t);
 			}
 		}
+		
+		TaskHistoryImpl historyCriteria = new TaskHistoryImpl();
+		historyCriteria.setSessionId(sessionId);
+		List<ITaskHistory> list = CoordinatorModel.INSTANCE.searchTasksHistory(historyCriteria, null, 0, -1);
+		if (list != null) {
+			for (ITaskHistory h: list) {
+				sessionTasks.add(moveToTask(h));
+			}
+		}
 		return sessionTasks;
 	}
 	
+	public String getSessionId(long taskId) {
+		Collection<ITask> tasks= workingTasks.values();
+		for (ITask t : tasks) {
+			if (t.getId() == taskId) {
+				return t.getSessionId();
+			}
+		}
+		
+		TaskHistoryImpl historyCriteria = new TaskHistoryImpl();
+		historyCriteria.setTaskId(taskId);
+		List<ITaskHistory> list = CoordinatorModel.INSTANCE.searchTasksHistory(historyCriteria, null, 0, -1);
+		if (list != null && list.size() > 0) {
+			return list.get(0).getSessionId();
+		}
+		throw new IllegalArgumentException("Session Id can't be found by this task id: " + taskId);
+	}
 	
 	@Override
 	public List<ITask> getAllExpiredTasks() {
@@ -192,7 +207,8 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		if (task == null) {
 			return false;
 		}
-		return task.getStatus() == TaskStatusType.INPROGRESS;
+		return task.getStatus() == TaskStatusType.NOTSTARTED 
+				|| task.getStatus() == TaskStatusType.INPROGRESS;
 	}
 
 	@Override
@@ -325,12 +341,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		task.setCompleteRate(100);
 		
 		if (!testCaseFlag) {
-			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-			session.beginTransaction();
-			
-			moveToHistory(task, session);
-			
-			session.getTransaction().commit();
+			moveToHistory(task, HibernateUtil.getSession());
 		}
 		
 		if (task.getListener() != null) {
@@ -356,12 +367,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 			task.setStatus(TaskStatusType.CANCELLED);
 			
 			if (!testCaseFlag) {
-				Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-				session.beginTransaction();
-				
-				moveToHistory(task, session);
-				
-				session.getTransaction().commit();
+				moveToHistory(task, HibernateUtil.getSession());
 			}
 			
 			if (task.getListener() != null) {
@@ -375,6 +381,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	
 	private void moveToHistory(ITask task, Session session) {
 		TaskHistoryImpl history = new TaskHistoryImpl();
+		history.setTaskId(task.getId());
 		history.setCompleteRate(task.getCompleteRate());
 		history.setDescription(task.getDescription());
 		history.setEnabled(task.isEnabled());
@@ -392,6 +399,26 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		
 		session.save(history);
 		session.delete(task);
+	}
+	
+	private ITask moveToTask(ITaskHistory hTask) {
+		TaskImpl task = new TaskImpl();
+		task.setId(hTask.getTaskId());
+		task.setCompleteRate(hTask.getCompleteRate());
+		task.setDescription(hTask.getDescription());
+		task.setEnabled(hTask.isEnabled());
+		task.setExpiredTime(hTask.getExpiredTime());
+		task.setPartyId(hTask.getPartyId());
+		task.setPartyType(hTask.getPartyType());
+		task.setPriority(hTask.getPriority());
+		task.setSendEmail(hTask.getSendEmail());
+		task.setSendSMS(hTask.getSendSMS());
+		task.setStatus(hTask.getStatus());
+		task.setSubject(hTask.getSubject());
+		task.setComments(hTask.getComments());
+		task.setSessionId(hTask.getSessionId());
+		task.setCreateTime(hTask.getCreateTime());
+		return task;
 	}
 	
 	@Override

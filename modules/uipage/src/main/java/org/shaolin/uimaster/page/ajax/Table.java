@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.UITableColumnType;
+import org.shaolin.bmdp.datamodel.page.UITableSelectModeType;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
@@ -90,6 +91,8 @@ public class Table extends Widget implements Serializable {
 	private ExpressionType totalExpr;
 	
 	private List<UITableColumnType> columns;
+	
+	private UITableSelectModeType selectMode;
 
 	public Table(String tableId, HttpServletRequest request) {
 		super(tableId, null);
@@ -100,6 +103,11 @@ public class Table extends Widget implements Serializable {
 		this._setWidgetLabel(id);
 	}
 
+	public void setSelectMode(UITableSelectModeType selectMode) {
+		this.selectMode = selectMode == null ? UITableSelectModeType.MULTIPLE
+				: selectMode;
+	}
+	
 	public void addAttribute(String name, Object value, boolean update)
     {
 		if ("selectedIndex".equals(name)) {
@@ -377,9 +385,16 @@ public class Table extends Widget implements Serializable {
 	        int count = 0;
 	        for (Object be : rows) {
 	        	evaContext.setVariableValue("rowBE", be);
-	        	evaContext.setVariableValue("index", count ++);
+	        	evaContext.setVariableValue("index", count);
 	        	
 	        	sb.append("[");
+	        	if (this.selectMode == UITableSelectModeType.MULTIPLE) {
+	        		sb.append("\"checkbox,"+count+"\",");
+	        	} else if (this.selectMode == UITableSelectModeType.SINGLE) {
+	        		sb.append("\"radio,"+count+"\",");
+	        	} else {
+	        		sb.append("\"\",");
+	        	}
 	        	for (UITableColumnType col : columns) {
 	        		Object cellValue = col.getRowExpression().getExpression().evaluate(
 							ooeeContext);
@@ -392,6 +407,8 @@ public class Table extends Widget implements Serializable {
 	        	}
 	        	sb.deleteCharAt(sb.length()-1);
 	        	sb.append("],");
+	        	
+	        	count++;
 	        }
 	        if (rows.size() > 0) {
 	        	sb.deleteCharAt(sb.length()-1);

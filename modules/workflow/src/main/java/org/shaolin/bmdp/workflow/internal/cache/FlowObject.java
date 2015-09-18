@@ -35,6 +35,7 @@ import org.shaolin.bmdp.runtime.spi.Event;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.shaolin.bmdp.workflow.exception.ConfigException;
 import org.shaolin.bmdp.workflow.internal.FlowEngine;
+import org.shaolin.bmdp.workflow.internal.FlowRuntimeContext;
 import org.shaolin.bmdp.workflow.internal.type.AppInfo;
 import org.shaolin.bmdp.workflow.internal.type.FlowInfo;
 import org.shaolin.bmdp.workflow.internal.type.NodeInfo;
@@ -127,6 +128,7 @@ public class FlowObject implements java.io.Serializable {
     			}
     			appContext.setVariableClass(FlowEngine.SESSION_VAR_NAME, WorkflowSession.class);
     			appContext.setVariableClass(FlowEngine.EVENT_VAR_NAME, Event.class);
+    			appContext.setVariableClass("flowContext", FlowRuntimeContext.class);
     			
     			try {
 					initExceptionHandlers(appContext, conf.getExceptionHandlers(), appInfo.getName());

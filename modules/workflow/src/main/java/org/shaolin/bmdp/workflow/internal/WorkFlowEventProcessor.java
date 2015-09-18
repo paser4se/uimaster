@@ -78,11 +78,12 @@ public final class WorkFlowEventProcessor implements EventProcessor, IServicePro
 		Collection<String> keys = event.getAttributeKeys();
         for (String key: keys) {
         	Object var = event.getAttribute(key);
+        	// get the previous flow context from the first task entity with task id.
         	if (var instanceof ITaskEntity && ((ITaskEntity)var).getTaskId() > 0) {
         		try {
         			// find the previous context.
 	        		ICoordinatorService coordinator = AppContext.get().getService(ICoordinatorService.class);
-	        		ITask task = coordinator.getTask(((ITaskEntity)var).getId());
+	        		ITask task = coordinator.getTask(((ITaskEntity)var).getTaskId());
 	        		FlowRuntimeContext flowContext = FlowRuntimeContext.unmarshall(task.getFlowState());
 	        		flowContext.changeEvent(event);
 	        		flowContext.getFlowContextInfo().setWaitingNode(flowContext.getCurrentNode());
@@ -91,6 +92,7 @@ public final class WorkFlowEventProcessor implements EventProcessor, IServicePro
         		} catch (Exception e) {
         			logger.warn(e.getMessage(), e);
         		}
+        		break;
         	}
         }
 		if (logger.isTraceEnabled()) {

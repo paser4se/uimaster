@@ -1534,8 +1534,10 @@ public class UIFormObject implements java.io.Serializable
 				ExpressionType strExpr = new ExpressionType();
 				strExpr.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; \n"
 						+ "import org.shaolin.bmdp.runtime.AppContext; \n"
+						+ "import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService; \n"
 						+ "\n{ "
-						+ "\n return $beObject.getTaskId() > 0 ? \"" + originalStr.getValue() + "...\" : \"" + originalStr.getValue() + "\";"
+						+ "\n ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class); "
+						+ "\n return !service.isPendingTask($beObject.getTaskId()) ? \"" + originalStr.getValue() + "...\" : \"" + originalStr.getValue() + "\";"
 						+ "\n}");
 				strProperty.setExpression(strExpr);
 				button.setText(strProperty);

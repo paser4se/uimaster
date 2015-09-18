@@ -44,6 +44,9 @@ public class TableEventHandler implements IAjaxHandler {
 					.valueOf(context.getRequest().getParameter("start"));
 			int count = Integer
 					.valueOf(context.getRequest().getParameter("length"));
+			if (context.getRequest().getParameter("order[0][column]") == null) {
+				return "";
+			}
 			int columnIndex = Integer.valueOf(context.getRequest().getParameter(
 					"order[0][column]"));
 			String v = context.getRequest().getParameter("order[0][dir]");// :desc/asc
@@ -54,7 +57,7 @@ public class TableEventHandler implements IAjaxHandler {
 			conditions.setOffset(offset);
 			
 			// TODO: only one order support temporory.
-			String colId = comp.getColumnId(columnIndex);
+			String colId = comp.getColumnId(columnIndex-1);
 			if (colId != null) {
 				conditions.clearOrder();
 				conditions.addOrder(isAscending ? Order.asc(colId) : Order

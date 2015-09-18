@@ -1639,30 +1639,37 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		var othis = this;
 		var table = $(this).dataTable({
 			"paging": !this.editable,"ordering":!this.editable,"info":!this.editable,
+			"pageLength": 10,
 			"filter": false,
 			"recordsFiltered": $(this).attr("recordsFiltered"),
 			"recordsTotal": $(this).attr("recordsTotal"),
-			"deferLoading": 10,
+			"columnDefs": [{"targets":0,"orderable":false,"render":function(data,type,row){
+				if (data.indexOf("radio") != -1) 
+					return "<input type=\"radio\" name=\"selectRadio\" index=\""+data.substring(data.indexOf("radio")+6)+"\" />";
+				if (data.indexOf("checkbox") != -1) 
+					return "<input type=\"checkbox\" name=\"\" index=\""+data.substring(data.indexOf("checkbox")+9)+"\"/>";
+				return "";
+			}}], 
 			"processing": true,
 			"serverSide": true,
 			"ajax": {
-					async: false,
-		            url: AJAX_SERVICE_URL+"?r="+Math.random(),
-		            type: 'POST',
-		            data:{_ajaxUserEvent: "table",
-		                _uiid: this.id,
-		                _actionName: "pull",
-		                _framePrefix: UIMaster.getFramePrefix(UIMaster.El(this.id).get(0)),
-		                _actionPage: this.parentEntity.__entityName
-		                }
-					}
+				async: false,
+	            url: AJAX_SERVICE_URL+"?r="+Math.random(),
+	            type: 'POST',
+	            data:{_ajaxUserEvent: "table",
+	                _uiid: this.id,
+	                _actionName: "pull",
+	                _framePrefix: UIMaster.getFramePrefix(UIMaster.El(this.id).get(0)),
+	                _actionPage: this.parentEntity.__entityName
+	                }
+			},
+			"fnDrawCallback": function(all,b) {
+				othis.tbody = $(elementList[othis.id]).children('tbody');
+				othis.refreshBodyEvents(othis.tbody, true);
+			}
 		});//this method will reinit the constructor again. weird!
 		this.dtable = table;
 		this.dtable.api().settings()[0].oFeatures.bServerSide=true;
-		//attach the event after initializing the table.
-		//$(this).on("order.dt", function () { });
-		//$(this).on("page.dt", function (event,settings) {});
-		//$(this).on("length.dt", function (event,settings,integer) {});
 		var columnIds = new Array();
 		var coli = 0;
 		$(elementList[this.id]).find('thead th').each(function(){
@@ -1671,11 +1678,6 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		this.columnIds = columnIds;
 		var body = $(elementList[this.id]).children('tbody');
 		this.tbody = body;
-		if (this.isSingleSelection) {
-			this.refreshBodyEvents(body, true);
-		} else if (this.isMultipleSelection) {
-			//TODO:
-		}
 		if(this.rowEmpty()) {
 			this.syncButtonGroup(false);
 		}
@@ -1921,7 +1923,6 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			$(this).unbind('click');
 		});
 		this.dtable._fnAjaxUpdateDraw(json);
-		this.refreshBodyEvents($(elementList[this.id]).children('tbody'), true);
 	},
 	refresh:function(pageNumber){
 		var s = this.dtable.api().settings()[0];

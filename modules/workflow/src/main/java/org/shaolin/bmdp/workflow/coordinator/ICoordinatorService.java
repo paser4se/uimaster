@@ -53,6 +53,8 @@ public interface ICoordinatorService {
 	 */
 	List<ITask> getTasksBySessionId(String sessionId);
 	
+	String getSessionId(long taskId);
+	
 	/**
 	 * How many tasks that the organization/company is running.
 	 * 
@@ -78,14 +80,6 @@ public interface ICoordinatorService {
 	 * @return
 	 */
 	List<ITaskHistory> getHistoryTasks(TaskStatusType status);
-	
-	/**
-	 * Get the history tasks by session id.
-	 * 
-	 * @param status
-	 * @return
-	 */
-	List<ITaskHistory> getHistoryTasksBySessionId(String sessionId);
 	
 	boolean isPendingTask(long taskId);
 	
