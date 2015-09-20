@@ -67,6 +67,7 @@ import org.shaolin.bmdp.datamodel.page.UIChoiceType;
 import org.shaolin.bmdp.datamodel.page.UIComboBoxType;
 import org.shaolin.bmdp.datamodel.page.UIComponentType;
 import org.shaolin.bmdp.datamodel.page.UIContainerType;
+import org.shaolin.bmdp.datamodel.page.UICustWidgetType;
 import org.shaolin.bmdp.datamodel.page.UIEntity;
 import org.shaolin.bmdp.datamodel.page.UIFileType;
 import org.shaolin.bmdp.datamodel.page.UIFlowDiagramType;
@@ -841,6 +842,12 @@ public class UIFormObject implements java.io.Serializable
 					logger.error("Exception occured when pass the table expression: "
                                     + component.getUIID() + " in form: " + this.name, e);
 				}
+            }
+            else if (component instanceof UICustWidgetType) 
+            {
+            	propMap.put("custType", ((UICustWidgetType)component).getCustType());
+            	getAttribute("init", ((UICustWidgetType)component).getInit(), propMap, i18nMap, expMap,
+                        "false", parsingContext);
             }
             else
             {

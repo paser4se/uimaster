@@ -1614,10 +1614,11 @@ UIMaster.ui.objectlist = function(conf){
 UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	initialized:false,
 	dtable:null,
-	isSingleSelection:true,
-	isMultipleSelection:false,
+	isSingleSelection:false,
+	isMultipleSelection:true,
 	editablecell:false,
 	selectedIndex:-1,
+	selectedIndexs:[],
 	selectNotify:[],
 	columnIds:[],
 	tbody:null,
@@ -1634,6 +1635,17 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				}
 			});
 		});
+		var selectMode = $(this).attr("selectMode");
+		if (selectMode == "Multiple") {
+		   this.isMultipleSelection = true;
+		   this.isSingleSelection = false;
+		} else if (selectMode == "Single") {
+		   this.isSingleSelection = true;
+		   this.isMultipleSelection = false;
+		} else {
+			this.isSingleSelection = false;
+		    this.isMultipleSelection = false;
+		}
 		this.tfoot = $($(this).find('tfoot')[0]);
 		this.editable = (this.tfoot!=null && typeof(this.tfoot.attr('editablecell'))!="undefined");
 		var othis = this;
@@ -1829,8 +1841,11 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		var obj = UIMaster.getObject(this);
         if (obj._selectedIndex != this.selectedIndex) {
             UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"selectedIndex",_value:this.selectedIndex,_framePrefix:UIMaster.getFramePrefix(obj)});
-            obj._selectedIndex = this.selectedIndex;
+			obj._selectedIndex = this.selectedIndex;
         }
+		if (this.isMultipleSelection) {
+		    UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"selectedIndexs",_value:this.selectedIndexs.join(","),_framePrefix:UIMaster.getFramePrefix(obj)});
+		}
 		if (this.editable) {
 			return;//the editable cell and the filters are mutual exclusive.
 		}
@@ -1878,18 +1893,70 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		body.children().each(function(){
 		 $(this).bind('click', function(){
 			var tr = $(this);
-			var isselected=false;
-			if (tr.hasClass('selected')){
-				tr.removeClass('selected');
-				othis.selectedIndex = -1;
+			if (othis.isMultipleSelection) {
+				if (!tr.hasClass('selected')){
+					tr.addClass('selected');
+					othis.selectedIndexs.push(tr[0]._DT_RowIndex);
+					othis.selectedIndex = tr[0]._DT_RowIndex;
+					$($(tr).children()[0]).children()[0].checked=true;
+				} else {
+					if (tr.hasClass('selected')){
+						othis.selectedIndex = -1;
+						$($(tr).children()[0]).children()[0].checked=false;
+						tr.removeClass('selected');
+						for (var i=0; i<othis.selectedIndexs.length; i++) {
+							if (othis.selectedIndexs[i] == tr[0]._DT_RowIndex) {
+								othis.selectedIndexs.splice(i,1);
+								break;
+							}
+						}
+					} 
+				}
+			  if (othis.selectedIndexs.length > 0) {
+				  othis.syncButtonGroup(true);
+			  } else {
+				  othis.syncButtonGroup(false);
+			  }
+			  $($($(tr).children()[0]).children()[0]).change(function(){
+			      if(this.checked) {
+					if (!tr.hasClass('selected')){
+						tr.addClass('selected');
+						othis.selectedIndexs.push(tr[0]._DT_RowIndex);
+						othis.selectedIndex = tr[0]._DT_RowIndex;
+					} 
+				  } else {
+				    if (tr.hasClass('selected')){
+					    othis.selectedIndex = -1;
+						tr.removeClass('selected');
+						for (var i=0; i<othis.selectedIndexs.length; i++) {
+						    if (othis.selectedIndexs[i] == tr[0]._DT_RowIndex) {
+							    othis.selectedIndexs.splice(i,1);
+							    break;
+							}
+						}
+					} 
+				  }
+				  if (othis.selectedIndexs.length > 0) {
+					  othis.syncButtonGroup(true);
+				  } else {
+				      othis.syncButtonGroup(false);
+				  }
+			   });
 			} else {
-				othis.dtable.$('tr.selected').removeClass('selected');
-				tr.addClass('selected');
-				othis.selectedIndex = tr[0]._DT_RowIndex;
-				isselected=true;
+			    var isselected=false;
+				if (tr.hasClass('selected')){
+					tr.removeClass('selected');
+					othis.selectedIndex = -1;
+				} else {
+					othis.dtable.$('tr.selected').removeClass('selected');
+					tr.addClass('selected');
+					othis.selectedIndex = tr[0]._DT_RowIndex;
+					isselected=true;
+				}
+				$($(tr).children()[0]).children()[0].checked=true;
+				othis.syncButtonGroup(isselected);
 			}
-			othis.syncButtonGroup(isselected);
-		});
+		  });
 		});
 		if ((selectedByDefault == undefined || !selectedByDefault)) {
 			return;
@@ -1900,7 +1967,9 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				this.syncButtonGroup(false);
 			} else {
 				$(c[0]).addClass('selected');
+				$($(c[0]).children()[0]).children()[0].checked=true;
 	            this.selectedIndex = 0;
+				this.selectedIndexs.push(0);
 	            othis.syncButtonGroup(true);
 			}
 		} else if (c.length > 0) {
@@ -1908,7 +1977,9 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				$(c[this.selectedIndex]).addClass('selected');
 			} else {
 				$(c[0]).addClass('selected');
+				$($(c[0]).children()[0]).children()[0].checked=true;
 				this.selectedIndex = 0;
+				this.selectedIndexs.push(0);
 			}
             othis.syncButtonGroup(true);
 		}

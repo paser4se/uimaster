@@ -112,6 +112,19 @@ public class Table extends Widget implements Serializable {
     {
 		if ("selectedIndex".equals(name)) {
 			conditions.setCurrentSelectedIndex(Integer.valueOf(value.toString()));
+		} else if ("selectedIndexs".equals(name)) {
+			if (!"".equals(value)) {
+				String[] values = ((String)value).split(",");
+				ArrayList<Integer> intValues = new ArrayList<Integer>(values.length);
+				for (int i=0; i<values.length; i++) {
+					Integer v = Integer.valueOf(values[i]);
+					// filtered the duplications.
+					if (!intValues.contains(v)) {
+						intValues.add(v);
+					}
+				}
+				conditions.setSelectedIndex(intValues.toArray(new Integer[intValues.size()]));
+			}
 		} else if ("conditions".equals(name)) {
 			try {
 				JSONArray array = new JSONArray(value.toString());

@@ -27,6 +27,7 @@ import org.shaolin.bmdp.datamodel.page.UICheckBoxType;
 import org.shaolin.bmdp.datamodel.page.UIComboBoxType;
 import org.shaolin.bmdp.datamodel.page.UIComponentType;
 import org.shaolin.bmdp.datamodel.page.UIContainerType;
+import org.shaolin.bmdp.datamodel.page.UICustWidgetType;
 import org.shaolin.bmdp.datamodel.page.UIDateType;
 import org.shaolin.bmdp.datamodel.page.UIEmptyType;
 import org.shaolin.bmdp.datamodel.page.UIEntity;
@@ -604,6 +605,10 @@ public class UIFormJSGenerator0 {
 		}  else if (component instanceof UIFlowDiagramType) {
 			out.write(" = new ");
 			out.print(JSConstants.FLOW);
+			out.write("\n");
+		} else if (component instanceof UICustWidgetType) {
+			out.write(" = new ");
+			out.print(JSConstants.UIFIELD);
 			out.write("\n");
 		} 
     

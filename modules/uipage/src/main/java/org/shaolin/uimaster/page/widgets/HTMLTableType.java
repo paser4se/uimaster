@@ -77,7 +77,7 @@ public class HTMLTableType extends HTMLContainerType {
 
 			UITableSelectModeType selectMode = (UITableSelectModeType)this.removeAttribute("selectMode");
 			if (selectMode == null) {
-				selectMode = UITableSelectModeType.MULTIPLE;
+				selectMode = UITableSelectModeType.SINGLE;
 			}
 			int defaultRowSize = (Integer)this.removeAttribute("defaultRowSize");
 			String totalCount = String.valueOf(this.removeAttribute("totalCount"));
@@ -167,7 +167,9 @@ public class HTMLTableType extends HTMLContainerType {
 			context.generateHTML("\" class=\"uimaster_table display dataTable\" recordsFiltered='");
 			context.generateHTML(totalCount + "");
 			context.generateHTML("' recordsTotal='");
-			context.generateHTML(totalCount+"'>");
+			context.generateHTML(totalCount+"' selectMode=\"");
+			context.generateHTML(selectMode.value());
+			context.generateHTML("\">");
 
 			// generate thead.
 			HTMLUtil.generateTab(context, depth + 2);
@@ -179,8 +181,6 @@ public class HTMLTableType extends HTMLContainerType {
 			context.generateHTML("<th id=\"");
 			context.generateHTML(getName());
 			context.generateHTML("_SelectColumn\" name=\"\" orderable=\"false\" htmlType=\"");
-			context.generateHTML(selectMode.value());
-			context.generateHTML("\" selectMode=\"");
 			context.generateHTML(selectMode.value());
 			context.generateHTML("\" title=\"\" style=\"width:10px;padding:0px;");
 			if (selectMode == UITableSelectModeType.NORMAL) {

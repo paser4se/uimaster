@@ -35,7 +35,7 @@ public class TableConditions implements Serializable {
 	
 	private int currentSelectedIndex = -1;
 	
-	private int[] selectedIndex;
+	private Integer[] selectedIndexs;
 
 	public TableConditions() {
 	}
@@ -117,12 +117,12 @@ public class TableConditions implements Serializable {
 		this.currentSelectedIndex = currentSelectedIndex;
 	}
 
-	public int[] getSelectedIndex() {
-		return selectedIndex;
+	public Integer[] getSelectedIndex() {
+		return selectedIndexs;
 	}
 
-	public void setSelectedIndex(int[] selectedIndex) {
-		this.selectedIndex = selectedIndex;
+	public void setSelectedIndex(Integer[] selectedIndex) {
+		this.selectedIndexs = selectedIndex;
 	}
 
 }

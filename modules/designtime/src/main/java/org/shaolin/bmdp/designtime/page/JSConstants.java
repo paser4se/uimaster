@@ -2,7 +2,9 @@ package org.shaolin.bmdp.designtime.page;
 
 public class JSConstants
 {
-    public static final String TEXTFIELD = "UIMaster.ui.textfield";
+	public static final String UIFIELD = "UIMaster.ui.field";
+    
+	public static final String TEXTFIELD = "UIMaster.ui.textfield";
     
     public static final String TEXTAREA = "UIMaster.ui.textarea";
     

@@ -336,6 +336,16 @@ in simple component mapping, the paramName is required</xs:documentation>
             <xs:extension base="Page:UITextComponentType"/>
         </xs:complexContent>
     </xs:complexType>
+    <xs:complexType name="UICustWidgetType">
+        <xs:complexContent>
+            <xs:extension base="Page:UIComponentType">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="custType" type="xs:string"/>
+                    <xs:element minOccurs="0" name="init" type="Page:ExpressionPropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     <xs:complexType name="UILinkType">
         <xs:complexContent>
             <xs:extension base="Page:UILabelType">
