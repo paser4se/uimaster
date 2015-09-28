@@ -57,6 +57,29 @@ public class BEEntityDaoObject {
 	}
 	
 	/**
+	 * Reload the entity
+	 * 
+	 * @param entity
+	 */
+	public void reload(IPersistentEntity entity) {
+		if (entity.getId() == 0) {
+			return;
+		}
+		
+		Session session = HibernateUtil.getSession();
+		session.load(entity, entity.getId());
+	}
+	
+	public void cascadingUpdate(IPersistentEntity entity) {
+		if (entity.getId() == 0) {
+			return;
+		}
+		
+		Session session = HibernateUtil.getSession();
+		session.merge(entity);
+	}
+	
+	/**
 	 * Batch insert for multiple entities.
 	 * 
 	 * @param entities

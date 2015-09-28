@@ -53,6 +53,8 @@ public class WebFlowServlet extends HttpServlet
 
     private static Logger logger = LoggerFactory.getLogger(WebFlowServlet.class);
 
+    private boolean initialized = false;
+    
     /**
      * if this is a central node.
      */
@@ -156,6 +158,11 @@ public class WebFlowServlet extends HttpServlet
      * @exception ServletException if we cannot configure ourselves correctly
      */
     public void init() throws ServletException {
+    	if (this.initialized) {
+    		return;
+    	}
+    	this.initialized = true;
+    	
     	this.appName = this.getInitParameter("AppName");
     	// all the listeners must be added before
     	// starting the config server.
@@ -188,7 +195,7 @@ public class WebFlowServlet extends HttpServlet
         if (logger.isInfoEnabled()) {
             logger.info("destroying and Finalizing this controller servlet");
         }
-        
+        this.initialized = false;
         if (appInitializer != null) {
         	appInitializer.stop(this.getServletContext());
         }

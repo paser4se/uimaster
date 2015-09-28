@@ -117,10 +117,14 @@ public class Table extends Widget implements Serializable {
 				String[] values = ((String)value).split(",");
 				ArrayList<Integer> intValues = new ArrayList<Integer>(values.length);
 				for (int i=0; i<values.length; i++) {
-					Integer v = Integer.valueOf(values[i]);
-					// filtered the duplications.
-					if (!intValues.contains(v)) {
-						intValues.add(v);
+					try {
+						Integer v = Integer.valueOf(values[i]);
+						// filtered the duplications.
+						if (!intValues.contains(v)) {
+							intValues.add(v);
+						}
+					} catch (NumberFormatException e) {
+						// filtered the illegal number.
 					}
 				}
 				conditions.setSelectedIndex(intValues.toArray(new Integer[intValues.size()]));

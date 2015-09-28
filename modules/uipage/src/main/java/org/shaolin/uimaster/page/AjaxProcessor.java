@@ -225,6 +225,7 @@ public class AjaxProcessor implements Serializable
      */
     public String execute() throws AjaxException
     {
+    	boolean errorFlag = false;
     	Session session = HibernateUtil.getSession();
         try
         {
@@ -256,10 +257,14 @@ public class AjaxProcessor implements Serializable
         }
         catch (AjaxHandlerException ex)
         {
-        	HibernateUtil.releaseSession(session, false);
+        	errorFlag = true;
             throw ex;
         } finally {
-        	HibernateUtil.releaseSession(session, true);
+			if (errorFlag) {
+				HibernateUtil.releaseSession(session, false);
+			} else {
+				HibernateUtil.releaseSession(session, true);
+			}
         }
     }
 }
