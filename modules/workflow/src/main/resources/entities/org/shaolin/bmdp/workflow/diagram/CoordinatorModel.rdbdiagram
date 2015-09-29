@@ -165,7 +165,7 @@
             </ns2:conditionValue>
         </ns2:fieldMapping>
         <ns2:fieldMapping>
-            <ns2:toDataFieldPath>inFlow.status</ns2:toDataFieldPath>
+            <ns2:toDataFieldPath>inFlow.statusInt</ns2:toDataFieldPath>
             <ns2:conditionValue>
                 <ns2:operator isReverse="false" xsi:type="ns2:LogicOperatorType">
                     <ns2:type>=</ns2:type>
@@ -179,7 +179,7 @@
             </ns2:conditionValue>
         </ns2:fieldMapping>
         <ns2:fieldMapping>
-            <ns2:toDataFieldPath>inFlow.priority</ns2:toDataFieldPath>
+            <ns2:toDataFieldPath>inFlow.priorityInt</ns2:toDataFieldPath>
             <ns2:conditionValue>
                 <ns2:operator isReverse="false" xsi:type="ns2:LogicOperatorType">
                     <ns2:type>=</ns2:type>
@@ -379,7 +379,7 @@
             </ns2:conditionValue>
         </ns2:fieldMapping>
         <ns2:fieldMapping>
-            <ns2:toDataFieldPath>inFlow.status</ns2:toDataFieldPath>
+            <ns2:toDataFieldPath>inFlow.statusInt</ns2:toDataFieldPath>
             <ns2:conditionValue>
                 <ns2:operator isReverse="false" xsi:type="ns2:LogicOperatorType">
                     <ns2:type>=</ns2:type>
@@ -393,7 +393,7 @@
             </ns2:conditionValue>
         </ns2:fieldMapping>
         <ns2:fieldMapping>
-            <ns2:toDataFieldPath>inFlow.priority</ns2:toDataFieldPath>
+            <ns2:toDataFieldPath>inFlow.priorityInt</ns2:toDataFieldPath>
             <ns2:conditionValue>
                 <ns2:operator isReverse="false" xsi:type="ns2:LogicOperatorType">
                     <ns2:type>=</ns2:type>

@@ -46,10 +46,10 @@ public class CoordinatorModel extends BEEntityDaoObject {
                 inFlowCriteria.add(createCriterion(Operator.LESS_THAN_OR_EQUALS, "inFlow.expiredTime", scFlow.getExpiredTimeEnd()));
             }
             if (scFlow.getStatus() != null && scFlow.getStatus() != org.shaolin.bmdp.workflow.ce.TaskStatusType.NOT_SPECIFIED) {
-                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.status", scFlow.getStatus().getIntValue()));
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.statusInt", scFlow.getStatus().getIntValue()));
             }
             if (scFlow.getPriority() != null && scFlow.getPriority() != org.shaolin.bmdp.workflow.ce.TaskPriorityType.NOT_SPECIFIED) {
-                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.priority", scFlow.getPriority().getIntValue()));
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.priorityInt", scFlow.getPriority().getIntValue()));
             }
 
         List result = this._list(offset, count, inFlowCriteria);
@@ -72,10 +72,10 @@ public class CoordinatorModel extends BEEntityDaoObject {
                 inFlowCriteria.add(createCriterion(Operator.LESS_THAN_OR_EQUALS, "inFlow.expiredTime", scFlow.getExpiredTimeEnd()));
             }
             if (scFlow.getStatus() != null && scFlow.getStatus() != org.shaolin.bmdp.workflow.ce.TaskStatusType.NOT_SPECIFIED) {
-                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.status", scFlow.getStatus().getIntValue()));
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.statusInt", scFlow.getStatus().getIntValue()));
             }
             if (scFlow.getPriority() != null && scFlow.getPriority() != org.shaolin.bmdp.workflow.ce.TaskPriorityType.NOT_SPECIFIED) {
-                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.priority", scFlow.getPriority().getIntValue()));
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.priorityInt", scFlow.getPriority().getIntValue()));
             }
 
         return this._count(inFlowCriteria);
@@ -152,10 +152,10 @@ public class CoordinatorModel extends BEEntityDaoObject {
                 inFlowCriteria.add(createCriterion(Operator.LESS_THAN_OR_EQUALS, "inFlow.expiredTime", scFlow.getExpiredTimeEnd()));
             }
             if (scFlow.getStatus() != null && scFlow.getStatus() != org.shaolin.bmdp.workflow.ce.TaskStatusType.NOT_SPECIFIED) {
-                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.status", scFlow.getStatus().getIntValue()));
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.statusInt", scFlow.getStatus().getIntValue()));
             }
             if (scFlow.getPriority() != null && scFlow.getPriority() != org.shaolin.bmdp.workflow.ce.TaskPriorityType.NOT_SPECIFIED) {
-                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.priority", scFlow.getPriority().getIntValue()));
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.priorityInt", scFlow.getPriority().getIntValue()));
             }
 
         List result = this._list(offset, count, inFlowCriteria);
@@ -184,10 +184,10 @@ public class CoordinatorModel extends BEEntityDaoObject {
                 inFlowCriteria.add(createCriterion(Operator.LESS_THAN_OR_EQUALS, "inFlow.expiredTime", scFlow.getExpiredTimeEnd()));
             }
             if (scFlow.getStatus() != null && scFlow.getStatus() != org.shaolin.bmdp.workflow.ce.TaskStatusType.NOT_SPECIFIED) {
-                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.status", scFlow.getStatus().getIntValue()));
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.statusInt", scFlow.getStatus().getIntValue()));
             }
             if (scFlow.getPriority() != null && scFlow.getPriority() != org.shaolin.bmdp.workflow.ce.TaskPriorityType.NOT_SPECIFIED) {
-                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.priority", scFlow.getPriority().getIntValue()));
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.priorityInt", scFlow.getPriority().getIntValue()));
             }
 
         return this._count(inFlowCriteria);
