@@ -215,6 +215,11 @@ public class HTMLTableType extends HTMLContainerType {
 			HTMLUtil.generateTab(context, depth + 2);
 			context.generateHTML("<tbody id=\"\" >");
 			List<Object> listData = (List<Object>)this.removeAttribute("query");
+			
+			// FIXME: here is an issue while accessing the list as Hibernate PersistenList.
+			// org.hibernate.collection.internal.Collections
+			// org.hibernate.collection.internal.PersistentList
+			// org.hibernate.AssertionFailure: collection owner not associated with session:
 			if (!listData.isEmpty()) {
 				int count = 0;
 				for (Object be : listData) {
