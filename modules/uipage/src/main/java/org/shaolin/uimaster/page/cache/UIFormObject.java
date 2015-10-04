@@ -75,6 +75,7 @@ import org.shaolin.bmdp.datamodel.page.UIImageType;
 import org.shaolin.bmdp.datamodel.page.UILayoutType;
 import org.shaolin.bmdp.datamodel.page.UILinkType;
 import org.shaolin.bmdp.datamodel.page.UIListType;
+import org.shaolin.bmdp.datamodel.page.UIMatrixType;
 import org.shaolin.bmdp.datamodel.page.UIMultiChoiceType;
 import org.shaolin.bmdp.datamodel.page.UIPage;
 import org.shaolin.bmdp.datamodel.page.UIPanelType;
@@ -840,6 +841,28 @@ public class UIFormObject implements java.io.Serializable
                                     + component.getUIID() + " in form: " + this.name, e);
 				} catch (ParsingException e) {
 					logger.error("Exception occured when pass the table expression: "
+                                    + component.getUIID() + " in form: " + this.name, e);
+				}
+            } 
+            else if (component instanceof UIMatrixType) 
+            {
+            	UIMatrixType matrix = (UIMatrixType) component;
+            	propMap.put("matrix", matrix);
+            	try {
+	            	if (matrix.getColumns() != null && matrix.getColumns().size() > 0) {
+		            	List<UITableColumnType> columns = matrix.getColumns();
+						for (UITableColumnType col : columns) {
+							if(col.getRowExpression() != null && col.getRowExpression().getExpression() != null) {
+								col.getRowExpression().getExpression().parse(parsingContext);
+							}
+						}
+	            	}
+	            	matrix.getInit().getExpression().parse(parsingContext);
+	            	matrix.getCoordination().getExpression().parse(parsingContext);
+	            	propMap.put("initExpr", matrix.getInit().getExpression());
+	            	propMap.put("coordinateExpr", matrix.getCoordination().getExpression());
+            	} catch (ParsingException e) {
+					logger.error("Exception occured when pass the matrix expression: "
                                     + component.getUIID() + " in form: " + this.name, e);
 				}
             }

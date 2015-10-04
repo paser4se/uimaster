@@ -530,6 +530,25 @@ in simple component mapping, the paramName is required</xs:documentation>
             <xs:element name="saveFlow" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
+    <!-- the matrix widget uses describing the data in 2D or 3D solution.-->
+    <xs:complexType name="UIMatrixType">
+        <xs:complexContent>
+            <xs:extension base="Page:UIComponentType">
+                <!-- the dynamic flow configuration -->
+                <xs:sequence>
+                    <xs:element name="init" type="Page:ExpressionPropertyType"/>
+                    <xs:element name="coordination" type="Page:ExpressionPropertyType"/>
+                    <xs:element name="column" type="Page:UITableColumnType" maxOccurs="unbounded" minOccurs="0" />
+                    <xs:element name="actionGroup" type="Page:UITableActionGroupType" maxOccurs="unbounded" minOccurs="0" />
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="UIMapType">
+        <xs:complexContent>
+            <xs:extension base="Page:UIComponentType"/>
+        </xs:complexContent>
+    </xs:complexType>
     <xs:complexType name="UIWebMenuType">
         <xs:complexContent>
             <xs:extension base="Page:UIComponentType"/>

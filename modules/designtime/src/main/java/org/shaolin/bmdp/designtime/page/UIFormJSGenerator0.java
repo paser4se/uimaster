@@ -39,6 +39,8 @@ import org.shaolin.bmdp.datamodel.page.UIImageType;
 import org.shaolin.bmdp.datamodel.page.UILabelType;
 import org.shaolin.bmdp.datamodel.page.UILinkType;
 import org.shaolin.bmdp.datamodel.page.UIListType;
+import org.shaolin.bmdp.datamodel.page.UIMapType;
+import org.shaolin.bmdp.datamodel.page.UIMatrixType;
 import org.shaolin.bmdp.datamodel.page.UIMultiChoiceType;
 import org.shaolin.bmdp.datamodel.page.UIPanelType;
 import org.shaolin.bmdp.datamodel.page.UIPasswordFieldType;
@@ -597,6 +599,14 @@ public class UIFormJSGenerator0 {
 		} else if (component instanceof UITableType) {
 			out.write(" = new ");
 			out.print(JSConstants.TABLE);
+			out.write("\n");
+		} else if (component instanceof UIMatrixType) {
+			out.write(" = new ");
+			out.print(JSConstants.MATRIX);
+			out.write("\n");
+		} else if (component instanceof UIMapType) {
+			out.write(" = new ");
+			out.print(JSConstants.MAP);
 			out.write("\n");
 		} else if (component instanceof UIChartType) {
 			out.write(" = new ");

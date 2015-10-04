@@ -93,7 +93,9 @@ import javax.xml.bind.annotation.XmlType;
     UIFlowDiagramType.class,
     UIChoiceType.class,
     UITextComponentType.class,
-    UIChartType.class
+    UIChartType.class,
+    UIMatrixType.class,
+    UIMapType.class
 })
 public abstract class UIComponentType
     implements Serializable

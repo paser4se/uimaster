@@ -2720,3 +2720,15 @@ UIMaster.ui.chart=UIMaster.extend(UIMaster.ui,{
        }
     }
 });
+UIMaster.ui.matrix=UIMaster.extend(UIMaster.ui,{
+    type:null,
+    chart:null,
+    init:function() {
+    }
+});
+UIMaster.ui.map=UIMaster.extend(UIMaster.ui,{
+    type:null,
+    chart:null,
+    init:function() {
+    }
+});
