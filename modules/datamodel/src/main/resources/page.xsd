@@ -10,7 +10,8 @@
 	
 	<xs:element name="UIPage" type="Page:UIPageType"/>
 	<xs:element name="UIEntity" type="Page:UIEntityType"/>
-	
+	<xs:element name="WebService" type="Page:WebServiceType"/>
+ 
 	<!-- Actions -->
 	<xs:complexType name="OpType">
 		<xs:attribute name="description" type="xs:string"/>
@@ -29,12 +30,13 @@
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
-    <xs:complexType name="OpCallAjaxType">
+ <xs:complexType name="OpCallAjaxType">
 		<xs:complexContent>
 			<xs:extension base="Page:OpType">
 				<xs:sequence>
-					<xs:element name="exp" type="Common:ExpressionType"/>
-                    <xs:element name="exceptionMessage" type="Common:IPropertyValueType"/>
+				  <xs:element name="filter" type="Common:ExpressionType"/>
+					 <xs:element name="exp" type="Common:ExpressionType"/>
+      <xs:element name="exceptionMessage" type="Common:IPropertyValueType"/>
 				</xs:sequence>
 				<xs:attribute name="name" type="xs:string" use="required"/>
 			</xs:extension>
@@ -175,6 +177,19 @@ in simple component mapping, the paramName is required</xs:documentation>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
+	
+	<xs:complexType name="WebServiceType">
+  <xs:annotation>
+   <xs:documentation>Web Service support for any ajax operation</xs:documentation>
+  </xs:annotation>
+  <xs:complexContent>
+   <xs:extension base="Common:EntityType">
+    <xs:sequence>
+     <xs:element maxOccurs="unbounded" minOccurs="1" name="service" type="Page:OpCallAjaxType"/>
+    </xs:sequence>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
 	
 	<!--start define page-->
 	<xs:complexType name="UIPageType">

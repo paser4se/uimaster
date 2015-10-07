@@ -259,7 +259,7 @@ public class AjaxContext extends OpExecuteContext implements Serializable
     public void initData() throws EvaluationException
     {
         this.entityUiid = requestData.getEntityUiid();
-        if (entityUiid.length() > 0)
+        if (entityUiid != null && entityUiid.length() > 0)
             this.entityPrefix = entityUiid + ".";
 
         DefaultEvaluationContext globalEContext = new DefaultEvaluationContext();
@@ -277,7 +277,9 @@ public class AjaxContext extends OpExecuteContext implements Serializable
         this.setEvaluationContextObject("@", globalEContext);
         globalEContext.setVariableValue("request", request);
         globalEContext.setVariableValue("page", this);
-        globalEContext.setVariableValue("eventsource", this.getElement(requestData.getUiid()));
+        if (requestData.getUiid() != null) {
+        	globalEContext.setVariableValue("eventsource", this.getElement(requestData.getUiid()));
+        }
     }
 
     public void setRequest(HttpServletRequest request, HttpServletResponse response) throws EvaluationException

@@ -11,6 +11,7 @@ import javax.servlet.ServletContextListener;
 import org.shaolin.bmdp.datamodel.common.DiagramType;
 import org.shaolin.bmdp.datamodel.page.UIEntity;
 import org.shaolin.bmdp.datamodel.page.UIPage;
+import org.shaolin.bmdp.datamodel.page.WebService;
 import org.shaolin.bmdp.datamodel.pagediagram.WebChunk;
 import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.cache.CacheManager;
@@ -209,6 +210,40 @@ public class MasterInstanceListener implements ServletContextListener {
 			@Override
 			public Class<UIEntity> getEventType() {
 				return UIEntity.class;
+			}
+		});
+		entityManager.addEventListener(new IEntityEventListener<WebService, DiagramType>() {
+			@Override
+			public void setEntityManager(EntityManager entityManager) {
+			}
+
+			@Override
+			public void notify(
+					EntityAddedEvent<WebService, DiagramType> event) {
+				try {
+					PageCacheManager.addWebService(event.getEntity());
+				} catch (ParsingException e) {
+					logger.error(
+							"Parse web service error: " + e.getMessage(), e);
+				}
+			}
+
+			@Override
+			public void notify(
+					EntityUpdatedEvent<WebService, DiagramType> event) {
+			}
+
+			@Override
+			public void notifyLoadFinish(DiagramType diagram) {
+			}
+
+			@Override
+			public void notifyAllLoadFinish() {
+			}
+
+			@Override
+			public Class<WebService> getEventType() {
+				return WebService.class;
 			}
 		});
 	}

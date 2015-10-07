@@ -18,6 +18,7 @@ import org.shaolin.bmdp.datamodel.common.EntityType;
 import org.shaolin.bmdp.designtime.page.UIFlowValidator;
 import org.shaolin.bmdp.designtime.page.UIFormValidator;
 import org.shaolin.bmdp.designtime.page.UIPageValidator;
+import org.shaolin.bmdp.designtime.page.WebServiceValidator;
 import org.shaolin.bmdp.designtime.tools.GeneratorOptions;
 import org.shaolin.bmdp.persistence.provider.DBMSProviderFactory;
 import org.shaolin.bmdp.runtime.AppContext;
@@ -153,6 +154,7 @@ public class EntityValidationMojo extends AbstractMojo {
 		listeners.add(new UIPageValidator(options));
 		listeners.add(new UIFormValidator(options));
 		listeners.add(new UIFlowValidator(options));
+		listeners.add(new WebServiceValidator(options));
 		
 		// initialize entity manager.
 		String[] filters = new String[] {project.getName() + "/", ""};

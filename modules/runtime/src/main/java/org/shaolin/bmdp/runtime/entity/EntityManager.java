@@ -46,6 +46,7 @@ import org.shaolin.bmdp.datamodel.flowdiagram.FlowChunk;
 import org.shaolin.bmdp.datamodel.page.ODMappingType;
 import org.shaolin.bmdp.datamodel.page.UIEntity;
 import org.shaolin.bmdp.datamodel.page.UIPage;
+import org.shaolin.bmdp.datamodel.page.WebService;
 import org.shaolin.bmdp.datamodel.pagediagram.WebChunk;
 import org.shaolin.bmdp.datamodel.rdbdiagram.ClassMappingType;
 import org.shaolin.bmdp.datamodel.rdbdiagram.RDBDiagram;
@@ -93,6 +94,7 @@ public final class EntityManager implements IEntityManager {
 		entityMapping.put("pageflow", WebChunk.class);
 		entityMapping.put("page", UIPage.class);
 		entityMapping.put("form", UIEntity.class);
+		entityMapping.put("websvis", WebService.class);
 		entityMapping.put("flow", FlowChunk.class);
 		entityMapping.put("workflow", Workflow.class);
 	}
@@ -113,6 +115,7 @@ public final class EntityManager implements IEntityManager {
 		sysEntityCache.put(ODMappingType.class, CacheManager.getInstance().getCache("__sys_entity_odform", String.class, ODMappingType.class));
 		sysEntityCache.put(UIEntity.class, CacheManager.getInstance().getCache("__sys_entity_uiform", String.class, UIEntity.class));
 		sysEntityCache.put(UIPage.class, CacheManager.getInstance().getCache("__sys_entity_uipage", String.class, UIPage.class));
+		sysEntityCache.put(WebService.class, CacheManager.getInstance().getCache("__sys_entity_websvis", String.class, WebService.class));
 		sysEntityCache.put(WebChunk.class, CacheManager.getInstance().getCache("__sys_entity_webflow", String.class, WebChunk.class));
 		sysEntityCache.put(TableType.class, CacheManager.getInstance().getCache("__sys_entity_dbtable", String.class, TableType.class));
 		sysEntityCache.put(ViewType.class, CacheManager.getInstance().getCache("__sys_entity_dbview", String.class, ViewType.class));

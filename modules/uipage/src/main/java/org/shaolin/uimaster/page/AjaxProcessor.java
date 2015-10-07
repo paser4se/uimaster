@@ -33,6 +33,7 @@ import org.shaolin.uimaster.page.ajax.handlers.IAjaxHandler;
 import org.shaolin.uimaster.page.ajax.handlers.PropertyChangeHandler;
 import org.shaolin.uimaster.page.ajax.handlers.TabPaneEventHandler;
 import org.shaolin.uimaster.page.ajax.handlers.TableEventHandler;
+import org.shaolin.uimaster.page.ajax.handlers.WebServiceHandler;
 import org.shaolin.uimaster.page.ajax.json.IRequestData;
 import org.shaolin.uimaster.page.ajax.json.JSONException;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
@@ -60,6 +61,9 @@ public class AjaxProcessor implements Serializable
     
     public static final String EVENT_TYPE_TABPANE_PROPERTY = "tabpane";
     
+    public static final String EVENT_WEBSERVICE = "webservice";
+    
+    
     /**
      * current fired event type.
      */
@@ -86,23 +90,26 @@ public class AjaxProcessor implements Serializable
         	log.warn("The 'framePrefix' equals null, please noticed if the current uipage has one more frames!");
         }
         framePrefix = (framePrefix == null || framePrefix.equals("null")) ? "" : framePrefix;
-        String uiid = request.getParameter(AjaxContext.AJAX_UIID);
-        if (uiid == null || uiid.trim().length() == 0)
-        {
-            throw new AjaxInitializedException("The uiid can not be empty!");
-        }
-        requestData.setUiid(uiid);
+        if (EVENT_WEBSERVICE.equals(eventType)) {
+        } else {
+	        String uiid = request.getParameter(AjaxContext.AJAX_UIID);
+	        if (uiid == null || uiid.trim().length() == 0)
+	        {
+	            throw new AjaxInitializedException("The uiid can not be empty!");
+	        }
+	        requestData.setUiid(uiid);
 
-        String entityName = request.getParameter(AjaxContext.AJAX_ACTION_PAGE);
-        entityName = (entityName == null || entityName.equals("null")) ? "" : entityName;
-        String entityUiid = "";
-        int lastPosition = uiid.lastIndexOf(".");
-        if (lastPosition != -1)
-        {
-            entityUiid = uiid.substring(0, lastPosition);
+	        String entityName = request.getParameter(AjaxContext.AJAX_ACTION_PAGE);
+	        entityName = (entityName == null || entityName.equals("null")) ? "" : entityName;
+	        String entityUiid = "";
+	        int lastPosition = uiid.lastIndexOf(".");
+	        if (lastPosition != -1)
+	        {
+	            entityUiid = uiid.substring(0, lastPosition);
+	        }
+	        requestData.setEntityUiid(entityUiid);
+	        requestData.setEntityName(entityName);
         }
-        requestData.setEntityUiid(entityUiid);
-        requestData.setEntityName(entityName);
         requestData.setFrameId(framePrefix);
         return requestData;
     }
@@ -119,6 +126,11 @@ public class AjaxProcessor implements Serializable
             if (EVENT_TYPE_CHECK_PROPERTY.equals(eventType))
             {
                 context = new AjaxContext(uiMap, requestData);
+            } 
+            else if (EVENT_WEBSERVICE.equals(eventType))
+            {
+                context = new AjaxContext(uiMap, requestData);
+                context.initData();
             }
             else
             {
@@ -242,11 +254,17 @@ public class AjaxProcessor implements Serializable
             {
                 handler = new EventHandler();
             }
-            else if (EVENT_TYPE_TABLE_PROPERTY.equals(eventType)) {
+            else if (EVENT_TYPE_TABLE_PROPERTY.equals(eventType)) 
+            {
             	handler = new TableEventHandler();
             }
-            else if (EVENT_TYPE_TABPANE_PROPERTY.equals(eventType)) {
+            else if (EVENT_TYPE_TABPANE_PROPERTY.equals(eventType)) 
+            {
             	handler = new TabPaneEventHandler();
+            }
+            else if (EVENT_WEBSERVICE.equals(eventType)) 
+            {
+            	handler = new WebServiceHandler();
             }
             
             if (handler == null)

@@ -118,7 +118,7 @@ public class EventHandler implements IAjaxHandler {
 					return json.toString();
 				}
 			} else {
-				if (log.isInfoEnabled()) {
+				if (log.isDebugEnabled()) {
 					context.printUiMap();
 				}
 				return context.getDataAsJSON();
