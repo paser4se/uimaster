@@ -213,7 +213,7 @@ public class UIFormObject implements java.io.Serializable
         OOEEContext parsingContext = parseVariable(entity);
         parseUI(parsingContext, entity, null);
         HTMLUtil.includeJsFiles(name, jsIncludeMap, jsIncludeList, false);
-        HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, true);
+        HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, false);
     }
 
 
@@ -1850,6 +1850,7 @@ public class UIFormObject implements java.io.Serializable
 			if (jsFileName.endsWith(".js")) {
 				jsFileName = jsFileName.replace("\\", "/");
 				jsFileName = jsFileName.replace(WebConfigFastCache.WebContextRoot, WebConfig.getWebContextRoot());
+				jsFileName = jsFileName.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getResourceContextRoot());
 				sb.append("UIMaster.require(\"").append(jsFileName).append("?_timestamp=").append(WebConfig.getTimeStamp()).append("\"");
 				sb.append(", true);");
 			}

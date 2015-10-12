@@ -119,17 +119,17 @@ public class AjaxProcessor implements Serializable
     {
         HttpServletRequest request = htmlContext.getRequest();
         IRequestData requestData = getRequestData(request);
-        Map uiMap = AjaxActionHelper.getFrameMap(request);
         try
         {
             AjaxContext context;
             if (EVENT_TYPE_CHECK_PROPERTY.equals(eventType))
             {
+            	Map uiMap = AjaxActionHelper.getFrameMap(request);
                 context = new AjaxContext(uiMap, requestData);
             } 
             else if (EVENT_WEBSERVICE.equals(eventType))
             {
-                context = new AjaxContext(uiMap, requestData);
+                context = new AjaxContext(new HashMap(), requestData);
                 context.initData();
             }
             else
@@ -142,7 +142,7 @@ public class AjaxProcessor implements Serializable
                 {
                     htmlContext.setHTMLPrefix("");
                 }
-                
+                Map uiMap = AjaxActionHelper.getFrameMap(request);
                 Widget comp = (Widget)uiMap.get(requestData.getUiid());
                 if (comp == null)
                     throw new AjaxInitializedException("Can not find this component["

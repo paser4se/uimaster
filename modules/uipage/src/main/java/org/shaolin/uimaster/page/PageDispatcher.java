@@ -336,8 +336,8 @@ public class PageDispatcher {
                 logger.debug("import css to the uipage: " + entityName);
             }
             if (UserContext.isMobileRequest()) {
-            	context.generateHTML("<meta name=\"viewport\" id=\"WebViewport\" content=\"width=device-width,initial-scale=1.0,target-densitydpi=device-dpi,minimum-scale=0.5,maximum-scale=1.0,user-scalable=1\" />\n");
-            	context.generateHTML("<meta name=\"apple-mobile-web-app-title\" content=\"VogERP\">\n");
+            	context.generateHTML("<meta name=\"viewport\" id=\"WebViewport\" content=\"width=device-width,initial-scale=1.0,minimum-scale=0.5,maximum-scale=1.0,user-scalable=1\" />\n");
+            	context.generateHTML("<meta name=\"apple-mobile-web-app-title\" content=\"UIMaster\">\n");
             	context.generateHTML("<meta name=\"apple-mobile-web-app-capable\" content=\"yes\">\n");
             	context.generateHTML("<meta name=\"apple-mobile-web-app-status-bar-style\" content=\"black-translucent\">\n");
             	context.generateHTML("<meta name=\"format-detection\" content=\"telephone=no\">\n");

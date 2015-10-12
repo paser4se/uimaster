@@ -81,7 +81,6 @@ public class PageCacheManager {
 		OpExecuteContext opContext = new OpExecuteContext();
         DefaultParsingContext globalPContext = new DefaultParsingContext();
         globalPContext.setVariableClass("request", HttpServletRequest.class);
-        globalPContext.setVariableClass("page", AjaxContext.class);
         opContext.setParsingContextObject("@", globalPContext);
 		
 		for (OpCallAjaxType ops : webService.getServices()) {

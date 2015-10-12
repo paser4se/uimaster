@@ -40,6 +40,7 @@ import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.report.ImportTableToExcel;
+import org.shaolin.uimaster.page.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -412,15 +413,29 @@ public class Table extends Widget implements Serializable {
 	        	} else {
 	        		sb.append("\"\",");
 	        	}
-	        	for (UITableColumnType col : columns) {
-	        		Object cellValue = col.getRowExpression().getExpression().evaluate(
-							ooeeContext);
-	        		if (cellValue == null) {
-						cellValue = "";
-					}
+	        	if (UserContext.isMobileRequest()) {
+	        		sb.append("\"image\",");
 	        		sb.append("\"");
-	        		sb.append(cellValue);
+	        		for (UITableColumnType col : columns) {
+		        		Object cellValue = col.getRowExpression().getExpression().evaluate(
+								ooeeContext);
+		        		if (cellValue == null) {
+							cellValue = "";
+						}
+		        		sb.append(UIVariableUtil.getI18NProperty(col.getTitle())).append(":").append(cellValue).append(", ");
+		        	}
 	        		sb.append("\",");
+	        	} else {
+		        	for (UITableColumnType col : columns) {
+		        		Object cellValue = col.getRowExpression().getExpression().evaluate(
+								ooeeContext);
+		        		if (cellValue == null) {
+							cellValue = "";
+						}
+		        		sb.append("\"");
+		        		sb.append(cellValue);
+		        		sb.append("\",");
+		        	}
 	        	}
 	        	sb.deleteCharAt(sb.length()-1);
 	        	sb.append("],");

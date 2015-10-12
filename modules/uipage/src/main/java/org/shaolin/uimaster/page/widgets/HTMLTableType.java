@@ -45,6 +45,7 @@ import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.od.mappings.ComponentMappingHelper;
+import org.shaolin.uimaster.page.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -176,6 +177,7 @@ public class HTMLTableType extends HTMLContainerType {
 			context.generateHTML("<thead>");
 			HTMLUtil.generateTab(context, depth + 3);
 			context.generateHTML("<tr>");
+			
 			// generate selection at the first column
 			HTMLUtil.generateTab(context, depth + 3);
 			context.generateHTML("<th id=\"");
@@ -193,19 +195,30 @@ public class HTMLTableType extends HTMLContainerType {
 				context.generateHTML("");
 			}
 			context.generateHTML("</th>");
-			
-			for (UITableColumnType col : columns) {
+			if (UserContext.isMobileRequest()) {
 				HTMLUtil.generateTab(context, depth + 3);
-				context.generateHTML("<th id=\"");
-				context.generateHTML(col.getBeFieldId());
-				context.generateHTML("\" htmlType=\"");
-				context.generateHTML(col.getUiType().getType());
-				context.generateHTML("\" title=\"");
-				context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
-				context.generateHTML("\">");
-				context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
+				context.generateHTML("<th id=\"imageColumn\" htmlType=\"Label\" title=\"\">");
 				context.generateHTML("</th>");
+				context.generateHTML("<th id=\"attColumn\" htmlType=\"Label\" title=\"\">");
+				context.generateHTML("</th>");
+//				context.generateHTML("<th id=\"specialColumn\" htmlType=\"Label\" title=\"\">");
+//				context.generateHTML("</th>");
+			} else {
+				for (UITableColumnType col : columns) {
+					HTMLUtil.generateTab(context, depth + 3);
+					context.generateHTML("<th id=\"");
+					context.generateHTML(col.getBeFieldId());
+					context.generateHTML("\" htmlType=\"");
+					context.generateHTML(col.getUiType().getType());
+					context.generateHTML("\" title=\"");
+					context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
+					context.generateHTML("\">");
+					context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
+					context.generateHTML("</th>");
+				}
 			}
+			
+			
 			HTMLUtil.generateTab(context, depth + 3);
 			context.generateHTML("</tr>");
 			HTMLUtil.generateTab(context, depth + 2);
@@ -246,19 +259,37 @@ public class HTMLTableType extends HTMLContainerType {
 					} else {
 						context.generateHTML("<td></td>");
 					}
-					for (UITableColumnType col : columns) {
-						HTMLUtil.generateTab(context, depth + 3);
-						Object value = col.getRowExpression().getExpression().evaluate(
-								ooeeContext);
-						if (value == null) {
-							value = "";
+					
+					if (UserContext.isMobileRequest()) {
+						context.generateHTML("<td title=\"\">image</td>");
+						context.generateHTML("<td title=\"\">");
+						for (UITableColumnType col : columns) {
+							Object value = col.getRowExpression().getExpression().evaluate(
+									ooeeContext);
+							if (value == null) {
+								value = "";
+							}
+							context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
+							context.generateHTML(":");
+							context.generateHTML(value.toString());
+							context.generateHTML(", ");
 						}
-
-						context.generateHTML("<td title=\"");
-						context.generateHTML(value.toString());
-						context.generateHTML("\">");
-						context.generateHTML(value.toString());
 						context.generateHTML("</td>");
+					} else {
+						for (UITableColumnType col : columns) {
+							HTMLUtil.generateTab(context, depth + 3);
+							Object value = col.getRowExpression().getExpression().evaluate(
+									ooeeContext);
+							if (value == null) {
+								value = "";
+							}
+	
+							context.generateHTML("<td title=\"");
+							context.generateHTML(value.toString());
+							context.generateHTML("\">");
+							context.generateHTML(value.toString());
+							context.generateHTML("</td>");
+						}
 					}
 					HTMLUtil.generateTab(context, depth + 3);
 					context.generateHTML("</tr>");
@@ -271,7 +302,7 @@ public class HTMLTableType extends HTMLContainerType {
 			HTMLUtil.generateTab(context, depth + 2);
 			
 			Boolean showFilter = (Boolean)this.removeAttribute("isShowFilter");
-			if (showFilter == Boolean.TRUE || isEditableCell.booleanValue()) {
+			if (!UserContext.isMobileRequest() && (showFilter == Boolean.TRUE || isEditableCell.booleanValue())) {
 				context.generateHTML("<tfoot");
 				if (isEditableCell.booleanValue()) {
 					context.generateHTML(" style=\"display:none;\" editablecell=\"true\" ");
