@@ -29,6 +29,7 @@ import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
+import org.shaolin.uimaster.page.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +54,8 @@ public abstract class HTMLChartSuper extends HTMLWidgetType
     @Override
 	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
     	generateWidget(context);
-    	String root = WebConfig.getResourceContextRoot();
+    	String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
+    			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
     	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/uimaster-chart.js\"></script>\n");
     	
     	Object widthProp = this.removeAttribute("width");

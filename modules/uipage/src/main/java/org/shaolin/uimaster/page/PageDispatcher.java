@@ -341,7 +341,11 @@ public class PageDispatcher {
             	context.generateHTML("<meta name=\"apple-mobile-web-app-capable\" content=\"yes\">\n");
             	context.generateHTML("<meta name=\"apple-mobile-web-app-status-bar-style\" content=\"black-translucent\">\n");
             	context.generateHTML("<meta name=\"format-detection\" content=\"telephone=no\">\n");
-            	context.generateHTML(WebConfig.replaceCssWebContext(pageObject.getMobPageCSS().toString()));
+            	if (UserContext.isAppClient()) {
+            		context.generateHTML(WebConfig.replaceAppCssWebContext(pageObject.getMobPageCSS().toString()));
+            	} else {
+            		context.generateHTML(WebConfig.replaceCssWebContext(pageObject.getMobPageCSS().toString()));
+            	}
             } else {
             	context.generateHTML(WebConfig.replaceCssWebContext(pageObject.getPageCSS().toString()));
             }
@@ -360,14 +364,28 @@ public class PageDispatcher {
                 context.generateHTML("    UIMaster.addResource(\"" + entityName + "\");\n");
                 context.generateHTML("    getElementList();\n    defaultname = new ");
                 context.generateHTML(entityName.replaceAll("\\.", "_"));
-                context.generateHTML("(\"\");\n    defaultname.initPageJs();\n}\nfunction finalizePage() \n{\n    defaultname.finalizePageJs();\n    releaseMem();\n}\n</script>\n");
-                context.generateHTML("</head>\n");
-                context.generateHTML("<body onload=\"initPage()\" onunload=\"finalizePage()\">\n");
-                context.generateHTML(genLoaderMask());
+                context.generateHTML("(\"\");\n    defaultname.initPageJs();\n}\n");
+                context.generateHTML("function finalizePage() \n{\n    defaultname.finalizePageJs();\n    releaseMem();\n}\n");
+                if (UserContext.isMobileRequest()) {
+                	context.generateHTML("window.onload=initPage;\n");
+                	context.generateHTML("window.onunload=finalizePage;\n");
+                }
+                context.generateHTML("</script>\n</head>\n");
+                context.generateHTML("<body");
+                if (UserContext.isMobileRequest()) {
+                	context.generateHTML(">\n");
+                } else {
+                	context.generateHTML(" onload=\"initPage()\" onunload=\"finalizePage()\">\n");
+                	context.generateHTML(genLoaderMask());
+                }
             }
             
             HTMLUtil.generateJSBundleConstants(context);
-            context.generateHTML("<form action=\"" + actionPath + "\" method=\"post\" name=\"everything\" style=\"display:none;\" onsubmit=\"return false;\"");
+            if (UserContext.isMobileRequest()) {
+            	context.generateHTML("<form action=\"" + actionPath + "\" method=\"post\" name=\"everything\" onsubmit=\"return false;\"");
+            } else {
+            	context.generateHTML("<form action=\"" + actionPath + "\" method=\"post\" name=\"everything\" style=\"display:none;\" onsubmit=\"return false;\"");
+            }
             if (superPrefix != null)
             {
                 context.generateHTML(" _framePrefix=\"" + superPrefix + "\"");

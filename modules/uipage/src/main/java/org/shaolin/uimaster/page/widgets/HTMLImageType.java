@@ -11,6 +11,7 @@ import org.shaolin.uimaster.page.ajax.Layout;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
+import org.shaolin.uimaster.page.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,8 @@ public class HTMLImageType extends HTMLTextWidgetType
         {
             generateWidget(context);
             if (this.getAttribute("isGallery") != null) {
-	            String root = WebConfig.getResourceContextRoot();
+	            String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
+	        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
 	            HTMLUtil.generateTab(context, depth);
 	            context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/font-awesome.min.css\" type=\"text/css\">");
 	            HTMLUtil.generateTab(context, depth);

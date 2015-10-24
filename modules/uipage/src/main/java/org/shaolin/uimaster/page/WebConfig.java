@@ -249,8 +249,21 @@ public class WebConfig {
 		return getWebRoot();
 	}
 	
+	/**
+	 * Andriod or IOS app context root.
+	 * 
+	 * @return
+	 */
+	public static String getAppContextRoot() {
+		return "file:///android_asset" + getWebRoot();
+	}
+	
 	public static String getResourceContextRoot() {
 		return "/uimaster";
+	}
+	
+	public static String getAppResourceContextRoot() {
+		return "file:///android_asset/uimaster";
 	}
 	
 	private static String resourcePath = null;
@@ -343,6 +356,26 @@ public class WebConfig {
 	public static String getImportJS(String entityName) {
 		String name = entityName.replace('.', File.separatorChar);
 		return WebConfigFastCache.WebContextRoot + "/js/" + name + ".js";
+	}
+
+	public static String replaceAppCssWebContext(String str) {
+		if (str.indexOf(WebConfigFastCache.ResourceContextRoot) != -1) {
+			str = str.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getAppResourceContextRoot());
+		}
+		if (str.indexOf(WebConfigFastCache.WebContextRoot) != -1) {
+			return str.replace(WebConfigFastCache.WebContextRoot, WebConfig.getAppContextRoot());
+		}
+		return str;
+	}
+	
+	public static String replaceAppJsWebContext(String str) {
+		if (str.indexOf(WebConfigFastCache.ResourceContextRoot) != -1) {
+			return str.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getAppResourceContextRoot());
+		}
+		if (str.indexOf(WebConfigFastCache.WebContextRoot) != -1) {
+			return str.replace(WebConfigFastCache.WebContextRoot, WebConfig.getAppContextRoot());
+		}
+		return str;
 	}
 	
 	public static String replaceCssWebContext(String str) {

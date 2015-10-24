@@ -35,6 +35,7 @@ import org.shaolin.uimaster.page.ajax.WorkFlowDiagram;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
+import org.shaolin.uimaster.page.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,8 @@ public class HTMLFlowDiagramType extends HTMLWidgetType
 	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
     	
     	HTMLUtil.generateTab(context, depth);
-    	String root = WebConfig.getResourceContextRoot();
+    	String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
+    			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
     	context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/css/jsplumb/jsplumb.css\" type=\"text/css\">\n");
     	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/jquery.ui.touch-punch-0.2.2.min.js\"></script>\n");
     	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/dom-adapter.js\"></script>\n");

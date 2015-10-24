@@ -1801,7 +1801,11 @@ public class UIFormObject implements java.io.Serializable
                 	} else {
                         importJSCode = (String)this.jsIncludeMap.get(jsFileName);
                 	}
-                    importJSCode = WebConfig.replaceJsWebContext(importJSCode);
+                	if (UserContext.isMobileRequest() && UserContext.isAppClient()) {
+                		importJSCode = WebConfig.replaceAppJsWebContext(importJSCode);
+                	} else {
+                		importJSCode = WebConfig.replaceJsWebContext(importJSCode);
+                	}
                     context.generateJS(importJSCode + timestamp + "\"></script>");
                     HTMLUtil.generateTab(context, depth);
                 }
@@ -1849,8 +1853,13 @@ public class UIFormObject implements java.io.Serializable
 			
 			if (jsFileName.endsWith(".js")) {
 				jsFileName = jsFileName.replace("\\", "/");
-				jsFileName = jsFileName.replace(WebConfigFastCache.WebContextRoot, WebConfig.getWebContextRoot());
-				jsFileName = jsFileName.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getResourceContextRoot());
+				if (UserContext.isMobileRequest() && UserContext.isAppClient()) {
+					jsFileName = jsFileName.replace(WebConfigFastCache.WebContextRoot, WebConfig.getAppContextRoot());
+					jsFileName = jsFileName.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getAppResourceContextRoot());
+				} else {
+					jsFileName = jsFileName.replace(WebConfigFastCache.WebContextRoot, WebConfig.getWebContextRoot());
+					jsFileName = jsFileName.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getResourceContextRoot());
+				}
 				sb.append("UIMaster.require(\"").append(jsFileName).append("?_timestamp=").append(WebConfig.getTimeStamp()).append("\"");
 				sb.append(", true);");
 			}

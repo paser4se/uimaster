@@ -362,6 +362,7 @@ public class WebFlowServlet extends HttpServlet
 				boolean isMobile = MobilitySupport.isMobileRequest(userAgent);
 				//add user-context thread bind
 	            UserContext.registerCurrentUserContext(currentUserContext, userLocale, userRoles, isMobile);
+	            UserContext.setAppClient(request);
 	            //add request thread bind
 	            HttpRequestEvaluationContext.registerCurrentRequest(request);
 	            //add app context thread bind

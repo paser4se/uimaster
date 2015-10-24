@@ -2,6 +2,8 @@ package org.shaolin.uimaster.page.security;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.shaolin.bmdp.runtime.ce.CEUtil;
 import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 
@@ -14,6 +16,8 @@ public class UserContext {
 	private static ThreadLocal<List<IConstantEntity>> userRolesCache = new ThreadLocal<List<IConstantEntity>>();
 
 	private static ThreadLocal<Boolean> userAccessMode = new ThreadLocal<Boolean>();
+	
+	private static ThreadLocal<Boolean> andriodAppDevice = new ThreadLocal<Boolean>();
 	
 	public static void registerCurrentUserContext(Object userContext,
 			String userLocale, List<IConstantEntity> userRoles, Boolean isMobileAccess) {
@@ -50,12 +54,25 @@ public class UserContext {
 		return false;
 	}
 	
-	
 	public static boolean isMobileRequest() {
 		if (userAccessMode.get() == null) {
 			return false;
 		}
 		return userAccessMode.get();
+	}
+	
+	public static boolean isAppClient() {
+		if (andriodAppDevice.get() == null) {
+			return false;
+		}
+		return andriodAppDevice.get();
+	}
+	
+	public static void setAppClient(HttpServletRequest request) {
+		String appClient = request.getParameter("_appclient");
+		if (appClient != null) {
+			andriodAppDevice.set(true);
+		} 
 	}
 
 }
