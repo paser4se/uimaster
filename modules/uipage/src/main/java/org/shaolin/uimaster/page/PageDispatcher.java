@@ -320,7 +320,11 @@ public class PageDispatcher {
             context.generateHTML(";\nvar WEB_CONTEXTPATH=\"");
             context.generateHTML(WebConfig.getWebContextRoot());
             context.generateHTML("\";\nvar RESOURCE_CONTEXTPATH=\"");
-            context.generateHTML(WebConfig.getResourceContextRoot());
+            if (UserContext.isMobileRequest() && UserContext.isAppClient()) {
+            	context.generateHTML(WebConfig.getAppResourceContextRoot());
+            } else {
+            	context.generateHTML(WebConfig.getResourceContextRoot());
+            }
             context.generateHTML("\";\nvar FRAMEWRAP=\"");
             context.generateHTML(WebConfig.replaceWebContext(WebConfig.getFrameWrap()));
             context.generateHTML("\";\nvar IS_SERVLETMODE=true;\nvar AJAX_SERVICE_URL=\"");

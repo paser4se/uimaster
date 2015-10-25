@@ -257,28 +257,6 @@ public class RefForm extends Container implements Serializable
     public String generateJS()
     {
     	StringBuffer sb = new StringBuffer();
-        try {
-        	AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
-        	StringWriter writer = new StringWriter();
-        	HTMLSnapshotContext htmlContext = new HTMLSnapshotContext(ajaxContext.getRequest(), writer);
-        	htmlContext.setIsDataToUI(true);
-        	htmlContext.setFormName(this.getUIEntityName());
-        	UIFormObject formObject = PageCacheManager.getUIFormObject(this.getUIEntityName());
-        	formObject.getJSPathSet(htmlContext, sb, Collections.emptyMap());
-		} catch (Exception ex) {
-			logger.error("Error in building up structure for entity: " + uiid, ex);
-		} 
-    	
-        sb.append("defaultname.").append(this.getId());
-        sb.append(" = new ").append(getJsName()).append("('");
-        sb.append(this.getId()).append(".');");
-
-        return sb.toString();
-    }
-    
-    public String generateJSWithoutJsPath()
-    {
-    	StringBuffer sb = new StringBuffer();
         sb.append("defaultname.").append(this.getId());
         sb.append(" = new ").append(getJsName()).append("('");
         sb.append(this.getId()).append(".');");
@@ -358,6 +336,11 @@ public class RefForm extends Container implements Serializable
             dispatcher.forwardForm(htmlContext, 0,
                     isReadOnly(), new HTMLReferenceEntityType(htmlContext, id));
             htmlContext.getRequest().setAttribute("_framePagePrefix",oldFrameInfo);
+            
+            // append the dynamic js files.
+        	UIFormObject formObject = PageCacheManager.getUIFormObject(this.getUIEntityName());
+        	formObject.getJSPathSet(htmlContext, Collections.emptyMap());
+            
             html = writer.getBuffer().toString();
 //            form = (Panel)htmlContext.getAJAXComponent(getId() + ".Form");
         }

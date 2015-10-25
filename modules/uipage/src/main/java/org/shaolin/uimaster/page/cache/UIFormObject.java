@@ -1831,9 +1831,9 @@ public class UIFormObject implements java.io.Serializable
             }
             if (jsFileName.endsWith(".js"))
             {
-                sb.append("UIMaster.require(\"").append(HTMLUtil.getWebRoot());
+                sb.append("<script type=\"text/javascript\" src=\"").append(HTMLUtil.getWebRoot());
                 sb.append(jsFileName).append("?_timestamp=").append(WebConfig.getTimeStamp())
-                        .append("\",true);");
+                        .append("\"></script>");
             }
         }
         return sb.toString();
@@ -1860,20 +1860,19 @@ public class UIFormObject implements java.io.Serializable
 					jsFileName = jsFileName.replace(WebConfigFastCache.WebContextRoot, WebConfig.getWebContextRoot());
 					jsFileName = jsFileName.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getResourceContextRoot());
 				}
-				sb.append("UIMaster.require(\"").append(jsFileName).append("?_timestamp=").append(WebConfig.getTimeStamp()).append("\"");
-				sb.append(", true);");
+				sb.append("<script type=\"text/javascript\" src=\"").append(jsFileName).append("?_timestamp=").append(WebConfig.getTimeStamp());
+				sb.append("\"").append("></script>");
 			}
 		}
 
 		return sb.toString();
 	}
 	
-	public void getJSPathSet(HTMLSnapshotContext context, StringBuffer sb,
-			Map entityMap) {
+	public void getJSPathSet(HTMLSnapshotContext context, Map entityMap) {
 		if (entityMap == null) {
 			entityMap = new HashMap();
 		}
-		sb.append(importSelfJs(context));
+		context.generateJS(importSelfJs(context));
 
 		Iterator iterator = this.refereneEntityList.iterator();
 		while (iterator.hasNext()) {
@@ -1881,7 +1880,7 @@ public class UIFormObject implements java.io.Serializable
 			if (!entityMap.containsKey(entityName)) {
 				UIFormObject formObject = PageCacheManager
 						.getUIFormObject(entityName);
-				formObject.getJSPathSet(context, sb, entityMap);
+				formObject.getJSPathSet(context, entityMap);
 			}
 		}
 	}

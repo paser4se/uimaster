@@ -1655,15 +1655,10 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			"filter": false,
 			"recordsFiltered": $(this).attr("recordsFiltered"),
 			"recordsTotal": $(this).attr("recordsTotal"),
-			"columnDefs": [{"targets":0,"orderable":false,"render":function(data,type,row){
-				if (data.indexOf("radio") != -1) 
-					return "<input type=\"radio\" name=\"selectRadio\" index=\""+data.substring(data.indexOf("radio")+6)+"\" />";
-				if (data.indexOf("checkbox") != -1) 
-					return "<input type=\"checkbox\" name=\"\" index=\""+data.substring(data.indexOf("checkbox")+9)+"\"/>";
-				return "";
-			}}], 
-			"processing": true,
+			"columnDefs": [{"targets":0,"orderable":false,"render":othis.renderSelection}], 
+			"processing": false,//disable process first.
 			"serverSide": true,
+			"sServerMethod": "POST",
 			"ajax": {
 				async: false,
 	            url: AJAX_SERVICE_URL+"?r="+Math.random(),
@@ -1675,7 +1670,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	                _actionPage: this.parentEntity.__entityName
 	                }
 			},
-			"fnDrawCallback": function(all,b) {
+			"fnDrawCallback": function(settings,b) {
 				othis.tbody = $(elementList[othis.id]).children('tbody');
 				othis.refreshBodyEvents(othis.tbody, true);
 			}
@@ -1692,6 +1687,18 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		this.tbody = body;
 		if(this.rowEmpty()) {
 			this.syncButtonGroup(false);
+		} else {
+			var count = 0;
+			this.tbody.children().each(function(){
+				this._DT_RowIndex = count++;
+			    var ftd = ($(this).children()[0]);
+				if (ftd.innerText != "") {
+					var htmlCode = othis.renderSelection(ftd.innerText, '', this);
+					ftd.innerText="";
+					$(ftd).append(htmlCode);
+				}
+			});
+			this.refreshBodyEvents(body, true);
 		}
 		var t = this;
 		if (this.tfoot.length == 0) {
@@ -1703,6 +1710,13 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			this.syncCellEvent(body);
 		} 
 		this.refreshFoot();
+	},
+	renderSelection: function(data,type,row){
+		if (data.indexOf("radio") != -1) 
+			return "<input type=\"radio\" name=\"selectRadio\" index=\""+data.substring(data.indexOf("radio")+6)+"\" />";
+		if (data.indexOf("checkbox") != -1) 
+			return "<input type=\"checkbox\" name=\"\" index=\""+data.substring(data.indexOf("checkbox")+9)+"\"/>";
+		return "";
 	},
 	refreshFoot:function(){
 	    var othis = this;
@@ -1948,7 +1962,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 					tr.removeClass('selected');
 					othis.selectedIndex = -1;
 				} else {
-					othis.dtable.$('tr.selected').removeClass('selected');
+					othis.tbody.find('tr[class^=selected]').removeClass('selected');
 					tr.addClass('selected');
 					othis.selectedIndex = tr[0]._DT_RowIndex;
 					isselected=true;

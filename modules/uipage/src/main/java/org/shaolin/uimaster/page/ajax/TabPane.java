@@ -317,7 +317,7 @@ public class TabPane extends Container implements Serializable
 			
 			IDataItem dataItem = AjaxActionHelper.createAppendItemToTab(this.getId(), UIID);
 			dataItem.setData(form.generateHTML());
-			dataItem.setJs(form.generateJSWithoutJsPath());
+			dataItem.setJs(form.generateJS());
 			dataItem.setFrameInfo(this.getFrameInfo());
 			AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
         } else if (tab.getFrame() != null) {
