@@ -754,6 +754,8 @@ in simple component mapping, the paramName is required</xs:documentation>
 			            <xs:enumeration value="CheckBox"/>
 			            <xs:enumeration value="Date"/>
 			            <xs:enumeration value="DateRange"/>
+			            <xs:enumeration value="Image"/>
+               <xs:enumeration value="HTML"/>
 			        </xs:restriction>
 		        </xs:simpleType>
             </xs:element>

@@ -1413,7 +1413,11 @@ UIMaster.ui.panel = function(conf){
                     this.parentDiv=this.parentDiv.parentNode.parentNode.parentNode.parentNode.parentNode;
                 }
                 this.Form.init();
-                this.user_constructor && (defaultname && defaultname.Form || defaultname && defaultname[this.Form.id.split('.')[0]] ? this.user_constructor() : UIMaster.initList.push(this));
+                if (typeof(_mobContext) == undefined) {
+                    this.user_constructor && (defaultname && defaultname.Form || defaultname && defaultname[this.Form.id.split('.')[0]] ? this.user_constructor() : UIMaster.initList.push(this));
+                } else {
+                    this.user_constructor();
+                }
                 parseInitPageJs.apply(this);
             },
             user_constructor: null
@@ -1655,7 +1659,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			"filter": false,
 			"recordsFiltered": $(this).attr("recordsFiltered"),
 			"recordsTotal": $(this).attr("recordsTotal"),
-			"columnDefs": [{"targets":0,"orderable":false,"render":othis.renderSelection}], 
+			"columnDefs": [{"targets":0,"orderable":false,"render":othis.renderSelection}],
 			"processing": false,//disable process first.
 			"serverSide": true,
 			"sServerMethod": "POST",
@@ -1708,13 +1712,13 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		if(this.editable) {
 			this.editablecell = true;
 			this.syncCellEvent(body);
-		} 
+		}
 		this.refreshFoot();
 	},
 	renderSelection: function(data,type,row){
-		if (data.indexOf("radio") != -1) 
+		if (data.indexOf("radio") != -1)
 			return "<input type=\"radio\" name=\"selectRadio\" index=\""+data.substring(data.indexOf("radio")+6)+"\" />";
-		if (data.indexOf("checkbox") != -1) 
+		if (data.indexOf("checkbox") != -1)
 			return "<input type=\"checkbox\" name=\"\" index=\""+data.substring(data.indexOf("checkbox")+9)+"\"/>";
 		return "";
 	},
@@ -1760,7 +1764,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 						t.refresh(0);
 					});
 				}
-			} 
+			}
 		});
 	},
 	syncCellEvent:function(body){
@@ -1807,7 +1811,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 					return false;
 				}
 			});
-			
+
 		}
 		$(td).text("");
 		$(td).append(wd);
@@ -1824,7 +1828,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		} else if(tagName == "SELECT"){
 			var v = $(wd).find("option:selected").text();
 			$(td).text(v);
-			wd.selectedIndex = -1; 
+			wd.selectedIndex = -1;
 			if(this.tempCellValue != v) {
 				$(td).parent().attr("updated",true);
 			}
@@ -1872,7 +1876,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 					conditions.push({name:c[i].name, value:c[i].value});
 				} else if(c[i].tagName.toLowerCase() == "select") {
 					conditions.push({name:c[i].name, value:c[i].value});
-				} 
+				}
 			}
 		});
 		UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"conditions",_value:JSON.stringify(conditions),_framePrefix:UIMaster.getFramePrefix(obj)});
@@ -1924,7 +1928,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 								break;
 							}
 						}
-					} 
+					}
 				}
 			  if (othis.selectedIndexs.length > 0) {
 				  othis.syncButtonGroup(true);
@@ -1937,7 +1941,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 						tr.addClass('selected');
 						othis.selectedIndexs.push(tr[0]._DT_RowIndex);
 						othis.selectedIndex = tr[0]._DT_RowIndex;
-					} 
+					}
 				  } else {
 				    if (tr.hasClass('selected')){
 					    othis.selectedIndex = -1;
@@ -1948,7 +1952,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 							    break;
 							}
 						}
-					} 
+					}
 				  }
 				  if (othis.selectedIndexs.length > 0) {
 					  othis.syncButtonGroup(true);
@@ -1999,7 +2003,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		}
 	},
 	refreshFromServer:function(json){
-		var trs = $(elementList[this.id]).find('tbody tr');		
+		var trs = $(elementList[this.id]).find('tbody tr');
 		trs.each(function(){
 			$(this).unbind('click');
 		});
@@ -2021,14 +2025,14 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		}
 	},
 	importData:function(){
-				  
+
 	},
 	exportData:function(){
 		var s = this.dtable.api().settings()[0];
 		var data = "_ajaxUserEvent=table&_uiid="+this.id+"&_actionName=exportTable&_framePrefix="
 					 +UIMaster.getFramePrefix(UIMaster.El(this.id).get(0))+"&_actionPage="+this.parentEntity.__entityName;
 		var form = $('<form action='+AJAX_SERVICE_URL+"?r="+Math.random()+'&'+data+' method=post target=_blank></form>');
-		$(form).submit(); 
+		$(form).submit();
 	}
 });
 UIMaster.ui.webtree = function(conf){
@@ -2604,8 +2608,14 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
         titleContainer.attr("selectedIndex",currTitle.attr("index"));
 		if (currTitle.attr("ajaxload") != null && currTitle.attr("ajaxload") == "true") {
         	currTitle.attr("ajaxload", null);
-        } 
-		$.ajax({url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"tabpane",_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix()}});
+        }
+        var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"tabpane",_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix()}};
+        if (typeof(_mobContext) != undefined
+              && typeof(_mobContext) != "undefined") {
+            _mobContext.ajax(JSON.stringify(opts));
+        } else {
+		    $.ajax(opts);
+        }
     },
     addFrameTab:function(title,url){
     	if (this.links.length == 0) {

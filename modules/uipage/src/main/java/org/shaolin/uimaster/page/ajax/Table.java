@@ -414,17 +414,42 @@ public class Table extends Widget implements Serializable {
 	        		sb.append("\"\",");
 	        	}
 	        	if (UserContext.isMobileRequest()) {
-	        		sb.append("\"image\",");
-	        		sb.append("\"");
+	        		StringBuffer imageSB = new StringBuffer();
+	        		StringBuffer attrsSB = new StringBuffer();
+	        		attrsSB.append("\"");
+					StringBuffer htmlAttrsSB = new StringBuffer();
 	        		for (UITableColumnType col : columns) {
-		        		Object cellValue = col.getRowExpression().getExpression().evaluate(
-								ooeeContext);
-		        		if (cellValue == null) {
-							cellValue = "";
-						}
-		        		sb.append(UIVariableUtil.getI18NProperty(col.getTitle())).append(":").append(cellValue).append(", ");
+	        			if ("Image".equals(col.getUiType().getType())) {
+	        				imageSB.append("\"");
+	        				Object cellValue = col.getRowExpression().getExpression().evaluate(
+									ooeeContext);
+			        		if (cellValue == null) {
+								cellValue = "";
+							}
+			        		imageSB.append(UIVariableUtil.getI18NProperty(col.getTitle())).append(":").append(cellValue).append(", ");
+			        		imageSB.append("\",");
+	        			} else if ("HTML".equals(col.getUiType().getType())) {
+	        				htmlAttrsSB.append("\"");
+	        				Object cellValue = col.getRowExpression().getExpression().evaluate(
+									ooeeContext);
+			        		if (cellValue == null) {
+								cellValue = "";
+							}
+			        		htmlAttrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle())).append(":").append(cellValue).append(", ");
+			        		htmlAttrsSB.append("\",");
+	        			} else {
+			        		Object cellValue = col.getRowExpression().getExpression().evaluate(
+									ooeeContext);
+			        		if (cellValue == null) {
+								cellValue = "";
+							}
+			        		attrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle())).append(":").append(cellValue).append(", ");
+	        			}
 		        	}
-	        		sb.append("\",");
+	        		attrsSB.append("\",");
+	        		sb.append(imageSB.toString());
+	        		sb.append(attrsSB.toString());
+	        		sb.append(htmlAttrsSB.toString());
 	        	} else {
 		        	for (UITableColumnType col : columns) {
 		        		Object cellValue = col.getRowExpression().getExpression().evaluate(

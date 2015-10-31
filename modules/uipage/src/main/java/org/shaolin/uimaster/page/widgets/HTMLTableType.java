@@ -197,12 +197,36 @@ public class HTMLTableType extends HTMLContainerType {
 			context.generateHTML("</th>");
 			if (UserContext.isMobileRequest()) {
 				HTMLUtil.generateTab(context, depth + 3);
-				context.generateHTML("<th id=\"imageColumn\" htmlType=\"Label\" title=\"\">");
-				context.generateHTML("</th>");
+				for (UITableColumnType col : columns) {
+					// find image column.
+					if ("Image".equals(col.getUiType().getType())) {
+						context.generateHTML("<th id=\"");
+						context.generateHTML(col.getBeFieldId());
+						context.generateHTML("\" htmlType=\"");
+						context.generateHTML(col.getUiType().getType());
+						context.generateHTML("\" title=\"");
+						context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
+						context.generateHTML("\">");
+						context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
+						context.generateHTML("</th>");
+					}
+				}
 				context.generateHTML("<th id=\"attColumn\" htmlType=\"Label\" title=\"\">");
 				context.generateHTML("</th>");
-//				context.generateHTML("<th id=\"specialColumn\" htmlType=\"Label\" title=\"\">");
-//				context.generateHTML("</th>");
+				// find html column.
+				for (UITableColumnType col : columns) {
+					if ("HTML".equals(col.getUiType().getType())) {
+						context.generateHTML("<th id=\"");
+						context.generateHTML(col.getBeFieldId());
+						context.generateHTML("\" htmlType=\"");
+						context.generateHTML(col.getUiType().getType());
+						context.generateHTML("\" title=\"");
+						context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
+						context.generateHTML("\">");
+						context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
+						context.generateHTML("</th>");
+					}
+				}
 			} else {
 				for (UITableColumnType col : columns) {
 					HTMLUtil.generateTab(context, depth + 3);
@@ -261,20 +285,50 @@ public class HTMLTableType extends HTMLContainerType {
 					}
 					
 					if (UserContext.isMobileRequest()) {
-						context.generateHTML("<td title=\"\">image</td>");
-						context.generateHTML("<td title=\"\">");
+						StringBuffer attrsSB = new StringBuffer();
+						StringBuffer htmlAttrsSB = new StringBuffer();
+						attrsSB.append("<td title=\"\">");
 						for (UITableColumnType col : columns) {
-							Object value = col.getRowExpression().getExpression().evaluate(
-									ooeeContext);
-							if (value == null) {
-								value = "";
+							// find image column at the second column.
+							if ("Image".equals(col.getUiType().getType())) {
+								context.generateHTML("<td title=\"\">");
+								Object value = col.getRowExpression().getExpression().evaluate(
+										ooeeContext);
+								if (value == null) {
+									value = "";
+								}
+								context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
+								context.generateHTML(":");
+								context.generateHTML(value.toString());
+								context.generateHTML(", ");
+								context.generateHTML("</td>");
+							} else if ("HTML".equals(col.getUiType().getType())) {
+								htmlAttrsSB.append("<td title=\"\">");
+								Object value = col.getRowExpression().getExpression().evaluate(
+										ooeeContext);
+								if (value == null) {
+									value = "";
+								}
+								htmlAttrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle()));
+								htmlAttrsSB.append(":");
+								htmlAttrsSB.append(value.toString());
+								htmlAttrsSB.append(", ");
+								htmlAttrsSB.append("</td>");
+							} else {
+								Object value = col.getRowExpression().getExpression().evaluate(
+										ooeeContext);
+								if (value == null) {
+									value = "";
+								}
+								attrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle()));
+								attrsSB.append(":");
+								attrsSB.append(value.toString());
+								attrsSB.append(", ");
 							}
-							context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
-							context.generateHTML(":");
-							context.generateHTML(value.toString());
-							context.generateHTML(", ");
 						}
-						context.generateHTML("</td>");
+						attrsSB.append("</td>");
+						context.generateHTML(attrsSB.toString());
+						context.generateHTML(htmlAttrsSB.toString());
 					} else {
 						for (UITableColumnType col : columns) {
 							HTMLUtil.generateTab(context, depth + 3);
