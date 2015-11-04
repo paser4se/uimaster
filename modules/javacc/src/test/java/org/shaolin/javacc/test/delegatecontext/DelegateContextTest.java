@@ -3,6 +3,9 @@ package org.shaolin.javacc.test.delegatecontext;
 import org.shaolin.bmdp.utils.SerializeUtil;
 import org.shaolin.javacc.*;
 import org.shaolin.javacc.context.*;
+import org.shaolin.javacc.exception.EvaluationException;
+import org.shaolin.javacc.exception.ParsingException;
+import org.shaolin.javacc.statement.CompilationUnit;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -83,4 +86,29 @@ public class DelegateContextTest extends TestCase {
 		}
 	}
 
+	public void testCase3()
+    {
+        try
+        {
+        	OOEEContext context = OOEEContextFactory.createOOEEContext();
+        	DefaultParsingContext p = new DefaultParsingContext();
+        	p.setVariableClass("a", String.class);
+        	context.setParsingContextObject("$", p);
+        	
+        	DefaultEvaluationContext e = new DefaultEvaluationContext();
+        	//e.setVariableValue("a", null);
+        	context.setEvaluationContextObject("$", e);
+        	CompilationUnit uint = StatementParser.parse("{return $a.replace('.', '_');}", context);
+        	uint.execute(context);
+        	fail("no exception be thrown");
+        }
+        catch (ParsingException ev)
+        {
+        	assertTrue(true);
+        }
+        catch ( EvaluationException ev) 
+        {
+        	assertEquals("Can't find object for variable a", ev.getCause().getMessage());
+        }
+    }
 }
