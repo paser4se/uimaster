@@ -1413,11 +1413,8 @@ UIMaster.ui.panel = function(conf){
                     this.parentDiv=this.parentDiv.parentNode.parentNode.parentNode.parentNode.parentNode;
                 }
                 this.Form.init();
-                if (typeof(_mobContext) == undefined) {
-                    this.user_constructor && (defaultname && defaultname.Form || defaultname && defaultname[this.Form.id.split('.')[0]] ? this.user_constructor() : UIMaster.initList.push(this));
-                } else {
-                    this.user_constructor();
-                }
+                this.user_constructor && (defaultname && defaultname.Form || defaultname && defaultname[this.Form.id.split('.')[0]] ? this.user_constructor() : UIMaster.initList.push(this));
+
                 parseInitPageJs.apply(this);
             },
             user_constructor: null

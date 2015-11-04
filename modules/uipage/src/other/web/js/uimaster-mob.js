@@ -1,3 +1,12 @@
+if (typeof(_mobContext) != undefined
+          && typeof(_mobContext) != "undefined") {
+    var AJAX_SERVICE_URL="";
+    var LANG = "zh-CN";
+    var USER_CONSTRAINT_IMG="/images/uimaster_constraint.gif";
+    var USER_CONSTRAINT_LEFT=false;
+    var CURTIME = "";
+    var TZOFFSET= "";
+}
 /**
  * @description Background color of the combobox.
  */
