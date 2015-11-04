@@ -42,7 +42,11 @@ public class LocalVariableDeclaration implements Serializable
                 }
                 catch(EvaluationException e)
                 {
-                    execResult.setCauseException(e.getCause());
+                    if (e.getCause() != null) {
+                    	execResult.setCauseException(e.getCause());
+                    } else {
+                    	execResult.setCauseException(e);
+                    }
                     execResult.setResultCode(StatementConstants.exceptionEnding);
                     return execResult;
                 }
@@ -53,7 +57,11 @@ public class LocalVariableDeclaration implements Serializable
                 }
                 catch(ParsingException e)
                 {
-                    execResult.setCauseException(e.getCause());
+                	if (e.getCause() != null) {
+                    	execResult.setCauseException(e.getCause());
+                    } else {
+                    	execResult.setCauseException(e);
+                    }
                     execResult.setResultCode(StatementConstants.exceptionEnding);
                     return execResult;
                 }
@@ -76,13 +84,21 @@ public class LocalVariableDeclaration implements Serializable
                     }
                     catch(EvaluationException e)
                     {
-                        execResult.setCauseException(e.getCause());
+                    	if (e.getCause() != null) {
+                        	execResult.setCauseException(e.getCause());
+                        } else {
+                        	execResult.setCauseException(e);
+                        }
                         execResult.setResultCode(StatementConstants.exceptionEnding);
                         
                         return execResult;
                     }
                     catch (ParsingException e) {
-                       execResult.setCauseException(e.getCause());
+                    	if (e.getCause() != null) {
+                        	execResult.setCauseException(e.getCause());
+                        } else {
+                        	execResult.setCauseException(e);
+                        }
                        execResult.setResultCode(StatementConstants.exceptionEnding);
                        return execResult;
                     }
@@ -95,7 +111,11 @@ public class LocalVariableDeclaration implements Serializable
                     }
                     catch(EvaluationException e)
                     {
-                        execResult.setCauseException(e.getCause());
+                    	if (e.getCause() != null) {
+                        	execResult.setCauseException(e.getCause());
+                        } else {
+                        	execResult.setCauseException(e);
+                        }
                         execResult.setResultCode(StatementConstants.exceptionEnding);
                         return execResult;
                     }
@@ -109,7 +129,11 @@ public class LocalVariableDeclaration implements Serializable
                 }
                 catch(EvaluationException e)
                 {
-                    execResult.setCauseException(e.getCause());
+                	if (e.getCause() != null) {
+                    	execResult.setCauseException(e.getCause());
+                    } else {
+                    	execResult.setCauseException(e);
+                    }
                     execResult.setResultCode(StatementConstants.exceptionEnding);
                     return execResult;
                 }
