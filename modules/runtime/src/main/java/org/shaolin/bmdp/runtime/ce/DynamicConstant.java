@@ -58,7 +58,7 @@ public class DynamicConstant extends AbstractConstant {
 
 	@Override
 	public List<IConstantEntity> getConstantList() {
-		return new ArrayList<IConstantEntity>(dynamicItems);
+		return dynamicItems;
 	}
 
 	public IConstantEntity deleteConstant(int intValue) {

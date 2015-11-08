@@ -152,6 +152,10 @@ public class HTMLRadioButtonGroupType extends HTMLSingleChoiceType
                 {
                     boolean horizontalLayout = Boolean
                             .parseBoolean((String)getAllAttribute("horizontalLayout"));
+                    int colCount = 15;
+                    if (this.getAttribute("colCount") != null) {
+                    	colCount = Integer.parseInt(this.getAttribute("colCount").toString());
+                    }
                     for (int i = 0; i < displayOptions.size(); i++)
                     {
                         String entryValue = context.isValueMask() ? WebConfig.getHiddenValueMask() : 
@@ -176,13 +180,16 @@ public class HTMLRadioButtonGroupType extends HTMLSingleChoiceType
                         context.generateHTML(" />");
                         context.generateHTML("<label for=\"");
                         context.generateHTML(entryValue);
-                        context.generateHTML("\">");
+                        context.generateHTML("\" class=\"uimaster_radio_text_gap\">");
                         context.generateHTML(entryDisplayValue);
                         context.generateHTML("</label>");
                         if (!horizontalLayout)
                         {
                             context.generateHTML("<br />");
-                        }
+                        } else if (i >= (colCount-1) && i % (colCount - 1) == 0) {
+                        	// show how many columns in one row.
+                        	context.generateHTML("<br />");
+						}
                     }
                 }
             }

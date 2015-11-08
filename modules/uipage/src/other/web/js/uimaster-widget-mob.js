@@ -1614,6 +1614,7 @@ UIMaster.ui.objectlist = function(conf){
 };
 UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	initialized:false,
+	initRefreshBody:false,
 	dtable:null,
 	isSingleSelection:false,
 	isMultipleSelection:true,
@@ -1656,28 +1657,29 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			"filter": false,
 			"recordsFiltered": $(this).attr("recordsFiltered"),
 			"recordsTotal": $(this).attr("recordsTotal"),
-			"columnDefs": [{"targets":0,"orderable":false,"render":othis.renderSelection}],
-			"processing": false,//disable process first.
+			"columnDefs": [{"targets":0,"orderable":false,"render":othis.renderSelection}], 
+			"processing": false,
 			"serverSide": true,
+			"bServerSide": true,
 			"sServerMethod": "POST",
-			"ajax": {
-				async: false,
-	            url: AJAX_SERVICE_URL+"?r="+Math.random(),
-	            type: 'POST',
-	            data:{_ajaxUserEvent: "table",
-	                _uiid: this.id,
-	                _actionName: "pull",
-	                _framePrefix: UIMaster.getFramePrefix(UIMaster.El(this.id).get(0)),
-	                _actionPage: this.parentEntity.__entityName
-	                }
-			},
 			"fnDrawCallback": function(settings,b) {
 				othis.tbody = $(elementList[othis.id]).children('tbody');
 				othis.refreshBodyEvents(othis.tbody, true);
 			}
-		});//this method will reinit the constructor again. weird!
+		});
 		this.dtable = table;
-		this.dtable.api().settings()[0].oFeatures.bServerSide=true;
+		// enable ajax process after initialization.
+        this.dtable.fnSettings().ajax = {
+			async: false,
+			url: AJAX_SERVICE_URL+"?r="+Math.random(),
+			type: 'POST',
+			data:{_ajaxUserEvent: "table",
+				_uiid: this.id,
+				_actionName: "pull",
+				_framePrefix: UIMaster.getFramePrefix(UIMaster.El(this.id).get(0)),
+				_actionPage: this.parentEntity.__entityName
+				}
+		};
 		var columnIds = new Array();
 		var coli = 0;
 		$(elementList[this.id]).find('thead th').each(function(){
@@ -1699,7 +1701,9 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 					$(ftd).append(htmlCode);
 				}
 			});
-			this.refreshBodyEvents(body, true);
+			if (!this.initRefreshBody) {
+				this.refreshBodyEvents(body, true);
+			}
 		}
 		var t = this;
 		if (this.tfoot.length == 0) {
@@ -1900,6 +1904,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		}
 	},
 	refreshBodyEvents:function(body, selectedByDefault) {
+	    this.initRefreshBody = true;
 		var othis = this;
 		if (othis.editable) {
 			othis.syncCellEvent(body);
@@ -2041,9 +2046,14 @@ UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
 	_selectedNodeName:null,
 	_selectedParentNodeId:null,
 	_treeObj:null,
-	init:function(){
+		init:function(){
 		var t = this;
-		var config = $($(this).children().length == 2? $(this).children()[1]:$(this).children()[0]);
+		if ($(this).prev().length > 0) {
+		    $($($(this).prev()).children()[0]).buttonset();
+			$($($(this).prev()).children()[0]).removeAttr("style");
+		}
+		var children = $(this).children();
+		var config = $(children.length == 2? children[1]:children[0]);
 		var d = eval("("+config.text()+")");
 		var children = d[0].children;
 		for (var i=0; i<children.length; i++){
@@ -2056,8 +2066,6 @@ UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
 		    this.custItems = $($(this).children()[0]).children();
 		}
 		var clickEvent = config.attr("clickevent");
-		var expandEvent = config.attr("expendevent");
-		var expandEvent0 = config.attr("expendevent0");
 		this._addnodeevent = config.attr("addnodeevent");
 		this._addnodeevent0 = config.attr("addnodeevent0");
 		this._deletenodeevent = config.attr("deletenodeevent");
@@ -2074,43 +2082,54 @@ UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
 			//triggered after the root node is loaded for the first time
 		}).bind("ready.jstree", function(node,tree_obj,e){
 			//triggered after all nodes are finished loading
+			//ajax refresh.
 			tree_obj.instance.settings.core.data = {
 			  'url': function(node) { //node.id === '#' ?
 				return AJAX_SERVICE_URL+"?r="+Math.random();
 			  },
 			  'data': function(node) {
 				return {'nodeid' : node.id, 
-					'_ajaxUserEvent': true,
+					'_ajaxUserEvent': "tree",
 	                '_uiid': t.id,
-	                '_actionName': expandEvent0,
+	                '_actionName': "expand",
 	                '_framePrefix': UIMaster.getFramePrefix(UIMaster.El(t.id).get(0)),
 	                '_actionPage': t.parentEntity.__entityName,
-	                '_sync': UIMaster.ui.sync()};
+	                '_sync': function(){
+					    var ref = $(t).jstree(true);
+				        var children = ref.get_children_dom(node);
+						ref.delete_node(children);
+					    t.sync(); 
+						return UIMaster.ui.sync();
+					}};
 			}};
 			$(this).bind("select_node.jstree", function(node,tree_obj,e){
 				t._selectedNodeId=tree_obj.node.id;
+				t._selectedNodeName=tree_obj.node.text;
 				t._selectedParentNodeId=tree_obj.node.parent;
 				var tree = t;
 				eval(clickEvent);
 			}).bind("open_node.jstree", function(node,tree_obj,e){
 				t._selectedNodeId=tree_obj.node.id;
+				t._selectedNodeName=tree_obj.node.text;
 				t._selectedParentNodeId=tree_obj.node.parent;
 				var ref = $(t).jstree(true);
 				ref.select_node(tree_obj.node.id);
 			}).bind("create_node.jstree", function(node,tree_obj,position){
 				t._selectedNodeId=tree_obj.node.id;
+				t._selectedNodeName=tree_obj.node.text;
 				t._selectedParentNodeId=tree_obj.node.parent;
 				var ref = $(t).jstree(true);
 				ref.deselect_node(t._selectedParentNodeId);
 				ref.select_node(t._selectedNodeId);
 			}).bind("rename_node.jstree", function(node,tree_obj,old){
 				t._selectedNodeId=tree_obj.node.id;
-				t._selectedNodeName=tree_obj.text;
+				t._selectedNodeName=tree_obj.node.text;
 				t._selectedParentNodeId=tree_obj.node.parent;
 				var tree = t;
 				eval(t._addnodeevent);
 			}).bind("delete_node.jstree", function(node,parent){
 				t._selectedNodeId=parent.node.id;
+				t._selectedNodeName=parent.node.text;
 				t._selectedParentNodeId=parent.node.parent;
 			}).bind("move_node.jstree", function(node,parent,position,old_parent,old_position,is_multi,old_instance,new_instance){
 				alert("move_node");
@@ -2121,45 +2140,16 @@ UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
 	createMenu:function(node){
 		var items = {};
 		var t = this.element[0];
-		if (t._addnodeevent0 && t._addnodeevent0 != "") {
-			items.addItem = {label: "Add...", action: function (e) {
-				var ref = $(t).jstree(true);
-				t._sel = ref.get_selected();
-				if(!t._sel.length) { return false; }
-				t._sel = t._sel[0];
-				var index = ref.get_node(t._sel).children.length;
-				var id = t._sel + "00" + (index+1);
-				t._sel = ref.create_node(t._sel, {"id":id, "type":"#"});
-				if(t._sel) {
-					ref.edit(t._sel);
-					var tree = t;
-				}
-			}};
-		}
-		if (t._deletenodeevent0 && t._deletenodeevent0 != "") { 
-			items.deleteItem = {label: "Delete", action: function (e) {
-				var ref = $(t).jstree(true);
-				t._sel = ref.get_selected();
-				if(!t._sel.length) { return false; }
-				ref.delete_node(t._sel);
-				var tree = t;
-				eval(t._deletenodeevent);
-			}};
-		}
-		if (t._refreshnodeevent0 && t._refreshnodeevent0 != "") {
-			items.refreshItem = {label: "Refresh", action: function (e) {
-				var ref = $(t).jstree(true);
-				t._sel = ref.get_selected();
-				if(!t._sel.length) { return false; }
-				ref.refresh_node(t._sel);
-			}};
-		}
-		
+		items.refreshItem = {label: "Refresh", action: function (e) {
+			var ref = $(t).jstree(true);
+			t._sel = ref.get_selected();
+			if(!t._sel.length) { return false; }
+			ref.refresh_node(t._sel);
+		}};
 		var custItems = this.element[0].custItems;
 		if (custItems != null) {
 		  for (var i=0;i<custItems.length;i++) {
 		     var a = $(custItems[i]);
-			 //TODO
 		     items["item"+i] = {label: a.attr("title"), action: function (e) {
 				eval(a.attr("event"));
 			}};

@@ -33,6 +33,7 @@ import org.shaolin.uimaster.page.ajax.handlers.IAjaxHandler;
 import org.shaolin.uimaster.page.ajax.handlers.PropertyChangeHandler;
 import org.shaolin.uimaster.page.ajax.handlers.TabPaneEventHandler;
 import org.shaolin.uimaster.page.ajax.handlers.TableEventHandler;
+import org.shaolin.uimaster.page.ajax.handlers.TreeEventHandler;
 import org.shaolin.uimaster.page.ajax.handlers.WebServiceHandler;
 import org.shaolin.uimaster.page.ajax.json.IRequestData;
 import org.shaolin.uimaster.page.ajax.json.JSONException;
@@ -63,6 +64,7 @@ public class AjaxProcessor implements Serializable
     
     public static final String EVENT_WEBSERVICE = "webservice";
     
+    public static final String EVENT_TREE = "tree";
     
     /**
      * current fired event type.
@@ -262,10 +264,14 @@ public class AjaxProcessor implements Serializable
             {
             	handler = new TabPaneEventHandler();
             }
+            else if (EVENT_TREE.equals(eventType)) 
+            {
+            	handler = new TreeEventHandler();
+            } 
             else if (EVENT_WEBSERVICE.equals(eventType)) 
             {
             	handler = new WebServiceHandler();
-            }
+            } 
             
             if (handler == null)
             {

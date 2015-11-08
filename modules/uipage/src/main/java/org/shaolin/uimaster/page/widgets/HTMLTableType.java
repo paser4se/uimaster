@@ -97,7 +97,7 @@ public class HTMLTableType extends HTMLContainerType {
 			if (defaultActions != null) {
 				HTMLUtil.generateTab(context, depth + 2);
 				String defaultBtnSet = "defaultBtnSet_" + htmlId;
-				context.generateHTML("<span id=\""+defaultBtnSet+"\">");
+				context.generateHTML("<span id=\""+defaultBtnSet+"\" style=\"display:none;\">");
 				for (UITableActionType action: defaultActions){
 					HTMLUtil.generateTab(context, depth + 3);
 					context.generateHTML("<input type=\"radio\" name=\""+defaultBtnSet+"\" id=\""+ htmlPrefix + action.getUiid());
@@ -126,7 +126,7 @@ public class HTMLTableType extends HTMLContainerType {
 					HTMLUtil.generateTab(context, depth + 2);
 					int count = 0;
 					String btnSetName = "btnSet_" + htmlId + (count++);
-					context.generateHTML("<span id=\""+btnSetName+"\">");
+					context.generateHTML("<span id=\""+btnSetName+"\" style=\"display:none;\">");
 					for (UITableActionType action: a.getActions()){
 						HTMLUtil.generateTab(context, depth + 3);
 						if("button".equals(a.getType())) {

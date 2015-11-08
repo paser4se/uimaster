@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
-import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 
 public class HTMLFrameType extends HTMLWidgetType implements Serializable {
@@ -57,39 +56,33 @@ public class HTMLFrameType extends HTMLWidgetType implements Serializable {
 			context.generateHTML("\" name=\"");
 			context.generateHTML(name);
 			context.generateHTML("\" src=\"");
-			if ((isNeedSrc())) {
-				String actionPath = WebConfig.replaceWebContext(WebConfig.getActionPath());
-				String contextPath = request.getContextPath();
-				StringBuffer results = new StringBuffer(contextPath);
-				if (!actionPath.startsWith("/"))
-					results.append("/");
-				results.append(actionPath);
-
-				boolean hasParams = actionPath.indexOf("?") != -1;
-
-				String tempStr = (String) request.getAttribute("_chunkname");
-				if (tempStr != null) {
-					appendParam(results, "_chunkname", tempStr, hasParams);
-					hasParams = true;
-				}
-
-				tempStr = (String) request.getAttribute("_nodename");
-				if (tempStr != null) {
-					appendParam(results, "_nodename", tempStr, hasParams);
-					hasParams = true;
-				}
-				appendParam(results, "_framename", getId(), hasParams);
-				String superPrefix = (String) request
-						.getAttribute("_framePagePrefix");
-				if (superPrefix != null) {
-					appendParam(results, "_framePrefix", superPrefix, true);
-				}
-				context.generateHTML(results.toString());
+			StringBuffer results = new StringBuffer("webflow.do?z=1");
+			appendParam(results, "_chunkname", this.getAttribute("_chunkname").toString(), true);
+			appendParam(results, "_nodename", this.getAttribute("_nodename").toString(), true);
+			appendParam(results, "_framename", getId(), true);
+			String superPrefix = (String) request.getAttribute("_framePagePrefix");
+			if (superPrefix != null) {
+				appendParam(results, "_framePrefix", superPrefix, true);
 			}
+			context.generateHTML(results.toString());
 			context.generateHTML("\"");
 			generateAttributes(context);
-			generateEventListeners(context);
-			context.generateHTML(" frameborder=\"0\" style='min-width:100%;min-height:100%;' ");
+//			generateEventListeners(context);
+			context.generateHTML(" frameborder=\"0\" style=\"");
+			//{height=400px, visible=true, align=FULL, width=100%, y=1, cellUIStyle=, x=0}
+			context.generateHTML("height:");
+			if (this.getHTMLLayout().getAttribute("height") != null) {
+				context.generateHTML(this.getHTMLLayout().getAttribute("height").toString());
+			} else {
+				context.generateHTML("100%");
+			}
+			context.generateHTML(";width:");
+			if (this.getHTMLLayout().getAttribute("width") != null) {
+				context.generateHTML(this.getHTMLLayout().getAttribute("width").toString());
+			} else {
+				context.generateHTML("100%");
+			}
+			context.generateHTML(";\" scrolling='yes'");
 			if (request.getAttribute("_tabcontent") != null) {
 				context.generateHTML("_tabcontent=\"true\"");
 			}

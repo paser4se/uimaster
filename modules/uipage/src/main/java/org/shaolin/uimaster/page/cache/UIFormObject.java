@@ -71,6 +71,7 @@ import org.shaolin.bmdp.datamodel.page.UICustWidgetType;
 import org.shaolin.bmdp.datamodel.page.UIEntity;
 import org.shaolin.bmdp.datamodel.page.UIFileType;
 import org.shaolin.bmdp.datamodel.page.UIFlowDiagramType;
+import org.shaolin.bmdp.datamodel.page.UIFrameType;
 import org.shaolin.bmdp.datamodel.page.UIImageType;
 import org.shaolin.bmdp.datamodel.page.UILayoutType;
 import org.shaolin.bmdp.datamodel.page.UILinkType;
@@ -486,6 +487,18 @@ public class UIFormObject implements java.io.Serializable
                 }
                 parseReconfiguration((UIReferenceEntityType)component, propMap, i18nMap, expMap,
                         parsingContext);
+            } 
+            else if (component instanceof UIFrameType) 
+            {
+            	UIFrameType frame = (UIFrameType)component;
+            	if (frame.getChunkName() == null || frame.getChunkName().trim().isEmpty()) {
+            		throw new IllegalArgumentException("The chunk name is empty, please specify it in " + frame.getUIID());
+            	}
+            	if (frame.getNodeName() == null || frame.getNodeName().trim().isEmpty()) {
+            		throw new IllegalArgumentException("The node name is empty, please specify it in " + frame.getUIID());
+            	}
+            	propMap.put("_chunkname", frame.getChunkName());
+                propMap.put("_nodename", frame.getNodeName());
             }
             else if (component instanceof UITabPaneType)
             {
@@ -798,13 +811,26 @@ public class UIFormObject implements java.io.Serializable
             	propMap.put("nodeIcon", tree.getNodeIcon());
             	propMap.put("itemIcon", tree.getItemIcon());
             	propMap.put("opened", tree.isOpened());
-            	propMap.put("expendTree", tree.getExpandTreeEvent());
             	propMap.put("selectedNode", tree.getSelectNodeEvent());
             	propMap.put("addNode", tree.getAddNodeEvent());
             	propMap.put("deleteNode", tree.getDeleteNodeEvent());
-            	propMap.put("refreshNode", tree.getRefreshNodeEvent());
-            	propMap.put("actions", tree.getActions());
             	propMap.put("initExpr", tree.getInitExpression().getExpression());
+            	if (tree.getActions() != null) {
+            		propMap.put("actions", tree.getActions());
+            	}
+            	if (tree.getExpandExpression() != null) {
+	            	propMap.put("expandExpr", tree.getExpandExpression().getExpression());
+	            	
+	            	DefaultParsingContext localP = (DefaultParsingContext)
+	        				parsingContext.getParsingContextObject(ODContext.LOCAL_TAG);
+	        		localP.setVariableClass("selectedNode", String.class);
+	            	try {
+						tree.getExpandExpression().getExpression().parse(parsingContext);
+					} catch (ParsingException e) {
+						logger.error("Exception occured when pass the tree expanded expression: "
+	                            + component.getUIID() + " in form: " + this.name, e);
+					}
+            	}
             	
             	getEventListeners(component.getEventListeners(), eventMap);
             }

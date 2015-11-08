@@ -143,7 +143,14 @@ public class TreeItem implements IBusinessEntity, Serializable {
 		private boolean opened = true;
 		private boolean disabled = false;
 		private boolean selected = false;
+		private boolean loaded = true;
 		
+		public boolean isLoaded() {
+			return loaded;
+		}
+		public void setLoaded(boolean loaded) {
+			this.loaded = loaded;
+		}
 		public boolean isOpened() {
 			return opened;
 		}

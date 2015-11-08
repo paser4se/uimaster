@@ -51,17 +51,17 @@ public class Tree extends Widget implements Serializable {
 	
 	private String selectedNodeName;
 	
-	private transient final ExpressionType initExpr;
+	private transient final ExpressionType expandExpr;
 	
 	public Tree(String tableId, HttpServletRequest request) {
 		super(tableId, null);
-		this.initExpr = null;
+		this.expandExpr = null;
 	}
 
-	public Tree(String id, Layout layout, ExpressionType initExpr) {
+	public Tree(String id, Layout layout, ExpressionType initExpr, ExpressionType expandExpr) {
 		super(id, layout);
 		this._setWidgetLabel(id);
-		this.initExpr = initExpr;
+		this.expandExpr = expandExpr;
 	}
 
 	public void setDataModel(Map<String, Object> newModel) {
@@ -124,9 +124,10 @@ public class Tree extends Widget implements Serializable {
 			evaContext.setVariableValue("treeCondition", conditions);
 			evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
 			evaContext.setVariableValue("tree", this);
+			evaContext.setVariableValue("selectedNode", this.getSelectedItemId());
 			ooeeContext.setDefaultEvaluationContext(evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
-			List<TreeItem> result = (List<TreeItem>)initExpr.evaluate(ooeeContext);
+			List<TreeItem> result = (List<TreeItem>)expandExpr.evaluate(ooeeContext);
 			
 			JSONArray jsonArray = new JSONArray(result);
 			IDataItem dataItem = AjaxActionHelper.createDataItem();
@@ -140,6 +141,34 @@ public class Tree extends Widget implements Serializable {
 		} catch (Exception e) {
 			logger.error("error occurrs while refreshing tree: " + this.getId(), e);
 		}
+	}
+	
+	public String expand() {
+		if (expandExpr == null) {
+			return "";
+		}
+		if (this.getSelectedItemId() == null) {
+			logger.warn("The selected node must not be null form " + this.getId() + " tree.");
+			return "";
+		}
+		
+		try {
+			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+			evaContext.setVariableValue("treeCondition", conditions);
+			evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+			evaContext.setVariableValue("tree", this);
+			evaContext.setVariableValue("selectedNode", this.getSelectedItemId());
+			ooeeContext.setDefaultEvaluationContext(evaContext);
+			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+			List<TreeItem> result = (List<TreeItem>)expandExpr.evaluate(ooeeContext);
+			
+			JSONArray jsonArray = new JSONArray(result);
+			return jsonArray.toString();
+		} catch (Exception e) {
+			logger.error("error occurrs while expanding tree: " + this.getId(), e);
+		}
+		return "[]";
 	}
 
 }

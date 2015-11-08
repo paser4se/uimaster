@@ -1194,6 +1194,7 @@ UIMaster.registerHandler("fadeOut", function(data,win){
             tree = win.elementList[i];
     if(!tree)
         return;
+	tree.refresh(children);
 });
 /**
  * @description AJAX callback handler.

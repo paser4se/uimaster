@@ -39,28 +39,6 @@ public class TitlePanel extends BaseSkin implements IUISkin {
 			context.generateHTML(" style=\"display:none;\"");
 		}
 		context.generateHTML(" ><div class=\"skin_titlepanel_title\" onclick=\"\" >");
-		/**
-		context.generateHTML("<div style=\"width:20px;\">");
-		context.generateHTML("<img id=\"");
-		context.generateHTML(arrowIconId);
-		context.generateHTML("\" src=\"");
-		context.generateHTML(webRoot);
-		context.generateHTML("/images/table-");
-		if ("true".equals(getParam("collapsed"))) {
-			context.generateHTML("close");
-		} else {
-			context.generateHTML("open");
-		}
-		context.generateHTML(".gif\" onclick=\"bmiasia_slide('");
-		context.generateHTML(wrapperPanelId);
-		context.generateHTML("','");
-		context.generateHTML(webRoot);
-		context.generateHTML("/images/table-close.gif','");
-		context.generateHTML(webRoot);
-		context.generateHTML("/images/table-open.gif','");
-		context.generateHTML(arrowIconId);
-		context.generateHTML("',event);\" border=0></div>");
-		*/
 		context.generateHTML("<div>");
 		context.generateHTML(getParam("text"));
 		context.generateHTML("</div></div>");

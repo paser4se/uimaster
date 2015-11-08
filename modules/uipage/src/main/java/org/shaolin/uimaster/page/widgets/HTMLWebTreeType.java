@@ -64,7 +64,6 @@ public class HTMLWebTreeType extends HTMLWidgetType {
 	public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
 		try {
 			String selectedNodeEvent = (String)this.getAttribute("selectedNode");
-			String expendTreeEvent = (String)this.getAttribute("expendTree");
 			String deleteNodeEvent = (String)this.getAttribute("deleteNode");
 			String addNodeEvent = (String)this.getAttribute("addNode");
 			String refreshNodeEvent = (String)this.getAttribute("refreshNode");
@@ -73,12 +72,11 @@ public class HTMLWebTreeType extends HTMLWidgetType {
 			String itemIcon = (String)this.getAttribute("itemIcon");
 			Boolean isopened= (Boolean)this.getAttribute("opened");
 			
-			HTMLUtil.generateTab(context, depth);
-			context.generateHTML("<div id=\"");
-			context.generateHTML(getName());
-			context.generateHTML("\" class=\"uimaster_tree\">");
-			
 			if (actions != null && actions.size() > 0) {
+				String htmlPrefix = this.getPrefix().replace('.', '_');
+				String htmlId = this.getPrefix().replace('.', '_') + this.getUIID();
+				String defaultBtnSet = "defaultBtnSet_" + htmlId;
+				context.generateHTML("<div class=\"ui-widget-header ui-corner-all\">");
 				context.generateHTML("<span style=\"display:none;\">");
 				for (UITableActionType action: actions){
 					context.generateHTML("<span event=\"javascript:defaultname.");
@@ -86,21 +84,32 @@ public class HTMLWebTreeType extends HTMLWidgetType {
 					context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\" title='");
 					context.generateHTML(UIVariableUtil.getI18NProperty(action.getTitle()));
 					context.generateHTML("'></span>");
+					HTMLUtil.generateTab(context, depth + 3);
+					context.generateHTML("<input type=\"radio\" name=\""+defaultBtnSet+"\" id=\""+ htmlPrefix + action.getUiid());
+					context.generateHTML("\" onclick=\"javascript:defaultname.");
+					context.generateHTML(this.getPrefix() + action.getFunction());
+					context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\" title='");
+					context.generateHTML(UIVariableUtil.getI18NProperty(action.getTitle()));
+					context.generateHTML("' icon=\""+action.getIcon()+"\"><label for=\""+ htmlPrefix + action.getUiid()+"\">");
+					context.generateHTML(UIVariableUtil.getI18NProperty(action.getTitle()));
+					context.generateHTML("</label></input>");
 					
 				}
 				context.generateHTML("</span>");
+				context.generateHTML("</div>");
 			}
+			
+			HTMLUtil.generateTab(context, depth);
+			context.generateHTML("<div id=\"");
+			context.generateHTML(getName());
+			context.generateHTML("\" class=\"uimaster_tree\">");
 			
 			List<TreeItem> result = (List<TreeItem>)this.removeAttribute("initValue");
 			JSONArray jsonArray = new JSONArray(result);
 			
 			context.generateHTML("<div style='display:none;' clickevent=\"defaultname.");
 			context.generateHTML(this.getPrefix() + selectedNodeEvent);
-			context.generateHTML("(tree, e)\" expendevent=\"defaultname.");
-			context.generateHTML(this.getPrefix() + expendTreeEvent);
-			context.generateHTML("(tree, e)\" expendevent0=\"");
-			context.generateHTML(expendTreeEvent);
-			context.generateHTML("\" clickevent0=\"");
+			context.generateHTML("(tree, e)\" clickevent0=\"");
 			context.generateHTML(selectedNodeEvent);
 			context.generateHTML("\"");
 			if (addNodeEvent != null) {
@@ -136,7 +145,8 @@ public class HTMLWebTreeType extends HTMLWidgetType {
 	public Widget createAjaxWidget(VariableEvaluator ee)
     {
         Tree tree = new Tree(getName(), Layout.NULL, 
-        		(ExpressionType) this.removeAttribute("initExpr"));
+        		(ExpressionType) this.removeAttribute("initExpr"),
+        		(ExpressionType) this.removeAttribute("expandExpr"));
 
         tree.setReadOnly(getReadOnly());
         tree.setUIEntityName(getUIEntityName());

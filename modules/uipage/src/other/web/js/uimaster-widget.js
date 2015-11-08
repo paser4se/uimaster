@@ -1613,6 +1613,7 @@ UIMaster.ui.objectlist = function(conf){
 };
 UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	initialized:false,
+	initRefreshBody:false,
 	dtable:null,
 	isSingleSelection:false,
 	isMultipleSelection:true,
@@ -1657,27 +1658,28 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			"recordsFiltered": $(this).attr("recordsFiltered"),
 			"recordsTotal": $(this).attr("recordsTotal"),
 			"columnDefs": [{"targets":0,"orderable":false,"render":othis.renderSelection}], 
-			"processing": false,//disable process first.
+			"processing": false,
 			"serverSide": true,
+			"bServerSide": true,
 			"sServerMethod": "POST",
-			"ajax": {
-				async: false,
-	            url: AJAX_SERVICE_URL+"?r="+Math.random(),
-	            type: 'POST',
-	            data:{_ajaxUserEvent: "table",
-	                _uiid: this.id,
-	                _actionName: "pull",
-	                _framePrefix: UIMaster.getFramePrefix(UIMaster.El(this.id).get(0)),
-	                _actionPage: this.parentEntity.__entityName
-	                }
-			},
 			"fnDrawCallback": function(settings,b) {
 				othis.tbody = $(elementList[othis.id]).children('tbody');
 				othis.refreshBodyEvents(othis.tbody, true);
 			}
-		});//this method will reinit the constructor again. weird!
+		});
 		this.dtable = table;
-		this.dtable.api().settings()[0].oFeatures.bServerSide=true;
+		// enable ajax process after initialization.
+        this.dtable.fnSettings().ajax = {
+			async: false,
+			url: AJAX_SERVICE_URL+"?r="+Math.random(),
+			type: 'POST',
+			data:{_ajaxUserEvent: "table",
+				_uiid: this.id,
+				_actionName: "pull",
+				_framePrefix: UIMaster.getFramePrefix(UIMaster.El(this.id).get(0)),
+				_actionPage: this.parentEntity.__entityName
+				}
+		};
 		var columnIds = new Array();
 		var coli = 0;
 		$(elementList[this.id]).find('thead th').each(function(){
@@ -1699,7 +1701,9 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 					$(ftd).append(htmlCode);
 				}
 			});
-			this.refreshBodyEvents(body, true);
+			if (!this.initRefreshBody) {
+				this.refreshBodyEvents(body, true);
+			}
 		}
 		var t = this;
 		if (this.tfoot.length == 0) {
@@ -1900,6 +1904,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		}
 	},
 	refreshBodyEvents:function(body, selectedByDefault) {
+	    this.initRefreshBody = true;
 		var othis = this;
 		if (othis.editable) {
 			othis.syncCellEvent(body);
@@ -2089,7 +2094,13 @@ UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
 	                '_actionName': "expand",
 	                '_framePrefix': UIMaster.getFramePrefix(UIMaster.El(t.id).get(0)),
 	                '_actionPage': t.parentEntity.__entityName,
-	                '_sync': function(){t.sync(); return UIMaster.ui.sync()}};
+	                '_sync': function(){
+					    var ref = $(t).jstree(true);
+				        var children = ref.get_children_dom(node);
+						ref.delete_node(children);
+					    t.sync(); 
+						return UIMaster.ui.sync();
+					}};
 			}};
 			$(this).bind("select_node.jstree", function(node,tree_obj,e){
 				t._selectedNodeId=tree_obj.node.id;
@@ -2139,7 +2150,6 @@ UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
 		if (custItems != null) {
 		  for (var i=0;i<custItems.length;i++) {
 		     var a = $(custItems[i]);
-			 //TODO
 		     items["item"+i] = {label: a.attr("title"), action: function (e) {
 				eval(a.attr("event"));
 			}};
@@ -2284,17 +2294,17 @@ UIMaster.ui.dialog=UIMaster.extend(UIMaster.ui.dialog, /** @lends UIMaster.ui.di
     },
     paint:function(){
         function closeBtn(e){
-            dialog.close();
-            dialog.destroy();
+            dialog.dialog('close');
         }
         function eventHandler(e){
             diaObj.returnValue = new Number(this.getAttribute("returnType"));
             diaObj.value = $(content).find("td").eq(1).children('[name="returnType"]').val();
-            var rV = diaObj.handler.call(diaObj,e);
-            if (rV == false)
-                return;
-            dialog.close();
-            dialog.destroy();
+			if (this.getAttribute("id") == "yes" || this.getAttribute("id") == "ok") {
+				var rV = diaObj.handler.call(diaObj,e);
+				if (rV == false)
+					return;
+			}
+            dialog.dialog('close');
         }
         function createBtn(text,returnType,id){
             return $('<input type="button" value="'+text+'" id="'+id+'">')
