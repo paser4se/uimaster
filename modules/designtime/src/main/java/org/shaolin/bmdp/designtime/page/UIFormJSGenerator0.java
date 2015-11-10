@@ -961,6 +961,13 @@ public class UIFormJSGenerator0 {
     	        out.print(calendar.getDateConstraint().getValue());
     	        out.write("\n");
         	}
+        } else if (component instanceof UITabPaneType) {
+        	out.write("        ,items: [");
+        	List<UITabPaneItemType> tabs = ((UITabPaneType) component).getTabs();
+			for (UITabPaneItemType t : tabs) {
+				out.write("\"" + t.getUiid() + "\",");
+			}
+			out.write("\"\"]\n");
         }
     }
     

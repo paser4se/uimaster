@@ -2042,11 +2042,14 @@ UIMaster.ui.webtree = function(conf){
 	
 };
 UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
+    initialized: false,
 	_selectedNodeId:null,
 	_selectedNodeName:null,
 	_selectedParentNodeId:null,
 	_treeObj:null,
 	init:function(){
+	    if (this.initialized) { return;}
+		this.initialized = true;
 		var t = this;
 		if ($(this).prev().length > 0) {
 		    $($($(this).prev()).children()[0]).buttonset();
@@ -2565,6 +2568,8 @@ function iframeAutoFitHeight(parent, iframe) {
 UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
     links:[],
     index:0,
+	selectedIndex:0,
+	items:null,
     init:function(){
         var othis = this, s = this.childNodes[0].nodeType == 1 ? this.childNodes[0] : this.childNodes[1], n = s.childNodes[0].nodeType == 1 ? s.childNodes[0] : s.childNodes[1];
         for (var i in n.childNodes) {
@@ -2583,6 +2588,10 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
 			}
 		});
     },
+	sync:function(){
+       if (this.items[this.selectedIndex] && defaultname[this.items[this.selectedIndex]] && defaultname[this.items[this.selectedIndex]].sync)
+	      defaultname[this.items[this.selectedIndex]].sync();
+    },
     setTab:function(e){
         var id = UIMaster.getObject(e).getAttribute("id");
         this._setTab(id);
@@ -2594,6 +2603,7 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
         currTitle.addClass("ui-tabs-active").addClass("ui-state-active").attr("style","border-bottom: 1px solid white");
         $("#"+currTitle.attr("id").replace("titles","body")).removeClass("tab-unselected-body").addClass("tab-selected-body");
         titleContainer.attr("selectedIndex",currTitle.attr("index"));
+		this.selectedIndex = currTitle.attr("index");
 		if (currTitle.attr("ajaxload") != null && currTitle.attr("ajaxload") == "true") {
         	currTitle.attr("ajaxload", null);
         } 
