@@ -48,7 +48,7 @@ public class HTMLImageType extends HTMLTextWidgetType
 	            String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
 	        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
 	            HTMLUtil.generateTab(context, depth);
-	            context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/font-awesome.min.css\" type=\"text/css\">");
+	            context.generateHTML("<div><link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/font-awesome.min.css\" type=\"text/css\">");
 	            HTMLUtil.generateTab(context, depth);
 	            context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/jgallery.min.css?v=1.5.0\" type=\"text/css\">");
 	            HTMLUtil.generateTab(context, depth);
@@ -64,7 +64,7 @@ public class HTMLImageType extends HTMLTextWidgetType
 	            context.generateHTML("\">");
 	            HTMLUtil.generateTab(context, depth + 1);
 	            String path = this.getValue();
-	            if (path != null) {
+	            if (path != null && !path.trim().isEmpty()) {
 		            if (path.indexOf(";") != -1) {
 		            	String[] images = path.split(";");
 		            	for (String i : images) {
@@ -79,10 +79,14 @@ public class HTMLImageType extends HTMLTextWidgetType
 			            		String item = root + path + "/" +  i;
 			            		context.generateHTML("<a href=\"" + item + "\"><img src=\"" + item + "\"/></a>");
 			            	}
+			            } else {
+			            	context.generateHTML("<a href=\"" + root + path + "\"><img src=\"" + root + path + "\"/></a>");
 			            }
 		            }
 	            }
 	            HTMLUtil.generateTab(context, depth + 1);
+	            context.generateHTML("</div>");
+	            HTMLUtil.generateTab(context, depth);
 	            context.generateHTML("</div>");
         	} else {
 	            context.generateHTML("<input type=hidden name=\"");
