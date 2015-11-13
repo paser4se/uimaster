@@ -337,6 +337,7 @@ in simple component mapping, the paramName is required</xs:documentation>
             <xs:extension base="Page:UITextComponentType">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="maxLength" type="Page:PropertyValueType"/>
+                    <xs:element minOccurs="0" name="htmlSupport" type="Page:BooleanPropertyType"/>
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>

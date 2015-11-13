@@ -35,7 +35,8 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "UITextAreaType", propOrder = {
-    "maxLength"
+    "maxLength",
+    "htmlSupport"
 })
 public class UITextAreaType
     extends UITextComponentType
@@ -44,8 +45,17 @@ public class UITextAreaType
 
     private final static long serialVersionUID = 1L;
     protected PropertyValueType maxLength;
+    protected BooleanPropertyType htmlSupport;
+    
+    public BooleanPropertyType getHtmlSupport() {
+		return htmlSupport;
+	}
 
-    /**
+	public void setHtmlSupport(BooleanPropertyType htmlSupport) {
+		this.htmlSupport = htmlSupport;
+	}
+
+	/**
      * Gets the value of the maxLength property.
      * 
      * @return

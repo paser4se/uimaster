@@ -1033,6 +1033,8 @@ public class UIFormObject implements java.io.Serializable
             {
                 getAttribute("maxLength", ((UITextAreaType)component).getMaxLength(), propMap,
                         i18nMap, expMap, "", parsingContext);
+                getAttribute("htmlSupport", ((UITextAreaType)component).getHtmlSupport(), propMap,
+                        i18nMap, expMap, "", parsingContext);
             }
             if (component instanceof UILinkType)
             {

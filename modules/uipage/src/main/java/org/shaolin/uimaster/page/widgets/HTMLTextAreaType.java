@@ -15,8 +15,12 @@
 */
 package org.shaolin.uimaster.page.widgets;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
+import org.shaolin.bmdp.utils.FileUtil;
+import org.shaolin.bmdp.utils.StringUtil;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
@@ -25,6 +29,7 @@ import org.shaolin.uimaster.page.ajax.TextArea;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
+import org.shaolin.uimaster.page.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,6 +81,10 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
                 context.generateHTML(" cols=\"30\"");
             }
             generateEventListeners(context);
+            if (this.getAttribute("htmlSupport") != null && 
+            		"true".equals(this.getAttribute("htmlSupport").toString())) {
+            	context.generateHTML(" disabled=\"disabled\"");
+            }
             context.generateHTML(">");
             if (context.isValueMask())
             {
@@ -83,9 +92,32 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
             }
             else
             {
-                context.generateHTML(HTMLUtil.formatHtmlValue(getValue()));
+        		context.generateHTML(HTMLUtil.formatHtmlValue(getValue()));
             }
             context.generateHTML("</textarea>");
+            if (this.getAttribute("htmlSupport") != null && 
+            		"true".equals(this.getAttribute("htmlSupport").toString())) {
+            	context.generateHTML("<div>");
+            	HTMLUtil.generateTab(context, depth);
+            	context.generateHTML("<textarea name=\"");
+            	context.generateHTML(getName());
+                context.generateHTML("_ckeditor\" class=\"ckeditor\" style=\"display:none\">");
+            	File file = new File(WebConfig.getResourcePath() + getValue());
+        		if (file.exists() && file.isFile()) {
+        			String content = FileUtil.readFile(new FileInputStream(file));
+        			context.generateHTML(content);
+        		}
+        		context.generateHTML("</textarea>");
+        		HTMLUtil.generateTab(context, depth);
+            	String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
+	        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
+	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/ckeditor/ckeditor.js\"></script>");
+	        	HTMLUtil.generateTab(context, depth);
+	        	context.generateHTML("<script type=\"text/javascript\">CKEDITOR.replace('"+getName()+"_ckeditor');</script>");
+	        	HTMLUtil.generateTab(context, depth);
+	        	context.generateHTML("</div>");
+            }
+            
             generateEndWidget(context);
         }
         catch (Exception e)

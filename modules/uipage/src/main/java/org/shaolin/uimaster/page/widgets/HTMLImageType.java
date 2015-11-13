@@ -52,11 +52,11 @@ public class HTMLImageType extends HTMLTextWidgetType
 	            HTMLUtil.generateTab(context, depth);
 	            context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/jgallery.min.css?v=1.5.0\" type=\"text/css\">");
 	            HTMLUtil.generateTab(context, depth);
-	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsgallery/jgallery.js\"></script>");
+	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/jgallery.js\"></script>");
 	        	HTMLUtil.generateTab(context, depth);
-	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsgallery/touchswipe.js\"></script>");
+	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/touchswipe.js\"></script>");
 	        	HTMLUtil.generateTab(context, depth);
-	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsgallery/tinycolor-0.9.16.min.js\"></script>");
+	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/tinycolor-0.9.16.min.js\"></script>");
 	        	HTMLUtil.generateTab(context, depth);
 	        	
 	        	context.generateHTML("<div id=\"");

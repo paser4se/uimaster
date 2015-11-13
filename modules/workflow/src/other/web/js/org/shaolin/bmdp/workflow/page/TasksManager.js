@@ -16,6 +16,7 @@ function org_shaolin_bmdp_workflow_page_TasksManager(json)
     var functionsTab = new UIMaster.ui.tab
     ({
         ui: elementList[prefix + "functionsTab"]
+        ,items: ["tasksTablePanel","tasksHistoryTablePanel","tasksAnalysisPanel",""]
     });
     var tasksTable = new UIMaster.ui.objectlist
     ({

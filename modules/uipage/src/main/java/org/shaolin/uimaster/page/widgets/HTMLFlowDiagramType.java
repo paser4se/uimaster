@@ -64,19 +64,19 @@ public class HTMLFlowDiagramType extends HTMLWidgetType
     	String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
     			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
     	context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/css/jsplumb/jsplumb.css\" type=\"text/css\">\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/jquery.ui.touch-punch-0.2.2.min.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/dom-adapter.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/biltong-0.2.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/jsBezier-0.6.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/util.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/jsPlumb.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/jquery.jsPlumb.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/defaults.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/renderers.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/connection.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/endpoint.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/anchors.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/overlays-guidelines.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/jquery.ui.touch-punch-0.2.2.min.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/dom-adapter.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/biltong-0.2.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/jsBezier-0.6.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/util.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/jsPlumb.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/jquery.jsPlumb.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/defaults.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/renderers.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/connection.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/endpoint.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/anchors.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/overlays-guidelines.js\"></script>\n");
     	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/uimaster-flow.js\"></script>\n");
     	
     	List<UITableActionType> defaultActions = (List<UITableActionType>)this.removeAttribute("defaultActionGroup");
