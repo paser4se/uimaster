@@ -2587,7 +2587,7 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
 		});
     },
 	sync:function(){
-       if (this.items[this.selectedIndex] && defaultname[this.items[this.selectedIndex]] && defaultname[this.items[this.selectedIndex]].sync)
+       if (this.items != null && this.items[this.selectedIndex] && defaultname[this.items[this.selectedIndex]] && defaultname[this.items[this.selectedIndex]].sync)
 	      defaultname[this.items[this.selectedIndex]].sync();
     },
     setTab:function(e){

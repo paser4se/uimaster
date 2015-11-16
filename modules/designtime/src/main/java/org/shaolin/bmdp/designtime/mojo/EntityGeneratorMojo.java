@@ -96,6 +96,12 @@ public class EntityGeneratorMojo extends AbstractMojo {
     
     /**
      * 
+     * @parameter expression="${settings.localRepository}"
+     */
+    private File localRepository;
+    
+    /**
+     * 
      * @parameter expression="${basedir}/src/main/resources"
      */
     private File resourcesDir;
@@ -179,31 +185,17 @@ public class EntityGeneratorMojo extends AbstractMojo {
 		
 		if (classpathElements.size() == 1 && 
 				(Thread.currentThread().getContextClassLoader() instanceof URLClassLoader)) {
-			//TODO: the dependent jar will not be existed in while generating source phrase.
-			// we manually add the jar with the same group id here. this is just a workaround.
-			// looking for a better solution.
 			try {
-				String projectGroupId = this.getProject().getGroupId();
-				String projectArtifactId = this.getProject().getArtifactId();
 				List<String> findjars = new ArrayList<String>();
 				List<Dependency> dependencies = this.getProject().getDependencies();
 				for (Dependency d : dependencies) {
-					if (projectGroupId.equals(d.getGroupId())) {
-						String newpath = classpathElements.get(0).replace(projectArtifactId, d.getArtifactId());
-						newpath = newpath.substring(0,newpath.lastIndexOf(File.separatorChar));
-						File folder = new File(newpath);
-						String findjar = null;
-						String[] files = folder.list();
-						for (String f : files) {
-							if (f.endsWith(".jar")) {
-								findjar = f;
-								break;
-							}
-						}
-						if (findjar != null) {
-							String jar = "file:///" + newpath + File.separatorChar + findjar;
-							findjars.add(jar);
-						}
+					if ("org.shaolin.vogerp".equals(d.getGroupId()) 
+							|| "org.shaolin.bmdp".equals(d.getGroupId())) {
+						String jarpath = "file:///" + localRepository.getAbsolutePath() + File.separatorChar 
+								+ d.getGroupId().replace(".", File.separatorChar + "") + File.separatorChar
+								+ d.getArtifactId() + File.separatorChar + d.getVersion() + File.separatorChar
+								+ d.getArtifactId() + "-" + d.getVersion() + ".jar";
+						findjars.add(jarpath);
 					}
 				}
 				if (!findjars.isEmpty()) {
