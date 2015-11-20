@@ -267,7 +267,12 @@ public final class Registry implements IRegistry, Serializable {
 							+ item.getValue());
 				}
 			}
-			nodesMap.put(sb.toString(), pairs);
+			if (nodesMap.containsKey(sb.toString())) {
+				Map<String, String> existingPairs = nodesMap.get(sb.toString());
+				existingPairs.putAll(pairs);
+			} else {
+				nodesMap.put(sb.toString(), pairs);
+			}
 			if (!nodeChildren.contains(config.getName())) {
 				nodeChildren.add(config.getName());
 			}
