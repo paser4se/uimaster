@@ -84,6 +84,10 @@ public class HTMLTableType extends HTMLContainerType {
 			String totalCount = String.valueOf(this.removeAttribute("totalCount"));
 			Boolean isShowActionBar = (Boolean)this.removeAttribute("isShowActionBar");
 			Boolean isEditableCell = (Boolean)this.removeAttribute("isEditableCell");
+			Boolean isShowBigItem = (Boolean)this.removeAttribute("isShowBigItem");
+			if (isShowBigItem==null) {
+				isShowBigItem = Boolean.FALSE;
+			}
 			List<UITableColumnType> columns = (List<UITableColumnType>)this.removeAttribute("columns");
 			if (columns == null || columns.size() == 0) {
 				return;
@@ -173,81 +177,8 @@ public class HTMLTableType extends HTMLContainerType {
 			context.generateHTML("\">");
 
 			// generate thead.
-			HTMLUtil.generateTab(context, depth + 2);
-			context.generateHTML("<thead>");
-			HTMLUtil.generateTab(context, depth + 3);
-			context.generateHTML("<tr>");
+			generateTableHead(selectMode, isShowBigItem, context, depth, columns);
 			
-			// generate selection at the first column
-			HTMLUtil.generateTab(context, depth + 3);
-			context.generateHTML("<th id=\"");
-			context.generateHTML(getName());
-			context.generateHTML("_SelectColumn\" name=\"\" orderable=\"false\" htmlType=\"");
-			context.generateHTML(selectMode.value());
-			context.generateHTML("\" title=\"\" style=\"width:10px;padding:0px;");
-			if (selectMode == UITableSelectModeType.NORMAL) {
-				context.generateHTML("display:none;\">");
-			}
-			context.generateHTML("\">");
-			if (selectMode == UITableSelectModeType.MULTIPLE) {
-				context.generateHTML("<input type=\"checkbox\" name=\"\" onclick=\"\" />");
-			} else {
-				context.generateHTML("");
-			}
-			context.generateHTML("</th>");
-			if (UserContext.isMobileRequest()) {
-				HTMLUtil.generateTab(context, depth + 3);
-				for (UITableColumnType col : columns) {
-					// find image column.
-					if ("Image".equals(col.getUiType().getType())) {
-						context.generateHTML("<th id=\"");
-						context.generateHTML(col.getBeFieldId());
-						context.generateHTML("\" htmlType=\"");
-						context.generateHTML(col.getUiType().getType());
-						context.generateHTML("\" title=\"");
-						context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
-						context.generateHTML("\">");
-						context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
-						context.generateHTML("</th>");
-					}
-				}
-				context.generateHTML("<th id=\"attColumn\" htmlType=\"Label\" title=\"\">");
-				context.generateHTML("</th>");
-				// find html column.
-				for (UITableColumnType col : columns) {
-					if ("HTML".equals(col.getUiType().getType())) {
-						context.generateHTML("<th id=\"");
-						context.generateHTML(col.getBeFieldId());
-						context.generateHTML("\" htmlType=\"");
-						context.generateHTML(col.getUiType().getType());
-						context.generateHTML("\" title=\"");
-						context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
-						context.generateHTML("\">");
-						context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
-						context.generateHTML("</th>");
-					}
-				}
-			} else {
-				for (UITableColumnType col : columns) {
-					HTMLUtil.generateTab(context, depth + 3);
-					context.generateHTML("<th id=\"");
-					context.generateHTML(col.getBeFieldId());
-					context.generateHTML("\" htmlType=\"");
-					context.generateHTML(col.getUiType().getType());
-					context.generateHTML("\" title=\"");
-					context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
-					context.generateHTML("\">");
-					context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
-					context.generateHTML("</th>");
-				}
-			}
-			
-			
-			HTMLUtil.generateTab(context, depth + 3);
-			context.generateHTML("</tr>");
-			HTMLUtil.generateTab(context, depth + 2);
-			context.generateHTML("</thead>");
-
 			// generate tbody.
 			HTMLUtil.generateTab(context, depth + 2);
 			context.generateHTML("<tbody id=\"\" >");
@@ -258,97 +189,10 @@ public class HTMLTableType extends HTMLContainerType {
 			// org.hibernate.collection.internal.PersistentList
 			// org.hibernate.AssertionFailure: collection owner not associated with session:
 			if (!listData.isEmpty()) {
-				int count = 0;
-				for (Object be : listData) {
-					OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
-					DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
-					evaContext.setVariableValue("rowBE", be);
-					evaContext.setVariableValue("index", count);
-					ooeeContext.setDefaultEvaluationContext(evaContext);
-					ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
-					
-					ExpressionType rowFilter = (ExpressionType)this.getAttribute("rowFilterExpr");
-					boolean pass = (boolean)rowFilter.evaluate(ooeeContext);
-					if (!pass) {
-						continue;
-					}
-					
-					HTMLUtil.generateTab(context, depth + 3);
-					context.generateHTML("<tr>");
-					HTMLUtil.generateTab(context, depth + 3);
-					if (selectMode == UITableSelectModeType.MULTIPLE) {
-						context.generateHTML("<td>checkbox,"+count+"</td>");
-					} else if (selectMode == UITableSelectModeType.SINGLE) {
-						context.generateHTML("<td>radio,"+count+"</td>");
-					} else {
-						context.generateHTML("<td></td>");
-					}
-					
-					if (UserContext.isMobileRequest()) {
-						StringBuffer attrsSB = new StringBuffer();
-						StringBuffer htmlAttrsSB = new StringBuffer();
-						attrsSB.append("<td title=\"\">");
-						for (UITableColumnType col : columns) {
-							// find image column at the second column.
-							if ("Image".equals(col.getUiType().getType())) {
-								context.generateHTML("<td title=\"\">");
-								Object value = col.getRowExpression().getExpression().evaluate(
-										ooeeContext);
-								if (value == null) {
-									value = "";
-								}
-								context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
-								context.generateHTML(":");
-								context.generateHTML(value.toString());
-								context.generateHTML(", ");
-								context.generateHTML("</td>");
-							} else if ("HTML".equals(col.getUiType().getType())) {
-								htmlAttrsSB.append("<td title=\"\">");
-								Object value = col.getRowExpression().getExpression().evaluate(
-										ooeeContext);
-								if (value == null) {
-									value = "";
-								}
-								htmlAttrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle()));
-								htmlAttrsSB.append(":");
-								htmlAttrsSB.append(value.toString());
-								htmlAttrsSB.append(", ");
-								htmlAttrsSB.append("</td>");
-							} else {
-								Object value = col.getRowExpression().getExpression().evaluate(
-										ooeeContext);
-								if (value == null) {
-									value = "";
-								}
-								attrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle()));
-								attrsSB.append(":");
-								attrsSB.append(value.toString());
-								attrsSB.append(", ");
-							}
-						}
-						attrsSB.append("</td>");
-						context.generateHTML(attrsSB.toString());
-						context.generateHTML(htmlAttrsSB.toString());
-					} else {
-						for (UITableColumnType col : columns) {
-							HTMLUtil.generateTab(context, depth + 3);
-							Object value = col.getRowExpression().getExpression().evaluate(
-									ooeeContext);
-							if (value == null) {
-								value = "";
-							}
-	
-							context.generateHTML("<td title=\"");
-							context.generateHTML(value.toString());
-							context.generateHTML("\">");
-							context.generateHTML(value.toString());
-							context.generateHTML("</td>");
-						}
-					}
-					HTMLUtil.generateTab(context, depth + 3);
-					context.generateHTML("</tr>");
-					
-					count++;
+				if (!UserContext.isMobileRequest() && isShowBigItem==Boolean.TRUE) {
+					generateBigItemBody(context, depth, columns, listData);
+				} else {
+					generateNormalBody(depth, selectMode, listData, columns);
 				}
 			}
 			HTMLUtil.generateTab(context, depth + 2);
@@ -458,6 +302,256 @@ public class HTMLTableType extends HTMLContainerType {
 		}
 	}
 
+	private void generateTableHead(UITableSelectModeType selectMode, Boolean isShowBigItem, 
+			HTMLSnapshotContext context, int depth, List<UITableColumnType> columns) {
+		HTMLUtil.generateTab(context, depth + 2);
+		context.generateHTML("<thead "+(isShowBigItem==Boolean.TRUE?"style='display:none;'":"")+">");
+		HTMLUtil.generateTab(context, depth + 3);
+		context.generateHTML("<tr>");
+		
+		// generate selection at the first column
+		HTMLUtil.generateTab(context, depth + 3);
+		context.generateHTML("<th id=\"");
+		context.generateHTML(getName());
+		context.generateHTML("_SelectColumn\" name=\"\" orderable=\"false\" htmlType=\"");
+		context.generateHTML(selectMode.value());
+		context.generateHTML("\" title=\"\" style=\"width:10px;padding:0px;");
+		if (selectMode == UITableSelectModeType.NORMAL) {
+			context.generateHTML("display:none;\">");
+		} else {
+			context.generateHTML("\">");
+		}
+		if (selectMode == UITableSelectModeType.MULTIPLE) {
+			context.generateHTML("<input type=\"checkbox\" name=\"\" onclick=\"\" />");
+		} else {
+			context.generateHTML("");
+		}
+		context.generateHTML("</th>");
+		
+		if (UserContext.isMobileRequest()) {
+			HTMLUtil.generateTab(context, depth + 3);
+			for (UITableColumnType col : columns) {
+				// find image column.
+				if ("Image".equals(col.getUiType().getType())) {
+					context.generateHTML("<th id=\"");
+					context.generateHTML(col.getBeFieldId());
+					context.generateHTML("\" htmlType=\"");
+					context.generateHTML(col.getUiType().getType());
+					context.generateHTML("\" title=\"");
+					context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
+					context.generateHTML("\">");
+					context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
+					context.generateHTML("</th>");
+				}
+			}
+			context.generateHTML("<th id=\"attColumn\" htmlType=\"Label\" title=\"\">");
+			context.generateHTML("</th>");
+			// find html column.
+			for (UITableColumnType col : columns) {
+				if ("HTML".equals(col.getUiType().getType())) {
+					context.generateHTML("<th id=\"");
+					context.generateHTML(col.getBeFieldId());
+					context.generateHTML("\" htmlType=\"");
+					context.generateHTML(col.getUiType().getType());
+					context.generateHTML("\" title=\"");
+					context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
+					context.generateHTML("\">");
+					context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
+					context.generateHTML("</th>");
+				}
+			}
+		} else if (isShowBigItem==Boolean.TRUE) {
+			// default show 4 columns in one row.
+			context.generateHTML("<th>1</th><th>2</th><th>3</th><th>4</th>");
+		} else {
+			for (UITableColumnType col : columns) {
+				HTMLUtil.generateTab(context, depth + 3);
+				context.generateHTML("<th id=\"");
+				context.generateHTML(col.getBeFieldId());
+				context.generateHTML("\" htmlType=\"");
+				context.generateHTML(col.getUiType().getType());
+				context.generateHTML("\" title=\"");
+				context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
+				context.generateHTML("\">");
+				context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
+				context.generateHTML("</th>");
+			}
+		}
+
+		HTMLUtil.generateTab(context, depth + 3);
+		context.generateHTML("</tr>");
+		HTMLUtil.generateTab(context, depth + 2);
+		context.generateHTML("</thead>");
+	}
+
+	private void generateNormalBody(int depth, UITableSelectModeType selectMode, List listData, List<UITableColumnType> columns)
+		throws Exception {
+		int count = 0;
+		for (Object be : listData) {
+			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+			evaContext.setVariableValue("rowBE", be);
+			evaContext.setVariableValue("index", count);
+			ooeeContext.setDefaultEvaluationContext(evaContext);
+			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+			
+			ExpressionType rowFilter = (ExpressionType)this.getAttribute("rowFilterExpr");
+			boolean pass = (boolean)rowFilter.evaluate(ooeeContext);
+			if (!pass) {
+				continue;
+			}
+			
+			HTMLUtil.generateTab(context, depth + 3);
+			context.generateHTML("<tr>");
+			HTMLUtil.generateTab(context, depth + 3);
+			if (selectMode == UITableSelectModeType.MULTIPLE) {
+				context.generateHTML("<td>checkbox,"+count+"</td>");
+			} else if (selectMode == UITableSelectModeType.SINGLE) {
+				context.generateHTML("<td>radio,"+count+"</td>");
+			} else {
+				context.generateHTML("<td></td>");
+			}
+			
+			if (UserContext.isMobileRequest()) {
+				StringBuffer attrsSB = new StringBuffer();
+				StringBuffer htmlAttrsSB = new StringBuffer();
+				attrsSB.append("<td title=\"\">");
+				for (UITableColumnType col : columns) {
+					// find image column at the second column.
+					if ("Image".equals(col.getUiType().getType())) {
+						context.generateHTML("<td title=\"\">");
+						Object value = col.getRowExpression().getExpression().evaluate(
+								ooeeContext);
+						if (value == null) {
+							value = "";
+						}
+						context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
+						context.generateHTML(":");
+						context.generateHTML(value.toString());
+						context.generateHTML(", ");
+						context.generateHTML("</td>");
+					} else if ("HTML".equals(col.getUiType().getType())
+							|| "HTMLItem".equals(col.getUiType().getType())) {
+						htmlAttrsSB.append("<td title=\"\">");
+						Object value = col.getRowExpression().getExpression().evaluate(
+								ooeeContext);
+						if (value == null) {
+							value = "";
+						}
+						htmlAttrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle()));
+						htmlAttrsSB.append(":");
+						htmlAttrsSB.append(value.toString());
+						htmlAttrsSB.append(", ");
+						htmlAttrsSB.append("</td>");
+					} else {
+						Object value = col.getRowExpression().getExpression().evaluate(
+								ooeeContext);
+						if (value == null) {
+							value = "";
+						}
+						attrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle()));
+						attrsSB.append(":");
+						attrsSB.append(value.toString());
+						attrsSB.append(", ");
+					}
+				}
+				attrsSB.append("</td>");
+				context.generateHTML(attrsSB.toString());
+				context.generateHTML(htmlAttrsSB.toString());
+			} else {
+				for (UITableColumnType col : columns) {
+					HTMLUtil.generateTab(context, depth + 3);
+					Object value = col.getRowExpression().getExpression().evaluate(
+							ooeeContext);
+					if (value == null) {
+						value = "";
+					}
+					
+					context.generateHTML("<td title=\"");
+					if ("HTML".equals(col.getUiType().getType())
+							|| "HTMLItem".equals(col.getUiType().getType())) {
+					} else {
+						context.generateHTML(value.toString());
+					}
+					context.generateHTML("\">");
+					context.generateHTML(value.toString());
+					context.generateHTML("</td>");
+				}
+			}
+			HTMLUtil.generateTab(context, depth + 3);
+			context.generateHTML("</tr>");
+			
+			count++;
+		}
+	}
+
+	private void generateBigItemBody(HTMLSnapshotContext context, int depth,
+			List<UITableColumnType> columns, List<Object> listData)
+			throws EvaluationException {
+		UITableColumnType htmlCol = null;
+		for (UITableColumnType col : columns) {
+			if ("HTMLItem".equalsIgnoreCase(col.getUiType().getType())) {
+				htmlCol = col;
+				break;
+			}
+		}
+		if (htmlCol == null) {
+			throw new IllegalArgumentException("Please specify a HTMLItem column for this table "+this.getId());
+		}
+		int count = 4;
+		context.generateHTML("<tr>");
+		HTMLUtil.generateTab(context, depth + 2);
+		context.generateHTML("<td></td>");
+		for (int i=0; i<listData.size();i++) {
+			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+			evaContext.setVariableValue("rowBE", listData.get(i));
+			evaContext.setVariableValue("index", count);
+			ooeeContext.setDefaultEvaluationContext(evaContext);
+			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+			
+			ExpressionType rowFilter = (ExpressionType)this.getAttribute("rowFilterExpr");
+			boolean pass = (boolean)rowFilter.evaluate(ooeeContext);
+			if (!pass) {
+				continue;
+			}
+			
+			HTMLUtil.generateTab(context, depth + 3);
+			Object value = htmlCol.getRowExpression().getExpression().evaluate(ooeeContext);
+			if (value == null) {
+				value = "";
+			}
+
+			context.generateHTML("<td>");
+			context.generateHTML(value.toString());
+			context.generateHTML("</td>");
+			if (--count == 0 && i<listData.size()) {
+				HTMLUtil.generateTab(context, depth + 2);
+				context.generateHTML("</tr>");
+				HTMLUtil.generateTab(context, depth + 2);
+				context.generateHTML("<tr>");
+				HTMLUtil.generateTab(context, depth + 2);
+				context.generateHTML("<td></td>");
+				count = 4;
+			}
+		}
+		if (listData.size() % 4 != 0) {
+			int diff = 4 - listData.size();
+			if (diff > 0) {
+				while (diff-- > 0) {
+					context.generateHTML("<td></td>");
+				}
+			} else {
+				diff = 4 - (listData.size() % 4);
+				while (diff-- > 0) {
+					context.generateHTML("<td></td>");
+				}
+			}
+			HTMLUtil.generateTab(context, depth + 2);
+			context.generateHTML("</tr>");
+		}
+	}
+	
 	public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
 		try {
 			super.generateEndHTML(context, ownerEntity, depth);

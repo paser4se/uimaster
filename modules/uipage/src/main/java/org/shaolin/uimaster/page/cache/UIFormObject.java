@@ -623,6 +623,7 @@ public class UIFormObject implements java.io.Serializable
             	UITableType table = (UITableType)component;
             	propMap.put("beElememt", table.getBeElement());
             	propMap.put("defaultRowSize", table.getDefaultRowSize());
+            	propMap.put("isShowBigItem", table.isShowBigItem());
             	propMap.put("isShowActionBar", table.isShowActionBar());
             	propMap.put("isShowFilter", table.isShowFilter());
             	propMap.put("isEditableCell", table.isEditableCell());
@@ -642,6 +643,19 @@ public class UIFormObject implements java.io.Serializable
             	propMap.put("totalExpr", table.getTotalCount().getExpression());
             	
 				List<UITableColumnType> columns = table.getColumns();
+				if (table.isShowBigItem()) {
+					UITableColumnType htmlCol = null;
+					for (UITableColumnType col : columns) {
+						if ("HTMLItem".equalsIgnoreCase(col.getUiType().getType())) {
+							htmlCol = col;
+							break;
+						}
+					}
+					if (htmlCol == null) {
+						throw new IllegalArgumentException("Please specify a HTMLItem column for this table. "
+								+ component.getUIID() + " in form: " + this.name);
+					}
+				}
 				for (UITableColumnType col : columns) {
 					//TODO: check be field whether exists or not.
 					// col.getBeFieldId()
@@ -873,7 +887,6 @@ public class UIFormObject implements java.io.Serializable
             else if (component instanceof UIMatrixType) 
             {
             	UIMatrixType matrix = (UIMatrixType) component;
-            	propMap.put("matrix", matrix);
             	try {
 	            	if (matrix.getColumns() != null && matrix.getColumns().size() > 0) {
 		            	List<UITableColumnType> columns = matrix.getColumns();

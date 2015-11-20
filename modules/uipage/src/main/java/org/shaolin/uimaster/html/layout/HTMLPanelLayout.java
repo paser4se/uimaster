@@ -84,7 +84,12 @@ public class HTMLPanelLayout extends HTMLComponentLayout
         uiPanel.addEventListener(eventMap);
         uiPanel.setFrameInfo(context.getFrameInfo());
         if (uiPanel.hasDynamicUI()) {
-        	String filter = (String)tempMap.get("dynamicUIFilter");
+        	String filter = "";
+        	if (tempMap != null) {
+        		filter = (String)tempMap.get("dynamicUIFilter");
+        		if (filter == null)
+        			filter = "";
+        	}
         	List<HTMLDynamicUIItem> dynamicItems = ownerEntity.getDynamicItems(UIID, filter);
         	uiPanel.setDynamicItems(ee, dynamicItems);
         }

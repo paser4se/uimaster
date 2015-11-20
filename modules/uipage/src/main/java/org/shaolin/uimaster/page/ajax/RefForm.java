@@ -24,8 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.Session;
-import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
@@ -53,23 +51,8 @@ import org.slf4j.LoggerFactory;
  * <br>RefForm refEntity = new RefForm("refEntity1",ui);
  * <br>rootPanel.append(refEntity);
  * <br>
- * <br>
- * Code Example for OD mapping when data to ui:
- * <br>
- * <br>Panel rootPanel = (Panel)@page.getElement("Form");
- * <br>String ui = "bmiasia.ebos.appbase.test.uientity.EmployeeH";
- * <br>String od = "bmiasia.ebos.appbase.test.od.EmployeeH";
- * <br>java.util.Map map = new java.util.HashMap();
- * <br>bmiasia.ebos.appbase.test.be.Employee employee = new bmiasia.ebos.appbase.test.be.Employee();
- * <br>employee.setName("ddddddddddddd");
- * <br>map.put("Employee",employee);
- * <br>RefEntity refEntity = new RefEntity("refEntity1",ui,od,map);
- * <br>rootPanel.append(refEntity);
- * <br>
- * <br>
  * if you want to get value when ui to data, you must add a SetVariable action in Server Operation
  * which is Page Out or which is UI2Data of the od component,such as:<br>
- * $name = @page.getElement('name');//get value of refEntity1's name. put this script in bmiasia.ebos.appbase.test.od.EmployeeH component.
  *
  */
 public class RefForm extends Container implements Serializable
@@ -81,8 +64,6 @@ public class RefForm extends Container implements Serializable
     private HTMLReferenceEntityType copy;
     
     private Panel form;
-
-    private String html;
 
     private String uiid;
     
@@ -271,14 +252,10 @@ public class RefForm extends Container implements Serializable
 
     public String generateHTML()
     {
-        if (html == null)
-        {
-            buildUpRefEntity();
-        }
-        return html == null ? "" : html;
+       return buildUpRefEntity();
     }
 
-    void buildUpRefEntity()
+    String buildUpRefEntity()
     {
         try
         {
@@ -291,9 +268,7 @@ public class RefForm extends Container implements Serializable
             HTMLReferenceEntityType newReferObject = new HTMLReferenceEntityType(htmlContext,
                     this.getId(), this.getUIEntityName());
             if (inputParams == null)
-            {
                 inputParams = new HashMap();
-            }
             inputParams.put(odEntityObject.getUiParamName(), newReferObject);
             htmlContext.setHTMLPrefix("");
             htmlContext.setODMapperData(inputParams);
@@ -341,13 +316,14 @@ public class RefForm extends Container implements Serializable
         	UIFormObject formObject = PageCacheManager.getUIFormObject(this.getUIEntityName());
         	formObject.getJSPathSet(htmlContext, Collections.emptyMap());
             
-            html = writer.getBuffer().toString();
+            return writer.getBuffer().toString();
 //            form = (Panel)htmlContext.getAJAXComponent(getId() + ".Form");
         }
         catch (Exception ex)
         {
             logger.error("Error in building up structure for entity: " + uiid, ex);
         }
+        return "";
     }
     
     public void callODMapper(HTMLSnapshotContext htmlContext, String odmapperName) throws ODException

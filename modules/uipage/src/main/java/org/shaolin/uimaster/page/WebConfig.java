@@ -451,14 +451,18 @@ public class WebConfig {
 						}
 					}
 				}
-			}
-			if (key.endsWith(".*")) {
+			} else if (key.endsWith(".*")) {
 				String keyPack = key.substring(0, key.length() - 2);
 				if (pack.startsWith(keyPack)) {
 					String[] vs = getCacheObject().singleCommonJs.get(key);
 					for (String v: vs) {
 						results.add(v);
 					}
+				}
+			} else if (key.equals(entityName)) {
+				String[] vs = getCacheObject().singleCommonJs.get(entityName);
+				for (String v: vs) {
+					results.add(v);
 				}
 			}
 		}
@@ -483,6 +487,11 @@ public class WebConfig {
 					for (String v: vs) {
 						results.add(v);
 					}
+				}
+			} else if (key.equals(entityName)) {
+				String[] vs = getCacheObject().singleCommonCss.get(entityName);
+				for (String v: vs) {
+					results.add(v);
 				}
 			}
 		}

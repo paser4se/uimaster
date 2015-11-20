@@ -681,20 +681,23 @@ in simple component mapping, the paramName is required</xs:documentation>
                 <xs:sequence>
                 	<xs:element name="beElement" type="xs:string" />
                 	<xs:element name="selectMode" type="Page:UITableSelectModeType"  minOccurs="0"/>
-                	<xs:element name="initQuery" type="Page:ExpressionPropertyType"  minOccurs="0"/>
-                	<xs:element name="query" type="Page:ExpressionPropertyType"/>
-                	<xs:element name="totalCount" type="Page:ExpressionPropertyType"/>
+                    <xs:element name="selectedRowAction" type="xs:string" />
                     <xs:element name="defaultRowSize" type="xs:int" />
+                    <xs:element name="editableCell" type="xs:boolean" default="true"/>
+                    <!-- show a row in a cell -->
+                    <xs:element name="showBigItem" type="xs:boolean" default="false"/>
+                    <!-- show actions -->
                     <xs:element name="showActionBar" type="xs:boolean" default="true"/>
                     <!-- show the search criteria filters -->
                     <xs:element name="showFilter" type="xs:boolean" default="true"/>
+                	<xs:element name="initQuery" type="Page:ExpressionPropertyType"  minOccurs="0"/>
+                	<xs:element name="query" type="Page:ExpressionPropertyType"/>
+                	<xs:element name="totalCount" type="Page:ExpressionPropertyType"/>
                     <!-- whether displays the row or not -->
                     <xs:element name="rowFilter" type="Page:ExpressionPropertyType"/>
-                    <xs:element name="editableCell" type="xs:boolean" default="true"/>
                     <xs:element name="column" type="Page:UITableColumnType" maxOccurs="unbounded" minOccurs="0" />
                     <xs:element name="defaultActions" type="Page:UITableDefaultActionType" />
                     <xs:element name="actionGroup" type="Page:UITableActionGroupType" maxOccurs="unbounded" minOccurs="0" />
-                    <xs:element name="selectedRowAction" type="xs:string" />
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>
@@ -755,7 +758,9 @@ in simple component mapping, the paramName is required</xs:documentation>
 			            <xs:enumeration value="Date"/>
 			            <xs:enumeration value="DateRange"/>
 			            <xs:enumeration value="Image"/>
-               <xs:enumeration value="HTML"/>
+                        <xs:enumeration value="HTML"/>
+                        <!-- support the showBigItem case -->
+                        <xs:enumeration value="HTMLItem"/>
 			        </xs:restriction>
 		        </xs:simpleType>
             </xs:element>

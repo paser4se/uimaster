@@ -83,7 +83,7 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
             generateEventListeners(context);
             if (this.getAttribute("htmlSupport") != null && 
             		"true".equals(this.getAttribute("htmlSupport").toString())) {
-            	context.generateHTML(" disabled=\"disabled\"");
+            	context.generateHTML(" disabled=\"disabled\" style=\"display:none;\"");
             }
             context.generateHTML(">");
             if (context.isValueMask())
@@ -97,25 +97,39 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
             context.generateHTML("</textarea>");
             if (this.getAttribute("htmlSupport") != null && 
             		"true".equals(this.getAttribute("htmlSupport").toString())) {
-            	context.generateHTML("<div>");
-            	HTMLUtil.generateTab(context, depth);
-            	context.generateHTML("<textarea name=\"");
-            	context.generateHTML(getName());
-                context.generateHTML("_ckeditor\" class=\"ckeditor\" style=\"display:none\">");
-            	File file = new File(WebConfig.getResourcePath() + getValue());
-        		if (file.exists() && file.isFile()) {
-        			String content = FileUtil.readFile(new FileInputStream(file));
-        			context.generateHTML(content);
-        		}
-        		context.generateHTML("</textarea>");
-        		HTMLUtil.generateTab(context, depth);
-            	String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
-	        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
-	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/ckeditor/ckeditor.js\"></script>");
-	        	HTMLUtil.generateTab(context, depth);
-	        	context.generateHTML("<script type=\"text/javascript\">CKEDITOR.replace('"+getName()+"_ckeditor');</script>");
-	        	HTMLUtil.generateTab(context, depth);
-	        	context.generateHTML("</div>");
+            	if (this.getAttribute("viewMode") != null && 
+                		"true".equals(this.getAttribute("viewMode").toString())) {
+            		context.generateHTML("<iframe id=\"");
+        			context.generateHTML(getName());
+        			context.generateHTML("\" name=\"");
+        			context.generateHTML(getName());
+        			context.generateHTML("\" src=\"");
+        			context.generateHTML(WebConfig.getWebRoot());
+        			context.generateHTML("/");
+        			context.generateHTML(getValue());
+        			context.generateHTML("\" frameborder=\"0\" width=\"100%\" height=\"100%\" scrolling='yes'>");
+        			context.generateHTML("</iframe>");
+            	} else {
+	            	context.generateHTML("<div>");
+	            	HTMLUtil.generateTab(context, depth);
+	            	context.generateHTML("<textarea name=\"");
+	            	context.generateHTML(getName());
+	                context.generateHTML("_ckeditor\" class=\"ckeditor\" style=\"display:none\">");
+	            	File file = new File(WebConfig.getResourcePath() + getValue());
+	        		if (file.exists() && file.isFile()) {
+	        			String content = FileUtil.readFile(new FileInputStream(file));
+	        			context.generateHTML(content);
+	        		}
+	        		context.generateHTML("</textarea>");
+	        		HTMLUtil.generateTab(context, depth);
+	            	String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
+		        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
+		        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/ckeditor/ckeditor.js\"></script>");
+		        	HTMLUtil.generateTab(context, depth);
+		        	context.generateHTML("<script type=\"text/javascript\">CKEDITOR.replace('"+getName()+"_ckeditor');</script>");
+		        	HTMLUtil.generateTab(context, depth);
+		        	context.generateHTML("</div>");
+            	}
             }
             
             generateEndWidget(context);

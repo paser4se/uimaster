@@ -15,10 +15,13 @@
 */
 package org.shaolin.uimaster.page.widgets;
 
+import java.util.List;
+
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
-import org.shaolin.bmdp.datamodel.page.UIMatrixType;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.ajax.Layout;
+import org.shaolin.uimaster.page.ajax.Matrix;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
@@ -70,9 +73,8 @@ import org.slf4j.LoggerFactory;
  */
 public class HTMLMatrixType extends HTMLTextWidgetType 
 {
-    private static final Logger logger = LoggerFactory.getLogger(HTMLMatrixType.class);
-
-    private String buttonType;
+	private static final long serialVersionUID = 1L;
+	private static final Logger logger = LoggerFactory.getLogger(HTMLMatrixType.class);
 
     public HTMLMatrixType()
     {
@@ -98,13 +100,10 @@ public class HTMLMatrixType extends HTMLTextWidgetType
     {
         try
         {
-        	UIMatrixType matrix = (UIMatrixType) this.removeAttribute("matrix");
         	String coordination = (String)this.removeAttribute("coordination");
         	String[] dimensions = coordination.split(",");
         	int x = Integer.valueOf(dimensions[0]);
         	int y = Integer.valueOf(dimensions[1]);
-        	
-            this.removeAttribute("init");
         	
             generateWidget(context);
             context.generateHTML("<div class=\"uimaster_matrix\" type=\"");
@@ -115,12 +114,16 @@ public class HTMLMatrixType extends HTMLTextWidgetType
             generateAttributes(context);
             context.generateHTML(">");
             
+            List<List<String>> blocks = (List<List<String>>)this.removeAttribute("init");
 			for (int i = 0; i < x; i++) {
-				context.generateHTML("<dl class=\"uimaster_matrix_row\">");
+				context.generateHTML("<div class=\"uimaster_matrix_row\" i='"+i+"'>");
+				List<String> row = blocks.get(i);
 				for (int j=0; j < y; j++) {
-					context.generateHTML("<dd><div class=\"uimaster_matrix_col\"></div></dd>");
+					context.generateHTML("<div j='"+j+"' "+(j==0?"style=\"float:left;\"":"")+"><span class=\"uimaster_matrix_col\">");
+					context.generateHTML(row.get(j));
+					context.generateHTML("</span></div>");
 				}
-				context.generateHTML("</dl>");
+				context.generateHTML("</div>");
 			}
             
             context.generateHTML("</div>");
@@ -146,7 +149,12 @@ public class HTMLMatrixType extends HTMLTextWidgetType
     	} catch (EvaluationException e) {
 			throw new IllegalStateException(e);
 		}
-		return null;
+    	
+    	Matrix matrix = new Matrix(getName(), Layout.NULL);
+    	matrix.setUIEntityName(getUIEntityName());
+    	matrix.setListened(true);
+    	matrix.setFrameInfo(getFrameInfo());
+		return matrix;
     }
 
 }

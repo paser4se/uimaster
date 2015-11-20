@@ -620,6 +620,10 @@ public class UIFormJSGenerator0 {
 			out.write(" = new ");
 			out.print(JSConstants.UIFIELD);
 			out.write("\n");
+		} else if (component instanceof UIPanelType) {
+			out.write(" = new ");
+			out.print(JSConstants.PANEL);
+			out.write("\n");
 		} 
     
         out.write("    ({\n");
@@ -636,8 +640,10 @@ public class UIFormJSGenerator0 {
 					t.getPanel().getComponents().toArray(subComponents);
 					for (UIComponentType cType: subComponents)
 					{
-						genRefJS(out, cType);
-						genCommonComponentJS(out, cType, uiEntity);
+						if (!(cType instanceof UIContainerType)) {
+							genRefJS(out, cType);
+							genCommonComponentJS(out, cType, uiEntity);
+						}
 					}
 					genUIContainerJS(out, (UIContainerType)t.getPanel(), false, subComponents, uiEntity);
 				}

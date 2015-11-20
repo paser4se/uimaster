@@ -232,10 +232,42 @@ html {
     width:100%;
 }
 
-.uimaster_table td{
+.uimaster_table td {
     max-width:150px;
- text-overflow:ellipsis;
- overflow:hidden;
+	text-overflow:ellipsis;
+	overflow:hidden;
+}
+
+.uimaster-amount-btn {
+    float: right;
+	height: 35px;
+    line-height: 31px;
+    color: #878787;
+}
+.uimaster-amount-increase {
+	width: 16px;
+    height: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid #a7a6ab;
+    display: block;
+    font-family: tm-detail-font;
+    line-height: 12px;
+    font-size: 16px;
+	text-align: center;
+    margin-bottom: 3px;
+}
+.uimaster-amount-decrease {
+	width: 16px;
+    height: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid #a7a6ab;
+    display: block;
+    font-family: tm-detail-font;
+    line-height: 12px;
+    font-size: 16px;
+	text-align: center;
 }
 
 /**

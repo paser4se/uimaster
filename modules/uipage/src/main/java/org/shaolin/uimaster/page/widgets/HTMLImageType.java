@@ -47,17 +47,21 @@ public class HTMLImageType extends HTMLTextWidgetType
             if (this.getAttribute("isGallery") != null) {
 	            String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
 	        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
-	            HTMLUtil.generateTab(context, depth);
-	            context.generateHTML("<div><link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/font-awesome.min.css\" type=\"text/css\">");
-	            HTMLUtil.generateTab(context, depth);
-	            context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/jgallery.min.css?v=1.5.0\" type=\"text/css\">");
-	            HTMLUtil.generateTab(context, depth);
-	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/jgallery.js\"></script>");
-	        	HTMLUtil.generateTab(context, depth);
-	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/touchswipe.js\"></script>");
-	        	HTMLUtil.generateTab(context, depth);
-	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/tinycolor-0.9.16.min.js\"></script>");
-	        	HTMLUtil.generateTab(context, depth);
+	        			
+//	        	These files are configurable in runconfig.registry file of each module.
+//	        	Because JGallary has a bug on importing these files in multiple time.
+//	            Please refer to org_shaolin_vogerp_productmodel runconfig.registry.
+//	            HTMLUtil.generateTab(context, depth);
+//	            context.generateHTML("<div><link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/font-awesome.min.css\" type=\"text/css\">");
+//	            HTMLUtil.generateTab(context, depth);
+//	            context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/jgallery.min.css?v=1.5.0\" type=\"text/css\">");
+//	            HTMLUtil.generateTab(context, depth);
+//	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/jgallery.js\"></script>");
+//	        	HTMLUtil.generateTab(context, depth);
+//	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/touchswipe.js\"></script>");
+//	        	HTMLUtil.generateTab(context, depth);
+//	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/tinycolor-0.9.16.min.js\"></script>");
+//	        	HTMLUtil.generateTab(context, depth);
 	        	
 	        	context.generateHTML("<div id=\"");
 	        	context.generateHTML(getName());

@@ -158,7 +158,7 @@ public class HTMLTabPaneType extends HTMLContainerType
 	                UITabPaneItemType tab = tabs.get(i);
 	                if (tab.getPanel() != null) {
 	                	//ui panel support
-	                	String UIID = this.getPrefix() + tab.getPanel().getUIID();
+	                	String UIID = tab.getPanel().getUIID();
 	                	HTMLPanelLayout panelLayout = new HTMLPanelLayout(UIID, ownerEntity);
 	                	TableLayoutConstraintType layoutConstraint = new TableLayoutConstraintType();
 	                	OOEEContext ooee = OOEEContextFactory.createOOEEContext();
