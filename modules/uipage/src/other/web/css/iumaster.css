@@ -140,10 +140,8 @@ label {
 }
 
 .uimaster_matrix_col {
-  border: 1px solid #77d5f7;
- background: #0078ae url("images/ui-bg_glass_45_0078ae_1x400.png") 50% 50% repeat-x;
-    font-weight: bold;
-    color: #ffffff;
+ border: 1px solid #77d5f7;
+ font-weight: bold;
  border-bottom-right-radius: 5px;
  border-bottom-left-radius: 5px;
  border-top-right-radius: 5px;
@@ -151,10 +149,25 @@ label {
  display: inline-block;
  padding: .5em .4em .5em .4em;
  cursor: pointer;
+ margin-right: 5px;
 }
 
 .uimaster_workflow_action {
  text-decoration: underline;
+}
+
+.uimaster_prenext_title {
+ margin-right:30px;
+}
+
+.uimaster_prenext_buttons {
+ padding-top: 8px;
+ margin-top: 8px;
+ border-top: 1px solid #a6c9e2;
+}
+
+.uimaster_prenext_buttons button{
+ margin-left: 8px;
 }
 
 .no_margin {

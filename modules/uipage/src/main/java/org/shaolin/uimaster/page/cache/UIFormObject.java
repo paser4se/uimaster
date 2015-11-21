@@ -80,6 +80,7 @@ import org.shaolin.bmdp.datamodel.page.UIMatrixType;
 import org.shaolin.bmdp.datamodel.page.UIMultiChoiceType;
 import org.shaolin.bmdp.datamodel.page.UIPage;
 import org.shaolin.bmdp.datamodel.page.UIPanelType;
+import org.shaolin.bmdp.datamodel.page.UIPreNextPanelType;
 import org.shaolin.bmdp.datamodel.page.UIRadioButtonGroupType;
 import org.shaolin.bmdp.datamodel.page.UIReferenceEntityType;
 import org.shaolin.bmdp.datamodel.page.UISelectComponentType;
@@ -532,6 +533,49 @@ public class UIFormObject implements java.io.Serializable
 	                                    + component.getUIID() + " in form: " + this.name, e);
 					}
                 	propMap.put("selectedAction", tabPane.getTabSelectedAction().getExpression());
+                }
+            }
+            else if (component instanceof UIPreNextPanelType)
+            {
+            	UIPreNextPanelType preNextPanel = (UIPreNextPanelType)component;
+                List<UITabPaneItemType> tabs = preNextPanel.getTabs();
+				for (UITabPaneItemType tab : tabs)
+                {
+					if (tab.getRefEntity() != null) {
+	                    parseComponent(tab.getRefEntity(), parsingContext);
+	                    String referenceEntity = tab.getRefEntity().getReferenceEntity()
+	                            .getEntityName();
+	
+	                    UIFormObject refEntity = HTMLUtil.parseUIForm(referenceEntity);
+	                    includeMap.put(refEntity, Long.valueOf(refEntity.lastModifyTime));
+	                    refereneEntityList.add(referenceEntity);
+	
+	                    parseReconfiguration(tab.getRefEntity(), propMap,
+	                            i18nMap, expMap, parsingContext);
+					} else if (tab.getPanel() != null) {
+						parseComponent(tab.getPanel(), parsingContext);
+					}
+
+                }
+				propMap.put("ajaxLoad", preNextPanel.isAjaxLoad());
+                propMap.put("tabPaneItems", preNextPanel.getTabs());
+                if (preNextPanel.getPreviousAction() != null) {
+                	try {
+						preNextPanel.getPreviousAction().getExpression().parse(parsingContext);
+					} catch (ParsingException e) {
+						logger.error("Exception occured when pass the tab pane expression: "
+	                                    + component.getUIID() + " in form: " + this.name, e);
+					}
+                	propMap.put("previousAction", preNextPanel.getPreviousAction().getExpression());
+                }
+                if (preNextPanel.getNextAction() != null) {
+                	try {
+						preNextPanel.getNextAction().getExpression().parse(parsingContext);
+					} catch (ParsingException e) {
+						logger.error("Exception occured when pass the tab pane expression: "
+	                                    + component.getUIID() + " in form: " + this.name, e);
+					}
+                	propMap.put("nextAction", preNextPanel.getNextAction().getExpression());
                 }
             }
             else if (component instanceof UIFlowDiagramType)

@@ -30,32 +30,33 @@ import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.uimaster.html.layout.HTMLPanelLayout;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.ajax.CellLayout;
-import org.shaolin.uimaster.page.ajax.TabPane;
+import org.shaolin.uimaster.page.ajax.PreNextPanel;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HTMLTabPaneType extends HTMLContainerType
+public class HTMLPreNextPanelType extends HTMLContainerType
 {
-    private static final Logger logger = LoggerFactory.getLogger(HTMLTabPaneType.class);
+    private static final Logger logger = LoggerFactory.getLogger(HTMLPreNextPanelType.class);
 
     private int selectedIndex;
 
-    public HTMLTabPaneType()
+    public HTMLPreNextPanelType()
     {
         selectedIndex = 0;
     }
 
-    public HTMLTabPaneType(HTMLSnapshotContext context)
+    public HTMLPreNextPanelType(HTMLSnapshotContext context)
     {
         super(context);
         selectedIndex = 0;
     }
 
-    public HTMLTabPaneType(HTMLSnapshotContext context, String id)
+    public HTMLPreNextPanelType(HTMLSnapshotContext context, String id)
     {
         super(context, id);
         selectedIndex = 0;
@@ -77,20 +78,14 @@ public class HTMLTabPaneType extends HTMLContainerType
 
             super.generateBeginHTML(context, ownerEntity, depth);
 
-            
             List<UITabPaneItemType> tabs = (List<UITabPaneItemType>)this.removeAttribute("tabPaneItems");
             int tabSelected = 0;
             if(this.getAttribute("tabSelected") != null) {
                 tabSelected = Integer.parseInt((String)this.getAttribute("tabSelected"));
             }
-            boolean ajaxLoad = (boolean)this.removeAttribute("ajaxLoad");
-            if (ajaxLoad) {
-            	TabPane tabPane = ((TabPane)context.getAjaxWidgetMap().get(this.getName()));
-            	tabPane.setPageWidgetContext(context.getPageWidgetContext());
-            	tabPane.setOwnerEntity(ownerEntity);
-            }
             //Generate the titles of the tabpane
             String cmpName = getName().replace('.', '_');
+            HTMLUtil.generateTab(context, depth + 1);
             context.generateHTML("<div class =\"tab-titles ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all\" id=\"titles-container-");
             context.generateHTML(cmpName);
             context.generateHTML("\" selectedIndex=\"");
@@ -113,23 +108,25 @@ public class HTMLTabPaneType extends HTMLContainerType
                 }
                 if(i == tabSelected)
                 {
-                    context.generateHTML("<div class =\"ui-state-default ui-corner-top ui-tabs-active ui-state-active\" style=\"border-bottom: 1px solid white;\" id = \"tab-" + cmpName + "-titles-" + i + "\" index=\""+ i +"\">");
+                    context.generateHTML("<div class =\"ui-state-default ui-corner-top ui-tabs-active ui-state-active uimaster_prenext_title\" style=\"border-bottom: 1px solid white;\" id = \"tab-" + cmpName + "-titles-" + i + "\" index=\""+ i +"\">");
                     selectedIndex = i;
                 }
                 else
                 {
-                    context.generateHTML("<div class =\"ui-state-default ui-corner-top\" id = \"tab-" + cmpName + "-titles-" + i + "\" index=\""+ i +"\" ajaxload=\"" + ajaxLoad + "\">");
+                    context.generateHTML("<div class =\"ui-state-default ui-corner-top uimaster_prenext_title\" id = \"tab-" + cmpName + "-titles-" + i + "\" index=\""+ i +"\" ajaxload=\"false\">");
                 }
-                context.generateHTML("" + title);
+                context.generateHTML((i+1) + ") " + title);
                 context.generateHTML("</div>");
             }
             context.generateHTML("</div>");
 
             //Generate the bodies of the tabpane
+            HTMLUtil.generateTab(context, depth + 1);
             context.generateHTML("<div class=\"tab-bodies\" id=\"bodies-container-" + cmpName + "\">");
             for(int i = 0, n = tabs.size(); i < n; i++)
             {
             	//Generate one body
+            	HTMLUtil.generateTab(context, depth + 2);
             	context.generateHTML("<div id=\"tab-");
             	context.generateHTML(cmpName + "-body-"+ i + "\"");
             	context.generateHTML(" class=\"");
@@ -147,54 +144,54 @@ public class HTMLTabPaneType extends HTMLContainerType
             	context.generateHTML(" uiid=\"");
             	context.generateHTML(tabs.get(i).getUiid());
             	context.generateHTML("\">");
-            	
-            	if (ajaxLoad && i > 0) {
-            		// save context if it's ajax loading.
-            		String uiid = tabs.get(i).getUiid();
-                	TabPane tabPane = (TabPane)context.getAjaxWidget(getName());
-                	tabPane.addODMapperContext(uiid, context.getODMapperContext(uiid));
-            	}
-            	if (!ajaxLoad || i==0) {
-	                UITabPaneItemType tab = tabs.get(i);
-	                if (tab.getPanel() != null) {
-	                	//ui panel support
-	                	String UIID = tab.getPanel().getUIID();
-	                	HTMLPanelLayout panelLayout = new HTMLPanelLayout(UIID, ownerEntity);
-	                	TableLayoutConstraintType layoutConstraint = new TableLayoutConstraintType();
-	                	OOEEContext ooee = OOEEContextFactory.createOOEEContext();
-	                    panelLayout.setConstraints(layoutConstraint, ooee);
-	                    panelLayout.setBody(tab.getPanel(), ooee);
-	                	
-	                    panelLayout.generateComponentHTML(context, depth, false, Collections.emptyMap(), ee, this.getHTMLLayout());
-	                } else if (tab.getRefEntity() != null) {
-	                	//form support
-	                	String prefix = context.getHTMLPrefix();
-	                	try {
-		                	UIReferenceEntityType itemRef = (UIReferenceEntityType)tab.getRefEntity();
-		                	String UIID = this.getPrefix() + itemRef.getUIID();
-			                String type = itemRef.getReferenceEntity().getEntityName();
-			                HTMLReferenceEntityType refEntity = new HTMLReferenceEntityType(context, UIID, type);
-			                //Generate the uiform of the body
-			                refEntity.generateBeginHTML(context, ownerEntity, depth+1);
-			                refEntity.generateEndHTML(context, ownerEntity, depth+1);
-	                	} finally {
-	                		context.setHTMLPrefix(prefix);
-	                	}
-	                } else if (tab.getFrame() != null) {
-	                	//page support
-	                	this.context.getRequest().setAttribute("_chunkname", tab.getFrame().getChunkName());
-	                	this.context.getRequest().setAttribute("_nodename", tab.getFrame().getNodeName());
-	                	this.context.getRequest().setAttribute("_framePagePrefix", this.context.getFrameInfo());
-	                	this.context.getRequest().setAttribute("_tabcontent", "true");
-	                	HTMLFrameType frame = new HTMLFrameType(this.context, tab.getUiid());
-	                	frame.setHTMLAttribute(HTMLFrameType.NEED_SRC, "true");
-	                	frame.generateBeginHTML(context, ownerEntity, depth + 1);
-	                	frame.generateEndHTML(context, ownerEntity, depth + 1);
-	                } 
-            	}
+            	HTMLUtil.generateTab(context, depth + 2);
+                UITabPaneItemType tab = tabs.get(i);
+                if (tab.getPanel() != null) {
+                	//ui panel support
+                	String UIID = tab.getPanel().getUIID();
+                	HTMLPanelLayout panelLayout = new HTMLPanelLayout(UIID, ownerEntity);
+                	TableLayoutConstraintType layoutConstraint = new TableLayoutConstraintType();
+                	OOEEContext ooee = OOEEContextFactory.createOOEEContext();
+                    panelLayout.setConstraints(layoutConstraint, ooee);
+                    panelLayout.setBody(tab.getPanel(), ooee);
+                	
+                    panelLayout.generateComponentHTML(context, depth+3, false, Collections.emptyMap(), ee, this.getHTMLLayout());
+                } else if (tab.getRefEntity() != null) {
+                	//form support
+                	String prefix = context.getHTMLPrefix();
+                	try {
+	                	UIReferenceEntityType itemRef = (UIReferenceEntityType)tab.getRefEntity();
+	                	String UIID = this.getPrefix() + itemRef.getUIID();
+		                String type = itemRef.getReferenceEntity().getEntityName();
+		                HTMLReferenceEntityType refEntity = new HTMLReferenceEntityType(context, UIID, type);
+		                
+		                Widget newWidget = refEntity.createAjaxWidget(ee);
+		                context.addAjaxWidget(newWidget.getId(), newWidget);
+		                //Generate the uiform of the body
+		                refEntity.generateBeginHTML(context, ownerEntity, depth+3);
+		                refEntity.generateEndHTML(context, ownerEntity, depth+3);
+                	} finally {
+                		context.setHTMLPrefix(prefix);
+                	}
+                } else if (tab.getFrame() != null) {
+                	//page support
+                	this.context.getRequest().setAttribute("_chunkname", tab.getFrame().getChunkName());
+                	this.context.getRequest().setAttribute("_nodename", tab.getFrame().getNodeName());
+                	this.context.getRequest().setAttribute("_framePagePrefix", this.context.getFrameInfo());
+                	this.context.getRequest().setAttribute("_tabcontent", "true");
+                	HTMLFrameType frame = new HTMLFrameType(this.context, tab.getUiid());
+                	frame.setHTMLAttribute(HTMLFrameType.NEED_SRC, "true");
+                	frame.generateBeginHTML(context, ownerEntity, depth + 3);
+                	frame.generateEndHTML(context, ownerEntity, depth + 3);
+                } 
+                HTMLUtil.generateTab(context, depth + 2);
                 context.generateHTML("</div>");
             }
+            HTMLUtil.generateTab(context, depth + 1);
             context.generateHTML("</div>");
+            
+            context.generateHTML("<div class=\"uimaster_prenext_buttons\"><button type=\"button\" title=\"Previous\">&lt;--</button><button type=\"button\" title=\"Next\">--&gt;</button></div>");
+            HTMLUtil.generateTab(context, depth + 1);
             
             generateEndWidget(context);
         }
@@ -265,23 +262,13 @@ public class HTMLTabPaneType extends HTMLContainerType
     public Widget createAjaxWidget(VariableEvaluator ee)
     {
     	this.ee = ee;
-//        HashMap tempVars = null;
-//        boolean ajaxLoad = (boolean)this.getAttribute("ajaxLoad");
-//        if (ajaxLoad) {
-//        	// save the input variables to this tab panel.
-//        	EvaluationContext tempContext = ee.getExpressionContext(ODContext.LOCAL_TAG);
-//        	if (tempContext == null) {
-//        		tempContext = ee.getExpressionContext();
-//        	}
-//        	if (tempContext instanceof DefaultEvaluationContext) {
-//        		Map vars = ((DefaultEvaluationContext)tempContext).getVariableObjects();
-//        		tempVars = new HashMap(vars);
-//        	}
-//        }
-    	ExpressionType selectedAction = (ExpressionType)this.removeAttribute("selectedAction");
+    	ExpressionType previousAction = (ExpressionType)this.removeAttribute("previousAction");
+    	ExpressionType nextAction = (ExpressionType)this.removeAttribute("nextAction");
+    	
     	List<UITabPaneItemType> tabs = (List<UITabPaneItemType>)this.getAttribute("tabPaneItems");
-    	TabPane panel = new TabPane(getName(), tabs, selectedIndex, new CellLayout());
-    	panel.setSelectedAction(selectedAction);
+    	PreNextPanel panel = new PreNextPanel(getName(), tabs, selectedIndex, new CellLayout());
+    	panel.setPreviousAction(previousAction);
+    	panel.setNextAction(nextAction);
         panel.setReadOnly(getReadOnly());
         panel.setUIEntityName(getUIEntityName());
         

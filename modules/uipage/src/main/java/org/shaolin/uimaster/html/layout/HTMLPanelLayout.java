@@ -25,6 +25,10 @@ public class HTMLPanelLayout extends HTMLComponentLayout
 
     private HTMLCellLayout layout = null;
     
+    /**
+     * @param UIID pay attention to this UIID which is pure id defined in the page/form component.
+     * @param entity
+     */
     public HTMLPanelLayout(String UIID, UIFormObject entity)
     {
         super(UIID, entity);

@@ -41,7 +41,6 @@ import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.PageWidgetsContext;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
-import org.shaolin.uimaster.page.ajax.json.JSONArray;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
 import org.shaolin.uimaster.page.cache.UIFormObject;
@@ -52,6 +51,7 @@ import org.shaolin.uimaster.page.od.ODPageContext;
 import org.shaolin.uimaster.page.spi.IJsGenerator;
 import org.shaolin.uimaster.page.widgets.HTMLCellLayoutType;
 import org.shaolin.uimaster.page.widgets.HTMLFrameType;
+import org.shaolin.uimaster.page.widgets.HTMLReferenceEntityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,16 +65,6 @@ import org.slf4j.LoggerFactory;
  *  <br>    Panel rootPanel = (Panel)@page.getElement("Form");
  *  <br>    rootPanel.append(taPane);
  *  <br>}
- *  <br>String ui = "bmiasia.ebos.appbase.test.uientity.Employee";
- *  <br>RefEntity refEntity = new RefEntity("refEntitytab1",ui);
- *  <br>taPane.addTab("customer",refEntity);
- *  <br>ui = "bmiasia.ebos.businessmanager.uientity.ExpressionUI";
- *  <br>RefEntity refEntity2 = new RefEntity("refEntitytab2",ui);
- *  <br>taPane.setTabComponentAt(0, refEntity2);
- *  <br>ui = "bmiasia.ebos.appbase.test.uientity.Employee";
- *  <br>RefEntity refEntity3 = new RefEntity("refEntitytab3",ui);
- *  <br>taPane.addTabAt(0,"customer",refEntity3);
- *  <br>taPane.setSelectedIndex(1);
  *
  */
 public class TabPane extends Container implements Serializable 
@@ -245,10 +235,11 @@ public class TabPane extends Container implements Serializable
         htmlContext.setFormName(this.getUIEntityName());
         htmlContext.setIsDataToUI(true);//Don't set prefix in here.
         htmlContext.setAjaxWidgetMap(AjaxActionHelper.getFrameMap(ajaxContext.getRequest()));
-        htmlContext.setHTMLPrefix("");
-        htmlContext.setDIVPrefix("");
+        htmlContext.setHTMLPrefix(ajaxContext.getEntityPrefix());
+        htmlContext.setDIVPrefix(ajaxContext.getEntityPrefix().replace(".", "-"));
         htmlContext.setJSONStyle(true);
         htmlContext.setPageWidgetContext(widgetContext);
+        htmlContext.setODMapperData(new HashMap());
     	
     	UITabPaneItemType tab = tabs.get(index);
     	ODContext odContext = this.evalContexts.remove(tab.getUiid());
@@ -262,6 +253,8 @@ public class TabPane extends Container implements Serializable
 			} else {
 				try {
 					String pageName = ownerEntity.getName();
+					HTMLReferenceEntityType uiEntity = new HTMLReferenceEntityType(htmlContext, entityPrefix, pageName);
+					htmlContext.getODMapperData().put("UIWidgetType", uiEntity);
 					try {
 						pContext = PageCacheManager.getUIFormObject(pageName).getVariablePContext();
 						ODEntityContext odEntityContext = new ODEntityContext(pageName, htmlContext);
@@ -276,21 +269,21 @@ public class TabPane extends Container implements Serializable
 						ee = new VariableEvaluator(odPageContext);
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.warn(e.getMessage(), e);
 				}
 			}
-			if (pContext == null) {
+			if (pContext == null || ee == null) {
 				throw new IllegalStateException("Failed to initialize the OD context for UIPage tab.");
 			}
 			
         	//ui panel support
-        	String UIID = entityPrefix + tab.getPanel().getUIID();
-        	HTMLPanelLayout panelLayout = new HTMLPanelLayout(UIID, ownerEntity);
+        	String id = entityPrefix + tab.getPanel().getUIID();
+        	HTMLPanelLayout panelLayout = new HTMLPanelLayout(tab.getPanel().getUIID(), ownerEntity);
         	TableLayoutConstraintType layoutConstraint = new TableLayoutConstraintType();
             panelLayout.setConstraints(layoutConstraint, pContext);
             panelLayout.setBody(tab.getPanel(), pContext);
         	
-            HTMLCellLayoutType layout = new HTMLCellLayoutType(htmlContext, UIID);
+            HTMLCellLayoutType layout = new HTMLCellLayoutType(htmlContext, id);
             panelLayout.generateComponentHTML(htmlContext, 0, true, Collections.emptyMap(), ee, layout);
             
             IJsGenerator jsGenerator = IServerServiceManager.INSTANCE.getService(IJsGenerator.class);
@@ -302,7 +295,7 @@ public class TabPane extends Container implements Serializable
             }
             js.append("Form.items.push(elementList['").append(tab.getPanel().getUIID()).append("']);");
             
-            IDataItem dataItem = AjaxActionHelper.createAppendItemToTab(this.getId(), UIID);
+            IDataItem dataItem = AjaxActionHelper.createAppendItemToTab(this.getId(), id);
             dataItem.setData(htmlContext.getHTMLString());
             dataItem.setJs(js.toString());
             dataItem.setFrameInfo(this.getFrameInfo());

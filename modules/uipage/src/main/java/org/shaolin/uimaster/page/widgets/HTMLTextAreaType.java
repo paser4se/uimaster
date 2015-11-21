@@ -20,7 +20,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import org.shaolin.bmdp.utils.FileUtil;
-import org.shaolin.bmdp.utils.StringUtil;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
@@ -29,7 +28,6 @@ import org.shaolin.uimaster.page.ajax.TextArea;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
-import org.shaolin.uimaster.page.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,10 +120,13 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
 	        		}
 	        		context.generateHTML("</textarea>");
 	        		HTMLUtil.generateTab(context, depth);
-	            	String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
-		        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
-		        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/ckeditor/ckeditor.js\"></script>");
-		        	HTMLUtil.generateTab(context, depth);
+//	            	String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
+//		        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
+//		    	        	These files are configurable in runconfig.registry file of each module.
+//		    	        	Because JGallary has a bug on importing these files in multiple time.
+//		    	            Please refer to org_shaolin_vogerp_productmodel runconfig.registry.
+//		        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/ckeditor/ckeditor.js\"></script>");
+//		        	HTMLUtil.generateTab(context, depth);
 		        	context.generateHTML("<script type=\"text/javascript\">CKEDITOR.replace('"+getName()+"_ckeditor');</script>");
 		        	HTMLUtil.generateTab(context, depth);
 		        	context.generateHTML("</div>");

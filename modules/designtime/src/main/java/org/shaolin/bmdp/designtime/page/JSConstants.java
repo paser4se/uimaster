@@ -51,6 +51,8 @@ public class JSConstants
     public static final String FILE = "UIMaster.ui.file";
     
     public static final String TAB = "UIMaster.ui.tab";
+    
+    public static final String PRENEXTPANEL = "UIMaster.ui.prenextpanel";
 
     public static final String WEBTREE = "UIMaster.ui.webtree";
 	

@@ -372,9 +372,13 @@ UIMaster.ui.textfield = UIMaster.extend(UIMaster.ui.field, /** @lends UIMaster.u
         this.removeListener('blur', this.validateEvent);
         this._v = this.value;
         this.regex && (this.regex = new RegExp(this.regex));
-        if (this.ui && !this.defaultBackgroundImage)
-            UIMaster.browser.msie?this.defaultBackgroundImage = this.currentStyle.backgroundImage:this.defaultBackgroundImage = document.defaultView.getComputedStyle(this, null).getPropertyValue("background-image");
-        var f = this.onblur;
+        if (this.ui && !this.defaultBackgroundImage) {
+            if (UIMaster.browser.msie)
+			   this.defaultBackgroundImage = this.currentStyle.backgroundImage;
+			else
+			   try{this.defaultBackgroundImage = document.defaultView.getComputedStyle(this, null).getPropertyValue("background-image");}catch(e){}
+        }
+		var f = this.onblur;
         this.onblur = null;
         $(this).bind('blur', this.notifyChange).bind('keyup', function(e) {
             this.needErrMsg = false;
@@ -410,7 +414,11 @@ UIMaster.ui.textfield = UIMaster.extend(UIMaster.ui.field, /** @lends UIMaster.u
         $(this).bind('keydown',this.checkMaxLength);
         $(this).bind('keyup',this.checkMaxAfterInput)
         if(v7)this.maxLength=Number(v7);
-    }
+		if(this.needamount)this.amountFunction();
+    },
+	amountFunction: function(){
+		
+	}
 });
 /**
  * @description Textarea class.
@@ -1423,6 +1431,15 @@ UIMaster.ui.panel = function(conf){
         UIMaster.apply(this, {
             validate:function(){},
             init:function(){
+			    if (this.subComponents.length > 0) {
+					for (var i = 0; i < this.subComponents.length; i++) {
+						var comp = elementList[this.subComponents[i]];
+						if (comp) {
+							comp.parentEntity = this.parentEntity;
+							comp.init && comp.init();
+						}
+					}
+				}
                 this.parentDiv=this.parentNode;
                 this.user_constructor && (defaultname && defaultname.Form || defaultname && defaultname[this.Form.id.split('.')[0]] ? this.user_constructor() : UIMaster.initList.push(this));
                 this.initialized=true;
@@ -1431,7 +1448,15 @@ UIMaster.ui.panel = function(conf){
                 else if("FoldingPanel" == this.uiskin)
                     this.parentDiv=this.parentDiv.parentNode.parentNode.parentNode.parentNode.parentNode;
                 parseInitPageJs.apply(this);
-            }
+            },
+			sync:function(){
+				if (this.subComponents.length > 0) {
+					for (var i = 0; i < this.subComponents.length; i++) {
+						var comp = elementList[this.subComponents[i]];
+						comp && comp.sync && comp.sync();
+					}
+				}
+			}
         });
         UIMaster.apply(this.ui, this);
         return this.ui;
@@ -1532,9 +1557,14 @@ UIMaster.ui.link = UIMaster.extend(UIMaster.ui.hidden,{
 });
 UIMaster.ui.frame = UIMaster.extend(UIMaster.ui);
 UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
+    height:-1,
+	width:-1,
 	init:function(){
 		if (this.tagName.toLowerCase() == "div") {
-			$(this).jGallery();
+			if ($(this).attr("jheight") == "-1")
+				$(this).jGallery({hideThumbnailsOnInit: true});
+			else
+				$(this).jGallery({height:$(this).attr("jheight"),width:$(this).attr("jwidth"),hideThumbnailsOnInit: true});
 		}
 	}
 });
@@ -2569,8 +2599,11 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
     links:[],
     index:0,
 	selectedIndex:0,
-	items:null,
+	subComponents:null,
+	isInitialized:false,
     init:function(){
+	    if (this.isInitialized) return;
+		this.isInitialized=true;
         var othis = this, s = this.childNodes[0].nodeType == 1 ? this.childNodes[0] : this.childNodes[1], n = s.childNodes[0].nodeType == 1 ? s.childNodes[0] : s.childNodes[1];
         for (var i in n.childNodes) {
             if (n.childNodes[i].nodeType == 1) {
@@ -2587,10 +2620,16 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
         		$(this).append($(elementList[$(this).attr("uipanelid")]).parent());
 			}
 		});
+		if (this.subComponents != null) {
+		    for (var i=0;i<this.subComponents.length;i++) {
+				var comp = elementList[this.subComponents[i]];
+			    comp && (comp.parentEntity = this.parentEntity)!=null && comp.init && comp.init();
+			}
+		}
     },
 	sync:function(){
-       if (this.items != null && this.items[this.selectedIndex] && defaultname[this.items[this.selectedIndex]] && defaultname[this.items[this.selectedIndex]].sync)
-	      defaultname[this.items[this.selectedIndex]].sync();
+       if (this.subComponents != null && this.subComponents[this.selectedIndex] && defaultname[this.subComponents[this.selectedIndex]] && defaultname[this.subComponents[this.selectedIndex]].sync)
+	      defaultname[this.subComponents[this.selectedIndex]].sync();
     },
     setTab:function(e){
         var id = UIMaster.getObject(e).getAttribute("id");
@@ -2690,6 +2729,121 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
         		return false;
         	}
         });
+    },
+    setTabAt:function(html, index){
+        var bodies = $("#bodies-container-" + this.id).children();
+        if (index === undefined || index >= bodies.length || index < 0)
+            return;
+        bodies.slice(index,index+1).html(html);
+    },
+    setTitleAt:function(title, index){
+        var titles = $("#titles-container-" + this.id).children();
+        if (index === undefined || index >= titles.length || index < 0)
+            return;
+        titles.slice(index,index+1).html(title);
+    },
+    setSelectedTab:function(index){
+        var titles = $("#titles-container-" + this.id).children();
+        if (index === undefined || index >= titles.length || index < 0)
+            return;
+        this._setTab(titles[index].getAttribute("id"));
+    },
+    getTabLength:function(){
+    	return $("#titles-container-" + this.id).children().length;
+    }
+});
+UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
+    links:[],
+    index:0,
+	selectedIndex:0,
+	subComponents:null,
+	isInitialized:false,
+	titleContainer:null,
+	bodyContainer:null,
+    init:function(){
+	    if (this.isInitialized) return;
+		this.isInitialized=true;
+        var othis = this, s = this.childNodes[0].nodeType == 1 ? this.childNodes[0] : this.childNodes[1], n = s.childNodes[0].nodeType == 1 ? s.childNodes[0] : s.childNodes[1];
+        for (var i in n.childNodes){
+            if (n.childNodes[i].nodeType == 1) {
+            	$(n.childNodes[i]).hover(function(){
+                	 var all = $(this).parent().children();
+                	 for(var i=0;i<all.length;i++){$(all[i]).removeClass("ui-state-hover");};
+                	 $(this).addClass("ui-state-hover");
+                });
+            }
+        }
+		this.titleContainer = $($(s).children()[0]);
+		this.bodyContainer = $($(s).children()[1]);
+		var bodies = this.bodyContainer.children();
+        bodies.each(function(){
+			if(typeof($(this).attr("uipanelid"))!="undefined"){
+        		$(this).append($(elementList[$(this).attr("uipanelid")]).parent());
+			}
+		});
+		var btns = $($(s).children()[2]).children();
+		$(btns[0]).button().click(function(){
+		    if(!othis.setTab("prev")) return;
+		    UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedIndex",_value:othis.selectedIndex,_framePrefix:UIMaster.getFramePrefix(this)});
+			$.ajax({url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
+			{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"prevbtn",_framePrefix:UIMaster.getFramePrefix()},
+			_sync:UIMaster.ui.sync()});
+		});
+		$(btns[1]).button().click(function(){
+		    if(!othis.setTab("next")) return;
+		    UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedIndex",_value:othis.selectedIndex,_framePrefix:UIMaster.getFramePrefix(this)});
+			$.ajax({url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
+			{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"nextbtn",_framePrefix:UIMaster.getFramePrefix()},
+			_sync:UIMaster.ui.sync()});
+		});
+		if (this.subComponents != null){
+		    for (var i=0;i<this.subComponents.length;i++) {
+				var comp = elementList[this.subComponents[i]];
+			    comp && (comp.parentEntity = this.parentEntity)!=null && comp.init && comp.init();
+			}
+		}
+    },
+	sync:function(){
+       if (this.subComponents != null && this.subComponents[this.selectedIndex] && defaultname[this.subComponents[this.selectedIndex]] && defaultname[this.subComponents[this.selectedIndex]].sync)
+	      defaultname[this.subComponents[this.selectedIndex]].sync();
+    },
+    setTab:function(action){
+	    var id = null;
+	    var titles = this.titleContainer.children();
+	    if (action == "prev") {
+			if (this.selectedIndex == 0) return false;
+			for (var i=0;i<titles.length;i++){
+			    if (i==this.selectedIndex){
+				   var id=titles[i-1].getAttribute("id");
+				   this._setTab(id);
+				   return true;
+				}
+			}
+		} else {
+		    if ((this.selectedIndex+1)==titles.length) return false;
+		    for (var i=0;i<titles.length;i++){
+			    if (i==this.selectedIndex){
+				   var id=titles[i+1].getAttribute("id");
+				   this._setTab(id);
+				   return true;
+				}
+			}
+		}
+		return false;
+    },
+    _setTab:function(tabObj){
+        var currTitle=$("#"+tabObj), titleContainer=currTitle.parent(), titles=titleContainer.children(), bodies=titleContainer.next().children();
+        for(var i=0;i<titles.length;i++){$(titles[i]).removeClass("ui-tabs-active").removeClass("ui-state-active").attr("style",null);};
+        for(var i=0;i<bodies.length;i++){$(bodies[i]).removeClass("tab-selected-body").addClass("tab-unselected-body");};
+        currTitle.addClass("ui-tabs-active").addClass("ui-state-active").attr("style","border-bottom: 1px solid white");
+        $("#"+currTitle.attr("id").replace("titles","body")).removeClass("tab-unselected-body").addClass("tab-selected-body");
+        titleContainer.attr("selectedIndex",currTitle.attr("index"));
+		this.selectedIndex = parseInt(currTitle.attr("index"));
+		if (currTitle.attr("ajaxload") != null && currTitle.attr("ajaxload") == "true"){
+        	currTitle.attr("ajaxload", null);
+        } 
+		$.ajax({url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
+		{_ajaxUserEvent:"prenextpanel",_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix()}});
     },
     setTabAt:function(html, index){
         var bodies = $("#bodies-container-" + this.id).children();

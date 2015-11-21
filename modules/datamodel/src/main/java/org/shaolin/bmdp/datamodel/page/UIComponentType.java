@@ -11,6 +11,7 @@ package org.shaolin.bmdp.datamodel.page;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -85,6 +86,7 @@ import javax.xml.bind.annotation.XmlType;
     UIWebMenuType.class,
     UIImageType.class,
     UITabPaneType.class,
+    UIPreNextPanelType.class,
     UISelectComponentType.class,
     UICustWidgetType.class,
     UIEmptyType.class,

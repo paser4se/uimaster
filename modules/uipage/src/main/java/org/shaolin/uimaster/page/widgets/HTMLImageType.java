@@ -65,7 +65,22 @@ public class HTMLImageType extends HTMLTextWidgetType
 	        	
 	        	context.generateHTML("<div id=\"");
 	        	context.generateHTML(getName());
+	            context.generateHTML("\" jwidth=\"");
+	            Object w = this.getAttribute("width");
+	            if (w == null) {
+	            	context.generateHTML("-1");
+	            } else {
+	            	context.generateHTML(w.toString());
+	            }
+	            context.generateHTML("\" jheight=\"");
+	            Object h = this.getAttribute("height");
+	            if (h == null) {
+	            	context.generateHTML("-1");
+	            } else {
+	            	context.generateHTML(h.toString());
+	            }
 	            context.generateHTML("\">");
+	            
 	            HTMLUtil.generateTab(context, depth + 1);
 	            String path = this.getValue();
 	            if (path != null && !path.trim().isEmpty()) {
@@ -88,8 +103,6 @@ public class HTMLImageType extends HTMLTextWidgetType
 			            }
 		            }
 	            }
-	            HTMLUtil.generateTab(context, depth + 1);
-	            context.generateHTML("</div>");
 	            HTMLUtil.generateTab(context, depth);
 	            context.generateHTML("</div>");
         	} else {

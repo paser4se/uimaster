@@ -18,20 +18,20 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for UITabPaneType complex type.
+ * <p>Java class for UIPreNextPanelType complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="UITabPaneType">
+ * &lt;complexType name="UIPreNextPanelType">
  *   &lt;complexContent>
  *     &lt;extension base="{http://bmdp.shaolin.org/datamodel/Page}UIComponentType">
  *       &lt;sequence>
  *         &lt;element name="ajaxLoad" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
- *         &lt;element name="verticalMode" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="tabSelected" type="{http://www.w3.org/2001/XMLSchema}int"/>
- *         &lt;element name="tabSelectedAction" type="{http://bmdp.shaolin.org/datamodel/Page}ExpressionPropertyType"/>
- *         &lt;element name="tab" type="{http://bmdp.shaolin.org/datamodel/Page}UITabPaneItemType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="previousAction" type="{http://bmdp.shaolin.org/datamodel/Page}ExpressionPropertyType"/>
+ *         &lt;element name="nextAction" type="{http://bmdp.shaolin.org/datamodel/Page}ExpressionPropertyType"/>
+ *         &lt;element name="tab" type="{http://bmdp.shaolin.org/datamodel/Page}UITabPaneItemType" maxOccurs="unbounded"/>
  *       &lt;/sequence>
  *     &lt;/extension>
  *   &lt;/complexContent>
@@ -41,14 +41,14 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "UITabPaneType", propOrder = {
+@XmlType(name = "UIPreNextPanelType", propOrder = {
     "ajaxLoad",
-    "verticalMode",
     "tabSelected",
-    "tabSelectedAction",
+    "previousAction",
+    "nextAction",
     "tabs"
 })
-public class UITabPaneType
+public class UIPreNextPanelType
     extends UIComponentType
     implements Serializable
 {
@@ -56,12 +56,12 @@ public class UITabPaneType
     private final static long serialVersionUID = 1L;
     @XmlElement(defaultValue = "false")
     protected boolean ajaxLoad;
-    @XmlElement(defaultValue = "false")
-    protected boolean verticalMode;
     protected int tabSelected;
     @XmlElement(required = true)
-    protected ExpressionPropertyType tabSelectedAction;
-    @XmlElement(name = "tab")
+    protected ExpressionPropertyType previousAction;
+    @XmlElement(required = true)
+    protected ExpressionPropertyType nextAction;
+    @XmlElement(name = "tab", required = true)
     protected List<UITabPaneItemType> tabs;
 
     /**
@@ -81,22 +81,6 @@ public class UITabPaneType
     }
 
     /**
-     * Gets the value of the verticalMode property.
-     * 
-     */
-    public boolean isVerticalMode() {
-        return verticalMode;
-    }
-
-    /**
-     * Sets the value of the verticalMode property.
-     * 
-     */
-    public void setVerticalMode(boolean value) {
-        this.verticalMode = value;
-    }
-
-    /**
      * Gets the value of the tabSelected property.
      * 
      */
@@ -113,27 +97,51 @@ public class UITabPaneType
     }
 
     /**
-     * Gets the value of the tabSelectedAction property.
+     * Gets the value of the previousAction property.
      * 
      * @return
      *     possible object is
      *     {@link ExpressionPropertyType }
      *     
      */
-    public ExpressionPropertyType getTabSelectedAction() {
-        return tabSelectedAction;
+    public ExpressionPropertyType getPreviousAction() {
+        return previousAction;
     }
 
     /**
-     * Sets the value of the tabSelectedAction property.
+     * Sets the value of the previousAction property.
      * 
      * @param value
      *     allowed object is
      *     {@link ExpressionPropertyType }
      *     
      */
-    public void setTabSelectedAction(ExpressionPropertyType value) {
-        this.tabSelectedAction = value;
+    public void setPreviousAction(ExpressionPropertyType value) {
+        this.previousAction = value;
+    }
+
+    /**
+     * Gets the value of the nextAction property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link ExpressionPropertyType }
+     *     
+     */
+    public ExpressionPropertyType getNextAction() {
+        return nextAction;
+    }
+
+    /**
+     * Sets the value of the nextAction property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link ExpressionPropertyType }
+     *     
+     */
+    public void setNextAction(ExpressionPropertyType value) {
+        this.nextAction = value;
     }
 
     /**

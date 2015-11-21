@@ -44,6 +44,7 @@ import org.shaolin.bmdp.datamodel.page.UIMatrixType;
 import org.shaolin.bmdp.datamodel.page.UIMultiChoiceType;
 import org.shaolin.bmdp.datamodel.page.UIPanelType;
 import org.shaolin.bmdp.datamodel.page.UIPasswordFieldType;
+import org.shaolin.bmdp.datamodel.page.UIPreNextPanelType;
 import org.shaolin.bmdp.datamodel.page.UIRadioButtonGroupType;
 import org.shaolin.bmdp.datamodel.page.UIRadioButtonType;
 import org.shaolin.bmdp.datamodel.page.UIReferenceEntityType;
@@ -99,34 +100,17 @@ public class UIFormJSGenerator0 {
 			}
 
 			if (component instanceof UIReferenceEntityType) {
-				reference.add(component);
-			} else if (component instanceof UITabPaneType) {
-				if (((UITabPaneType) component).isAjaxLoad()) {
-					// only add the first tab.
-					UITabPaneItemType tab = ((UITabPaneType) component).getTabs().get(0);
-					if (tab.getRefEntity() != null) {
-						reference.add(tab.getRefEntity());
-					} else if (tab.getPanel() != null) {
-						divideContainer((UIContainerType) tab.getPanel(), commonComponent,
-								reference, containerList, isObjectList);
-					}
-				} else {
-					// add all tabs if ajax loading is disabled.
-					List<UITabPaneItemType> tabs = ((UITabPaneType) component).getTabs();
-					for (UITabPaneItemType t : tabs) {
-						if (t.getRefEntity() != null) {
-							reference.add(t.getRefEntity());
-						} else if (t.getPanel() != null) {
-							divideContainer((UIContainerType) t.getPanel(), commonComponent,
-									reference, containerList, isObjectList);
-						}
-					}
+				if (!reference.contains(component)) {
+					reference.add(component);
 				}
-				commonComponent.add(component);
 			} else if (component instanceof UIContainerType) {
-				containerList.add(component);
+				if (!containerList.contains(component)) {
+					containerList.add(component);
+				}
 			} else {
-				commonComponent.add(component);
+				if (!commonComponent.contains(component)) {
+					commonComponent.add(component);
+				}
 			}
 
 			if (component instanceof UIContainerType) {
@@ -588,6 +572,10 @@ public class UIFormJSGenerator0 {
 			out.write(" = new ");
 			out.print(JSConstants.TAB);
 			out.write("\n");
+		} else if (component instanceof UIPreNextPanelType) {
+			out.write(" = new ");
+			out.print(JSConstants.PRENEXTPANEL);
+			out.write("\n");
 		} else if (component instanceof UIWebTreeType) {
 			out.write(" = new ");
 			out.print(JSConstants.WEBTREE);
@@ -630,27 +618,44 @@ public class UIFormJSGenerator0 {
         processCommonField(out, component, uiEntity);
         out.write("    });\n");
         
-        if (component instanceof UITabPaneType) {
-	        List<UITabPaneItemType> tabs = ((UITabPaneType) component).getTabs();
+        if (component instanceof UITabPaneType
+        		|| component instanceof UIPreNextPanelType) {
+        	List<UITabPaneItemType> tabs = null;
+        	if (component instanceof UITabPaneType) {
+        		tabs = ((UITabPaneType) component).getTabs();
+        	} else {
+        		tabs = ((UIPreNextPanelType) component).getTabs();
+        	}
 			for (UITabPaneItemType t : tabs) {
 				if (t.getRefEntity() != null) {
 					genRefComponentJS(out, t.getRefEntity(), uiEntity);
 				} else if (t.getPanel() != null) {
-					UIComponentType[] subComponents = new UIComponentType[t.getPanel().getComponents().size()];
-					t.getPanel().getComponents().toArray(subComponents);
-					for (UIComponentType cType: subComponents)
-					{
-						if (!(cType instanceof UIContainerType)) {
-							genRefJS(out, cType);
-							genCommonComponentJS(out, cType, uiEntity);
-						}
-					}
-					genUIContainerJS(out, (UIContainerType)t.getPanel(), false, subComponents, uiEntity);
+					dynamicGenUIContainer(out, uiEntity, t.getPanel());
 				}
 			}
         }
     
     }
+
+	private void dynamicGenUIContainer(PrintWriter out, UIEntity uiEntity,
+			UIPanelType panel) {
+		UIComponentType[] subComponents = new UIComponentType[panel.getComponents().size()];
+		panel.getComponents().toArray(subComponents);
+		for (UIComponentType cType: subComponents)
+		{
+			if (cType instanceof UIPanelType) {
+				dynamicGenUIContainer(out, uiEntity, (UIPanelType)cType);
+			} else if (cType instanceof UIReferenceEntityType) {
+				genRefComponentJS(out, ((UIReferenceEntityType)cType), uiEntity);
+			} else {
+				genRefJS(out, cType);
+				genCommonComponentJS(out, cType, uiEntity);
+			}
+		}
+		
+		genRefJS(out, panel);
+		genUIContainerJS(out, (UIContainerType)panel, false, subComponents, uiEntity);
+	}
     
     protected void genUIContainerJS(PrintWriter out, UIContainerType container,
         boolean isRootPanel, UIComponentType[] components, UIEntity uiEntity)
@@ -967,13 +972,22 @@ public class UIFormJSGenerator0 {
     	        out.print(calendar.getDateConstraint().getValue());
     	        out.write("\n");
         	}
-        } else if (component instanceof UITabPaneType) {
-        	out.write("        ,items: [");
-        	List<UITabPaneItemType> tabs = ((UITabPaneType) component).getTabs();
-			for (UITabPaneItemType t : tabs) {
-				out.write("\"" + t.getUiid() + "\",");
+        } else if (component instanceof UITabPaneType
+        		|| component instanceof UIPreNextPanelType) {
+        	out.write("        ,items: []\n        ,subComponents: [");
+        	List<UITabPaneItemType> tabs = null;
+        	if (component instanceof UITabPaneType) {
+        		tabs = ((UITabPaneType) component).getTabs();
+        	} else {
+        		tabs = ((UIPreNextPanelType) component).getTabs();
+        	}
+			for (int i=0;i<tabs.size();i++) {
+				out.write("prefix + \"" + tabs.get(i).getUiid() + "\"");
+				if (i<tabs.size()-1) {
+					out.write(",");
+				}
 			}
-			out.write("\"\"]\n");
+			out.write("]\n");
         }
     }
     
@@ -1204,11 +1218,47 @@ public class UIFormJSGenerator0 {
     {
         for (int i = 0, n = components.length; i < n; i++)
         {
+        	UIComponentType comp = components[i];
 	        out.write("\n    Form.");
-	        out.print(((UIComponentType) components[i]).getUIID());
+	        out.print(comp.getUIID());
 	        out.write("=");
-	        out.print(((UIComponentType) components[i]).getUIID());
+	        out.print(comp.getUIID());
 	        out.write(";\n");
+	        
+			if (comp instanceof UIPanelType) {
+				int index = ((UIPanelType)comp).getComponents().size();
+				UIComponentType[] subComponents = new UIComponentType[index];
+				((UIPanelType)comp).getComponents().toArray(subComponents);
+				genRelation(out, subComponents);
+			} else if (comp instanceof UITabPaneType
+					|| comp instanceof UIPreNextPanelType) {
+				List<UITabPaneItemType> tabs = null;
+	        	if (comp instanceof UITabPaneType) {
+	        		tabs = ((UITabPaneType) comp).getTabs();
+	        	} else {
+	        		tabs = ((UIPreNextPanelType) comp).getTabs();
+	        	}
+				for (UITabPaneItemType t : tabs) {
+					if (t.getRefEntity() != null) {
+				        out.write("\n    Form.");
+				        out.print(t.getRefEntity().getUIID());
+				        out.write("=");
+				        out.print(t.getRefEntity().getUIID());
+				        out.write(";\n");
+					} else if (t.getPanel() != null) {
+						out.write("\n    Form.");
+				        out.print(t.getPanel().getUIID());
+				        out.write("=");
+				        out.print(t.getPanel().getUIID());
+				        out.write(";\n");
+				        
+				        int index = t.getPanel().getComponents().size();
+						UIComponentType[] subComponents = new UIComponentType[index];
+						t.getPanel().getComponents().toArray(subComponents);
+						genRelation(out, subComponents);
+					}
+				}
+			} 
         }
     }
     

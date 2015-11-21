@@ -42,7 +42,7 @@ public abstract class HTMLWidgetType implements Serializable
     private static final long serialVersionUID = -6119707922874957783L;
     
     private String id;
-    private String prefix;
+    private String prefix = "";
     private String name;
     private String frameInfo;
     private Boolean readOnly;
@@ -72,7 +72,7 @@ public abstract class HTMLWidgetType implements Serializable
     public void reset()
     {
         this.id = null;
-        this.prefix = null;
+        this.prefix = "";
         this.name = null;
         this.readOnly = null;
         this.attributeMap = null;

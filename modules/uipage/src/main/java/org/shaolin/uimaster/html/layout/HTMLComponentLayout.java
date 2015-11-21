@@ -59,11 +59,12 @@ public class HTMLComponentLayout extends AbstractHTMLLayout
     public HTMLComponentLayout(String UIID, UIFormObject entity)
     {
         super(entity);
-        this.UIID = UIID;
-        propMap = ownerEntity.getComponentProperty(UIID);
-        eventMap = ownerEntity.getComponentEvent(UIID);
-        i18nMap = ownerEntity.getComponentI18N(UIID);
-        expMap = ownerEntity.getComponentExpression(UIID);
+        String tempId = (UIID.lastIndexOf('.') != -1)? UIID.substring(UIID.lastIndexOf('.')+1): UIID;
+        this.UIID = tempId;
+        propMap = ownerEntity.getComponentProperty(tempId);
+        eventMap = ownerEntity.getComponentEvent(tempId);
+        i18nMap = ownerEntity.getComponentI18N(tempId);
+        expMap = ownerEntity.getComponentExpression(tempId);
     }
     
     public String getUIID()

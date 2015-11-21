@@ -30,6 +30,7 @@ import org.shaolin.uimaster.page.ajax.handlers.AjaxHandlerException;
 import org.shaolin.uimaster.page.ajax.handlers.CheckPropertyHandler;
 import org.shaolin.uimaster.page.ajax.handlers.EventHandler;
 import org.shaolin.uimaster.page.ajax.handlers.IAjaxHandler;
+import org.shaolin.uimaster.page.ajax.handlers.PreNextPanelEventHandler;
 import org.shaolin.uimaster.page.ajax.handlers.PropertyChangeHandler;
 import org.shaolin.uimaster.page.ajax.handlers.TabPaneEventHandler;
 import org.shaolin.uimaster.page.ajax.handlers.TableEventHandler;
@@ -61,6 +62,8 @@ public class AjaxProcessor implements Serializable
     public static final String EVENT_TYPE_TABLE_PROPERTY = "table";
     
     public static final String EVENT_TYPE_TABPANE_PROPERTY = "tabpane";
+    
+    public static final String EVENT_TYPE_PRENEXTPANEL = "prenextpanel";
     
     public static final String EVENT_WEBSERVICE = "webservice";
     
@@ -263,6 +266,10 @@ public class AjaxProcessor implements Serializable
             else if (EVENT_TYPE_TABPANE_PROPERTY.equals(eventType)) 
             {
             	handler = new TabPaneEventHandler();
+            }
+            else if (EVENT_TYPE_PRENEXTPANEL.equals(eventType)) 
+            {
+            	handler = new PreNextPanelEventHandler();
             }
             else if (EVENT_TREE.equals(eventType)) 
             {
