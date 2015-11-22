@@ -44,16 +44,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Code Example for uientity:
+ * Code Example for Data to UI:
  * <br>
- * <br>Panel rootPanel = (Panel)@page.getElement("Form");
- * <br>String ui = "bmiasia.ebos.appbase.test.uientity.EmployeeH";
- * <br>RefForm refEntity = new RefForm("refEntity1",ui);
- * <br>rootPanel.append(refEntity);
+ * <br>HashMap input = new HashMap();
+ * <br>input.put("beObject", defaultUser);
+ * <br>input.put("editable", new Boolean(true));
+ * <br>RefForm form = new RefForm("productInfoForm", "org.shaolin.vogerp.productmodel.form.Product", input);
+ * <br>@page.addElement(form);
+ * <br><br>
+ * Code Example for UI to Data: in fact the input data stores in ref-from object after Data2UI, the 'UI2Data' operation 
+ * is beautifully performed in the easiest way after filling the data on UI.
  * <br>
- * if you want to get value when ui to data, you must add a SetVariable action in Server Operation
- * which is Page Out or which is UI2Data of the od component,such as:<br>
- *
+ * <br>RefForm form = (RefForm)@page.getElement(@page.getEntityUiid()); 
+ * <br>HashMap input = (HashMap)form.ui2Data();
+ * <br>
+ * @author wushaol
  */
 public class RefForm extends Container implements Serializable
 {
@@ -98,7 +103,7 @@ public class RefForm extends Container implements Serializable
         this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, uiEntityName, new CellLayout());
 
         this.inputParams = inputParams;
-        this.uiid = AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid;
+        this.uiid = uiid;
 
         this.setListened(true);
     }
@@ -107,6 +112,13 @@ public class RefForm extends Container implements Serializable
     {
         super(id, layout);
         setUIEntityName(uiEntityName);
+    }
+    
+    public RefForm(String id, String uiEntityName, Layout layout, Map inputParams)
+    {
+        super(id, layout);
+        setUIEntityName(uiEntityName);
+        this.inputParams = inputParams;
     }
 
     public void setCopy(HTMLReferenceEntityType copy) {
@@ -174,6 +186,11 @@ public class RefForm extends Container implements Serializable
     {
         this.variableReconfigurationMap = variableReconfigurationMap;
     }
+    
+    public void setInputParameter(String key, Object value) {
+		if(inputParams != null) 
+			inputParams.put(key, value);
+	}
     
 	public Object getInputParameter(String key) {
 		return inputParams != null ? inputParams.get(key) : null;

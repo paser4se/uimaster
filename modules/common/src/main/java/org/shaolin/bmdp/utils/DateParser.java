@@ -40,12 +40,30 @@ public class DateParser {
 				+ format(year, 4);
 	}
 
+	public String getCNDateString() {
+		int year = getYear();
+		if (year > 9999) {
+			return "9999-12-31";
+		}
+		return format(year, 4) + MINUS + format(getMonth(), 2) + MINUS + format(getDays(), 2);
+	}
+	
 	/**
 	 * get the time string in YYYY-MM-DD HH24:MI:SS format
 	 * 
 	 * @return the string format
 	 */
 	public String getTimeString() {
+		int year = getYear();
+		if (year > 9999) {
+			return "9999-12-31 23:59:59";
+		}
+		return format(year, 4) + MINUS + format(getMonth(), 2) + MINUS
+				+ format(getDays(), 2) + SPACE + format(getHours(), 2) + COLON
+				+ format(getMinutes(), 2) + COLON + format(getSeconds(), 2);
+	}
+	
+	public String getCNTimeString() {
 		int year = getYear();
 		if (year > 9999) {
 			return "9999-12-31 23:59:59";
@@ -160,7 +178,7 @@ public class DateParser {
 		return getMilliSeconds() * 1000;
 	}
 
-	private String format(int value, int fixLength) {
+	public String format(int value, int fixLength) {
 		String str = String.valueOf(value);
 		int len = fixLength - str.length();
 		if (len == 0) {
