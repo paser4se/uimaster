@@ -16,9 +16,13 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.shaolin.bmdp.persistence.query.operator.Operator;
 import org.shaolin.bmdp.runtime.be.IPersistentEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BEEntityDaoObject {
 
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 	public void addResource(String hbmMapping) {
 		HibernateUtil.getConfiguration().addResource(hbmMapping);
 	}
@@ -29,6 +33,10 @@ public class BEEntityDaoObject {
 	 * @param entity
 	 */
 	public void create(IPersistentEntity entity) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Insert an entity: {}", entity);
+		}
+		
 		Session session = HibernateUtil.getSession();
 		session.save(entity);
 	}
@@ -42,6 +50,10 @@ public class BEEntityDaoObject {
 		if (entity.getId() == 0) {
 			return;
 		}
+		if (logger.isDebugEnabled()) {
+			logger.debug("Remove an entity: {}", entity);
+		}
+		
 		Session session = HibernateUtil.getSession();
 		session.delete(entity);
 	}
@@ -52,6 +64,10 @@ public class BEEntityDaoObject {
 	 * @param entity
 	 */
 	public void update(IPersistentEntity entity) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Update an entity: {}", entity);
+		}
+		
 		Session session = HibernateUtil.getSession();
 		session.update(entity);
 	}
@@ -65,6 +81,9 @@ public class BEEntityDaoObject {
 		if (entity.getId() == 0) {
 			return;
 		}
+		if (logger.isDebugEnabled()) {
+			logger.debug("Reload an entity: {}", entity);
+		}
 		
 		Session session = HibernateUtil.getSession();
 		session.load(entity, entity.getId());
@@ -73,6 +92,9 @@ public class BEEntityDaoObject {
 	public void cascadingUpdate(IPersistentEntity entity) {
 		if (entity.getId() == 0) {
 			return;
+		}
+		if (logger.isDebugEnabled()) {
+			logger.debug("Cascading update an entity: {}", entity);
 		}
 		
 		Session session = HibernateUtil.getSession();
@@ -87,6 +109,9 @@ public class BEEntityDaoObject {
 	public void batchInsert(List<IPersistentEntity> entities) {
 		if (entities == null || entities.size() == 0) {
 			return;
+		}
+		if (logger.isDebugEnabled()) {
+			logger.debug("Insert a batch of entities: {}", entities);
 		}
 		
 		Session session = HibernateUtil.getSession();
@@ -108,6 +133,9 @@ public class BEEntityDaoObject {
 		if (entities == null || entities.size() == 0) {
 			return;
 		}
+		if (logger.isDebugEnabled()) {
+			logger.debug("Update a batch of entities: {}", entities);
+		}
 		
 		Session session = HibernateUtil.getSession();
 		for (IPersistentEntity entity: entities) {
@@ -128,6 +156,9 @@ public class BEEntityDaoObject {
 		if (entities == null || entities.size() == 0) {
 			return;
 		}
+		if (logger.isDebugEnabled()) {
+			logger.debug("Remove a batch of entities: {}", entities);
+		}
 		
 		Session session = HibernateUtil.getSession();
 		for (IPersistentEntity entity: entities) {
@@ -143,6 +174,10 @@ public class BEEntityDaoObject {
 	 * @param entity
 	 */
 	public void disable(IPersistentEntity entity) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Disable an entity: {}", entity);
+		}
+		
 		Session session = HibernateUtil.getSession();
 		entity.setEnabled(false);
 		session.update(entity);
@@ -154,6 +189,10 @@ public class BEEntityDaoObject {
 	 * @param entity
 	 */
 	public void enable(IPersistentEntity entity) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Enable an entity: {}", entity);
+		}
+		
 		Session session = HibernateUtil.getSession();
 
 		entity.setEnabled(true);
