@@ -49,7 +49,7 @@ public final class FileUtil {
 
     private static void fileToZip(File file, ZipOutputStream zout, File baseDir) throws IOException {
         String entryName = file.getPath().substring(baseDir.getPath().length() + 1);
-        if (File.separatorChar != '/') {
+        if (File.separatorChar == '/') {
             entryName = entryName.replace(File.separator, "/");
         }
         if (file.isDirectory()) {
@@ -126,8 +126,12 @@ public final class FileUtil {
     }
 
     public static void write(String path, String content) throws IOException {
-        String newPath = path.substring(0, path.lastIndexOf('/'));
-        String name = path.substring(path.lastIndexOf('/') + 1);
+    	int lastIndex = path.lastIndexOf('/');
+    	if (lastIndex == -1) {
+    		lastIndex = path.lastIndexOf('\\');
+    	}
+        String newPath = path.substring(0, lastIndex);
+        String name = path.substring(lastIndex + 1);
         write(newPath, name, content);
     }
     

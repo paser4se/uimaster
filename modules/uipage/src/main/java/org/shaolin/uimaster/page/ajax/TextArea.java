@@ -15,19 +15,28 @@
 */
 package org.shaolin.uimaster.page.ajax;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 
+import org.shaolin.bmdp.utils.FileUtil;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TextArea extends TextWidget implements Serializable
 {
+    private static Logger logger = LoggerFactory.getLogger(TextArea.class);
+	
     private static final long serialVersionUID = 7184128621017147296L;
     
     private String cssClass;
+    
+    private boolean htmlSupport;
 
-    public TextArea(String uiid)
+	public TextArea(String uiid)
     {
         this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
         this._setWidgetLabel(uiid);
@@ -91,6 +100,27 @@ public class TextArea extends TextWidget implements Serializable
     {
         this.setValue("");
     }
+    
+    public void setHTMLContent(String htmlContent) {
+    	if (!this.isHtmlSupport()) {
+    		return;
+    	}
+		try {
+			File file = new File(WebConfig.getResourcePath() + getValue());
+			FileUtil.write(file.getAbsolutePath(), htmlContent);
+			logger.info("Save html content: " + file.getAbsolutePath());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
+    
+    public boolean isHtmlSupport() {
+		return htmlSupport;
+	}
+
+	public void setHtmlSupport(boolean htmlSupport) {
+		this.htmlSupport = htmlSupport;
+	}
     
     public String generateJS()
     {

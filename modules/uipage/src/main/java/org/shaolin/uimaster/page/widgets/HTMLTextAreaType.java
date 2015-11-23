@@ -112,7 +112,7 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
 	            	HTMLUtil.generateTab(context, depth);
 	            	context.generateHTML("<textarea name=\"");
 	            	context.generateHTML(getName());
-	                context.generateHTML("_ckeditor\" class=\"ckeditor\" style=\"display:none\">");
+	                context.generateHTML("_ckeditor\" style=\"display:none\">");
 	            	File file = new File(WebConfig.getResourcePath() + getValue());
 	        		if (file.exists() && file.isFile()) {
 	        			String content = FileUtil.readFile(new FileInputStream(file));
@@ -127,7 +127,6 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
 //		    	            Please refer to org_shaolin_vogerp_productmodel runconfig.registry.
 //		        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/ckeditor/ckeditor.js\"></script>");
 //		        	HTMLUtil.generateTab(context, depth);
-		        	context.generateHTML("<script type=\"text/javascript\">CKEDITOR.replace('"+getName()+"_ckeditor');</script>");
 		        	HTMLUtil.generateTab(context, depth);
 		        	context.generateHTML("</div>");
             	}
@@ -179,7 +178,15 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
         // we don't expect to anything except the pure value 
         // what we really need in the backend.
         textArea.setValue(getValue());
-
+        if (this.getAttribute("htmlSupport") != null && 
+        		"true".equals(this.getAttribute("htmlSupport").toString())) {
+        	textArea.setHtmlSupport(true);
+        	if (this.getAttribute("viewMode") != null && 
+            		"true".equals(this.getAttribute("viewMode").toString())) {
+        		textArea.setHtmlSupport(false);
+        	}
+        }
+        
         setAJAXConstraints(textArea);
         setAJAXAttributes(textArea);
         

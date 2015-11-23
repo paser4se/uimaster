@@ -29,6 +29,7 @@ import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.ajax.handlers.AjaxHandlerException;
 import org.shaolin.uimaster.page.ajax.handlers.CheckPropertyHandler;
 import org.shaolin.uimaster.page.ajax.handlers.EventHandler;
+import org.shaolin.uimaster.page.ajax.handlers.HTMLContentEventHandler;
 import org.shaolin.uimaster.page.ajax.handlers.IAjaxHandler;
 import org.shaolin.uimaster.page.ajax.handlers.PreNextPanelEventHandler;
 import org.shaolin.uimaster.page.ajax.handlers.PropertyChangeHandler;
@@ -68,6 +69,8 @@ public class AjaxProcessor implements Serializable
     public static final String EVENT_WEBSERVICE = "webservice";
     
     public static final String EVENT_TREE = "tree";
+    
+    public static final String HTML_EDITOR_TREE = "htmleditor";
     
     /**
      * current fired event type.
@@ -279,6 +282,10 @@ public class AjaxProcessor implements Serializable
             {
             	handler = new WebServiceHandler();
             } 
+            else if (HTML_EDITOR_TREE.equals(eventType)) 
+            {
+            	handler = new HTMLContentEventHandler();
+            }
             
             if (handler == null)
             {
