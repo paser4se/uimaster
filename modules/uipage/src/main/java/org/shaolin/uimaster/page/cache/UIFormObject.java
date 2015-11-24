@@ -139,6 +139,8 @@ public class UIFormObject implements java.io.Serializable
 
     private String name = null;
 
+    private String desc = null;
+    
     private String bodyName = null;
 
     private Map<String, Map<String, Object>> componentMap = 
@@ -201,6 +203,7 @@ public class UIFormObject implements java.io.Serializable
             logger.info("Load page ui: " + name);
         }
         this.name = name;
+        this.desc = entity.getDescription();
         UIEntity uientity = (UIEntity)entity.getUIEntity();
         OOEEContext parsingContext = parseVariable(entity);
         parseUI(parsingContext, uientity, null);
@@ -1575,6 +1578,14 @@ public class UIFormObject implements java.io.Serializable
     public String getName()
     {
         return this.name;
+    }
+    
+    public String getDescription() 
+    {
+    	if (desc != null && desc.trim().length() > 0) {
+    		return desc;
+    	}
+    	return this.name;
     }
     
     public Map getComponentProperty(String componentID)

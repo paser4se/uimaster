@@ -301,10 +301,12 @@ public class PageDispatcher {
 
             context.generateHTML("<!DOCTYPE html>\n");
             context.generateHTML("<html>\n<head>\n<title>");
-            context.generateHTML(entityName);
+            context.generateHTML(pageObject.getUIForm().getDescription());
             //is the title need i18n? -- the name should not be i18n, but the <title> should be i18n
             //currently all uipages are embedded in frame, so the title can't be seen by user
             context.generateHTML("</title>\n");
+            context.generateHTML("<link rel=\"shortcut icon\" href=\"favicon.ico\" type=\"image/x-icon\" />\n");
+            context.generateHTML("<link rel=\"apple-touch-icon\" href=\"favicon.ico\">\n");
             context.generateHTML("<script type=\"text/javascript\">\nvar defaultname;\nvar USER_CONSTRAINT_IMG=\"");
             context.generateHTML((String)constraintStyleMap.get("constraintSymbol"));
             context.generateHTML("\";\nvar USER_CONSTRAINT_LEFT=");
