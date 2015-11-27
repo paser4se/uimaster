@@ -141,7 +141,6 @@ label {
 
 .uimaster_matrix_col {
  border: 1px solid #77d5f7;
- font-weight: bold;
  border-bottom-right-radius: 5px;
  border-bottom-left-radius: 5px;
  border-top-right-radius: 5px;
@@ -445,7 +444,7 @@ html {
 .tab { width : 100%;}
 .tab-titles { width : 100%;  border-bottom: 0px;}
 .tab-titles div { display : block ; float : left ; padding : 8px; text-align : center ; cursor : pointer ; }
-.tab-bodies { width : 100% ; clear : both ;}
+.tab-bodies { margin-left: 5px; width : 100% ; clear : both ;}
 .tab-bodies .tab-unselected-body { display : none ; }
 .tab-bodies .tab-selected-body { display : block ; }
  

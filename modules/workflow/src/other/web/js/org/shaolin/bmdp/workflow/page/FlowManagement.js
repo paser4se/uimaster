@@ -39,7 +39,15 @@ function org_shaolin_bmdp_workflow_page_FlowManagement(json)
 
     Form.topPanel=topPanel;
 
+    Form.flowDiagram=flowDiagram;
+
     Form.propertiesPanel=propertiesPanel;
+
+    Form.functionTree=functionTree;
+
+    Form.propertiesPanel=propertiesPanel;
+
+    Form.functionTree=functionTree;
 
     Form.user_constructor = function()
     {

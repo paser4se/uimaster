@@ -46,7 +46,13 @@ function org_shaolin_bmdp_workflow_form_SessionTracker(json)
 
     Form.fieldPanel=fieldPanel;
 
+    Form.sessionId=sessionId;
+
+    Form.tasksTable=tasksTable;
+
     Form.actionPanel=actionPanel;
+
+    Form.cancelbtn=cancelbtn;
 
     Form.user_constructor = function()
     {

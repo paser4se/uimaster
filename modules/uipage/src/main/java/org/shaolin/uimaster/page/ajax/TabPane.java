@@ -100,6 +100,8 @@ public class TabPane extends Container implements Serializable
     private String uiid;
     private int selectedIndex;
     
+    private boolean ajaxLoad;
+    
     /**
      * 
      * @param uiid 
@@ -144,6 +146,10 @@ public class TabPane extends Container implements Serializable
         this.tabs = tabs;
         this.selectedIndex = selectedIndex;
         this.uiid = this.getId();
+    }
+    
+    public void setAjaxLoad(boolean ajaxLoad) {
+    	this.ajaxLoad = ajaxLoad;
     }
     
     public void setSelectedAction(ExpressionType selectedAction) {
@@ -218,6 +224,9 @@ public class TabPane extends Container implements Serializable
     }
     
     public void loadContent(int index) throws JspException, EvaluationException {
+    	if (!this.ajaxLoad) {
+    		return;
+    	}
     	if (this.tabs == null) {
     		throw new IllegalStateException("Please enable the ajax loading for this tab panel.");
     	}

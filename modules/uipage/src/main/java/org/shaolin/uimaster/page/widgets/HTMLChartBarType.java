@@ -23,7 +23,6 @@ import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
-import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.od.ODContext;
 
@@ -91,8 +90,6 @@ public class HTMLChartBarType extends HTMLChartSuper {
 					evaContext.setVariableValue("rowBE", listData.get(i));
 					ooeeContext.setDefaultEvaluationContext(evaContext);
 					ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
-					
-					HTMLUtil.generateTab(context, depth + 3);
 					Object value = columns.get(columnIndex).getRowExpression().getExpression().evaluate(
 							ooeeContext);
 					sb.append(value).append(",");

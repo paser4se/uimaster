@@ -33,6 +33,10 @@ function org_shaolin_bmdp_workflow_form_SessionVarDefinitionTable(json)
 
     Form.fieldPanel=fieldPanel;
 
+    Form.parentIdUI=parentIdUI;
+
+    Form.itemTable=itemTable;
+
     Form.user_constructor = function()
     {
         /* Construct_FIRST:org_shaolin_bmdp_workflow_form_SessionVarDefinitionTable */

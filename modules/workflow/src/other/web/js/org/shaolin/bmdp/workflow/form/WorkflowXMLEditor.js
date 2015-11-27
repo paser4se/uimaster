@@ -60,7 +60,17 @@ function org_shaolin_bmdp_workflow_form_WorkflowXMLEditor(json)
 
     Form.fieldPanel=fieldPanel;
 
+    Form.idUI=idUI;
+
+    Form.entityNameUI=entityNameUI;
+
+    Form.xmlContentUI=xmlContentUI;
+
     Form.actionPanel=actionPanel;
+
+    Form.okbtn=okbtn;
+
+    Form.cancelbtn=cancelbtn;
 
     Form.user_constructor = function()
     {

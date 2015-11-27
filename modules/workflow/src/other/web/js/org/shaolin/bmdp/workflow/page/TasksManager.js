@@ -8,15 +8,11 @@ function org_shaolin_bmdp_workflow_page_TasksManager(json)
         ui: elementList[prefix + "CENameUI"]
     });
 
-    var tasksTable = new UIMaster.ui.objectlist
-    ({
-        ui: elementList[prefix + "tasksTable"]
-    });
-
     var functionsTab = new UIMaster.ui.tab
     ({
         ui: elementList[prefix + "functionsTab"]
-        ,items: ["tasksTablePanel","tasksHistoryTablePanel","tasksAnalysisPanel",""]
+        ,items: []
+        ,subComponents: [prefix + "tasksTablePanel",prefix + "tasksHistoryTablePanel",prefix + "tasksAnalysisPanel"]
     });
     var tasksTable = new UIMaster.ui.objectlist
     ({
@@ -65,14 +61,28 @@ function org_shaolin_bmdp_workflow_page_TasksManager(json)
     var Form = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "Form"]
-        ,items: [CENameUI,tasksTable,functionsTab]
+        ,items: [CENameUI,functionsTab]
     });
 
     Form.CENameUI=CENameUI;
 
+    Form.functionsTab=functionsTab;
+
+    Form.tasksTablePanel=tasksTablePanel;
+
     Form.tasksTable=tasksTable;
 
-    Form.functionsTab=functionsTab;
+    Form.tasksHistoryTablePanel=tasksHistoryTablePanel;
+
+    Form.tasksHistoryTable=tasksHistoryTable;
+
+    Form.tasksAnalysisPanel=tasksAnalysisPanel;
+
+    Form.currentTasksPie=currentTasksPie;
+
+    Form.historyTasksPie=historyTasksPie;
+
+    Form.historyTasksRadar=historyTasksRadar;
 
     Form.user_constructor = function()
     {

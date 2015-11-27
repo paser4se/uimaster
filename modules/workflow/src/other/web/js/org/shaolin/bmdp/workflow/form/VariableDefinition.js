@@ -81,7 +81,23 @@ function org_shaolin_bmdp_workflow_form_VariableDefinition(json)
 
     Form.fieldPanel=fieldPanel;
 
+    Form.nameUILabel=nameUILabel;
+
+    Form.nameUI=nameUI;
+
+    Form.varTypeUILabel=varTypeUILabel;
+
+    Form.varTypeUI=varTypeUI;
+
+    Form.classTypeUILabel=classTypeUILabel;
+
+    Form.classTypeUI=classTypeUI;
+
     Form.actionPanel=actionPanel;
+
+    Form.okbtn=okbtn;
+
+    Form.cancelbtn=cancelbtn;
 
     Form.user_constructor = function()
     {

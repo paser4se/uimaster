@@ -92,8 +92,6 @@ public class HTMLChartLinearType extends HTMLChartSuper {
 					evaContext.setVariableValue("rowBE", listData.get(i));
 					ooeeContext.setDefaultEvaluationContext(evaContext);
 					ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
-					
-					HTMLUtil.generateTab(context, depth + 3);
 					Object value = columns.get(columnIndex).getRowExpression().getExpression().evaluate(
 							ooeeContext);
 					sb.append(value).append(",");

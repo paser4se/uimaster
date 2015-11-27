@@ -81,7 +81,23 @@ function org_shaolin_bmdp_workflow_form_SessionVarDefinition(json)
 
     Form.fieldPanel=fieldPanel;
 
+    Form.nameUILabel=nameUILabel;
+
+    Form.nameUI=nameUI;
+
+    Form.sessionServiceClassUILabel=sessionServiceClassUILabel;
+
+    Form.sessionServiceClassUI=sessionServiceClassUI;
+
+    Form.sessionClassUILabel=sessionClassUILabel;
+
+    Form.sessionClassUI=sessionClassUI;
+
     Form.actionPanel=actionPanel;
+
+    Form.okbtn=okbtn;
+
+    Form.cancelbtn=cancelbtn;
 
     Form.user_constructor = function()
     {

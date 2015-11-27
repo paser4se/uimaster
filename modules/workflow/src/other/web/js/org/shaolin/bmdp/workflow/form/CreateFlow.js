@@ -71,7 +71,21 @@ function org_shaolin_bmdp_workflow_form_CreateFlow(json)
 
     Form.fieldPanel=fieldPanel;
 
+    Form.idUI=idUI;
+
+    Form.flowNameUILabel=flowNameUILabel;
+
+    Form.flowNameUI=flowNameUI;
+
+    Form.variableLabel=variableLabel;
+
+    Form.variableTable=variableTable;
+
     Form.actionPanel=actionPanel;
+
+    Form.okbtn=okbtn;
+
+    Form.cancelbtn=cancelbtn;
 
     Form.user_constructor = function()
     {

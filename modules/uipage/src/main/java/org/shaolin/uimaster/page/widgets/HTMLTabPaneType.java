@@ -281,10 +281,10 @@ public class HTMLTabPaneType extends HTMLContainerType
     	ExpressionType selectedAction = (ExpressionType)this.removeAttribute("selectedAction");
     	List<UITabPaneItemType> tabs = (List<UITabPaneItemType>)this.getAttribute("tabPaneItems");
     	TabPane panel = new TabPane(getName(), tabs, selectedIndex, new CellLayout());
+    	panel.setAjaxLoad((boolean)this.getAttribute("ajaxLoad"));
     	panel.setSelectedAction(selectedAction);
         panel.setReadOnly(getReadOnly());
         panel.setUIEntityName(getUIEntityName());
-        
         panel.setListened(true);
         panel.setFrameInfo(getFrameInfo());
         

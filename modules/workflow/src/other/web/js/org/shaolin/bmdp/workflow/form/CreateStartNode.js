@@ -74,7 +74,21 @@ function org_shaolin_bmdp_workflow_form_CreateStartNode(json)
 
     Form.fieldPanel=fieldPanel;
 
+    Form.idUI=idUI;
+
+    Form.nameUILabel=nameUILabel;
+
+    Form.nameUI=nameUI;
+
+    Form.expressionUILabel=expressionUILabel;
+
+    Form.expressionUI=expressionUI;
+
     Form.actionPanel=actionPanel;
+
+    Form.okbtn=okbtn;
+
+    Form.cancelbtn=cancelbtn;
 
     Form.user_constructor = function()
     {

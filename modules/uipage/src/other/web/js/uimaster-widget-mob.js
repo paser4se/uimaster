@@ -19,6 +19,7 @@ UIMaster.ui = UIMaster.extend(UIMaster.ui, /** @lends UIMaster.ui */{
      * @description UI object, a standard HTML element.
      */
     ui: null,
+	initialized: false,
     /**
      * @description Set the widget's visible.
      * @param {Boolean} v
@@ -421,6 +422,23 @@ UIMaster.ui.textfield = UIMaster.extend(UIMaster.ui.field, /** @lends UIMaster.u
  * @constructor
  */
 UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaster.ui.textarea */{
+	init:function() {
+		UIMaster.ui.textarea.superclass.init.call(this);
+		if ($(this).attr("htmlsupport")=="true") {
+		   this.initHtmlContent();
+		}
+	},
+	initHtmlContent:function() {
+	    var o = this;
+		var btn = $("<button>Save</button>");
+		$(this).parent().append(btn);
+		btn.button().click(function(){
+		   var data = CKEDITOR.instances[o.name+"_ckeditor"].getData();
+		   $.ajax({url:AJAX_SERVICE_URL,async:false,type:'POST',
+		   data:{_ajaxUserEvent:"htmleditor",_uiid:o.name,_valueName:"save",_value:data,_framePrefix:UIMaster.getFramePrefix(o)}});
+		});
+	    setTimeout(function(){CKEDITOR.replace(o.name+"_ckeditor");},500);
+	}
 });
 /**
  * @description Calender fiels class.
@@ -1423,6 +1441,15 @@ UIMaster.ui.panel = function(conf){
         UIMaster.apply(this, {
             validate:function(){},
             init:function(){
+			    if (this.subComponents.length > 0) {
+					for (var i = 0; i < this.subComponents.length; i++) {
+						var comp = elementList[this.subComponents[i]];
+						if (comp) {
+							comp.parentEntity = this.parentEntity;
+							!comp.initialized && comp.init && comp.init();
+						}
+					}
+				}
                 this.parentDiv=this.parentNode;
                 this.user_constructor && (defaultname && defaultname.Form || defaultname && defaultname[this.Form.id.split('.')[0]] ? this.user_constructor() : UIMaster.initList.push(this));
                 this.initialized=true;
@@ -2585,10 +2612,16 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
         		$(this).append($(elementList[$(this).attr("uipanelid")]).parent());
 			}
 		});
+		if (this.subComponents != null) {
+		    for (var i=0;i<this.subComponents.length;i++) {
+				var comp = elementList[this.subComponents[i]];
+			    comp && (comp.parentEntity = this.parentEntity)!=null && comp.init && comp.init();
+			}
+		}
     },
 	sync:function(){
-       if (this.items != null && this.items[this.selectedIndex] && defaultname[this.items[this.selectedIndex]] && defaultname[this.items[this.selectedIndex]].sync)
-	      defaultname[this.items[this.selectedIndex]].sync();
+       if (this.subComponents != null && this.subComponents[this.selectedIndex] && defaultname[this.subComponents[this.selectedIndex]] && defaultname[this.subComponents[this.selectedIndex]].sync)
+	      defaultname[this.subComponents[this.selectedIndex]].sync();
     },
     setTab:function(e){
         var id = UIMaster.getObject(e).getAttribute("id");
@@ -2717,6 +2750,111 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
     	return $("#titles-container-" + this.id).children().length;
     }
 });
+UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
+    links:[],
+    index:0,
+	selectedIndex:0,
+	subComponents:null,
+	isInitialized:false,
+	titleContainer:null,
+	bodyContainer:null,
+    init:function(){
+	    if (this.isInitialized) return;
+		this.isInitialized=true;
+        var othis = this, s = this.childNodes[0].nodeType == 1 ? this.childNodes[0] : this.childNodes[1], n = s.childNodes[0].nodeType == 1 ? s.childNodes[0] : s.childNodes[1];
+        
+		this.titleContainer = $($(s).children()[0]);
+		this.bodyContainer = $($(s).children()[1]);
+		var bodies = this.bodyContainer.children();
+        bodies.each(function(){
+			if(typeof($(this).attr("uipanelid"))!="undefined"){
+        		$(this).append($(elementList[$(this).attr("uipanelid")]).parent());
+			}
+		});
+		var btns = $($(s).children()[2]).children();
+		$(btns[0]).button().click(function(){
+		    if(!othis.setTab("prev")) return;
+		    UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedIndex",_value:othis.selectedIndex,_framePrefix:UIMaster.getFramePrefix(this)});
+			$.ajax({url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
+			{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"prevbtn",_framePrefix:UIMaster.getFramePrefix(),_sync:UIMaster.ui.sync()}});
+		});
+		$(btns[1]).button().click(function(){
+		    if(!othis.setTab("next")) return;
+		    UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedIndex",_value:othis.selectedIndex,_framePrefix:UIMaster.getFramePrefix(this)});
+			$.ajax({url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
+			{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"nextbtn",_framePrefix:UIMaster.getFramePrefix(),_sync:UIMaster.ui.sync()}});
+		});
+		if (this.subComponents != null){
+		    for (var i=0;i<this.subComponents.length;i++) {
+				var comp = elementList[this.subComponents[i]];
+			    comp && (comp.parentEntity = this.parentEntity)!=null && comp.init && comp.init();
+			}
+		}
+    },
+	sync:function(){
+       if (this.subComponents != null && this.subComponents[this.selectedIndex] && defaultname[this.subComponents[this.selectedIndex]] && defaultname[this.subComponents[this.selectedIndex]].sync)
+	      defaultname[this.subComponents[this.selectedIndex]].sync();
+    },
+    setTab:function(action){
+	    var id = null;
+	    var titles = this.titleContainer.children();
+	    if (action == "prev") {
+			if (this.selectedIndex == 0) return false;
+			for (var i=0;i<titles.length;i++){
+			    if (i==this.selectedIndex){
+				   var id=titles[i-1].getAttribute("id");
+				   this._setTab(id);
+				   return true;
+				}
+			}
+		} else {
+		    if ((this.selectedIndex+1)==titles.length) return false;
+		    for (var i=0;i<titles.length;i++){
+			    if (i==this.selectedIndex){
+				   var id=titles[i+1].getAttribute("id");
+				   this._setTab(id);
+				   return true;
+				}
+			}
+		}
+		return false;
+    },
+    _setTab:function(tabObj){
+        var currTitle=$("#"+tabObj), titleContainer=currTitle.parent(), titles=titleContainer.children(), bodies=titleContainer.next().children();
+        for(var i=0;i<titles.length;i++){$(titles[i]).removeClass("ui-tabs-active").removeClass("ui-state-active").attr("style",null);};
+        for(var i=0;i<bodies.length;i++){$(bodies[i]).removeClass("tab-selected-body").addClass("tab-unselected-body");};
+        currTitle.addClass("ui-tabs-active").addClass("ui-state-active").attr("style","border-bottom: 1px solid white");
+        $("#"+currTitle.attr("id").replace("titles","body")).removeClass("tab-unselected-body").addClass("tab-selected-body");
+        titleContainer.attr("selectedIndex",currTitle.attr("index"));
+		this.selectedIndex = parseInt(currTitle.attr("index"));
+		if (currTitle.attr("ajaxload") != null && currTitle.attr("ajaxload") == "true"){
+        	currTitle.attr("ajaxload", null);
+        } 
+		$.ajax({url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
+		{_ajaxUserEvent:"prenextpanel",_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix()}});
+    },
+    setTabAt:function(html, index){
+        var bodies = $("#bodies-container-" + this.id).children();
+        if (index === undefined || index >= bodies.length || index < 0)
+            return;
+        bodies.slice(index,index+1).html(html);
+    },
+    setTitleAt:function(title, index){
+        var titles = $("#titles-container-" + this.id).children();
+        if (index === undefined || index >= titles.length || index < 0)
+            return;
+        titles.slice(index,index+1).html(title);
+    },
+    setSelectedTab:function(index){
+        var titles = $("#titles-container-" + this.id).children();
+        if (index === undefined || index >= titles.length || index < 0)
+            return;
+        this._setTab(titles[index].getAttribute("id"));
+    },
+    getTabLength:function(){
+    	return $("#titles-container-" + this.id).children().length;
+    }
+});
 UIMaster.ui.chart=UIMaster.extend(UIMaster.ui,{
     type:null,
     chart:null,
@@ -2742,7 +2880,24 @@ UIMaster.ui.chart=UIMaster.extend(UIMaster.ui,{
 UIMaster.ui.matrix=UIMaster.extend(UIMaster.ui,{
     type:null,
     chart:null,
+	isInitialized:false,
     init:function() {
+	   if (this.isInitialized) return;
+       this.isInitialized=true;
+	   var othis = this;
+	   var columns = $(this).find("span[class='uimaster_matrix_col']");
+	   columns.each(function(){
+		   $(this).hover(function(){
+		   }).click(function(){
+			  columns.each(function(){
+				 $(this).removeClass("ui-state-hover");
+			  });
+			  $(this).addClass("ui-state-hover");
+			  UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedNode",_value:$(this).text(),_framePrefix:UIMaster.getFramePrefix(othis)});
+			  UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedX",_value:$($(this).parent()).attr("j"),_framePrefix:UIMaster.getFramePrefix(othis)});
+			  UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedY",_value:$($(this).parent().parent()).attr("i"),_framePrefix:UIMaster.getFramePrefix(othis)});
+		   });
+		});
     }
 });
 UIMaster.ui.map=UIMaster.extend(UIMaster.ui,{

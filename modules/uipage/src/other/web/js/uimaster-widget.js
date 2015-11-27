@@ -19,6 +19,7 @@ UIMaster.ui = UIMaster.extend(UIMaster.ui, /** @lends UIMaster.ui */{
      * @description UI object, a standard HTML element.
      */
     ui: null,
+	initialized: false,
     /**
      * @description Set the widget's visible.
      * @param {Boolean} v
@@ -414,10 +415,14 @@ UIMaster.ui.textfield = UIMaster.extend(UIMaster.ui.field, /** @lends UIMaster.u
         $(this).bind('keydown',this.checkMaxLength);
         $(this).bind('keyup',this.checkMaxAfterInput)
         if(v7)this.maxLength=Number(v7);
-		if(this.needamount)this.amountFunction();
+		if($(this).attr("needamount"))this.amountFunction();
     },
 	amountFunction: function(){
-		
+		var o = this;
+		$($(this).next()).click(function(){
+		});
+		$($(this).next().next()).click(function(){
+		});
 	}
 });
 /**
@@ -429,6 +434,23 @@ UIMaster.ui.textfield = UIMaster.extend(UIMaster.ui.field, /** @lends UIMaster.u
  * @constructor
  */
 UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaster.ui.textarea */{
+	init:function() {
+		UIMaster.ui.textarea.superclass.init.call(this);
+		if ($(this).attr("htmlsupport")=="true") {
+		   this.initHtmlContent();
+		}
+	},
+	initHtmlContent:function() {
+	    var o = this;
+		var btn = $("<button>Save</button>");
+		$(this).parent().append(btn);
+		btn.button().click(function(){
+		   var data = CKEDITOR.instances[o.name+"_ckeditor"].getData();
+		   $.ajax({url:AJAX_SERVICE_URL,async:false,type:'POST',
+		   data:{_ajaxUserEvent:"htmleditor",_uiid:o.name,_valueName:"save",_value:data,_framePrefix:UIMaster.getFramePrefix(o)}});
+		});
+	    setTimeout(function(){CKEDITOR.replace(o.name+"_ckeditor");},500);
+	}
 });
 /**
  * @description Calender fiels class.
@@ -650,7 +672,7 @@ UIMaster.ui.calendar = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 	}
 });
 /**
- * @description Password fiels class.
+ * @description Password fields class.
  * @param {Object} conf Configuration items.
  * @returns {UIMaster.ui.passwordfield} An UIMaster.ui.passwordfield element.
  * @class UIMaster UI Passwordfield.
@@ -1436,7 +1458,7 @@ UIMaster.ui.panel = function(conf){
 						var comp = elementList[this.subComponents[i]];
 						if (comp) {
 							comp.parentEntity = this.parentEntity;
-							comp.init && comp.init();
+							!comp.initialized && comp.init && comp.init();
 						}
 					}
 				}
@@ -2764,15 +2786,7 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 	    if (this.isInitialized) return;
 		this.isInitialized=true;
         var othis = this, s = this.childNodes[0].nodeType == 1 ? this.childNodes[0] : this.childNodes[1], n = s.childNodes[0].nodeType == 1 ? s.childNodes[0] : s.childNodes[1];
-        for (var i in n.childNodes){
-            if (n.childNodes[i].nodeType == 1) {
-            	$(n.childNodes[i]).hover(function(){
-                	 var all = $(this).parent().children();
-                	 for(var i=0;i<all.length;i++){$(all[i]).removeClass("ui-state-hover");};
-                	 $(this).addClass("ui-state-hover");
-                });
-            }
-        }
+        
 		this.titleContainer = $($(s).children()[0]);
 		this.bodyContainer = $($(s).children()[1]);
 		var bodies = this.bodyContainer.children();
@@ -2786,15 +2800,13 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 		    if(!othis.setTab("prev")) return;
 		    UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedIndex",_value:othis.selectedIndex,_framePrefix:UIMaster.getFramePrefix(this)});
 			$.ajax({url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
-			{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"prevbtn",_framePrefix:UIMaster.getFramePrefix()},
-			_sync:UIMaster.ui.sync()});
+			{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"prevbtn",_framePrefix:UIMaster.getFramePrefix(),_sync:UIMaster.ui.sync()}});
 		});
 		$(btns[1]).button().click(function(){
 		    if(!othis.setTab("next")) return;
 		    UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedIndex",_value:othis.selectedIndex,_framePrefix:UIMaster.getFramePrefix(this)});
 			$.ajax({url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
-			{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"nextbtn",_framePrefix:UIMaster.getFramePrefix()},
-			_sync:UIMaster.ui.sync()});
+			{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"nextbtn",_framePrefix:UIMaster.getFramePrefix(),_sync:UIMaster.ui.sync()}});
 		});
 		if (this.subComponents != null){
 		    for (var i=0;i<this.subComponents.length;i++) {
@@ -2875,24 +2887,45 @@ UIMaster.ui.chart=UIMaster.extend(UIMaster.ui,{
 	   this.type = obj.type;
        var ctx = $(this).get(0).getContext("2d");
        if (this.type == "HTMLChartBarType") {
-    	   this.chart = new Chart(ctx).Bar(obj, {});
+	       obj.type = "bar";
+    	   this.chart = new Chart(ctx,obj);
        } else if (this.type == "HTMLChartDoughnutType") {
-    	   this.chart = new Chart(ctx).Doughnut(obj.obj, {});
+	       obj.type = "doughnut";
+    	   this.chart = new Chart.Doughnut(ctx,obj.obj);
        } else if (this.type == "HTMLChartLinearType") {
-    	   this.chart = new Chart(ctx).Line(obj, {});
+	       obj.type = "line";
+    	   this.chart = new Chart(ctx,obj);
        } else if (this.type == "HTMLChartPieType") {
-    	   this.chart = new Chart(ctx).Pie(obj.data, {});
+	       obj.type = "pie";
+    	   this.chart = new Chart(ctx, obj);
        } else if (this.type == "HTMLChartPolarPieType") {
-    	   this.chart = new Chart(ctx).PolarArea(obj.data, {});
+    	   this.chart = new Chart.PolarArea(ctx, obj.data);
        } else if (this.type == "HTMLChartRadarType") {
-    	   this.chart = new Chart(ctx).Radar(obj, {});
+	       obj.type = "radar";
+    	   this.chart = new Chart(ctx, obj);
        }
     }
 });
 UIMaster.ui.matrix=UIMaster.extend(UIMaster.ui,{
     type:null,
-    chart:null,
+	isInitialized:false,
     init:function() {
+	   if (this.isInitialized) return;
+       this.isInitialized=true;
+	   var othis = this;
+	   var columns = $(this).find("span[class='uimaster_matrix_col']");
+	   columns.each(function(){
+		   $(this).hover(function(){
+		   }).click(function(){
+			  columns.each(function(){
+				 $(this).removeClass("ui-state-hover");
+			  });
+			  $(this).addClass("ui-state-hover");
+			  UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedNode",_value:$(this).text(),_framePrefix:UIMaster.getFramePrefix(othis)});
+			  UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedX",_value:$($(this).parent()).attr("j"),_framePrefix:UIMaster.getFramePrefix(othis)});
+			  UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedY",_value:$($(this).parent().parent()).attr("i"),_framePrefix:UIMaster.getFramePrefix(othis)});
+		   });
+		});
     }
 });
 UIMaster.ui.map=UIMaster.extend(UIMaster.ui,{

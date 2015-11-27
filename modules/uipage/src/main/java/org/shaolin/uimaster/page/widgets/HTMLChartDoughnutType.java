@@ -70,19 +70,21 @@ public class HTMLChartDoughnutType extends HTMLChartSuper {
 		}
 		Map<String, Integer> listData = (Map<String, Integer>)this.removeAttribute("query");
 		if (listData != null && !listData.isEmpty()) {
-			StringBuffer sb = new StringBuffer("data: [");
+			StringBuffer sb = new StringBuffer("datasets: [{ data: [");
 			Set<String> keys = listData.keySet();
 			for (String key : keys) {
-				sb.append("{").append("value: ").append(listData.get(key));
-				sb.append(",").append("label: '").append(key).append("'");
-				String css = cssStyles.get(key);
-				if (css != null) {
-					sb.append(",").append(css);
-				}
-				sb.append("},");
+				sb.append(listData.get(key)).append(",");
 			}
 			sb.deleteCharAt(sb.length()-1);
-			sb.append("]");
+			sb.append("], backgroundColor: [");
+			for (String key : keys) {
+				String css = cssStyles.get(key);
+				if (css != null) {
+					sb.append(css).append(",");
+				}
+			}
+			sb.deleteCharAt(sb.length()-1);
+			sb.append("]}],options: {responsive: true}");
 			context.generateHTML(sb.toString());
 		}
 	}

@@ -21,15 +21,12 @@ import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.UITableColumnType;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
-import org.shaolin.uimaster.page.HTMLUtil;
-import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Chart;
 import org.shaolin.uimaster.page.ajax.Layout;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
-import org.shaolin.uimaster.page.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,19 +51,15 @@ public abstract class HTMLChartSuper extends HTMLWidgetType
     @Override
 	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
     	generateWidget(context);
-    	String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
-    			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/uimaster-chart.js\"></script>\n");
-    	
     	Object widthProp = this.removeAttribute("width");
     	Object heightProp = this.removeAttribute("height");
     	int width = widthProp == null? 100: Integer.valueOf(widthProp.toString());
     	int height = heightProp == null? 100: Integer.valueOf(heightProp.toString());
     	context.generateHTML("<canvas id=\"");
 		context.generateHTML(getName());
-		context.generateHTML("\" width=\""+width+"px;\" width=\""+height+"px;\">");
+		context.generateHTML("\" width=\""+width+"\" height=\""+height+"\">");
 		context.generateHTML("{type: '" + this.getClass().getSimpleName() + "',");
-		context.generateHTML("labels:[");
+		context.generateHTML("data: {labels:[");
 		StringBuffer sb = new StringBuffer();
 		List<UITableColumnType> columns = (List<UITableColumnType>)this.removeAttribute("columns");
 		for (UITableColumnType col : columns) {
@@ -84,7 +77,7 @@ public abstract class HTMLChartSuper extends HTMLWidgetType
 		} catch (Exception e) {
 			logger.error("Failed to generate chart: " + e.getMessage(), e);
 		}
-		context.generateHTML("}");
+		context.generateHTML("}}");
 		context.generateHTML("</canvas>");
 	}
     

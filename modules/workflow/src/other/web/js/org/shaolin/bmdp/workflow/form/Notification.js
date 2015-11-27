@@ -88,7 +88,25 @@ function org_shaolin_bmdp_workflow_form_Notification(json)
 
     Form.fieldPanel=fieldPanel;
 
+    Form.idUI=idUI;
+
+    Form.partyIdUILabel=partyIdUILabel;
+
+    Form.partyIdUI=partyIdUI;
+
+    Form.subjectUILabel=subjectUILabel;
+
+    Form.subjectUI=subjectUI;
+
+    Form.descriptionUILabel=descriptionUILabel;
+
+    Form.descriptionUI=descriptionUI;
+
     Form.actionPanel=actionPanel;
+
+    Form.okbtn=okbtn;
+
+    Form.cancelbtn=cancelbtn;
 
     Form.user_constructor = function()
     {

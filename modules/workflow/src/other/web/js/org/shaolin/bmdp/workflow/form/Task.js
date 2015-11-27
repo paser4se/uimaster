@@ -166,7 +166,47 @@ function org_shaolin_bmdp_workflow_form_Task(json)
 
     Form.fieldPanel=fieldPanel;
 
+    Form.partyIdUILabel=partyIdUILabel;
+
+    Form.partyIdUI=partyIdUI;
+
+    Form.subjectUILabel=subjectUILabel;
+
+    Form.subjectUI=subjectUI;
+
+    Form.descriptionUILabel=descriptionUILabel;
+
+    Form.descriptionUI=descriptionUI;
+
+    Form.expiredTimeUILabel=expiredTimeUILabel;
+
+    Form.expiredTimeUI=expiredTimeUI;
+
+    Form.sendSMSUILabel=sendSMSUILabel;
+
+    Form.sendSMSUI=sendSMSUI;
+
+    Form.sendEmailUILabel=sendEmailUILabel;
+
+    Form.sendEmailUI=sendEmailUI;
+
+    Form.statusUILabel=statusUILabel;
+
+    Form.statusUI=statusUI;
+
+    Form.completeRateUILabel=completeRateUILabel;
+
+    Form.completeRateUI=completeRateUI;
+
+    Form.priorityUILabel=priorityUILabel;
+
+    Form.priorityUI=priorityUI;
+
     Form.actionPanel=actionPanel;
+
+    Form.okbtn=okbtn;
+
+    Form.cancelbtn=cancelbtn;
 
     Form.user_constructor = function()
     {

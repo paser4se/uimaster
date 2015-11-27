@@ -92,6 +92,7 @@
             	<item name="jquery-jstree" value="/js/jquery-jstree.js" />
             	<item name="uimaster" value="/js/uimaster.js" />
             	<item name="uimaster-widget" value="/js/uimaster-widget.js" />
+            	<item name="uimaster-chart" value="/js/uimaster-chart.js" />
             </node>
             <node name="commonjs-mob">
                 <!-- support async mode
@@ -103,6 +104,7 @@
             	<item name="jquery-jstree" value="/js/jquery-jstree.js" />
             	<item name="uimaster" value="/js/uimaster-mob.js" />
             	<item name="uimaster-widget" value="/js/uimaster-widget-mob.js" />
+            	<item name="uimaster-chart" value="/js/uimaster-chart.js" />
             </node>
         </node>
     </node>
