@@ -47,11 +47,11 @@
 			<bediagram:type xsi:type="bediagram:LongType" />
 		</bediagram:member>
 		<bediagram:member>
-    <bediagram:name>moduleType</bediagram:name>
-    <bediagram:type xsi:type="bediagram:CEObjRefType">
-        <bediagram:targetEntity entityName="ModuleType" />
-    </bediagram:type>
-  </bediagram:member>
+		  <bediagram:name>moduleType</bediagram:name>
+		  <bediagram:type xsi:type="bediagram:CEObjRefType">
+		      <bediagram:targetEntity entityName="ModuleType" />
+		  </bediagram:type>
+		</bediagram:member>
 	</bediagram:beEntity>
 	
 	<!-- 
@@ -183,13 +183,12 @@
 	</bediagram:ceEntity>
 	
 	<bediagram:ceEntity>
-	 <common:entityName>NodeType</common:entityName>
+	   <common:entityName>NodeType</common:entityName>
 		<bediagram:constantValue>
 			<bediagram:value>MissionNode</bediagram:value>
 			<bediagram:intValue>0</bediagram:intValue>
 			<bediagram:description>MissionNode</bediagram:description>
 		</bediagram:constantValue>
-		<common:entityName>NodeType</common:entityName>
 		<bediagram:constantValue>
 			<bediagram:value>StartNode</bediagram:value>
 			<bediagram:intValue>1</bediagram:intValue>

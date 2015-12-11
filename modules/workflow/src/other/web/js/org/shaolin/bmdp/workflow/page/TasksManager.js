@@ -46,6 +46,12 @@ function org_shaolin_bmdp_workflow_page_TasksManager(json)
         ui: elementList[prefix + "historyTasksPie"]
     });
 
+    var firstPanel = new UIMaster.ui.panel
+    ({
+        ui: elementList[prefix + "firstPanel"]
+        ,items: []
+        ,subComponents: [prefix + "currentTasksPie",prefix + "historyTasksPie"]
+    });
     var historyTasksRadar = new UIMaster.ui.chart
     ({
         ui: elementList[prefix + "historyTasksRadar"]
@@ -55,12 +61,13 @@ function org_shaolin_bmdp_workflow_page_TasksManager(json)
     ({
         ui: elementList[prefix + "tasksAnalysisPanel"]
         ,items: []
-        ,subComponents: [prefix + "currentTasksPie",prefix + "historyTasksPie",prefix + "historyTasksRadar"]
+        ,subComponents: [prefix + "firstPanel",prefix + "historyTasksRadar"]
     });
 
     var Form = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "Form"]
+        ,uiskin: "org.shaolin.uimaster.page.skin.TitlePanel"
         ,items: [CENameUI,functionsTab]
     });
 
@@ -77,6 +84,8 @@ function org_shaolin_bmdp_workflow_page_TasksManager(json)
     Form.tasksHistoryTable=tasksHistoryTable;
 
     Form.tasksAnalysisPanel=tasksAnalysisPanel;
+
+    Form.firstPanel=firstPanel;
 
     Form.currentTasksPie=currentTasksPie;
 

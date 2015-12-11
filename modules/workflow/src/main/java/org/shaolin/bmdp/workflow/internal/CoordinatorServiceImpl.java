@@ -16,6 +16,7 @@
 package org.shaolin.bmdp.workflow.internal;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -39,6 +40,7 @@ import org.shaolin.bmdp.workflow.be.ITaskHistory;
 import org.shaolin.bmdp.workflow.be.NotificationImpl;
 import org.shaolin.bmdp.workflow.be.TaskHistoryImpl;
 import org.shaolin.bmdp.workflow.be.TaskImpl;
+import org.shaolin.bmdp.workflow.ce.PeriodicType;
 import org.shaolin.bmdp.workflow.ce.TaskStatusType;
 import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
 import org.shaolin.bmdp.workflow.coordinator.IResourceManager;
@@ -241,6 +243,31 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		}
 		AppContext.get().getService(IResourceManager.class).assignOnwer(task);
 		
+		if (task.getPeriodicJob() != null) {
+			long initialDelay;
+			long period;
+			long nowGap = 24 - Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+			if (task.getPeriodicValue() >= nowGap) {
+				long v = task.getPeriodicValue() - nowGap;
+				initialDelay = v == 0 ? 1 : v;
+				period = v == 0 ? 1 : v;
+			} else {
+				initialDelay = 24 + task.getPeriodicValue() - nowGap;
+				period = 24 + task.getPeriodicValue() - nowGap;
+			}
+			
+			if (task.getPeriodicType() == PeriodicType.WEEKLY) {
+				initialDelay = initialDelay + (7 * 12);
+			} else if (task.getPeriodicType() == PeriodicType.MONTHLY) {
+				//TODO: Bug on the accuracy
+				initialDelay = initialDelay + (30 * 12);
+			}
+			ScheduledFuture<?> f = pool.scheduleAtFixedRate(task.getPeriodicJob(), initialDelay, period, TimeUnit.HOURS);
+			futures.put(task, f);
+			logger.debug("Scheduled a periodic job: " + task);
+			return;
+		}
+		
 		long delay = task.getExpiredTime().getTime() - System.currentTimeMillis();
 		if (delay <= 0) {
 			expireTask(task);
@@ -380,6 +407,9 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 	
 	private void moveToHistory(ITask task, Session session) {
+		if (task.getId() == 0) {
+			return;
+		}
 		TaskHistoryImpl history = new TaskHistoryImpl();
 		history.setTaskId(task.getId());
 		history.setCompleteRate(task.getCompleteRate());

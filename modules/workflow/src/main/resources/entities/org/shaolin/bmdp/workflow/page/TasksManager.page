@@ -129,6 +129,14 @@
     </ns2:eventHandler>
     <ns2:eventHandler functionName="deleteUser"></ns2:eventHandler>
     <ns2:body UIID="Form" xsi:type="ns2:UIPanelType">
+        <ns2:UISkin xsi:type="ns2:UISkinType">
+            <ns2:skinName>org.shaolin.uimaster.page.skin.TitlePanel</ns2:skinName>
+            <ns2:param name="text">
+                <ns2:value xsi:type="ns2:StringPropertyType">
+                    <ns2:value></ns2:value>
+                </ns2:value>
+            </ns2:param>
+        </ns2:UISkin>
         <ns2:layout xsi:type="ns2:TableLayoutType">
             <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
             <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
@@ -482,18 +490,23 @@
               <ns2:layout xsi:type="ns2:TableLayoutType">
                   <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
                   <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
-                  <ns2:columnWidthWeight>0.0</ns2:columnWidthWeight>
-                  <ns2:columnWidthWeight>0.0</ns2:columnWidthWeight>
+                  <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
               </ns2:layout>
-              <ns2:component xsi:type="ns2:UIChartPieType" UIID="currentTasksPie">
+              <ns2:component xsi:type="ns2:UIPanelType" UIID="firstPanel">
+                 <ns2:layout xsi:type="ns2:TableLayoutType">
+                     <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+                     <ns2:columnWidthWeight>0.15</ns2:columnWidthWeight>
+                     <ns2:columnWidthWeight>0.15</ns2:columnWidthWeight>
+                 </ns2:layout>
+                 <ns2:component xsi:type="ns2:UIChartPieType" UIID="currentTasksPie">
                   <ns2:Property name="width">
-											         <ns2:value xsi:type="ns2:NumericPropertyType">
-											            <value>300</value>
-											         </ns2:value>
-									         </ns2:Property>
-									         <ns2:Property name="height">
+			         <ns2:value xsi:type="ns2:NumericPropertyType">
+			            <value>250</value>
+			         </ns2:value>
+		          </ns2:Property>
+		          <ns2:Property name="height">
                     <ns2:value xsi:type="ns2:NumericPropertyType">
-                       <value>200</value>
+                       <value>250</value>
                     </ns2:value>
                   </ns2:Property>
                   <ns2:widgetLabel xsi:type="ns2:StringPropertyType">
@@ -519,34 +532,34 @@
                            }]]></ns2:expressionString>
                        </ns2:expression>
                    </ns2:query>
-                  <ns2:column xsi:type="ns2:UITableColumnType">
+                  <ns2:dataset xsi:type="ns2:UITableColumnType">
                        <ns2:title xsi:type="ns2:ExpressionPropertyType">
                            <ns2:expression>
                              <expressionString>{return org.shaolin.bmdp.workflow.ce.TaskStatusType.INPROGRESS.getDisplayName();}</expressionString>
                            </ns2:expression>
                        </ns2:title>
-                       <ns2:cssStype>color:'#46BFBD',highlight:'#5AD3D1'</ns2:cssStype>
+                       <ns2:cssStype>'#46BFBD'</ns2:cssStype>
                        <ns2:beFieldId>rowBE.status</ns2:beFieldId>
-                   </ns2:column>
-                   <ns2:column xsi:type="ns2:UITableColumnType">
+                   </ns2:dataset>
+                   <ns2:dataset xsi:type="ns2:UITableColumnType">
                        <ns2:title xsi:type="ns2:ExpressionPropertyType">
                            <ns2:expression>
                              <expressionString>{return org.shaolin.bmdp.workflow.ce.TaskStatusType.EXPIRED.getDisplayName();}</expressionString>
                            </ns2:expression>
                        </ns2:title>
-                       <ns2:cssStype>color:'#F7464A',highlight:'#FF5A5E'</ns2:cssStype>
+                       <ns2:cssStype>'#F7464A'</ns2:cssStype>
                        <ns2:beFieldId>rowBE.status</ns2:beFieldId>
-                   </ns2:column>
+                   </ns2:dataset>
               </ns2:component>
               <ns2:component xsi:type="ns2:UIChartPieType" UIID="historyTasksPie">
                   <ns2:Property name="width">
                     <ns2:value xsi:type="ns2:NumericPropertyType">
-                       <value>300</value>
+                       <value>250</value>
                     </ns2:value>
                   </ns2:Property>
                   <ns2:Property name="height">
                     <ns2:value xsi:type="ns2:NumericPropertyType">
-                       <value>200</value>
+                       <value>250</value>
                     </ns2:value>
                   </ns2:Property>
                   <ns2:widgetLabel xsi:type="ns2:StringPropertyType">
@@ -572,34 +585,50 @@
                            }]]></ns2:expressionString>
                        </ns2:expression>
                    </ns2:query>
-                  <ns2:column xsi:type="ns2:UITableColumnType">
+                  <ns2:dataset xsi:type="ns2:UITableColumnType">
                        <ns2:title xsi:type="ns2:ExpressionPropertyType">
                            <ns2:expression>
                              <expressionString>{return org.shaolin.bmdp.workflow.ce.TaskStatusType.INPROGRESS.getDisplayName();}</expressionString>
                            </ns2:expression>
                        </ns2:title>
-                       <ns2:cssStype>color:'#46BFBD',highlight:'#5AD3D1'</ns2:cssStype>
+                       <ns2:cssStype>'#46BFBD'</ns2:cssStype>
                        <ns2:beFieldId>rowBE.status</ns2:beFieldId>
-                   </ns2:column>
-                   <ns2:column xsi:type="ns2:UITableColumnType">
+                   </ns2:dataset>
+                   <ns2:dataset xsi:type="ns2:UITableColumnType">
                        <ns2:title xsi:type="ns2:ExpressionPropertyType">
                            <ns2:expression>
                              <expressionString>{return org.shaolin.bmdp.workflow.ce.TaskStatusType.EXPIRED.getDisplayName();}</expressionString>
                            </ns2:expression>
                        </ns2:title>
-                       <ns2:cssStype>color:'#F7464A',highlight:'#FF5A5E'</ns2:cssStype>
+                       <ns2:cssStype>'#F7464A'</ns2:cssStype>
                        <ns2:beFieldId>rowBE.status</ns2:beFieldId>
-                   </ns2:column>
+                   </ns2:dataset>
+                 </ns2:component>
+                 <ns2:layoutConstraint>
+                     <ns2:componentId>currentTasksPie</ns2:componentId>
+                     <ns2:constraint xsi:type="ns2:TableLayoutConstraintType"
+                         x="0" y="0" align="FULL"></ns2:constraint>
+                 </ns2:layoutConstraint>
+                 <ns2:layoutConstraint>
+                     <ns2:componentId>historyTasksPie</ns2:componentId>
+                     <ns2:constraint xsi:type="ns2:TableLayoutConstraintType"
+                         x="1" y="0" align="FULL"></ns2:constraint>
+                 </ns2:layoutConstraint>
               </ns2:component>
-              <ns2:component xsi:type="ns2:UIChartRadarType" UIID="historyTasksRadar">
+              <ns2:component xsi:type="ns2:UIChartLinearType" UIID="historyTasksRadar">
                   <ns2:Property name="width">
                     <ns2:value xsi:type="ns2:NumericPropertyType">
-                       <value>300</value>
+                       <value>600</value>
                     </ns2:value>
                   </ns2:Property>
                   <ns2:Property name="height">
                     <ns2:value xsi:type="ns2:NumericPropertyType">
-                       <value>200</value>
+                       <value>400</value>
+                    </ns2:value>
+                  </ns2:Property>
+                  <ns2:Property name="dataType">
+                    <ns2:value xsi:type="ns2:StringPropertyType">
+                       <value>date</value>
                     </ns2:value>
                   </ns2:Property>
                   <ns2:widgetLabel xsi:type="ns2:StringPropertyType">
@@ -621,52 +650,47 @@
                            }]]></ns2:expressionString>
                        </ns2:expression>
                    </ns2:query>
-                  <ns2:column xsi:type="ns2:UITableColumnType">
+                  <ns2:dataset xsi:type="ns2:UITableColumnType">
                        <ns2:title xsi:type="ns2:ExpressionPropertyType">
                            <ns2:expression>
                              <expressionString>{return org.shaolin.bmdp.workflow.ce.TaskStatusType.INPROGRESS.getDisplayName();}</expressionString>
                            </ns2:expression>
                        </ns2:title>
-                       <ns2:cssStype>fillColor: 'rgba(220,220,220,0.2)',strokeColor: 'rgba(220,220,220,1)',pointColor: 'rgba(220,220,220,1)',pointStrokeColor: 'fff',pointHighlightFill: '#fff',pointHighlightStroke: 'rgba(220,220,220,1)'</ns2:cssStype>
+                       <ns2:cssStype>backgroundColor: 'rgba(220,220,220,0.2)',pointBackgroundColor: 'rgba(220,220,220,1)',hoverPointBackgroundColor: 'rgba(220,220,220,1)',pointHighlightStroke: '#fff'</ns2:cssStype>
                        <ns2:beFieldId>rowBE.status</ns2:beFieldId>
                        <ns2:rowExpression xsi:type="ns2:ExpressionPropertyType">
                            <ns2:expression xsi:type="ns2:ExpressionType">
                                 <ns2:expressionString><![CDATA[
                                 import org.shaolin.bmdp.runtime.AppContext;
                                 {
-                                 return $rowBE.getId();
+                                 return "{x: \"2015-11-28\", y: " +(int)(java.lang.Math.random() * 100) + "}";
                                 }]]></ns2:expressionString>
                             </ns2:expression>
                         </ns2:rowExpression>
-                   </ns2:column>
-                   <ns2:column xsi:type="ns2:UITableColumnType">
+                   </ns2:dataset>
+                   <ns2:dataset xsi:type="ns2:UITableColumnType">
                        <ns2:title xsi:type="ns2:ExpressionPropertyType">
                            <ns2:expression>
                              <expressionString>{return org.shaolin.bmdp.workflow.ce.TaskStatusType.EXPIRED.getDisplayName();}</expressionString>
                            </ns2:expression>
                        </ns2:title>
-                       <ns2:cssStype>fillColor: 'rgba(151,187,205,0.2)',strokeColor: 'rgba(151,187,205,1)',pointColor: 'rgba(151,187,205,1)',pointStrokeColor: 'fff',pointHighlightFill: '#fff',pointHighlightStroke: 'rgba(151,187,205,1)'</ns2:cssStype>
+                       <ns2:cssStype>backgroundColor: 'rgba(151,187,205,0.2)',pointBackgroundColor: 'rgba(151,187,205,1)',hoverPointBackgroundColor: 'rgba(151,187,205,1)',pointHighlightStroke: '#fff'</ns2:cssStype>
                        <ns2:beFieldId>rowBE.status</ns2:beFieldId>
                        <ns2:rowExpression xsi:type="ns2:ExpressionPropertyType">
                            <ns2:expression xsi:type="ns2:ExpressionType">
                                 <ns2:expressionString><![CDATA[
                                 import org.shaolin.bmdp.runtime.AppContext;
                                 {
-                                 return $rowBE.getId();
+                                  return "{x: \"2015-11-28\", y: " +(int)(java.lang.Math.random() * 100) + "}";
                                 }]]></ns2:expressionString>
                             </ns2:expression>
                         </ns2:rowExpression>
-                   </ns2:column>
+                   </ns2:dataset>
               </ns2:component>
                <ns2:layoutConstraint>
-                   <ns2:componentId>currentTasksPie</ns2:componentId>
+                   <ns2:componentId>firstPanel</ns2:componentId>
                    <ns2:constraint xsi:type="ns2:TableLayoutConstraintType"
                        x="0" y="0" align="FULL"></ns2:constraint>
-               </ns2:layoutConstraint>
-               <ns2:layoutConstraint>
-                   <ns2:componentId>historyTasksPie</ns2:componentId>
-                   <ns2:constraint xsi:type="ns2:TableLayoutConstraintType"
-                       x="1" y="0" align="FULL"></ns2:constraint>
                </ns2:layoutConstraint>
                <ns2:layoutConstraint>
                   <ns2:componentId>historyTasksRadar</ns2:componentId>

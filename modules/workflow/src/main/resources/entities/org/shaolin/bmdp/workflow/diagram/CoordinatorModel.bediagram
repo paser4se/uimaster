@@ -75,7 +75,26 @@
 			<bediagram:name>sendEmail</bediagram:name>
 			<bediagram:type xsi:type="bediagram:BooleanType" />
 		</bediagram:member>
-
+        <bediagram:member>
+            <!-- the periodic task -->
+            <bediagram:name>periodicJob</bediagram:name>
+            <bediagram:type xsi:type="bediagram:JavaObjRefType">
+                <bediagram:targetJava name="java.lang.Runnable" />
+            </bediagram:type>
+        </bediagram:member>
+        <bediagram:member>
+            <!-- the periodic task -->
+            <!-- only support on the hour level which makes our scenario much simpler.-->
+            <bediagram:name>periodicValue</bediagram:name>
+            <bediagram:type xsi:type="bediagram:LongType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>periodicType</bediagram:name>
+            <bediagram:type xsi:type="bediagram:CEObjRefType">
+                <bediagram:targetEntity entityName="PeriodicType" />
+            </bediagram:type>
+        </bediagram:member>
+        
 		<bediagram:member>
 			<bediagram:name>status</bediagram:name>
 			<bediagram:type xsi:type="bediagram:CEObjRefType">
@@ -259,5 +278,24 @@
 			<bediagram:description>Critical</bediagram:description>
 		</bediagram:constantValue>
 	</bediagram:ceEntity>
+	
+	<bediagram:ceEntity>
+        <common:entityName>PeriodicType</common:entityName>
+        <bediagram:constantValue>
+            <bediagram:value>Daily</bediagram:value>
+            <bediagram:intValue>0</bediagram:intValue>
+            <bediagram:description>Daily</bediagram:description>
+        </bediagram:constantValue>
+        <bediagram:constantValue>
+            <bediagram:value>Weekly</bediagram:value>
+            <bediagram:intValue>1</bediagram:intValue>
+            <bediagram:description>Weekly</bediagram:description>
+        </bediagram:constantValue>
+        <bediagram:constantValue>
+            <bediagram:value>Monthly</bediagram:value>
+            <bediagram:intValue>2</bediagram:intValue>
+            <bediagram:description>Monthly</bediagram:description>
+        </bediagram:constantValue>
+    </bediagram:ceEntity>
 
 </bediagram:BEDiagram>
