@@ -220,9 +220,15 @@ public class DaoGenerator implements IEntityEventListener<TableType, RDBDiagram>
 					// add condition
 					out.print(context.getConditions());
 					
-					out.write("\n        List result = this._list(offset, count, ");
-					out.print(context.getFirstCriteriaName());
-					out.write(");\n");
+					if (query.isStatistic()) {
+						out.write("\n        List result = this.listStatistic(offset, count, ");
+						out.print("new java.util.HashMap()");
+						out.write(");\n");
+					} else {
+						out.write("\n        List result = this._list(offset, count, ");
+						out.print(context.getFirstCriteriaName());
+						out.write(");\n");
+					}
 					if (query.getPostSearch() != null && query.getPostSearch().getExpressionString() != null) {
 						out.write("        ");
 						out.write(query.getPostSearch().getExpressionString());
@@ -247,10 +253,15 @@ public class DaoGenerator implements IEntityEventListener<TableType, RDBDiagram>
 					out.write("\n");
 					// add condition
 					out.print(context.getConditions());
-					
-					out.write("\n        return this._count(");
-					out.print(context.getFirstCriteriaName());
-					out.write(");\n");
+					if (query.isStatistic()) {
+						out.write("\n        return this.countStatistic(");
+						out.print("new java.util.HashMap()");
+						out.write(");\n");
+					} else {
+						out.write("\n        return this._count(");
+						out.print(context.getFirstCriteriaName());
+						out.write(");\n");
+					}
 					out.write("    }\n\n");
 					
 				} catch (Exception e) {

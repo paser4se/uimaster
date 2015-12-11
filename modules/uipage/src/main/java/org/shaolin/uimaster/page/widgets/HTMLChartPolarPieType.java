@@ -61,7 +61,7 @@ public class HTMLChartPolarPieType extends HTMLChartSuper {
 				}
 			}
 			sb.deleteCharAt(sb.length()-1);
-			sb.append("]}],options: {responsive: true}");
+			sb.append("]}]");
 			context.generateHTML(sb.toString());
 		}
 	}

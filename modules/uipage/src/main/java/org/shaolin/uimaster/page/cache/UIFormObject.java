@@ -90,6 +90,7 @@ import org.shaolin.bmdp.datamodel.page.UITabPaneItemType;
 import org.shaolin.bmdp.datamodel.page.UITabPaneType;
 import org.shaolin.bmdp.datamodel.page.UITableActionType;
 import org.shaolin.bmdp.datamodel.page.UITableColumnType;
+import org.shaolin.bmdp.datamodel.page.UITableStatsType;
 import org.shaolin.bmdp.datamodel.page.UITableType;
 import org.shaolin.bmdp.datamodel.page.UITextAreaType;
 import org.shaolin.bmdp.datamodel.page.UITextComponentType;
@@ -688,6 +689,9 @@ public class UIFormObject implements java.io.Serializable
             	}
             	propMap.put("rowFilterExpr", table.getRowFilter().getExpression());
             	propMap.put("totalExpr", table.getTotalCount().getExpression());
+            	if (table.getStats() != null) {
+            		propMap.put("statistic", table.getStats());
+            	}
             	
 				List<UITableColumnType> columns = table.getColumns();
 				if (table.isShowBigItem()) {
@@ -787,13 +791,12 @@ public class UIFormObject implements java.io.Serializable
 	    			}
 	    			UITableActionType refreshAction = new UITableActionType();
 	    			refreshAction.setUiid(table.getUIID() + "_refreshItem");
-	        		refreshAction.setFunction("");
+	        		refreshAction.setFunction("refreshTable");
 	        		refreshAction.setIcon("ui-icon-refresh");
 	        		ResourceBundlePropertyType i18nInfo = new ResourceBundlePropertyType();
 	        		i18nInfo.setBundle("Common");
 	        		i18nInfo.setKey("RefreshItem");
 	        		refreshAction.setTitle(i18nInfo);
-	        		refreshAction.setFunction("refreshTable");
 	        		seqList.add(refreshAction);
 	        		
 					UITableActionType importData = new UITableActionType();
@@ -813,7 +816,7 @@ public class UIFormObject implements java.io.Serializable
 					exportData.setUiid(table.getUIID() + "_exportItem");
 					seqList.add(importData);
 					seqList.add(exportData);
-	        		
+					
 	        		propMap.put("defaultActionGroup", seqList);
             	}
             	if (table.getActionGroups() != null && table.getActionGroups().size() > 0) {
@@ -902,6 +905,7 @@ public class UIFormObject implements java.io.Serializable
             		DefaultParsingContext localP = (DefaultParsingContext)
             				parsingContext.getParsingContextObject(ODContext.LOCAL_TAG);
             		localP.setVariableClass("page", AjaxContext.class);
+            		localP.setVariableClass("condition", Object.class);
 					// for cell value evaluation.
             		Class beClass = null;
             		try {
@@ -911,23 +915,30 @@ public class UIFormObject implements java.io.Serializable
             		}
             		localP.setVariableClass("rowBE", beClass);
 					
+            		propMap.put("columns", chart.getDatasets());
 					if (chart.getQuery() != null) {
 						chart.getQuery().getExpression().parse(parsingContext);
+						propMap.put("queryExpr", chart.getQuery().getExpression());
 					}
-					propMap.put("queryExpr", chart.getQuery().getExpression());
-					propMap.put("columns", chart.getColumns());
+					if (chart.getLabels() != null) {
+						chart.getLabels().getExpression().parse(parsingContext);
+						propMap.put("labelExpr", chart.getLabels().getExpression());
+					}
 					
-					List<UITableColumnType> columns = chart.getColumns();
+					List<UITableColumnType> columns = chart.getDatasets();
 					for (UITableColumnType col : columns) {
 						if(col.getRowExpression() != null && col.getRowExpression().getExpression() != null) {
 							col.getRowExpression().getExpression().parse(parsingContext);
 						}
+						if(col.getIsVisible() != null && col.getIsVisible().getExpression() != null) {
+							col.getIsVisible().getExpression().parse(parsingContext);
+						}
 					}
 				} catch (ClassNotFoundException e) {
-					logger.error("Exception occured when pass the table expression: "
+					logger.error("Exception occured when pass the chart expression: "
                                     + component.getUIID() + " in form: " + this.name, e);
 				} catch (ParsingException e) {
-					logger.error("Exception occured when pass the table expression: "
+					logger.error("Exception occured when pass the chart expression: "
                                     + component.getUIID() + " in form: " + this.name, e);
 				}
             } 
@@ -1212,7 +1223,7 @@ public class UIFormObject implements java.io.Serializable
         else if (component instanceof UIChartType) 
         {
         	UIChartType chart = (UIChartType) component;
-        	chart.getColumns();
+        	chart.getDatasets();
         }
     }
 
@@ -1840,6 +1851,27 @@ public class UIFormObject implements java.io.Serializable
 			return false;
 		}
 		return this.dynamicItems.size() > 0;
+	}
+	
+	public void addStatsAction(UITableStatsType uiStatsType) {
+		if (componentMap.containsKey(uiStatsType.getUiid())) {
+			Map<String, Object> propMap = componentMap.get(uiStatsType.getUiid());
+			propMap.put("statistic", uiStatsType);
+			
+			UITableActionType statsAction = new UITableActionType();
+			statsAction.setUiid(uiStatsType.getUiid() + "_statsItem");
+    		statsAction.setFunction("statistic");
+    		statsAction.setIcon("ui-icon-image");
+    		ResourceBundlePropertyType statsI18nInfo = new ResourceBundlePropertyType();
+    		statsI18nInfo.setBundle("Common");
+    		statsI18nInfo.setKey("StatisticItem");
+    		statsAction.setTitle(statsI18nInfo);
+    		
+    		((List)propMap.get("defaultActionGroup")).add(statsAction);
+		}
+	}
+	
+	public void clearStatsAction() {
 	}
     
     public String getBodyName() {

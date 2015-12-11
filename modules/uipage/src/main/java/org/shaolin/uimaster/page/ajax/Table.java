@@ -20,16 +20,21 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.UITableColumnType;
 import org.shaolin.bmdp.datamodel.page.UITableSelectModeType;
+import org.shaolin.bmdp.datamodel.page.UITableStatsType;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
+import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
+import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.IJSHandlerCollections;
@@ -87,6 +92,25 @@ public class Table extends Widget implements Serializable {
 	
 	private List<Object> updateItems;
 	
+	public static final ExpressionType statsExpr = new ExpressionType();
+	static{
+		statsExpr.setExpressionString("import org.shaolin.bmdp.analyzer.dao.AanlysisModelCust; {\n"
+				+ "return AanlysisModelCust.INSTANCE.stats($tableName,$conditions);\n"
+				+ "}");
+		OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+		DefaultParsingContext pContext = new DefaultParsingContext();
+		pContext.setVariableClass("tableName", String.class);
+		pContext.setVariableClass("conditions", Map.class);
+		
+		ooeeContext.setDefaultParsingContext(pContext);
+		ooeeContext.setParsingContextObject("$", pContext);
+		try {
+			statsExpr.parse(ooeeContext);
+		} catch (ParsingException e) {
+			logger.warn("Table statistic function is disabled due to :" + e.getMessage(), e);
+		}
+	}
+	
 	private ExpressionType queryExpr;
 
 	private ExpressionType totalExpr;
@@ -94,6 +118,8 @@ public class Table extends Widget implements Serializable {
 	private List<UITableColumnType> columns;
 	
 	private UITableSelectModeType selectMode;
+	
+	private UITableStatsType stats;
 
 	public Table(String tableId, HttpServletRequest request) {
 		super(tableId, null);
@@ -107,6 +133,10 @@ public class Table extends Widget implements Serializable {
 	public void setSelectMode(UITableSelectModeType selectMode) {
 		this.selectMode = selectMode == null ? UITableSelectModeType.MULTIPLE
 				: selectMode;
+	}
+	
+	public void setStatistic(UITableStatsType stats) {
+		this.stats = stats;
 	}
 	
 	public void addAttribute(String name, Object value, boolean update)
@@ -526,6 +556,30 @@ public class Table extends Widget implements Serializable {
 		String name = "Data Report";
 		ImportTableToExcel importTable = new ImportTableToExcel(getEvaluatedResult());
 		importTable.createWorkbook(name, columnTitles).write(output);
+	}
+	
+	public void showStatistic() {
+		if (this.stats != null && this.stats.getTableName() != null 
+				&& this.stats.getTableName().trim().length() > 0) {
+			try {
+				OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+				DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+				evaContext.setVariableValue("tableName", this.stats.getTableName());
+				//TODO:
+				evaContext.setVariableValue("conditions", new HashMap());
+				ooeeContext.setDefaultEvaluationContext(evaContext);
+				ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+				List data = (List) statsExpr.evaluate(ooeeContext);
+				HashMap<String, Object> input = new HashMap<String, Object>();
+				input.put("data", data);
+	            RefForm form = new RefForm("statsChartFrom", this.stats.getUiFrom(), input);
+	            AjaxActionHelper.getAjaxContext().addElement(form);
+	            
+	            form.openInWindows("Chart Analysis Report", null, 690, 400);
+			} catch (Exception e) {
+				logger.error("error occurrs while showing chart on table: " + this.getId(), e);
+			}
+		}
 	}
 	
 	public void show() {

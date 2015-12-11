@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Criteria;
 import org.hibernate.SQLQuery;
@@ -22,6 +23,8 @@ import org.slf4j.LoggerFactory;
 public class BEEntityDaoObject {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	public static final BEEntityDaoObject DAOOBJECT = new BEEntityDaoObject();
 	
 	public void addResource(String hbmMapping) {
 		HibernateUtil.getConfiguration().addResource(hbmMapping);
@@ -199,6 +202,29 @@ public class BEEntityDaoObject {
 		session.update(entity);
 	}
 	
+	/**
+	 * Query for the statistic tables which analyzed by Scala engine
+	 * 
+	 * @param offset
+	 * @param count
+	 * @param conditions
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> List<T> listStatistic(String table, int offset, int count, Map<String, Object> conditions) {
+		Session session = HibernateUtil.getSession();
+		return session.createSQLQuery("select * from " + table).list(); 
+	}
+	
+	/**
+	 * Query for the normal tables.
+	 * 
+	 * @param offset
+	 * @param count
+	 * @param elementType
+	 * @param persistentClass
+	 * @return
+	 */
 	public <T> List<T> list(int offset, int count, Class<T> elementType, 
 			Class<?> persistentClass) {
 		return list( offset, count, elementType, persistentClass, null, null);
@@ -332,6 +358,20 @@ public class BEEntityDaoObject {
 	
 	public long count(Class<?> persistentClass, String alias) {
 		return count(persistentClass, alias, null);
+	}
+	
+	/**
+	 * Query the total count of the statistic tables which analyzed by Scala engine
+	 * 
+	 * @param offset
+	 * @param count
+	 * @param elementType
+	 * @param persistentClass
+	 * @return
+	 */
+	public long countStatistic(String table, Map<String, Object> condition) {
+		Session session = HibernateUtil.getSession();
+		return (Long)session.createSQLQuery("select count(1) from " + table).uniqueResult(); 
 	}
 	
 	/**

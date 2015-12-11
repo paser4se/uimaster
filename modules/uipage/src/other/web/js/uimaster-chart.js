@@ -1265,6 +1265,10 @@ Nd.millisecond=Nd.milliseconds=Md,Nd.utcOffset=Na,Nd.utc=Pa,Nd.local=Qa,Nd.parse
 		},
 
 		resize: function resize(silent) {
+		    if (this.config.type=="line" && helpers.getMaximumWidth(this.chart.canvas) > 0) {
+			   //FIX line resize bug fix.
+			   return;
+			}
 			this.stop();
 			var canvas = this.chart.canvas;
 			var newWidth = helpers.getMaximumWidth(this.chart.canvas);
@@ -2817,8 +2821,8 @@ Nd.millisecond=Nd.milliseconds=Md,Nd.utcOffset=Na,Nd.utc=Pa,Nd.local=Qa,Nd.parse
 
 			if (this._options.tooltips.mode == 'single') {
 
-				xLabel = element._xScale.getLabelForIndex(element._index, element._datasetIndex);
-				yLabel = element._yScale.getLabelForIndex(element._index, element._datasetIndex);
+				xLabel = element._xScale?element._xScale.getLabelForIndex(element._index, element._datasetIndex):"";
+				yLabel = element._yScale?element._yScale.getLabelForIndex(element._index, element._datasetIndex):"";
 				tooltipPosition = this._active[0].tooltipPosition();
 
 			} else {

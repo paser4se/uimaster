@@ -18,6 +18,7 @@ package org.shaolin.uimaster.page.widgets;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.shaolin.bmdp.datamodel.page.ExpressionPropertyType;
 import org.shaolin.bmdp.datamodel.page.UITableColumnType;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
@@ -41,29 +42,6 @@ public class HTMLChartBarType extends HTMLChartSuper {
 		super(context, id);
 	}
 
-	/**
-	 * var data = {
-	    labels: ["January", "February", "March", "April", "May", "June", "July"],
-	    datasets: [
-	        {
-	            label: "My First dataset",
-	            fillColor: "rgba(220,220,220,0.5)",
-	            strokeColor: "rgba(220,220,220,0.8)",
-	            highlightFill: "rgba(220,220,220,0.75)",
-	            highlightStroke: "rgba(220,220,220,1)",
-	            data: [65, 59, 80, 81, 56, 55, 40]
-	        },
-	        {
-	            label: "My Second dataset",
-	            fillColor: "rgba(151,187,205,0.5)",
-	            strokeColor: "rgba(151,187,205,0.8)",
-	            highlightFill: "rgba(151,187,205,0.75)",
-	            highlightStroke: "rgba(151,187,205,1)",
-	            data: [28, 48, 40, 19, 86, 27, 90]
-	        }
-	    ]
-	};
-	 */
 	@Override
 	public void generateData(List<UITableColumnType> columns,
 			HTMLSnapshotContext context, int depth) throws Exception {
@@ -77,7 +55,20 @@ public class HTMLChartBarType extends HTMLChartSuper {
 			context.generateHTML("datasets: [");
 			StringBuffer sb = new StringBuffer();
 			// vertical iterator.
+			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+			ooeeContext.setDefaultEvaluationContext(evaContext);
+			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
 			for (int columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
+				ExpressionPropertyType isVisibleExpr = columns.get(columnIndex).getIsVisible();
+				if (isVisibleExpr != null) {
+					// it does require the data from the first row.
+					evaContext.setVariableValue("rowBE", listData.get(0));
+					Boolean isVisible = (Boolean)isVisibleExpr.getExpression().evaluate(ooeeContext);
+					if (!isVisible.booleanValue()) {
+						continue;
+					}
+				}
 				sb.append("{");
 				String css = cssStyles.get(columnIndex);
 				if (css != null) {
@@ -85,11 +76,7 @@ public class HTMLChartBarType extends HTMLChartSuper {
 				}
 				sb.append(" data:[");
 				for (int i = 0; i < listData.size(); i++) {
-					OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
-					DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
 					evaContext.setVariableValue("rowBE", listData.get(i));
-					ooeeContext.setDefaultEvaluationContext(evaContext);
-					ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
 					Object value = columns.get(columnIndex).getRowExpression().getExpression().evaluate(
 							ooeeContext);
 					sb.append(value).append(",");

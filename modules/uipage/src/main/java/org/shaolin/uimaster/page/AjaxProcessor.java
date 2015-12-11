@@ -27,6 +27,7 @@ import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.ajax.handlers.AjaxHandlerException;
+import org.shaolin.uimaster.page.ajax.handlers.ChartEventHandler;
 import org.shaolin.uimaster.page.ajax.handlers.CheckPropertyHandler;
 import org.shaolin.uimaster.page.ajax.handlers.EventHandler;
 import org.shaolin.uimaster.page.ajax.handlers.HTMLContentEventHandler;
@@ -69,6 +70,8 @@ public class AjaxProcessor implements Serializable
     public static final String EVENT_WEBSERVICE = "webservice";
     
     public static final String EVENT_TREE = "tree";
+    
+    public static final String EVENT_CHART = "chart";
     
     public static final String HTML_EDITOR_TREE = "htmleditor";
     
@@ -285,6 +288,9 @@ public class AjaxProcessor implements Serializable
             else if (HTML_EDITOR_TREE.equals(eventType)) 
             {
             	handler = new HTMLContentEventHandler();
+            }
+            else if (EVENT_CHART.equals(eventType)) {
+            	handler = new ChartEventHandler();
             }
             
             if (handler == null)

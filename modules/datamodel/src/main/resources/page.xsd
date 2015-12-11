@@ -706,6 +706,7 @@ in simple component mapping, the paramName is required</xs:documentation>
                     <xs:element name="showActionBar" type="xs:boolean" default="true"/>
                     <!-- show the search criteria filters -->
                     <xs:element name="showFilter" type="xs:boolean" default="true"/>
+                    <xs:element name="stats" type="Page:UITableStatsType" minOccurs="0"/>
                 	<xs:element name="initQuery" type="Page:ExpressionPropertyType"  minOccurs="0"/>
                 	<xs:element name="query" type="Page:ExpressionPropertyType"/>
                 	<xs:element name="totalCount" type="Page:ExpressionPropertyType"/>
@@ -749,6 +750,7 @@ in simple component mapping, the paramName is required</xs:documentation>
             <xs:element name="cssStype" type="xs:string"/>
             <xs:element name="uiType" type="Page:UITableColHTMLType"/>
             <!-- for dynamic combox values -->
+            <xs:element name="isVisible" type="Page:ExpressionPropertyType" minOccurs="0"/>
             <xs:element name="comboxExpression" type="Page:ExpressionPropertyType" minOccurs="0"/>
             <xs:element name="rowExpression" type="Page:ExpressionPropertyType" minOccurs="0"/>
             <xs:element name="updateCondition" type="Page:ExpressionPropertyType" minOccurs="0"/>
@@ -784,17 +786,27 @@ in simple component mapping, the paramName is required</xs:documentation>
 	        <xs:element name="endCondition" type="xs:string" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
+    <xs:complexType name="UITableStatsType">
+        <xs:sequence>
+            <xs:element name="chart" type="xs:string" maxOccurs="unbounded" minOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="tableName" type="xs:string"/>
+        <xs:attribute name="uiFrom" type="xs:string"/>
+        <xs:attribute name="uiid" type="xs:string"/>
+    </xs:complexType>
+    
 	<!-- charts -->
     <xs:complexType name="UIChartType">
         <xs:complexContent>
             <xs:extension base="Page:UIComponentType">
                 <xs:sequence>
                 	<xs:element name="beElement" type="xs:string" />
-                	<xs:element name="query" type="Page:ExpressionPropertyType"/>
                 	<xs:element name="color" type="xs:string" default="rgba(151,187,205,0.2)"/>
                 	<xs:element name="strokeColor" type="xs:string" default="#fff"/>
+                	<xs:element name="query" type="Page:ExpressionPropertyType"/>
+                	<xs:element name="labels" type="Page:ExpressionPropertyType"/>
                 	<!-- reusing the table column definition -->
-                	<xs:element name="column" type="Page:UITableColumnType" maxOccurs="unbounded" minOccurs="1" />
+                	<xs:element name="dataset" type="Page:UITableColumnType" maxOccurs="unbounded" minOccurs="1" />
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>

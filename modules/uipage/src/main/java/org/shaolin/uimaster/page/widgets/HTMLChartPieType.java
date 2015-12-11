@@ -61,7 +61,7 @@ public class HTMLChartPieType extends HTMLChartSuper {
 				}
 			}
 			sb.deleteCharAt(sb.length()-1);
-			sb.append("]}],options: {responsive: true, maintainAspectRatio: true}");
+			sb.append("]}]");
 			context.generateHTML(sb.toString());
 		}
 	}

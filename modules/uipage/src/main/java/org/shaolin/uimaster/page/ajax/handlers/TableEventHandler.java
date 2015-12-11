@@ -64,6 +64,9 @@ public class TableEventHandler implements IAjaxHandler {
 						.desc(colId));
 			}
 			return comp.refresh0();
+		} else if (actionName.endsWith("chart")) {
+			comp.showStatistic();
+			return AjaxActionHelper.getAjaxContext().getDataAsJSON();
 		} else {
 			throw new AjaxHandlerException("Unsupported table action: " + actionName);
 		}

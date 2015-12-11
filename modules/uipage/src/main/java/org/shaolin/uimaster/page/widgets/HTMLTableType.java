@@ -24,6 +24,7 @@ import org.shaolin.bmdp.datamodel.page.UITableActionGroupType;
 import org.shaolin.bmdp.datamodel.page.UITableActionType;
 import org.shaolin.bmdp.datamodel.page.UITableColumnType;
 import org.shaolin.bmdp.datamodel.page.UITableSelectModeType;
+import org.shaolin.bmdp.datamodel.page.UITableStatsType;
 import org.shaolin.bmdp.runtime.be.BEUtil;
 import org.shaolin.bmdp.runtime.be.IBusinessEntity;
 import org.shaolin.bmdp.runtime.ce.CEUtil;
@@ -56,6 +57,8 @@ public class HTMLTableType extends HTMLContainerType {
 	private static final Logger logger = LoggerFactory
 			.getLogger(HTMLTableType.class);
 
+	private boolean hasStatistic;
+	
 	public HTMLTableType() {
 	}
 
@@ -107,6 +110,8 @@ public class HTMLTableType extends HTMLContainerType {
 					context.generateHTML("<input type=\"radio\" name=\""+defaultBtnSet+"\" id=\""+ htmlPrefix + action.getUiid());
 					if ("refreshTable".equals(action.getFunction())) {
 						context.generateHTML("\" onclick=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".refresh");
+					} else if ("statistic".equals(action.getFunction()) && this.hasStatistic) {
+						context.generateHTML("\" onclick=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".statistic");
 					} else if ("importData".equals(action.getFunction())) {
 						context.generateHTML("\" onclick=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".importData");
 					} else if ("exportData".equals(action.getFunction())) {
@@ -580,6 +585,13 @@ public class HTMLTableType extends HTMLContainerType {
 			EvaluationContext expressionContext = ee.getExpressionContext(ODContext.LOCAL_TAG);
 			expressionContext.setVariableValue("table", t);
 			
+			Object stats = this.removeAttribute("statistic");
+			if (stats != null) {
+				this.hasStatistic=true;
+				t.setStatistic((UITableStatsType)stats);
+			} else {
+				this.hasStatistic=false;
+			}
 			ExpressionType initQueryExpr = (ExpressionType)this.removeAttribute("initQueryExpr");
 			ExpressionType queryExpr = (ExpressionType)this.removeAttribute("queryExpr");
 			ExpressionType totalExpr = (ExpressionType)this.removeAttribute("totalExpr");
