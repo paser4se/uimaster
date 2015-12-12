@@ -1858,16 +1858,26 @@ public class UIFormObject implements java.io.Serializable
 			Map<String, Object> propMap = componentMap.get(uiStatsType.getUiid());
 			propMap.put("statistic", uiStatsType);
 			
-			UITableActionType statsAction = new UITableActionType();
-			statsAction.setUiid(uiStatsType.getUiid() + "_statsItem");
-    		statsAction.setFunction("statistic");
-    		statsAction.setIcon("ui-icon-image");
-    		ResourceBundlePropertyType statsI18nInfo = new ResourceBundlePropertyType();
-    		statsI18nInfo.setBundle("Common");
-    		statsI18nInfo.setKey("StatisticItem");
-    		statsAction.setTitle(statsI18nInfo);
-    		
-    		((List)propMap.get("defaultActionGroup")).add(statsAction);
+			boolean added = false;
+			List<UITableActionType> actions = ((List<UITableActionType>)propMap.get("defaultActionGroup"));
+			for (UITableActionType a : actions) {
+				if (a.getUiid().equals(uiStatsType.getUiid() + "_statsItem")) {
+					added = true;
+					break;
+				}
+			}
+			if (!added) {
+				UITableActionType statsAction = new UITableActionType();
+				statsAction.setUiid(uiStatsType.getUiid() + "_statsItem");
+	    		statsAction.setFunction("statistic");
+	    		statsAction.setIcon("ui-icon-image");
+	    		ResourceBundlePropertyType statsI18nInfo = new ResourceBundlePropertyType();
+	    		statsI18nInfo.setBundle("Common");
+	    		statsI18nInfo.setKey("StatisticItem");
+	    		statsAction.setTitle(statsI18nInfo);
+	    		
+	    		actions.add(statsAction);
+			}
 		}
 	}
 	

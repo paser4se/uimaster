@@ -7,7 +7,7 @@ function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration(json)
     ({
         ui: elementList[prefix + "functionsTab"]
         ,items: []
-        ,subComponents: [prefix + "dbInfoPanel",prefix + "jobInfoPanel"]
+        ,subComponents: [prefix + "dbInfoPanel",prefix + "jobInfoPanel",prefix + "chartStatsPanel"]
     });
     var dbInfoTable = new UIMaster.ui.objectlist
     ({
@@ -31,6 +31,17 @@ function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration(json)
         ,items: []
         ,subComponents: [prefix + "jobInfoTable"]
     });
+    var chartStatsTable = new UIMaster.ui.objectlist
+    ({
+        ui: elementList[prefix + "chartStatsTable"]
+    });
+
+    var chartStatsPanel = new UIMaster.ui.panel
+    ({
+        ui: elementList[prefix + "chartStatsPanel"]
+        ,items: []
+        ,subComponents: [prefix + "chartStatsTable"]
+    });
 
     var Form = new UIMaster.ui.panel
     ({
@@ -49,6 +60,10 @@ function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration(json)
 
     Form.jobInfoTable=jobInfoTable;
 
+    Form.chartStatsPanel=chartStatsPanel;
+
+    Form.chartStatsTable=chartStatsTable;
+
     Form.user_constructor = function()
     {
         /* Construct_FIRST:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration */
@@ -62,6 +77,10 @@ function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration(json)
     Form.createJobInfo = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createJobInfo;
 
     Form.openJobInfo = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openJobInfo;
+
+    Form.createStatsInfo = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createStatsInfo;
+
+    Form.openStatsInfo = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openStatsInfo;
 
     Form.initPageJs = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_initPageJs;
 
@@ -121,6 +140,28 @@ function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration(json)
 
         var UIEntity = this;
     }/* Gen_Last:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openJobInfo */
+
+
+    /* auto generated eventlistener function declaration */
+    function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createStatsInfo(eventsource,event) {/* Gen_First:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createStatsInfo */
+
+        // cal ajax function. 
+
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"createStatsInfo-201512052231",UIMaster.getValue(eventsource),this.__entityName);
+
+        var UIEntity = this;
+    }/* Gen_Last:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createStatsInfo */
+
+
+    /* auto generated eventlistener function declaration */
+    function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openStatsInfo(eventsource,event) {/* Gen_First:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openStatsInfo */
+
+        // cal ajax function. 
+
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"openStatsInfo-201512052231",UIMaster.getValue(eventsource),this.__entityName);
+
+        var UIEntity = this;
+    }/* Gen_Last:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openStatsInfo */
 
 
     function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_initPageJs(){/* Gen_First:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_initPageJs */

@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <ns2:UIEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns5="http://bmdp.shaolin.org/datamodel/PageDiagram" xmlns:ns4="http://bmdp.shaolin.org/datamodel/RDBDiagram" xmlns:ns3="http://bmdp.shaolin.org/datamodel/BEDiagram" xmlns:ns2="http://bmdp.shaolin.org/datamodel/Page" xmlns="http://bmdp.shaolin.org/datamodel/Common" xsi:schemaLocation="">
-  <entityName>org.shaolin.bmdp.analyzer.form.StatsDateLinearChart</entityName>
+  <entityName>org.shaolin.bmdp.analyzer.form.StatsDateBarChart</entityName>
   <systemVersion>0</systemVersion>
   <ns2:eventHandler functionName="Cancel">
     <ns2:ops xsi:type="ns2:OpCallAjaxType" name="cancelDetail-20151205-183328">
@@ -27,7 +27,7 @@
 	        <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
 	        <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
 	      </ns2:layout>
-	    <ns2:component xsi:type="ns2:UIChartLinearType" UIID="linearChart">
+	    <ns2:component xsi:type="ns2:UIChartBarType" UIID="linearChart">
         <ns2:Property name="width">
            <ns2:value xsi:type="ns2:NumericPropertyType">
               <value>600</value>
@@ -87,7 +87,7 @@
               <ns2:title xsi:type="ns2:StringPropertyType">
                   <value>集合1</value>
               </ns2:title>
-              <ns2:cssStype>backgroundColor: 'rgba(130,130,220,0.2)',pointBackgroundColor: 'rgba(130,130,220,1)',hoverPointBackgroundColor: 'rgba(130,130,220,1)',pointHighlightStroke: '#fff'</ns2:cssStype>
+              <ns2:cssStype>backgroundColor: 'rgba(130,130,130,0.2)',pointBackgroundColor: 'rgba(130,130,130,1)',hoverPointBackgroundColor: 'rgba(130,130,220,1)',pointHighlightStroke: '#fff'</ns2:cssStype>
               <ns2:beFieldId>rowBE.status</ns2:beFieldId>
               <ns2:isVisible xsi:type="ns2:ExpressionPropertyType">
                   <ns2:expression xsi:type="ns2:ExpressionType">
@@ -112,7 +112,7 @@
               <ns2:title xsi:type="ns2:StringPropertyType">
                   <value>集合2</value>
               </ns2:title>
-              <ns2:cssStype>backgroundColor: 'rgba(150,150,220,0.2)',pointBackgroundColor: 'rgba(150,150,220,1)',hoverPointBackgroundColor: 'rgba(150,150,220,1)',pointHighlightStroke: '#fff'</ns2:cssStype>
+              <ns2:cssStype>backgroundColor: 'rgba(180,180,180,0.2)',pointBackgroundColor: 'rgba(180,180,180,1)',hoverPointBackgroundColor: 'rgba(150,150,220,1)',pointHighlightStroke: '#fff'</ns2:cssStype>
               <ns2:beFieldId>rowBE.status</ns2:beFieldId>
               <ns2:isVisible xsi:type="ns2:ExpressionPropertyType">
                   <ns2:expression xsi:type="ns2:ExpressionType">
@@ -137,7 +137,7 @@
               <ns2:title xsi:type="ns2:StringPropertyType">
                   <value>集合3</value>
               </ns2:title>
-              <ns2:cssStype>backgroundColor: 'rgba(170,170,220,0.2)',pointBackgroundColor: 'rgba(170,170,220,1)',hoverPointBackgroundColor: 'rgba(170,170,220,1)',pointHighlightStroke: '#fff'</ns2:cssStype>
+              <ns2:cssStype>backgroundColor: 'rgba(170,170,250,0.2)',pointBackgroundColor: 'rgba(170,170,250,1)',hoverPointBackgroundColor: 'rgba(170,170,220,1)',pointHighlightStroke: '#fff'</ns2:cssStype>
               <ns2:beFieldId>rowBE.status</ns2:beFieldId>
               <ns2:isVisible xsi:type="ns2:ExpressionPropertyType">
                   <ns2:expression xsi:type="ns2:ExpressionType">

@@ -105,6 +105,25 @@ public class AppServiceManagerImpl implements IAppServiceManager, Serializable {
 		}
 	}
 
+	@Override
+	public List<String> getLifeCycleServiceList() {
+		List<String> temp = new ArrayList<String>();
+		for (ILifeCycleProvider provider : lifeCycleProviders) {
+			temp.add(provider.getClass().toString());
+		}
+		return temp;
+	}
+	
+	@Override
+	public void reloadLifeCycleService(String serviceName) {
+		for (ILifeCycleProvider provider : lifeCycleProviders) {
+			if (serviceName.equals(provider.getClass().toString())) {
+				provider.reload();
+				return;
+			}
+		}
+	}
+	
 	public void startLifeCycleProviders() {
 		List<ILifeCycleProvider> temp = new ArrayList<ILifeCycleProvider>();
 		for (ILifeCycleProvider provider : lifeCycleProviders) {

@@ -23,6 +23,7 @@
 		<module>uipage</module>
 		<module>designtime</module>
 		<module>workflow</module>
+		<module>analyzer</module>
 	</modules>
 	
     <reporting>

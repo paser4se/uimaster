@@ -10,15 +10,16 @@
         import org.shaolin.uimaster.page.AjaxContext;
         import org.shaolin.uimaster.page.ajax.*;
         import org.shaolin.bmdp.analyzer.be.ChartStatisticImpl;
+        import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
         { 
             RefForm form = (RefForm)@page.getElement(@page.getEntityUiid()); 
             HashMap out = (HashMap)form.ui2Data();
 
             ChartStatisticImpl defaultUser = (ChartStatisticImpl)out.get("beObject");
             if (defaultUser.getId() == 0) {
-                System.out.println("created object: " + defaultUser);
+                AanlysisModel.INSTANCE.create(defaultUser);
             } else {
-                System.out.println("updated object: " + defaultUser);
+                AanlysisModel.INSTANCE.update(defaultUser);
             }
 
             form.closeIfinWindows();
