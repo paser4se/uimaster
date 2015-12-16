@@ -134,7 +134,7 @@ public class HTMLWebTreeType extends HTMLWidgetType {
 				context.generateHTML(this.getPrefix() + refreshNodeEvent);
 				context.generateHTML("(tree, e)\"");
 			}
-			context.generateHTML("\">");
+			context.generateHTML(">");
 			context.generateHTML(jsonArray.toString());
 			context.generateHTML("</div></div>");
 		} catch (Exception e) {

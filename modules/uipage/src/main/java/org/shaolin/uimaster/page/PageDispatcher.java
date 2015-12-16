@@ -385,6 +385,13 @@ public class PageDispatcher {
                 	context.generateHTML(genLoaderMask());
                 }
             }
+            if (!checkSupportAccess(context.getRequest())) {
+            	context.generateHTML("<H1 style=\"color:red;\">Ops!!! We are so sorry that your browser is unsupported(");
+            	context.generateHTML(context.getRequest().getHeader("User-Agent"));
+            	context.generateHTML("). Please choose Firefox, Chrome and IE 8 above.</H1>");
+            	context.generateHTML("\n</body>\n</html>\n");
+            	return;
+            }
             
             HTMLUtil.generateJSBundleConstants(context);
             if (UserContext.isMobileRequest()) {
@@ -480,11 +487,8 @@ public class PageDispatcher {
                 context.getRequest().setAttribute("_framePagePrefix", superPrefix);
             }
 
-            //
             PageDispatcher dispatcher = new PageDispatcher(pageObject.getUIFormObject(), evaContext);
             dispatcher.forwardForm(context, 0);
-            
-            //initAjaxCalling(context, isServletMode, superPrefix);
             
             context.generateHTML("\n</form>");
             if (!frameMode)
@@ -530,6 +534,17 @@ public class PageDispatcher {
             logger.warn("<---HTMLUIPage.forward--->Be interrupted when access uipage: " + pageObject.getRuntimeEntityName());
             throw new JspException(e);
         }
+    }
+    
+    private boolean checkSupportAccess(HttpServletRequest request) {
+    	String userAgent = request.getHeader("User-Agent").toLowerCase();
+    	if (userAgent.indexOf("msie") != -1
+    			&& (userAgent.indexOf("msie 5.0") != -1 
+    				|| userAgent.indexOf("msie 6.0") != -1 
+    				|| userAgent.indexOf("msie 7.0") != -1)) {
+    		return false;
+    	}
+    	return true;
     }
     
     private String getActionPath(HTMLSnapshotContext context) throws JspException

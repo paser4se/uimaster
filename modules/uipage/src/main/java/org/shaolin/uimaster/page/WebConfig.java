@@ -349,13 +349,23 @@ public class WebConfig {
 	}
 	
 	/**
-	 * Import one ui form.
+	 * Import one css.
+	 * @param entityName
+	 * @return
+	 */
+	public static String getImportCSS(String entityName) {
+		String name = entityName.replace('.', File.separatorChar);
+		return WebConfigFastCache.ResourceContextRoot + "/css/" + name + ".css";
+	}
+	
+	/**
+	 * Import one js.
 	 * @param entityName
 	 * @return
 	 */
 	public static String getImportJS(String entityName) {
 		String name = entityName.replace('.', File.separatorChar);
-		return WebConfigFastCache.WebContextRoot + "/js/" + name + ".js";
+		return WebConfigFastCache.ResourceContextRoot + "/js/" + name + ".js";
 	}
 
 	public static String replaceAppCssWebContext(String str) {
@@ -400,16 +410,6 @@ public class WebConfig {
 	
 	public static String replaceWebContext(String str) {
 		return str.replace(WebConfigFastCache.WebContextRoot, WebConfig.getWebContextRoot());
-	}
-	
-	/**
-	 * no needs the root applied.
-	 * @param entityName
-	 * @return
-	 */
-	public static String getImportCSS(String entityName) {
-		String name = entityName.replace('.', File.separatorChar);
-		return WebConfigFastCache.WebContextRoot + "/css/" + name + ".css";
 	}
 
 	public static String[] getCommonCss() {

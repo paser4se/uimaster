@@ -41,10 +41,10 @@
 			<version>${uimaster.version}</version>
 		</dependency>
 		<dependency>
-   <groupId>org.shaolin.bmdp</groupId>
-   <artifactId>persistence</artifactId>
-   <version>${uimaster.version}</version>
-  </dependency>
+		   <groupId>org.shaolin.bmdp</groupId>
+		   <artifactId>persistence</artifactId>
+		   <version>${uimaster.version}</version>
+		</dependency>
 		<dependency>
 		    <groupId>junit</groupId>
 		    <artifactId>junit</artifactId>
@@ -59,10 +59,10 @@
             <artifactId>slf4j-log4j12</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.log4j</groupId>
-            <artifactId>com.springsource.org.apache.log4j</artifactId>
-            <scope>test</scope>
-        </dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-1.2-api</artifactId>
+			<scope>test</scope>
+		</dependency>
          -->
         <dependency>
 		    <groupId>org.hibernate</groupId>
