@@ -11,6 +11,7 @@ import org.shaolin.uimaster.page.ajax.Layout;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
+import org.shaolin.uimaster.page.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,25 +45,45 @@ public class HTMLImageType extends HTMLTextWidgetType
         {
             generateWidget(context);
             if (this.getAttribute("isGallery") != null) {
-	            String root = WebConfig.getResourceContextRoot();
-	            HTMLUtil.generateTab(context, depth);
-	            context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/font-awesome.min.css\" type=\"text/css\">");
-	            HTMLUtil.generateTab(context, depth);
-	            context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/jgallery.min.css?v=1.5.0\" type=\"text/css\">");
-	            HTMLUtil.generateTab(context, depth);
-	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsgallery/jgallery.js\"></script>");
-	        	HTMLUtil.generateTab(context, depth);
-	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsgallery/touchswipe.js\"></script>");
-	        	HTMLUtil.generateTab(context, depth);
-	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsgallery/tinycolor-0.9.16.min.js\"></script>");
-	        	HTMLUtil.generateTab(context, depth);
+	            String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
+	        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
+	        			
+//	        	These files are configurable in runconfig.registry file of each module.
+//	        	Because JGallary has a bug on importing these files in multiple time.
+//	            Please refer to org_shaolin_vogerp_productmodel runconfig.registry.
+//	            HTMLUtil.generateTab(context, depth);
+//	            context.generateHTML("<div><link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/font-awesome.min.css\" type=\"text/css\">");
+//	            HTMLUtil.generateTab(context, depth);
+//	            context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/jgallery.min.css?v=1.5.0\" type=\"text/css\">");
+//	            HTMLUtil.generateTab(context, depth);
+//	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/jgallery.js\"></script>");
+//	        	HTMLUtil.generateTab(context, depth);
+//	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/touchswipe.js\"></script>");
+//	        	HTMLUtil.generateTab(context, depth);
+//	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/tinycolor-0.9.16.min.js\"></script>");
+//	        	HTMLUtil.generateTab(context, depth);
 	        	
 	        	context.generateHTML("<div id=\"");
 	        	context.generateHTML(getName());
+	            context.generateHTML("\" jwidth=\"");
+	            Object w = this.getAttribute("width");
+	            if (w == null) {
+	            	context.generateHTML("-1");
+	            } else {
+	            	context.generateHTML(w.toString());
+	            }
+	            context.generateHTML("\" jheight=\"");
+	            Object h = this.getAttribute("height");
+	            if (h == null) {
+	            	context.generateHTML("-1");
+	            } else {
+	            	context.generateHTML(h.toString());
+	            }
 	            context.generateHTML("\">");
+	            
 	            HTMLUtil.generateTab(context, depth + 1);
 	            String path = this.getValue();
-	            if (path != null) {
+	            if (path != null && !path.trim().isEmpty()) {
 		            if (path.indexOf(";") != -1) {
 		            	String[] images = path.split(";");
 		            	for (String i : images) {
@@ -77,10 +98,12 @@ public class HTMLImageType extends HTMLTextWidgetType
 			            		String item = root + path + "/" +  i;
 			            		context.generateHTML("<a href=\"" + item + "\"><img src=\"" + item + "\"/></a>");
 			            	}
+			            } else {
+			            	context.generateHTML("<a href=\"" + root + path + "\"><img src=\"" + root + path + "\"/></a>");
 			            }
 		            }
 	            }
-	            HTMLUtil.generateTab(context, depth + 1);
+	            HTMLUtil.generateTab(context, depth);
 	            context.generateHTML("</div>");
         	} else {
 	            context.generateHTML("<input type=hidden name=\"");
@@ -93,6 +116,9 @@ public class HTMLImageType extends HTMLTextWidgetType
 	            generateAttributes(context);
 	            generateEventListeners(context);
 	            context.generateHTML(" style=\"cursor:pointer;\"/>");
+	            if (this.getAttribute("showWords") != null) {
+	            	context.generateHTML("<span>" + this.getAttribute("text") + "</span>");
+	            }
         	}
             generateEndWidget(context);
         }
@@ -104,14 +130,7 @@ public class HTMLImageType extends HTMLTextWidgetType
 
     private String getSrc(HTMLSnapshotContext context)
     {
-        if (getValue() != null && !"".equals(getValue()))
-        {
-            return context.getImageUrl(getUIEntityName(), getValue());
-        }
-        else
-        {
-            return context.getImageUrl(getUIEntityName(), (String) getAllAttribute("src"));
-        }
+        return context.getImageUrl(getUIEntityName(), (String) getAllAttribute("src"));
     }
 
     public void generateAttribute(HTMLSnapshotContext context, String attributeName, Object attributeValue) throws IOException

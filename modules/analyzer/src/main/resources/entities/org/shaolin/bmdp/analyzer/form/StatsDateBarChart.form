@@ -1,0 +1,231 @@
+<?xml version="1.0" ?>
+<ns2:UIEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns5="http://bmdp.shaolin.org/datamodel/PageDiagram" xmlns:ns4="http://bmdp.shaolin.org/datamodel/RDBDiagram" xmlns:ns3="http://bmdp.shaolin.org/datamodel/BEDiagram" xmlns:ns2="http://bmdp.shaolin.org/datamodel/Page" xmlns="http://bmdp.shaolin.org/datamodel/Common" xsi:schemaLocation="">
+  <entityName>org.shaolin.bmdp.analyzer.form.StatsDateBarChart</entityName>
+  <systemVersion>0</systemVersion>
+  <ns2:eventHandler functionName="Cancel">
+    <ns2:ops xsi:type="ns2:OpCallAjaxType" name="cancelDetail-20151205-183328">
+      <ns2:exp>
+        <expressionString><![CDATA[
+        import org.shaolin.uimaster.page.AjaxContext;
+        import org.shaolin.uimaster.page.ajax.*;
+        { 
+            RefForm form = (RefForm)@page.getElement(@page.getEntityUiid()); 
+            form.closeIfinWindows(true);
+            @page.removeForm(@page.getEntityUiid()); 
+        }]]></expressionString>
+      </ns2:exp>
+    </ns2:ops>
+  </ns2:eventHandler>
+  <ns2:body xsi:type="ns2:UIPanelType" UIID="Form">
+    <ns2:layout xsi:type="ns2:TableLayoutType">
+      <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+      <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+      <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
+    </ns2:layout>
+    <ns2:component xsi:type="ns2:UIPanelType" UIID="fieldPanel">
+	    <ns2:layout xsi:type="ns2:TableLayoutType">
+	        <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+	        <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
+	      </ns2:layout>
+	    <ns2:component xsi:type="ns2:UIChartBarType" UIID="linearChart">
+        <ns2:Property name="width">
+           <ns2:value xsi:type="ns2:NumericPropertyType">
+              <value>600</value>
+           </ns2:value>
+         </ns2:Property>
+         <ns2:Property name="height">
+           <ns2:value xsi:type="ns2:NumericPropertyType">
+              <value>400</value>
+           </ns2:value>
+         </ns2:Property>
+         <ns2:Property name="dataType">
+           <ns2:value xsi:type="ns2:StringPropertyType">
+              <value>date</value>
+           </ns2:value>
+         </ns2:Property>
+         <ns2:widgetLabel xsi:type="ns2:StringPropertyType">
+             <ns2:value>日期分析报表</ns2:value>
+         </ns2:widgetLabel>
+         <ns2:beElement>org.shaolin.bmdp.analyzer.be.ChartPointData</ns2:beElement>
+         <ns2:query xsi:type="ns2:ExpressionPropertyType">
+              <ns2:expression xsi:type="ns2:ExpressionType">
+                  <ns2:expressionString><![CDATA[
+                  import java.util.List;
+                  import java.util.ArrayList;
+                  {
+                      return $data;
+                  }]]></ns2:expressionString>
+              </ns2:expression>
+          </ns2:query>
+          <ns2:labels xsi:type="ns2:ExpressionPropertyType">
+            <ns2:expression xsi:type="ns2:ExpressionType">
+                 <ns2:expressionString><![CDATA[
+                 import org.shaolin.bmdp.runtime.AppContext;
+                 import org.shaolin.bmdp.analyzer.dao.AanlysisModelCust;
+                 {
+                     return AanlysisModelCust.getLabels($data);
+                 }]]></ns2:expressionString>
+             </ns2:expression>
+         </ns2:labels>
+         <ns2:dataset xsi:type="ns2:UITableColumnType">
+              <ns2:title xsi:type="ns2:StringPropertyType">
+                  <value>集合</value>
+              </ns2:title>
+              <ns2:cssStype>backgroundColor: 'rgba(110,110,220,0.2)',pointBackgroundColor: 'rgba(110,110,220,1)',hoverPointBackgroundColor: 'rgba(110,110,220,1)',pointHighlightStroke: '#fff'</ns2:cssStype>
+              <ns2:beFieldId>rowBE.status</ns2:beFieldId>
+              <ns2:rowExpression xsi:type="ns2:ExpressionPropertyType">
+                  <ns2:expression xsi:type="ns2:ExpressionType">
+                       <ns2:expressionString><![CDATA[
+                       import org.shaolin.bmdp.runtime.AppContext;
+                       {
+                        return $rowBE.getDataset();
+                       }]]></ns2:expressionString>
+                   </ns2:expression>
+               </ns2:rowExpression>
+          </ns2:dataset>
+          <ns2:dataset xsi:type="ns2:UITableColumnType">
+              <ns2:title xsi:type="ns2:StringPropertyType">
+                  <value>集合1</value>
+              </ns2:title>
+              <ns2:cssStype>backgroundColor: 'rgba(130,130,130,0.2)',pointBackgroundColor: 'rgba(130,130,130,1)',hoverPointBackgroundColor: 'rgba(130,130,220,1)',pointHighlightStroke: '#fff'</ns2:cssStype>
+              <ns2:beFieldId>rowBE.status</ns2:beFieldId>
+              <ns2:isVisible xsi:type="ns2:ExpressionPropertyType">
+                  <ns2:expression xsi:type="ns2:ExpressionType">
+                       <ns2:expressionString><![CDATA[
+                       import org.shaolin.bmdp.runtime.AppContext;
+                       {
+                          return $rowBE.getDataset1() != null;
+                       }]]></ns2:expressionString>
+                   </ns2:expression>
+              </ns2:isVisible>
+              <ns2:rowExpression xsi:type="ns2:ExpressionPropertyType">
+                  <ns2:expression xsi:type="ns2:ExpressionType">
+                       <ns2:expressionString><![CDATA[
+                       import org.shaolin.bmdp.runtime.AppContext;
+                       {
+                        return $rowBE.getDataset1();
+                       }]]></ns2:expressionString>
+                   </ns2:expression>
+               </ns2:rowExpression>
+          </ns2:dataset>
+          <ns2:dataset xsi:type="ns2:UITableColumnType">
+              <ns2:title xsi:type="ns2:StringPropertyType">
+                  <value>集合2</value>
+              </ns2:title>
+              <ns2:cssStype>backgroundColor: 'rgba(180,180,180,0.2)',pointBackgroundColor: 'rgba(180,180,180,1)',hoverPointBackgroundColor: 'rgba(150,150,220,1)',pointHighlightStroke: '#fff'</ns2:cssStype>
+              <ns2:beFieldId>rowBE.status</ns2:beFieldId>
+              <ns2:isVisible xsi:type="ns2:ExpressionPropertyType">
+                  <ns2:expression xsi:type="ns2:ExpressionType">
+                       <ns2:expressionString><![CDATA[
+                       import org.shaolin.bmdp.runtime.AppContext;
+                       {
+                          return $rowBE.getDataset2() != null;
+                       }]]></ns2:expressionString>
+                   </ns2:expression>
+              </ns2:isVisible>
+              <ns2:rowExpression xsi:type="ns2:ExpressionPropertyType">
+                  <ns2:expression xsi:type="ns2:ExpressionType">
+                       <ns2:expressionString><![CDATA[
+                       import org.shaolin.bmdp.runtime.AppContext;
+                       {
+                        return $rowBE.getDataset2();
+                       }]]></ns2:expressionString>
+                   </ns2:expression>
+               </ns2:rowExpression>
+          </ns2:dataset>
+          <ns2:dataset xsi:type="ns2:UITableColumnType">
+              <ns2:title xsi:type="ns2:StringPropertyType">
+                  <value>集合3</value>
+              </ns2:title>
+              <ns2:cssStype>backgroundColor: 'rgba(170,170,250,0.2)',pointBackgroundColor: 'rgba(170,170,250,1)',hoverPointBackgroundColor: 'rgba(170,170,220,1)',pointHighlightStroke: '#fff'</ns2:cssStype>
+              <ns2:beFieldId>rowBE.status</ns2:beFieldId>
+              <ns2:isVisible xsi:type="ns2:ExpressionPropertyType">
+                  <ns2:expression xsi:type="ns2:ExpressionType">
+                       <ns2:expressionString><![CDATA[
+                       import org.shaolin.bmdp.runtime.AppContext;
+                       {
+                          return $rowBE.getDataset3() != null;
+                       }]]></ns2:expressionString>
+                   </ns2:expression>
+              </ns2:isVisible>
+              <ns2:rowExpression xsi:type="ns2:ExpressionPropertyType">
+                  <ns2:expression xsi:type="ns2:ExpressionType">
+                       <ns2:expressionString><![CDATA[
+                       import org.shaolin.bmdp.runtime.AppContext;
+                       {
+                        return $rowBE.getDataset3();
+                       }]]></ns2:expressionString>
+                   </ns2:expression>
+               </ns2:rowExpression>
+          </ns2:dataset>
+          <ns2:dataset xsi:type="ns2:UITableColumnType">
+              <ns2:title xsi:type="ns2:StringPropertyType">
+                  <value>集合4</value>
+              </ns2:title>
+              <ns2:cssStype>backgroundColor: 'rgba(190,190,220,0.2)',pointBackgroundColor: 'rgba(190,190,220,1)',hoverPointBackgroundColor: 'rgba(190,190,220,1)',pointHighlightStroke: '#fff'</ns2:cssStype>
+              <ns2:beFieldId>rowBE.status</ns2:beFieldId>
+              <ns2:isVisible xsi:type="ns2:ExpressionPropertyType">
+                  <ns2:expression xsi:type="ns2:ExpressionType">
+                       <ns2:expressionString><![CDATA[
+                       import org.shaolin.bmdp.runtime.AppContext;
+                       {
+                          return $rowBE.getDataset4() != null;
+                       }]]></ns2:expressionString>
+                   </ns2:expression>
+              </ns2:isVisible>
+              <ns2:rowExpression xsi:type="ns2:ExpressionPropertyType">
+                  <ns2:expression xsi:type="ns2:ExpressionType">
+                       <ns2:expressionString><![CDATA[
+                       import org.shaolin.bmdp.runtime.AppContext;
+                       {
+                        return $rowBE.getDataset4();
+                       }]]></ns2:expressionString>
+                   </ns2:expression>
+               </ns2:rowExpression>
+          </ns2:dataset>
+       </ns2:component>
+      <ns2:layoutConstraint>
+        <ns2:componentId>linearChart</ns2:componentId>
+        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="0" align="FULL"></ns2:constraint>
+      </ns2:layoutConstraint>
+    </ns2:component>
+    <ns2:component xsi:type="ns2:UIPanelType" UIID="actionPanel">
+      <ns2:layout xsi:type="ns2:TableLayoutType">
+        <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+        <ns2:columnWidthWeight>0.0</ns2:columnWidthWeight>
+      </ns2:layout>
+      <ns2:component xsi:type="ns2:UIButtonType" UIID="okbtn">
+        <ns2:EventListener xsi:type="ns2:ClickListenerType">
+          <ns2:handler functionName="Cancel"></ns2:handler>
+        </ns2:EventListener>
+        <ns2:text xsi:type="ns2:ResourceBundlePropertyType">
+          <ns2:bundle>Common</ns2:bundle>
+          <ns2:key>OKbtn</ns2:key>
+        </ns2:text>
+      </ns2:component>
+      <ns2:layoutConstraint>
+        <ns2:componentId>okbtn</ns2:componentId>
+        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="0" align="FULL"></ns2:constraint>
+      </ns2:layoutConstraint>
+    </ns2:component>
+    <ns2:layoutConstraint>
+      <ns2:componentId>fieldPanel</ns2:componentId>
+      <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="0" align="FULL"></ns2:constraint>
+    </ns2:layoutConstraint>
+    <ns2:layoutConstraint>
+      <ns2:componentId>actionPanel</ns2:componentId>
+      <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="1" align="FULL"></ns2:constraint>
+    </ns2:layoutConstraint>
+  </ns2:body>
+  <ns2:mapping>
+    <systemVersion>0</systemVersion>
+    <ns2:DataEntity scope="InOut" name="data" category="JavaClass">
+      <type entityName="java.util.List"></type>
+    </ns2:DataEntity>
+    <ns2:DataToUIMappingOperation>
+      <expressionString>{
+		@odContext.executeAllMappings();
+		}</expressionString>
+    </ns2:DataToUIMappingOperation>
+  </ns2:mapping>
+</ns2:UIEntity>

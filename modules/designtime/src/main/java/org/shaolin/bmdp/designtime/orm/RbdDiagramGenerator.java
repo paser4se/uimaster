@@ -345,6 +345,19 @@ public class RbdDiagramGenerator implements
 			versionMP.setColumnName("_enable");
 			mapping.getFieldMappings().add(versionMP);
 		}
+		if (be.isNeedTask()) {
+			ColumnType taskId = rdbObjFactory.createColumnType();
+			taskId.setName("_taskId");
+			taskId.setType("BIGINT");
+			taskId.setLength("38");
+			taskId.setDefault("0");
+			table.getColumns().add(taskId);
+			FieldMappingType taskFM = rdbObjFactory
+					.createFieldMappingType();
+			taskFM.setBeFieldName("_taskId");
+			taskFM.setColumnName("_taskId");
+			mapping.getFieldMappings().add(taskFM);
+		}
 		if (be.isNeedHistory()) {
 			ColumnType version = rdbObjFactory.createColumnType();
 			version.setName("_version");

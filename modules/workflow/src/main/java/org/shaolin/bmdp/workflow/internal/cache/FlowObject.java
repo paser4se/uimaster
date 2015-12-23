@@ -22,18 +22,20 @@ import org.shaolin.bmdp.datamodel.workflow.ExceptionHandlerType;
 import org.shaolin.bmdp.datamodel.workflow.FlowImportType;
 import org.shaolin.bmdp.datamodel.workflow.GeneralNodeType;
 import org.shaolin.bmdp.datamodel.workflow.HandlerType;
-import org.shaolin.bmdp.datamodel.workflow.IntermediateNodeType;
 import org.shaolin.bmdp.datamodel.workflow.JoinNodeType;
+import org.shaolin.bmdp.datamodel.workflow.MissionNodeType;
 import org.shaolin.bmdp.datamodel.workflow.SessionServiceType;
 import org.shaolin.bmdp.datamodel.workflow.SplitNodeType;
 import org.shaolin.bmdp.datamodel.workflow.StartNodeType;
 import org.shaolin.bmdp.datamodel.workflow.TimeoutNodeType;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.VariableUtil;
+import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
 import org.shaolin.bmdp.runtime.spi.Event;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.shaolin.bmdp.workflow.exception.ConfigException;
 import org.shaolin.bmdp.workflow.internal.FlowEngine;
+import org.shaolin.bmdp.workflow.internal.FlowRuntimeContext;
 import org.shaolin.bmdp.workflow.internal.type.AppInfo;
 import org.shaolin.bmdp.workflow.internal.type.FlowInfo;
 import org.shaolin.bmdp.workflow.internal.type.NodeInfo;
@@ -45,6 +47,9 @@ import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.OpExecuteContext;
+import org.shaolin.uimaster.page.cache.PageCacheManager;
+import org.shaolin.uimaster.page.cache.UIFormObject;
+import org.shaolin.uimaster.page.cache.UIPageObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +78,9 @@ public class FlowObject implements java.io.Serializable {
 		DefaultParsingContext local = new DefaultParsingContext();
 		for (VariableType var : variables) {
 			Class<?> clazz = VariableUtil.getVariableClass(var);
+			if (!Serializable.class.isAssignableFrom(clazz)) {
+				throw new IllegalArgumentException("Variable " + var.getName() + " is not implemented Serializable interface.");
+			}
 			local.setVariableClass(var.getName(), clazz);
 		}
 		local.setVariableClass(FlowEngine.EVENT_VAR_NAME, Event.class);
@@ -87,16 +95,6 @@ public class FlowObject implements java.io.Serializable {
 		return opContext;
 	}
 	
-    private static final class IntermediateNodeRankingComparator implements
-            Comparator<NodeInfo>, Serializable {
-        private static final long serialVersionUID = 6359354182039732268L;
-
-        @Override
-        public int compare(NodeInfo arg0, NodeInfo arg1) {
-            return ((IntermediateNodeType)arg1.getNode()).getRanking() - ((IntermediateNodeType)arg0.getNode()).getRanking();
-        }
-    }
-
     private static final class StartNodeRankingComparator 
         implements Comparator<NodeInfo>, Serializable {
         private static final long serialVersionUID = 6359354182039732268L;
@@ -130,6 +128,7 @@ public class FlowObject implements java.io.Serializable {
     			}
     			appContext.setVariableClass(FlowEngine.SESSION_VAR_NAME, WorkflowSession.class);
     			appContext.setVariableClass(FlowEngine.EVENT_VAR_NAME, Event.class);
+    			appContext.setVariableClass("flowContext", FlowRuntimeContext.class);
     			
     			try {
 					initExceptionHandlers(appContext, conf.getExceptionHandlers(), appInfo.getName());
@@ -194,11 +193,13 @@ public class FlowObject implements java.io.Serializable {
     		}
     		OpExecuteContext opContext = getOpParsingContext(start.getProcess()
     				.getVars(), globalContext);
-    		initConditionFilters(opContext, start.getFilter(), classPrefix);
+    		if (start.getFilter() != null) {
+    			initConditionFilters(opContext, start.getFilter(), classPrefix);
+    		}
     	}
 
-    	public void initIntermediateNodeInfo(DefaultParsingContext globalContext, 
-    			IntermediateNodeType interNode, String classPrefix) throws ParsingException {
+    	public void initMissionNodeInfo(DefaultParsingContext globalContext, 
+    			MissionNodeType interNode, String classPrefix) throws ParsingException {
     		if (interNode.getProcess() == null
     				|| interNode.getProcess().getExpression() == null) {
     			return;
@@ -288,7 +289,7 @@ public class FlowObject implements java.io.Serializable {
      */
     private final Map<String, HashMap<String, Object>> localDefaultValues = new HashMap<String, HashMap<String, Object>>();
     
-    private final Map<String, List<NodeInfo>> intermediateNodes = 
+    private final Map<String, List<NodeInfo>> missionNodes = 
             new HashMap<String, List<NodeInfo>>(); // IntermediateNodeType
     private final Map<String, List<NodeInfo>> requestNodes = 
             new HashMap<String, List<NodeInfo>>(); // IntermediateNodeType
@@ -385,27 +386,46 @@ public class FlowObject implements java.io.Serializable {
         handleImportedFlows(appInfo, initialEventNodes);
         parseFlows(appInfo, initialEventNodes, false);
 
-        /** TODO:
-        for (List<NodeInfo> nList : intermediateNodes.values()) {
-            for (NodeInfo n : nList) {
-                if (BuiltInEventProducer.EXCEPTION_PRODUCER_NAME.equals(((IntermediateNodeType)n.getNode()).getProducer())) {
-                    exceptionNodes.add(n);
-                }
-            }
-        }
-        Collections.sort(exceptionNodes, new IntermediateNodeRankingComparator());
-        */
-        for (List<NodeInfo> nList : intermediateNodes.values()) {
-            Collections.sort(nList, new IntermediateNodeRankingComparator());
-        }
-
+//        for (List<NodeInfo> nList : missionNodes.values()) {
+//            for (NodeInfo n : nList) {
+//                if (BuiltInEventProducer.EXCEPTION_PRODUCER_NAME.equals(((MissionNodeType)n.getNode()).getEventConsumer())) {
+//                    exceptionNodes.add(n);
+//                }
+//            }
+//        }
+        
         for (List<NodeInfo> nList : startNodes.values()) {
             Collections.sort(nList, new StartNodeRankingComparator());
         }
 
-        for (Map.Entry<String, List<NodeInfo>> e : intermediateNodes.entrySet()) {
+        for (Map.Entry<String, List<NodeInfo>> e : missionNodes.entrySet()) {
             List<NodeInfo> l = new ArrayList<NodeInfo>();
             for (NodeInfo n : e.getValue()) {
+            	MissionNodeType m = (MissionNodeType)n.getNode();
+            	String actionPage = m.getUiAction().getActionPage();
+				if (actionPage == null) {
+            		continue;
+            	}
+            	if (logger.isDebugEnabled()) {
+            		logger.debug("register {} Dyanmic workflow action to UI: {}", n.toString(), actionPage);
+            	}
+            	try {
+        			UIFormObject uiCache = PageCacheManager.getUIFormObject(actionPage);
+        			uiCache.addWorkflowAction(n.getFlow().getEventConsumer(), m);
+        		} catch (EntityNotFoundException e0) {
+        			try {
+        				UIPageObject uiCache = PageCacheManager.getUIPageObject(actionPage);
+        				uiCache.getUIForm().addWorkflowAction(n.getFlow().getEventConsumer(), m);
+        			} catch (Exception e1) {
+        				logger.error("Error to load the workflow action: " + e1.getMessage() 
+            					+ ",ActionPage: " + actionPage
+            					+ ",Node Info: " + n.toString(), e1);
+        			} 
+        		} catch (ParsingException e1) {
+        			logger.error("Error to load the workflow action: " + e1.getMessage() 
+        					+ ",ActionPage: " + actionPage
+        					+ ",Node Info: " + n.toString(), e1);
+				} 
                 Set<String> set = initialEventNodes.get(n.getAppName() + "-" + n.getFlowName());
                 if (set != null && set.contains(n.getName())) {
                     l.add(n);
@@ -488,7 +508,7 @@ public class FlowObject implements java.io.Serializable {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Global vars map: {}", globalVarNames);
 			logger.trace("Initial event nodes: {}", initialEventNodes);
-			logger.trace("Intermediate event nodes: {}", intermediateNodes);
+			logger.trace("Mission event nodes: {}", missionNodes);
 			logger.trace("Start event nodes: {}", startNodes);
 		}
     }
@@ -512,6 +532,10 @@ public class FlowObject implements java.io.Serializable {
             return context;
         }
         for (VariableType param : flow.getConf().getParams()) {
+        	Class c = VariableUtil.getVariableClass(param);
+        	if (!Serializable.class.isAssignableFrom(c)) {
+				throw new IllegalArgumentException("Variable " + param.getName() + " is not implemented Serializable interface.");
+			}
             if (!globalVarsSet.contains(param.getName())) {
                 globalVarsSet.add(param.getName());
             }
@@ -528,6 +552,10 @@ public class FlowObject implements java.io.Serializable {
     	if (node.getProcessHandler() != null && node.getProcessHandler().getVars().size() > 0) {
 			HashMap<String, Object> values = new HashMap<String, Object>();
 			for (ParamType param : node.getProcessHandler().getVars()) {
+				Class c = VariableUtil.getVariableClass(param);
+				if (!Serializable.class.isAssignableFrom(c)) {
+					throw new IllegalArgumentException("Variable " + param.getName() + " is not implemented Serializable interface.");
+				}
 				values.put(param.getName(), VariableUtil.createVariableObject(param));
 			}
     		localDefaultValues.put(node.toString(), values);
@@ -544,21 +572,14 @@ public class FlowObject implements java.io.Serializable {
                 appendEventNode(node.getFlow().getEventConsumer(), node, startNodes);
                 break;
             }
-            case INTERMEDIATE: {
-            	IntermediateNodeType inode = (IntermediateNodeType) node.getNode();
+            case MISSION: {
+            	MissionNodeType inode = (MissionNodeType) node.getNode();
             	if (logger.isTraceEnabled()) {
-            		logger.trace("parse intermediate node: {}", inode.getName());
+            		logger.trace("parse mission node: {}", inode.getName());
             	}
-            	if (inode.getEventConsumer() == null || inode.getEventConsumer().isEmpty()) {
-            		throw new IllegalArgumentException("the EventConsumer must be specified in " + this.toString() + "." + inode.getName());
-            	}
-            	String entry = node.getEventProducer();
-                if (entry != null) {
-                	entrances.put(node.getEventProducer(), node.getFlowName() + "." + node.getName());
-                }
-            	flowCompiler.initIntermediateNodeInfo(flowContext, inode, classPrefix);
+            	flowCompiler.initMissionNodeInfo(flowContext, inode, classPrefix);
                 flowCompiler.initHandlerInfo(flowContext, node.getProcessHandler(), classPrefix);
-                appendEventNode(node.getFlow().getEventConsumer(), node, intermediateNodes);
+                appendEventNode(node.getFlow().getEventConsumer(), node, missionNodes);
                 break;
             }
             case CONDITION:
@@ -590,12 +611,6 @@ public class FlowObject implements java.io.Serializable {
             		logger.trace("parse join node: {}", join.getName());
             	}
             	flowCompiler.initJoinHandlerInfo(flowContext, join, classPrefix);
-                break;
-            case TIMER:
-            	flowCompiler.initHandlerInfo(flowContext, node.getProcessHandler(), classPrefix);
-                break;
-            case CANCELTIMER:
-            	flowCompiler.initHandlerInfo(flowContext, node.getProcessHandler(), classPrefix);
                 break;
             case LOGICAL:
             	if (logger.isTraceEnabled()) {
@@ -679,7 +694,7 @@ public class FlowObject implements java.io.Serializable {
         return this.startNodes.get(producerName);
     }
 
-    public List<NodeInfo> getIntermediateRequestNodes(String producerName) {
+    public List<NodeInfo> getMissionRequestNodes(String producerName) {
         return this.requestNodes.get(producerName);
     }
 

@@ -1,16 +1,27 @@
+/*
+* Copyright 2015 The UIMaster Project
+*
+* The UIMaster Project licenses this file to you under the Apache License,
+* version 2.0 (the "License"); you may not use this file except in compliance
+* with the License. You may obtain a copy of the License at:
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations
+* under the License.
+*/
 package org.shaolin.bmdp.workflow.internal;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
-import org.shaolin.bmdp.datamodel.workflow.CancelTimeoutNodeType;
 import org.shaolin.bmdp.datamodel.workflow.ChildFlowNodeType;
 import org.shaolin.bmdp.datamodel.workflow.ConditionNodeType;
 import org.shaolin.bmdp.datamodel.workflow.DestType;
@@ -18,20 +29,19 @@ import org.shaolin.bmdp.datamodel.workflow.DestWithFilterType;
 import org.shaolin.bmdp.datamodel.workflow.EventDestType;
 import org.shaolin.bmdp.datamodel.workflow.ExceptionHandlerType;
 import org.shaolin.bmdp.datamodel.workflow.GeneralNodeType;
+import org.shaolin.bmdp.datamodel.workflow.MissionNodeType;
 import org.shaolin.bmdp.datamodel.workflow.SplitNodeType;
-import org.shaolin.bmdp.datamodel.workflow.TimeoutNodeType;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.spi.Event;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
+import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
 import org.shaolin.bmdp.workflow.exception.ConfigException;
 import org.shaolin.bmdp.workflow.exception.EventException;
 import org.shaolin.bmdp.workflow.internal.cache.FlowObject;
 import org.shaolin.bmdp.workflow.internal.type.AppInfo;
 import org.shaolin.bmdp.workflow.internal.type.FlowInfo;
 import org.shaolin.bmdp.workflow.internal.type.NodeInfo;
-import org.shaolin.bmdp.workflow.spi.EventProducer.ErrorType;
 import org.shaolin.bmdp.workflow.spi.ExceptionEvent;
-import org.shaolin.bmdp.workflow.spi.Node;
 import org.shaolin.bmdp.workflow.spi.SessionService;
 import org.shaolin.bmdp.workflow.spi.TimeoutEvent;
 import org.shaolin.bmdp.workflow.spi.WorkflowSession;
@@ -42,27 +52,6 @@ import org.slf4j.LoggerFactory;
  * Flow engine is the container of a flow template. A flow template has 
  * its owner flow engine accordingly. When engine starts that all defined 
  * producers will be generated as EventConsumers for event processing.
- * <br>
- * The EventProducer can be many or one such CCR event producer, flow 
- * timeout event producer or etc.
- * <br>
- * The engine is created by AppInfo.name which represents the "engineName" here.
- * <br>
- * For example:
- * <br>1. template AppInfo.name = OCSEventProducer
- * <br>2. template AppInfo.name = OCSEventProducer1
- * <br>Thus, each flow template has a FlowEngine created accordingly. 
- * <br>
- * <br> An event driven process:
- * An event received --> EventProcessor --> EventConsumers --> EventProducer
- * <br>
- * For example: wired Connector with Workflow instance while engine initialing.
- * <br>1. Connector ProtocolNode will be exposed as EventProcessor service.
- * <br>2. Define the EventProducer in worklfow template which wires to connector identifier.
- * <br>3. the all real EventProcessor services will be available in com.hp.atom.commons.container.Container
- * <br>4. Flow engine created by template and generated EventConsumers according to the defined EventProcessor.
- * <br>5. create WorkFlowEventProcessor with EventConsumers together.
- * <br>6. FlowContainer registers WorkFlowEventProcessor to all EventProcessor service after flow engine ready.
  * 
  *  Shaolin Wu(July 20th, 2013)
  */
@@ -76,14 +65,7 @@ public class FlowEngine {
     private final String engineName;
     private final FlowContainer flowContainer;
 
-    private final LockManager<Object> masterLock = new LockManager<Object>();
-    private final ConcurrentMap<String, Queue<Event>> pendingEvents = 
-            new ConcurrentHashMap<String, Queue<Event>>();
-    private final LockManager<Object> slaveLock = new LockManager<Object>();
-
     private final WorkFlowEventProcessor timeoutEventProcessor;
-    private final ConcurrentMap<Object, FlowRuntimeContext> timerMap = 
-            new ConcurrentHashMap<Object, FlowRuntimeContext>();
 
     private FlowObject flowInfo;
     private SessionService sessionService;
@@ -115,6 +97,9 @@ public class FlowEngine {
     	this.flowInfo = flowInfo;
     	this.flowInfo.parse();
         this.sessionService = (SessionService) AppContext.get().getService(this.flowInfo.getSessionService());
+        if (this.sessionService == null) {
+        	this.sessionService = new DefaultFlowSessionService();
+        }
     }
 
     /**
@@ -128,12 +113,10 @@ public class FlowEngine {
      * @param processors
      */
     public void start(Map<String, EventConsumer> processors) {
-        this.pendingEvents.clear();
-        this.timerMap.clear();
         Map<String, String> consumerNames = flowInfo.getEventConsumers();
         for (Map.Entry<String, String> e : consumerNames.entrySet()) {
         	if (processors.containsKey(e.getKey())) {
-        		throw new IllegalStateException("The even consumer name is duplicated! " + e.getKey());
+        		logger.warn("The even consumer name {} is duplicated! ", e.getKey());
         	}
         	
             EventConsumer processor = new EventConsumer(this, e.getKey());
@@ -151,8 +134,6 @@ public class FlowEngine {
     }
 
     public void stop() {
-        this.pendingEvents.clear();
-        this.timerMap.clear();
     }
 
     public String getEngineName() {
@@ -175,38 +156,31 @@ public class FlowEngine {
         NodeInfo nextNode = node;
         NodeInfo lastExpNode = null;
         List<NodeInfo> visitedExceptionNodes = null;
-        while (true) {
+        try {
+            executeNode(nextNode, flowContext);
+        } catch (Throwable e) {
+            if (logger.isTraceEnabled()) {
+                logger.trace("Exception when execute {} on {}",
+                        new Object[] { flowContext.getEvent(), nextNode });
+                logger.trace("Detail trace: " + e.getMessage(), e);
+            }
+            flowContext.setException(e);
             try {
-                executeNode(nextNode, flowContext);
-                break;
-            } catch (Throwable e) {
-                if (logger.isTraceEnabled()) {
-                    logger.trace("Exception when execute {} on {}",
-                            new Object[] { flowContext.getEvent(), nextNode });
-                    logger.trace("Detail trace: " + e.getMessage(), e);
-                }
+                nextNode = handleException(flowContext, e);
+            } catch (Throwable ex) {
+                logger.warn("Fail to handle exception for " + flowContext + ", " + e.getMessage(), ex);
                 flowContext.setException(e);
-                try {
-                    nextNode = handleException(flowContext, e);
-                } catch (Throwable ex) {
-                    logger.warn("Fail to handle exception for " + flowContext + ", " + e.getMessage(), ex);
+            }
+            if (nextNode != null) {
+                if (visitedExceptionNodes != null && visitedExceptionNodes.contains(nextNode)) {
                     flowContext.setException(e);
-                    break;
-                }
-                if (nextNode != null) {
-                    if (visitedExceptionNodes != null && visitedExceptionNodes.contains(nextNode)) {
-                        flowContext.setException(e);
-                        logger.warn("Inifnit loop detected when handle exception, the loop node is {}.", nextNode);
-                        break;
-                    } else {
-                        lastExpNode = nextNode;
-                        if (visitedExceptionNodes == null) {
-                            visitedExceptionNodes = new ArrayList<NodeInfo>();
-                        }
-                        visitedExceptionNodes.add(lastExpNode);
-                    }
+                    logger.warn("Inifnit loop detected when handle exception, the loop node is {}.", nextNode);
                 } else {
-                    break;
+                    lastExpNode = nextNode;
+                    if (visitedExceptionNodes == null) {
+                        visitedExceptionNodes = new ArrayList<NodeInfo>();
+                    }
+                    visitedExceptionNodes.add(lastExpNode);
                 }
             }
         }
@@ -215,8 +189,7 @@ public class FlowEngine {
             NodeInfo previousNode = flowContext.getCurrentNode();
             if (NodeInfo.Type.END.equals(previousNode.getNodeType())) {
                 destroySession(flowContext);
-            } else if (flowContext.getEventDestInfo() == null) {
-                // No next, flush session here.
+            } else if (flowContext.isWaitResponse()) {
                 flushSession(flowContext.getSession(), flowContext);
             } else {
                 saveSession(flowContext.getSession(), flowContext);
@@ -239,13 +212,19 @@ public class FlowEngine {
             flowContext.setLocallVariables(flowInfo.getLocalDefaultValues(currentNode));
             flowContext.setGlobalVarNames(flowInfo.getGlobalVarNames(currentNode), 
                     flowInfo.getGlobalVarNamesSet(currentNode));
-            flowContext.getEvent().setAttribute(Node.class.getName(), currentNode.getNode());
 
             switch (currentNode.getNodeType()) {
+	            case START:
                 case LOGICAL:
-                case START:
-                case INTERMEDIATE:
-                    currentNode = processGeneralNode(flowContext, currentNode);
+                	currentNode = processGeneralNode(flowContext, currentNode);
+                	break;
+                case MISSION:
+            		currentNode = processGeneralNode(flowContext, currentNode);
+            		ICoordinatorService coordinator = AppContext.get().getService(ICoordinatorService.class);
+            		if (flowContext.getTaskId() == 0) {
+            			throw new IllegalStateException("Current flow context does not have task id! " + flowContext.toString());
+            		}
+        			coordinator.completeTask(coordinator.getTask(flowContext.getTaskId()));
                     break;
                 case CONDITION:
                     currentNode = processConditionNode(flowContext, currentNode, flowContext.getEvent());
@@ -270,14 +249,6 @@ public class FlowEngine {
                          currentNode = (NodeInfo)currentNode.getDestFromName(destNodeName).getNode();
                      }
                     break;
-                case TIMER:
-                    processTimerNode(flowContext, currentNode);
-                    currentNode = null;
-                    break;
-                case CANCELTIMER:
-                    cancelTimer(flowContext, currentNode);
-                    currentNode = processGeneralNode(flowContext, currentNode);
-                    break;
                 case END:
                     currentNode = null;
 			default:
@@ -289,6 +260,21 @@ public class FlowEngine {
                         flowContext.getEvent().getId(), engineName, previousNode.getAppName(),
                         previousNode.getFlowName(), previousNode.getName() });
             }
+            if (currentNode != null && currentNode.getNodeType() == NodeInfo.Type.MISSION) {
+            	// must waiting for response trigger from next operator.
+        		// notify the relevant parties to do the job.
+        		MissionNodeType m = (MissionNodeType)currentNode.getNode();
+        		flowContext.setCurrentNode(currentNode);
+        		processTimerNode(flowContext, currentNode, m);
+        		
+        		if (m.isAutoTrigger() != null && m.isAutoTrigger()) {
+        			//continue;
+        		} else {
+        			flowContext.markWaitResponse();
+        			currentNode = null;
+        			break;
+        		}
+            }
         } while (currentNode != null);
     }
 
@@ -298,14 +284,6 @@ public class FlowEngine {
         executeHandler(flowContext, flowContext.getEvent(), node);
         flowContext.resetLocalVariables();
 
-        if (n.getEventDest() != null) {
-            // Should waiting response.
-            // Removing existing pending timeout event first
-            flowContext.removePendingTimeout();
-            registerTimer(flowContext, node);
-            flowContext.setEventDestInfo(n.getEventDest());
-            return null;
-        }
         if (n.getDest() == null) {
             NodeInfo parentNode = flowContext.pop();
             NodeInfo destNode = null;
@@ -320,14 +298,6 @@ public class FlowEngine {
                     flowContext.resetLocalVariables();
                 } else {
                     flowContext.mapGlobalVariables();
-                }
-                if (childNode.getEventDest() != null) {
-                    // Should waiting response.
-                    // Removing existing pending timeout event first
-                    flowContext.removePendingTimeout();
-                    registerTimer(flowContext, parentNode);
-                    flowContext.setEventDestInfo(childNode.getEventDest());
-                    break;
                 }
                 if (childNode.getDest() != null) {
                     // back from sub flow
@@ -389,42 +359,19 @@ public class FlowEngine {
         return currentNode;
     }
 
-    private void processTimerNode(FlowRuntimeContext flowContext, NodeInfo currentNode)
+    private void processTimerNode(FlowRuntimeContext flowContext, NodeInfo currentNode, MissionNodeType mission)
             throws Exception {
-        // Timeout node should not in subflow
-    	TimeoutNodeType tNode = (TimeoutNodeType) currentNode.getNode();
-        executeHandler(flowContext, flowContext.getEvent(), currentNode);
-
-        registerTimer(flowContext, currentNode);
-        // One session can have only one timer at same time
-        FlowRuntimeContext oldOne = timerMap.put(flowContext.getSession().getID(), flowContext);
-        if (oldOne != null && oldOne.getTimeoutFuture() != null) {
-            oldOne.getTimeoutFuture().cancel();
-            oldOne.setTimeoutFuture(null);
-        }
-    }
-
-    private void cancelTimer(FlowRuntimeContext flowContext, NodeInfo currentNode) {
-    	CancelTimeoutNodeType n = (CancelTimeoutNodeType) currentNode.getNode();
-        String timeoutNodeName = n.getTimeoutNode();
-        String flowName = n.getFlow();
-        if (flowName == null) {
-            flowName = n.getFlow();
-        }
-        NodeInfo tNode = flowInfo.getNode(currentNode.getAppName(), flowName, timeoutNodeName);
-        FlowRuntimeContext oldContext = timerMap.get(flowContext.getSession().getID());
-        if (oldContext != null && oldContext.getCurrentNode() == tNode) {
-            timerMap.remove(flowContext.getSession().getID());
-            if (oldContext.getTimeoutFuture() != null) {
-                oldContext.getTimeoutFuture().cancel();
-                oldContext.setTimeoutFuture(null);
-            }
-            if (logger.isTraceEnabled()) {
-                logger.trace("{}:Unregister timer on {}:{}:{}", new Object[] {
-                        flowContext.getEvent().getId(), currentNode.getAppName(),
-                        currentNode.getFlow().getName(), timeoutNodeName });
-            }
-        }
+    	long daysMillis = 0;
+    	if (mission.getExpiredDays() > 0) {
+    		daysMillis = mission.getExpiredDays() * 24 * 60 * 60 * 1000;
+    	}
+    	long hoursMillis = 0;
+    	if (mission.getExpiredHours() > 0) {
+    		hoursMillis = mission.getExpiredHours() * 60 * 60 * 1000;
+    	} 
+    	long expiredDate = System.currentTimeMillis() + daysMillis + hoursMillis;
+    	
+        flowContainer.scheduleTask(new Date(expiredDate), flowContext, this, currentNode, mission);
     }
 
     private void executeHandler(FlowRuntimeContext flowContext, Event evt, NodeInfo n)
@@ -446,14 +393,6 @@ public class FlowEngine {
         if (logger.isTraceEnabled()) {
             logger.trace("Process node {} successfully.", n.getName());
         }
-    }
-
-    private void registerTimer(FlowRuntimeContext flowContext, NodeInfo n) {
-        if (logger.isTraceEnabled()) {
-            logger.trace("Schedule timer on {}, dealy time is {}", n.getName(), n.getTimeout());
-        }
-        flowContainer.scheduleTask(n.getTimeout(), flowContext.getFlowContextInfo(), 
-        		flowContext, this);
     }
 
     private NodeInfo handleException(FlowRuntimeContext flowContext, Throwable e) {
@@ -565,7 +504,7 @@ public class FlowEngine {
         return null;
     }
 
-    private void destroySession(FlowRuntimeContext flowContext) {
+    void destroySession(FlowRuntimeContext flowContext) {
         String sessionId = flowContext.getSession().getID();
         if (logger.isTraceEnabled()) {
             logger.trace("{}:Destroy session {}", engineName, sessionId);
@@ -690,86 +629,10 @@ public class FlowEngine {
 
     public boolean lockSession(String sessionId, Event event, FlowRuntimeContext newFlowContext,
             NodeInfo destNode) {
-        if (masterLock.tryLock(sessionId)) {
-            masterLock.detachLock(sessionId);
-            if (logger.isTraceEnabled()) {
-                logger.trace("{}:lock {}", engineName, sessionId);
-            }
-            return true;
-        } else {
-            slaveLock.acquireLock(sessionId);
-            if (masterLock.tryLock(sessionId)) {
-                slaveLock.releaseLock(sessionId);
-                masterLock.detachLock(sessionId);
-                if (logger.isTraceEnabled()) {
-                    logger.trace("{}:lock {}", engineName, sessionId);
-                }
-                return true;
-            } else {
-                Queue<Event> events = pendingEvents.get(sessionId);
-                if (events != null) {
-                    events.offer(event);
-                } else {
-                    events = new ArrayDeque<Event>();
-                    events.add(event);
-                    pendingEvents.put(sessionId, events);
-                }
-                event.setAttribute(BuiltInAttributeConstant.KEY_NODE, destNode);
-                event.setAttribute(BuiltInAttributeConstant.KEY_RUNTIME, newFlowContext);
-                slaveLock.releaseLock(sessionId);
-                if (logger.isTraceEnabled()) {
-                    logger.trace("{}: Queue a event on session {}", engineName, sessionId);
-                }
-                return false;
-            }
-        }
+        return true;
     }
 
     public Event unlockSession(String sessionId, boolean isSessionDestroyed) {
-        Event pendingEvent = null;
-
-        slaveLock.acquireLock(sessionId);
-
-        Queue<Event> discardEvents = null;
-        if (!isSessionDestroyed) {
-            Queue<Event> events = pendingEvents.get(sessionId);
-            if (events != null) {
-                pendingEvent = events.poll();
-                if (pendingEvent == null || events.isEmpty()) {
-                    pendingEvents.remove(sessionId);
-                }
-            }
-        } else {
-            Queue<Event> events = pendingEvents.remove(sessionId);
-            if (events != null) {
-                discardEvents = events;
-            }
-        }
-
-        if (pendingEvent != null) {
-            slaveLock.releaseLock(sessionId);
-            if (logger.isTraceEnabled()) {
-                logger.trace("Keep locking session {}, next event is {}", sessionId, pendingEvent);
-            }
-            return pendingEvent;
-        } else {
-            masterLock.attachLock(sessionId);
-            masterLock.releaseLock(sessionId);
-            slaveLock.releaseLock(sessionId);
-            if (logger.isTraceEnabled()) {
-                logger.trace("Unlock {}", sessionId);
-            }
-            if (discardEvents != null) {
-                if (logger.isTraceEnabled()) {
-                    logger.trace(
-                            "Discard pending events {} on {}, since the session was destroyed",
-                            discardEvents, sessionId);
-                }
-                for (Event request : discardEvents) {
-                    discardRequest(request, ErrorType.SESSION_CLOSED);
-                }
-            }
-        }
         return null;
     }
 
@@ -783,11 +646,6 @@ public class FlowEngine {
         }
     }
 
-    private void discardRequest(Event request, ErrorType type) {
-        logger.info("Discard event {}, since the session was closed", request);
-    }
-
-    //IntermediateNodeInfo
     public NodeInfo matchExceptionNode(Event event) {
         List<NodeInfo> list = flowInfo.getExceptionNodes();
         for (int i = 0, t = list.size(); i < t; i++) {
@@ -809,7 +667,7 @@ public class FlowEngine {
                 && !BuiltInEventProducer.EXCEPTION_PRODUCER_NAME.equals(producerName)) {
             return null;
         }
-        List<NodeInfo> list = flowInfo.getIntermediateRequestNodes(producerName);
+        List<NodeInfo> list = flowInfo.getMissionRequestNodes(producerName);
         if (list == null) {
             return null;
         }
@@ -824,25 +682,6 @@ public class FlowEngine {
                 return node;
             }
         }
-        return null;
-    }
-
-    public NodeInfo matchResponseNode(String producerName, EventDestType nodeInfo,
-            Event event) {
-        for (DestType dest: nodeInfo.getDests()) {
-        	NodeInfo node = (NodeInfo) dest.getNode();
-            if (producerName.equals(node.getEventProducer())) {
-                List<DestWithFilterType> filters = node.getFiltersInList();
-                if (matchEventFilter(event, filters)) {
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("Event {} matched with {}:{}", new Object[] { event.getId(),
-                                node.getFlow().getName(), node.getName() });
-                    }
-                    return node;
-                }
-            }
-        }
-
         return null;
     }
 
@@ -865,6 +704,7 @@ public class FlowEngine {
     }
 
     public NodeInfo matchTimeoutNode(EventDestType nodeInfo, Event event) {
+    	//TODO:
         for (DestType dest : nodeInfo.getDests()) {
         	NodeInfo node = (NodeInfo) dest.getNode();
             if (BuiltInEventProducer.TIMEOUT_PRODUCER_NAME.equals(event.getEventConsumer())) {
@@ -908,31 +748,16 @@ public class FlowEngine {
         FlowRuntimeContext flowRuntime = context.getFlowRuntime();
         NodeInfo waitingNode = context.getWaitingNode();
         
-        if (NodeInfo.Type.TIMER == waitingNode.getNodeType()) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("Receive timer time out event on {} ", context.getFlowRuntime()
-                        .getCurrentNode().getName());
-            }
-            if (timerMap.get(flowRuntime.getSession().getID()) == flowRuntime) {
-                TimeoutEvent event = new TimeoutEvent(flowRuntime, flowRuntime.getSession().getID());
-                event.setFlowContext(context);
-                flowContainer.runTask(timeoutEventProcessor, event);
-            }
-        } else {
-            if (logger.isTraceEnabled()) {
-                logger.trace("Receive normal time out event on {} ", context.getFlowRuntime()
-                        .getCurrentNode().getName());
-            }
-            if (flowRuntime.flowContextMatched(context)) {
-                TimeoutEvent event = new TimeoutEvent(flowRuntime.getSession().getID());
-                event.setFlowContext(context);
-                flowContainer.runTask(timeoutEventProcessor, event);
-            }
+        if (logger.isTraceEnabled()) {
+            logger.trace("Receive timer time out event on {} ", context.getFlowRuntime()
+                    .getCurrentNode().getName());
         }
-    }
-
-    public boolean removeTimer(String id, FlowRuntimeContext context) {
-        return timerMap.remove(id, context);
+        //TODO:
+//        if (timerMap.get(flowRuntime.getSession().getID()) == flowRuntime) {
+            TimeoutEvent event = new TimeoutEvent(flowRuntime, flowRuntime.getSession().getID());
+            event.setFlowContext(context);
+            flowContainer.runTask(timeoutEventProcessor, event);
+//        }
     }
 
     public void discardResponse(Event response, boolean isContextClosed) {
@@ -951,13 +776,4 @@ public class FlowEngine {
         }
     }
 
-    public void triggerEventListener(Event event, NodeInfo node, String sessionId) {
-//        List<WorkflowEventListener> list = flowInfo.getEventListener();
-//        for (int i = 0, t = list.size(); i < t; i++) {
-//            WorkflowEventListener eventListener = list.get(i);
-//            if (eventListener.accept(event, node)) {
-//                eventListener.notify(event, node, sessionId);
-//            }
-//        }
-    }
 }

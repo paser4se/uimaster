@@ -1,0 +1,140 @@
+<?xml version="1.0" ?>
+<ns2:RDBDiagram xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns5="http://bmdp.shaolin.org/datamodel/PageDiagram" xmlns:ns4="http://bmdp.shaolin.org/datamodel/Page" xmlns:ns3="http://bmdp.shaolin.org/datamodel/BEDiagram" xmlns:ns2="http://bmdp.shaolin.org/datamodel/RDBDiagram" xmlns="http://bmdp.shaolin.org/datamodel/Common" xsi:schemaLocation="">
+  <name>AanlysisModel</name>
+  <systemVersion>0</systemVersion>
+  <ns2:diagramPackage>org.shaolin.bmdp.analyzer.diagram</ns2:diagramPackage>
+  <ns2:daoPackage>org.shaolin.bmdp.analyzer.dao</ns2:daoPackage>
+  <ns2:table>
+    <entityName>ANAS_CLIENTDBINFO</entityName>
+    <systemVersion>0</systemVersion>
+    <ns2:column name="ID" type="BIGINT" isNull="false" autoIncrement="true"></ns2:column>
+    <ns2:column name="JDBCCLASS" type="VARCHAR" isNull="true"></ns2:column>
+    <ns2:column name="URL" type="VARCHAR" isNull="true"></ns2:column>
+    <ns2:column name="USERNAME" type="VARCHAR" isNull="true"></ns2:column>
+    <ns2:column name="PASSWORD" type="VARCHAR" isNull="true"></ns2:column>
+    <ns2:column name="_enable" type="INTEGER" length="2" default="1"></ns2:column>
+    <ns2:primaryKey>
+      <ns2:columnName>ID</ns2:columnName>
+    </ns2:primaryKey>
+    <ns2:mapping>
+      <systemVersion>0</systemVersion>
+      <ns2:businessEntity entityName="org.shaolin.bmdp.analyzer.be.ClientDBInfo"></ns2:businessEntity>
+      <ns2:fieldMapping beFieldName="id" columnName="ID"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="jdbcClass" columnName="JDBCCLASS"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="url" columnName="URL"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="userName" columnName="USERNAME"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="password" columnName="PASSWORD"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="_enable" columnName="_enable"></ns2:fieldMapping>
+    </ns2:mapping>
+  </ns2:table>
+  <ns2:table>
+    <entityName>ANAS_JOB</entityName>
+    <systemVersion>0</systemVersion>
+    <ns2:column name="ID" type="BIGINT" isNull="false" autoIncrement="true"></ns2:column>
+    <ns2:column name="JARPATH" type="VARCHAR" isNull="true"></ns2:column>
+    <ns2:column name="MAINCLASS" type="VARCHAR" isNull="true"></ns2:column>
+    <ns2:column name="TASKID" type="BIGINT" isNull="true"></ns2:column>
+    <ns2:column name="_enable" type="INTEGER" length="2" default="1"></ns2:column>
+    <ns2:primaryKey>
+      <ns2:columnName>ID</ns2:columnName>
+    </ns2:primaryKey>
+    <ns2:mapping>
+      <systemVersion>0</systemVersion>
+      <ns2:businessEntity entityName="org.shaolin.bmdp.analyzer.be.Job"></ns2:businessEntity>
+      <ns2:fieldMapping beFieldName="id" columnName="ID"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="jarPath" columnName="JARPATH"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="mainClass" columnName="MAINCLASS"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="taskId" columnName="TASKID"></ns2:fieldMapping>
+      <ns2:fieldMapping xsi:type="ns2:ListFieldMappingType" associationName="JOBTASK" mappingType="One-to-One" beFieldName="task" columnName="TASKID"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="_enable" columnName="_enable"></ns2:fieldMapping>
+    </ns2:mapping>
+  </ns2:table>
+  <ns2:table>
+    <entityName>ANAS_ChartStatistic</entityName>
+    <systemVersion>0</systemVersion>
+    <ns2:column name="ID" type="BIGINT" isNull="false" autoIncrement="true"></ns2:column>
+    <ns2:column name="actionOnUIFrom" type="VARCHAR" isNull="true"></ns2:column>
+    <ns2:column name="actionOnWidgetId" type="VARCHAR" isNull="true"></ns2:column>
+    <ns2:column name="statsTableName" type="VARCHAR" isNull="true"></ns2:column>
+    <ns2:column name="statsUIFrom" type="VARCHAR" isNull="true"></ns2:column>
+    <ns2:column name="chartType" type="VARCHAR" isNull="true"></ns2:column>
+    <ns2:column name="_enable" type="INTEGER" length="2" default="1"></ns2:column>
+    <ns2:primaryKey>
+      <ns2:columnName>ID</ns2:columnName>
+    </ns2:primaryKey>
+    <ns2:mapping>
+      <systemVersion>0</systemVersion>
+      <ns2:businessEntity entityName="org.shaolin.bmdp.analyzer.be.ChartStatistic"></ns2:businessEntity>
+      <ns2:fieldMapping beFieldName="id" columnName="ID"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="actionOnUIFrom" columnName="actionOnUIFrom"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="actionOnWidgetId" columnName="actionOnWidgetId"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="statsTableName" columnName="statsTableName"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="statsUIFrom" columnName="statsUIFrom"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="chartType" columnName="chartType"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="_enable" columnName="_enable"></ns2:fieldMapping>
+    </ns2:mapping>
+  </ns2:table>
+  <ns2:query queryName="searchClientDBInfo">
+    <ns2:searchResult name="outObject" category="BusinessEntity">
+      <type entityName="org.shaolin.bmdp.analyzer.be.ClientDBInfo"></type>
+    </ns2:searchResult>
+    <ns2:fromData name="inObject" category="BusinessEntity">
+      <type entityName="org.shaolin.bmdp.analyzer.be.ClientDBInfo"></type>
+    </ns2:fromData>
+    <ns2:searchResultMapping>
+      <ns2:fieldMapping>
+        <ns2:toDataFieldPath>outObject</ns2:toDataFieldPath>
+        <ns2:value xsi:type="ns2:SimpleFieldValueType">
+          <ns2:valueFieldPath>inObject</ns2:valueFieldPath>
+        </ns2:value>
+      </ns2:fieldMapping>
+    </ns2:searchResultMapping>
+    <ns2:searchConditionMapping name="Search">
+      <ns2:searchConditionData name="scObject" category="BusinessEntity">
+        <type entityName="org.shaolin.bmdp.analyzer.be.ClientDBInfo"></type>
+      </ns2:searchConditionData>
+    </ns2:searchConditionMapping>
+  </ns2:query>
+  <ns2:query queryName="searchJob">
+    <ns2:searchResult name="outObject" category="BusinessEntity">
+      <type entityName="org.shaolin.bmdp.analyzer.be.Job"></type>
+    </ns2:searchResult>
+    <ns2:fromData name="inObject" category="BusinessEntity">
+      <type entityName="org.shaolin.bmdp.analyzer.be.Job"></type>
+    </ns2:fromData>
+    <ns2:searchResultMapping>
+      <ns2:fieldMapping>
+        <ns2:toDataFieldPath>outObject</ns2:toDataFieldPath>
+        <ns2:value xsi:type="ns2:SimpleFieldValueType">
+          <ns2:valueFieldPath>inObject</ns2:valueFieldPath>
+        </ns2:value>
+      </ns2:fieldMapping>
+    </ns2:searchResultMapping>
+    <ns2:searchConditionMapping name="Search">
+      <ns2:searchConditionData name="scObject" category="BusinessEntity">
+        <type entityName="org.shaolin.bmdp.analyzer.be.Job"></type>
+      </ns2:searchConditionData>
+    </ns2:searchConditionMapping>
+  </ns2:query>
+  <ns2:query queryName="searchChartStats">
+    <ns2:searchResult name="outObject" category="BusinessEntity">
+      <type entityName="org.shaolin.bmdp.analyzer.be.ChartStatistic"></type>
+    </ns2:searchResult>
+    <ns2:fromData name="inObject" category="BusinessEntity">
+      <type entityName="org.shaolin.bmdp.analyzer.be.ChartStatistic"></type>
+    </ns2:fromData>
+    <ns2:searchResultMapping>
+      <ns2:fieldMapping>
+        <ns2:toDataFieldPath>outObject</ns2:toDataFieldPath>
+        <ns2:value xsi:type="ns2:SimpleFieldValueType">
+          <ns2:valueFieldPath>inObject</ns2:valueFieldPath>
+        </ns2:value>
+      </ns2:fieldMapping>
+    </ns2:searchResultMapping>
+    <ns2:searchConditionMapping name="Search">
+      <ns2:searchConditionData name="scObject" category="BusinessEntity">
+        <type entityName="org.shaolin.bmdp.analyzer.be.ChartStatistic"></type>
+      </ns2:searchConditionData>
+    </ns2:searchConditionMapping>
+  </ns2:query>
+</ns2:RDBDiagram>

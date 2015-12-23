@@ -97,25 +97,25 @@ public class HTMLSnapshotContext implements Serializable
 
     private transient Writer out;
 
-    private Map repository;
+    private transient Map repository;
 
-    private Map refEntityMap;
+    private transient Map refEntityMap;
 
     private StringBuffer htmlBuffer;
 
-    private ArrayList pageJs;
+    private transient ArrayList pageJs;
 
-    private ArrayList pageCSS;
+    private transient ArrayList pageCSS;
 
     private boolean jsonStyle;
 
     private boolean ajaxSubmit;
 
-    private Map pageData;
+    private transient Map pageData;
 
-    private Map<String, Widget> ajaxWidgetMap;
+    private transient Map<String, Widget> ajaxWidgetMap;
     
-    private Map componentPermissions;
+    private transient Map componentPermissions;
 
     private boolean noResponse = false;
 
@@ -806,7 +806,7 @@ public class HTMLSnapshotContext implements Serializable
         Object entityObj = refEntityMap.get(entityName);
         if (entityObj == null)
         {
-            entityObj = HTMLUtil.parseUIEntity(entityName);
+            entityObj = HTMLUtil.parseUIForm(entityName);
             addRefEntity(entityName, entityObj);
         }
         return entityObj;

@@ -15,10 +15,21 @@
 */
 package org.shaolin.uimaster.page.cache;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.shaolin.bmdp.datamodel.page.OpCallAjaxType;
+import org.shaolin.bmdp.datamodel.page.WebService;
 import org.shaolin.bmdp.runtime.cache.CacheManager;
 import org.shaolin.bmdp.runtime.cache.ICache;
 import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
+import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.exception.ParsingException;
+import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.uimaster.page.OpExecuteContext;
+import org.shaolin.uimaster.page.ajax.Widget;
 
 /**
  * The ui entities shared for the whole system, which can be multiple applications running.
@@ -33,8 +44,10 @@ public class PageCacheManager {
 
 	private static final String UI_CACHE = "__sys_uipage_cache";
 	
-	private static final String UI_Entity_CACHE = "__sys_uientity_cache";
+	private static final String UI_Entity_CACHE = "__sys_uiform_cache";
 
+	private static final String WEB_SERVICE_CACHE = "__sys_webservice_cache";
+	
     private static ICache<String, UIPageObject> uipageCache;
     
     private static ICache<String, UIFormObject> uiformCache;
@@ -42,6 +55,8 @@ public class PageCacheManager {
 	private static ICache<String, ODPageObject> pageODCache;
 
 	private static ICache<String, ODFormObject> odCache;
+	
+	private static ICache<String, Map> webServiceCache;
 	
 	static {
 		uipageCache = CacheManager.getInstance().getCache(UI_CACHE, String.class, 
@@ -52,8 +67,48 @@ public class PageCacheManager {
 				String.class, ODPageObject.class);
 		odCache = CacheManager.getInstance().getCache(OD_CACHE, String.class,
 				ODFormObject.class);
+		webServiceCache = CacheManager.getInstance().getCache(WEB_SERVICE_CACHE, String.class,
+				Map.class);
 	}
 
+	public static void addWebService(WebService webService) throws ParsingException {
+		if (!webServiceCache.containsKey(webService.getEntityName())) {
+			webServiceCache.put(webService.getEntityName(), new HashMap());
+		}
+		Map services = webServiceCache.get(webService.getEntityName());
+		services.clear();
+		
+		OpExecuteContext opContext = new OpExecuteContext();
+        DefaultParsingContext globalPContext = new DefaultParsingContext();
+        globalPContext.setVariableClass("request", HttpServletRequest.class);
+        opContext.setParsingContextObject("@", globalPContext);
+		
+		for (OpCallAjaxType ops : webService.getServices()) {
+			if (services.containsKey(ops.getName())) {
+				throw new IllegalStateException("The web service name is duplicated: " + webService.getEntityName() +"."+ops.getName());
+			}
+			services.put(ops.getName(), ops);
+			
+			if (ops.getFilter() != null) {
+				ops.getFilter().parse(opContext);
+			}
+			ops.getExp().parse(opContext);
+		}
+	}
+	
+	public static OpCallAjaxType getWebService(String entityName, String serviceName) {
+		if (!webServiceCache.containsKey(entityName)) {
+			throw new IllegalStateException("The web service name is not defined: " + entityName +"."+serviceName);
+		}
+		Map services = webServiceCache.get(entityName);
+		OpCallAjaxType ops = (OpCallAjaxType)services.get(serviceName);
+		if (ops == null) {
+			throw new IllegalStateException("The web service name is not defined: " + entityName +"."+serviceName);
+		}
+		return ops;
+	}
+	
+	
 	public static ODPageObject getODPageEntityObject(String pageName)
 			throws ParsingException, ClassNotFoundException, EntityNotFoundException {
 		ODPageObject odPageEntity = pageODCache.get(pageName);

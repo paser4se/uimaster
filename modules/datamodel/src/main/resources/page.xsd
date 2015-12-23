@@ -10,7 +10,8 @@
 	
 	<xs:element name="UIPage" type="Page:UIPageType"/>
 	<xs:element name="UIEntity" type="Page:UIEntityType"/>
-	
+	<xs:element name="WebService" type="Page:WebServiceType"/>
+ 
 	<!-- Actions -->
 	<xs:complexType name="OpType">
 		<xs:attribute name="description" type="xs:string"/>
@@ -29,12 +30,13 @@
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
-    <xs:complexType name="OpCallAjaxType">
+ <xs:complexType name="OpCallAjaxType">
 		<xs:complexContent>
 			<xs:extension base="Page:OpType">
 				<xs:sequence>
-					<xs:element name="exp" type="Common:ExpressionType"/>
-                    <xs:element name="exceptionMessage" type="Common:IPropertyValueType"/>
+				  <xs:element name="filter" type="Common:ExpressionType"/>
+					 <xs:element name="exp" type="Common:ExpressionType"/>
+      <xs:element name="exceptionMessage" type="Common:IPropertyValueType"/>
 				</xs:sequence>
 				<xs:attribute name="name" type="xs:string" use="required"/>
 			</xs:extension>
@@ -53,10 +55,12 @@
 		<xs:complexContent>
 			<xs:extension base="Page:OpType">
 				<xs:sequence>
-					<xs:element name="condition" type="Common:ExpressionType"/>
-					<xs:element maxOccurs="unbounded" minOccurs="0" name="outDataMapping" type="Common:NameExpressionType"/>
+					 <xs:element name="expression" type="Common:ExpressionType" minOccurs="0" />
 				</xs:sequence>
-				<xs:attribute name="eventProducer" type="xs:string" use="required"/>
+				<xs:attribute name="eventConsumer" type="xs:string" use="required"/>
+				<xs:attribute name="partyType" type="xs:string" use="required"/>
+				<xs:attribute name="beforeActionWidget" type="xs:string" />
+    <xs:attribute name="nextActionWidget" type="xs:string" />
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
@@ -173,6 +177,19 @@ in simple component mapping, the paramName is required</xs:documentation>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
+	
+	<xs:complexType name="WebServiceType">
+  <xs:annotation>
+   <xs:documentation>Web Service support for any ajax operation</xs:documentation>
+  </xs:annotation>
+  <xs:complexContent>
+   <xs:extension base="Common:EntityType">
+    <xs:sequence>
+     <xs:element maxOccurs="unbounded" minOccurs="1" name="service" type="Page:OpCallAjaxType"/>
+    </xs:sequence>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
 	
 	<!--start define page-->
 	<xs:complexType name="UIPageType">
@@ -320,6 +337,7 @@ in simple component mapping, the paramName is required</xs:documentation>
             <xs:extension base="Page:UITextComponentType">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="maxLength" type="Page:PropertyValueType"/>
+                    <xs:element minOccurs="0" name="htmlSupport" type="Page:BooleanPropertyType"/>
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>
@@ -332,6 +350,16 @@ in simple component mapping, the paramName is required</xs:documentation>
     <xs:complexType name="UILabelType">
         <xs:complexContent>
             <xs:extension base="Page:UITextComponentType"/>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="UICustWidgetType">
+        <xs:complexContent>
+            <xs:extension base="Page:UIComponentType">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="custType" type="xs:string"/>
+                    <xs:element minOccurs="0" name="init" type="Page:ExpressionPropertyType"/>
+                </xs:sequence>
+            </xs:extension>
         </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="UILinkType">
@@ -482,13 +510,12 @@ in simple component mapping, the paramName is required</xs:documentation>
                 	<xs:element name="nodeIcon" type="xs:string" />
                 	<xs:element name="itemIcon" type="xs:string" />
                 	<xs:element name="selectMode" type="xs:string" />
-                	<xs:element name="expandTreeEvent" type="xs:string" minOccurs="0"/>
                 	<xs:element name="selectNodeEvent" type="xs:string" minOccurs="0"/>
                 	<xs:element name="addNodeEvent" type="xs:string" minOccurs="0"/>
                 	<xs:element name="deleteNodeEvent" type="xs:string" minOccurs="0"/>
-                	<xs:element name="refreshNodeEvent" type="xs:string" minOccurs="0"/>
-                    <xs:element name="action" type="Page:UITableActionType" maxOccurs="unbounded" minOccurs="0" />
+                 <xs:element name="action" type="Page:UITableActionType" maxOccurs="unbounded" minOccurs="0" />
                 	<xs:element name="initExpression" type="Page:ExpressionPropertyType"/>
+                	<xs:element name="expandExpression" type="Page:ExpressionPropertyType"/>
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>
@@ -518,6 +545,25 @@ in simple component mapping, the paramName is required</xs:documentation>
             <xs:element name="saveFlow" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
+    <!-- the matrix widget uses describing the data in 2D or 3D solution.-->
+    <xs:complexType name="UIMatrixType">
+        <xs:complexContent>
+            <xs:extension base="Page:UIComponentType">
+                <!-- the dynamic flow configuration -->
+                <xs:sequence>
+                    <xs:element name="init" type="Page:ExpressionPropertyType"/>
+                    <xs:element name="coordination" type="Page:ExpressionPropertyType"/>
+                    <xs:element name="column" type="Page:UITableColumnType" maxOccurs="unbounded" minOccurs="0" />
+                    <xs:element name="actionGroup" type="Page:UITableActionGroupType" maxOccurs="unbounded" minOccurs="0" />
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="UIMapType">
+        <xs:complexContent>
+            <xs:extension base="Page:UIComponentType"/>
+        </xs:complexContent>
+    </xs:complexType>
     <xs:complexType name="UIWebMenuType">
         <xs:complexContent>
             <xs:extension base="Page:UIComponentType"/>
@@ -532,8 +578,8 @@ in simple component mapping, the paramName is required</xs:documentation>
                             <xs:documentation>location of the image, should  be one of the properties</xs:documentation>
                         </xs:annotation>
                     </xs:element>
-                    <xs:element name="isGallery" type="Page:BooleanPropertyType">
-                    </xs:element>
+                    <xs:element name="isGallery" type="Page:BooleanPropertyType" />
+                    <xs:element name="showWords" type="Page:BooleanPropertyType" />
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>
@@ -597,14 +643,31 @@ in simple component mapping, the paramName is required</xs:documentation>
     <xs:complexType name="UITabPaneType">
     	<xs:complexContent>
     		<xs:extension base="Page:UIComponentType">
-                <xs:sequence>
-                    <!-- whether ajax loading only supports for the frame and panel -->
-                    <xs:element name="ajaxLoad" type="xs:boolean" default="false"/>
-                    <xs:element name="tabSelected" type="xs:int"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="tab" type="Page:UITabPaneItemType"/>
-                </xs:sequence>
+	          <xs:sequence>
+	              <!-- whether ajax loading only supports for the frame and panel -->
+	              <xs:element name="ajaxLoad" type="xs:boolean" default="false"/>
+	              <!-- show in vertical mode, by default is horizontal -->
+	              <xs:element name="verticalMode" type="xs:boolean" default="false"/>
+	              <xs:element name="tabSelected" type="xs:int"/>
+	              <xs:element name="tabSelectedAction" type="Page:ExpressionPropertyType"/>
+	              <xs:element maxOccurs="unbounded" minOccurs="0" name="tab" type="Page:UITabPaneItemType"/>
+	          </xs:sequence>
     		</xs:extension>
     	</xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="UIPreNextPanelType">
+        <xs:complexContent>
+            <xs:extension base="Page:UIComponentType">
+              <xs:sequence>
+                  <!-- whether ajax loading only supports for the frame and panel -->
+                  <xs:element name="ajaxLoad" type="xs:boolean" default="false"/>
+                  <xs:element name="tabSelected" type="xs:int"/>
+                  <xs:element name="previousAction" type="Page:ExpressionPropertyType"/>
+                  <xs:element name="nextAction" type="Page:ExpressionPropertyType"/>
+                  <xs:element maxOccurs="unbounded" minOccurs="1" name="tab" type="Page:UITabPaneItemType"/>
+              </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="UITabPaneItemType">
         <xs:sequence>
@@ -634,20 +697,24 @@ in simple component mapping, the paramName is required</xs:documentation>
                 <xs:sequence>
                 	<xs:element name="beElement" type="xs:string" />
                 	<xs:element name="selectMode" type="Page:UITableSelectModeType"  minOccurs="0"/>
-                	<xs:element name="initQuery" type="Page:ExpressionPropertyType"  minOccurs="0"/>
-                	<xs:element name="query" type="Page:ExpressionPropertyType"/>
-                	<xs:element name="totalCount" type="Page:ExpressionPropertyType"/>
+                    <xs:element name="selectedRowAction" type="xs:string" />
                     <xs:element name="defaultRowSize" type="xs:int" />
+                    <xs:element name="editableCell" type="xs:boolean" default="true"/>
+                    <!-- show a row in a cell -->
+                    <xs:element name="showBigItem" type="xs:boolean" default="false"/>
+                    <!-- show actions -->
                     <xs:element name="showActionBar" type="xs:boolean" default="true"/>
                     <!-- show the search criteria filters -->
                     <xs:element name="showFilter" type="xs:boolean" default="true"/>
+                    <xs:element name="stats" type="Page:UITableStatsType" minOccurs="0"/>
+                	<xs:element name="initQuery" type="Page:ExpressionPropertyType"  minOccurs="0"/>
+                	<xs:element name="query" type="Page:ExpressionPropertyType"/>
+                	<xs:element name="totalCount" type="Page:ExpressionPropertyType"/>
                     <!-- whether displays the row or not -->
                     <xs:element name="rowFilter" type="Page:ExpressionPropertyType"/>
-                    <xs:element name="editableCell" type="xs:boolean" default="true"/>
                     <xs:element name="column" type="Page:UITableColumnType" maxOccurs="unbounded" minOccurs="0" />
                     <xs:element name="defaultActions" type="Page:UITableDefaultActionType" />
                     <xs:element name="actionGroup" type="Page:UITableActionGroupType" maxOccurs="unbounded" minOccurs="0" />
-                    <xs:element name="selectedRowAction" type="xs:string" />
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>
@@ -680,8 +747,10 @@ in simple component mapping, the paramName is required</xs:documentation>
         <xs:sequence>
             <xs:element name="title" type="Page:PropertyValueType"/>
             <xs:element name="beFieldId" type="xs:string"/>
+            <xs:element name="cssStype" type="xs:string"/>
             <xs:element name="uiType" type="Page:UITableColHTMLType"/>
             <!-- for dynamic combox values -->
+            <xs:element name="isVisible" type="Page:ExpressionPropertyType" minOccurs="0"/>
             <xs:element name="comboxExpression" type="Page:ExpressionPropertyType" minOccurs="0"/>
             <xs:element name="rowExpression" type="Page:ExpressionPropertyType" minOccurs="0"/>
             <xs:element name="updateCondition" type="Page:ExpressionPropertyType" minOccurs="0"/>
@@ -706,6 +775,10 @@ in simple component mapping, the paramName is required</xs:documentation>
 			            <xs:enumeration value="CheckBox"/>
 			            <xs:enumeration value="Date"/>
 			            <xs:enumeration value="DateRange"/>
+			            <xs:enumeration value="Image"/>
+                        <xs:enumeration value="HTML"/>
+                        <!-- support the showBigItem case -->
+                        <xs:enumeration value="HTMLItem"/>
 			        </xs:restriction>
 		        </xs:simpleType>
             </xs:element>
@@ -713,6 +786,15 @@ in simple component mapping, the paramName is required</xs:documentation>
 	        <xs:element name="endCondition" type="xs:string" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
+    <xs:complexType name="UITableStatsType">
+        <xs:sequence>
+            <xs:element name="chart" type="xs:string" maxOccurs="unbounded" minOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="tableName" type="xs:string"/>
+        <xs:attribute name="uiFrom" type="xs:string"/>
+        <xs:attribute name="uiid" type="xs:string"/>
+    </xs:complexType>
+    
 	<!-- charts -->
     <xs:complexType name="UIChartType">
         <xs:complexContent>
@@ -721,36 +803,43 @@ in simple component mapping, the paramName is required</xs:documentation>
                 	<xs:element name="beElement" type="xs:string" />
                 	<xs:element name="color" type="xs:string" default="rgba(151,187,205,0.2)"/>
                 	<xs:element name="strokeColor" type="xs:string" default="#fff"/>
+                	<xs:element name="query" type="Page:ExpressionPropertyType"/>
+                	<xs:element name="labels" type="Page:ExpressionPropertyType"/>
                 	<!-- reusing the table column definition -->
-                	<xs:element name="column" type="Page:UITableColumnType" maxOccurs="unbounded" minOccurs="1" />
+                	<xs:element name="dataset" type="Page:UITableColumnType" maxOccurs="unbounded" minOccurs="1" />
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:complexType name="UIBarChartType">
+    <xs:complexType name="UIChartBarType">
         <xs:complexContent>
             <xs:extension base="Page:UIChartType"/>
         </xs:complexContent>
     </xs:complexType>
-    <xs:complexType name="UIRadarChartType">
+    <xs:complexType name="UIChartDoughnutType">
+        <xs:complexContent>
+            <xs:extension base="Page:UIChartType"/>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="UIChartRadarType">
         <xs:complexContent>
             <xs:extension base="Page:UIChartType">
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:complexType name="UIPolarChartType">
+    <xs:complexType name="UIChartPolarPieType">
         <xs:complexContent>
             <xs:extension base="Page:UIChartType">
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:complexType name="UIPieChartType">
+    <xs:complexType name="UIChartPieType">
         <xs:complexContent>
             <xs:extension base="Page:UIChartType">
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:complexType name="UILinearChartType">
+    <xs:complexType name="UIChartLinearType">
         <xs:complexContent>
             <xs:extension base="Page:UIChartType">
             </xs:extension>
@@ -903,8 +992,7 @@ in simple component mapping, the paramName is required</xs:documentation>
     <xs:complexType abstract="true" name="PropertyValueType">
         <xs:attribute name="pre-init-code" type="xs:string" use="optional">
             <xs:annotation>
-                <xs:documentation>Use could add some java code let here
-				</xs:documentation>
+                <xs:documentation>Use could add some java code let here</xs:documentation>
             </xs:annotation>
         </xs:attribute>
         <xs:attribute name="post-init-code" type="xs:string" use="optional"/>

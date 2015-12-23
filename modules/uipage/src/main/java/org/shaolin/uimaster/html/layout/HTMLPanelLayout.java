@@ -25,6 +25,10 @@ public class HTMLPanelLayout extends HTMLComponentLayout
 
     private HTMLCellLayout layout = null;
     
+    /**
+     * @param UIID pay attention to this UIID which is pure id defined in the page/form component.
+     * @param entity
+     */
     public HTMLPanelLayout(String UIID, UIFormObject entity)
     {
         super(UIID, entity);
@@ -84,7 +88,12 @@ public class HTMLPanelLayout extends HTMLComponentLayout
         uiPanel.addEventListener(eventMap);
         uiPanel.setFrameInfo(context.getFrameInfo());
         if (uiPanel.hasDynamicUI()) {
-        	String filter = (String)tempMap.get("dynamicUIFilter");
+        	String filter = "";
+        	if (tempMap != null) {
+        		filter = (String)tempMap.get("dynamicUIFilter");
+        		if (filter == null)
+        			filter = "";
+        	}
         	List<HTMLDynamicUIItem> dynamicItems = ownerEntity.getDynamicItems(UIID, filter);
         	uiPanel.setDynamicItems(ee, dynamicItems);
         }

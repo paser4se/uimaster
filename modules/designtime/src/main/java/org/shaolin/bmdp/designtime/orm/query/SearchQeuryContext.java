@@ -24,6 +24,7 @@ import org.shaolin.bmdp.persistence.query.generator.SearchQueryParsingContext;
 import org.shaolin.bmdp.persistence.query.operator.LogicalOperator;
 import org.shaolin.bmdp.persistence.query.operator.Operator;
 import org.shaolin.bmdp.runtime.VariableUtil;
+import org.shaolin.bmdp.runtime.be.BEUtil;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.javacc.sql.SQLConstants;
 
@@ -55,8 +56,11 @@ public class SearchQeuryContext {
 	}
 	
 	public SearchQeuryContext(SearchQueryType definition) {
-		this.returnType = VariableUtil.getVariableClassName(definition.getSearchResult());
-		
+		if (definition.getSearchResult().getCategory() == VariableCategoryType.BUSINESS_ENTITY) {
+			this.returnType = BEUtil.getBEInterfaceClassName(definition.getSearchResult().getType().getEntityName());
+		} else {
+			this.returnType = VariableUtil.getVariableClassName(definition.getSearchResult());
+		}
 		VariableType searchResult = definition.getSearchResult();
 		totalParsingContext.setVariableClass(searchResult.getName(), 
 				VariableUtil.getVariableClass(searchResult));
@@ -79,7 +83,7 @@ public class SearchQeuryContext {
 		
 		StringBuffer headCriteria = new StringBuffer();
 		String criteriaName = info.tableAlias + "Criteria";
-		headCriteria.append("            Criteria ").append(criteriaName).append(" = this._createCriteria(session, ");
+		headCriteria.append("            Criteria ").append(criteriaName).append(" = this._createCriteria(");
 		headCriteria.append(info.pElementType.getName()).append(".class, \"").append(info.tableAlias).append("\");\n");
 		this.firstCriteria = headCriteria.toString();
 		

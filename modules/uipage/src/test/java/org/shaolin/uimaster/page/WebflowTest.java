@@ -1,6 +1,7 @@
 package org.shaolin.uimaster.page;
 
 import java.io.File;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,15 +26,16 @@ import org.shaolin.bmdp.datamodel.pagediagram.LogicNodeType;
 import org.shaolin.bmdp.datamodel.pagediagram.NextType;
 import org.shaolin.bmdp.datamodel.pagediagram.PageNodeType;
 import org.shaolin.bmdp.i18n.LocaleContext;
+import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.entity.EntityManager;
 import org.shaolin.bmdp.runtime.entity.EntityUtil;
+import org.shaolin.bmdp.runtime.internal.AppServiceManagerImpl;
 import org.shaolin.bmdp.runtime.spi.IEntityManager;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.exception.WebFlowException;
-import org.shaolin.uimaster.page.flow.WebflowConstants;
 import org.shaolin.uimaster.page.flow.nodes.UIPageNode;
 import org.shaolin.uimaster.page.flow.nodes.WebChunk;
 import org.shaolin.uimaster.test.be.ICustomer;
@@ -50,6 +52,8 @@ public class WebflowTest {
 		IEntityManager entityManager = IServerServiceManager.INSTANCE.getEntityManager();
 		((EntityManager)entityManager).init(new ArrayList(), filters);
 		WebConfig.setServletContextPath("E:/test/web/");
+		AppContext.register(new AppServiceManagerImpl("test", ODTest.class.getClassLoader()));
+		
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e1) {
@@ -60,6 +64,8 @@ public class WebflowTest {
 	@Test
 	public void testCreateWebflow() {
 		System.out.println("File.separator:" + File.separator);
+		System.out.println("Yes or No: " + (new Integer(1) instanceof Serializable));
+		
 	}
 	
 	@Test
@@ -235,18 +241,12 @@ public class WebflowTest {
 			
 			System.out.println("HTML Code: \n" + response.getHtmlCode());
 			
-			Assert.assertEquals(7, ((Map)AjaxActionHelper.getAjaxWidgetMap(
+			Assert.assertEquals(10, ((Map)AjaxActionHelper.getAjaxWidgetMap(
 					request.getSession()).get(AjaxContext.GLOBAL_PAGE)).size());
 			ICustomer customer = (ICustomer)pageNode.getWebFlowContext().
 					getEvaluationContextObject("$").getVariableValue("customer");
 			Assert.assertEquals(1234, customer.getId());
 			Assert.assertEquals("Shaolin", customer.getName());
-			
-			// UI to Data.
-			request.setAttribute(WebflowConstants.OUT_NAME, "out1");
-			pageNode.prepareOutputData(request, response);
-			chunk.getWebNodes().get(1).execute(request, response);
-			
 		} catch (ParsingException e) {
 			e.printStackTrace();
 			Assert.fail();

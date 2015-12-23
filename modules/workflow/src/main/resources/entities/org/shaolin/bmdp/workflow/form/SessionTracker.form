@@ -1,0 +1,246 @@
+<?xml version="1.0" ?>
+<ns2:UIEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns5="http://bmdp.shaolin.org/datamodel/PageDiagram" xmlns:ns4="http://bmdp.shaolin.org/datamodel/RDBDiagram" xmlns:ns3="http://bmdp.shaolin.org/datamodel/BEDiagram" xmlns:ns2="http://bmdp.shaolin.org/datamodel/Page" xmlns="http://bmdp.shaolin.org/datamodel/Common" xsi:schemaLocation="">
+  <entityName>org.shaolin.bmdp.workflow.form.SessionTracker</entityName>
+  <systemVersion>0</systemVersion>
+  <ns2:eventHandler functionName="Save">
+    <ns2:ops xsi:type="ns2:OpCallAjaxType" name="saveDetail-20150801-235410">
+      <ns2:exp>
+        <expressionString><![CDATA[
+        import java.util.HashMap;
+        import org.shaolin.uimaster.page.AjaxContext;
+        import org.shaolin.uimaster.page.ajax.*;
+        import org.shaolin.bmdp.workflow.be.TaskImpl;
+        import org.shaolin.bmdp.runtime.AppContext;
+        import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
+        { 
+            
+        }]]></expressionString>
+      </ns2:exp>
+    </ns2:ops>
+  </ns2:eventHandler>
+  <ns2:eventHandler functionName="Cancel">
+    <ns2:ops xsi:type="ns2:OpCallAjaxType" name="cancelDetail-20150801-235410">
+      <ns2:exp>
+        <expressionString><![CDATA[
+        import org.shaolin.uimaster.page.AjaxContext;
+        import org.shaolin.uimaster.page.ajax.*;
+        { 
+            RefForm form = (RefForm)@page.getElement(@page.getEntityUiid()); 
+            form.closeIfinWindows(true);
+            @page.removeForm(@page.getEntityUiid()); 
+        }]]></expressionString>
+      </ns2:exp>
+    </ns2:ops>
+  </ns2:eventHandler>
+  <ns2:body xsi:type="ns2:UIPanelType" UIID="Form">
+    <ns2:layout xsi:type="ns2:TableLayoutType">
+      <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+      <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+      <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
+    </ns2:layout>
+    <ns2:component xsi:type="ns2:UIPanelType" UIID="fieldPanel">
+      <ns2:layout xsi:type="ns2:TableLayoutType">
+        <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+        <ns2:columnWidthWeight>0.0</ns2:columnWidthWeight>
+      </ns2:layout>
+      <ns2:component xsi:type="ns2:UIHiddenType" UIID="sessionId">
+        <ns2:secure>
+          <ns2:value>true</ns2:value>
+        </ns2:secure>
+      </ns2:component>
+      <ns2:component xsi:type="ns2:UITableType" UIID="tasksTable">
+           <ns2:beElement>org.shaolin.bmdp.workflow.be.Task</ns2:beElement>
+           <ns2:selectMode xsi:type="ns2:UITableSelectModeType">Multiple</ns2:selectMode>
+           <ns2:defaultRowSize>100</ns2:defaultRowSize>
+           <ns2:showActionBar>false</ns2:showActionBar>
+           <ns2:showFilter>false</ns2:showFilter>
+           <ns2:initQuery xsi:type="ns2:ExpressionPropertyType">
+               <ns2:expression xsi:type="ns2:ExpressionType">
+                   <ns2:expressionString><![CDATA[
+                   import java.util.List;
+                   import org.shaolin.uimaster.page.ajax.TableConditions;
+                   import org.shaolin.bmdp.workflow.be.TaskImpl;
+                   import org.shaolin.bmdp.runtime.AppContext;
+                   import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
+                   {
+                         if ($tableCondition == null) {
+                            $tableCondition = TableConditions.createCondition(new TaskImpl());
+                         }
+                         ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class);
+                         return service.getTasksBySessionId($sessionId);
+                   }]]></ns2:expressionString>
+               </ns2:expression>
+           </ns2:initQuery>
+           <ns2:query xsi:type="ns2:ExpressionPropertyType">
+               <ns2:expression xsi:type="ns2:ExpressionType">
+                   <ns2:expressionString><![CDATA[
+                   import java.util.List;
+											        {
+											            return $table.getListData();
+											        }]]></ns2:expressionString>
+               </ns2:expression>
+           </ns2:query>
+           <ns2:totalCount xsi:type="ns2:ExpressionPropertyType">
+               <ns2:expression xsi:type="ns2:ExpressionType">
+                   <ns2:expressionString><![CDATA[
+                   import java.util.List;
+	                  import java.util.List;
+											        {
+											            return $table.getListData().size();
+											        }]]></ns2:expressionString>
+               </ns2:expression>
+           </ns2:totalCount>
+           <ns2:column xsi:type="ns2:UITableColumnType">
+               <ns2:title xsi:type="ns2:StringPropertyType">
+                   <ns2:value>Create Time</ns2:value>
+               </ns2:title>
+               <ns2:beFieldId>rowBE.createTime</ns2:beFieldId>
+               <ns2:uiType xsi:type="ns2:UITableColHTMLType">
+                 <ns2:type>Label</ns2:type>
+               </ns2:uiType>
+           </ns2:column>
+           <ns2:column xsi:type="ns2:UITableColumnType">
+               <ns2:title xsi:type="ns2:StringPropertyType">
+                   <ns2:value>Trigger Time</ns2:value>
+               </ns2:title>
+               <ns2:beFieldId>rowBE.expiredTime</ns2:beFieldId>
+               <ns2:uiType xsi:type="ns2:UITableColHTMLType">
+                 <ns2:type>Label</ns2:type>
+               </ns2:uiType>
+           </ns2:column>
+           <ns2:column xsi:type="ns2:UITableColumnType">
+               <ns2:title xsi:type="ns2:StringPropertyType">
+                   <ns2:value>Subject</ns2:value>
+               </ns2:title>
+               <ns2:beFieldId>rowBE.subject</ns2:beFieldId>
+               <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Text</ns2:type></ns2:uiType>
+           </ns2:column>
+           <ns2:column xsi:type="ns2:UITableColumnType">
+               <ns2:title xsi:type="ns2:StringPropertyType">
+                   <ns2:value>Description</ns2:value>
+               </ns2:title>
+               <ns2:beFieldId>rowBE.description</ns2:beFieldId>
+               <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Text</ns2:type></ns2:uiType>
+           </ns2:column>
+           <ns2:column xsi:type="ns2:UITableColumnType">
+               <ns2:title xsi:type="ns2:StringPropertyType">
+                   <ns2:value>Party</ns2:value>
+               </ns2:title>
+               <ns2:beFieldId>rowBE.partyId</ns2:beFieldId>
+               <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Label</ns2:type></ns2:uiType>
+               <ns2:rowExpression xsi:type="ns2:ExpressionPropertyType">
+                   <ns2:expression xsi:type="ns2:ExpressionType">
+                        <ns2:expressionString><![CDATA[
+                        import org.shaolin.bmdp.runtime.AppContext;
+                        import org.shaolin.bmdp.workflow.coordinator.IResourceManager;
+                        {
+                         IResourceManager service = (IResourceManager)AppContext.get().getService(IResourceManager.class);
+                         return service.getResource(rowBE.getPartyId());
+                        }]]></ns2:expressionString>
+                    </ns2:expression>
+                </ns2:rowExpression>
+           </ns2:column>
+           <ns2:column xsi:type="ns2:UITableColumnType">
+               <ns2:title xsi:type="ns2:StringPropertyType">
+                   <ns2:value>Party Type</ns2:value>
+               </ns2:title>
+               <ns2:beFieldId>rowBE.partyType</ns2:beFieldId>
+               <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Label</ns2:type></ns2:uiType>
+               <ns2:updateCondition xsi:type="ns2:ExpressionPropertyType">
+                   <ns2:expression xsi:type="ns2:ExpressionType">
+                       <ns2:expressionString><![CDATA[
+                       import org.shaolin.vogerp.commonmodel.ce.OrganizationType;
+                       import org.shaolin.bmdp.runtime.AppContext;
+                       import org.shaolin.bmdp.runtime.ce.IConstantEntity;
+                       {
+                       }]]></ns2:expressionString>
+                   </ns2:expression>
+               </ns2:updateCondition>
+               <ns2:rowExpression xsi:type="ns2:ExpressionPropertyType">
+                   <ns2:expression xsi:type="ns2:ExpressionType">
+                        <ns2:expressionString><![CDATA[
+                        import org.shaolin.bmdp.runtime.AppContext;
+                        {
+                         return org.shaolin.bmdp.runtime.ce.CEUtil.getValue($rowBE.getPartyType());
+                        }]]></ns2:expressionString>
+                    </ns2:expression>
+                </ns2:rowExpression>
+           </ns2:column>
+           <ns2:column xsi:type="ns2:UITableColumnType">
+               <ns2:title xsi:type="ns2:StringPropertyType">
+                   <ns2:value>Status</ns2:value>
+               </ns2:title>
+               <ns2:beFieldId>rowBE.status</ns2:beFieldId>
+               <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>ComBox</ns2:type></ns2:uiType>
+               <ns2:updateCondition xsi:type="ns2:ExpressionPropertyType">
+                   <ns2:expression xsi:type="ns2:ExpressionType">
+                       <ns2:expressionString><![CDATA[
+                       import org.shaolin.bmdp.workflow.ce.TaskStatusType;
+                       import org.shaolin.bmdp.runtime.AppContext;
+                       {
+                           $rowBE.setStatus((TaskStatusType)AppContext.get().getConstantService().getConstantEntity("org.shaolin.bmdp.workflow.ce.TaskStatusType").getByIntValue(Integer.valueOf($value).intValue()));
+                       }]]></ns2:expressionString>
+                   </ns2:expression>
+               </ns2:updateCondition>
+           </ns2:column>
+           <ns2:defaultActions>
+               <ns2:defaultNewAction>createTask</ns2:defaultNewAction>
+               <ns2:defaultOpenAction>openTask</ns2:defaultOpenAction>
+           </ns2:defaultActions>
+       </ns2:component>
+       <ns2:layoutConstraint>
+           <ns2:componentId>tasksTable</ns2:componentId>
+           <ns2:constraint xsi:type="ns2:TableLayoutConstraintType"
+               x="0" y="0" align="FULL"></ns2:constraint>
+       </ns2:layoutConstraint>
+    </ns2:component>
+    <ns2:component xsi:type="ns2:UIPanelType" UIID="actionPanel">
+      <ns2:layout xsi:type="ns2:TableLayoutType">
+        <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+        <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
+      </ns2:layout>
+      <ns2:component xsi:type="ns2:UIButtonType" UIID="cancelbtn">
+        <ns2:EventListener xsi:type="ns2:ClickListenerType">
+          <ns2:handler functionName="Cancel"></ns2:handler>
+        </ns2:EventListener>
+        <ns2:text xsi:type="ns2:ResourceBundlePropertyType">
+          <ns2:bundle>Common</ns2:bundle>
+          <ns2:key>DIALOG_BTN_CLOSE</ns2:key>
+        </ns2:text>
+      </ns2:component>
+      <ns2:layoutConstraint>
+        <ns2:componentId>cancelbtn</ns2:componentId>
+        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="0" align="FULL"></ns2:constraint>
+      </ns2:layoutConstraint>
+    </ns2:component>
+    <ns2:layoutConstraint>
+      <ns2:componentId>fieldPanel</ns2:componentId>
+      <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="0" align="FULL"></ns2:constraint>
+    </ns2:layoutConstraint>
+    <ns2:layoutConstraint>
+      <ns2:componentId>actionPanel</ns2:componentId>
+      <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="1" align="FULL"></ns2:constraint>
+    </ns2:layoutConstraint>
+  </ns2:body>
+  <ns2:mapping>
+    <systemVersion>0</systemVersion>
+    <ns2:DataEntity scope="InOut" name="sessionId" category="JavaPrimitive">
+      <type entityName="java.lang.String"></type>
+    </ns2:DataEntity>
+    <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping1">
+      <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UIText"></ns2:mappingRule>
+      <ns2:UIComponent componentPath="sessionId" paramName="UIWidgetType"></ns2:UIComponent>
+      <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="sessionId" paramName="StringData"></ns2:DataComponent>
+    </ns2:ComponentMapping>
+    <ns2:DataToUIMappingOperation>
+      <expressionString>{
+@odContext.executeAllMappings();
+}</expressionString>
+    </ns2:DataToUIMappingOperation>
+    <ns2:UIToDataMappingOperation>
+      <expressionString>{
+@odContext.executeAllMappings();
+}</expressionString>
+    </ns2:UIToDataMappingOperation>
+  </ns2:mapping>
+</ns2:UIEntity>

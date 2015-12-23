@@ -22,6 +22,20 @@ import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 public interface IConstantService {
 
 	/**
+	 * Reload a constant.
+	 * 
+	 * @param constant
+	 */
+	public void reloadData(IConstantEntity constant);
+	
+	/**
+	 * Reload the whole hierarchy.
+	 * 
+	 * @param hierarchy
+	 */
+	public void reloadHierarchy(List hierarchy);
+	
+	/**
 	 * Get a constant.
 	 * 
 	 * @param ceName
@@ -36,6 +50,44 @@ public interface IConstantService {
 	 * @return
 	 */
 	public boolean hasConstantEntity(String ceName);
+	
+	/**
+	 * Get an item by integer value from an CE.
+	 * 
+	 * @param ceName
+	 * @param intValue
+	 * @return
+	 */
+	public IConstantEntity getConstantItem(String ceName, int intValue);
+	
+	/**
+	 * Update an item.
+	 * 
+	 * @param item
+	 */
+	public void updateConstantItem(IConstantEntity item);
+	
+	/**
+	 * Add an item.
+	 * 
+	 * @param item
+	 */
+	public void addConstantItem(IConstantEntity item);
+	
+	/**
+	 * Add an item with a child.
+	 * 
+	 * @param item
+	 * @param child
+	 */
+	public void addConstantItem(IConstantEntity item, IConstantEntity child);
+	
+	/**
+	 * Remove an item.
+	 * 
+	 * @param item
+	 */
+	public void removeConstantItem(IConstantEntity item);
 	
 	/**
 	 * Query for all constants by condition.
@@ -55,4 +107,18 @@ public interface IConstantService {
 	 */
 	public int getServerConstantCount(IConstantEntity condition);
 	
+	/**
+	 * Hierarchy supported to add the child node.
+	 * 
+	 * @param ceName
+	 * @param intValue
+	 * @return
+	 */
+	public IConstantEntity getChildren(IConstantEntity item);
+	
+	public IConstantEntity getChildren(String ceName, int intValue);
+	
+	public interface HierarchyAccessor {
+		IConstantEntity getChild(List hierarchy, String ceName, int intValue);
+	}
 }

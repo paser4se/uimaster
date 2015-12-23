@@ -56,7 +56,11 @@ public class IfStatement extends Statement
         catch (EvaluationException e)
         {
             execResult.setResultCode(StatementConstants.exceptionEnding);
-            execResult.setCauseException(e.getCause());
+            if (e.getCause() != null) {
+            	execResult.setCauseException(e.getCause());
+            } else {
+            	execResult.setCauseException(e);
+            }
             return execResult;
         }
         if (((Boolean) result).booleanValue())

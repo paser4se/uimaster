@@ -1,21 +1,45 @@
+/*
+* Copyright 2015 The UIMaster Project
+*
+* The UIMaster Project licenses this file to you under the Apache License,
+* version 2.0 (the "License"); you may not use this file except in compliance
+* with the License. You may obtain a copy of the License at:
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations
+* under the License.
+*/
 package org.shaolin.bmdp.workflow.internal;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
+import org.shaolin.bmdp.datamodel.workflow.MissionNodeType;
 import org.shaolin.bmdp.datamodel.workflow.Workflow;
 import org.shaolin.bmdp.runtime.AppContext;
+import org.shaolin.bmdp.runtime.be.ITaskEntity;
 import org.shaolin.bmdp.runtime.cache.CacheManager;
 import org.shaolin.bmdp.runtime.cache.ICache;
+import org.shaolin.bmdp.workflow.be.ITask;
+import org.shaolin.bmdp.workflow.be.TaskImpl;
+import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
+import org.shaolin.bmdp.workflow.coordinator.ITaskListener;
+import org.shaolin.bmdp.workflow.dao.CoordinatorModel;
 import org.shaolin.bmdp.workflow.exception.ConfigException;
 import org.shaolin.bmdp.workflow.internal.cache.FlowObject;
 import org.shaolin.bmdp.workflow.internal.type.AppInfo;
+import org.shaolin.bmdp.workflow.internal.type.NodeInfo;
 import org.shaolin.bmdp.workflow.spi.LogicalTransactionService;
 import org.shaolin.bmdp.workflow.spi.TimeoutEvent;
 import org.slf4j.Logger;
@@ -27,49 +51,6 @@ import org.slf4j.LoggerFactory;
  */
 public class FlowContainer {
 	
-    private static final class TimeoutEventTask implements Runnable {
-        private final WorkFlowEventProcessor timeoutEventProcessor;
-        private final TimeoutEvent event;
-
-        private TimeoutEventTask(WorkFlowEventProcessor timeoutEventProcessor, TimeoutEvent event) {
-            this.timeoutEventProcessor = timeoutEventProcessor;
-            this.event = event;
-        }
-
-        @Override
-        public void run() {
-            timeoutEventProcessor.process(event);
-        }
-    }
-
-    public static final class TimerTask implements Runnable {
-        private final FlowEngine engine;
-        private FlowContextImpl flowContext;
-        private Future<?> future;
-
-        private TimerTask(FlowEngine engine, FlowContextImpl flowContext) {
-            this.engine = engine;
-            this.flowContext = flowContext;
-        }
-
-        @Override
-        public void run() {
-            FlowContextImpl _flowContext = flowContext;
-            if (_flowContext != null) {
-                engine.timeout(flowContext);
-            }
-        }
-
-        public void cancel() {
-            future.cancel(false);
-            flowContext = null;
-        }
-
-        public void setFuture(Future<?> future) {
-            this.future = future;
-        }
-    }
-
     private static final Logger logger = LoggerFactory.getLogger(FlowContainer.class);
 
     private ExecutorService executorService;
@@ -80,8 +61,6 @@ public class FlowContainer {
     // local variable
     private final ConcurrentMap<String, FlowEngine> allEngines = new ConcurrentHashMap<String, FlowEngine>();
 
-    private final FlowScheduler scheduler = new FlowScheduler();
-    
 	private ICache<String, FlowObject> appflowCache;
 
 	public FlowContainer(String appName) {
@@ -96,10 +75,28 @@ public class FlowContainer {
     public List<String> getActiveEngines() {
         return new ArrayList<String>(allEngines.keySet());
     }
+    
+    public FlowEngine getFlowEngine(String key) {
+        return allEngines.get(key);
+    }
 
+    void restartService(Workflow appInfo) {
+    	FlowObject flowInfo = new FlowObject(new AppInfo(appInfo));
+    	if (appInfo.getConf().isBootable() != null && appInfo.getConf().isBootable()) {
+    		WorkFlowEventProcessor processor = AppContext.get().getService(WorkFlowEventProcessor.class);
+    		
+    		logger.info("Recreate workflow engine: {}",  flowInfo.getAppInfo().getName());
+    		FlowEngine engine = initFlowEngine(flowInfo, false);
+    		logger.info("Start workflow engine: {}", engine.getEngineName());
+    		engine.start(processor.getConsumers());
+    		allEngines.put(engine.getEngineName(), engine);
+    	}
+    	appflowCache.put(appInfo.getEntityName(), flowInfo);
+    }
+    
     void startService(List<Workflow> appInfos) {
-        scheduler.start();
-        
+    	allEngines.clear();
+    	
         Map<String, FlowEngine> engineMap = new HashMap<String, FlowEngine>();
         List<FlowObject> activeFlows = new ArrayList<FlowObject>();
         for (Workflow flow : appInfos) {
@@ -107,7 +104,7 @@ public class FlowContainer {
         	// add to cache, but not initialized.
         	appflowCache.putIfAbsent(flow.getEntityName(), flowInfo);
             
-            if (flow.getConf().isBootable()) {
+            if (flow.getConf().isBootable() != null && flow.getConf().isBootable()) {
             	activeFlows.add(flowInfo);
             }
         }
@@ -122,7 +119,8 @@ public class FlowContainer {
     }
     
     void stopService() {
-        scheduler.stop();
+    	allEngines.clear();
+    	appflowCache.clear();
     }
 
     /**
@@ -135,7 +133,6 @@ public class FlowContainer {
         Map<String, EventConsumer> tempProcessors = new HashMap<String, EventConsumer>();
 
         // init all EventConsumers.
-        allEngines.clear();
         for (FlowEngine engine : engineMap.values()) {
             logger.info("Start workflow engine: {}", engine.getEngineName());
             engine.start(tempProcessors);
@@ -147,7 +144,7 @@ public class FlowContainer {
     }
 
     public void runTask(final WorkFlowEventProcessor timeoutEventProcessor, final TimeoutEvent event) {
-        executorService.submit(new TimeoutEventTask(timeoutEventProcessor, event));
+        //executorService.submit(new TimeoutEventTask(timeoutEventProcessor, event));
     }
 
     public void startTransaction() {
@@ -185,18 +182,56 @@ public class FlowContainer {
         transactionService.resume(obj);
     }
 
-    public void scheduleTask(long timeout, final FlowContextImpl flowContext,
-            FlowRuntimeContext runtimeContext, final FlowEngine engine) {
-        if (timeout <= 0) {
-            timeout = defaultWorkflowTimeout;
+    public ITask scheduleTask(Date timeout, final FlowRuntimeContext flowContext, final FlowEngine engine, 
+    		final NodeInfo currentNode, final MissionNodeType mission) throws Exception {
+    	if (logger.isTraceEnabled()) {
+            logger.trace("Schedule timer on {}, dealy time is {}", 
+            		currentNode.toString(), timeout.toString());
         }
-
-        TimerTask task = new TimerTask(engine, flowContext);
-        Future<?> future = scheduler.schedule(task, timeout);
-        task.setFuture(future);
-        runtimeContext.setTimeoutFuture(task);
+    	
+        //Notify the parties
+        ICoordinatorService coordinator = AppContext.get().getService(ICoordinatorService.class);
+        ITask task = new TaskImpl();
+        task.setSessionId(flowContext.getSession().getID());
+        task.setSubject("Task: " + mission.getName());
+        task.setDescription(mission.getDescription());
+        task.setPartyType(mission.getParticipant().getPartyType());
+        task.setExpiredTime(timeout);
+        task.setEnabled(true);
+        task.setListener(new MissionListener(task));
+        task.setCreateTime(new Date());
+        
+    	CoordinatorModel.INSTANCE.create(task);
+        
+    	List<ITaskEntity> taskEntities = flowContext.getAllNewTaskEntities();
+    	if (taskEntities != null) {
+    		for (ITaskEntity entity: taskEntities) {
+    			entity.setTaskId(task.getId());
+    			CoordinatorModel.INSTANCE.update(entity);
+    		}
+			flowContext.getAllNewTaskEntities().clear();
+    	}
+    	
+        List<ITaskEntity> taskRelatedEntities = new ArrayList<ITaskEntity>();
+        Collection<String> keys = flowContext.getEvent().getAttributeKeys();
+        for (String key: keys) {
+        	Object var = flowContext.getEvent().getAttribute(key);
+        	if (var instanceof ITaskEntity) {
+        		taskRelatedEntities.add((ITaskEntity)var);
+        		flowContext.getEvent().setAttribute(key, null);
+        	}
+        }
+        flowContext.setTaskId(task.getId());
+        task.setFlowState(FlowRuntimeContext.marshall(flowContext));
+        
+        coordinator.addTask(task);
+        
+        for (ITaskEntity entity: taskRelatedEntities) {
+    		entity.setTaskId(task.getId());
+        }
+        return task;
     }
-
+    
     /**
      * Create FlowEngines by all defined templates. Each flow template will have
      * a flow engine created if success.
@@ -211,6 +246,59 @@ public class FlowContainer {
         }
         engine.init(flowInfo);
         return engine;
+    }
+    
+    private static final class TimeoutEventTask implements Runnable {
+        private final WorkFlowEventProcessor timeoutEventProcessor;
+        private final TimeoutEvent event;
+
+        private TimeoutEventTask(WorkFlowEventProcessor timeoutEventProcessor, TimeoutEvent event) {
+            this.timeoutEventProcessor = timeoutEventProcessor;
+            this.event = event;
+        }
+
+        @Override
+        public void run() {
+            timeoutEventProcessor.process(event);
+        }
+    }
+
+    public static final class MissionListener implements ITaskListener {
+        private final ITask task;
+        public MissionListener(ITask task) {
+        	this.task = task;
+        }
+
+		@Override
+		public void notifyCompleted() {
+		}
+
+		@Override
+		public void notifyExpired() {
+			try {
+				FlowRuntimeContext flowContext = FlowRuntimeContext.unmarshall(task.getFlowState());
+				flowContext.getEngine().timeout(flowContext.getFlowContextInfo());
+			} catch (Exception e) {
+				logger.error("Continue processing task error: " + e.getMessage(), e);
+			}
+		}
+
+		@Override
+		public void notifyCancelled() {
+			try {
+				FlowRuntimeContext flowContext = FlowRuntimeContext.unmarshall(task.getFlowState());
+				flowContext.getFlowContextInfo().setWaitingNode(flowContext.getCurrentNode());
+				flowContext.getEvent().setFlowContext(flowContext.getFlowContextInfo());
+				flowContext.engine.destroySession(flowContext);
+			} catch (Exception e) {
+				logger.error("Continue processing task error: " + e.getMessage(), e);
+			}
+		}
+
+		@Override
+		public void notifyCreated() {
+			
+		}
     }
 
 }

@@ -22,15 +22,22 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
+import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.ajax.handlers.AjaxHandlerException;
+import org.shaolin.uimaster.page.ajax.handlers.ChartEventHandler;
 import org.shaolin.uimaster.page.ajax.handlers.CheckPropertyHandler;
 import org.shaolin.uimaster.page.ajax.handlers.EventHandler;
+import org.shaolin.uimaster.page.ajax.handlers.HTMLContentEventHandler;
 import org.shaolin.uimaster.page.ajax.handlers.IAjaxHandler;
+import org.shaolin.uimaster.page.ajax.handlers.PreNextPanelEventHandler;
 import org.shaolin.uimaster.page.ajax.handlers.PropertyChangeHandler;
 import org.shaolin.uimaster.page.ajax.handlers.TabPaneEventHandler;
 import org.shaolin.uimaster.page.ajax.handlers.TableEventHandler;
+import org.shaolin.uimaster.page.ajax.handlers.TreeEventHandler;
+import org.shaolin.uimaster.page.ajax.handlers.WebServiceHandler;
 import org.shaolin.uimaster.page.ajax.json.IRequestData;
 import org.shaolin.uimaster.page.ajax.json.JSONException;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
@@ -58,6 +65,16 @@ public class AjaxProcessor implements Serializable
     
     public static final String EVENT_TYPE_TABPANE_PROPERTY = "tabpane";
     
+    public static final String EVENT_TYPE_PRENEXTPANEL = "prenextpanel";
+    
+    public static final String EVENT_WEBSERVICE = "webservice";
+    
+    public static final String EVENT_TREE = "tree";
+    
+    public static final String EVENT_CHART = "chart";
+    
+    public static final String HTML_EDITOR_TREE = "htmleditor";
+    
     /**
      * current fired event type.
      */
@@ -84,23 +101,26 @@ public class AjaxProcessor implements Serializable
         	log.warn("The 'framePrefix' equals null, please noticed if the current uipage has one more frames!");
         }
         framePrefix = (framePrefix == null || framePrefix.equals("null")) ? "" : framePrefix;
-        String uiid = request.getParameter(AjaxContext.AJAX_UIID);
-        if (uiid == null || uiid.trim().length() == 0)
-        {
-            throw new AjaxInitializedException("The uiid can not be empty!");
-        }
-        requestData.setUiid(uiid);
+        if (EVENT_WEBSERVICE.equals(eventType)) {
+        } else {
+	        String uiid = request.getParameter(AjaxContext.AJAX_UIID);
+	        if (uiid == null || uiid.trim().length() == 0)
+	        {
+	            throw new AjaxInitializedException("The uiid can not be empty!");
+	        }
+	        requestData.setUiid(uiid);
 
-        String entityName = request.getParameter(AjaxContext.AJAX_ACTION_PAGE);
-        entityName = (entityName == null || entityName.equals("null")) ? "" : entityName;
-        String entityUiid = "";
-        int lastPosition = uiid.lastIndexOf(".");
-        if (lastPosition != -1)
-        {
-            entityUiid = uiid.substring(0, lastPosition);
+	        String entityName = request.getParameter(AjaxContext.AJAX_ACTION_PAGE);
+	        entityName = (entityName == null || entityName.equals("null")) ? "" : entityName;
+	        String entityUiid = "";
+	        int lastPosition = uiid.lastIndexOf(".");
+	        if (lastPosition != -1)
+	        {
+	            entityUiid = uiid.substring(0, lastPosition);
+	        }
+	        requestData.setEntityUiid(entityUiid);
+	        requestData.setEntityName(entityName);
         }
-        requestData.setEntityUiid(entityUiid);
-        requestData.setEntityName(entityName);
         requestData.setFrameId(framePrefix);
         return requestData;
     }
@@ -110,13 +130,18 @@ public class AjaxProcessor implements Serializable
     {
         HttpServletRequest request = htmlContext.getRequest();
         IRequestData requestData = getRequestData(request);
-        Map uiMap = AjaxActionHelper.getFrameMap(request);
         try
         {
             AjaxContext context;
             if (EVENT_TYPE_CHECK_PROPERTY.equals(eventType))
             {
+            	Map uiMap = AjaxActionHelper.getFrameMap(request);
                 context = new AjaxContext(uiMap, requestData);
+            } 
+            else if (EVENT_WEBSERVICE.equals(eventType))
+            {
+                context = new AjaxContext(new HashMap(), requestData);
+                context.initData();
             }
             else
             {
@@ -128,7 +153,7 @@ public class AjaxProcessor implements Serializable
                 {
                     htmlContext.setHTMLPrefix("");
                 }
-                
+                Map uiMap = AjaxActionHelper.getFrameMap(request);
                 Widget comp = (Widget)uiMap.get(requestData.getUiid());
                 if (comp == null)
                     throw new AjaxInitializedException("Can not find this component["
@@ -223,6 +248,8 @@ public class AjaxProcessor implements Serializable
      */
     public String execute() throws AjaxException
     {
+    	boolean errorFlag = false;
+    	Session session = HibernateUtil.getSession();
         try
         {
             IAjaxHandler handler = null;
@@ -238,11 +265,32 @@ public class AjaxProcessor implements Serializable
             {
                 handler = new EventHandler();
             }
-            else if (EVENT_TYPE_TABLE_PROPERTY.equals(eventType)) {
+            else if (EVENT_TYPE_TABLE_PROPERTY.equals(eventType)) 
+            {
             	handler = new TableEventHandler();
             }
-            else if (EVENT_TYPE_TABPANE_PROPERTY.equals(eventType)) {
+            else if (EVENT_TYPE_TABPANE_PROPERTY.equals(eventType)) 
+            {
             	handler = new TabPaneEventHandler();
+            }
+            else if (EVENT_TYPE_PRENEXTPANEL.equals(eventType)) 
+            {
+            	handler = new PreNextPanelEventHandler();
+            }
+            else if (EVENT_TREE.equals(eventType)) 
+            {
+            	handler = new TreeEventHandler();
+            } 
+            else if (EVENT_WEBSERVICE.equals(eventType)) 
+            {
+            	handler = new WebServiceHandler();
+            } 
+            else if (HTML_EDITOR_TREE.equals(eventType)) 
+            {
+            	handler = new HTMLContentEventHandler();
+            }
+            else if (EVENT_CHART.equals(eventType)) {
+            	handler = new ChartEventHandler();
             }
             
             if (handler == null)
@@ -253,7 +301,14 @@ public class AjaxProcessor implements Serializable
         }
         catch (AjaxHandlerException ex)
         {
+        	errorFlag = true;
             throw ex;
+        } finally {
+			if (errorFlag) {
+				HibernateUtil.releaseSession(session, false);
+			} else {
+				HibernateUtil.releaseSession(session, true);
+			}
         }
     }
 }

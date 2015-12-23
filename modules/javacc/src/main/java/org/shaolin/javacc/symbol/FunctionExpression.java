@@ -1,14 +1,3 @@
-/*
- * Copyright 2000-2003 by BraveMinds, Inc.,
- * All rights reserved.
- * 
- * This software is the confidential and proprietary information
- * of BraveMinds, Inc.("Confidential Information").  You
- * shall not disclose such Confidential Information and shall use
- * it only in accordance with the terms of the license agreement
- * you entered into with BraveMinds.
- */
- 
 //package
 package org.shaolin.javacc.symbol;
 
@@ -31,7 +20,6 @@ import org.shaolin.javacc.util.ExpressionUtil;
 /**
  * The class for function node
  *
- * @author Xiao Yi
  */
 
 public class FunctionExpression extends ExpressionNode
@@ -182,19 +170,22 @@ public class FunctionExpression extends ExpressionNode
     		{
     		    String parameterInfo = "arguments"+argObjectList.toString()+"";
     			String classInfo = (methodClassName == null?"":(methodClassName+"."))+funcName;
-    			EvaluationException evalEx = new EvaluationException(ExceptionConstants.EBOS_OOEE_080,new Object[]{classInfo,parameterInfo});
-    			throw new EvaluationException(ExceptionConstants.EBOS_000,evalEx);
+    			EvaluationException ee = new EvaluationException(ExceptionConstants.EBOS_OOEE_080,new Object[]{classInfo,parameterInfo});
+    			throw new EvaluationException(ee.getMessage(), ee);
     		}
     		catch(InvocationTargetException e)
             {
     		    String parameterInfo = "arguments"+argObjectList.toString()+"";
                 String classInfo = (methodClassName == null?"":(methodClassName+"."))+funcName;
-                EvaluationException evalEx = new EvaluationException(ExceptionConstants.EBOS_OOEE_081, e, new Object[]{classInfo,parameterInfo});
-                throw new EvaluationException(ExceptionConstants.EBOS_000, evalEx);
+                EvaluationException ee = new EvaluationException(ExceptionConstants.EBOS_OOEE_081, e, new Object[]{classInfo,parameterInfo});
+                throw new EvaluationException(ee.getMessage(), ee);
             }
-    		catch(Exception e)
+    		catch(Throwable e)
     		{
-    		    throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+    			String parameterInfo = "arguments"+argObjectList.toString()+"";
+                String classInfo = (methodClassName == null?"":(methodClassName+"."))+funcName;
+                EvaluationException ee = new EvaluationException(ExceptionConstants.EBOS_OOEE_081, e, new Object[]{classInfo,parameterInfo});
+                throw new EvaluationException(ee.getMessage(), ee);
     		}
     	}
     	

@@ -117,7 +117,7 @@ public class HTMLPanelType extends HTMLContainerType
     {
         try
         {
-        	if (this.hasDynamicUI()) {
+        	if (this.hasDynamicUI() && items != null) {
         		String jsonValue = (String)context.getODMapperData().get(DynamicUIComponentMapping.JSON_VALUE);
         		
         		int i = 0;

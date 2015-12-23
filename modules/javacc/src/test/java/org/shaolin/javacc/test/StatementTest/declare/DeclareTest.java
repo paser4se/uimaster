@@ -19,6 +19,8 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.shaolin.javacc.StatementParser;
+import org.shaolin.javacc.context.DefaultEvaluationContext;
+import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.javacc.statement.CompilationUnit;
 import org.shaolin.javacc.test.util.FileReaderUtil;
@@ -118,6 +120,20 @@ public class DeclareTest extends TestCase
         catch (ParsingException e)
         {
             assertTrue(true);
+        }
+    }
+    
+    public void testCase9()
+    {
+        try
+        {
+        	CompilationUnit uint = StatementParser.parse("{String a = null; a.replace('.', '_');}");
+        	uint.execute(new DefaultEvaluationContext());
+        	fail("no exception be thrown");
+        }
+        catch (ParsingException | EvaluationException e)
+        {
+        	assertTrue(true);
         }
     }
 

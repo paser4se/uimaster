@@ -138,9 +138,23 @@ public interface IJSHandlerCollections {
     public static final String TABLE_UPDATE = "table_update";
     
     /**
-     * html constraint updated.
      */
     public static final String TREE_REFRESH = "tree_refresh";
+    
+    /**
+     */
+    public static final String TREE_EXPAND = "tree_expand";
+    
+    /**
+     * 
+     */
+    public static final String CHART_ADDDATA = "chart_adddata";
+    
+    /**
+     * 
+     */
+    public static final String CHART_REMOVEDATA = "chart_removedata";
+    
     
     /**
      * java object result.

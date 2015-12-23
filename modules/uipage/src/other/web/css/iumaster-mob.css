@@ -88,7 +88,7 @@ label {
 }
 
 .uimaster_leftform_cell {
-    width:80px;
+    width:100px;
     min-width:80px;
 }
 
@@ -100,6 +100,73 @@ label {
 
 .uimaster_rightform_widget {
     width:200px;
+}
+
+.uimaster_button {
+ border: 1px solid #77d5f7;
+ background: #0078ae url("images/ui-bg_glass_45_0078ae_1x400.png") 50% 50% repeat-x;
+    font-weight: normal;
+    color: #ffffff;
+ border-bottom-right-radius: 5px;
+ border-bottom-left-radius: 5px;
+ border-top-right-radius: 5px;
+ border-top-left-radius: 5px;
+ display: inline-block;
+ padding: .5em .4em .5em .4em;
+ cursor: pointer;
+}
+
+.uimaster_button hover{
+ border: 1px solid #77d5f7;
+ background: #0078ae url("images/ui-bg_glass_45_0078ae_1x400.png") 50% 50% repeat-x;
+    font-weight: bold;
+    color: #ffffff;
+ border-bottom-right-radius: 5px;
+ border-bottom-left-radius: 5px;
+ border-top-right-radius: 5px;
+ border-top-left-radius: 5px;
+ display: inline-block;
+ padding: .5em .4em .5em .4em;
+ cursor: pointer;
+}
+
+.uimaster_matrix {
+
+}
+
+.uimaster_matrix_row dd {
+    float: left;
+    text-align: center;
+}
+
+.uimaster_matrix_col {
+ border: 1px solid #77d5f7;
+ border-bottom-right-radius: 5px;
+ border-bottom-left-radius: 5px;
+ border-top-right-radius: 5px;
+ border-top-left-radius: 5px;
+ display: inline-block;
+ padding: .5em .4em .5em .4em;
+ cursor: pointer;
+ margin-right: 5px;
+}
+
+.uimaster_workflow_action {
+ text-decoration: underline;
+}
+
+.uimaster_prenext_title {
+ margin-right:30px;
+}
+
+.uimaster_prenext_buttons {
+ padding-top: 8px;
+ margin-top: 8px;
+ border-top: 1px solid #a6c9e2;
+}
+
+.uimaster_prenext_buttons button{
+ margin-left: 8px;
 }
 
 .no_margin {
@@ -181,6 +248,38 @@ html {
     max-width:150px;
 	text-overflow:ellipsis;
 	overflow:hidden;
+}
+
+.uimaster-amount-btn {
+    float: right;
+	height: 35px;
+    line-height: 31px;
+    color: #878787;
+}
+.uimaster-amount-increase {
+	width: 16px;
+    height: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid #a7a6ab;
+    display: block;
+    font-family: tm-detail-font;
+    line-height: 12px;
+    font-size: 16px;
+	text-align: center;
+    margin-bottom: 3px;
+}
+.uimaster-amount-decrease {
+	width: 16px;
+    height: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid #a7a6ab;
+    display: block;
+    font-family: tm-detail-font;
+    line-height: 12px;
+    font-size: 16px;
+	text-align: center;
 }
 
 /**
@@ -345,7 +444,7 @@ html {
 .tab { width : 100%;}
 .tab-titles { width : 100%;  border-bottom: 0px;}
 .tab-titles div { display : block ; float : left ; padding : 8px; text-align : center ; cursor : pointer ; }
-.tab-bodies { width : 100% ; clear : both ; padding : 8px ; }
+.tab-bodies { margin-left: 5px; width : 100% ; clear : both ;}
 .tab-bodies .tab-unselected-body { display : none ; }
 .tab-bodies .tab-selected-body { display : block ; }
  
@@ -430,3 +529,4 @@ html {
 .progress-step-no {background: url(/images/controls/orderprogressbar.png) no-repeat 50% -102px;}
 .progress-step-time {}
 .progress-step-wraper {}
+.ui-dialog-titlebar button{ display:none; }

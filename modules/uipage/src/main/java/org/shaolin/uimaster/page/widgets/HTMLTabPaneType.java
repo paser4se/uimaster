@@ -19,11 +19,13 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.ResourceBundlePropertyType;
 import org.shaolin.bmdp.datamodel.page.StringPropertyType;
 import org.shaolin.bmdp.datamodel.page.TableLayoutConstraintType;
 import org.shaolin.bmdp.datamodel.page.UIReferenceEntityType;
 import org.shaolin.bmdp.datamodel.page.UITabPaneItemType;
+import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.i18n.ResourceUtil;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
@@ -84,7 +86,7 @@ public class HTMLTabPaneType extends HTMLContainerType
             }
             boolean ajaxLoad = (boolean)this.removeAttribute("ajaxLoad");
             if (ajaxLoad) {
-            	TabPane tabPane = ((TabPane)context.getAjaxWidgetMap().get(this.getId()));
+            	TabPane tabPane = ((TabPane)context.getAjaxWidgetMap().get(this.getName()));
             	tabPane.setPageWidgetContext(context.getPageWidgetContext());
             	tabPane.setOwnerEntity(ownerEntity);
             }
@@ -104,7 +106,7 @@ public class HTMLTabPaneType extends HTMLContainerType
                 	ResourceBundlePropertyType resourceBundle = ((ResourceBundlePropertyType)tab.getTitle());
                     String bundle = resourceBundle.getBundle();
                     String key = resourceBundle.getKey();
-                    title = ResourceUtil.getResource(bundle, key);
+                    title = ResourceUtil.getResource(LocaleContext.getUserLocale(), bundle, key);
                 } 
                 else if (tab.getTitle() instanceof StringPropertyType)
                 {
@@ -157,7 +159,7 @@ public class HTMLTabPaneType extends HTMLContainerType
 	                UITabPaneItemType tab = tabs.get(i);
 	                if (tab.getPanel() != null) {
 	                	//ui panel support
-	                	String UIID = this.getPrefix() + tab.getPanel().getUIID();
+	                	String UIID = tab.getPanel().getUIID();
 	                	HTMLPanelLayout panelLayout = new HTMLPanelLayout(UIID, ownerEntity);
 	                	TableLayoutConstraintType layoutConstraint = new TableLayoutConstraintType();
 	                	OOEEContext ooee = OOEEContextFactory.createOOEEContext();
@@ -277,11 +279,13 @@ public class HTMLTabPaneType extends HTMLContainerType
 //        		tempVars = new HashMap(vars);
 //        	}
 //        }
+    	ExpressionType selectedAction = (ExpressionType)this.removeAttribute("selectedAction");
     	List<UITabPaneItemType> tabs = (List<UITabPaneItemType>)this.getAttribute("tabPaneItems");
     	TabPane panel = new TabPane(getName(), tabs, selectedIndex, new CellLayout());
+    	panel.setAjaxLoad((boolean)this.getAttribute("ajaxLoad"));
+    	panel.setSelectedAction(selectedAction);
         panel.setReadOnly(getReadOnly());
         panel.setUIEntityName(getUIEntityName());
-        
         panel.setListened(true);
         panel.setFrameInfo(getFrameInfo());
         

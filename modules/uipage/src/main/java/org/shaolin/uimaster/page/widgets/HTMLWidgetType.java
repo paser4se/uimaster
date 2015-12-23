@@ -42,7 +42,7 @@ public abstract class HTMLWidgetType implements Serializable
     private static final long serialVersionUID = -6119707922874957783L;
     
     private String id;
-    private String prefix;
+    private String prefix = "";
     private String name;
     private String frameInfo;
     private Boolean readOnly;
@@ -72,7 +72,7 @@ public abstract class HTMLWidgetType implements Serializable
     public void reset()
     {
         this.id = null;
-        this.prefix = null;
+        this.prefix = "";
         this.name = null;
         this.readOnly = null;
         this.attributeMap = null;
@@ -478,8 +478,12 @@ public abstract class HTMLWidgetType implements Serializable
         }
 
         String functionName = "defaultname." + functionPrefix + handler;
-        String parameter = "defaultname." + getName() + ",event";
-        return "javascript:" + functionName + "(" + parameter + ")";
+        if (handler.indexOf('(') == -1) {  
+	        String parameter = "defaultname." + getName() + ",event";
+	        return "javascript:" + functionName + "(" + parameter + ")";
+        } else {
+        	return "javascript:" + functionName;
+        }
     }
 
     public String getEventListener(String name)
@@ -706,11 +710,11 @@ public abstract class HTMLWidgetType implements Serializable
 
     public void generateWidget(HTMLSnapshotContext context)
     {
-        String visibleValue = (String)getAllAttribute("visible");
+        Object visibleValue = getAllAttribute("visible");
         boolean unVisible = false;
         if ( visibleValue != null )
         {
-            unVisible = visibleValue.equals("false");
+            unVisible = visibleValue.toString().equals("false");
         }
         if ( unVisible )
         {

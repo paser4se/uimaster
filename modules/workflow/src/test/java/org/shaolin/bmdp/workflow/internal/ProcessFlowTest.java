@@ -5,33 +5,42 @@ import org.junit.Test;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.spi.FlowEvent;
 import org.shaolin.bmdp.runtime.test.TestContext;
+import org.shaolin.bmdp.workflow.be.ITask;
+import org.shaolin.bmdp.workflow.coordinator.IResourceManager;
 
 public class ProcessFlowTest extends TestContext {
 
-	private WorkflowLifecycleServiceImpl service = new WorkflowLifecycleServiceImpl();
+	private WorkflowLifecycleServiceImpl wfservice = new WorkflowLifecycleServiceImpl();
 	
-	private TestEventProducer producer = new TestEventProducer();
+	private IResourceManager resourceManager = new ResourceManagerImpl();
 	
-	private TestSessionService sessionService = new TestSessionService();
+	private CoordinatorServiceImpl coordinator = new CoordinatorServiceImpl();
+	
+	private MockEventProducer producer = new MockEventProducer();
 	
 	public ProcessFlowTest() {
 	}
 	
 	@Test
 	public void testExecuteFlow() throws Exception {
-		AppContext.get().register(sessionService);
-		service.startService();
+		AppContext.get().register(coordinator);
+		AppContext.get().register(resourceManager);
+		wfservice.startService();
+		coordinator.markAsTestCaseFlag();
+		coordinator.startService();
 		producer.setEventProcessor(AppContext.get().getService(WorkFlowEventProcessor.class));
 		
-		loopBackTest("NodeTest", 1000);
+		normalTest("NodeTest", "producer", 1000);
+		
+		missionTest("mission-flow", "producer1", 1000);
 		
 		Thread.sleep(1000);
-		service.stopService();
+		wfservice.stopService();
 	}
 	
-	private void loopBackTest(String nodeName, int waitSeconds) throws InterruptedException {
+	private void normalTest(String nodeName, String eventConsumer, int waitSeconds) throws InterruptedException {
         FlowEvent evt;
-        evt = new FlowEvent("producer");
+        evt = new FlowEvent(eventConsumer);
         evt.setAttribute("Request", nodeName);
         evt.setAttribute("NodeName", nodeName);
         producer.sendEvent(evt);
@@ -39,6 +48,43 @@ public class ProcessFlowTest extends TestContext {
         Assert.assertEquals(evt.getAttribute("Response"), nodeName);
     }
 	
+	private void missionTest(String nodeName, String eventConsumer, int waitSeconds) throws InterruptedException {
+        FlowEvent evt;
+        evt = new FlowEvent(eventConsumer);
+        evt.setAttribute("Request", nodeName);
+        evt.setAttribute("NodeName", nodeName);
+        evt.setAttribute("orderObject", "orderObject");
+        producer.sendEvent(evt);//place and order
+        Thread.sleep(waitSeconds);
+        
+        //auto approved order
+        
+        coordinator.completeTask(coordinator.getAllTasks().get(0));// on production
+        Thread.sleep(waitSeconds);
+        
+        coordinator.completeTask(coordinator.getAllTasks().get(0));// on delivery
+        Thread.sleep(waitSeconds);
+        
+        Assert.assertEquals(0, coordinator.getAllTasks().size());
+    }
 	
+	private class ResourceManagerImpl implements IResourceManager {
+
+		@Override
+		public Class getServiceInterface() {
+			return IResourceManager.class;
+		}
+
+		@Override
+		public void assignOnwer(ITask task) {
+			task.setPartyId(1);
+		}
+
+		@Override
+		public Object getResource(long partyId) {
+			return null;
+		}
+		
+	}
 
 }

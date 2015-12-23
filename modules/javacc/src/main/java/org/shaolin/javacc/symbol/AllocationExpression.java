@@ -1,14 +1,3 @@
-/*
- * Copyright 2000-2003 by BraveMinds, Inc.,
- * All rights reserved.
- * 
- * This software is the confidential and proprietary information
- * of BraveMinds, Inc.("Confidential Information").  You
- * shall not disclose such Confidential Information and shall use
- * it only in accordance with the terms of the license agreement
- * you entered into with BraveMinds.
- */
- 
 //package
 package org.shaolin.javacc.symbol;
 
@@ -28,8 +17,6 @@ import org.shaolin.javacc.util.ExpressionUtil;
 
 /**
  * The class for new allocation new expression node
- *
- * @author Xiao Yi
  */
 
 public class AllocationExpression extends ExpressionNode

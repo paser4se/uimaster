@@ -15,6 +15,8 @@
 */
 package org.shaolin.bmdp.runtime.spi;
 
+import java.util.List;
+
 /**
  * The application service made for a single application
  * 
@@ -51,6 +53,20 @@ public interface IAppServiceManager {
 	 * @return
 	 */
 	<T> T getService(Class<T> serviceClass);
+	
+	/**
+	 * Get the name of all life cycle service.
+	 * 
+	 * @return
+	 */
+	public List<String> getLifeCycleServiceList();
+	
+	/**
+	 * Reload a life cycle service.
+	 * 
+	 * @param serviceName
+	 */
+	public void reloadLifeCycleService(String serviceName);
 	
 	/**
 	 * Application owners' entity manager. this purposes on the application entity customization.

@@ -1,3 +1,18 @@
+/*
+* Copyright 2015 The UIMaster Project
+*
+* The UIMaster Project licenses this file to you under the Apache License,
+* version 2.0 (the "License"); you may not use this file except in compliance
+* with the License. You may obtain a copy of the License at:
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations
+* under the License.
+*/
 package org.shaolin.uimaster.page.od.rules;
 
 import java.util.HashMap;
@@ -17,6 +32,7 @@ public class UITable implements IODMappingConverter {
 	private HTMLTableType uiTable;
 	private String uiid;
 	private List<Object> selectedRows;
+	private List<Object> allRows;
 	
 	public static UITable createRule() {
 		return new UITable();
@@ -43,6 +59,7 @@ public class UITable implements IODMappingConverter {
 
 		dataClassInfo.put("ListData", List.class);
 		dataClassInfo.put("SelectedRows", List.class);
+		dataClassInfo.put("AllRows", List.class);
 		dataClassInfo.put("Condition", TableConditions.class);
 		
 		return dataClassInfo;
@@ -96,6 +113,8 @@ public class UITable implements IODMappingConverter {
 		try {
 			paramValue.put(UI_WIDGET_TYPE, this.uiTable);
 			paramValue.put("SelectedRows", this.selectedRows);
+			paramValue.put("AllRows", this.allRows);
+			
 		} catch (Throwable t) {
 			if (t instanceof UIConvertException) {
 				throw ((UIConvertException) t);
@@ -120,13 +139,14 @@ public class UITable implements IODMappingConverter {
 			Table textComp = (Table) AjaxActionHelper
 					.getCachedAjaxWidget(this.uiid, htmlContext);
 			this.selectedRows = textComp.getSelectedRows();
+			this.allRows = textComp.getListData();
 		} catch (Throwable t) {
 			if (t instanceof UIConvertException) {
 				throw ((UIConvertException) t);
 			}
 
 			throw new UIConvertException("EBOS_ODMAPPER_073", t,
-					new Object[] { getUIHTML().getUIID() });
+					new Object[] { this.uiid });
 		}
 	}
 

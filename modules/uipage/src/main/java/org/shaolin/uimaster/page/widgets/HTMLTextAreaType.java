@@ -15,8 +15,11 @@
 */
 package org.shaolin.uimaster.page.widgets;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
+import org.shaolin.bmdp.utils.FileUtil;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
@@ -76,6 +79,10 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
                 context.generateHTML(" cols=\"30\"");
             }
             generateEventListeners(context);
+            if (this.getAttribute("htmlSupport") != null && 
+            		"true".equals(this.getAttribute("htmlSupport").toString())) {
+            	context.generateHTML(" disabled=\"disabled\" style=\"display:none;\"");
+            }
             context.generateHTML(">");
             if (context.isValueMask())
             {
@@ -83,9 +90,48 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
             }
             else
             {
-                context.generateHTML(HTMLUtil.formatHtmlValue(getValue()));
+        		context.generateHTML(HTMLUtil.formatHtmlValue(getValue()));
             }
             context.generateHTML("</textarea>");
+            if (this.getAttribute("htmlSupport") != null && 
+            		"true".equals(this.getAttribute("htmlSupport").toString())) {
+            	if (this.getAttribute("viewMode") != null && 
+                		"true".equals(this.getAttribute("viewMode").toString())) {
+            		context.generateHTML("<iframe id=\"");
+        			context.generateHTML(getName());
+        			context.generateHTML("\" name=\"");
+        			context.generateHTML(getName());
+        			context.generateHTML("\" src=\"");
+        			context.generateHTML(WebConfig.getWebRoot());
+        			context.generateHTML("/");
+        			context.generateHTML(getValue());
+        			context.generateHTML("\" frameborder=\"0\" width=\"100%\" height=\"100%\" scrolling='yes'>");
+        			context.generateHTML("</iframe>");
+            	} else {
+	            	context.generateHTML("<div>");
+	            	HTMLUtil.generateTab(context, depth);
+	            	context.generateHTML("<textarea name=\"");
+	            	context.generateHTML(getName());
+	                context.generateHTML("_ckeditor\" style=\"display:none\">");
+	            	File file = new File(WebConfig.getResourcePath() + getValue());
+	        		if (file.exists() && file.isFile()) {
+	        			String content = FileUtil.readFile(new FileInputStream(file));
+	        			context.generateHTML(content);
+	        		}
+	        		context.generateHTML("</textarea>");
+	        		HTMLUtil.generateTab(context, depth);
+//	            	String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
+//		        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
+//		    	        	These files are configurable in runconfig.registry file of each module.
+//		    	        	Because JGallary has a bug on importing these files in multiple time.
+//		    	            Please refer to org_shaolin_vogerp_productmodel runconfig.registry.
+//		        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/ckeditor/ckeditor.js\"></script>");
+//		        	HTMLUtil.generateTab(context, depth);
+		        	HTMLUtil.generateTab(context, depth);
+		        	context.generateHTML("</div>");
+            	}
+            }
+            
             generateEndWidget(context);
         }
         catch (Exception e)
@@ -132,7 +178,15 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
         // we don't expect to anything except the pure value 
         // what we really need in the backend.
         textArea.setValue(getValue());
-
+        if (this.getAttribute("htmlSupport") != null && 
+        		"true".equals(this.getAttribute("htmlSupport").toString())) {
+        	textArea.setHtmlSupport(true);
+        	if (this.getAttribute("viewMode") != null && 
+            		"true".equals(this.getAttribute("viewMode").toString())) {
+        		textArea.setHtmlSupport(false);
+        	}
+        }
+        
         setAJAXConstraints(textArea);
         setAJAXAttributes(textArea);
         

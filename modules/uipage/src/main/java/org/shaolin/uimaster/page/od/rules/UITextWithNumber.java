@@ -1,3 +1,18 @@
+/*
+* Copyright 2015 The UIMaster Project
+*
+* The UIMaster Project licenses this file to you under the Apache License,
+* version 2.0 (the "License"); you may not use this file except in compliance
+* with the License. You may obtain a copy of the License at:
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations
+* under the License.
+*/
 package org.shaolin.uimaster.page.od.rules;
 
 import java.util.HashMap;
@@ -153,8 +168,12 @@ public class UITextWithNumber implements IODMappingConverter {
 				this.uiid = (String) paramValue.get(UI_WIDGET_ID);
 			}
 			if (paramValue.containsKey("Number")) {
-				this.number = ((Number) paramValue.get("Number"))
+				try {
+					this.number = ((Number) paramValue.get("Number"))
 						.longValue();
+				} catch (NullPointerException e) {
+					this.number = 0;
+				}
 			}
 			if (paramValue.containsKey("PropValues")) {
 				this.propValues = ((Map) paramValue.get("PropValues"));
@@ -257,7 +276,7 @@ public class UITextWithNumber implements IODMappingConverter {
 			}
 
 			throw new UIConvertException("EBOS_ODMAPPER_073", t,
-					new Object[] { getUIHTML().getUIID() });
+					new Object[] { this.uiid });
 		}
 	}
 

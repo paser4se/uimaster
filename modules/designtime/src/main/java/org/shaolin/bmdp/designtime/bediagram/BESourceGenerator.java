@@ -295,7 +295,7 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			out.write(" implements ");
 			out.print(interfaceJava);
 			out.write("\n{\n    private static final long serialVersionUID = 0x90B1123CE87B50FFL;");
-			out.write("\n\n    private final IConstantService ceService = AppContext.get().getConstantService();");
+			out.write("\n\n    private final transient IConstantService ceService = AppContext.get().getConstantService();");
 			out.write("\n\n    protected String getBusinessEntityName()\n    {\n        return \"");
 			out.print(businessEntity.getEntityName());
 			out.write("\";\n    }\n\n    public ");
@@ -369,6 +369,7 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 		out.write("import org.shaolin.bmdp.runtime.be.IExtensibleEntity;\n");
 		out.write("import org.shaolin.bmdp.runtime.be.IPersistentEntity;\n");
 		out.write("import org.shaolin.bmdp.runtime.be.IHistoryEntity;\n");
+		out.write("import org.shaolin.bmdp.runtime.be.ITaskEntity;\n");
 		out.write("import org.shaolin.bmdp.runtime.be.BEExtensionInfo;\n\n");
 		out.write("import org.shaolin.bmdp.runtime.spi.IConstantService;\n\n");
 		out.write("import org.shaolin.bmdp.runtime.AppContext;\n\n");
@@ -395,6 +396,9 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 		String parentInterface = null;
 		if (businessEntity.isNeedPersist()) {
 			parentInterface = "IPersistentEntity";
+			if (businessEntity.isNeedTask()) {
+				parentInterface = "ITaskEntity";
+			} 
 		} else if (businessEntity.isNeedHistory()) {
 			parentInterface = "IHistoryEntity";
 		} else {
@@ -548,6 +552,19 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			out.write("    private boolean get_enable() {\n");
 			out.write("        return _enable;\n");
 			out.write("    }\n        ");
+			if (beEntity.isNeedTask()) {
+				out.write("    /**\n");
+				out.write("     *  Get taskId\n");
+				out.write("     *\n");
+				out.write("     *  @return long\n");
+				out.write("     */\n");
+				out.write("    public long getTaskId() {\n");
+				out.write("        return _taskId;\n");
+				out.write("    }\n        ");
+				out.write("    private long get_taskId() {\n");
+				out.write("        return _taskId;\n");
+				out.write("    }\n        ");
+			}
 		}
 		
 		if (isSelfNeedHistory(beEntity)) {
@@ -685,6 +702,17 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			out.write("    private void set_enable(boolean enable) {\n");
 			out.write("        _enable = enable;\n");
 			out.write("    }\n\n    ");
+			if (beEntity.isNeedTask()) {
+				out.write("    /**\n");
+				out.write("     *  set taskId\n");
+				out.write("     */\n");
+				out.write("    public void setTaskId(long taskId) {\n");
+				out.write("        this._taskId = taskId;\n");
+				out.write("    }\n        ");
+				out.write("    private void set_taskId(long taskId) {\n");
+				out.write("        this._taskId = taskId;\n");
+				out.write("    }\n        ");
+			}
 		}
 			
 		if (isSelfNeedHistory(beEntity)) {
@@ -845,6 +873,12 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			out.write("     * Enable record\n");
 			out.write("     */\n");
 			out.write("    private boolean _enable = true;\n\n");
+			if (beEntity.isNeedTask()) {
+				out.write("    /**\n");
+				out.write("     * task id\n");
+				out.write("     */\n");
+				out.write("    private long _taskId;\n\n");
+			}
 		}
 
 		if (isSelfNeedHistory(beEntity)) {

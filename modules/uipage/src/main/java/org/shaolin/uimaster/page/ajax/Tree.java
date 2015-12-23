@@ -16,41 +16,52 @@
 package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.shaolin.bmdp.datamodel.common.ExpressionType;
+import org.shaolin.javacc.context.DefaultEvaluationContext;
+import org.shaolin.javacc.context.OOEEContext;
+import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.JSONArray;
-import org.shaolin.uimaster.page.ajax.json.JSONObject;
+import org.shaolin.uimaster.page.od.ODContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Shaolin Wu
  */
 public class Tree extends Widget implements Serializable {
 	private static final long serialVersionUID = -1744731434666233557L;
+	
+	private static final Logger logger = LoggerFactory.getLogger(Tree.class);
 
 	private final TreeConditions conditions = new TreeConditions();
 
-	private Map<String, Object> dataModel = new HashMap<String, Object>();
+	private transient Map<String, Object> dataModel = new HashMap<String, Object>();
 	
 	private String selectedParentNode;
 	
 	private String selectedNodeName;
 	
+	private transient final ExpressionType expandExpr;
+	
 	public Tree(String tableId, HttpServletRequest request) {
 		super(tableId, null);
+		this.expandExpr = null;
 	}
 
-	public Tree(String id, Layout layout) {
+	public Tree(String id, Layout layout, ExpressionType initExpr, ExpressionType expandExpr) {
 		super(id, layout);
 		this._setWidgetLabel(id);
+		this.expandExpr = expandExpr;
 	}
 
 	public void setDataModel(Map<String, Object> newModel) {
@@ -106,24 +117,58 @@ public class Tree extends Widget implements Serializable {
 	 * After when called addRow,removeRow,removeAll,updateRow, we have to call
 	 * this method refreshing data set.
 	 */
-	public void refresh(String item) {
-	}
+	public void refresh() {
+		try {
+			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+			evaContext.setVariableValue("treeCondition", conditions);
+			evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+			evaContext.setVariableValue("tree", this);
+			evaContext.setVariableValue("selectedNode", this.getSelectedItemId());
+			ooeeContext.setDefaultEvaluationContext(evaContext);
+			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+			List<TreeItem> result = (List<TreeItem>)expandExpr.evaluate(ooeeContext);
+			
+			JSONArray jsonArray = new JSONArray(result);
+			IDataItem dataItem = AjaxActionHelper.createDataItem();
+			dataItem.setUiid(this.getId());
+			dataItem.setJsHandler(IJSHandlerCollections.TREE_REFRESH);
+			dataItem.setData(jsonArray.toString());
+			dataItem.setFrameInfo(this.getFrameInfo());
 
-	private void refresh(ArrayList result) {
-		JSONArray array = new JSONArray();
-		for (Object object : result) {
-			array.put(new JSONObject(object));
+			AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+			ajaxContext.addDataItem(dataItem);
+		} catch (Exception e) {
+			logger.error("error occurrs while refreshing tree: " + this.getId(), e);
 		}
-
-		IDataItem dataItem = AjaxActionHelper.createDataItem();
-		dataItem.setUiid(this.getId());
-		dataItem.setJsHandler(IJSHandlerCollections.TREE_REFRESH);
-		dataItem.setData(array.toString());
-		dataItem.setFrameInfo(this.getFrameInfo());
-		dataItem.setParent(this.getSelectedItemId());
-
-		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
-		ajaxContext.addDataItem(dataItem);
+	}
+	
+	public String expand() {
+		if (expandExpr == null) {
+			return "";
+		}
+		if (this.getSelectedItemId() == null) {
+			logger.warn("The selected node must not be null form " + this.getId() + " tree.");
+			return "";
+		}
+		
+		try {
+			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+			evaContext.setVariableValue("treeCondition", conditions);
+			evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+			evaContext.setVariableValue("tree", this);
+			evaContext.setVariableValue("selectedNode", this.getSelectedItemId());
+			ooeeContext.setDefaultEvaluationContext(evaContext);
+			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+			List<TreeItem> result = (List<TreeItem>)expandExpr.evaluate(ooeeContext);
+			
+			JSONArray jsonArray = new JSONArray(result);
+			return jsonArray.toString();
+		} catch (Exception e) {
+			logger.error("error occurrs while expanding tree: " + this.getId(), e);
+		}
+		return "[]";
 	}
 
 }

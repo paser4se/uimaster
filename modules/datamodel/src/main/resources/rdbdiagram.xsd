@@ -53,6 +53,7 @@
 					<xs:element maxOccurs="1" minOccurs="0" name="inheritAsscociation" type="RDBDiagram:InheritAssociationType"/>
 					<xs:element maxOccurs="1" minOccurs="0" name="mapping" type="RDBDiagram:ClassMappingType"/>
 				</xs:sequence>
+			    <xs:attribute name="statistic" type="xs:boolean" use="optional" default="false"/>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
@@ -227,6 +228,7 @@
         </xs:sequence>
         <xs:attribute name="timeoutSeconds" type="xs:int" use="optional" default="0"/>
         <xs:attribute name="isDistinct" type="xs:boolean" use="optional" default="true"/>
+        <xs:attribute name="statistic" type="xs:boolean" use="optional" default="false" />
         <xs:attribute name="queryName" type="xs:string" use="required"/>
     </xs:complexType>
     <xs:complexType name="OrderingType">

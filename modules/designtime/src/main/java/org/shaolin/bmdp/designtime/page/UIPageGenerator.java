@@ -21,7 +21,6 @@ import org.shaolin.bmdp.datamodel.bediagram.FileType;
 import org.shaolin.bmdp.datamodel.bediagram.MemberType;
 import org.shaolin.bmdp.datamodel.common.DiagramType;
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
-import org.shaolin.bmdp.datamodel.common.NameExpressionType;
 import org.shaolin.bmdp.datamodel.common.ParamScopeType;
 import org.shaolin.bmdp.datamodel.common.ParamType;
 import org.shaolin.bmdp.datamodel.common.TargetEntityType;
@@ -38,7 +37,6 @@ import org.shaolin.bmdp.datamodel.page.FunctionType;
 import org.shaolin.bmdp.datamodel.page.ODMappingType;
 import org.shaolin.bmdp.datamodel.page.OpCallAjaxType;
 import org.shaolin.bmdp.datamodel.page.OpExecuteScriptType;
-import org.shaolin.bmdp.datamodel.page.OpInvokeWorkflowType;
 import org.shaolin.bmdp.datamodel.page.ResourceBundlePropertyType;
 import org.shaolin.bmdp.datamodel.page.SimpleComponentMappingType;
 import org.shaolin.bmdp.datamodel.page.StringPropertyType;
@@ -173,18 +171,9 @@ public final class UIPageGenerator implements IEntityEventListener<BusinessEntit
 								        "\n        import org.shaolin.uimaster.page.ajax.*;" +
 								        "\n        import " + beImpl + ";" +
 								        "\n        { " +
-								        "\n            "+beImplName+" defaultUser = new " + beImplName + "();" +
-								        "\n            HashMap input = new HashMap();" +
-								        "\n            input.put(\"beObject\", defaultUser);" +
-								        "\n            input.put(\"editable\", new Boolean(true));" +
 								        "\n            RefForm form = (RefForm)@page.getElement(@page.getEntityUiid()); " +
-								        "\n            form.ui2Data(input);\n" +
-								        "\n            defaultUser = (" + beImplName + ")input.get(\"beObject\");" +
-								        "\n            String v = @page.getHidden(\"idUI\").getValue();" +
-								        "\n            if (v != null && v.length() > 0) {" +
-								        "\n            	   Long objectId = Long.valueOf(v);" +
-								        "\n            	   defaultUser.setId(objectId.longValue());" +
-								        "\n            }" +
+								        "\n            HashMap out = (HashMap)form.ui2Data();\n" +
+								        "\n            "+beImplName+" defaultUser = (" + beImplName + ")out.get(\"beObject\");" +
 								        "\n            if (defaultUser.getId() == 0) {" +
 								        "\n                System.out.println(\"created object: \" + defaultUser);" +
 								        "\n            } else {" +
@@ -196,21 +185,6 @@ public final class UIPageGenerator implements IEntityEventListener<BusinessEntit
 			
 			ajaxCall.setExp(expr);
 			saveFunc.getOps().add(ajaxCall);
-			
-			OpInvokeWorkflowType invokeWorkflow = new OpInvokeWorkflowType();
-			invokeWorkflow.setEventProducer(uiform.getEntityName() + "Save");
-			ExpressionType exprn = new ExpressionType();
-			exprn.setExpressionString(  "\n        import java.util.HashMap;" + 
-										"\n        import org.shaolin.uimaster.page.AjaxContext;" +
-								        "\n        import org.shaolin.uimaster.page.ajax.*;" +
-								        "\n        import " + beImpl + ";" +
-								        "\n        { " +
-								        "\n        }");
-			invokeWorkflow.setCondition(exprn);
-			NameExpressionType ne = new NameExpressionType();
-			ne.setName("input1");
-			invokeWorkflow.getOutDataMappings().add(ne);
-			//saveFunc.getOps().add(invokeWorkflow);
 			
 			uiform.getEventHandlers().add(saveFunc);
 			
@@ -314,7 +288,10 @@ public final class UIPageGenerator implements IEntityEventListener<BusinessEntit
 			if (!event.getEntity().isNeedUITableEditor()) {
 				return;
 			}
-			
+			File tableFile = new File(formDir, name + "Table.form");
+			if (tableFile.exists()) {
+				return;
+			}
 			createTableEditorForm(formDir, members, formPackage, name, beImpl, beImplName, entityName);
 			
 		} catch (Exception e) {

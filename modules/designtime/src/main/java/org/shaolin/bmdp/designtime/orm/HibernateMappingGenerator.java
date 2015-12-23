@@ -11,6 +11,7 @@ import org.shaolin.bmdp.datamodel.bediagram.BEObjRefType;
 import org.shaolin.bmdp.datamodel.bediagram.BusinessEntityType;
 import org.shaolin.bmdp.datamodel.bediagram.CEObjRefType;
 import org.shaolin.bmdp.datamodel.bediagram.DateTimeType;
+import org.shaolin.bmdp.datamodel.bediagram.JavaObjRefType;
 import org.shaolin.bmdp.datamodel.bediagram.MemberType;
 import org.shaolin.bmdp.datamodel.bediagram.TimeType;
 import org.shaolin.bmdp.datamodel.common.DiagramType;
@@ -160,7 +161,7 @@ public class HibernateMappingGenerator implements IEntityEventListener<TableType
 						//cascade="all|none|save-update|delete|all-delete-orphan|(6)delete-orphan"
 					    //sort="unsorted|natural|comparatorClass"     
 						//TODO: cascading decision is difficult here.
-						out.write("\" cascade=\"all\" lazy=\"false\">\n");
+						out.write("\" cascade=\"all-delete-orphan\" lazy=\"true\" fetch=\"select\">\n");
 						out.write("        <key column=\"");
 						out.print(joinTable.getTarPKColumn());
 						out.write("\"/>\n");
@@ -176,7 +177,7 @@ public class HibernateMappingGenerator implements IEntityEventListener<TableType
 						out.print(listMapping.getBeFieldName());
 						out.write("\" table=\"");
 						out.print(joinTable.getName());
-						out.write("\" cascade=\"all\" lazy=\"false\">\n");
+						out.write("\" cascade=\"all-delete-orphan\" lazy=\"true\" fetch=\"select\">\n");
 						out.write("        <key column=\"");
 						out.print(joinTable.getTarPKColumn());
 						out.write("\"/>\n");
@@ -291,18 +292,28 @@ public class HibernateMappingGenerator implements IEntityEventListener<TableType
 		for (MemberType field: fields) {
 			if (field.getName().equals(beField)) {
 				if (field.getType() instanceof DateTimeType) {
-					out.write("\" type=\"date");;
+					out.write("\" type=\"timestamp");;
 				} else if (field.getType() instanceof TimeType) {
 					out.write("\" type=\"timestamp");
 				} else if (field.getType() instanceof CEObjRefType) {
 					out.write("\" type=\"integer");
-				} 
+				} else if (field.getType() instanceof JavaObjRefType) {
+					JavaObjRefType objRef = (JavaObjRefType)field.getType();
+					if ("byte[]".equals(objRef.getTargetJava().getName())) {
+						//http://redleaf.iteye.com/blog/100718
+						//hibernate with blob solution.
+						out.write("\" type=\"binary");
+					}
+				}
 				return;
 			}
 		}
 		// history attributes
 		if ("_version".equals(beField)) {
 			out.write("\" type=\"int");
+			return;
+		} else if ("_taskId".equals(beField)) {
+			out.write("\" type=\"long");
 			return;
 		} else if ("_starttime".equals(beField)) {
 			out.write("\" type=\"timestamp");

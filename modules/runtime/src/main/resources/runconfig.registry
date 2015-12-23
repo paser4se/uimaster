@@ -53,7 +53,7 @@
             	<item name="isLeft" value="false" />
             	<item name="constraintSymbol" value="/images/uimaster_constraint.gif" />
 	        </node>
-	        <node name="Chinese">
+	        <node name="zh_CN">
 	            <item name="locale" value="zh_CN" />
             	<item name="dateTimeFormat" value="yyyy-MM-dd/HH:mm:ss" />
             	<item name="dateFormat" value="yyyy-MM-dd" />

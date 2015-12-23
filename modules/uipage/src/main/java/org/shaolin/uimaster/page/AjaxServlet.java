@@ -95,8 +95,8 @@ public class AjaxServlet extends HttpServlet {
 		request.setCharacterEncoding(charset);
 
 		HttpSession httpSession = request.getSession(false);
-		if (httpSession == null
-				|| httpSession.getAttribute(AjaxContext.AJAX_COMP_MAP) == null) {
+		if (!AjaxProcessor.EVENT_WEBSERVICE.equals(request.getParameter(AjaxContext.AJAX_USER_EVENT)) && 
+				(httpSession == null || httpSession.getAttribute(AjaxContext.AJAX_COMP_MAP) == null)) {
 			PrintWriter out = response.getWriter();
 			IDataItem dataItem = AjaxActionHelper
 					.createSessionTimeOut(WebConfig.replaceWebContext(WebConfig.getTimeoutPage()));
@@ -113,6 +113,7 @@ public class AjaxServlet extends HttpServlet {
 		boolean isMobile = MobilitySupport.isMobileRequest(userAgent);
 		//add user-context thread bind
         UserContext.registerCurrentUserContext(currentUserContext, userLocale, userRoles, isMobile);
+        UserContext.setAppClient(request);
 		LocaleContext.createLocaleContext(userLocale);
 		
 		AppContext.register((IAppServiceManager)this.getServletContext().getAttribute(IAppServiceManager.class.getCanonicalName()));

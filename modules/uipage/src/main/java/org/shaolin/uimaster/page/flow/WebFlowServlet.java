@@ -15,16 +15,19 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.NDC;
+import org.hibernate.Session;
 import org.shaolin.bmdp.datamodel.pagediagram.NextType;
 import org.shaolin.bmdp.datamodel.pagediagram.OutType;
 import org.shaolin.bmdp.exceptions.BusinessOperationException;
 import org.shaolin.bmdp.i18n.LocaleContext;
+import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 import org.shaolin.bmdp.runtime.security.IPermissionService;
 import org.shaolin.bmdp.runtime.spi.IAppServiceManager;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
+import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.MobilitySupport;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.cache.UIFlowCacheManager;
@@ -50,6 +53,8 @@ public class WebFlowServlet extends HttpServlet
 
     private static Logger logger = LoggerFactory.getLogger(WebFlowServlet.class);
 
+    private boolean initialized = false;
+    
     /**
      * if this is a central node.
      */
@@ -153,6 +158,11 @@ public class WebFlowServlet extends HttpServlet
      * @exception ServletException if we cannot configure ourselves correctly
      */
     public void init() throws ServletException {
+    	if (this.initialized) {
+    		return;
+    	}
+    	this.initialized = true;
+    	
     	this.appName = this.getInitParameter("AppName");
     	// all the listeners must be added before
     	// starting the config server.
@@ -185,7 +195,7 @@ public class WebFlowServlet extends HttpServlet
         if (logger.isInfoEnabled()) {
             logger.info("destroying and Finalizing this controller servlet");
         }
-        
+        this.initialized = false;
         if (appInitializer != null) {
         	appInitializer.stop(this.getServletContext());
         }
@@ -352,6 +362,7 @@ public class WebFlowServlet extends HttpServlet
 				boolean isMobile = MobilitySupport.isMobileRequest(userAgent);
 				//add user-context thread bind
 	            UserContext.registerCurrentUserContext(currentUserContext, userLocale, userRoles, isMobile);
+	            UserContext.setAppClient(request);
 	            //add request thread bind
 	            HttpRequestEvaluationContext.registerCurrentRequest(request);
 	            //add app context thread bind
@@ -487,6 +498,19 @@ public class WebFlowServlet extends HttpServlet
 		        UserContext.unregisterCurrentUserContext();
 		        LocaleContext.clearLocaleContext();
 				return;
+			} 
+			try {
+				AjaxActionHelper.getAjaxWidgetMap(request.getSession(true));
+			} catch (NullPointerException e) {
+				logger.info("Session time out or submit duplication. forward to login page");
+				WebflowErrorUtil.addError(request, "submit.error",
+						new WebflowError(e.getMessage(), e));
+				WebNode srcNode = processSourceWebNode(request, attrAccessor);
+				ProcessHelper.processForwardError(srcNode, request, response);
+				
+		        UserContext.unregisterCurrentUserContext();
+		        LocaleContext.clearLocaleContext();
+				return;
 			}
 
             // Set the content type and no-caching headers if requested
@@ -514,6 +538,7 @@ public class WebFlowServlet extends HttpServlet
             	if (logger.isInfoEnabled()) {
 					logger.info("source node " + srcNode.toString());
 				}
+            	Session session = HibernateUtil.getSession();
                 try
                 {
                 	//validate and convert the output data of DisplayNode srcNode
@@ -521,6 +546,7 @@ public class WebFlowServlet extends HttpServlet
                 }
                 catch (Throwable ex)
                 {
+                	HibernateUtil.releaseSession(session, false);
                     if (ex instanceof ParsingException)
                     {
                         logger.error("ParsingException when  prepare OutputData for node "
@@ -554,7 +580,9 @@ public class WebFlowServlet extends HttpServlet
                         ProcessHelper.processForwardError(srcNode, request, response);
                     }
                     return;
-                }
+                } finally {
+					HibernateUtil.releaseSession(session, true);
+		        }
                 destNode = processDestWebNode(srcNode, request, attrAccessor);
             } 
             else
@@ -578,6 +606,7 @@ public class WebFlowServlet extends HttpServlet
                 logger.info("destination node " + destNode.toString());
             }
             
+            Session session = HibernateUtil.getSession();
             try
             {
                 while(destNode != null)
@@ -595,6 +624,7 @@ public class WebFlowServlet extends HttpServlet
             }
             catch (Throwable ex)
             {
+            	HibernateUtil.releaseSession(session, false);
                 if(ex instanceof NoWebflowAPException)
                 {
                     String key = destNode.getChunk().getEntityName() + ".access.error";
@@ -662,7 +692,9 @@ public class WebFlowServlet extends HttpServlet
         
                     rollbackTransaction(request, destNode);
                 }
-            }
+            }  finally {
+				HibernateUtil.releaseSession(session, true);
+	        }
         }
         finally
         {

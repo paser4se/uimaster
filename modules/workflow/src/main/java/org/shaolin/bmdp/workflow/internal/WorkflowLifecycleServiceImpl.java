@@ -1,3 +1,18 @@
+/*
+* Copyright 2015 The UIMaster Project
+*
+* The UIMaster Project licenses this file to you under the Apache License,
+* version 2.0 (the "License"); you may not use this file except in compliance
+* with the License. You may obtain a copy of the License at:
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations
+* under the License.
+*/
 package org.shaolin.bmdp.workflow.internal;
 
 import java.io.StringReader;
@@ -18,6 +33,7 @@ import org.shaolin.bmdp.runtime.spi.IEntityManager;
 import org.shaolin.bmdp.runtime.spi.ILifeCycleProvider;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.shaolin.bmdp.workflow.be.FlowEntityImpl;
+import org.shaolin.bmdp.workflow.be.IFlowEntity;
 import org.shaolin.bmdp.workflow.dao.WorkflowModel;
 import org.shaolin.bmdp.workflow.internal.cache.FlowObject;
 import org.shaolin.bmdp.workflow.spi.IWorkflowService;
@@ -30,21 +46,6 @@ public class WorkflowLifecycleServiceImpl implements ILifeCycleProvider, IServic
 	
 	private final FlowContainer flowContainer;
 
-	public class WorkflowService implements IServiceProvider {
-
-		WorkflowLifecycleServiceImpl impl;
-		
-		public WorkflowService(WorkflowLifecycleServiceImpl impl) {
-			this.impl = impl;
-		}
-		
-		@Override
-		public Class getServiceInterface() {
-			return null;
-		}
-		
-	}
-
 	public WorkflowLifecycleServiceImpl() {
 		this.flowContainer = new FlowContainer(AppContext.get().getAppName());
 	}
@@ -54,8 +55,8 @@ public class WorkflowLifecycleServiceImpl implements ILifeCycleProvider, IServic
 		IEntityManager entityManager = AppContext.get().getEntityManager();
 
 		FlowEntityImpl searchCriteria = new FlowEntityImpl();
-		List<FlowEntityImpl> allFlowEntities = WorkflowModel.INSTANCE.searchFlowEntities(searchCriteria, null, 0, 1);
-		for (FlowEntityImpl wf : allFlowEntities) {
+		List<IFlowEntity> allFlowEntities = WorkflowModel.INSTANCE.searchFlowEntities(searchCriteria, null, 0, -1);
+		for (IFlowEntity wf : allFlowEntities) {
 			try {
 				Workflow workflow = EntityUtil.unmarshaller(Workflow.class, new StringReader(wf.getContent()));
 				// add the customized workflow to current application entity manager.
@@ -112,17 +113,23 @@ public class WorkflowLifecycleServiceImpl implements ILifeCycleProvider, IServic
 
 	@Override
 	public void stopService() {
-		
+		this.flowContainer.stopService();
 	}
 
 	@Override
 	public int getRunLevel() {
-		return 10;
+		return 20;
 	}
 	
+	@Override
 	public Workflow getWorkflowEntity(String name) {
 		IEntityManager entityManager = AppContext.get().getEntityManager();
 		return entityManager.getEntity(name, Workflow.class);
+	}
+	
+	@Override
+	public void refreshWorkflow(String name) {
+		flowContainer.restartService(getWorkflowEntity(name));
 	}
 	
 	/**
@@ -141,6 +148,10 @@ public class WorkflowLifecycleServiceImpl implements ILifeCycleProvider, IServic
 		return IWorkflowService.class;
 	}
 
+	FlowContainer getFlowContainer() {
+        return flowContainer;
+    }
+	
 	@Override
 	public FlowObject getFlowObject(String flowName) {
 		return flowContainer.getFlowObject(flowName);

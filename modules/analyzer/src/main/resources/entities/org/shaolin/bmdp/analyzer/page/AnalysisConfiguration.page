@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:UIPage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ns2="http://bmdp.shaolin.org/datamodel/Page" xmlns="http://bmdp.shaolin.org/datamodel/Common"
+	xsi:schemaLocation="">
+	<entityName>org.shaolin.bmdp.analyzer.page.AnalysisConfiguration</entityName>
+	<systemVersion>0</systemVersion>
+	<description>数据源配制</description>
+	<ns2:UIEntity xsi:type="ns2:UIEntityType">
+		<ns2:eventHandler functionName="createDBInfo">
+		   <ns2:ops xsi:type="ns2:OpCallAjaxType" name="createDBInfo-201512052231">
+                <ns2:exp>
+                    <ns2:expressionString><![CDATA[
+                    import java.util.HashMap;
+                    import org.shaolin.uimaster.page.AjaxContext;
+                    import org.shaolin.uimaster.page.AjaxActionHelper;
+                    import org.shaolin.uimaster.page.ajax.*;
+                    import org.shaolin.bmdp.analyzer.be.ClientDBInfoImpl;
+                    {
+                        ClientDBInfoImpl defaultUser = new ClientDBInfoImpl();
+                        
+                        HashMap input = new HashMap();
+                        input.put("beObject", defaultUser);
+                        input.put("editable", new Boolean(true));
+                        RefForm form = new RefForm("userForm", "org.shaolin.bmdp.analyzer.form.ClientDBInfo", input);
+                        @page.addElement(form);
+                        
+                        form.openInWindows("Add Client DB Info", new TableCallBack("dbInfoTable"));
+                    }
+                    ]]></ns2:expressionString>
+                </ns2:exp>
+            </ns2:ops>
+		</ns2:eventHandler>
+		<ns2:eventHandler functionName="openDBInfo">
+		    <ns2:ops xsi:type="ns2:OpCallAjaxType" name="openDBInfo-201512052231">
+                <ns2:exp>
+                    <ns2:expressionString><![CDATA[
+                    import java.util.HashMap;
+                    import org.shaolin.uimaster.page.AjaxContext;
+                    import org.shaolin.uimaster.page.ajax.*;
+                    import org.shaolin.bmdp.analyzer.be.ClientDBInfoImpl;
+                    {
+                        Table personalInfoTable = (Table)@page.getElement("dbInfoTable");
+                        if (personalInfoTable.getSelectedRow() == null) {
+                            return;
+                        }
+                        ClientDBInfoImpl defaultUser = (ClientDBInfoImpl)personalInfoTable.getSelectedRow();
+                        
+                        HashMap input = new HashMap();
+                        input.put("beObject", defaultUser);
+                        input.put("editable", new Boolean(true));
+                        RefForm form = new RefForm("userForm", "org.shaolin.bmdp.analyzer.form.ClientDBInfo", input);
+                        @page.addElement(form);
+                        
+                        form.openInWindows("Modify Client DB Info", new TableCallBack("dbInfoTable"));
+                    }
+                    ]]></ns2:expressionString>
+                </ns2:exp>
+            </ns2:ops>
+		</ns2:eventHandler>
+		<ns2:eventHandler functionName="createJobInfo">
+           <ns2:ops xsi:type="ns2:OpCallAjaxType" name="createJobInfo-201512052231">
+                <ns2:exp>
+                    <ns2:expressionString><![CDATA[
+                    import java.util.HashMap;
+                    import org.shaolin.uimaster.page.AjaxContext;
+                    import org.shaolin.uimaster.page.AjaxActionHelper;
+                    import org.shaolin.uimaster.page.ajax.*;
+                    import org.shaolin.bmdp.analyzer.be.JobImpl;
+                    {
+                        JobImpl defaultUser = new JobImpl();
+                        
+                        HashMap input = new HashMap();
+                        input.put("beObject", defaultUser);
+                        input.put("editable", new Boolean(true));
+                        RefForm form = new RefForm("userForm", "org.shaolin.bmdp.analyzer.form.Job", input);
+                        @page.addElement(form);
+                        
+                        form.openInWindows("Add Client DB Info", new TableCallBack("jobInfoTable"));
+                    }
+                    ]]></ns2:expressionString>
+                </ns2:exp>
+            </ns2:ops>
+        </ns2:eventHandler>
+        <ns2:eventHandler functionName="openJobInfo">
+            <ns2:ops xsi:type="ns2:OpCallAjaxType" name="openJobInfo-201512052231">
+                <ns2:exp>
+                    <ns2:expressionString><![CDATA[
+                    import java.util.HashMap;
+                    import org.shaolin.uimaster.page.AjaxContext;
+                    import org.shaolin.uimaster.page.ajax.*;
+                    import org.shaolin.bmdp.analyzer.be.JobImpl;
+                    {
+                        Table personalInfoTable = (Table)@page.getElement("jobInfoTable");
+                        if (personalInfoTable.getSelectedRow() == null) {
+                            return;
+                        }
+                        JobImpl defaultUser = (JobImpl)personalInfoTable.getSelectedRow();
+                        
+                        HashMap input = new HashMap();
+                        input.put("beObject", defaultUser);
+                        input.put("editable", new Boolean(true));
+                        RefForm form = new RefForm("userForm", "org.shaolin.bmdp.analyzer.form.Job", input);
+                        @page.addElement(form);
+                        
+                        form.openInWindows("Modify Client DB Info", new TableCallBack("jobInfoTable"));
+                    }
+                    ]]></ns2:expressionString>
+                </ns2:exp>
+            </ns2:ops>
+        </ns2:eventHandler>
+        <ns2:eventHandler functionName="createStatsInfo">
+           <ns2:ops xsi:type="ns2:OpCallAjaxType" name="createStatsInfo-201512052231">
+                <ns2:exp>
+                    <ns2:expressionString><![CDATA[
+                    import java.util.HashMap;
+                    import org.shaolin.uimaster.page.AjaxContext;
+                    import org.shaolin.uimaster.page.AjaxActionHelper;
+                    import org.shaolin.uimaster.page.ajax.*;
+                    import org.shaolin.bmdp.analyzer.be.ChartStatisticImpl;
+                    {
+                        ChartStatisticImpl defaultUser = new ChartStatisticImpl();
+                        
+                        HashMap input = new HashMap();
+                        input.put("beObject", defaultUser);
+                        input.put("editable", new Boolean(true));
+                        RefForm form = new RefForm("userForm", "org.shaolin.bmdp.analyzer.form.ChartStatistic", input);
+                        @page.addElement(form);
+                        
+                        form.openInWindows("Add Statistic Chart", new TableCallBack("chartStatsTable"));
+                    }
+                    ]]></ns2:expressionString>
+                </ns2:exp>
+            </ns2:ops>
+        </ns2:eventHandler>
+        <ns2:eventHandler functionName="openStatsInfo">
+            <ns2:ops xsi:type="ns2:OpCallAjaxType" name="openStatsInfo-201512052231">
+                <ns2:exp>
+                    <ns2:expressionString><![CDATA[
+                    import java.util.HashMap;
+                    import org.shaolin.uimaster.page.AjaxContext;
+                    import org.shaolin.uimaster.page.ajax.*;
+                    import org.shaolin.bmdp.analyzer.be.ChartStatisticImpl;
+                    {
+                        Table personalInfoTable = (Table)@page.getElement("chartStatsTable");
+                        if (personalInfoTable.getSelectedRow() == null) {
+                            return;
+                        }
+                        ChartStatisticImpl defaultUser = (ChartStatisticImpl)personalInfoTable.getSelectedRow();
+                        
+                        HashMap input = new HashMap();
+                        input.put("beObject", defaultUser);
+                        input.put("editable", new Boolean(true));
+                        RefForm form = new RefForm("userForm", "org.shaolin.bmdp.analyzer.form.ChartStatistic", input);
+                        @page.addElement(form);
+                        
+                        form.openInWindows("Modify Statistic Chart", new TableCallBack("chartStatsTable"));
+                    }
+                    ]]></ns2:expressionString>
+                </ns2:exp>
+            </ns2:ops>
+        </ns2:eventHandler>
+		<ns2:body UIID="Form" xsi:type="ns2:UIPanelType">
+		    <ns2:UISkin xsi:type="ns2:UISkinType">
+                <ns2:skinName>org.shaolin.uimaster.page.skin.TitlePanel</ns2:skinName>
+                <ns2:param name="text">
+                    <ns2:value xsi:type="ns2:StringPropertyType">
+                        <ns2:value></ns2:value>
+                    </ns2:value>
+                </ns2:param>
+            </ns2:UISkin>
+			<ns2:layout xsi:type="ns2:TableLayoutType">
+				<ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+				<ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
+			</ns2:layout>
+			<ns2:component xsi:type="ns2:UITabPaneType" UIID="functionsTab">
+			    <ns2:ajaxLoad>true</ns2:ajaxLoad>
+                <ns2:tab uiid="dbInfoPanel">
+                    <ns2:title xsi:type="ns2:ResourceBundlePropertyType">
+                        <ns2:bundle>org_shaolin_bmdp_analyzer_i18n</ns2:bundle>
+                        <ns2:key>org.shaolin.bmdp.analyzer.page.AnalysisConfiguration.dbInfoPanel</ns2:key>
+                    </ns2:title>
+                    <ns2:panel UIID="dbInfoPanel">
+		                <ns2:layout xsi:type="ns2:TableLayoutType">
+		                    <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+		                    <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
+		                </ns2:layout>
+		                <ns2:component xsi:type="ns2:UITableType" UIID="dbInfoTable">
+		                    <ns2:beElement>org.shaolin.bmdp.analyzer.be.ClientDBInfo</ns2:beElement>
+		                    <ns2:selectMode xsi:type="ns2:UITableSelectModeType">Single</ns2:selectMode>
+		                    <ns2:defaultRowSize>10</ns2:defaultRowSize>
+		                    <ns2:showActionBar>true</ns2:showActionBar>
+		                    <ns2:showFilter>true</ns2:showFilter>
+		                    <ns2:query xsi:type="ns2:ExpressionPropertyType">
+		                        <ns2:expression xsi:type="ns2:ExpressionType">
+		                            <ns2:expressionString><![CDATA[
+		                            import java.util.List;
+		                            import org.shaolin.uimaster.page.ajax.TableConditions;
+		                            import org.shaolin.bmdp.analyzer.be.ClientDBInfoImpl;
+                                    import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
+		                            {
+		                                  if ($tableCondition == null) {
+		                                     $tableCondition = TableConditions.createCondition(new ClientDBInfoImpl());
+		                                  }
+		                                  ClientDBInfoImpl condition = (ClientDBInfoImpl)$tableCondition.getCondition();
+		                                  return AanlysisModel.INSTANCE.searchClientDBInfo(condition,
+		                                                $tableCondition.getOrders(),
+		                                                $tableCondition.getOffset(), 
+		                                                $tableCondition.getCount());
+		                            }]]></ns2:expressionString>
+		                        </ns2:expression>
+		                    </ns2:query>
+		                    <ns2:totalCount xsi:type="ns2:ExpressionPropertyType">
+		                        <ns2:expression xsi:type="ns2:ExpressionType">
+		                            <ns2:expressionString><![CDATA[
+		                            import org.shaolin.uimaster.page.ajax.TableConditions;
+		                            import org.shaolin.bmdp.analyzer.be.ClientDBInfoImpl;
+                                    import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
+		                            {
+		                                 if ($tableCondition == null) {
+		                                    $tableCondition = TableConditions.createCondition(new ClientDBInfoImpl());
+		                                 }
+		                                 ClientDBInfoImpl condition = (ClientDBInfoImpl)$tableCondition.getCondition();
+		                                 return AanlysisModel.INSTANCE.searchClientDBInfoCount(condition);
+		                            }]]></ns2:expressionString>
+		                        </ns2:expression>
+		                    </ns2:totalCount>
+		                    <ns2:column xsi:type="ns2:UITableColumnType">
+		                        <ns2:title xsi:type="ns2:StringPropertyType">
+		                            <ns2:value>JDBC Class</ns2:value>
+		                        </ns2:title>
+		                        <ns2:beFieldId>rowBE.jdbcClass</ns2:beFieldId>
+		                        <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Text</ns2:type></ns2:uiType>
+		                    </ns2:column>
+		                    <ns2:column xsi:type="ns2:UITableColumnType">
+		                        <ns2:title xsi:type="ns2:StringPropertyType">
+		                            <ns2:value>URL</ns2:value>
+		                        </ns2:title>
+		                        <ns2:beFieldId>rowBE.url</ns2:beFieldId>
+		                        <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Text</ns2:type></ns2:uiType>
+		                    </ns2:column>
+		                    <ns2:column xsi:type="ns2:UITableColumnType">
+		                        <ns2:title xsi:type="ns2:StringPropertyType">
+		                            <ns2:value>User Name</ns2:value>
+		                        </ns2:title>
+		                        <ns2:beFieldId>rowBE.userName</ns2:beFieldId>
+		                        <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Text</ns2:type></ns2:uiType>
+		                    </ns2:column>
+		                    <ns2:defaultActions>
+		                        <ns2:defaultNewAction>createDBInfo</ns2:defaultNewAction>
+		                        <ns2:defaultOpenAction>openDBInfo</ns2:defaultOpenAction>
+		                    </ns2:defaultActions>
+		                </ns2:component>
+		                <ns2:layoutConstraint>
+		                    <ns2:componentId>dbInfoTable</ns2:componentId>
+		                    <ns2:constraint xsi:type="ns2:TableLayoutConstraintType"
+		                        x="0" y="0" align="FULL"></ns2:constraint>
+		                </ns2:layoutConstraint>
+                    </ns2:panel>
+                </ns2:tab>
+                <ns2:tab uiid="jobInfoPanel">
+                    <ns2:title xsi:type="ns2:ResourceBundlePropertyType">
+                        <ns2:bundle>org_shaolin_bmdp_analyzer_i18n</ns2:bundle>
+                        <ns2:key>org.shaolin.bmdp.analyzer.page.AnalysisConfiguration.jobInfoPanel</ns2:key>
+                    </ns2:title>
+                    <ns2:panel UIID="jobInfoPanel">
+                        <ns2:layout xsi:type="ns2:TableLayoutType">
+                            <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+                            <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
+                        </ns2:layout>
+                        <ns2:component xsi:type="ns2:UITableType" UIID="jobInfoTable">
+                            <ns2:beElement>org.shaolin.bmdp.analyzer.be.Job</ns2:beElement>
+                            <ns2:selectMode xsi:type="ns2:UITableSelectModeType">Single</ns2:selectMode>
+                            <ns2:defaultRowSize>10</ns2:defaultRowSize>
+                            <ns2:showActionBar>true</ns2:showActionBar>
+                            <ns2:showFilter>true</ns2:showFilter>
+                            <ns2:query xsi:type="ns2:ExpressionPropertyType">
+                                <ns2:expression xsi:type="ns2:ExpressionType">
+                                    <ns2:expressionString><![CDATA[
+                                    import java.util.List;
+                                    import org.shaolin.uimaster.page.ajax.TableConditions;
+                                    import org.shaolin.bmdp.analyzer.be.JobImpl;
+                                    import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
+                                    {
+                                          if ($tableCondition == null) {
+                                             $tableCondition = TableConditions.createCondition(new JobImpl());
+                                          }
+                                          JobImpl condition = (JobImpl)$tableCondition.getCondition();
+                                          return AanlysisModel.INSTANCE.searchJob(condition,
+                                                        $tableCondition.getOrders(),
+                                                        $tableCondition.getOffset(), 
+                                                        $tableCondition.getCount());
+                                    }]]></ns2:expressionString>
+                                </ns2:expression>
+                            </ns2:query>
+                            <ns2:totalCount xsi:type="ns2:ExpressionPropertyType">
+                                <ns2:expression xsi:type="ns2:ExpressionType">
+                                    <ns2:expressionString><![CDATA[
+                                    import org.shaolin.uimaster.page.ajax.TableConditions;
+                                    import org.shaolin.bmdp.analyzer.be.JobImpl;
+                                    import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
+                                    {
+                                         if ($tableCondition == null) {
+                                            $tableCondition = TableConditions.createCondition(new JobImpl());
+                                         }
+                                         JobImpl condition = (JobImpl)$tableCondition.getCondition();
+                                         return AanlysisModel.INSTANCE.searchJobCount(condition);
+                                    }]]></ns2:expressionString>
+                                </ns2:expression>
+                            </ns2:totalCount>
+                            <ns2:column xsi:type="ns2:UITableColumnType">
+                                <ns2:title xsi:type="ns2:StringPropertyType">
+                                    <ns2:value>Main Class</ns2:value>
+                                </ns2:title>
+                                <ns2:beFieldId>rowBE.mainClass</ns2:beFieldId>
+                                <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Text</ns2:type></ns2:uiType>
+                            </ns2:column>
+                            <ns2:column xsi:type="ns2:UITableColumnType">
+                                <ns2:title xsi:type="ns2:StringPropertyType">
+                                    <ns2:value>Jar Path</ns2:value>
+                                </ns2:title>
+                                <ns2:beFieldId>rowBE.jarPath</ns2:beFieldId>
+                                <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Text</ns2:type></ns2:uiType>
+                            </ns2:column>
+                            <ns2:column xsi:type="ns2:UITableColumnType">
+                                <ns2:title xsi:type="ns2:StringPropertyType">
+                                    <ns2:value>Task</ns2:value>
+                                </ns2:title>
+                                <ns2:beFieldId>rowBE.taskId</ns2:beFieldId>
+                                <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Label</ns2:type></ns2:uiType>
+                            </ns2:column>
+                            <ns2:defaultActions>
+                                <ns2:defaultNewAction>createJobInfo</ns2:defaultNewAction>
+                                <ns2:defaultOpenAction>openJobInfo</ns2:defaultOpenAction>
+                            </ns2:defaultActions>
+                        </ns2:component>
+                        <ns2:layoutConstraint>
+                            <ns2:componentId>jobInfoTable</ns2:componentId>
+                            <ns2:constraint xsi:type="ns2:TableLayoutConstraintType"
+                                x="0" y="0" align="FULL"></ns2:constraint>
+                        </ns2:layoutConstraint>
+                    </ns2:panel>
+                </ns2:tab>
+                <ns2:tab uiid="chartStatsPanel">
+                    <ns2:title xsi:type="ns2:ResourceBundlePropertyType">
+                        <ns2:bundle>org_shaolin_bmdp_analyzer_i18n</ns2:bundle>
+                        <ns2:key>org.shaolin.bmdp.analyzer.page.AnalysisConfiguration.chartStatsPanel</ns2:key>
+                    </ns2:title>
+                    <ns2:panel UIID="chartStatsPanel">
+                        <ns2:layout xsi:type="ns2:TableLayoutType">
+                            <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+                            <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
+                        </ns2:layout>
+                        <ns2:component xsi:type="ns2:UITableType" UIID="chartStatsTable">
+                            <ns2:beElement>org.shaolin.bmdp.analyzer.be.ChartStatistic</ns2:beElement>
+                            <ns2:selectMode xsi:type="ns2:UITableSelectModeType">Single</ns2:selectMode>
+                            <ns2:defaultRowSize>10</ns2:defaultRowSize>
+                            <ns2:showActionBar>true</ns2:showActionBar>
+                            <ns2:showFilter>true</ns2:showFilter>
+                            <ns2:query xsi:type="ns2:ExpressionPropertyType">
+                                <ns2:expression xsi:type="ns2:ExpressionType">
+                                    <ns2:expressionString><![CDATA[
+                                    import java.util.List;
+                                    import org.shaolin.uimaster.page.ajax.TableConditions;
+                                    import org.shaolin.bmdp.analyzer.be.ChartStatisticImpl;
+                                    import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
+                                    {
+                                          if ($tableCondition == null) {
+                                             $tableCondition = TableConditions.createCondition(new ChartStatisticImpl());
+                                          }
+                                          ChartStatisticImpl condition = (ChartStatisticImpl)$tableCondition.getCondition();
+                                          return AanlysisModel.INSTANCE.searchChartStats(condition,
+                                                        $tableCondition.getOrders(),
+                                                        $tableCondition.getOffset(), 
+                                                        $tableCondition.getCount());
+                                    }]]></ns2:expressionString>
+                                </ns2:expression>
+                            </ns2:query>
+                            <ns2:totalCount xsi:type="ns2:ExpressionPropertyType">
+                                <ns2:expression xsi:type="ns2:ExpressionType">
+                                    <ns2:expressionString><![CDATA[
+                                    import org.shaolin.uimaster.page.ajax.TableConditions;
+                                    import org.shaolin.bmdp.analyzer.be.ChartStatisticImpl;
+                                    import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
+                                    {
+                                         if ($tableCondition == null) {
+                                            $tableCondition = TableConditions.createCondition(new ChartStatisticImpl());
+                                         }
+                                         ChartStatisticImpl condition = (ChartStatisticImpl)$tableCondition.getCondition();
+                                         return AanlysisModel.INSTANCE.searchChartStatsCount(condition);
+                                    }]]></ns2:expressionString>
+                                </ns2:expression>
+                            </ns2:totalCount>
+                            <ns2:column xsi:type="ns2:UITableColumnType">
+                                <ns2:title xsi:type="ns2:StringPropertyType">
+                                    <ns2:value>Action on UIFrom</ns2:value>
+                                </ns2:title>
+                                <ns2:beFieldId>rowBE.actionOnUIFrom</ns2:beFieldId>
+                                <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Label</ns2:type></ns2:uiType>
+                            </ns2:column>
+                            <ns2:column xsi:type="ns2:UITableColumnType">
+                                <ns2:title xsi:type="ns2:StringPropertyType">
+                                    <ns2:value>Action on Widget</ns2:value>
+                                </ns2:title>
+                                <ns2:beFieldId>rowBE.actionOnWidgetId</ns2:beFieldId>
+                                <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Label</ns2:type></ns2:uiType>
+                            </ns2:column>
+                            <ns2:column xsi:type="ns2:UITableColumnType">
+                                <ns2:title xsi:type="ns2:StringPropertyType">
+                                    <ns2:value>Stats on Table Name</ns2:value>
+                                </ns2:title>
+                                <ns2:beFieldId>rowBE.statsTableName</ns2:beFieldId>
+                                <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Label</ns2:type></ns2:uiType>
+                            </ns2:column>
+                            <ns2:column xsi:type="ns2:UITableColumnType">
+                                <ns2:title xsi:type="ns2:StringPropertyType">
+                                    <ns2:value>Stats on UI Form</ns2:value>
+                                </ns2:title>
+                                <ns2:beFieldId>rowBE.statsUIFrom</ns2:beFieldId>
+                                <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Label</ns2:type></ns2:uiType>
+                            </ns2:column>
+                            <ns2:defaultActions>
+                                <ns2:defaultNewAction>createStatsInfo</ns2:defaultNewAction>
+                                <ns2:defaultOpenAction>openStatsInfo</ns2:defaultOpenAction>
+                            </ns2:defaultActions>
+                        </ns2:component>
+                        <ns2:layoutConstraint>
+                            <ns2:componentId>chartStatsTable</ns2:componentId>
+                            <ns2:constraint xsi:type="ns2:TableLayoutConstraintType"
+                                x="0" y="0" align="FULL"></ns2:constraint>
+                        </ns2:layoutConstraint>
+                    </ns2:panel>
+                </ns2:tab>
+            </ns2:component>
+			<ns2:layoutConstraint>
+                <ns2:componentId>functionsTab</ns2:componentId>
+                <ns2:constraint xsi:type="ns2:TableLayoutConstraintType"
+                    x="0" y="0" align="FULL"></ns2:constraint>
+            </ns2:layoutConstraint>
+		</ns2:body>
+	</ns2:UIEntity>
+	<ns2:ODMapping>
+	</ns2:ODMapping>
+	<ns2:in>
+	</ns2:in>
+</ns2:UIPage>

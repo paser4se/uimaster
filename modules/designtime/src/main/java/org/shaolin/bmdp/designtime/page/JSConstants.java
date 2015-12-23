@@ -2,7 +2,9 @@ package org.shaolin.bmdp.designtime.page;
 
 public class JSConstants
 {
-    public static final String TEXTFIELD = "UIMaster.ui.textfield";
+	public static final String UIFIELD = "UIMaster.ui.field";
+    
+	public static final String TEXTFIELD = "UIMaster.ui.textfield";
     
     public static final String TEXTAREA = "UIMaster.ui.textarea";
     
@@ -24,6 +26,12 @@ public class JSConstants
     
     public static final String TABLE = "UIMaster.ui.objectlist";
     
+    public static final String MATRIX = "UIMaster.ui.matrix";
+    
+    public static final String MAP = "UIMaster.ui.map";
+    
+    public static final String CHART = "UIMaster.ui.chart";
+    
     public static final String FLOW = "UIMaster.ui.flow";
     
     public static final String LABEL = "UIMaster.ui.label";
@@ -43,6 +51,8 @@ public class JSConstants
     public static final String FILE = "UIMaster.ui.file";
     
     public static final String TAB = "UIMaster.ui.tab";
+    
+    public static final String PRENEXTPANEL = "UIMaster.ui.prenextpanel";
 
     public static final String WEBTREE = "UIMaster.ui.webtree";
 	

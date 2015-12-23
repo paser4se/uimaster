@@ -16,7 +16,6 @@
 package org.shaolin.uimaster.page.ajax;
 
 import org.shaolin.uimaster.page.AjaxActionHelper;
-import org.shaolin.uimaster.page.ajax.json.IDataItem;
 
 /**
  * Due to javacc does not support the anonymous class definition in the script directly.
@@ -36,8 +35,7 @@ public class FlowDiagramCallBack implements CallBack {
 	}
 	
 	public void execute() {
-        Table table = (Table)AjaxActionHelper.getAjaxContext().getElementByAbsoluteId(entityPrefix + uiid);
-        IDataItem item = AjaxActionHelper.updateTableItem(entityPrefix + uiid, table.refresh());
-        AjaxActionHelper.getAjaxContext().addDataItem(item);
+		WorkFlowDiagram table = (WorkFlowDiagram)AjaxActionHelper.getAjaxContext().getElementByAbsoluteId(entityPrefix + uiid);
+		table.refreshModel();
 	}
 }

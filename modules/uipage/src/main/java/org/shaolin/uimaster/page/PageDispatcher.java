@@ -301,10 +301,12 @@ public class PageDispatcher {
 
             context.generateHTML("<!DOCTYPE html>\n");
             context.generateHTML("<html>\n<head>\n<title>");
-            context.generateHTML(entityName);
+            context.generateHTML(pageObject.getUIForm().getDescription());
             //is the title need i18n? -- the name should not be i18n, but the <title> should be i18n
             //currently all uipages are embedded in frame, so the title can't be seen by user
             context.generateHTML("</title>\n");
+            context.generateHTML("<link rel=\"shortcut icon\" href=\"favicon.ico\" type=\"image/x-icon\" />\n");
+            context.generateHTML("<link rel=\"apple-touch-icon\" href=\"favicon.ico\">\n");
             context.generateHTML("<script type=\"text/javascript\">\nvar defaultname;\nvar USER_CONSTRAINT_IMG=\"");
             context.generateHTML((String)constraintStyleMap.get("constraintSymbol"));
             context.generateHTML("\";\nvar USER_CONSTRAINT_LEFT=");
@@ -320,7 +322,11 @@ public class PageDispatcher {
             context.generateHTML(";\nvar WEB_CONTEXTPATH=\"");
             context.generateHTML(WebConfig.getWebContextRoot());
             context.generateHTML("\";\nvar RESOURCE_CONTEXTPATH=\"");
-            context.generateHTML(WebConfig.getResourceContextRoot());
+            if (UserContext.isMobileRequest() && UserContext.isAppClient()) {
+            	context.generateHTML(WebConfig.getAppResourceContextRoot());
+            } else {
+            	context.generateHTML(WebConfig.getResourceContextRoot());
+            }
             context.generateHTML("\";\nvar FRAMEWRAP=\"");
             context.generateHTML(WebConfig.replaceWebContext(WebConfig.getFrameWrap()));
             context.generateHTML("\";\nvar IS_SERVLETMODE=true;\nvar AJAX_SERVICE_URL=\"");
@@ -336,12 +342,16 @@ public class PageDispatcher {
                 logger.debug("import css to the uipage: " + entityName);
             }
             if (UserContext.isMobileRequest()) {
-            	context.generateHTML("<meta name=\"viewport\" id=\"WebViewport\" content=\"width=device-width,initial-scale=1.0,target-densitydpi=device-dpi,minimum-scale=0.5,maximum-scale=1.0,user-scalable=1\" />\n");
-            	context.generateHTML("<meta name=\"apple-mobile-web-app-title\" content=\"VogERP\">\n");
+            	context.generateHTML("<meta name=\"viewport\" id=\"WebViewport\" content=\"width=device-width,initial-scale=1.0,minimum-scale=0.5,maximum-scale=1.0,user-scalable=1\" />\n");
+            	context.generateHTML("<meta name=\"apple-mobile-web-app-title\" content=\"UIMaster\">\n");
             	context.generateHTML("<meta name=\"apple-mobile-web-app-capable\" content=\"yes\">\n");
             	context.generateHTML("<meta name=\"apple-mobile-web-app-status-bar-style\" content=\"black-translucent\">\n");
             	context.generateHTML("<meta name=\"format-detection\" content=\"telephone=no\">\n");
-            	context.generateHTML(WebConfig.replaceCssWebContext(pageObject.getMobPageCSS().toString()));
+            	if (UserContext.isAppClient()) {
+            		context.generateHTML(WebConfig.replaceAppCssWebContext(pageObject.getMobPageCSS().toString()));
+            	} else {
+            		context.generateHTML(WebConfig.replaceCssWebContext(pageObject.getMobPageCSS().toString()));
+            	}
             } else {
             	context.generateHTML(WebConfig.replaceCssWebContext(pageObject.getPageCSS().toString()));
             }
@@ -360,14 +370,35 @@ public class PageDispatcher {
                 context.generateHTML("    UIMaster.addResource(\"" + entityName + "\");\n");
                 context.generateHTML("    getElementList();\n    defaultname = new ");
                 context.generateHTML(entityName.replaceAll("\\.", "_"));
-                context.generateHTML("(\"\");\n    defaultname.initPageJs();\n}\nfunction finalizePage() \n{\n    defaultname.finalizePageJs();\n    releaseMem();\n}\n</script>\n");
-                context.generateHTML("</head>\n");
-                context.generateHTML("<body onload=\"initPage()\" onunload=\"finalizePage()\">\n");
-                context.generateHTML(genLoaderMask());
+                context.generateHTML("(\"\");\n    defaultname.initPageJs();\n}\n");
+                context.generateHTML("function finalizePage() \n{\n    defaultname.finalizePageJs();\n    releaseMem();\n}\n");
+                if (UserContext.isMobileRequest()) {
+                	context.generateHTML("window.onload=initPage;\n");
+                	context.generateHTML("window.onunload=finalizePage;\n");
+                }
+                context.generateHTML("</script>\n</head>\n");
+                context.generateHTML("<body");
+                if (UserContext.isMobileRequest()) {
+                	context.generateHTML(">\n");
+                } else {
+                	context.generateHTML(" onload=\"initPage()\" onunload=\"finalizePage()\">\n");
+                	context.generateHTML(genLoaderMask());
+                }
+            }
+            if (!checkSupportAccess(context.getRequest())) {
+            	context.generateHTML("<H1 style=\"color:red;\">Ops!!! We are so sorry that your browser is unsupported(");
+            	context.generateHTML(context.getRequest().getHeader("User-Agent"));
+            	context.generateHTML("). Please choose Firefox, Chrome and IE 8 above.</H1>");
+            	context.generateHTML("\n</body>\n</html>\n");
+            	return;
             }
             
             HTMLUtil.generateJSBundleConstants(context);
-            context.generateHTML("<form action=\"" + actionPath + "\" method=\"post\" name=\"everything\" style=\"display:none;\" onsubmit=\"return false;\"");
+            if (UserContext.isMobileRequest()) {
+            	context.generateHTML("<form action=\"" + actionPath + "\" method=\"post\" name=\"everything\" onsubmit=\"return false;\"");
+            } else {
+            	context.generateHTML("<form action=\"" + actionPath + "\" method=\"post\" name=\"everything\" style=\"display:none;\" onsubmit=\"return false;\"");
+            }
             if (superPrefix != null)
             {
                 context.generateHTML(" _framePrefix=\"" + superPrefix + "\"");
@@ -456,11 +487,8 @@ public class PageDispatcher {
                 context.getRequest().setAttribute("_framePagePrefix", superPrefix);
             }
 
-            //
             PageDispatcher dispatcher = new PageDispatcher(pageObject.getUIFormObject(), evaContext);
             dispatcher.forwardForm(context, 0);
-            
-            //initAjaxCalling(context, isServletMode, superPrefix);
             
             context.generateHTML("\n</form>");
             if (!frameMode)
@@ -506,6 +534,17 @@ public class PageDispatcher {
             logger.warn("<---HTMLUIPage.forward--->Be interrupted when access uipage: " + pageObject.getRuntimeEntityName());
             throw new JspException(e);
         }
+    }
+    
+    private boolean checkSupportAccess(HttpServletRequest request) {
+    	String userAgent = request.getHeader("User-Agent").toLowerCase();
+    	if (userAgent.indexOf("msie") != -1
+    			&& (userAgent.indexOf("msie 5.0") != -1 
+    				|| userAgent.indexOf("msie 6.0") != -1 
+    				|| userAgent.indexOf("msie 7.0") != -1)) {
+    		return false;
+    	}
+    	return true;
     }
     
     private String getActionPath(HTMLSnapshotContext context) throws JspException

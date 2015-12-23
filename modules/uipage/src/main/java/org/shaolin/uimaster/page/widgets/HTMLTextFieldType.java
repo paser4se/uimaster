@@ -111,6 +111,13 @@ public class HTMLTextFieldType extends HTMLTextWidgetType
                 context.generateHTML(HTMLUtil.formatHtmlValue(getValue()));
             }
             context.generateHTML("\" />");
+            if (this.getAttribute("needAmount") != null && 
+            		"true".equals(this.getAttribute("needAmount").toString())) {
+            	context.generateHTML("<span class=\"uimaster-amount-btn\">");
+            	context.generateHTML("<span class=\"uimaster-amount-increase\">+</span>");
+            	context.generateHTML("<span class=\"uimaster-amount-decrease\">-</span>");
+            	context.generateHTML("</span>");
+            }
         }
         catch (Exception e)
         {

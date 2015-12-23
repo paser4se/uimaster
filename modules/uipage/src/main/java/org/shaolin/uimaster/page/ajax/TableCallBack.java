@@ -37,7 +37,7 @@ public class TableCallBack implements CallBack {
 	
 	public void execute() {
         Table table = (Table)AjaxActionHelper.getAjaxContext().getElementByAbsoluteId(entityPrefix + uiid);
-        IDataItem item = AjaxActionHelper.updateTableItem(entityPrefix + uiid, table.refresh());
+        IDataItem item = AjaxActionHelper.updateTableItem(entityPrefix + uiid, table.refresh0());
         AjaxActionHelper.getAjaxContext().addDataItem(item);
 	}
 }

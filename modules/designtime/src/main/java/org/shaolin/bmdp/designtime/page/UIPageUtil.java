@@ -105,7 +105,7 @@ public class UIPageUtil {
 			layout.getRowHeightWeights().add(new Double(0.0));// default length
 		}
 		for (int j=0; j<columns; j++) {
-			layout.getColumnWidthWeights().add(new Double(1.0)); // 100% length
+			layout.getColumnWidthWeights().add(new Double(0.0)); // 100% length
 		}
 		parent.setLayout(layout);
 	}
@@ -134,7 +134,7 @@ public class UIPageUtil {
 				.getRowHeightWeights().add(new Double(-1.0));
 			for (int j=0; j<columns; j++) {
 				((TableLayoutType)newPanel.getLayout())
-					.getColumnWidthWeights().add(new Double(-1.0));
+					.getColumnWidthWeights().add(new Double(0.0));
 			}
 		}
 		parent.setLayout(layout);

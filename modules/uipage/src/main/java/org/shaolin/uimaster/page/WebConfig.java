@@ -249,8 +249,21 @@ public class WebConfig {
 		return getWebRoot();
 	}
 	
+	/**
+	 * Andriod or IOS app context root.
+	 * 
+	 * @return
+	 */
+	public static String getAppContextRoot() {
+		return "file:///android_asset" + getWebRoot();
+	}
+	
 	public static String getResourceContextRoot() {
 		return "/uimaster";
+	}
+	
+	public static String getAppResourceContextRoot() {
+		return "file:///android_asset/uimaster";
 	}
 	
 	private static String resourcePath = null;
@@ -335,31 +348,68 @@ public class WebConfig {
 		return getCacheObject().hotdeployeable;
 	}
 	
-	public static String getImportJS(String entityName) {
-		String name = entityName.replace('.', File.separatorChar);
-		return WebConfigFastCache.ResourceContextRoot + "/js/" + name + ".js";
-	}
-	
-	public static String replaceCssWebContext(String str) {
-		return str.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getResourceContextRoot());
-	}
-	
-	public static String replaceJsWebContext(String str) {
-		return str.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getResourceContextRoot());
-	}
-	
-	public static String replaceWebContext(String str) {
-		return str.replace(WebConfigFastCache.WebContextRoot, WebConfig.getWebContextRoot());
-	}
-	
 	/**
-	 * no needs the root applied.
+	 * Import one css.
 	 * @param entityName
 	 * @return
 	 */
 	public static String getImportCSS(String entityName) {
 		String name = entityName.replace('.', File.separatorChar);
 		return WebConfigFastCache.ResourceContextRoot + "/css/" + name + ".css";
+	}
+	
+	/**
+	 * Import one js.
+	 * @param entityName
+	 * @return
+	 */
+	public static String getImportJS(String entityName) {
+		String name = entityName.replace('.', File.separatorChar);
+		return WebConfigFastCache.ResourceContextRoot + "/js/" + name + ".js";
+	}
+
+	public static String replaceAppCssWebContext(String str) {
+		if (str.indexOf(WebConfigFastCache.ResourceContextRoot) != -1) {
+			str = str.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getAppResourceContextRoot());
+		}
+		if (str.indexOf(WebConfigFastCache.WebContextRoot) != -1) {
+			return str.replace(WebConfigFastCache.WebContextRoot, WebConfig.getAppContextRoot());
+		}
+		return str;
+	}
+	
+	public static String replaceAppJsWebContext(String str) {
+		if (str.indexOf(WebConfigFastCache.ResourceContextRoot) != -1) {
+			return str.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getAppResourceContextRoot());
+		}
+		if (str.indexOf(WebConfigFastCache.WebContextRoot) != -1) {
+			return str.replace(WebConfigFastCache.WebContextRoot, WebConfig.getAppContextRoot());
+		}
+		return str;
+	}
+	
+	public static String replaceCssWebContext(String str) {
+		if (str.indexOf(WebConfigFastCache.ResourceContextRoot) != -1) {
+			str = str.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getResourceContextRoot());
+		}
+		if (str.indexOf(WebConfigFastCache.WebContextRoot) != -1) {
+			return str.replace(WebConfigFastCache.WebContextRoot, WebConfig.getWebContextRoot());
+		}
+		return str;
+	}
+	
+	public static String replaceJsWebContext(String str) {
+		if (str.indexOf(WebConfigFastCache.ResourceContextRoot) != -1) {
+			return str.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getResourceContextRoot());
+		}
+		if (str.indexOf(WebConfigFastCache.WebContextRoot) != -1) {
+			return str.replace(WebConfigFastCache.WebContextRoot, WebConfig.getWebContextRoot());
+		}
+		return str;
+	}
+	
+	public static String replaceWebContext(String str) {
+		return str.replace(WebConfigFastCache.WebContextRoot, WebConfig.getWebContextRoot());
 	}
 
 	public static String[] getCommonCss() {
@@ -401,14 +451,18 @@ public class WebConfig {
 						}
 					}
 				}
-			}
-			if (key.endsWith(".*")) {
+			} else if (key.endsWith(".*")) {
 				String keyPack = key.substring(0, key.length() - 2);
 				if (pack.startsWith(keyPack)) {
 					String[] vs = getCacheObject().singleCommonJs.get(key);
 					for (String v: vs) {
 						results.add(v);
 					}
+				}
+			} else if (key.equals(entityName)) {
+				String[] vs = getCacheObject().singleCommonJs.get(entityName);
+				for (String v: vs) {
+					results.add(v);
 				}
 			}
 		}
@@ -433,6 +487,11 @@ public class WebConfig {
 					for (String v: vs) {
 						results.add(v);
 					}
+				}
+			} else if (key.equals(entityName)) {
+				String[] vs = getCacheObject().singleCommonCss.get(entityName);
+				for (String v: vs) {
+					results.add(v);
 				}
 			}
 		}

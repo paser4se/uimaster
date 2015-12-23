@@ -1,7 +1,9 @@
 package org.shaolin.uimaster.page.javacc;
 
+import org.apache.log4j.Logger;
 import org.shaolin.bmdp.datamodel.common.VariableCategoryType;
 import org.shaolin.bmdp.datamodel.common.VariableType;
+import org.shaolin.bmdp.datamodel.page.ExpressionPropertyType;
 import org.shaolin.bmdp.datamodel.page.PropertyValueType;
 import org.shaolin.bmdp.datamodel.page.ResourceBundlePropertyType;
 import org.shaolin.bmdp.datamodel.page.StringPropertyType;
@@ -11,6 +13,8 @@ import org.shaolin.bmdp.i18n.ResourceUtil;
 import org.shaolin.bmdp.runtime.be.BEUtil;
 import org.shaolin.bmdp.runtime.ce.CEUtil;
 import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
+import org.shaolin.javacc.context.DefaultEvaluationContext;
+import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.uimaster.page.widgets.HTMLReferenceEntityType;
 
 public final class UIVariableUtil {
@@ -92,11 +96,21 @@ public final class UIVariableUtil {
 		if (pvalue instanceof StringPropertyType) {
 			return ((StringPropertyType) pvalue).getValue();
 		} else if (pvalue instanceof ResourceBundlePropertyType) {
-			String userLocale = LocaleContext.getUserLocale();
 			String bundle = ((ResourceBundlePropertyType) pvalue).getBundle();
 			String key = ((ResourceBundlePropertyType) pvalue).getKey();
-			String value = ResourceUtil.getResource(bundle, key);
-			return value;
+			return ResourceUtil.getResource(LocaleContext.getUserLocale(), bundle, key);
+		} else if (pvalue instanceof ExpressionPropertyType) {
+			try {
+				ExpressionPropertyType expr = (ExpressionPropertyType) pvalue;
+				if (expr != null && expr.getExpression() != null) {
+					if (!expr.getExpression().isParsed()) {
+						expr.getExpression().parse(new DefaultParsingContext());
+					} 
+					return expr.getExpression().evaluate(new DefaultEvaluationContext()).toString();
+				}
+			} catch (Exception e) {
+				Logger.getLogger(UIVariableUtil.class).warn(e.getMessage(), e);
+			}
 		}
 		return "";
 	}

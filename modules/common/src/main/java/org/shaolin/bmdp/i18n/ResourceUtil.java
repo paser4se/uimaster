@@ -125,6 +125,9 @@ public final class ResourceUtil {
 
 	public static String getLocale(String localeConfig) {
 		if (localeConfig == null) {
+			if (LocaleContext.getUserLocale() != null) {
+				return LocaleContext.getUserLocale();
+			}
 			if (logger.isTraceEnabled()) {
 				logger.trace("localeConfig is null, so use the default config: "
 						+ defaultConfig);

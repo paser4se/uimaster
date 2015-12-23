@@ -36,6 +36,7 @@ import org.shaolin.uimaster.page.ajax.RefForm;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
+import org.shaolin.uimaster.page.od.ODContext;
 
 public class HTMLReferenceEntityType extends HTMLWidgetType implements Serializable
 {
@@ -323,7 +324,7 @@ public class HTMLReferenceEntityType extends HTMLWidgetType implements Serializa
 
     private void generateHTML(HTMLSnapshotContext context) throws JspException
     {
-    	UIFormObject entity = HTMLUtil.parseUIEntity(getReferenceEntity());
+    	UIFormObject entity = HTMLUtil.parseUIForm(getReferenceEntity());
     	
     	EvaluationContext evaContext = context.getODMapperContext(this.getName());
     	if (evaContext == null) {
@@ -357,8 +358,9 @@ public class HTMLReferenceEntityType extends HTMLWidgetType implements Serializa
     	copy.setFrameInfo(this.getFrameInfo());
     	copy.setPrefix(this.getPrefix());
     	
+    	DefaultEvaluationContext evalContext = (DefaultEvaluationContext)ee.getExpressionContext(ODContext.LOCAL_TAG);
         String refEntityName = this.getReferenceEntity();
-        RefForm referenceEntity = new RefForm(getName(), refEntityName, Layout.NULL);
+        RefForm referenceEntity = new RefForm(getName(), refEntityName, Layout.NULL, evalContext.getVariableObjects());
         referenceEntity.setCopy(copy);
         referenceEntity.setReadOnly(getReadOnly());
         referenceEntity.setListened(true);

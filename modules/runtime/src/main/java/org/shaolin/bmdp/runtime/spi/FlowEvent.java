@@ -1,5 +1,21 @@
+/*
+* Copyright 2015 The UIMaster Project
+*
+* The UIMaster Project licenses this file to you under the Apache License,
+* version 2.0 (the "License"); you may not use this file except in compliance
+* with the License. You may obtain a copy of the License at:
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations
+* under the License.
+*/
 package org.shaolin.bmdp.runtime.spi;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,9 +26,11 @@ public class FlowEvent implements Event {
 
 	public static final String FLOW_CONTEXT = "FLOW_CONTEXT";
 	
-	private Map<String, Object> content_;
+	private Map<String, Serializable> content_;
 
 	private String id_;
+	
+	private String comments;
 	
 	private final String eventProducer_;
 	
@@ -25,7 +43,7 @@ public class FlowEvent implements Event {
 	}
 
 	@Override
-	public Collection<Entry<String, Object>> getAllAttributes() {
+	public Collection<Entry<String, Serializable>> getAllAttributes() {
 		if (content_ == null) {
 			return Collections.emptyList();
 		}
@@ -33,7 +51,12 @@ public class FlowEvent implements Event {
 	}
 
 	@Override
-	public Object getAttribute(String key) {
+	public Collection<String> getAttributeKeys() {
+		return content_.keySet();
+	}
+	
+	@Override
+	public Serializable getAttribute(String key) {
 		if (content_ == null) {
 			return null;
 		}
@@ -49,11 +72,17 @@ public class FlowEvent implements Event {
 	}
 
 	@Override
-	public void setAttribute(String key, Object value) {
+	public void setAttribute(String key, Serializable value) {
 		if (content_ == null) {
-			content_ = new HashMap<String, Object>();
+			content_ = new HashMap<String, Serializable>();
 		}
 		content_.put(key, value);
+	}
+	
+	public void clear() {
+		if (content_ != null) {
+			content_.clear();
+		}
 	}
 
 	public Object getFlowContext() {
@@ -61,7 +90,7 @@ public class FlowEvent implements Event {
 	}
 
 	public void setFlowContext(Object flowContext) {
-		setAttribute(FLOW_CONTEXT, flowContext);
+		setAttribute(FLOW_CONTEXT, (Serializable)flowContext);
 	}
 
 	@Override
@@ -74,4 +103,11 @@ public class FlowEvent implements Event {
 		this.id_ = id;
 	}
 
+	public String getComments() {
+		return comments;
+	}
+
+	public void setComments(String comments) {
+		this.comments = comments;
+	}
 }

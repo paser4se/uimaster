@@ -21,6 +21,7 @@ import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.flowdiagram.Connection;
 import org.shaolin.bmdp.datamodel.flowdiagram.FlowChunk;
 import org.shaolin.bmdp.datamodel.flowdiagram.NodeType;
+import org.shaolin.bmdp.datamodel.page.UITableActionGroupType;
 import org.shaolin.bmdp.datamodel.page.UITableActionType;
 import org.shaolin.bmdp.datamodel.workflow.Workflow;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
@@ -34,6 +35,7 @@ import org.shaolin.uimaster.page.ajax.WorkFlowDiagram;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
+import org.shaolin.uimaster.page.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,21 +61,22 @@ public class HTMLFlowDiagramType extends HTMLWidgetType
 	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
     	
     	HTMLUtil.generateTab(context, depth);
-    	String root = WebConfig.getResourceContextRoot();
+    	String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
+    			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
     	context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/css/jsplumb/jsplumb.css\" type=\"text/css\">\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/jquery.ui.touch-punch-0.2.2.min.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/dom-adapter.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/biltong-0.2.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/jsBezier-0.6.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/util.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/jsPlumb.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/jquery.jsPlumb.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/defaults.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/renderers.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/connection.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/endpoint.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/anchors.js\"></script>\n");
-    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jsplumb/overlays-guidelines.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/jquery.ui.touch-punch-0.2.2.min.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/dom-adapter.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/biltong-0.2.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/jsBezier-0.6.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/util.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/jsPlumb.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/jquery.jsPlumb.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/defaults.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/renderers.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/connection.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/endpoint.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/anchors.js\"></script>\n");
+    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/overlays-guidelines.js\"></script>\n");
     	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/uimaster-flow.js\"></script>\n");
     	
     	List<UITableActionType> defaultActions = (List<UITableActionType>)this.removeAttribute("defaultActionGroup");
@@ -95,6 +98,47 @@ public class HTMLFlowDiagramType extends HTMLWidgetType
 		}
 		HTMLUtil.generateTab(context, depth + 1);
 		context.generateHTML("</span>");
+		String htmlPrefix = this.getPrefix().replace('.', '_');
+		String htmlId = this.getPrefix().replace('.', '_') + this.getUIID();
+		List<UITableActionGroupType> actionGroups = (List<UITableActionGroupType>)this.removeAttribute("actionGroups");
+		if (actionGroups !=null && actionGroups.size() > 0) {
+			int count = 0;
+			for (UITableActionGroupType a : actionGroups) {
+				HTMLUtil.generateTab(context, depth + 2);
+				String btnSetName = "btnSet_" + htmlId + (count++);
+				context.generateHTML("<span id=\""+btnSetName+"\">");
+				for (UITableActionType action: a.getActions()){
+					HTMLUtil.generateTab(context, depth + 3);
+					if("button".equals(a.getType())) {
+						context.generateHTML("<button");
+					} else if("radio".equals(a.getType())) {
+						context.generateHTML("<input type='radio' name='"+btnSetName+"'");
+					} else if("checkbox".equals(a.getType())) {
+						context.generateHTML("<input type='checkbox'");
+					}
+					context.generateHTML(" id=\""+htmlPrefix+action.getUiid()+"\" onclick=\"javascript:defaultname.");
+					context.generateHTML(this.getPrefix() + action.getFunction());
+					context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\" title='");
+					context.generateHTML(UIVariableUtil.getI18NProperty(action.getTitle()));
+					context.generateHTML("' icon=\""+action.getIcon()+"\">");
+					
+					if("button".equals(a.getType())) {
+						context.generateHTML(UIVariableUtil.getI18NProperty(action.getTitle()));
+						context.generateHTML("</button>");
+					} else if("radio".equals(a.getType())) {
+						context.generateHTML("<label for=\""+htmlPrefix+action.getUiid()+"\">");
+						context.generateHTML(UIVariableUtil.getI18NProperty(action.getTitle()));
+						context.generateHTML("</label></input>");
+					} else if("checkbox".equals(a.getType())) {
+						context.generateHTML("<label for=\""+action.getUiid()+"\">");
+						context.generateHTML(UIVariableUtil.getI18NProperty(action.getTitle()));
+						context.generateHTML("</label></input>");
+					}
+				}
+				HTMLUtil.generateTab(context, depth + 2);
+				context.generateHTML("</span>");
+			}
+		}
 		HTMLUtil.generateTab(context, depth);
 		context.generateHTML("</div>");
     	

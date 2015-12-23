@@ -1,9 +1,26 @@
+/*
+* Copyright 2015 The UIMaster Project
+*
+* The UIMaster Project licenses this file to you under the Apache License,
+* version 2.0 (the "License"); you may not use this file except in compliance
+* with the License. You may obtain a copy of the License at:
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations
+* under the License.
+*/
 package org.shaolin.uimaster.page.ajax.handlers;
 
+import java.io.Serializable;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.shaolin.bmdp.datamodel.common.NameExpressionType;
 import org.shaolin.bmdp.datamodel.page.OpCallAjaxType;
 import org.shaolin.bmdp.datamodel.page.OpInvokeWorkflowType;
 import org.shaolin.bmdp.datamodel.page.OpType;
@@ -44,29 +61,44 @@ public class EventHandler implements IAjaxHandler {
 				ops = uiEntity.getEventHandler(actionName);
 			}
 			if (ops == null) {
+				log.warn("The action name " + actionName + " can't be found from current page!");
 				return "";
 			}
 			for (OpType op : ops) {
-				try {
 					if (op instanceof OpCallAjaxType) {
 						OpCallAjaxType callAjaxOp = (OpCallAjaxType) op;
+						try {
 						value = callAjaxOp.getExp().evaluate(context);
+						} catch (EvaluationException ex) {
+							log.warn("This statement can not be evaluated: \n"+ callAjaxOp.getExp().getExpressionString());
+							throw ex;
+						}
 					} else if (op instanceof OpInvokeWorkflowType) {
 						OpInvokeWorkflowType wfOp = (OpInvokeWorkflowType) op;
-						Boolean flag = (Boolean)wfOp.getCondition().evaluate(context);
-						if (flag.booleanValue()) {
-							FlowEvent e = new FlowEvent(wfOp.getEventProducer());
-							for (NameExpressionType nameExpr : wfOp.getOutDataMappings()) {
-								e.setAttribute(nameExpr.getName(), nameExpr.getExpression().evaluate(context));
+						try {
+							FlowEvent e = new FlowEvent(wfOp.getEventConsumer());
+							Map value0 = (Map)wfOp.getExpression().evaluate(context);
+							if (value0 != null && value0.size() > 0) {
+								Iterator i = value0.keySet().iterator();
+								while (i.hasNext()) {
+									String key = (String)i.next();
+									Object v = value0.get(key);
+									if (v instanceof Serializable) {
+										e.setAttribute(key, (Serializable)v);
+									} else {
+										log.warn("Variable " + key + " is not seriablizable.");
+									}
+								}
+								e.setComments(context.getRequest().getParameter("_comments"));
+								EventProcessor processor = (EventProcessor)AppContext.get().getService(
+										Class.forName("org.shaolin.bmdp.workflow.internal.WorkFlowEventProcessor"));
+								processor.process(e);
 							}
-							EventProcessor processor = AppContext.get().getService(EventProcessor.class);
-							processor.process(e);
+						} catch (EvaluationException ex) {
+							log.warn("This statement can not be evaluated: \n"+ wfOp.getExpression().getExpressionString());
+							throw ex;
 						}
 					}
-				} catch (EvaluationException ex) {
-					log.warn("This statement can not be evaluated: \n" + op.toString());
-					throw ex;
-				}
 			}
 
 			context.synchVariables();
@@ -86,15 +118,15 @@ public class EventHandler implements IAjaxHandler {
 					return json.toString();
 				}
 			} else {
-				if (log.isInfoEnabled()) {
+				if (log.isDebugEnabled()) {
 					context.printUiMap();
 				}
 				return context.getDataAsJSON();
 			}
 		} catch (Throwable ex) {
-			log.warn("Ajax executor has interrupted when execute " + actionName
-					+ " ajax calling: " + ex.getMessage(), ex);
-			throw new AjaxHandlerException("Ajax executor has interrupted.", ex);
+			String message = "Ajax executor has interrupted when execute " + actionName
+					+ " ajax calling: " + ex.getMessage();
+			throw new AjaxHandlerException(message, ex);
 		} 
 	}
 

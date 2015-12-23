@@ -83,7 +83,9 @@ public class HTMLCheckBoxType extends HTMLSelectComponentType
             {
                 context.generateHTML(HTMLUtil.htmlEncode(getLabel()));
             }
-            context.generateHTML("</label>");
+            if (getName() == null || "null".equals(getName())) {
+            	context.generateHTML("</label>");
+            }
             if (!this.isVisible())
             {
                 context.generateHTML("</span>");

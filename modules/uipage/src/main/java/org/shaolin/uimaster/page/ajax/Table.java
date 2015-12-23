@@ -20,15 +20,21 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.UITableColumnType;
+import org.shaolin.bmdp.datamodel.page.UITableSelectModeType;
+import org.shaolin.bmdp.datamodel.page.UITableStatsType;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
+import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
+import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.IJSHandlerCollections;
@@ -39,6 +45,7 @@ import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.report.ImportTableToExcel;
+import org.shaolin.uimaster.page.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,11 +92,34 @@ public class Table extends Widget implements Serializable {
 	
 	private List<Object> updateItems;
 	
+	public static final ExpressionType statsExpr = new ExpressionType();
+	static{
+		statsExpr.setExpressionString("import org.shaolin.bmdp.analyzer.dao.AanlysisModelCust; {\n"
+				+ "return AanlysisModelCust.INSTANCE.stats($tableName,$conditions);\n"
+				+ "}");
+		OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+		DefaultParsingContext pContext = new DefaultParsingContext();
+		pContext.setVariableClass("tableName", String.class);
+		pContext.setVariableClass("conditions", Map.class);
+		
+		ooeeContext.setDefaultParsingContext(pContext);
+		ooeeContext.setParsingContextObject("$", pContext);
+		try {
+			statsExpr.parse(ooeeContext);
+		} catch (ParsingException e) {
+			logger.warn("Table statistic function is disabled due to :" + e.getMessage(), e);
+		}
+	}
+	
 	private ExpressionType queryExpr;
 
 	private ExpressionType totalExpr;
 	
 	private List<UITableColumnType> columns;
+	
+	private UITableSelectModeType selectMode;
+	
+	private UITableStatsType stats;
 
 	public Table(String tableId, HttpServletRequest request) {
 		super(tableId, null);
@@ -100,10 +130,36 @@ public class Table extends Widget implements Serializable {
 		this._setWidgetLabel(id);
 	}
 
+	public void setSelectMode(UITableSelectModeType selectMode) {
+		this.selectMode = selectMode == null ? UITableSelectModeType.MULTIPLE
+				: selectMode;
+	}
+	
+	public void setStatistic(UITableStatsType stats) {
+		this.stats = stats;
+	}
+	
 	public void addAttribute(String name, Object value, boolean update)
     {
 		if ("selectedIndex".equals(name)) {
 			conditions.setCurrentSelectedIndex(Integer.valueOf(value.toString()));
+		} else if ("selectedIndexs".equals(name)) {
+			if (!"".equals(value)) {
+				String[] values = ((String)value).split(",");
+				ArrayList<Integer> intValues = new ArrayList<Integer>(values.length);
+				for (int i=0; i<values.length; i++) {
+					try {
+						Integer v = Integer.valueOf(values[i]);
+						// filtered the duplications.
+						if (!intValues.contains(v)) {
+							intValues.add(v);
+						}
+					} catch (NumberFormatException e) {
+						// filtered the illegal number.
+					}
+				}
+				conditions.setSelectedIndex(intValues.toArray(new Integer[intValues.size()]));
+			}
 		} else if ("conditions".equals(name)) {
 			try {
 				JSONArray array = new JSONArray(value.toString());
@@ -258,7 +314,8 @@ public class Table extends Widget implements Serializable {
 				col.getUpdateCondition().getExpression().evaluate(ooeeContext);
 			}
 		} catch (Exception e) {
-			logger.error("error occurrs while updating table conditions. "  + this.getId(), e);
+			logger.error("error occurrs while updating table conditions. "  + this.getId() 
+					+ ", expr: " + col.getUpdateCondition().getExpression().getExpressionString(), e);
 		}
 	}
 	
@@ -300,7 +357,7 @@ public class Table extends Widget implements Serializable {
 		IDataItem dataItem = AjaxActionHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
-		dataItem.setData(this.refresh());
+		dataItem.setData(this.refresh0());
 		dataItem.setFrameInfo(this.getFrameInfo());
 
 		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
@@ -326,7 +383,7 @@ public class Table extends Widget implements Serializable {
 		IDataItem dataItem = AjaxActionHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
-		dataItem.setData(this.refresh());
+		dataItem.setData(this.refresh0());
 		dataItem.setFrameInfo(this.getFrameInfo());
 
 		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
@@ -335,11 +392,20 @@ public class Table extends Widget implements Serializable {
 		return obj;
 	}
 	
+	public void refresh() {
+		IDataItem dataItem = AjaxActionHelper.createDataItem();
+		dataItem.setUiid(this.getId());
+		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
+		dataItem.setData(this.refresh0());
+		dataItem.setFrameInfo(this.getFrameInfo());
+        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+	}
+	
 	/**
 	 * After when called addRow,removeRow,removeAll,updateRow, we have to call
 	 * this method refreshing data set.
 	 */
-	public String refresh() {
+	public String refresh0() {
 		try {
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
@@ -364,22 +430,72 @@ public class Table extends Widget implements Serializable {
 	        sb.append("\"data\":[");
 	        List<Object> rows = (List<Object>)queryExpr.evaluate(ooeeContext);
 	        this.listData = rows;
+	        int count = 0;
 	        for (Object be : rows) {
 	        	evaContext.setVariableValue("rowBE", be);
+	        	evaContext.setVariableValue("index", count);
 	        	
 	        	sb.append("[");
-	        	for (UITableColumnType col : columns) {
-	        		Object cellValue = col.getRowExpression().getExpression().evaluate(
-							ooeeContext);
-	        		if (cellValue == null) {
-						cellValue = "";
-					}
-	        		sb.append("\"");
-	        		sb.append(cellValue);
-	        		sb.append("\",");
+	        	if (this.selectMode == UITableSelectModeType.MULTIPLE) {
+	        		sb.append("\"checkbox,"+count+"\",");
+	        	} else if (this.selectMode == UITableSelectModeType.SINGLE) {
+	        		sb.append("\"radio,"+count+"\",");
+	        	} else {
+	        		sb.append("\"\",");
+	        	}
+	        	if (UserContext.isMobileRequest()) {
+	        		StringBuffer imageSB = new StringBuffer();
+	        		StringBuffer attrsSB = new StringBuffer();
+	        		attrsSB.append("\"");
+					StringBuffer htmlAttrsSB = new StringBuffer();
+	        		for (UITableColumnType col : columns) {
+	        			if ("Image".equals(col.getUiType().getType())) {
+	        				imageSB.append("\"");
+	        				Object cellValue = col.getRowExpression().getExpression().evaluate(
+									ooeeContext);
+			        		if (cellValue == null) {
+								cellValue = "";
+							}
+			        		imageSB.append(UIVariableUtil.getI18NProperty(col.getTitle())).append(":").append(cellValue).append(", ");
+			        		imageSB.append("\",");
+	        			} else if ("HTML".equals(col.getUiType().getType())) {
+	        				htmlAttrsSB.append("\"");
+	        				Object cellValue = col.getRowExpression().getExpression().evaluate(
+									ooeeContext);
+			        		if (cellValue == null) {
+								cellValue = "";
+							}
+			        		htmlAttrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle())).append(":").append(cellValue).append(", ");
+			        		htmlAttrsSB.append("\",");
+	        			} else {
+			        		Object cellValue = col.getRowExpression().getExpression().evaluate(
+									ooeeContext);
+			        		if (cellValue == null) {
+								cellValue = "";
+							}
+			        		attrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle())).append(":").append(cellValue).append(", ");
+	        			}
+		        	}
+	        		attrsSB.append("\",");
+	        		sb.append(imageSB.toString());
+	        		sb.append(attrsSB.toString());
+	        		sb.append(htmlAttrsSB.toString());
+	        	} else {
+		        	for (UITableColumnType col : columns) {
+		        		Object cellValue = col.getRowExpression().getExpression().evaluate(
+								ooeeContext);
+		        		if (cellValue == null) {
+							cellValue = "";
+						}
+		        		sb.append("\"");
+		        		sb.append(cellValue);
+		        		sb.append("\",");
+		        	}
 	        	}
 	        	sb.deleteCharAt(sb.length()-1);
 	        	sb.append("],");
+	        	
+	        	count++;
 	        }
 	        if (rows.size() > 0) {
 	        	sb.deleteCharAt(sb.length()-1);
@@ -440,6 +556,48 @@ public class Table extends Widget implements Serializable {
 		String name = "Data Report";
 		ImportTableToExcel importTable = new ImportTableToExcel(getEvaluatedResult());
 		importTable.createWorkbook(name, columnTitles).write(output);
+	}
+	
+	public void showStatistic() {
+		if (this.stats != null && this.stats.getTableName() != null 
+				&& this.stats.getTableName().trim().length() > 0) {
+			try {
+				OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+				DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+				evaContext.setVariableValue("tableName", this.stats.getTableName());
+				//TODO:
+				evaContext.setVariableValue("conditions", new HashMap());
+				ooeeContext.setDefaultEvaluationContext(evaContext);
+				ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+				List data = (List) statsExpr.evaluate(ooeeContext);
+				HashMap<String, Object> input = new HashMap<String, Object>();
+				input.put("data", data);
+	            RefForm form = new RefForm("statsChartFrom", this.stats.getUiFrom(), input);
+	            AjaxActionHelper.getAjaxContext().addElement(form);
+	            
+	            form.openInWindows("Chart Analysis Report", null, 690, 400);
+			} catch (Exception e) {
+				logger.error("error occurrs while showing chart on table: " + this.getId(), e);
+			}
+		}
+	}
+	
+	public void show() {
+		IDataItem dataItem = AjaxActionHelper.createDataItem();
+		dataItem.setUiid(this.getId());
+		dataItem.setJsHandler(IJSHandlerCollections.JAVASCRIPT);
+		dataItem.setJs("{ $($(elementList['"+this.getId()+"']).parent().parent().parent()).css(\"display\",\"block\");}");
+		dataItem.setFrameInfo(this.getFrameInfo());
+        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+	}
+	
+	public void hide() {
+		IDataItem dataItem = AjaxActionHelper.createDataItem();
+		dataItem.setUiid(this.getId());
+		dataItem.setJsHandler(IJSHandlerCollections.JAVASCRIPT);
+		dataItem.setJs("{ $($(elementList['"+this.getId()+"']).parent().parent().parent()).css(\"display\",\"none\");}");
+		dataItem.setFrameInfo(this.getFrameInfo());
+        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
 	}
 
 }

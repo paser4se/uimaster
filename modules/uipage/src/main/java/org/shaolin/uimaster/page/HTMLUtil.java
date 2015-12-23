@@ -197,7 +197,7 @@ public class HTMLUtil
         return PageCacheManager.getUIPageObject(pageName);
     }
 
-    public static UIFormObject parseUIEntity(String entityName)
+    public static UIFormObject parseUIForm(String entityName)
     {
         if (logger.isDebugEnabled())
         {
@@ -299,7 +299,7 @@ public class HTMLUtil
         IUISkin uiskinObj = null;
         if (uiskin != null)
         {
-            String uiskinName = uiskin.getSkinName();
+            String uiskinName = uiskin.getSkinName().trim();
             try
             {
                 if (skinMap.containsKey(uiskinName))

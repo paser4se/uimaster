@@ -56,7 +56,6 @@ public class HTMLButtonType extends HTMLTextWidgetType
     {
         try
         {
-        	this.getAttributeMap().put("UIStyle", "ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only");
             generateWidget(context);
             context.generateHTML("<input type=\"");
             context.generateHTML(getButtonType());
@@ -64,7 +63,6 @@ public class HTMLButtonType extends HTMLTextWidgetType
             context.generateHTML(getName());
             context.generateHTML("\"");
             generateAttributes(context);
-            generateEventListeners(context);
             context.generateHTML(" value=\"");
             if (context.isValueMask())
             {
@@ -78,6 +76,10 @@ public class HTMLButtonType extends HTMLTextWidgetType
             if (getReadOnly() != null && getReadOnly().booleanValue())
             {
                 context.generateHTML(" disabled=\"true\"");
+            }
+            else 
+            {
+            	generateEventListeners(context);
             }
             context.generateHTML(" />");
             generateEndWidget(context);

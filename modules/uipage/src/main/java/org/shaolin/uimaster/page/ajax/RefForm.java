@@ -44,31 +44,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Code Example for uientity:
+ * Code Example for Data to UI:
  * <br>
- * <br>Panel rootPanel = (Panel)@page.getElement("Form");
- * <br>String ui = "bmiasia.ebos.appbase.test.uientity.EmployeeH";
- * <br>RefForm refEntity = new RefForm("refEntity1",ui);
- * <br>rootPanel.append(refEntity);
+ * <br>HashMap input = new HashMap();
+ * <br>input.put("beObject", defaultUser);
+ * <br>input.put("editable", new Boolean(true));
+ * <br>RefForm form = new RefForm("productInfoForm", "org.shaolin.vogerp.productmodel.form.Product", input);
+ * <br>@page.addElement(form);
+ * <br><br>
+ * Code Example for UI to Data: in fact the input data stores in ref-from object after Data2UI, the 'UI2Data' operation 
+ * is beautifully performed in the easiest way after filling the data on UI.
  * <br>
+ * <br>RefForm form = (RefForm)@page.getElement(@page.getEntityUiid()); 
+ * <br>HashMap input = (HashMap)form.ui2Data();
  * <br>
- * Code Example for OD mapping when data to ui:
- * <br>
- * <br>Panel rootPanel = (Panel)@page.getElement("Form");
- * <br>String ui = "bmiasia.ebos.appbase.test.uientity.EmployeeH";
- * <br>String od = "bmiasia.ebos.appbase.test.od.EmployeeH";
- * <br>java.util.Map map = new java.util.HashMap();
- * <br>bmiasia.ebos.appbase.test.be.Employee employee = new bmiasia.ebos.appbase.test.be.Employee();
- * <br>employee.setName("ddddddddddddd");
- * <br>map.put("Employee",employee);
- * <br>RefEntity refEntity = new RefEntity("refEntity1",ui,od,map);
- * <br>rootPanel.append(refEntity);
- * <br>
- * <br>
- * if you want to get value when ui to data, you must add a SetVariable action in Server Operation
- * which is Page Out or which is UI2Data of the od component,such as:<br>
- * $name = @page.getElement('name');//get value of refEntity1's name. put this script in bmiasia.ebos.appbase.test.od.EmployeeH component.
- *
+ * @author wushaol
  */
 public class RefForm extends Container implements Serializable
 {
@@ -79,8 +69,6 @@ public class RefForm extends Container implements Serializable
     private HTMLReferenceEntityType copy;
     
     private Panel form;
-
-    private String html;
 
     private String uiid;
     
@@ -115,7 +103,7 @@ public class RefForm extends Container implements Serializable
         this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, uiEntityName, new CellLayout());
 
         this.inputParams = inputParams;
-        this.uiid = AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid;
+        this.uiid = uiid;
 
         this.setListened(true);
     }
@@ -124,6 +112,13 @@ public class RefForm extends Container implements Serializable
     {
         super(id, layout);
         setUIEntityName(uiEntityName);
+    }
+    
+    public RefForm(String id, String uiEntityName, Layout layout, Map inputParams)
+    {
+        super(id, layout);
+        setUIEntityName(uiEntityName);
+        this.inputParams = inputParams;
     }
 
     public void setCopy(HTMLReferenceEntityType copy) {
@@ -191,7 +186,21 @@ public class RefForm extends Container implements Serializable
     {
         this.variableReconfigurationMap = variableReconfigurationMap;
     }
+    
+    public void setInputParameter(String key, Object value) {
+		if(inputParams != null) 
+			inputParams.put(key, value);
+	}
+    
+	public Object getInputParameter(String key) {
+		return inputParams != null ? inputParams.get(key) : null;
+	}
 
+    public Map ui2Data()
+    {
+    	return ui2Data(this.inputParams);
+    }
+    
     public Map ui2Data(Map inputParams)
     {
         try
@@ -246,28 +255,6 @@ public class RefForm extends Container implements Serializable
     public String generateJS()
     {
     	StringBuffer sb = new StringBuffer();
-        try {
-        	AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
-        	StringWriter writer = new StringWriter();
-        	HTMLSnapshotContext htmlContext = new HTMLSnapshotContext(ajaxContext.getRequest(), writer);
-        	htmlContext.setIsDataToUI(true);
-        	htmlContext.setFormName(this.getUIEntityName());
-        	UIFormObject formObject = PageCacheManager.getUIFormObject(this.getUIEntityName());
-        	formObject.getJSPathSet(htmlContext, sb, Collections.emptyMap());
-		} catch (Exception ex) {
-			logger.error("Error in building up structure for entity: " + uiid, ex);
-		} 
-    	
-        sb.append("defaultname.").append(this.getId());
-        sb.append(" = new ").append(getJsName()).append("('");
-        sb.append(this.getId()).append(".');");
-
-        return sb.toString();
-    }
-    
-    public String generateJSWithoutJsPath()
-    {
-    	StringBuffer sb = new StringBuffer();
         sb.append("defaultname.").append(this.getId());
         sb.append(" = new ").append(getJsName()).append("('");
         sb.append(this.getId()).append(".');");
@@ -282,14 +269,10 @@ public class RefForm extends Container implements Serializable
 
     public String generateHTML()
     {
-        if (html == null)
-        {
-            buildUpRefEntity();
-        }
-        return html == null ? "" : html;
+       return buildUpRefEntity();
     }
 
-    void buildUpRefEntity()
+    String buildUpRefEntity()
     {
         try
         {
@@ -302,9 +285,7 @@ public class RefForm extends Container implements Serializable
             HTMLReferenceEntityType newReferObject = new HTMLReferenceEntityType(htmlContext,
                     this.getId(), this.getUIEntityName());
             if (inputParams == null)
-            {
                 inputParams = new HashMap();
-            }
             inputParams.put(odEntityObject.getUiParamName(), newReferObject);
             htmlContext.setHTMLPrefix("");
             htmlContext.setODMapperData(inputParams);
@@ -331,7 +312,7 @@ public class RefForm extends Container implements Serializable
             //in this method, the process sequence is from inside to outside
             //then call HTMLUIEntity.parse to process the security controls configured on lower level(in this case, security controls configured within uientity1)
             //in this method, the process sequence is from outside to inside
-            UIFormObject entity = HTMLUtil.parseUIEntity(this.getUIEntityName());
+            UIFormObject entity = HTMLUtil.parseUIForm(this.getUIEntityName());
             
             OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
             DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
@@ -347,20 +328,26 @@ public class RefForm extends Container implements Serializable
             dispatcher.forwardForm(htmlContext, 0,
                     isReadOnly(), new HTMLReferenceEntityType(htmlContext, id));
             htmlContext.getRequest().setAttribute("_framePagePrefix",oldFrameInfo);
-            html = writer.getBuffer().toString();
+            
+            // append the dynamic js files.
+        	UIFormObject formObject = PageCacheManager.getUIFormObject(this.getUIEntityName());
+        	formObject.getJSPathSet(htmlContext, Collections.emptyMap());
+            
+            return writer.getBuffer().toString();
 //            form = (Panel)htmlContext.getAJAXComponent(getId() + ".Form");
         }
         catch (Exception ex)
         {
             logger.error("Error in building up structure for entity: " + uiid, ex);
         }
+        return "";
     }
     
     public void callODMapper(HTMLSnapshotContext htmlContext, String odmapperName) throws ODException
     {
         if (logger.isDebugEnabled())
             logger.debug("callODMapper odmapper name: " + odmapperName);
-
+        
         ODProcessor processor = new ODProcessor(htmlContext, odmapperName, -1);
         processor.process();
     }

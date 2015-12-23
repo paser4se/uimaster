@@ -25,6 +25,7 @@ import org.shaolin.uimaster.page.ajax.Layout;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
+import org.shaolin.uimaster.page.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,14 +103,16 @@ public class HTMLDateType extends HTMLWidgetType
             context.generateHTML(" value=\"");
             context.generateHTML(HTMLUtil.formatHtmlValue(getValue()));
             context.generateHTML("\" />");
+            String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
+        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
             if (isRange) {
             	context.generateHTML("<img src='");
-				context.generateHTML(WebConfig.getResourceContextRoot() + "/images/controls/calendar/selectdate.gif");
+				context.generateHTML(root + "/images/controls/calendar/selectdate.gif");
 				context.generateHTML("' />");
             } else {
 	            if (getReadOnly() == null || !getReadOnly().booleanValue()) {
 		            context.generateHTML("&nbsp;&nbsp;<img src='");
-					context.generateHTML(WebConfig.getResourceContextRoot() + "/images/controls/calendar/selectdate.gif");
+					context.generateHTML(root + "/images/controls/calendar/selectdate.gif");
 					context.generateHTML("' onclick='javascript:defaultname.");
 					context.generateHTML(this.getPrefix() + this.getUIID());
 					context.generateHTML(".open();'/>");

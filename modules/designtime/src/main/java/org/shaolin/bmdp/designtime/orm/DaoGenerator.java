@@ -210,11 +210,6 @@ public class DaoGenerator implements IEntityEventListener<TableType, RDBDiagram>
 					out.write(context.getDefaultInputParams());
 					out.write(",\n           List<Order> orders, int offset, int count) {\n");
 				
-					// add head.
-					out.write("        Session session = HibernateUtil.getSessionFactory().getCurrentSession();\n");
-					out.write("        session.beginTransaction();\n");
-					out.write("        try {\n");
-					
 					// head criteria
 					out.print(context.getFirstCriteriaData());
 					// join criteria
@@ -225,53 +220,23 @@ public class DaoGenerator implements IEntityEventListener<TableType, RDBDiagram>
 					// add condition
 					out.print(context.getConditions());
 					
-					out.write("\n            List result = this._list(offset, count, ");
-					out.print(context.getFirstCriteriaName());
-					out.write(");\n");
-					if (query.getPostSearch() != null && query.getPostSearch().getExpressionString() != null) {
-						out.write("            ");
-						out.write(query.getPostSearch().getExpressionString());
-						out.write("\n            return result;\n");
+					if (query.isStatistic()) {
+						out.write("\n        List result = this.listStatistic(offset, count, ");
+						out.print("new java.util.HashMap()");
+						out.write(");\n");
 					} else {
-						out.write("            return result;\n");
+						out.write("\n        List result = this._list(offset, count, ");
+						out.print(context.getFirstCriteriaName());
+						out.write(");\n");
+					}
+					if (query.getPostSearch() != null && query.getPostSearch().getExpressionString() != null) {
+						out.write("        ");
+						out.write(query.getPostSearch().getExpressionString());
+						out.write("\n        return result;\n");
+					} else {
+						out.write("        return result;\n");
 					}
 					
-					out.write("        } finally {\n");
-					out.write("            session.getTransaction().commit();\n");
-					out.write("        }\n");
-					out.write("    }\n\n");
-					
-					// query result with out getting session.
-					out.write("    public List<" + context.getReturnType() + "> ");
-					out.write(query.getQueryName());
-					out.write("(");
-					out.write(context.getDefaultInputParams());
-					out.write(",\n           Session session, List<Order> orders, int offset, int count) {\n");	
-					out.write("        try {\n");
-					
-					// head criteria
-					out.print(context.getFirstCriteriaData());
-					// join criteria
-					out.print(context.getJoinCriteriaData());
-					// add order by.
-					out.print(context.getOrderByData());
-					out.write("\n");
-					// add condition
-					out.print(context.getConditions());
-					
-					out.write("\n            List result = this._list(offset, count, ");
-					out.print(context.getFirstCriteriaName());
-					out.write(");\n");
-					if (query.getPostSearch() != null && query.getPostSearch().getExpressionString() != null) {
-						out.write("            ");
-						out.write(query.getPostSearch().getExpressionString());
-						out.write("\n            return result;\n");
-					} else {
-						out.write("            return result;\n");
-					}
-					
-					out.write("        } finally {\n");
-					out.write("        }\n");
 					out.write("    }\n\n");
 					
 					// count result
@@ -281,11 +246,6 @@ public class DaoGenerator implements IEntityEventListener<TableType, RDBDiagram>
 					out.write(context.getDefaultInputParams());
 					out.write(") {\n");
 					
-					// add head.
-					out.write("        Session session = HibernateUtil.getSessionFactory().getCurrentSession();\n");
-					out.write("        session.beginTransaction();\n");
-					out.write("        try {\n");
-					
 					// head criteria
 					out.print(context.getFirstCriteriaData());
 					// join criteria
@@ -293,36 +253,15 @@ public class DaoGenerator implements IEntityEventListener<TableType, RDBDiagram>
 					out.write("\n");
 					// add condition
 					out.print(context.getConditions());
-					
-					out.write("\n            return this._count(");
-					out.print(context.getFirstCriteriaName());
-					out.write(");\n");
-					out.write("        } finally {\n");
-					out.write("            session.getTransaction().commit();\n");
-					out.write("        }\n");
-					out.write("    }\n\n");
-					
-					// count result with out getting session.
-					out.write("    public long ");
-					out.write(query.getQueryName());
-					out.write("Count(");
-					out.write(context.getDefaultInputParams());
-					out.write(", Session session) {\n");
-					out.write("        try {\n");
-					
-					// head criteria
-					out.print(context.getFirstCriteriaData());
-					// join criteria
-					out.print(context.getJoinCriteriaData());
-					out.write("\n");
-					// add condition
-					out.print(context.getConditions());
-					
-					out.write("\n            return this._count(");
-					out.print(context.getFirstCriteriaName());
-					out.write(");\n");
-					out.write("        } finally {\n");
-					out.write("        }\n");
+					if (query.isStatistic()) {
+						out.write("\n        return this.countStatistic(");
+						out.print("new java.util.HashMap()");
+						out.write(");\n");
+					} else {
+						out.write("\n        return this._count(");
+						out.print(context.getFirstCriteriaName());
+						out.write(");\n");
+					}
 					out.write("    }\n\n");
 					
 				} catch (Exception e) {

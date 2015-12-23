@@ -409,9 +409,9 @@ public abstract class AbstractConstant implements IConstantEntity {
 	@Override
 	public List<IConstantEntity> getConstantList() {
 		if (dynamicItems != null) {
-			return new ArrayList<IConstantEntity>(dynamicItems);
+			return dynamicItems;
 		}
-		return new ArrayList<IConstantEntity>(constantList);
+		return constantList;
 	}
 
 

@@ -1,3 +1,18 @@
+/*
+* Copyright 2015 The UIMaster Project
+*
+* The UIMaster Project licenses this file to you under the Apache License,
+* version 2.0 (the "License"); you may not use this file except in compliance
+* with the License. You may obtain a copy of the License at:
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations
+* under the License.
+*/
 package org.shaolin.bmdp.workflow.internal.type;
 
 import java.io.Serializable;
@@ -16,17 +31,18 @@ import org.shaolin.bmdp.datamodel.workflow.ExceptionHandlerType;
 import org.shaolin.bmdp.datamodel.workflow.FlowConfType;
 import org.shaolin.bmdp.datamodel.workflow.FlowType;
 import org.shaolin.bmdp.datamodel.workflow.GeneralNodeType;
-import org.shaolin.bmdp.datamodel.workflow.IntermediateNodeType;
+import org.shaolin.bmdp.datamodel.workflow.MissionNodeType;
 import org.shaolin.bmdp.datamodel.workflow.NodeType;
 import org.shaolin.bmdp.datamodel.workflow.SplitNodeType;
 import org.shaolin.bmdp.datamodel.workflow.StartNodeType;
-import org.shaolin.bmdp.datamodel.workflow.TimeoutNodeType;
 import org.shaolin.bmdp.workflow.exception.WorkflowConfigException;
 import org.shaolin.bmdp.workflow.internal.FlowValidationResult;
 
 public class FlowInfo implements Serializable {
 	
-    private final String name;
+	private static final long serialVersionUID = -5902988192420674316L;
+
+	private final String name;
 
     private final Set<NodeInfo> nodes = new HashSet<NodeInfo>();;
 
@@ -216,8 +232,8 @@ public class FlowInfo implements Serializable {
             } else if (node.getNodeType() == NodeInfo.Type.END) {
             	
             	
-            } else if (node.getNodeType() == NodeInfo.Type.INTERMEDIATE) {
-            	IntermediateNodeType gNode = (IntermediateNodeType) node.getNode();
+            } else if (node.getNodeType() == NodeInfo.Type.MISSION) {
+            	MissionNodeType gNode = (MissionNodeType) node.getNode();
                 // 1. set dest
                 DestType dest = gNode.getDest();
                 if (dest != null) {
@@ -227,21 +243,6 @@ public class FlowInfo implements Serializable {
                 }
                 // 2.init sub-flow ?
                 // 3.What to do?
-
-            } else if (node.getNodeType() == NodeInfo.Type.TIMER) {
-            	TimeoutNodeType gNode = (TimeoutNodeType) node.getNode();
-                // 1. set dest
-                DestType dest = gNode.getTimeoutDest();
-                if (dest != null) {
-                    String destName = dest.getName();
-                    NodeInfo destNode = checkDest(node, destName, graph, synGraph, false, errorMessages, appName);
-                    dest.setNode(destNode);
-                }
-                // 2.What to do?
-            } else if (node.getNodeType() == NodeInfo.Type.CANCELTIMER) {
-                // CancelTimeoutNodeInfo gNode = (CancelTimeoutNodeInfo) node;
-                // 1.What to do?
-                // 2.init sub-flow ?
 
             } else if (node.getNode() instanceof GeneralNodeType) {
             	// logic node

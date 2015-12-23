@@ -25,6 +25,8 @@ public abstract class HTMLSingleChoiceType extends HTMLChoiceType
 {
     private static final Logger logger = LoggerFactory.getLogger(HTMLSingleChoiceType.class);
 
+    private Class realValueDataType = String.class;
+    
     public HTMLSingleChoiceType()
     {
     }
@@ -59,6 +61,14 @@ public abstract class HTMLSingleChoiceType extends HTMLChoiceType
 	public void setValue(String value)
 	{
 	    setHTMLAttribute("value", value);
+	}
+	
+	public void setRealValueDataType(Class realValueDataType) {
+		this.realValueDataType = realValueDataType;
+	}
+	
+	public Class getRealValueDataType() {
+		return this.realValueDataType;
 	}
 
     private static final long serialVersionUID = 9069902870270456324L;

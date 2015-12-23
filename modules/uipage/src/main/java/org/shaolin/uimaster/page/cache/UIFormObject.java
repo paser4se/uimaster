@@ -29,16 +29,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
-import org.shaolin.bmdp.datamodel.common.NameExpressionType;
 import org.shaolin.bmdp.datamodel.common.ParamType;
 import org.shaolin.bmdp.datamodel.common.VariableType;
 import org.shaolin.bmdp.datamodel.page.ArrayPropertyType;
 import org.shaolin.bmdp.datamodel.page.BooleanPropertyType;
+import org.shaolin.bmdp.datamodel.page.ClickListenerType;
 import org.shaolin.bmdp.datamodel.page.ColorPropertyType;
+import org.shaolin.bmdp.datamodel.page.ComponentConstraintType;
 import org.shaolin.bmdp.datamodel.page.CustomListenerType;
 import org.shaolin.bmdp.datamodel.page.EventListenerType;
 import org.shaolin.bmdp.datamodel.page.ExpressionPropertyType;
 import org.shaolin.bmdp.datamodel.page.FontPropertyType;
+import org.shaolin.bmdp.datamodel.page.FunctionCallType;
 import org.shaolin.bmdp.datamodel.page.FunctionReconfigurationType;
 import org.shaolin.bmdp.datamodel.page.FunctionType;
 import org.shaolin.bmdp.datamodel.page.ImagePropertyType;
@@ -56,23 +58,29 @@ import org.shaolin.bmdp.datamodel.page.ReconfigurableVariableType;
 import org.shaolin.bmdp.datamodel.page.ReconfigurationType;
 import org.shaolin.bmdp.datamodel.page.ResourceBundlePropertyType;
 import org.shaolin.bmdp.datamodel.page.StringPropertyType;
+import org.shaolin.bmdp.datamodel.page.TableLayoutConstraintType;
 import org.shaolin.bmdp.datamodel.page.TableLayoutType;
+import org.shaolin.bmdp.datamodel.page.UIButtonType;
 import org.shaolin.bmdp.datamodel.page.UIChartType;
 import org.shaolin.bmdp.datamodel.page.UICheckBoxType;
 import org.shaolin.bmdp.datamodel.page.UIChoiceType;
 import org.shaolin.bmdp.datamodel.page.UIComboBoxType;
 import org.shaolin.bmdp.datamodel.page.UIComponentType;
 import org.shaolin.bmdp.datamodel.page.UIContainerType;
+import org.shaolin.bmdp.datamodel.page.UICustWidgetType;
 import org.shaolin.bmdp.datamodel.page.UIEntity;
 import org.shaolin.bmdp.datamodel.page.UIFileType;
 import org.shaolin.bmdp.datamodel.page.UIFlowDiagramType;
+import org.shaolin.bmdp.datamodel.page.UIFrameType;
 import org.shaolin.bmdp.datamodel.page.UIImageType;
 import org.shaolin.bmdp.datamodel.page.UILayoutType;
 import org.shaolin.bmdp.datamodel.page.UILinkType;
 import org.shaolin.bmdp.datamodel.page.UIListType;
+import org.shaolin.bmdp.datamodel.page.UIMatrixType;
 import org.shaolin.bmdp.datamodel.page.UIMultiChoiceType;
 import org.shaolin.bmdp.datamodel.page.UIPage;
 import org.shaolin.bmdp.datamodel.page.UIPanelType;
+import org.shaolin.bmdp.datamodel.page.UIPreNextPanelType;
 import org.shaolin.bmdp.datamodel.page.UIRadioButtonGroupType;
 import org.shaolin.bmdp.datamodel.page.UIReferenceEntityType;
 import org.shaolin.bmdp.datamodel.page.UISelectComponentType;
@@ -82,6 +90,7 @@ import org.shaolin.bmdp.datamodel.page.UITabPaneItemType;
 import org.shaolin.bmdp.datamodel.page.UITabPaneType;
 import org.shaolin.bmdp.datamodel.page.UITableActionType;
 import org.shaolin.bmdp.datamodel.page.UITableColumnType;
+import org.shaolin.bmdp.datamodel.page.UITableStatsType;
 import org.shaolin.bmdp.datamodel.page.UITableType;
 import org.shaolin.bmdp.datamodel.page.UITextAreaType;
 import org.shaolin.bmdp.datamodel.page.UITextComponentType;
@@ -90,6 +99,7 @@ import org.shaolin.bmdp.datamodel.page.UIWebTreeType;
 import org.shaolin.bmdp.datamodel.page.ValidatorPropertyType;
 import org.shaolin.bmdp.datamodel.page.ValidatorsPropertyType;
 import org.shaolin.bmdp.datamodel.page.VariableReconfigurationType;
+import org.shaolin.bmdp.datamodel.workflow.MissionNodeType;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.VariableUtil;
 import org.shaolin.bmdp.runtime.be.BEUtil;
@@ -130,6 +140,8 @@ public class UIFormObject implements java.io.Serializable
 
     private String name = null;
 
+    private String desc = null;
+    
     private String bodyName = null;
 
     private Map<String, Map<String, Object>> componentMap = 
@@ -142,7 +154,9 @@ public class UIFormObject implements java.io.Serializable
     private Map<String, Object> funcMap = new HashMap<String, Object>();
 
     //App Name, UIPanel Name, UI Widgets.
-    private Map<String, Map<String, List<HTMLDynamicUIItem>>> dynamicItems = new HashMap<String, Map<String, List<HTMLDynamicUIItem>>>();
+    private Map<String, Map<String, List<HTMLDynamicUIItem>>> dynamicItems; 
+    
+    private List<String> workflowActions; 
     
     private Map<String, List<OpType>> callServerSideOpMap = new HashMap<String, List<OpType>>();
 
@@ -176,7 +190,7 @@ public class UIFormObject implements java.io.Serializable
     {
         if (logger.isInfoEnabled())
         {
-            logger.info("Load uientity: " + name);
+            logger.info("Load form: " + name);
         }
         this.name = name;
         
@@ -190,6 +204,7 @@ public class UIFormObject implements java.io.Serializable
             logger.info("Load page ui: " + name);
         }
         this.name = name;
+        this.desc = entity.getDescription();
         UIEntity uientity = (UIEntity)entity.getUIEntity();
         OOEEContext parsingContext = parseVariable(entity);
         parseUI(parsingContext, uientity, null);
@@ -204,28 +219,27 @@ public class UIFormObject implements java.io.Serializable
         OOEEContext parsingContext = parseVariable(entity);
         parseUI(parsingContext, entity, null);
         HTMLUtil.includeJsFiles(name, jsIncludeMap, jsIncludeList, false);
-        HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, true);
+        HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, false);
     }
 
 
     private void parseUI(OOEEContext parsingContext, UIEntity entity, Map extraInfo)
     {
+    	this.clear();
+    	
 		if (logger.isDebugEnabled()) {
-			logger.debug("parse reconfigurable for uientity: " + name);
+			logger.debug("parse reconfigurable for form: " + name);
 		}
         parseReconfigurable(entity);
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("parse body of uientity: " + name);
+			logger.debug("parse body of form: " + name);
 		}
         UIContainerType body = entity.getBody();
         bodyName = body.getUIID();
         parseComponent(body, parsingContext);
-        if (body.getLayout() instanceof TableLayoutType)
-        {
-            bodyLayout = new HTMLCellLayout((UIPanelType)body, this, parsingContext);
-            bodyLayout.setContainer(bodyName + "-");
-        }
+        bodyLayout = new HTMLCellLayout((UIPanelType)body, this, parsingContext);
+        bodyLayout.setContainer(bodyName + "-");
         parseEventHandler(entity, parsingContext);
     }
 
@@ -240,8 +254,14 @@ public class UIFormObject implements java.io.Serializable
 			}
 			DefaultParsingContext pContext = ODContextHelper.getParsingContext(variables);
 			pContext.setVariableClass("tableCondition", TableConditions.class);
+			pContext.setVariableClass("page", AjaxContext.class);
 			ooeeContext.setDefaultParsingContext(pContext);
 			ooeeContext.setParsingContextObject("$", pContext);
+			
+			DefaultParsingContext gContext = new DefaultParsingContext();
+			gContext.setVariableClass("page", AjaxContext.class);
+			ooeeContext.setParsingContextObject("@", gContext);
+			
 			return ooeeContext;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -260,8 +280,14 @@ public class UIFormObject implements java.io.Serializable
 			}
 			DefaultParsingContext pContext = ODContextHelper.getParsingContext(variables);
 			pContext.setVariableClass("tableCondition", TableConditions.class);
+			pContext.setVariableClass("page", AjaxContext.class);
 			ooeeContext.setDefaultParsingContext(pContext);
 			ooeeContext.setParsingContextObject("$", pContext);
+			
+			DefaultParsingContext gContext = new DefaultParsingContext();
+			gContext.setVariableClass("page", AjaxContext.class);
+			ooeeContext.setParsingContextObject("@", gContext);
+			
 			return ooeeContext;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -328,7 +354,7 @@ public class UIFormObject implements java.io.Serializable
                 {
                     logger.error(
                             "Exception occured when pass the value for the reconfig variable: "
-                                    + vr.getOriginVarName() + " in uientity: " + name, e);
+                                    + vr.getOriginVarName() + " in form: " + name, e);
                 }
                 variableReconfiguration.put(vr.getOriginVarName(), expression);
             }
@@ -377,7 +403,7 @@ public class UIFormObject implements java.io.Serializable
 						logger.error(
 								"Exception occured when parse the server operation of event handler: "
 										+ func.getFunctionName()
-										+ " in uientity: " + name, e);
+										+ " in form: " + name, e);
 					}
 				}
 			}
@@ -389,23 +415,17 @@ public class UIFormObject implements java.io.Serializable
     {
     	String callAjaxName = null;
     	List<OpType> opsList = new ArrayList<OpType>();
-        for (OpType op: ops)
-        {
-            if (op instanceof OpCallAjaxType)
-            {
+        for (OpType op: ops) {
+            if (op instanceof OpCallAjaxType) {
                 OpCallAjaxType callAjaxOp = (OpCallAjaxType)op;
                 callAjaxName = callAjaxOp.getName();
             	callAjaxOp.parse(context);
             	opsList.add(callAjaxOp);
             } else if (op instanceof OpInvokeWorkflowType) {
-            	OpInvokeWorkflowType wfOp = (OpInvokeWorkflowType)op;
-            	wfOp.getCondition().parse(context);
-            	for (NameExpressionType nameExpr : wfOp.getOutDataMappings()) {
-            		if (nameExpr.getExpression() != null) {
-            			nameExpr.getExpression().parse(context);
-            		}
-            	}
-            	opsList.add(wfOp);
+            	OpInvokeWorkflowType workflowOp = (OpInvokeWorkflowType)op;
+            	callAjaxName = workflowOp.getOperationId();
+            	workflowOp.parse(context);
+            	opsList.add(workflowOp);
             }
         }
         
@@ -462,7 +482,7 @@ public class UIFormObject implements java.io.Serializable
                 {
                     logger.debug("parse reference entity: " + referenceEntity);
                 }
-                UIFormObject refEntity = HTMLUtil.parseUIEntity(referenceEntity);
+                UIFormObject refEntity = HTMLUtil.parseUIForm(referenceEntity);
                 includeMap.put(refEntity, Long.valueOf(refEntity.lastModifyTime));
                 refereneEntityList.add(referenceEntity);
                 if (logger.isDebugEnabled())
@@ -472,6 +492,18 @@ public class UIFormObject implements java.io.Serializable
                 }
                 parseReconfiguration((UIReferenceEntityType)component, propMap, i18nMap, expMap,
                         parsingContext);
+            } 
+            else if (component instanceof UIFrameType) 
+            {
+            	UIFrameType frame = (UIFrameType)component;
+            	if (frame.getChunkName() == null || frame.getChunkName().trim().isEmpty()) {
+            		throw new IllegalArgumentException("The chunk name is empty, please specify it in " + frame.getUIID());
+            	}
+            	if (frame.getNodeName() == null || frame.getNodeName().trim().isEmpty()) {
+            		throw new IllegalArgumentException("The node name is empty, please specify it in " + frame.getUIID());
+            	}
+            	propMap.put("_chunkname", frame.getChunkName());
+                propMap.put("_nodename", frame.getNodeName());
             }
             else if (component instanceof UITabPaneType)
             {
@@ -484,7 +516,7 @@ public class UIFormObject implements java.io.Serializable
 	                    String referenceEntity = tab.getRefEntity().getReferenceEntity()
 	                            .getEntityName();
 	
-	                    UIFormObject refEntity = HTMLUtil.parseUIEntity(referenceEntity);
+	                    UIFormObject refEntity = HTMLUtil.parseUIForm(referenceEntity);
 	                    includeMap.put(refEntity, Long.valueOf(refEntity.lastModifyTime));
 	                    refereneEntityList.add(referenceEntity);
 	
@@ -497,6 +529,58 @@ public class UIFormObject implements java.io.Serializable
                 }
 				propMap.put("ajaxLoad", tabPane.isAjaxLoad());
                 propMap.put("tabPaneItems", tabPane.getTabs());
+                if (tabPane.getTabSelectedAction() != null) {
+                	try {
+						tabPane.getTabSelectedAction().getExpression().parse(parsingContext);
+					} catch (ParsingException e) {
+						logger.error("Exception occured when pass the tab pane expression: "
+	                                    + component.getUIID() + " in form: " + this.name, e);
+					}
+                	propMap.put("selectedAction", tabPane.getTabSelectedAction().getExpression());
+                }
+            }
+            else if (component instanceof UIPreNextPanelType)
+            {
+            	UIPreNextPanelType preNextPanel = (UIPreNextPanelType)component;
+                List<UITabPaneItemType> tabs = preNextPanel.getTabs();
+				for (UITabPaneItemType tab : tabs)
+                {
+					if (tab.getRefEntity() != null) {
+	                    parseComponent(tab.getRefEntity(), parsingContext);
+	                    String referenceEntity = tab.getRefEntity().getReferenceEntity()
+	                            .getEntityName();
+	
+	                    UIFormObject refEntity = HTMLUtil.parseUIForm(referenceEntity);
+	                    includeMap.put(refEntity, Long.valueOf(refEntity.lastModifyTime));
+	                    refereneEntityList.add(referenceEntity);
+	
+	                    parseReconfiguration(tab.getRefEntity(), propMap,
+	                            i18nMap, expMap, parsingContext);
+					} else if (tab.getPanel() != null) {
+						parseComponent(tab.getPanel(), parsingContext);
+					}
+
+                }
+				propMap.put("ajaxLoad", preNextPanel.isAjaxLoad());
+                propMap.put("tabPaneItems", preNextPanel.getTabs());
+                if (preNextPanel.getPreviousAction() != null) {
+                	try {
+						preNextPanel.getPreviousAction().getExpression().parse(parsingContext);
+					} catch (ParsingException e) {
+						logger.error("Exception occured when pass the tab pane expression: "
+	                                    + component.getUIID() + " in form: " + this.name, e);
+					}
+                	propMap.put("previousAction", preNextPanel.getPreviousAction().getExpression());
+                }
+                if (preNextPanel.getNextAction() != null) {
+                	try {
+						preNextPanel.getNextAction().getExpression().parse(parsingContext);
+					} catch (ParsingException e) {
+						logger.error("Exception occured when pass the tab pane expression: "
+	                                    + component.getUIID() + " in form: " + this.name, e);
+					}
+                	propMap.put("nextAction", preNextPanel.getNextAction().getExpression());
+                }
             }
             else if (component instanceof UIFlowDiagramType)
             {
@@ -511,7 +595,7 @@ public class UIFormObject implements java.io.Serializable
 						flow.getLoadFlow().getExpression().parse(parsingContext);
 					} catch (ParsingException e) {
 						logger.error("Exception occured when pass the table expression: "
-                                + component.getUIID() + " in uientity: " + this.name, e);
+                                + component.getUIID() + " in form: " + this.name, e);
 					}
             		getAttribute("loadFlow", flow.getLoadFlow(), propMap, i18nMap,
                             expMap, "", parsingContext);
@@ -587,6 +671,7 @@ public class UIFormObject implements java.io.Serializable
             	UITableType table = (UITableType)component;
             	propMap.put("beElememt", table.getBeElement());
             	propMap.put("defaultRowSize", table.getDefaultRowSize());
+            	propMap.put("isShowBigItem", table.isShowBigItem());
             	propMap.put("isShowActionBar", table.isShowActionBar());
             	propMap.put("isShowFilter", table.isShowFilter());
             	propMap.put("isEditableCell", table.isEditableCell());
@@ -604,8 +689,24 @@ public class UIFormObject implements java.io.Serializable
             	}
             	propMap.put("rowFilterExpr", table.getRowFilter().getExpression());
             	propMap.put("totalExpr", table.getTotalCount().getExpression());
+            	if (table.getStats() != null) {
+            		propMap.put("statistic", table.getStats());
+            	}
             	
 				List<UITableColumnType> columns = table.getColumns();
+				if (table.isShowBigItem()) {
+					UITableColumnType htmlCol = null;
+					for (UITableColumnType col : columns) {
+						if ("HTMLItem".equalsIgnoreCase(col.getUiType().getType())) {
+							htmlCol = col;
+							break;
+						}
+					}
+					if (htmlCol == null) {
+						throw new IllegalArgumentException("Please specify a HTMLItem column for this table. "
+								+ component.getUIID() + " in form: " + this.name);
+					}
+				}
 				for (UITableColumnType col : columns) {
 					//TODO: check be field whether exists or not.
 					// col.getBeFieldId()
@@ -690,33 +791,34 @@ public class UIFormObject implements java.io.Serializable
 	    			}
 	    			UITableActionType refreshAction = new UITableActionType();
 	    			refreshAction.setUiid(table.getUIID() + "_refreshItem");
-	        		refreshAction.setFunction("");
+	        		refreshAction.setFunction("refreshTable");
 	        		refreshAction.setIcon("ui-icon-refresh");
 	        		ResourceBundlePropertyType i18nInfo = new ResourceBundlePropertyType();
 	        		i18nInfo.setBundle("Common");
 	        		i18nInfo.setKey("RefreshItem");
 	        		refreshAction.setTitle(i18nInfo);
-	        		refreshAction.setFunction("refreshTable");
 	        		seqList.add(refreshAction);
 	        		
-					UITableActionType importData = new UITableActionType();
-					importData.setFunction("importData");
-					importData.setIcon("ui-icon-arrowthickstop-1-s");
-					StringPropertyType strProperty = new StringPropertyType();
-					strProperty.setValue("Import Data");
-					importData.setTitle(strProperty);
-					importData.setUiid(table.getUIID() + "_importItem");
+	        		//TODO: not implemented yet
+//					UITableActionType importData = new UITableActionType();
+//					importData.setFunction("importData");
+//					importData.setIcon("ui-icon-arrowthickstop-1-s");
+//					StringPropertyType strProperty = new StringPropertyType();
+//					strProperty.setValue("Import Data");
+//					importData.setTitle(strProperty);
+//					importData.setUiid(table.getUIID() + "_importItem");
+//					seqList.add(importData);
 					
 					UITableActionType exportData = new UITableActionType();
 					exportData.setFunction("exportData");
 					exportData.setIcon("ui-icon-arrowthickstop-1-n");
-					StringPropertyType strProperty1 = new StringPropertyType();
-					strProperty1.setValue("Export Data");
-					exportData.setTitle(strProperty1);
+					ResourceBundlePropertyType i18nInfoExport = new ResourceBundlePropertyType();
+	        		i18nInfoExport.setBundle("Common");
+	        		i18nInfoExport.setKey("ExportItem");
+					exportData.setTitle(i18nInfoExport);
 					exportData.setUiid(table.getUIID() + "_exportItem");
-					seqList.add(importData);
 					seqList.add(exportData);
-	        		
+					
 	        		propMap.put("defaultActionGroup", seqList);
             	}
             	if (table.getActionGroups() != null && table.getActionGroups().size() > 0) {
@@ -738,6 +840,7 @@ public class UIFormObject implements java.io.Serializable
             			beClass = Class.forName(table.getBeElement());
             		}
             		localP.setVariableClass("rowBE", beClass);
+            		localP.setVariableClass("index", int.class);
 					localP.setVariableClass("tableCondition",  TableConditions.class);
 					
 					// for condition update.
@@ -753,7 +856,7 @@ public class UIFormObject implements java.io.Serializable
 					
 					for (UITableColumnType col : table.getColumns()) {
 						col.getRowExpression().getExpression().parse(parsingContext);
-						if (col.getUpdateCondition() != null) {
+						if (col.getUpdateCondition() != null && col.getUpdateCondition().getExpression() != null) {
 							col.getUpdateCondition().getExpression().parse(parsingContext);
 						}
 						if(col.getComboxExpression() != null) {
@@ -762,10 +865,10 @@ public class UIFormObject implements java.io.Serializable
 					}
 				} catch (ClassNotFoundException e) {
 					logger.error("Exception occured when pass the table expression: "
-                                    + component.getUIID() + " in uientity: " + this.name, e);
+                                    + component.getUIID() + " in form: " + this.name, e);
 				} catch (ParsingException e) {
 					logger.error("Exception occured when pass the table expression: "
-                                    + component.getUIID() + " in uientity: " + this.name, e);
+                                    + component.getUIID() + " in form: " + this.name, e);
 				}
             }
             else if (component instanceof UIWebTreeType)
@@ -774,12 +877,26 @@ public class UIFormObject implements java.io.Serializable
             	propMap.put("nodeIcon", tree.getNodeIcon());
             	propMap.put("itemIcon", tree.getItemIcon());
             	propMap.put("opened", tree.isOpened());
-            	propMap.put("expendTree", tree.getExpandTreeEvent());
             	propMap.put("selectedNode", tree.getSelectNodeEvent());
             	propMap.put("addNode", tree.getAddNodeEvent());
             	propMap.put("deleteNode", tree.getDeleteNodeEvent());
-            	propMap.put("refreshNode", tree.getRefreshNodeEvent());
-            	propMap.put("actions", tree.getActions());
+            	propMap.put("initExpr", tree.getInitExpression().getExpression());
+            	if (tree.getActions() != null) {
+            		propMap.put("actions", tree.getActions());
+            	}
+            	if (tree.getExpandExpression() != null) {
+	            	propMap.put("expandExpr", tree.getExpandExpression().getExpression());
+	            	
+	            	DefaultParsingContext localP = (DefaultParsingContext)
+	        				parsingContext.getParsingContextObject(ODContext.LOCAL_TAG);
+	        		localP.setVariableClass("selectedNode", String.class);
+	            	try {
+						tree.getExpandExpression().getExpression().parse(parsingContext);
+					} catch (ParsingException e) {
+						logger.error("Exception occured when pass the tree expanded expression: "
+	                            + component.getUIID() + " in form: " + this.name, e);
+					}
+            	}
             	
             	getEventListeners(component.getEventListeners(), eventMap);
             }
@@ -790,6 +907,7 @@ public class UIFormObject implements java.io.Serializable
             		DefaultParsingContext localP = (DefaultParsingContext)
             				parsingContext.getParsingContextObject(ODContext.LOCAL_TAG);
             		localP.setVariableClass("page", AjaxContext.class);
+            		localP.setVariableClass("condition", Object.class);
 					// for cell value evaluation.
             		Class beClass = null;
             		try {
@@ -798,45 +916,60 @@ public class UIFormObject implements java.io.Serializable
             			beClass = Class.forName(chart.getBeElement());
             		}
             		localP.setVariableClass("rowBE", beClass);
-					// for condition update.
-					localP.setVariableClass("value",  String.class);
-					localP.setVariableClass("filterId",  String.class);
 					
-					List<UITableColumnType> columns = chart.getColumns();
+            		propMap.put("columns", chart.getDatasets());
+					if (chart.getQuery() != null) {
+						chart.getQuery().getExpression().parse(parsingContext);
+						propMap.put("queryExpr", chart.getQuery().getExpression());
+					}
+					if (chart.getLabels() != null) {
+						chart.getLabels().getExpression().parse(parsingContext);
+						propMap.put("labelExpr", chart.getLabels().getExpression());
+					}
+					
+					List<UITableColumnType> columns = chart.getDatasets();
 					for (UITableColumnType col : columns) {
-						if(col.getRowExpression() == null) {
-							if (col.getBeFieldId() == null) {
-								throw new IllegalArgumentException("This column must have a befieldid in " + chart.getUIID() + " chart.");
-							}
-							ExpressionType expr = new ExpressionType();
-							expr.setExpressionString("$" + ComponentMappingHelper.getIndexedComponentPath(col.getBeFieldId(), false, ""));
-							ExpressionPropertyType p = new ExpressionPropertyType();
-							p.setExpression(expr);
-							col.setRowExpression(p);
+						if(col.getRowExpression() != null && col.getRowExpression().getExpression() != null) {
+							col.getRowExpression().getExpression().parse(parsingContext);
 						}
-						if(col.getUpdateCondition() == null && !"Label".equals(col.getUiType().getType())) {
-							if (col.getBeFieldId() == null) {
-								throw new IllegalArgumentException("This column must have a befieldid in " + chart.getUIID() + " chart.");
-							}
-							ExpressionType expr = new ExpressionType();
-							expr.setExpressionString("$" + ComponentMappingHelper.getIndexedComponentPath(col.getBeFieldId(), true, "$value"));
-							ExpressionPropertyType p = new ExpressionPropertyType();
-							p.setExpression(expr);
-							col.setUpdateCondition(p);
+						if(col.getIsVisible() != null && col.getIsVisible().getExpression() != null) {
+							col.getIsVisible().getExpression().parse(parsingContext);
 						}
-						col.getRowExpression().getExpression().parse(parsingContext);
-						if (col.getUpdateCondition() != null) {
-							col.getUpdateCondition().getExpression().parse(parsingContext);
-						}
-
 					}
 				} catch (ClassNotFoundException e) {
-					logger.error("Exception occured when pass the table expression: "
-                                    + component.getUIID() + " in uientity: " + this.name, e);
+					logger.error("Exception occured when pass the chart expression: "
+                                    + component.getUIID() + " in form: " + this.name, e);
 				} catch (ParsingException e) {
-					logger.error("Exception occured when pass the table expression: "
-                                    + component.getUIID() + " in uientity: " + this.name, e);
+					logger.error("Exception occured when pass the chart expression: "
+                                    + component.getUIID() + " in form: " + this.name, e);
 				}
+            } 
+            else if (component instanceof UIMatrixType) 
+            {
+            	UIMatrixType matrix = (UIMatrixType) component;
+            	try {
+	            	if (matrix.getColumns() != null && matrix.getColumns().size() > 0) {
+		            	List<UITableColumnType> columns = matrix.getColumns();
+						for (UITableColumnType col : columns) {
+							if(col.getRowExpression() != null && col.getRowExpression().getExpression() != null) {
+								col.getRowExpression().getExpression().parse(parsingContext);
+							}
+						}
+	            	}
+	            	matrix.getInit().getExpression().parse(parsingContext);
+	            	matrix.getCoordination().getExpression().parse(parsingContext);
+	            	propMap.put("initExpr", matrix.getInit().getExpression());
+	            	propMap.put("coordinateExpr", matrix.getCoordination().getExpression());
+            	} catch (ParsingException e) {
+					logger.error("Exception occured when pass the matrix expression: "
+                                    + component.getUIID() + " in form: " + this.name, e);
+				}
+            }
+            else if (component instanceof UICustWidgetType) 
+            {
+            	propMap.put("custType", ((UICustWidgetType)component).getCustType());
+            	getAttribute("init", ((UICustWidgetType)component).getInit(), propMap, i18nMap, expMap,
+                        "false", parsingContext);
             }
             else
             {
@@ -862,7 +995,7 @@ public class UIFormObject implements java.io.Serializable
                     catch (ParsingException e)
                     {
                         logger.error("Exception occured when pass the expression for the uiskin of the component: "
-                                        + component.getUIID() + " in uientity: " + this.name, e);
+                                        + component.getUIID() + " in form: " + this.name, e);
                     }
                 }
             }
@@ -973,6 +1106,8 @@ public class UIFormObject implements java.io.Serializable
             {
                 getAttribute("maxLength", ((UITextAreaType)component).getMaxLength(), propMap,
                         i18nMap, expMap, "", parsingContext);
+                getAttribute("htmlSupport", ((UITextAreaType)component).getHtmlSupport(), propMap,
+                        i18nMap, expMap, "", parsingContext);
             }
             if (component instanceof UILinkType)
             {
@@ -1050,6 +1185,8 @@ public class UIFormObject implements java.io.Serializable
                     parsingContext);
             getAttribute("isGallery", ((UIImageType)component).getIsGallery(), propMap, i18nMap, expMap,
                     parsingContext);
+            getAttribute("showWords", ((UIImageType)component).getShowWords(), propMap, i18nMap, expMap,
+                    parsingContext);
         }
         else if (component instanceof UIFileType)
         {
@@ -1082,13 +1219,13 @@ public class UIFormObject implements java.io.Serializable
         else if (component instanceof UIWebTreeType)
         {
         	UIWebTreeType tree = (UIWebTreeType)component;
-			getAttribute("initExpr", tree.getInitExpression(), propMap, i18nMap, expMap, "",
+			getAttribute("initValue", tree.getInitExpression(), propMap, i18nMap, expMap, "",
 					parsingContext);
         }
         else if (component instanceof UIChartType) 
         {
         	UIChartType chart = (UIChartType) component;
-        	chart.getColumns();
+        	chart.getDatasets();
         }
     }
 
@@ -1162,7 +1299,7 @@ public class UIFormObject implements java.io.Serializable
             catch (ParsingException e)
             {
                 logger.error("Exception occured when pass the expression for the attribute: "
-                                + name + " in uientity: " + this.name, e);
+                                + name + " in form: " + this.name, e);
             }
             expMap.put(name, expression);
         }
@@ -1235,7 +1372,7 @@ public class UIFormObject implements java.io.Serializable
                 catch (ParsingException e)
                 {
                     logger.error("Exception occured when pass the expression for the list attribute: "
-                                    + name + " in uientity: " + this.name, e);
+                                    + name + " in form: " + this.name, e);
                 }
             }
             else
@@ -1405,7 +1542,7 @@ public class UIFormObject implements java.io.Serializable
                     catch (EvaluationException e)
                     {
                         logger.error("Exception occured when evaluate the value of the reconfig variable: "
-                                        + key + " in uientity: " + name, e);
+                                        + key + " in form: " + name, e);
                     }
                 }
             }
@@ -1421,16 +1558,20 @@ public class UIFormObject implements java.io.Serializable
             String entityName = (String)iterator.next();
             if (!entityMap.containsKey(entityName))
             {
-                UIFormObject entityObj = HTMLUtil.parseUIEntity(entityName);
+                UIFormObject entityObj = HTMLUtil.parseUIForm(entityName);
                 entityObj.parseReferenceEntity(entityMap);
                 entityMap.put(entityName, entityObj);
             }
         }
     }
 
-    public List<OpType> getEventHandler(String callAjaxOpName)
+    public List<OpType> getEventHandler(String opName)
     {
-        return callServerSideOpMap.get(callAjaxOpName);
+        List<OpType> ops = callServerSideOpMap.get(opName);
+        if (ops != null) {
+        	return ops;
+        }
+        return null;
     }
 
     public DefaultParsingContext getVariablePContext()
@@ -1449,7 +1590,15 @@ public class UIFormObject implements java.io.Serializable
 
     public String getName()
     {
-        return name;
+        return this.name;
+    }
+    
+    public String getDescription() 
+    {
+    	if (desc != null && desc.trim().length() > 0) {
+    		return desc;
+    	}
+    	return this.name;
     }
     
     public Map getComponentProperty(String componentID)
@@ -1477,6 +1626,172 @@ public class UIFormObject implements java.io.Serializable
         return (Map)expressionMap.get(componentID);
     }
     
+	public void addWorkflowAction(String eventConsumer, MissionNodeType node) throws ParsingException {
+		if (workflowActions == null) {
+			workflowActions = new ArrayList();
+		} else {
+			clearWorkflowActions(node.getUiAction().getActionName());
+		}
+		workflowActions.add(node.getUiAction().getActionName());
+
+		// internal refresh.
+		UIEntity entity = IServerServiceManager.INSTANCE.getEntityManager()
+    			.getEntity(this.name, UIEntity.class);
+		
+		boolean hasActionPanel = false;
+		List<UIComponentType> panelList = entity.getBody().getComponents();
+		for (UIComponentType panel : panelList) {
+			if ("actionPanel".equals(panel.getUIID())) {
+				UIPanelType actionPanel = (UIPanelType) panel;
+				
+				UIButtonType button = new UIButtonType();
+				button.setUIID(node.getUiAction().getActionName());
+				ExpressionPropertyType property = new ExpressionPropertyType();
+				ExpressionType expr = new ExpressionType();
+				expr.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; "
+						+ "\n{ return UserContext.hasRole(\"" + node.getParticipant().getPartyType() + "\"); }");
+				property.setExpression(expr);
+				button.setVisible(property);
+				ExpressionPropertyType property1 = new ExpressionPropertyType();
+				ExpressionType expr1 = new ExpressionType();
+				expr1.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; \n"
+						+ "import org.shaolin.bmdp.runtime.AppContext; \n"
+						+ "import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService; \n"
+						+ "\n{ "
+						+ "\n ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class); "
+						+ "\n return !service.isPendingTask($beObject.getTaskId()); "
+						+ "\n}");
+				property1.setExpression(expr1);
+				button.setReadOnly(property1);
+				StringPropertyType originalStr = (StringPropertyType)button.getText();
+				if (originalStr == null) {
+					originalStr = new StringPropertyType();
+					originalStr.setValue(node.getUiAction().getActionText());
+					button.setText(originalStr);
+				}
+				ExpressionPropertyType strProperty = new ExpressionPropertyType();
+				ExpressionType strExpr = new ExpressionType();
+				strExpr.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; \n"
+						+ "import org.shaolin.bmdp.runtime.AppContext; \n"
+						+ "import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService; \n"
+						+ "\n{ "
+						+ "\n ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class); "
+						+ "\n return !service.isPendingTask($beObject.getTaskId()) ? \"" + originalStr.getValue() + "...\" : \"" + originalStr.getValue() + "\";"
+						+ "\n}");
+				strProperty.setExpression(strExpr);
+				button.setText(strProperty);
+				button.setUIStyle("uimaster_workflow_action");
+				ClickListenerType clickListener = new ClickListenerType();
+				FunctionCallType func = new FunctionCallType();
+				func.setFunctionName("invokeDynamicFunction(this, '" + node.getUiAction().getActionName() + "')");
+				clickListener.setHandler(func);
+				button.getEventListeners().add(clickListener);
+				
+				ComponentConstraintType constraint = new ComponentConstraintType();
+				constraint.setComponentId(node.getUiAction().getActionName());
+				TableLayoutConstraintType position = new TableLayoutConstraintType();
+				position.setX(0);
+				position.setY(0);
+				constraint.setConstraint(position);
+				actionPanel.getComponents().add(button);
+				actionPanel.getLayoutConstraints().add(constraint);
+				int count = 0;
+				for (ComponentConstraintType ct: actionPanel.getLayoutConstraints()) {
+					if (count ++ > 0) {
+						((TableLayoutConstraintType)ct.getConstraint()).setX(0);
+					}
+				}
+				
+				TableLayoutType tableLayout = (TableLayoutType) actionPanel.getLayout();
+				tableLayout.getColumnWidthWeights().add(1.0D);
+				
+				FunctionType function = new FunctionType();
+				function.setFunctionName(node.getUiAction().getActionName());
+				OpInvokeWorkflowType op = new OpInvokeWorkflowType();
+				op.setEventConsumer(eventConsumer);
+				op.setExpression(node.getUiAction().getExpression());
+				op.setPartyType(node.getParticipant().getPartyType());
+				op.setOperationId(node.getUiAction().getActionName());
+				function.getOps().add(op);
+				entity.getEventHandlers().add(function);
+				
+				// find ok button.
+				for (UIComponentType b : actionPanel.getComponents()) {
+					if ("okbtn".equals(b.getUIID())) {
+						ExpressionPropertyType property2 = new ExpressionPropertyType();
+						ExpressionType expr2 = new ExpressionType();
+						expr2.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; \n"
+								+ "import org.shaolin.bmdp.runtime.AppContext; \n"
+								+ "import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService; \n"
+								+ "\n{ "
+								+ "\n ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class); "
+								+ "\n return !service.isPendingTask($beObject.getTaskId()); "
+								+ "\n}");
+						property2.setExpression(expr2);
+						b.setReadOnly(property2);
+					}
+				}
+				
+				hasActionPanel = true;
+				break;
+			}
+		}
+		if (!hasActionPanel) {
+			throw new IllegalStateException("Workflow action has to be added on ActionPanel, this panel is not defined!");
+		}
+		
+		logger.info("reload form {} due to workflow customization", this.name);
+		load();
+	}
+    
+    public void clearWorkflowActions(String newActionName) {
+		if (this.workflowActions != null && this.workflowActions.size() > 0) {
+			UIEntity entity = IServerServiceManager.INSTANCE.getEntityManager()
+					.getEntity(this.name, UIEntity.class);
+			for (String actionName : workflowActions) {
+				if (!newActionName.equals(actionName)) {
+					continue;
+				}
+				boolean hasActionPanel = false;
+				List<UIComponentType> panelList = entity.getBody().getComponents();
+				for (UIComponentType panel : panelList) {
+					if ("actionPanel".equals(panel.getUIID())) {
+						logger.info("remove workflow action {} from {}", panel.getUIID(), this.name);
+						UIPanelType actionPanel = (UIPanelType) panel;
+						for (UIComponentType comp : actionPanel.getComponents()) {
+							if (actionName.equals(comp.getUIID())) {
+								actionPanel.getComponents().remove(comp);
+								break;
+							}
+						}
+						
+						((TableLayoutType)actionPanel.getLayout()).getColumnWidthWeights().remove(0);
+						for (ComponentConstraintType constraint : actionPanel.getLayoutConstraints()) {
+							if (actionName.equals(constraint.getComponentId())) {
+								actionPanel.getLayoutConstraints().remove(constraint);
+								break;
+							}
+						}
+						int count = 0;
+						for (ComponentConstraintType ct: actionPanel.getLayoutConstraints()) {
+							((TableLayoutConstraintType)ct.getConstraint()).setX(count ++);
+						}
+						
+						for (FunctionType func : entity.getEventHandlers()) {
+							if (actionName.equals(func.getFunctionName())) {
+								entity.getEventHandlers().remove(func);
+								break;
+							}
+						}
+					}
+				}
+				this.workflowActions.remove(actionName);
+				break;
+			}
+		}
+		
+	}
+    
     public void addDynamicLink(String uipanel, String uiwidget, String linkInfo) {
     	Map prop = getComponentProperty(uiwidget);
     	if (prop == null) {
@@ -1488,6 +1803,10 @@ public class UIFormObject implements java.io.Serializable
     
     public void addDynamicItem(HTMLDynamicUIItem item) throws EntityNotFoundException, 
 		ParsingException, ClassNotFoundException {
+    	if (this.dynamicItems == null) {
+    		this.dynamicItems = new HashMap<String, Map<String, List<HTMLDynamicUIItem>>>();
+    	}
+    	
 		if (!this.dynamicItems.containsKey(AppContext.get().getAppName())) {
 			this.dynamicItems.put(AppContext.get().getAppName(), new HashMap());
 		}
@@ -1502,7 +1821,7 @@ public class UIFormObject implements java.io.Serializable
 	}
 	
 	public List<HTMLDynamicUIItem> getDynamicItems(String panelId, String filter) {
-		if (AppContext.get() == null) {
+		if (AppContext.get() == null || this.dynamicItems == null) {
 			// App is not ready yet.
 			return null;
 		}
@@ -1524,11 +1843,47 @@ public class UIFormObject implements java.io.Serializable
 	}
 	
 	public void clearDynamicItems() {
-		this.dynamicItems.clear();
+		if (this.dynamicItems != null) {
+			this.dynamicItems.clear();
+		}
 	}
 	
 	public boolean hasDynamicItems() {
+		if (this.dynamicItems == null) {
+			return false;
+		}
 		return this.dynamicItems.size() > 0;
+	}
+	
+	public void addStatsAction(UITableStatsType uiStatsType) {
+		if (componentMap.containsKey(uiStatsType.getUiid())) {
+			Map<String, Object> propMap = componentMap.get(uiStatsType.getUiid());
+			propMap.put("statistic", uiStatsType);
+			
+			boolean added = false;
+			List<UITableActionType> actions = ((List<UITableActionType>)propMap.get("defaultActionGroup"));
+			for (UITableActionType a : actions) {
+				if (a.getUiid().equals(uiStatsType.getUiid() + "_statsItem")) {
+					added = true;
+					break;
+				}
+			}
+			if (!added) {
+				UITableActionType statsAction = new UITableActionType();
+				statsAction.setUiid(uiStatsType.getUiid() + "_statsItem");
+	    		statsAction.setFunction("statistic");
+	    		statsAction.setIcon("ui-icon-image");
+	    		ResourceBundlePropertyType statsI18nInfo = new ResourceBundlePropertyType();
+	    		statsI18nInfo.setBundle("Common");
+	    		statsI18nInfo.setKey("StatisticItem");
+	    		statsAction.setTitle(statsI18nInfo);
+	    		
+	    		actions.add(statsAction);
+			}
+		}
+	}
+	
+	public void clearStatsAction() {
 	}
     
     public String getBodyName() {
@@ -1586,7 +1941,11 @@ public class UIFormObject implements java.io.Serializable
                 	} else {
                         importJSCode = (String)this.jsIncludeMap.get(jsFileName);
                 	}
-                    importJSCode = WebConfig.replaceJsWebContext(importJSCode);
+                	if (UserContext.isMobileRequest() && UserContext.isAppClient()) {
+                		importJSCode = WebConfig.replaceAppJsWebContext(importJSCode);
+                	} else {
+                		importJSCode = WebConfig.replaceJsWebContext(importJSCode);
+                	}
                     context.generateJS(importJSCode + timestamp + "\"></script>");
                     HTMLUtil.generateTab(context, depth);
                 }
@@ -1612,9 +1971,9 @@ public class UIFormObject implements java.io.Serializable
             }
             if (jsFileName.endsWith(".js"))
             {
-                sb.append("UIMaster.require(\"").append(HTMLUtil.getWebRoot());
+                sb.append("<script type=\"text/javascript\" src=\"").append(HTMLUtil.getWebRoot());
                 sb.append(jsFileName).append("?_timestamp=").append(WebConfig.getTimeStamp())
-                        .append("\",true);");
+                        .append("\"></script>");
             }
         }
         return sb.toString();
@@ -1634,21 +1993,26 @@ public class UIFormObject implements java.io.Serializable
 			
 			if (jsFileName.endsWith(".js")) {
 				jsFileName = jsFileName.replace("\\", "/");
-				jsFileName = jsFileName.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getResourceContextRoot());
-				sb.append("UIMaster.require(\"").append(jsFileName).append("?_timestamp=").append(WebConfig.getTimeStamp()).append("\"");
-				sb.append(", true);");
+				if (UserContext.isMobileRequest() && UserContext.isAppClient()) {
+					jsFileName = jsFileName.replace(WebConfigFastCache.WebContextRoot, WebConfig.getAppContextRoot());
+					jsFileName = jsFileName.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getAppResourceContextRoot());
+				} else {
+					jsFileName = jsFileName.replace(WebConfigFastCache.WebContextRoot, WebConfig.getWebContextRoot());
+					jsFileName = jsFileName.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getResourceContextRoot());
+				}
+				sb.append("<script type=\"text/javascript\" src=\"").append(jsFileName).append("?_timestamp=").append(WebConfig.getTimeStamp());
+				sb.append("\"").append("></script>");
 			}
 		}
 
 		return sb.toString();
 	}
 	
-	public void getJSPathSet(HTMLSnapshotContext context, StringBuffer sb,
-			Map entityMap) {
+	public void getJSPathSet(HTMLSnapshotContext context, Map entityMap) {
 		if (entityMap == null) {
 			entityMap = new HashMap();
 		}
-		sb.append(importSelfJs(context));
+		context.generateJS(importSelfJs(context));
 
 		Iterator iterator = this.refereneEntityList.iterator();
 		while (iterator.hasNext()) {
@@ -1656,7 +2020,7 @@ public class UIFormObject implements java.io.Serializable
 			if (!entityMap.containsKey(entityName)) {
 				UIFormObject formObject = PageCacheManager
 						.getUIFormObject(entityName);
-				formObject.getJSPathSet(context, sb, entityMap);
+				formObject.getJSPathSet(context, entityMap);
 			}
 		}
 	}

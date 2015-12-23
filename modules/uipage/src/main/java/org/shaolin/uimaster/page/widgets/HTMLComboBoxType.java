@@ -20,6 +20,7 @@ import java.util.List;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.ajax.ComboBox;
+import org.shaolin.uimaster.page.ajax.Layout;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
@@ -198,7 +199,7 @@ public class HTMLComboBoxType extends HTMLSingleChoiceType
     
     public Widget createAjaxWidget(VariableEvaluator ee)
     {
-        ComboBox comboBox = new ComboBox(getName(), null);
+        ComboBox comboBox = new ComboBox(getName(), Layout.NULL, this.getRealValueDataType());
 
         comboBox.setReadOnly(getReadOnly());
         comboBox.setUIEntityName(getUIEntityName());

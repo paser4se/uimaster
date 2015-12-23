@@ -16,6 +16,7 @@ import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
 import org.shaolin.bmdp.runtime.entity.EntityUpdatedEvent;
 import org.shaolin.bmdp.runtime.entity.IEntityEventListener;
 import org.shaolin.bmdp.runtime.spi.IConstantService;
+import org.shaolin.bmdp.runtime.spi.ILifeCycleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * @author wushaol
  *
  */
-public class ConstantServiceImpl implements Serializable, IConstantService, IEntityEventListener<ConstantEntityType, BEDiagram> {
+public class ConstantServiceImpl implements Serializable, IConstantService, IEntityEventListener<ConstantEntityType, BEDiagram>, ILifeCycleProvider {
 
 	private static final long serialVersionUID = 7967098596510060235L;
 
@@ -33,9 +34,17 @@ public class ConstantServiceImpl implements Serializable, IConstantService, IEnt
 	
 	private final ICache<String, IConstantEntity> serverConstantMap;
 	
+	private final List hierarchy = new ArrayList();
+	
+	private HierarchyAccessor accesor;
+	
 	public ConstantServiceImpl() {
 		serverConstantMap = CacheManager.getInstance().getCache(
 				"__sys_constants_cache", String.class, IConstantEntity.class);
+	}
+	
+	public void setHierarchyAccessor(HierarchyAccessor accesor) {
+		this.accesor = accesor;
 	}
 	
 	/**
@@ -43,16 +52,22 @@ public class ConstantServiceImpl implements Serializable, IConstantService, IEnt
 	 * 
 	 * @param constants
 	 */
-	public void importData(IConstantEntity[] constants) {
+	public void importData(IConstantEntity[] constants, List h) {
 		for (IConstantEntity ce: constants) {
 			logger.info("Load the constant entity: " + ce.getEntityName() + " from DB data.");
 			serverConstantMap.put(ce.getEntityName(), ce);
 		}
+		this.hierarchy.addAll(h);
 	}
 	
 	public void reloadData(IConstantEntity constant) {
 		logger.info("Reload the constant: " + constant.getEntityName());
 		this.serverConstantMap.put(constant.getEntityName(), constant);
+	}
+	
+	public void reloadHierarchy(List hierarchy) {
+		hierarchy.clear();
+		hierarchy.addAll(hierarchy);
 	}
 	
 	public List<IConstantEntity> getAppConstants(IConstantEntity condition, int offset, int count) {
@@ -136,4 +151,112 @@ public class ConstantServiceImpl implements Serializable, IConstantService, IEnt
 			return null;
 		}
 	}
+
+	@Override
+	public void startService() {
+		
+	}
+
+	@Override
+	public boolean readyToStop() {
+		return true;
+	}
+
+	@Override
+	public void stopService() {
+		serverConstantMap.clear();
+	}
+
+	@Override
+	public void reload() {
+		
+	}
+
+	@Override
+	public int getRunLevel() {
+		return 0;
+	}
+
+	@Override
+	public IConstantEntity getConstantItem(String ceName, int intValue) {
+		IConstantEntity ce = this.getConstantEntity(ceName);
+		if (ce == null) {
+			throw new IllegalArgumentException(ceName + " is not existed!");
+		}
+		
+		List<IConstantEntity> items = ce.getConstantList();
+		for (IConstantEntity i : items) {
+			if (i.getIntValue() == intValue) {
+				return i;
+			}
+		}
+		throw new IllegalArgumentException(ceName + "." + intValue + " item is not existed!");
+	}
+	
+	@Override
+	public void updateConstantItem(IConstantEntity item) {
+		IConstantEntity ce = this.getConstantEntity(item.getEntityName());
+		if (ce == null) {
+			throw new IllegalArgumentException(item.getEntityName() + " is not existed!");
+		}
+		
+		List<IConstantEntity> items = ce.getConstantList();
+		for (int i=0; i<items.size(); i ++) {
+			if (items.get(i).getIntValue() == item.getIntValue()) {
+				items.set(i, item);
+				break;
+			}
+		}
+	}
+
+	@Override
+	public void addConstantItem(IConstantEntity item) {
+		IConstantEntity ce = this.getConstantEntity(item.getEntityName());
+		if (ce == null) {
+			throw new IllegalArgumentException(item.getEntityName() + " is not existed!");
+		}
+		
+		List<IConstantEntity> items = ce.getConstantList();
+		for (int i=0; i<items.size(); i ++) {
+			if (items.get(i).getIntValue() == item.getIntValue()) {
+				items.set(i, item);
+				return;
+			}
+		}
+		items.add(item);
+	}
+	
+	@Override
+	public void addConstantItem(IConstantEntity item, IConstantEntity child) {
+		addConstantItem(item);
+		this.reloadData(child);
+	}
+
+	@Override
+	public void removeConstantItem(IConstantEntity item) {
+		IConstantEntity ce = this.getConstantEntity(item.getEntityName());
+		if (ce == null) {
+			throw new IllegalArgumentException(item.getEntityName() + " is not existed!");
+		}
+		
+		List<IConstantEntity> items = ce.getConstantList();
+		for (int i=0; i<items.size(); i ++) {
+			if (items.get(i).getIntValue() == item.getIntValue()) {
+				items.remove(i);
+				break;
+			}
+		}
+	}
+	
+	
+	@Override
+	public IConstantEntity getChildren(IConstantEntity item) {
+		return accesor.getChild(hierarchy, item.getEntityName(), item.getIntValue());
+	}
+
+	@Override
+	public IConstantEntity getChildren(String ceName, int intValue) {
+		return accesor.getChild(hierarchy, ceName, intValue);
+	}
+
 }

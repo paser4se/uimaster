@@ -208,7 +208,7 @@ public class StringUtil
         BufferedReader reader = null;
         try
         {
-            reader = new BufferedReader(new InputStreamReader(is, "ISO-8859-1"));
+            reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
             String line = reader.readLine();
             return detectXMLEncodingInLine(line);
         }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<registry xmlns="http://bmdp.shaolin.org/datamodel/Registry">
+    <node name="System">
+        <!-- configured under C:\uimaster\deploy\apache-tomcat-8.0.9\lib\uimaster\runconfig.registry
+        <node name="spark">
+            <item name="serverAddress" value="localhost" />
+            <item name="serverPort" value="4040" />
+        </node>
+         -->
+         <node name="services">
+           <node name="analyzer_service">
+               <expression><![CDATA[
+               import org.shaolin.bmdp.runtime.AppContext;
+               import org.shaolin.bmdp.analyzer.internal.AnalyzerServiceImpl;
+               {
+                   AppContext.get().registerLifeCycleProvider(new AnalyzerServiceImpl());
+               }
+               ]]></expression>
+           </node>
+        </node>
+    </node>
+</registry>

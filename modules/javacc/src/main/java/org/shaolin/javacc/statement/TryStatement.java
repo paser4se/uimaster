@@ -47,7 +47,11 @@ public class TryStatement extends Statement
                         catch (EvaluationException e)
                         {
                             execResult.setResultCode(StatementConstants.exceptionEnding);
-                            execResult.setCauseException(e.getCause());
+                            if (e.getCause() != null) {
+                            	execResult.setCauseException(e.getCause());
+                            } else {
+                            	execResult.setCauseException(e);
+                            }
                             return execResult;
                         }
                         Block catchBlock = (Block) this.catchBlock.get(catchValueList.get(i));
