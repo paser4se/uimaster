@@ -96,11 +96,9 @@ public final class UIVariableUtil {
 		if (pvalue instanceof StringPropertyType) {
 			return ((StringPropertyType) pvalue).getValue();
 		} else if (pvalue instanceof ResourceBundlePropertyType) {
-			String userLocale = LocaleContext.getUserLocale();
 			String bundle = ((ResourceBundlePropertyType) pvalue).getBundle();
 			String key = ((ResourceBundlePropertyType) pvalue).getKey();
-			String value = ResourceUtil.getResource(bundle, key);
-			return value;
+			return ResourceUtil.getResource(LocaleContext.getUserLocale(), bundle, key);
 		} else if (pvalue instanceof ExpressionPropertyType) {
 			try {
 				ExpressionPropertyType expr = (ExpressionPropertyType) pvalue;

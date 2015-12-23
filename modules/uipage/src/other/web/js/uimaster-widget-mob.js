@@ -2858,22 +2858,48 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 UIMaster.ui.chart=UIMaster.extend(UIMaster.ui,{
     type:null,
     chart:null,
+	initialized: false,
     init:function() {
+	   if (this.initialized) return;
+	   this.initialized = true;
 	   var obj = eval("("+$(this).text()+")");
 	   this.type = obj.type;
        var ctx = $(this).get(0).getContext("2d");
        if (this.type == "HTMLChartBarType") {
-    	   this.chart = new Chart(ctx).Bar(obj, {});
+	       obj.type = "bar";
+    	   this.chart = new Chart(ctx,obj);
+		   ctx.onclick = function(evt){
+              var activeBars = myBarChart.getBarsAtEvent(evt);
+			  // => activeBars is an array of bars on the canvas that are at the same position as the click event.
+			  alert(activeBars);
+		   };
        } else if (this.type == "HTMLChartDoughnutType") {
-    	   this.chart = new Chart(ctx).Doughnut(obj.obj, {});
+	       obj.type = "doughnut";
+    	   this.chart = new Chart.Doughnut(ctx,obj.obj);
        } else if (this.type == "HTMLChartLinearType") {
-    	   this.chart = new Chart(ctx).Line(obj, {});
+	       obj.type = "line";
+		   obj.count = 1;
+    	   this.chart = new Chart(ctx,obj);
+		   ctx.onclick = function(evt){
+			   var activePoints = myLineChart.getPointsAtEvent(evt);
+				// => activePoints is an array of points on the canvas that are at the same position as the click event.
+				alert(activePoints);
+		   };
        } else if (this.type == "HTMLChartPieType") {
-    	   this.chart = new Chart(ctx).Pie(obj.data, {});
+	       obj.type = "pie";
+    	   this.chart = new Chart(ctx, obj);
        } else if (this.type == "HTMLChartPolarPieType") {
-    	   this.chart = new Chart(ctx).PolarArea(obj.data, {});
+	       obj.type = "polar";
+    	   this.chart = new Chart.PolarArea(ctx, obj.data);
+		   ctx.onclick = function(evt){
+              var activePoints = myRadarChart.getSegmentsAtEvent(evt);
+           };
        } else if (this.type == "HTMLChartRadarType") {
-    	   this.chart = new Chart(ctx).Radar(obj, {});
+	       obj.type = "radar";
+    	   this.chart = new Chart(ctx, obj);
+		   ctx.onclick = function(evt){
+              var activePoints = myRadarChart.getPointsAtEvent(evt);
+           };
        }
     }
 });

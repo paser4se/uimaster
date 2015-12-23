@@ -799,22 +799,24 @@ public class UIFormObject implements java.io.Serializable
 	        		refreshAction.setTitle(i18nInfo);
 	        		seqList.add(refreshAction);
 	        		
-					UITableActionType importData = new UITableActionType();
-					importData.setFunction("importData");
-					importData.setIcon("ui-icon-arrowthickstop-1-s");
-					StringPropertyType strProperty = new StringPropertyType();
-					strProperty.setValue("Import Data");
-					importData.setTitle(strProperty);
-					importData.setUiid(table.getUIID() + "_importItem");
+	        		//TODO: not implemented yet
+//					UITableActionType importData = new UITableActionType();
+//					importData.setFunction("importData");
+//					importData.setIcon("ui-icon-arrowthickstop-1-s");
+//					StringPropertyType strProperty = new StringPropertyType();
+//					strProperty.setValue("Import Data");
+//					importData.setTitle(strProperty);
+//					importData.setUiid(table.getUIID() + "_importItem");
+//					seqList.add(importData);
 					
 					UITableActionType exportData = new UITableActionType();
 					exportData.setFunction("exportData");
 					exportData.setIcon("ui-icon-arrowthickstop-1-n");
-					StringPropertyType strProperty1 = new StringPropertyType();
-					strProperty1.setValue("Export Data");
-					exportData.setTitle(strProperty1);
+					ResourceBundlePropertyType i18nInfoExport = new ResourceBundlePropertyType();
+	        		i18nInfoExport.setBundle("Common");
+	        		i18nInfoExport.setKey("ExportItem");
+					exportData.setTitle(i18nInfoExport);
 					exportData.setUiid(table.getUIID() + "_exportItem");
-					seqList.add(importData);
 					seqList.add(exportData);
 					
 	        		propMap.put("defaultActionGroup", seqList);

@@ -25,6 +25,7 @@ import org.shaolin.bmdp.datamodel.page.StringPropertyType;
 import org.shaolin.bmdp.datamodel.page.TableLayoutConstraintType;
 import org.shaolin.bmdp.datamodel.page.UIReferenceEntityType;
 import org.shaolin.bmdp.datamodel.page.UITabPaneItemType;
+import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.i18n.ResourceUtil;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
@@ -100,7 +101,7 @@ public class HTMLPreNextPanelType extends HTMLContainerType
                 	ResourceBundlePropertyType resourceBundle = ((ResourceBundlePropertyType)tab.getTitle());
                     String bundle = resourceBundle.getBundle();
                     String key = resourceBundle.getKey();
-                    title = ResourceUtil.getResource(bundle, key);
+                    title = ResourceUtil.getResource(LocaleContext.getUserLocale(), bundle, key);
                 } 
                 else if (tab.getTitle() instanceof StringPropertyType)
                 {

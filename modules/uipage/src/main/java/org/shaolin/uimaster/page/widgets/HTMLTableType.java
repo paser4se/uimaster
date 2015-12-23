@@ -121,9 +121,10 @@ public class HTMLTableType extends HTMLContainerType {
 						context.generateHTML(this.getPrefix() + action.getFunction());
 					}
 					context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\" title='");
-					context.generateHTML(UIVariableUtil.getI18NProperty(action.getTitle()));
+					String i18nProperty = UIVariableUtil.getI18NProperty(action.getTitle());
+					context.generateHTML(i18nProperty);
 					context.generateHTML("' icon=\""+action.getIcon()+"\"><label for=\""+htmlPrefix + action.getUiid()+"\">");
-					context.generateHTML(UIVariableUtil.getI18NProperty(action.getTitle()));
+					context.generateHTML(i18nProperty);
 					context.generateHTML("</label></input>");
 				}
 				HTMLUtil.generateTab(context, depth + 2);
@@ -148,19 +149,20 @@ public class HTMLTableType extends HTMLContainerType {
 						context.generateHTML(" id=\""+htmlPrefix+action.getUiid()+"\" onclick=\"javascript:defaultname.");
 						context.generateHTML(this.getPrefix() + action.getFunction());
 						context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\" title='");
-						context.generateHTML(UIVariableUtil.getI18NProperty(action.getTitle()));
+						String i18nProperty = UIVariableUtil.getI18NProperty(action.getTitle());
+						context.generateHTML(i18nProperty);
 						context.generateHTML("' icon=\""+action.getIcon()+"\">");
 						
 						if("button".equals(a.getType())) {
-							context.generateHTML(UIVariableUtil.getI18NProperty(action.getTitle()));
+							context.generateHTML(i18nProperty);
 							context.generateHTML("</button>");
 						} else if("radio".equals(a.getType())) {
 							context.generateHTML("<label for=\""+htmlPrefix+action.getUiid()+"\">");
-							context.generateHTML(UIVariableUtil.getI18NProperty(action.getTitle()));
+							context.generateHTML(i18nProperty);
 							context.generateHTML("</label></input>");
 						} else if("checkbox".equals(a.getType())) {
 							context.generateHTML("<label for=\""+action.getUiid()+"\">");
-							context.generateHTML(UIVariableUtil.getI18NProperty(action.getTitle()));
+							context.generateHTML(i18nProperty);
 							context.generateHTML("</label></input>");
 						}
 					}
