@@ -1680,6 +1680,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		if (this.initialized)
 			return;
 		this.initialized = true;
+		if (!IS_MOBILEVIEW) {
 		$(this).prev().children().each(function() { //#'+this.id+'ActionBar'
 			$(this).buttonset();
 			$(this).removeAttr("style");
@@ -1689,6 +1690,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				}
 			});
 		});
+		}
 		var selectMode = $(this).attr("selectMode");
 		if (selectMode == "Multiple") {
 		   this.isMultipleSelection = true;
@@ -1894,6 +1896,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		if (this.rowEmpty()) {
 			isselected = false;
 		}
+		if (IS_MOBILEVIEW) { return;}
 		if (isselected){
 			$('#'+id+"_newItem").button({disabled:true});
 			$('#'+id+"_openItem").button({disabled:false});
@@ -2103,9 +2106,11 @@ UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
 	    if (this.initialized) { return;}
 		this.initialized = true;
 		var t = this;
+		if (!IS_MOBILEVIEW) { 
 		if ($(this).prev().length > 0) {
 		    $($($(this).prev()).children()[0]).buttonset();
 			$($($(this).prev()).children()[0]).removeAttr("style");
+		}
 		}
 		var children = $(this).children();
 		var config = $(children.length == 2? children[1]:children[0]);
@@ -2552,11 +2557,11 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
             }
             this.content.dialog({
             	title: thisObj.title,
-            	height: h,
-                width: w,
+            	height: IS_MOBILEVIEW?$(window).height():h,
+                width: IS_MOBILEVIEW?"100%":w,
                 modal: true,
                 show: {
-                  effect: "blind",
+                  effect: IS_MOBILEVIEW?"slide":"blind",
                   duration: 500
                 },
                 close: function() {
@@ -2667,8 +2672,13 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
 		this.selectedIndex = currTitle.attr("index");
 		if (currTitle.attr("ajaxload") != null && currTitle.attr("ajaxload") == "true") {
         	currTitle.attr("ajaxload", null);
-        } 
-		$.ajax({url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"tabpane",_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix()}});
+        }
+        var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"tabpane",_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix()}};
+        if (MobileAppMode) {
+            _mobContext.ajax(JSON.stringify(opts));
+        } else {
+		    $.ajax(opts);
+        }
     },
     addFrameTab:function(title,url){
     	if (this.links.length == 0) {
@@ -2703,7 +2713,7 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
         
         var othis = this;
         titleHtml.click(function(){if(!$(this).attr("removed")) {othis.setTab(this)} });
-        titleHtml.children(".ui-icon-circle-close").click(function(){othis.removeTab($(this).attr("i"));});
+        titleHtml.children(".ui-icon-circle-close").click(function(){othis.removeTab(-1, $(this).attr("i"));});
         //getElementListSingle(document.getElementById("bodies-container-" + this.id));
         this._setTab(newId);
     },
@@ -2719,38 +2729,34 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
 		});
     	return updateContent;
     },
-    removeTab:function(index){
+    removeTab:function(index, matchIndex){
     	var othis = this;
         var titles = $("#titles-container-" + this.id).children(), bodies = $("#bodies-container-" + this.id).children();
-        titles.each(function(){
-        	if($(this).attr("index") == index){
-        		$(this).attr("removed","true");
-        		$(this).fadeOut(500, function(){
-        			this.remove();
-        			titles = $("#titles-container-" + othis.id).children();
-        			if(titles.length != 0)
-        				othis._setTab($(titles[titles.length-1]).attr("id"));
-        		});
-        		bodies.each(function(){
-        			if($(this).attr("index") == index){
-        				var c = $(this).children();
-        				if (c.length > 0 && c[0].tagName.toLowerCase() == "iframe") { 
-        					var obj = othis.ui;
-        					$.ajax({url:AJAX_SERVICE_URL,async:true,data:{_ajaxUserEvent:"tabpane",_uiid:othis.id,_valueName:"remveTabId",_value:$(c[0]).attr("name"),_framePrefix:UIMaster.getFramePrefix()}});
-        				}
-                		$(this).remove();
-                		return false;
-        			}
-        		});
-        		for(var i=0;i<othis.links.length;i++){
-        			if (othis.links[i].i == index) {
-        				othis.links.remove(i);
-        				break;
-        			}
-        		}
-        		return false;
-        	}
-        });
+		if (matchIndex) {titles.each(function(i,e){if($(e).attr("index")==matchIndex){index=i;return false;}});}
+		if (index < 0 || titles.length <= index){ return; }
+		
+        var selectedTab = titles[index];
+		$(selectedTab).attr("removed","true");
+		$(selectedTab).fadeOut(500, function(){
+			this.remove();
+			titles = $("#titles-container-" + othis.id).children();
+			if(titles.length != 0)
+				othis._setTab($(titles[titles.length-1]).attr("id"));
+		});
+		
+		var selectedBody = bodies[index];
+		var c = $(selectedBody).children();
+		if (c.length > 0 && c[0].tagName.toLowerCase() == "iframe") { 
+			var obj = othis.ui;
+			$.ajax({url:AJAX_SERVICE_URL,async:true,data:{_ajaxUserEvent:"tabpane",_uiid:othis.id,_valueName:"remveTabId",_value:$(c[0]).attr("name"),_framePrefix:UIMaster.getFramePrefix()}});
+		}
+		$(selectedBody).remove();
+		for(var i=0;i<othis.links.length;i++){
+			if (othis.links[i].i == matchIndex) {
+				othis.links.remove(i);
+				break;
+			}
+		}
     },
     setTabAt:function(html, index){
         var bodies = $("#bodies-container-" + this.id).children();

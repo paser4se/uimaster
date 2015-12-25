@@ -1,3 +1,12 @@
+var MobileAppMode = (typeof(_mobContext) != undefined && typeof(_mobContext) != "undefined"); 
+if (MobileAppMode) {
+    var AJAX_SERVICE_URL="";
+    var LANG = "zh-CN";
+    var USER_CONSTRAINT_IMG="/images/uimaster_constraint.gif";
+    var USER_CONSTRAINT_LEFT=false;
+    var CURTIME = "";
+    var TZOFFSET= "";
+}
 /**
  * @description Background color of the combobox.
  */
@@ -371,11 +380,18 @@ function sideBar(parentPanel, leftPanel, rightPanel) {
 		//}
 		var bodyheight = $(b).height();
 		var complement = $(window).height() - bodyheight - 20;
+        if (complement <=0) {
+            complement = $(window).height() - rp.height() - 80;//mobile fix
+        }
 		var realHeight =  rp.height() + complement;
 		if (realHeight > parseInt(rp.css("min-height"))) {
 			lp.css("height", realHeight);
 			rp.css("height", realHeight);
 		}
+		var frames = leftPanelCell.find("iframe");
+		frames.each(function(){
+			$(this).css({"height":(leftPanelCell.height() - 60) + "px"}); 
+		});
 		var frames = rightPanelCell.find("iframe");
 		frames.each(function(){
 			$(this).css({"height":(rightPanelCell.height() - 60) + "px"}); 
@@ -555,7 +571,9 @@ UIMaster.require = function(_jsName, _nocheck){
     if (_jsName.indexOf(WEB_CONTEXTPATH) == -1 && _jsName.search(RESOURCE_CONTEXTPATH) != 0) {
         _jsName = RESOURCE_CONTEXTPATH + _jsName;
     }
-    if (!UIMaster.funclist[_jsName]){
+    if (MobileAppMode) {
+        _mobContext.addResource(_jsName);
+    } else if (!UIMaster.funclist[_jsName]){
         var head = document.getElementsByTagName("head")[0] || document.documentElement, script = document.createElement("script"), data = new bmiasia_UIMaster_appbase_AjaxClient(_jsName + (_nocheck ? "" : ("?_timestamp=" + new Date().getTime()))).submitAsString();
         script.type = "text/javascript";
         UIMaster.browser.msie ? (script.text = data) : script.appendChild( document.createTextNode( data ) );
@@ -1215,14 +1233,20 @@ UIMaster.cmdHandler = function(json,status,result){
         return (w && w.window)?w:window;
     }
     var cmds, win, i;
-    cmds = json;
+    if (MobileAppMode) {
+        cmds = eval("("+json+")");
+    } else {
+        cmds = json;
+    }
     for (i=0;i<cmds.length;i++){
         win = getW(cmds[i].frameInfo);
         if (win.UIMaster.handler[cmds[i].jsHandler])
             win.UIMaster.handler[cmds[i].jsHandler](cmds[i],win);
     }
-    if ((cmds.length<=0||cmds[cmds.length-1].jsHandler!="appendError") && arguments.callee.caller.toString().indexOf('postInit')==-1) {
-        UIMaster.ui.mask.close();
+    if (!MobileAppMode) {
+        if ((cmds.length<=0||cmds[cmds.length-1].jsHandler!="appendError") && arguments.callee.caller.toString().indexOf('postInit')==-1) {
+            UIMaster.ui.mask.close();
+        }
     }
 };
 /**
@@ -1291,7 +1315,11 @@ UIMaster.triggerServerEvent = function(uiid,actionName,data,entityName,action){
     if (typeof data.completeHandler != "undefined") {
         opt2.complete = data.completeHandler; 
     }
-    $.ajax(jQuery.extend({}, opt, opt2));
+    if (MobileAppMode) {
+        _mobContext.ajax(JSON.stringify(opt));
+    } else {
+        $.ajax(jQuery.extend({}, opt, opt2));
+    }
 };
 /**
  * @description Trigger a two phase submit.

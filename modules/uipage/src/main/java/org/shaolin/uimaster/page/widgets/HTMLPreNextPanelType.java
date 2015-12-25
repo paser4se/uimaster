@@ -191,7 +191,8 @@ public class HTMLPreNextPanelType extends HTMLContainerType
             HTMLUtil.generateTab(context, depth + 1);
             context.generateHTML("</div>");
             
-            context.generateHTML("<div class=\"uimaster_prenext_buttons\"><button type=\"button\" title=\"Previous\">&lt;--</button><button type=\"button\" title=\"Next\">--&gt;</button></div>");
+            context.generateHTML("<div class=\"uimaster_prenext_buttons\"><button type=\"button\" class=\"ui-btn-inline\" title=\"Previous\">&lt;--</button>");
+    		context.generateHTML("<button type=\"button\" class=\"ui-btn-inline\" title=\"Next\">--&gt;</button></div>");
             HTMLUtil.generateTab(context, depth + 1);
             
             generateEndWidget(context);

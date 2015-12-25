@@ -104,39 +104,54 @@ public class HTMLTableType extends HTMLContainerType {
 			if (defaultActions != null) {
 				HTMLUtil.generateTab(context, depth + 2);
 				String defaultBtnSet = "defaultBtnSet_" + htmlId;
-				context.generateHTML("<span id=\""+defaultBtnSet+"\" style=\"display:none;\">");
+				if (UserContext.isMobileRequest()) {
+					context.generateHTML("<fieldset id=\""+defaultBtnSet+"\" data-role=\"controlgroup\" data-type=\"horizontal\">");
+				} else {
+					context.generateHTML("<span id=\""+defaultBtnSet+"\" style=\"display:none;\">");
+				}
 				for (UITableActionType action: defaultActions){
 					HTMLUtil.generateTab(context, depth + 3);
-					context.generateHTML("<input type=\"radio\" name=\""+defaultBtnSet+"\" id=\""+ htmlPrefix + action.getUiid());
+					String btnId = htmlPrefix + action.getUiid();
+					context.generateHTML("<input type=\"radio\" name=\""+defaultBtnSet+"\" id=\""+ btnId + "\" ");
 					if ("refreshTable".equals(action.getFunction())) {
-						context.generateHTML("\" onclick=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".refresh");
+						context.generateHTML("onclick=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".refresh");
 					} else if ("statistic".equals(action.getFunction()) && this.hasStatistic) {
-						context.generateHTML("\" onclick=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".statistic");
-					} else if ("importData".equals(action.getFunction())) {
-						context.generateHTML("\" onclick=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".importData");
+						context.generateHTML("onclick=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".statistic");
+//					} else if ("importData".equals(action.getFunction())) {
+//						context.generateHTML("onclick=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".importData");
 					} else if ("exportData".equals(action.getFunction())) {
-						context.generateHTML("\" onclick=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".exportData");
+						context.generateHTML("onclick=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".exportData");
 					} else {
-						context.generateHTML("\" onclick=\"javascript:defaultname.");
+						context.generateHTML("onclick=\"javascript:defaultname.");
 						context.generateHTML(this.getPrefix() + action.getFunction());
 					}
 					context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\" title='");
 					String i18nProperty = UIVariableUtil.getI18NProperty(action.getTitle());
 					context.generateHTML(i18nProperty);
-					context.generateHTML("' icon=\""+action.getIcon()+"\"><label for=\""+htmlPrefix + action.getUiid()+"\">");
+					context.generateHTML("' icon=\""+action.getIcon()+"\">");
+					context.generateHTML("<label for=\"" + btnId + "\">");
 					context.generateHTML(i18nProperty);
-					context.generateHTML("</label></input>");
+					context.generateHTML("</label>");
+					context.generateHTML("</input>");
 				}
 				HTMLUtil.generateTab(context, depth + 2);
-				context.generateHTML("</span>");
+				if (UserContext.isMobileRequest()) {
+					context.generateHTML("</fieldset>");
+				} else {
+					context.generateHTML("</span>");
+				}
 			}
 			List<UITableActionGroupType> actionGroups = (List<UITableActionGroupType>)this.removeAttribute("actionGroups");
 			if (actionGroups !=null && actionGroups.size() > 0) {
+				int count = 0;
 				for (UITableActionGroupType a : actionGroups) {
 					HTMLUtil.generateTab(context, depth + 2);
-					int count = 0;
 					String btnSetName = "btnSet_" + htmlId + (count++);
-					context.generateHTML("<span id=\""+btnSetName+"\" style=\"display:none;\">");
+					if (UserContext.isMobileRequest()) {
+						context.generateHTML("<fieldset id=\""+btnSetName+"\" data-role=\"controlgroup\" data-type=\"horizontal\">");
+					} else {
+						context.generateHTML("<span id=\""+btnSetName+"\" style=\"display:none;\">");
+					}
 					for (UITableActionType action: a.getActions()){
 						HTMLUtil.generateTab(context, depth + 3);
 						if("button".equals(a.getType())) {
@@ -167,7 +182,11 @@ public class HTMLTableType extends HTMLContainerType {
 						}
 					}
 					HTMLUtil.generateTab(context, depth + 2);
-					context.generateHTML("</span>");
+					if (UserContext.isMobileRequest()) {
+						context.generateHTML("</fieldset>");
+					} else {
+						context.generateHTML("</span>");
+					}
 				}
 			}
 			HTMLUtil.generateTab(context, depth + 1);

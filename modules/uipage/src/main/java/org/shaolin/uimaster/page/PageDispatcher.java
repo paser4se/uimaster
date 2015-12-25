@@ -319,7 +319,11 @@ public class PageDispatcher {
             context.generateHTML(String.valueOf(currentDate.getTimeInMillis()));
             context.generateHTML(";\nvar TZOFFSET=");
             context.generateHTML(String.valueOf(currentDate.getTimeZone().getOffset(currentDate.getTimeInMillis())));
-            context.generateHTML(";\nvar WEB_CONTEXTPATH=\"");
+            context.generateHTML(";\nvar IS_MOBILEVIEW=");
+            context.generateHTML(String.valueOf(UserContext.isMobileRequest()));
+            context.generateHTML(";\nvar MOBILE_APP_TYEP=\"");
+            context.generateHTML(String.valueOf(UserContext.isAppClient()));
+            context.generateHTML("\";\nvar WEB_CONTEXTPATH=\"");
             context.generateHTML(WebConfig.getWebContextRoot());
             context.generateHTML("\";\nvar RESOURCE_CONTEXTPATH=\"");
             if (UserContext.isMobileRequest() && UserContext.isAppClient()) {
@@ -464,21 +468,12 @@ public class PageDispatcher {
                 }
                 else
                 {
-                    Iterator iterator = ajaxWidgetMap.entrySet().iterator();
-                    while(iterator.hasNext())
-                    {
-                        Map.Entry entry = (Map.Entry)iterator.next();
-                        String uiid = (String) entry.getKey();
-                        if(uiid.startsWith(frameTarget + "."))
-                        {
-                            if(logger.isDebugEnabled())
-                                logger.debug("Remove component["+uiid+"] in cache of ui map.");
-                            iterator.remove();
-                        }
-                    }
-                    Map pageComponentMap = new HashMap();
-                    ajaxWidgetMap.put(frameTarget, pageComponentMap);
-                    context.setAjaxWidgetMap(pageComponentMap);
+                	if (ajaxWidgetMap.containsKey(frameTarget)) {
+                		throw new Exception("The sub page id["+frameTarget+"] is duplicated, please change it!!!");
+                	} 
+                	Map pageComponentMap = new HashMap();
+                	ajaxWidgetMap.put(frameTarget, pageComponentMap);
+                	context.setAjaxWidgetMap(pageComponentMap);
                 }
             }
 

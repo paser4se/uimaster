@@ -778,17 +778,17 @@ public class UIFormObject implements java.io.Serializable
 	            		action.setTitle(i18nInfo);
 	            		seqList.add(action);
 	    			}
-	    			if (table.getDefaultActions().getDefaultDeleteAction() != null) {
-	    				UITableActionType action = new UITableActionType();
-	    				action.setUiid(table.getUIID() + "_deleteItem");
-	            		action.setFunction(table.getDefaultActions().getDefaultDeleteAction());
-	            		action.setIcon("ui-icon-trash");
-	            		ResourceBundlePropertyType i18nInfo = new ResourceBundlePropertyType();
-	            		i18nInfo.setBundle("Common");
-	            		i18nInfo.setKey("DeleteItem");
-	            		action.setTitle(i18nInfo);
-	            		seqList.add(action);
-	    			}
+//	    			if (table.getDefaultActions().getDefaultDeleteAction() != null) {
+//	    				UITableActionType action = new UITableActionType();
+//	    				action.setUiid(table.getUIID() + "_deleteItem");
+//	            		action.setFunction(table.getDefaultActions().getDefaultDeleteAction());
+//	            		action.setIcon("ui-icon-trash");
+//	            		ResourceBundlePropertyType i18nInfo = new ResourceBundlePropertyType();
+//	            		i18nInfo.setBundle("Common");
+//	            		i18nInfo.setKey("DeleteItem");
+//	            		action.setTitle(i18nInfo);
+//	            		seqList.add(action);
+//	    			}
 	    			UITableActionType refreshAction = new UITableActionType();
 	    			refreshAction.setUiid(table.getUIID() + "_refreshItem");
 	        		refreshAction.setFunction("refreshTable");

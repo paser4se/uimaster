@@ -36,6 +36,7 @@ import org.shaolin.uimaster.page.ajax.json.JSONArray;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
+import org.shaolin.uimaster.page.security.UserContext;
 
 public class HTMLWebTreeType extends HTMLWidgetType {
 	
@@ -77,25 +78,35 @@ public class HTMLWebTreeType extends HTMLWidgetType {
 				String htmlId = this.getPrefix().replace('.', '_') + this.getUIID();
 				String defaultBtnSet = "defaultBtnSet_" + htmlId;
 				context.generateHTML("<div class=\"ui-widget-header ui-corner-all\">");
-				context.generateHTML("<span style=\"display:none;\">");
+				if (UserContext.isMobileRequest()) {
+					context.generateHTML("<fieldset id=\""+defaultBtnSet+"\" data-role=\"controlgroup\" data-type=\"horizontal\">");
+				} else {
+					context.generateHTML("<span style=\"display:none;\">");
+				}
 				for (UITableActionType action: actions){
 					context.generateHTML("<span event=\"javascript:defaultname.");
 					context.generateHTML(this.getPrefix() + action.getFunction());
 					context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\" title='");
-					context.generateHTML(UIVariableUtil.getI18NProperty(action.getTitle()));
+					String i18nProperty = UIVariableUtil.getI18NProperty(action.getTitle());
+					context.generateHTML(i18nProperty);
 					context.generateHTML("'></span>");
 					HTMLUtil.generateTab(context, depth + 3);
-					context.generateHTML("<input type=\"radio\" name=\""+defaultBtnSet+"\" id=\""+ htmlPrefix + action.getUiid());
-					context.generateHTML("\" onclick=\"javascript:defaultname.");
+					String btnId = htmlPrefix + action.getUiid();
+					context.generateHTML("<input type=\"radio\" name=\""+defaultBtnSet+"\" id=\""+ btnId + "\" ");
+					context.generateHTML("onclick=\"javascript:defaultname.");
 					context.generateHTML(this.getPrefix() + action.getFunction());
 					context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\" title='");
-					context.generateHTML(UIVariableUtil.getI18NProperty(action.getTitle()));
-					context.generateHTML("' icon=\""+action.getIcon()+"\"><label for=\""+ htmlPrefix + action.getUiid()+"\">");
-					context.generateHTML(UIVariableUtil.getI18NProperty(action.getTitle()));
+					context.generateHTML(i18nProperty);
+					context.generateHTML("' icon=\""+action.getIcon()+"\">");
+					context.generateHTML("<label for=\""+ btnId + "\">");
+					context.generateHTML(i18nProperty);
 					context.generateHTML("</label></input>");
-					
 				}
-				context.generateHTML("</span>");
+				if (UserContext.isMobileRequest()) {
+					context.generateHTML("</fieldset>");
+				} else {
+					context.generateHTML("</span>");
+				}
 				context.generateHTML("</div>");
 			}
 			
