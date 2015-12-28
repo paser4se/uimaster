@@ -349,7 +349,11 @@ public class BEEntityDaoObject {
 	 */
 	protected long _count(Criteria criteria) {
 		criteria.setProjection(Projections.rowCount());
-		return (Long)criteria.uniqueResult();
+		Object result = criteria.uniqueResult();
+		if (result == null) {
+			return 0;
+		}
+		return (Long)result;
 	}
 	
 	public long count(Class<?> persistentClass) {

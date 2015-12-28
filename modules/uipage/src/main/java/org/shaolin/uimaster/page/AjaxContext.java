@@ -433,7 +433,7 @@ public class AjaxContext extends OpExecuteContext implements Serializable
             return false;
         }
         Map map = getFrameComponentMap(frameName);
-        return map.containsKey(comp.getId()) && comp == map.get(comp.getId());
+        return map != null && map.containsKey(comp.getId()) && comp == map.get(comp.getId());
     }
 
     public boolean existElmByAbstId(String absoluteUiid, String frameName)

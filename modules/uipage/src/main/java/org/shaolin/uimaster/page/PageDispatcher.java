@@ -162,7 +162,7 @@ public class PageDispatcher {
             htmlComponent.addAttribute(tempMap);
             htmlComponent.addEventListener(eventMap);
             htmlComponent.setPrefix(context.getHTMLPrefix());
-            realReadOnly = htmlComponent.getReadOnly();
+            realReadOnly = htmlComponent.isReadOnly();
 
             IUISkin uiskinObj = uiEntity.getUISkinObj(uiEntity.getBodyName(), ee, htmlComponent);
             if (uiskinObj != null)
@@ -469,7 +469,9 @@ public class PageDispatcher {
                 else
                 {
                 	if (ajaxWidgetMap.containsKey(frameTarget)) {
-                		throw new Exception("The sub page id["+frameTarget+"] is duplicated, please change it!!!");
+                		throw new Exception("The sub page id["+frameTarget
+                				+ "] is duplicated, please rename the sub page id in pageflow node!!!"
+                				+ ", Page name: " + pageObject.getUIForm().getName());
                 	} 
                 	Map pageComponentMap = new HashMap();
                 	ajaxWidgetMap.put(frameTarget, pageComponentMap);
