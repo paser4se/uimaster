@@ -6,6 +6,9 @@ if (MobileAppMode) {
     var USER_CONSTRAINT_LEFT=false;
     var CURTIME = "";
     var TZOFFSET= "";
+	$(document).bind('mobileinit',function(){
+	  $.mobile.page.prototype.options.keepNative = "select,input.foo";
+	});
 }
 /**
  * @description Background color of the combobox.
@@ -375,12 +378,9 @@ function sideBar(parentPanel, leftPanel, rightPanel) {
 		} 
 		
 		var b = p.parents("body:first");
-		//while(p[0].tagName.toLowerCase()!="form") {
-			//p = $(p).parent();
-		//}
 		var bodyheight = $(b).height();
 		var complement = $(window).height() - bodyheight - 20;
-        if (complement <=0) {
+        if (complement < 0) {
             complement = $(window).height() - rp.height() - 80;//mobile fix
         }
 		var realHeight =  rp.height() + complement;
@@ -1085,23 +1085,42 @@ UIMaster.registerHandler("fadeOut", function(data,win){
     for (i in win.elementList)
         if (i.indexOf(data.uiid) == 0)
         	e = win.elementList[i];
-    if(!e)
-    	 return;
+    if(!e) return;
     if (data.name == undefined) {
        e.removeAttr(data.data);
     } else {
 	   e.removeAttr(data.name);
     }
 }).registerHandler("update_event",function(data,win){
+    var e,i;
+    for (i in win.elementList)
+        if (i.indexOf(data.uiid) == 0)
+        	e = win.elementList[i];
+    if(!e) return;
 	var attribute = win.eval("("+data.data+")");
-	win.$('#'+data.uiid).bind(attribute.name, attribute.value);
+	e.bind(attribute.name, attribute.value);
 }).registerHandler("remove_event",function(data,win){
-	win.$('#'+data.uiid).unbind(data.name);
+    var e,i;
+    for (i in win.elementList)
+        if (i.indexOf(data.uiid) == 0)
+        	e = win.elementList[i];
+    if(!e) return;
+	e.unbind(data.name);
 }).registerHandler("update_style",function(data,win){
+    var e,i;
+    for (i in win.elementList)
+        if (i.indexOf(data.uiid) == 0)
+        	e = win.elementList[i];
+    if(!e) return;
 	var attribute = win.eval("("+data.data+")");
-	win.$('#'+data.uiid).addClass(attribute.name, attribute.value);
+	$(e).css(attribute.name, attribute.value);
 }).registerHandler("remove_style",function(data,win){
-	win.$('#'+data.uiid).removeClass(data.name);
+    var e,i;
+    for (i in win.elementList)
+        if (i.indexOf(data.uiid) == 0)
+        	e = win.elementList[i];
+    if(!e) return;
+	$(e).css(data.name, "none");
 }).registerHandler("update_const",function(data,win){
 	if (data.readonly == "true") {
 		return;

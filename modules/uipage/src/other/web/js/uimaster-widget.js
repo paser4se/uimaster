@@ -1551,6 +1551,9 @@ UIMaster.ui.label = UIMaster.extend(UIMaster.ui.hidden, /** @lends UIMaster.ui.l
         var n = this.parentNode.parentNode, k = n.previousSibling ? (n.previousSibling.nodeType == 1?n.previousSibling:n.previousSibling.previousSibling):null;
         k ? k.childNodes[0].nodeValue = text : $(n).before($('<label></label>').attr({'id':this.name+'_widgetLabel','for':this.name}).addClass("uimaster_widgetLabel").css('display','block').text(text));
     },
+	addAttr: function(a){
+		this.setText(a.value);
+	},
     /**
      * @description Set the widget's text.
      * @param {String} text Text to set.
@@ -2570,6 +2573,7 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
                 },
                 buttons: buttonset
             });
+			if (IS_MOBILEVIEW) {$(this.content).trigger('create');}
             $($("#"+this.id).children().get(0)).attr("_framePrefix",this.frameInfo);
             getElementListSingle(this.content);
             eval(this.js);
@@ -2666,7 +2670,7 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
         var currTitle=$("#"+tabObj), titleContainer=currTitle.parent(), titles=titleContainer.children(), bodies=titleContainer.next().children();
         for(var i=0;i<titles.length;i++){$(titles[i]).removeClass("ui-tabs-active").removeClass("ui-state-active").attr("style",null);};
         for(var i=0;i<bodies.length;i++){$(bodies[i]).removeClass("tab-selected-body").addClass("tab-unselected-body");};
-        currTitle.addClass("ui-tabs-active").addClass("ui-state-active").attr("style","border-bottom: 1px solid white");
+        currTitle.addClass("ui-tabs-active").addClass("ui-state-active").attr("style","border-bottom: 1px solid white;");
         $("#"+currTitle.attr("id").replace("titles","body")).removeClass("tab-unselected-body").addClass("tab-selected-body");
         titleContainer.attr("selectedIndex",currTitle.attr("index"));
 		this.selectedIndex = currTitle.attr("index");
@@ -2724,6 +2728,7 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
 			if($(this).attr("uiid") == tabUiid){
 				$(html).appendTo($(this));
 				updateContent = $(this);
+				if (IS_MOBILEVIEW) {$(this).trigger('create');}
         		return false;
 			}
 		});
