@@ -82,7 +82,7 @@ public class HTMLCheckBoxGroupType extends HTMLMultiChoiceType
                     logger.error("display size && output size not equal!", new Exception());
                 }
                 generateWidget(context);
-                if (getReadOnly() != null && getReadOnly().booleanValue())
+                if (isReadOnly() != null && isReadOnly().booleanValue())
                 {
                     String value = "";
                     for (int i = 0; i < displayOptions.size(); i++)
@@ -177,7 +177,7 @@ public class HTMLCheckBoxGroupType extends HTMLMultiChoiceType
     {
         CheckBoxGroup checkBoxGroup = new CheckBoxGroup(getName(), Layout.NULL);
         
-        checkBoxGroup.setReadOnly(getReadOnly());
+        checkBoxGroup.setReadOnly(isReadOnly());
         checkBoxGroup.setUIEntityName(getUIEntityName());
 
         checkBoxGroup.setOptions(getOptionDisplayValues(), getOptionValues());

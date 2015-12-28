@@ -213,7 +213,7 @@ public class HTMLPanelType extends HTMLContainerType
         
         panel.setDivPrefix(getContext().getDIVPrefix());
         
-        panel.setReadOnly(getReadOnly());
+        panel.setReadOnly(isReadOnly());
         panel.setUIEntityName(getUIEntityName());
         panel.setListened(true);
         panel.setFrameInfo(getFrameInfo());

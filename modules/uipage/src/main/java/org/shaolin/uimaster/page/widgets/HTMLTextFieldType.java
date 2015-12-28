@@ -91,7 +91,7 @@ public class HTMLTextFieldType extends HTMLTextWidgetType
                 context.generateHTML("\naddOnLoadEvent(EventExecutor('" + getName() + "'));");
                 context.generateHTML("\n</script>");
             }
-            if ( getReadOnly() != null && getReadOnly().booleanValue() )
+            if ( isReadOnly() != null && isReadOnly().booleanValue() )
             {
                 addAttribute("allowBlank", "true");
                 addAttribute("readOnly", "true");
@@ -169,7 +169,7 @@ public class HTMLTextFieldType extends HTMLTextWidgetType
     {
         TextField textField = new TextField(getName(), Layout.NULL);
 
-        textField.setReadOnly(getReadOnly());
+        textField.setReadOnly(isReadOnly());
         textField.setUIEntityName(getUIEntityName());
 
         // we don't expect to anything except the pure value 

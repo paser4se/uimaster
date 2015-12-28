@@ -56,7 +56,7 @@ abstract public class TextWidget extends Widget implements Serializable
         {
             return;
         }
-        
+        // disable it by default due to the server side update.
         addAttribute("value", value, false);
         
         if(!this.isListened())
@@ -70,11 +70,12 @@ abstract public class TextWidget extends Widget implements Serializable
             return;
         }
         
-        String str =  HTMLUtil.handleEscape(String.valueOf(value));
-        IDataItem dataItem = AjaxActionHelper.updateAttrItem(this.getId(), str);
+        StringBuffer sb = new  StringBuffer();
+        sb.append("{'name':'value','value':'");
+        sb.append(HTMLUtil.handleEscape(String.valueOf(value)));
+        sb.append("'}");
+        IDataItem dataItem = AjaxActionHelper.updateAttrItem(this.getId(), sb.toString());
         dataItem.setFrameInfo(getFrameInfo());
-        // Value update is more special than other attribute.
-        dataItem.setSibling("TEXTCOMPONENT_VALUE_UPDATE");
         ajaxContext.addDataItem(dataItem);
     }
     

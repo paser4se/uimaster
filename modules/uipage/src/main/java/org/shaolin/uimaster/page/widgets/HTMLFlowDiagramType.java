@@ -213,7 +213,7 @@ public class HTMLFlowDiagramType extends HTMLWidgetType
 	    	FlowDiagram t = new FlowDiagram(getName(), Layout.NULL, flow, (List)dataModel);
 	    	t.setLoadFlowExpr((ExpressionType)this.removeAttribute("loadFlowExpr"));
 	    	t.setLoadDataModelExpr((ExpressionType)this.removeAttribute("loadDateModelExpr"));
-	        t.setReadOnly(getReadOnly());
+	        t.setReadOnly(isReadOnly());
 	        t.setUIEntityName(getUIEntityName());
 	        t.setListened(true);
 	        t.setFrameInfo(getFrameInfo());
@@ -222,7 +222,7 @@ public class HTMLFlowDiagramType extends HTMLWidgetType
     		this.removeAttribute("loadDataModelExpr");
     		this.removeAttribute("loadFlowExpr");
     		WorkFlowDiagram t = new WorkFlowDiagram(getName(), Layout.NULL, flow, (Workflow)dataModel);
-	        t.setReadOnly(getReadOnly());
+	        t.setReadOnly(isReadOnly());
 	        t.setUIEntityName(getUIEntityName());
 	        t.setListened(true);
 	        t.setFrameInfo(getFrameInfo());

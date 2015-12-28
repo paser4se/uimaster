@@ -159,7 +159,7 @@ public class HTMLWebTreeType extends HTMLWidgetType {
         		(ExpressionType) this.removeAttribute("initExpr"),
         		(ExpressionType) this.removeAttribute("expandExpr"));
 
-        tree.setReadOnly(getReadOnly());
+        tree.setReadOnly(isReadOnly());
         tree.setUIEntityName(getUIEntityName());
 
         tree.setListened(true);

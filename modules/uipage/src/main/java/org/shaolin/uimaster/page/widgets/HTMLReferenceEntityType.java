@@ -331,7 +331,7 @@ public class HTMLReferenceEntityType extends HTMLWidgetType implements Serializa
     		evaContext = new DefaultEvaluationContext();
     	}
         PageDispatcher dispatcher = new PageDispatcher(entity, evaContext);
-        dispatcher.forwardForm(context, depth, getReadOnly(), this);
+        dispatcher.forwardForm(context, depth, isReadOnly(), this);
     }
     
     public String getDIVPrefix()
@@ -362,7 +362,7 @@ public class HTMLReferenceEntityType extends HTMLWidgetType implements Serializa
         String refEntityName = this.getReferenceEntity();
         RefForm referenceEntity = new RefForm(getName(), refEntityName, Layout.NULL, evalContext.getVariableObjects());
         referenceEntity.setCopy(copy);
-        referenceEntity.setReadOnly(getReadOnly());
+        referenceEntity.setReadOnly(isReadOnly());
         referenceEntity.setListened(true);
         referenceEntity.setFrameInfo(getFrameInfo());
         return referenceEntity;

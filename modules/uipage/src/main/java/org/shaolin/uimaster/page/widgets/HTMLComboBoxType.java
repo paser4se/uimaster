@@ -74,7 +74,7 @@ public class HTMLComboBoxType extends HTMLSingleChoiceType
                     logger.error("display size && output size not equal!", new Exception());
                     displayOptions = options;
                 }
-                if (getReadOnly() != null && getReadOnly().booleanValue())
+                if (isReadOnly() != null && isReadOnly().booleanValue())
                 {
                     addAttribute("allowBlank", "true");
                     String UIStyle = (String)getAllAttribute("UIStyle");
@@ -167,7 +167,7 @@ public class HTMLComboBoxType extends HTMLSingleChoiceType
             }
             else
             {
-                if (getReadOnly() != null && getReadOnly().booleanValue())
+                if (isReadOnly() != null && isReadOnly().booleanValue())
                 {
                     addAttribute("allowBlank", "true");
                     addAttribute("readOnly", "true");
@@ -201,7 +201,7 @@ public class HTMLComboBoxType extends HTMLSingleChoiceType
     {
         ComboBox comboBox = new ComboBox(getName(), Layout.NULL, this.getRealValueDataType());
 
-        comboBox.setReadOnly(getReadOnly());
+        comboBox.setReadOnly(isReadOnly());
         comboBox.setUIEntityName(getUIEntityName());
 
         comboBox.setOptions(getOptionDisplayValues(), getOptionValues());

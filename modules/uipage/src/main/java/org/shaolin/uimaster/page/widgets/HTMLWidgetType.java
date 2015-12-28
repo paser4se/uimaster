@@ -106,12 +106,7 @@ public abstract class HTMLWidgetType implements Serializable
     {
         return prefix;
     }
-
-    public Boolean getReadOnly()
-    {
-        return readOnly;
-    }
-
+    
     public String getName()
     {
         return getName(true);
@@ -527,7 +522,7 @@ public abstract class HTMLWidgetType implements Serializable
             if (type != null)
             {
                 String defaultCssClass = "uimaster_" + type.substring(0, 1).toLowerCase() + type.substring(1, type.length()-4);
-                if (getReadOnly() != null && getReadOnly().booleanValue())
+                if (isReadOnly() != null && isReadOnly().booleanValue())
                 {
                     defaultCssClass += "_readonly";
                 }
@@ -849,6 +844,11 @@ public abstract class HTMLWidgetType implements Serializable
         return context;
     }
 
+    public Boolean isReadOnly()
+    {
+        return readOnly;
+    }
+    
     public boolean isVisible()
     {
         String visible = (String) getAllAttribute("visible");
@@ -867,8 +867,8 @@ public abstract class HTMLWidgetType implements Serializable
     
     public boolean isEditable()
     {
-        String editable = (String) getAllAttribute("editable");
-        return editable == null ? true : "true".equals(editable);
+        Object editable = getAllAttribute("editable");
+        return editable == null ? true : "true".equals(editable.toString());
     }
 
     public void setEditable(boolean editable)

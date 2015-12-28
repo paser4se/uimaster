@@ -83,7 +83,7 @@ public class HTMLHiddenType extends HTMLTextWidgetType
     {
         Hidden hidden = new Hidden(getName(), Layout.NULL);
 
-        hidden.setReadOnly(getReadOnly());
+        hidden.setReadOnly(isReadOnly());
         hidden.setUIEntityName(getUIEntityName());
 
         if (this.getAttribute("secure") != null) {

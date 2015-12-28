@@ -284,7 +284,7 @@ public class HTMLTabPaneType extends HTMLContainerType
     	TabPane panel = new TabPane(getName(), tabs, selectedIndex, new CellLayout());
     	panel.setAjaxLoad((boolean)this.getAttribute("ajaxLoad"));
     	panel.setSelectedAction(selectedAction);
-        panel.setReadOnly(getReadOnly());
+        panel.setReadOnly(isReadOnly());
         panel.setUIEntityName(getUIEntityName());
         panel.setListened(true);
         panel.setFrameInfo(getFrameInfo());

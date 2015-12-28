@@ -21,6 +21,7 @@ import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Layout;
 import org.shaolin.uimaster.page.ajax.PasswordField;
 import org.shaolin.uimaster.page.ajax.Widget;
+import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,12 +44,13 @@ public class HTMLPasswordFieldType extends HTMLTextFieldType
         super(context, id);
     }
 
-    public void generateEndHTML(HTMLSnapshotContext context, int depth)
+    @Override
+    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
             generateWidget(context);
-            if ( getReadOnly() != null && getReadOnly().booleanValue() )
+            if ( isReadOnly() != null && isReadOnly().booleanValue() )
             {
                 addAttribute("allowBlank", "true");
                 addAttribute("readOnly", "true");
@@ -76,11 +78,12 @@ public class HTMLPasswordFieldType extends HTMLTextFieldType
         }
     }
     
+    @Override
     public Widget createAjaxWidget(VariableEvaluator ee)
     {
         PasswordField password = new PasswordField(getName(), Layout.NULL);
 
-        password.setReadOnly(getReadOnly());
+        password.setReadOnly(isReadOnly());
         password.setUIEntityName(getUIEntityName());
 
         password.setValue(getValue());

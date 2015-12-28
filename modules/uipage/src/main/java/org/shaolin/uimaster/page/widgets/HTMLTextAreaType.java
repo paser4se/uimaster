@@ -61,7 +61,7 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
         try
         {
             generateWidget(context);
-            if ( getReadOnly() != null && getReadOnly().booleanValue() )
+            if ( isReadOnly() != null && isReadOnly().booleanValue() )
             {
                 addAttribute("allowBlank", "true");
                 addAttribute("readOnly", "true");
@@ -172,7 +172,7 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
     {
         TextArea textArea = new TextArea(getName(), Layout.NULL);
 
-        textArea.setReadOnly(getReadOnly());
+        textArea.setReadOnly(isReadOnly());
         textArea.setUIEntityName(getUIEntityName());
 
         // we don't expect to anything except the pure value 

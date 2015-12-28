@@ -63,7 +63,7 @@ public class HTMLCheckBoxType extends HTMLSelectComponentType
             context.generateHTML("\"");
             generateAttributes(context);
             generateEventListeners(context);
-            if (getReadOnly() != null && getReadOnly().booleanValue())
+            if (isReadOnly() != null && isReadOnly().booleanValue())
             {
                 context.generateHTML(" disabled=\"true\"");
             }
@@ -81,7 +81,9 @@ public class HTMLCheckBoxType extends HTMLSelectComponentType
             }
             else
             {
-                context.generateHTML(HTMLUtil.htmlEncode(getLabel()));
+				if (getLabel() != null && !"null".equals(getName())) {
+					context.generateHTML(HTMLUtil.htmlEncode(getLabel()));
+				}
             }
             if (getName() == null || "null".equals(getName())) {
             	context.generateHTML("</label>");
@@ -102,7 +104,7 @@ public class HTMLCheckBoxType extends HTMLSelectComponentType
     {
         CheckBox checkBox = new CheckBox(getName(), null);
 
-        checkBox.setReadOnly(getReadOnly());
+        checkBox.setReadOnly(isReadOnly());
         checkBox.setUIEntityName(getUIEntityName());
 
         checkBox.setLabel(getLabel());

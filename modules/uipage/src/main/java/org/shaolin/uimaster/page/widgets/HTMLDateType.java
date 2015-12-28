@@ -91,7 +91,8 @@ public class HTMLDateType extends HTMLWidgetType
     {
         try
         {
-			if (getReadOnly() != null && getReadOnly().booleanValue()) {
+        	boolean isReadOnly = isReadOnly() != null && isReadOnly().booleanValue();
+			if (isReadOnly) {
 				addAttribute("allowBlank", "true");
 				addAttribute("readOnly", "true");
 			}
@@ -103,14 +104,15 @@ public class HTMLDateType extends HTMLWidgetType
             context.generateHTML(" value=\"");
             context.generateHTML(HTMLUtil.formatHtmlValue(getValue()));
             context.generateHTML("\" />");
-            String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
-        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
-            if (isRange) {
-            	context.generateHTML("<img src='");
-				context.generateHTML(root + "/images/controls/calendar/selectdate.gif");
-				context.generateHTML("' />");
-            } else {
-	            if (getReadOnly() == null || !getReadOnly().booleanValue()) {
+            
+            if (!isReadOnly && isEditable()) {
+	            String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
+	        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
+	            if (isRange) {
+	            	context.generateHTML("<img src='");
+					context.generateHTML(root + "/images/controls/calendar/selectdate.gif");
+					context.generateHTML("' />");
+	            } else {
 		            context.generateHTML("&nbsp;&nbsp;<img src='");
 					context.generateHTML(root + "/images/controls/calendar/selectdate.gif");
 					context.generateHTML("' onclick='javascript:defaultname.");
@@ -169,7 +171,7 @@ public class HTMLDateType extends HTMLWidgetType
     {
         Calendar calendar = new Calendar(getName(), Layout.NULL);
 
-        calendar.setReadOnly(getReadOnly());
+        calendar.setReadOnly(isReadOnly());
         calendar.setUIEntityName(getUIEntityName());
 
         // we don't expect to anything except the pure value 

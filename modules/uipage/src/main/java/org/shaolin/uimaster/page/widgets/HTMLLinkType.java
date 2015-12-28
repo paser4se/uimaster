@@ -148,7 +148,7 @@ public class HTMLLinkType extends HTMLLabelType
     {
         Link link = new Link(getName(), null);
 
-        link.setReadOnly(getReadOnly());
+        link.setReadOnly(isReadOnly());
         link.setUIEntityName(getUIEntityName());
 
         link.setValue(getValue());

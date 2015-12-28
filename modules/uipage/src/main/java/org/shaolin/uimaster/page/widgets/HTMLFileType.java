@@ -98,7 +98,7 @@ public class HTMLFileType extends HTMLTextWidgetType
     {
         AFile file = new AFile(getName(), Layout.NULL);
 
-        file.setReadOnly(getReadOnly());
+        file.setReadOnly(isReadOnly());
         file.setUIEntityName(getUIEntityName());
         file.setStoredPath(this.getAttribute("storedPath").toString());
         if (file.getStoredPath().trim().isEmpty()) {

@@ -113,7 +113,7 @@ public class HTMLRadioButtonGroupType extends HTMLSingleChoiceType
 					HTMLUtil.generateTab(context, depth + 1);
 					context.generateHTML("</ol></div>");
                 } 
-                else if (getReadOnly() != null && getReadOnly().booleanValue())
+                else if (isReadOnly() != null && isReadOnly().booleanValue())
                 {
                     for (int i = 0; i < displayOptions.size(); i++)
                     {
@@ -218,7 +218,7 @@ public class HTMLRadioButtonGroupType extends HTMLSingleChoiceType
     {
         RadioButtonGroup radioButtonGroup = new RadioButtonGroup(getName(), Layout.NULL, this.getRealValueDataType());
 
-        radioButtonGroup.setReadOnly(getReadOnly());
+        radioButtonGroup.setReadOnly(isReadOnly());
         radioButtonGroup.setUIEntityName(getUIEntityName());
 
         radioButtonGroup.setOptions(getOptionDisplayValues(), getOptionValues());

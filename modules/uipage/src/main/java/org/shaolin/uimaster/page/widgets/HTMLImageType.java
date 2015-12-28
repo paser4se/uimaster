@@ -156,7 +156,7 @@ public class HTMLImageType extends HTMLTextWidgetType
 	public Widget createAjaxWidget(VariableEvaluator ee) {
 		Image image = new Image(getName(), Layout.NULL);
 
-		image.setReadOnly(getReadOnly());
+		image.setReadOnly(isReadOnly());
 		image.setUIEntityName(getUIEntityName());
 
 		if (getValue() != null && !"".equals(getValue())) {

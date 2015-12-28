@@ -91,7 +91,11 @@ public class HTMLLabelType extends HTMLTextWidgetType
     {
         try
         {
-            context.generateHTML("<span");
+            context.generateHTML("<span id=\"");
+            context.generateHTML(getName());
+            context.generateHTML("_Label\" name=\"");
+            context.generateHTML(getName());
+            context.generateHTML("_Label\"");
             generateAttributes(context);
             generateEventListeners(context);
             context.generateHTML(">");
@@ -181,7 +185,7 @@ public class HTMLLabelType extends HTMLTextWidgetType
     {
         Label label = new Label(getName(), Layout.NULL);
 
-        label.setReadOnly(getReadOnly());
+        label.setReadOnly(isReadOnly());
         label.setUIEntityName(getUIEntityName());
 
         label.setValue(getValue());

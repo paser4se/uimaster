@@ -73,7 +73,7 @@ public class HTMLButtonType extends HTMLTextWidgetType
                 context.generateHTML(HTMLUtil.formatHtmlValue(getValue()));
             }
             context.generateHTML("\"");
-            if (getReadOnly() != null && getReadOnly().booleanValue())
+            if (isReadOnly() != null && isReadOnly().booleanValue())
             {
                 context.generateHTML(" disabled=\"true\"");
             }
@@ -110,7 +110,7 @@ public class HTMLButtonType extends HTMLTextWidgetType
 
       button.setButtonType(getButtonType());
 
-      button.setReadOnly(getReadOnly());
+      button.setReadOnly(isReadOnly());
       button.setUIEntityName(getUIEntityName());
 
       button.setValue(getValue());

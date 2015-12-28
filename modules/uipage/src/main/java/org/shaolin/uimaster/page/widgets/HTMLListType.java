@@ -148,7 +148,7 @@ public class HTMLListType extends HTMLMultiChoiceType
     {
         AList list = new AList(getName(), null);
 
-        list.setReadOnly(getReadOnly());
+        list.setReadOnly(isReadOnly());
         list.setUIEntityName(getUIEntityName());
 
         list.setOptions(getOptionDisplayValues(), getOptionValues());

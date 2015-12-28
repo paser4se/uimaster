@@ -155,7 +155,7 @@ public abstract class HTMLChartSuper extends HTMLWidgetType
 			this.addAttribute("query", result);
 			Chart chart = new Chart(getName(), Layout.NULL, this.getClass());
 			chart.setColumns((List)this.getAttribute("columns"), queryExpr, expressionContext.getVariableValue("condition"));
-			chart.setReadOnly(getReadOnly());
+			chart.setReadOnly(isReadOnly());
 			chart.setUIEntityName(getUIEntityName());
 
 			chart.setListened(true);

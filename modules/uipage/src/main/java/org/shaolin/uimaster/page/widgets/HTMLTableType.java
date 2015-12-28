@@ -599,7 +599,7 @@ public class HTMLTableType extends HTMLContainerType {
     {
         Table t = new Table(getName(), Layout.NULL);
 
-        t.setReadOnly(getReadOnly());
+        t.setReadOnly(isReadOnly());
         t.setUIEntityName(getUIEntityName());
 
 		try {

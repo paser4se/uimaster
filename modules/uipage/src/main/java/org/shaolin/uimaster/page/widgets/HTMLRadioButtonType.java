@@ -69,7 +69,7 @@ public class HTMLRadioButtonType extends HTMLSelectComponentType
             context.generateHTML("\"");
             generateAttributes(context);
             generateEventListeners(context);
-            if (getReadOnly() != null && getReadOnly().booleanValue())
+            if (isReadOnly() != null && isReadOnly().booleanValue())
             {
                 context.generateHTML(" disabled=\"true\"");
             }
@@ -104,7 +104,7 @@ public class HTMLRadioButtonType extends HTMLSelectComponentType
     {
         RadioButton radioButton = new RadioButton(getName(), Layout.NULL);
 
-        radioButton.setReadOnly(getReadOnly());
+        radioButton.setReadOnly(isReadOnly());
         radioButton.setUIEntityName(getUIEntityName());
 
         radioButton.setLabel(getLabel());

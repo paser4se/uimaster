@@ -271,7 +271,7 @@ public class HTMLPreNextPanelType extends HTMLContainerType
     	PreNextPanel panel = new PreNextPanel(getName(), tabs, selectedIndex, new CellLayout());
     	panel.setPreviousAction(previousAction);
     	panel.setNextAction(nextAction);
-        panel.setReadOnly(getReadOnly());
+        panel.setReadOnly(isReadOnly());
         panel.setUIEntityName(getUIEntityName());
         
         panel.setListened(true);
