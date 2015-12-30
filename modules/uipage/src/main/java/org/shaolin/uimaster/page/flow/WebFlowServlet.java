@@ -193,14 +193,16 @@ public class WebFlowServlet extends HttpServlet
     public void destroy()
     {
         if (logger.isInfoEnabled()) {
-            logger.info("destroying and Finalizing this controller servlet");
+            logger.info("\n\n\n\nDestroying and Finalizing this controller servlet....");
         }
         this.initialized = false;
         if (appInitializer != null) {
+        	AppContext.register((IAppServiceManager)this.getServletContext().getAttribute(IAppServiceManager.class.getCanonicalName()));
         	appInitializer.stop(this.getServletContext());
         }
-        
-        UIFlowCacheManager.getInstance().removeAll();
+        if (logger.isInfoEnabled()) {
+            logger.info("Destroyed this controller servlet\n\n\n\n");
+        }
     }
 
     private void initClassLoader() {

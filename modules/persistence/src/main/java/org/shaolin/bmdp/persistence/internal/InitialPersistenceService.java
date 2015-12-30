@@ -2,6 +2,7 @@ package org.shaolin.bmdp.persistence.internal;
 
 import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.AppContext;
+import org.shaolin.bmdp.runtime.internal.AppServiceManagerImpl;
 import org.shaolin.bmdp.runtime.internal.ServerServiceManagerImpl;
 import org.shaolin.bmdp.runtime.spi.ILifeCycleProvider;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
@@ -34,7 +35,8 @@ public class InitialPersistenceService implements ILifeCycleProvider {
 
 	@Override
 	public void stopService() {
-		
+		HibernateUtil.getSessionFactory().close();
+		logger.info("shutdown hibernate connection.");
 	}
 
 	@Override

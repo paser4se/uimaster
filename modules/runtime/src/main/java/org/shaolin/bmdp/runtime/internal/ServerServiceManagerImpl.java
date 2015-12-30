@@ -103,7 +103,7 @@ public class ServerServiceManagerImpl implements IServerServiceManager {
 	
 	@Override
 	public IAppServiceManager removeApplication(String name) {
-		logger.info("Remove an application: " + name);
+		logger.info("Removed an application: " + name);
 		return applications.remove(name);
 	}
 

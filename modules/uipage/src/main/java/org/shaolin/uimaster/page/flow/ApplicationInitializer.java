@@ -70,7 +70,6 @@ public class ApplicationInitializer {
 			entityManager.addEventListener((ConstantServiceImpl)appServiceManager.getConstantService());
 			//load all customized workflow from DB table in WorkflowLifecycleServiceImpl.
 			
-			
 	    	// wire all services.
 	    	OOEEContext context = OOEEContextFactory.createOOEEContext();
 	    	List<String> serviceNodes = Registry.getInstance().getNodeChildren("/System/services");
@@ -82,7 +81,7 @@ public class ApplicationInitializer {
         		
         	}
         	appServiceManager.startLifeCycleProviders();
-        	logger.info("VogERP Server is ready for requesting.");
+        	logger.info(appName + " is ready for request.");
 	    	
         	/**
 			nioServer = new NioServer(port);
@@ -108,7 +107,6 @@ public class ApplicationInitializer {
 	}
 	
 	public void stop(ServletContext servletContext) {
-		logger.info("Stop Config server");
 		AppServiceManagerImpl appServiceManager = (AppServiceManagerImpl)
 				servletContext.getAttribute(IAppServiceManager.class.getCanonicalName());
 		appServiceManager.stopLifeCycleProviders();

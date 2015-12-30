@@ -146,6 +146,7 @@ public class AppServiceManagerImpl implements IAppServiceManager, Serializable {
 	}
 
 	public void stopLifeCycleProviders() {
+		logger.info("Stopping Application: " + this.appName);
 		List<ILifeCycleProvider> temp = new ArrayList<ILifeCycleProvider>();
 		for (ILifeCycleProvider provider : lifeCycleProviders) {
 			temp.add(provider);
@@ -164,6 +165,7 @@ public class AppServiceManagerImpl implements IAppServiceManager, Serializable {
 			}
 			i++;
 		}
+		logger.info("Stopped Application: " + this.appName);
 	}
 
 	@Override
