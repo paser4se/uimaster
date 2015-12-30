@@ -17,20 +17,15 @@ package org.shaolin.uimaster.page.widgets;
 
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
-import org.shaolin.uimaster.page.WebConfig;
-import org.shaolin.uimaster.page.ajax.Button;
-import org.shaolin.uimaster.page.ajax.Layout;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HTMLMapType extends HTMLTextWidgetType 
+public class HTMLMapType extends HTMLWidgetType 
 {
     private static final Logger logger = LoggerFactory.getLogger(HTMLMapType.class);
-
-    private String buttonType;
 
     public HTMLMapType()
     {
@@ -57,31 +52,26 @@ public class HTMLMapType extends HTMLTextWidgetType
         try
         {
             generateWidget(context);
-            context.generateHTML("<input type=\"");
-            context.generateHTML(getButtonType());
-            context.generateHTML("\" name=\"");
+            
+            HTMLUtil.generateTab(context, depth);
+            
+            // the entrance of baidu map is shit! we have to define this link in html head.
+//            <node name="commonjs">
+//	            <node name="org.shaolin.vogerp.commonmodel.page.CustomerManagement">
+//	                <item name="baidumap" value="http://api.map.baidu.com/api?v=2.0&amp;ak=kT8czcw0fydHdXiGPGBOckX1" />
+//	            </node>
+//	        </node>
+            
+            context.generateHTML("<div class=\"uimaster_map\">");
+            context.generateHTML("<div id=\"");
             context.generateHTML(getName());
-            context.generateHTML("\"");
+            context.generateHTML("\" style=\"border: 1px solid gray; overflow:hidden;\"");
             generateAttributes(context);
-            context.generateHTML(" value=\"");
-            if (context.isValueMask())
-            {
-                context.generateHTML(WebConfig.getHiddenValueMask());
-            }
-            else
-            {
-                context.generateHTML(HTMLUtil.formatHtmlValue(getValue()));
-            }
-            context.generateHTML("\"");
-            if (isReadOnly() != null && isReadOnly().booleanValue())
-            {
-                context.generateHTML(" disabled=\"true\"");
-            }
-            else 
-            {
-            	generateEventListeners(context);
-            }
-            context.generateHTML(" />");
+            context.generateHTML("></div>");
+            context.generateHTML("<div id=\"");
+            context.generateHTML(getName());
+            context.generateHTML("Result\"></div></div>");
+            
             generateEndWidget(context);
         }
         catch (Exception e)
@@ -90,37 +80,10 @@ public class HTMLMapType extends HTMLTextWidgetType
         }
     }
 
-    private String getButtonType()
-    {
-        if ( buttonType == null )
-        {
-            buttonType = (String)removeAttribute("buttonType");
-            if ( buttonType == null || ( !buttonType.trim().equals("reset") && !buttonType.trim().equals("submit") ) )
-            {
-                buttonType = "button";
-            }
-        }
-
-        return buttonType;
-    }
-    
+    @Override
     public Widget createAjaxWidget(VariableEvaluator ee)
     {
-      Button button = new Button(getName(), Layout.NULL);
-
-      button.setButtonType(getButtonType());
-
-      button.setReadOnly(isReadOnly());
-      button.setUIEntityName(getUIEntityName());
-
-      button.setValue(getValue());
-
-      setAJAXAttributes(button);
-
-      button.setListened(true);
-      button.setFrameInfo(getFrameInfo());
-
-      return button;
+    	return null;
     }
 
 }

@@ -1752,9 +1752,9 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			this.tbody.children().each(function(){
 				this._DT_RowIndex = count++;
 			    var ftd = ($(this).children()[0]);
-				if (ftd.innerText != "") {
-					var htmlCode = othis.renderSelection(ftd.innerText, '', this);
-					ftd.innerText="";
+				if (ftd.innerHTML != "") {
+					var htmlCode = othis.renderSelection(ftd.innerHTML, '', this);
+					ftd.innerHTML="";
 					$(ftd).append(htmlCode);
 				}
 			});
@@ -1966,11 +1966,14 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		var othis = this;
 		if (othis.editable) {
 			othis.syncCellEvent(body);
-			return;
 		}
 		body.children().each(function(){
 		 $(this).bind('click', function(){
 			var tr = $(this);
+			if (othis.editable) {
+				othis.selectedIndex = tr[0]._DT_RowIndex;
+				return true;
+			}
 			if (othis.isMultipleSelection) {
 				if (!tr.hasClass('selected')){
 					tr.addClass('selected');
@@ -2036,7 +2039,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			}
 		  });
 		});
-		if ((selectedByDefault == undefined || !selectedByDefault)) {
+		if (othis.editable || (selectedByDefault == undefined || !selectedByDefault)) {
 			return;
 		}
 		var c = body.children();
@@ -2085,7 +2088,6 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		}
 	},
 	importData:function(){
-				  
 	},
 	exportData:function(){
 		var s = this.dtable.api().settings()[0];
@@ -2940,8 +2942,23 @@ UIMaster.ui.matrix=UIMaster.extend(UIMaster.ui,{
     }
 });
 UIMaster.ui.map=UIMaster.extend(UIMaster.ui,{
-    type:null,
-    chart:null,
+    map:null,
     init:function() {
-    }
+	    this.map = new BMap.Map(this.id);
+		this.map.enableScrollWheelZoom();
+		this.map.enableContinuousZoom();
+		this.map.addControl(new BMap.NavigationControl());
+		this.map.addControl(new BMap.OverviewMapControl());
+		this.map.addControl(new BMap.OverviewMapControl({isOpen: true, anchor: BMAP_ANCHOR_BOTTOM_RIGHT}));
+    },
+	search:function(keyword) {
+		var localSearch = new BMap.LocalSearch(this.map, {
+			renderOptions:{map: this.map, panel:$(this).next().attr("id")},
+			pageCapacity:5
+		});
+		localSearch.enableAutoViewport();
+		localSearch.setSearchCompleteCallback(function(searchResult){
+		});
+		localSearch.searchInBounds(keyword, this.map.getBounds());
+	}
 });

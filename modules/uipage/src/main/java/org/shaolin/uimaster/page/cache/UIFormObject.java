@@ -1929,26 +1929,22 @@ public class UIFormObject implements java.io.Serializable
             {
                 context.addJsName(jsFileName);
             }
-
-            if (jsFileName.endsWith(".js"))
+            long timestamp = 1;
+            if (timestamp >= 0)
             {
-                long timestamp = 1;
-                if (timestamp >= 0)
-                {
-                	String importJSCode = null;
-                	if (UserContext.isMobileRequest()) {
-                	    importJSCode = (String)this.jsMobIncludeMap.get(jsFileName);
-                	} else {
-                        importJSCode = (String)this.jsIncludeMap.get(jsFileName);
-                	}
-                	if (UserContext.isMobileRequest() && UserContext.isAppClient()) {
-                		importJSCode = WebConfig.replaceAppJsWebContext(importJSCode);
-                	} else {
-                		importJSCode = WebConfig.replaceJsWebContext(importJSCode);
-                	}
-                    context.generateJS(importJSCode + timestamp + "\"></script>");
-                    HTMLUtil.generateTab(context, depth);
-                }
+            	String importJSCode = null;
+            	if (UserContext.isMobileRequest()) {
+            	    importJSCode = (String)this.jsMobIncludeMap.get(jsFileName);
+            	} else {
+                    importJSCode = (String)this.jsIncludeMap.get(jsFileName);
+            	}
+            	if (UserContext.isMobileRequest() && UserContext.isAppClient()) {
+            		importJSCode = WebConfig.replaceAppJsWebContext(importJSCode);
+            	} else {
+            		importJSCode = WebConfig.replaceJsWebContext(importJSCode);
+            	}
+                context.generateJS(importJSCode + timestamp + "\"></script>");
+                HTMLUtil.generateTab(context, depth);
             }
         }
     }

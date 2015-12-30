@@ -161,13 +161,16 @@ public class WebConfig {
 			
 			singleCommonJs = new HashMap<String, String[]>();
 			String commonjsPath = "/System/webConstant/commonjs";
-			instance.getNodeChildren(commonjsPath);
+			children = instance.getNodeChildren(commonjsPath);
 			if (children != null && children.size() > 0) {
 				for (String child: children) {
 					values = (Collection<String>)instance.getNodeItems(commonjsPath + "/" + child).values();
 					String[] items = values.toArray(new String[values.size()]);
 					for (int i=0; i<items.length; i++) {
-						items[i] = ResourceContextRoot + items[i];
+						//skip http, https, www, 
+						if (items[i].startsWith("/")) {
+							items[i] = ResourceContextRoot + items[i];
+						}
 					}
 					singleCommonJs.put(child, items);
 				}

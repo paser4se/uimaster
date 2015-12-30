@@ -737,7 +737,6 @@ button,
 .ui-btn {
 	font-size: 1em;
 	line-height: 1.3;
-	font-family: sans-serif /*{global-font-family}*/;
 }
 legend,
 .ui-input-text input,
@@ -789,6 +788,7 @@ label.ui-btn {
 	font-weight: bold;
 	border-width: 1px;
 	border-style: solid;
+	font-size: small;
 }
 .ui-btn {
 	text-decoration: none !important;
@@ -954,7 +954,6 @@ html body .ui-group-theme-a .ui-bar-inherit {
 	background-color: 			#f9f9f9 /*{a-page-background-color}*/;
 	border-color:	 		#bbb /*{a-page-border}*/;
 	color: 					#333 /*{a-page-color}*/;
-	text-shadow: 0 /*{a-page-shadow-x}*/ 1px /*{a-page-shadow-y}*/ 0 /*{a-page-shadow-radius}*/ 	#f3f3f3 /*{a-page-shadow-color}*/;
 }
 /* Body: Read-only lists, text inputs, collapsible content */
 .ui-body-a,
