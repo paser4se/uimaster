@@ -8,11 +8,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -136,14 +137,18 @@ public final class FileUtil {
     }
     
     public static void write(String path, String name, String content) throws IOException {
-        BufferedWriter writer = null;
+    	write(path, name, content, "UTF-8");
+    }
+    
+    public static void write(String path, String name, String content, String encoding) throws IOException {
+    	BufferedWriter writer = null;
         try {
             File directory = new File(path);
             if (!directory.exists()) {
                 directory.mkdirs();
             }
             final File htmlFile = new File(path, name);
-            writer = new BufferedWriter(new FileWriter(htmlFile));
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(htmlFile), encoding));
             writer.write(content);
             writer.flush();
         } finally {
@@ -227,8 +232,16 @@ public final class FileUtil {
     }
     
     public static String readFile(InputStream in) {
+		try {
+			return readFile(in, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			return null;
+		}
+	}
+    
+    public static String readFile(InputStream in, String encoding) throws UnsupportedEncodingException {
     	StringBuffer sb = new StringBuffer();
-		InputStreamReader rd = new InputStreamReader(in);
+		InputStreamReader rd = new InputStreamReader(in, encoding);
 		BufferedReader br = new BufferedReader(rd);
 		String text = new String();
 		try {

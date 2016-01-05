@@ -102,7 +102,7 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
         			context.generateHTML("\" name=\"");
         			context.generateHTML(getName());
         			context.generateHTML("\" src=\"");
-        			context.generateHTML(WebConfig.getWebRoot());
+        			context.generateHTML(WebConfig.getResourceContextRoot());
         			context.generateHTML("/");
         			context.generateHTML(getValue());
         			context.generateHTML("\" frameborder=\"0\" width=\"100%\" height=\"100%\" scrolling='yes'>");

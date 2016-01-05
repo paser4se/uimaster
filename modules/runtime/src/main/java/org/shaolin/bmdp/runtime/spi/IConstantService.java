@@ -28,6 +28,8 @@ public interface IConstantService {
 	 */
 	public void reloadData(IConstantEntity constant);
 	
+	public void reloadData(IConstantEntity[] constants);
+	
 	/**
 	 * Reload the whole hierarchy.
 	 * 

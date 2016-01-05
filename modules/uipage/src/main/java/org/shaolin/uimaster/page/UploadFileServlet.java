@@ -101,6 +101,9 @@ public class UploadFileServlet extends HttpServlet {
 			return;
 		}
 		File root = new File(WebConfig.getResourcePath() + File.separator + file.getStoredPath());
+		if (file.getStoredPath().startsWith(WebConfig.getResourcePath())) {
+			root = new File(file.getStoredPath());
+		} 
 		if (!root.exists()) {
 			root.mkdirs();
 		}
@@ -131,7 +134,7 @@ public class UploadFileServlet extends HttpServlet {
 					if (!item.isFormField()) {
 						String name = new File(item.getName()).getName();
 						name = URLDecoder.decode(name, "UTF-8");  
-						logger.info("Received the uploading file: " + name);
+						logger.info("Received the uploading file: " + name + ", saving path: " + root);
 						item.write(new File(root, name));
 					}
 				}

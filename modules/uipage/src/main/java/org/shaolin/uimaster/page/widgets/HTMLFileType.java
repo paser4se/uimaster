@@ -100,10 +100,10 @@ public class HTMLFileType extends HTMLTextWidgetType
 
         file.setReadOnly(isReadOnly());
         file.setUIEntityName(getUIEntityName());
-        file.setStoredPath(this.getAttribute("storedPath").toString());
-        if (file.getStoredPath().trim().isEmpty()) {
+        if (this.getAttribute("storedPath") == null) {
         	throw new IllegalArgumentException("The file stored path can't be empty!");
         }
+        file.setStoredPath(this.getAttribute("storedPath").toString());
         file.setSuffix(this.getAttribute("suffix").toString());
         file.setListened(true);
         file.setFrameInfo(getFrameInfo());

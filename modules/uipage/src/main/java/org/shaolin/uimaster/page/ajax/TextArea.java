@@ -107,8 +107,12 @@ public class TextArea extends TextWidget implements Serializable
     	}
 		try {
 			File file = new File(WebConfig.getResourcePath() + getValue());
+			if (file.isDirectory()) {
+				logger.error("The html content cannot be stored in a directory: " + file.getAbsolutePath());
+				return;
+			}
 			FileUtil.write(file.getAbsolutePath(), htmlContent);
-			logger.info("Save html content: " + file.getAbsolutePath());
+			logger.info("Saved the html content: " + file.getAbsolutePath());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
