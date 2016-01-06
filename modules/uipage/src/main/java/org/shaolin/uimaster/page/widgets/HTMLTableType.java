@@ -370,7 +370,7 @@ public class HTMLTableType extends HTMLContainerType {
 					context.generateHTML("</th>");
 				}
 			}
-			context.generateHTML("<th id=\"attColumn\" htmlType=\"Label\" title=\"\">");
+			context.generateHTML("<th id=\"attColumn\" htmlType=\"HTML\" title=\"\">");
 			context.generateHTML("</th>");
 			// find html column.
 			for (UITableColumnType col : columns) {
@@ -475,10 +475,11 @@ public class HTMLTableType extends HTMLContainerType {
 						if (value == null) {
 							value = "";
 						}
+						attrsSB.append("<pre>");
 						attrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle()));
 						attrsSB.append(":");
 						attrsSB.append(value.toString());
-						attrsSB.append(", ");
+						attrsSB.append("</pre>");
 					}
 				}
 				attrsSB.append("</td>");

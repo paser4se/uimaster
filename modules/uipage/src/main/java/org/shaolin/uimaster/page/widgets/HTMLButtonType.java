@@ -81,7 +81,7 @@ public class HTMLButtonType extends HTMLTextWidgetType
             {
             	generateEventListeners(context);
             }
-            context.generateHTML(" />");
+            context.generateHTML(" data-inline=\"true\"/>");
             generateEndWidget(context);
         }
         catch (Exception e)

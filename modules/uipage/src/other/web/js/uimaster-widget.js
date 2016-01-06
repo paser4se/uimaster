@@ -2095,6 +2095,16 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 					 +UIMaster.getFramePrefix(UIMaster.El(this.id).get(0))+"&_actionPage="+this.parentEntity.__entityName;
 		var form = $('<form action='+AJAX_SERVICE_URL+"?r="+Math.random()+'&'+data+' method=post target=_blank></form>');
 		$(form).submit(); 
+	},
+	statistic: function(){
+		var opts ={url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,
+		          data:{_ajaxUserEvent: "table", _uiid: this.id, _actionName: "chart", _framePrefix: UIMaster.getFramePrefix(UIMaster.El(this.id).get(0)),
+                        _actionPage: this.parentEntity.__entityName, _selectedIndex: this.selectedIndex, _sync: {}}};
+		if (MobileAppMode) {
+            _mobContext.ajax(JSON.stringify(opts));
+        } else {
+		    $.ajax(opts);
+        }
 	}
 });
 UIMaster.ui.webtree = function(conf){
@@ -2557,6 +2567,7 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
             					click:function(){var e=$(event.srcElement).text();for (var i=0;i<buttons.length;i++){ 
             						if(e==buttons[i].value){$(buttons[i]).click();break;}} } };
 						}
+						if (IS_MOBILEVIEW) $(b).button();
             		}
             	}
             }
@@ -2575,12 +2586,12 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
                 },
                 buttons: buttonset
             });
-			if (IS_MOBILEVIEW) {$(this.content).trigger('create');}
             $($("#"+this.id).children().get(0)).attr("_framePrefix",this.frameInfo);
-            getElementListSingle(this.content);
+            getElementListSingle(this.content,true);
             eval(this.js);
             defaultname.addComponent(eval(D+this.uiid),true);
             UIMaster.ui.window.addWindow(this.id,this);
+			if (IS_MOBILEVIEW) {$(this.content).trigger('create');}
             this.isOpen = true;
 			var p = this.content.find("div[id$='actionPanel']");
             if(p.length > 0) {

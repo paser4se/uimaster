@@ -2103,14 +2103,14 @@ function focusFirstTextField(){
         }
     }
 }
-function getElementListSingle(obj){//div[id!=''],
+function getElementListSingle(obj,ajaxLoad){//div[id!=''],
     var el = $(obj).find("div[id!=''],input[name!='__resourcebundle'][name!='isLeftToRight'],select,textarea,button,table,iframe,canvas");
     for (var i = 0; i < el.length; i++) {
         var e = el[i], t = elementList[e.name];
         if (e && e.type=="")
             continue;
         e.id && e.id.indexOf('div-') < 0 && !elementList[e.id] && (elementList[e.id] = e);
-        if (e.name)
+        if (e.name) {
             if (!t)
                 elementList[e.name] = e;
             else {
@@ -2119,6 +2119,19 @@ function getElementListSingle(obj){//div[id!=''],
                 else
                     t[t.length] = e;
             }
+			if(false && IS_MOBILEVIEW && ajaxLoad) {
+				if (e.tagName.toLowerCase() == "input") {
+				   if(e.type.toLowerCase() == "text")
+				      $(e).textinput();
+				} else if(e.tagName.toLowerCase() == "textarea") {
+				   $(e).textinput();
+				} else if(e.tagName.toLowerCase() == "button") {
+				   $(e).button();
+				} else if(e.tagName.toLowerCase() == "select") {
+				   $(e).selectmenu('refresh');
+				} 
+			}
+		}
     }
 }
 function disableDoubleSubmit(){
