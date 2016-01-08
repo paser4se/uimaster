@@ -609,6 +609,15 @@ in simple component mapping, the paramName is required</xs:documentation>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+    <xs:complexType name="UICountDownType">
+        <xs:complexContent>
+            <xs:extension base="Page:UITextComponentType">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="format" type="Page:StringPropertyType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     <xs:complexType name="UIEmptyType">
         <xs:complexContent>
             <xs:extension base="Page:UIComponentType"/>

@@ -27,6 +27,7 @@ import org.shaolin.bmdp.datamodel.page.UICheckBoxType;
 import org.shaolin.bmdp.datamodel.page.UIComboBoxType;
 import org.shaolin.bmdp.datamodel.page.UIComponentType;
 import org.shaolin.bmdp.datamodel.page.UIContainerType;
+import org.shaolin.bmdp.datamodel.page.UICountDownType;
 import org.shaolin.bmdp.datamodel.page.UICustWidgetType;
 import org.shaolin.bmdp.datamodel.page.UIDateType;
 import org.shaolin.bmdp.datamodel.page.UIEmptyType;
@@ -447,6 +448,10 @@ public class UIFormJSGenerator0 {
 		} else if (textComponent instanceof UIDateType) {
 			out.write(" = new ");
 			out.print(JSConstants.CALENDAR);
+			out.write("\n");
+		} else if (textComponent instanceof UICountDownType) {
+			out.write(" = new ");
+			out.print(JSConstants.COUNTDOWN);
 			out.write("\n");
 		}
         out.write("    ({\n");

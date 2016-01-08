@@ -51,6 +51,8 @@ public class HTMLImageType extends HTMLTextWidgetType
 //	        	These files are configurable in runconfig.registry file of each module.
 //	        	Because JGallary has a bug on importing these files in multiple time.
 //	            Please refer to org_shaolin_vogerp_productmodel runconfig.registry.
+//    			if (context.getRequest().getAttribute("_hasGallery") == null) {
+//    				context.getRequest().setAttribute("_hasGallery", Boolean.TRUE);
 //	            HTMLUtil.generateTab(context, depth);
 //	            context.generateHTML("<div><link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/font-awesome.min.css\" type=\"text/css\">");
 //	            HTMLUtil.generateTab(context, depth);
@@ -62,7 +64,7 @@ public class HTMLImageType extends HTMLTextWidgetType
 //	        	HTMLUtil.generateTab(context, depth);
 //	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/tinycolor-0.9.16.min.js\"></script>");
 //	        	HTMLUtil.generateTab(context, depth);
-	        	
+//    			}
 	        	context.generateHTML("<div id=\"");
 	        	context.generateHTML(getName());
 	            context.generateHTML("\" jwidth=\"");

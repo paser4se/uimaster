@@ -452,6 +452,15 @@ UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 	    setTimeout(function(){CKEDITOR.replace(o.name+"_ckeditor");},500);
 	}
 });
+UIMaster.ui.countdown = UIMaster.extend(UIMaster.ui.textfield, {
+	init: function() {
+		var v = parseInt($(this).attr("value"));
+		$(this).redCountdown({preset: "flat-colors-fat", end: ($.now() + v), onEndCallback: this.onEndCall});
+	},
+	onEndCall: function() {
+		alert("Time out!"); 
+	}
+});
 /**
  * @description Calender fiels class.
  * @param {Object} conf Configuration items.

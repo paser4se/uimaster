@@ -156,7 +156,7 @@
                </ns2:layout>
 			            <ns2:component xsi:type="ns2:UITableType" UIID="tasksTable">
 			                <ns2:beElement>org.shaolin.bmdp.workflow.be.Task</ns2:beElement>
-			                <ns2:selectMode xsi:type="ns2:UITableSelectModeType">Multiple</ns2:selectMode>
+			                <ns2:selectMode xsi:type="ns2:UITableSelectModeType">Single</ns2:selectMode>
 			                <ns2:defaultRowSize>10</ns2:defaultRowSize>
 			                <ns2:showActionBar>true</ns2:showActionBar>
 			                <ns2:showFilter>true</ns2:showFilter>
@@ -264,62 +264,66 @@
                             </ns2:expression>
                         </ns2:rowExpression>
                    </ns2:column>
-			                <ns2:column xsi:type="ns2:UITableColumnType">
-			                    <ns2:title xsi:type="ns2:StringPropertyType">
-			                        <ns2:value>Trigger Time</ns2:value>
-			                    </ns2:title>
-			                    <ns2:beFieldId>rowBE.expiredTime</ns2:beFieldId>
-			                    <ns2:uiType xsi:type="ns2:UITableColHTMLType">
-			                      <ns2:type>DateRange</ns2:type>
-			                      <ns2:startCondition>rowBE.expiredTimeStart</ns2:startCondition> 
-			                      <ns2:endCondition>rowBE.expiredTimeEnd</ns2:endCondition>
-			                    </ns2:uiType>
-			                    <ns2:updateCondition xsi:type="ns2:ExpressionPropertyType">
-			                        <ns2:expression xsi:type="ns2:ExpressionType">
-			                            <ns2:expressionString><![CDATA[
-			                            import org.shaolin.uimaster.page.od.formats.FormatUtil;
-			                            import java.util.Date;
-			                            {
-			                                if ($value == null || "".equals($value)) {
-			                                    if ("rowBE.expiredTimeStart".equals($filterId)) {
-			                                        $rowBE.setExpiredTimeStart(null);
-			                                    } else {
-			                                        $rowBE.setExpiredTimeEnd(null);
-			                                    }
-			                                } else {
-			                                    Date d = (Date)FormatUtil.convertUIToData(FormatUtil.DATE, $value);
-			                                    if ("rowBE.expiredTimeStart".equals($filterId)) {
-			                                        $rowBE.setExpiredTimeStart(d);
-			                                    } else {
-			                                        $rowBE.setExpiredTimeEnd(d);
-			                                    }
-			                                }
-			                            }]]></ns2:expressionString>
-			                        </ns2:expression>
-			                    </ns2:updateCondition>
-			                </ns2:column>
-			                <ns2:column xsi:type="ns2:UITableColumnType">
-			                    <ns2:title xsi:type="ns2:StringPropertyType">
-			                        <ns2:value>Status</ns2:value>
-			                    </ns2:title>
-			                    <ns2:beFieldId>rowBE.status</ns2:beFieldId>
-			                    <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>ComBox</ns2:type></ns2:uiType>
-			                    <ns2:updateCondition xsi:type="ns2:ExpressionPropertyType">
-			                        <ns2:expression xsi:type="ns2:ExpressionType">
-			                            <ns2:expressionString><![CDATA[
-			                            import org.shaolin.bmdp.workflow.ce.TaskStatusType;
-			                            import org.shaolin.bmdp.runtime.AppContext;
-			                            {
-			                                $rowBE.setStatus((TaskStatusType)AppContext.get().getConstantService().getConstantEntity("org.shaolin.bmdp.workflow.ce.TaskStatusType").getByIntValue(Integer.valueOf($value).intValue()));
-			                            }]]></ns2:expressionString>
-			                        </ns2:expression>
-			                    </ns2:updateCondition>
-			                </ns2:column>
-			                <ns2:defaultActions>
-			                    <ns2:defaultNewAction>createTask</ns2:defaultNewAction>
-			                    <ns2:defaultOpenAction>openTask</ns2:defaultOpenAction>
-			                </ns2:defaultActions>
-			                <ns2:actionGroup>
+	                <ns2:column xsi:type="ns2:UITableColumnType">
+	                    <ns2:title xsi:type="ns2:StringPropertyType">
+	                        <ns2:value>Expired Time</ns2:value>
+	                    </ns2:title>
+	                    <ns2:beFieldId>rowBE.expiredTime</ns2:beFieldId>
+	                    <ns2:uiType xsi:type="ns2:UITableColHTMLType">
+	                      <ns2:type>HTML</ns2:type>
+	                    </ns2:uiType>
+	                    <ns2:rowExpression xsi:type="ns2:ExpressionPropertyType">
+                           <ns2:expression xsi:type="ns2:ExpressionType">
+                                <ns2:expressionString><![CDATA[
+                                import java.lang.StringBuffer;
+                                import org.shaolin.bmdp.utils.DateUtil;
+                                import org.shaolin.bmdp.runtime.AppContext;
+                                import org.shaolin.bmdp.workflow.be.TaskImpl;
+                                {
+                                    long v = DateUtil.calCountDown($rowBE.getExpiredTime());
+                                    StringBuffer sb = new StringBuffer();
+                                    sb.append("<div id=\"expiredTimeUI").append(index).append("\" class=\"uimastet_countdown\" value=\"");
+                                    sb.append(v);
+                                    sb.append("\"></div>");
+                                    sb.append("<script type=\"text/javascript\">");
+                                    sb.append("$(\"#expiredTimeUI").append(index).append("\").redCountdown({preset: \"flat-colors-fat\", end: ($.now() + ").append(v).append(")});");
+                                    sb.append("</script>");
+                                    return sb.toString();
+                                }]]></ns2:expressionString>
+                            </ns2:expression>
+                        </ns2:rowExpression>
+                        <ns2:updateCondition xsi:type="ns2:ExpressionPropertyType">
+                            <ns2:expression xsi:type="ns2:ExpressionType">
+                                <ns2:expressionString><![CDATA[
+                                import org.shaolin.bmdp.workflow.ce.TaskStatusType;
+                                import org.shaolin.bmdp.runtime.AppContext;
+                                {
+                                }]]></ns2:expressionString>
+                            </ns2:expression>
+                        </ns2:updateCondition>
+	                </ns2:column>
+	                <ns2:column xsi:type="ns2:UITableColumnType">
+	                    <ns2:title xsi:type="ns2:StringPropertyType">
+	                        <ns2:value>Status</ns2:value>
+	                    </ns2:title>
+	                    <ns2:beFieldId>rowBE.status</ns2:beFieldId>
+	                    <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>ComBox</ns2:type></ns2:uiType>
+	                    <ns2:updateCondition xsi:type="ns2:ExpressionPropertyType">
+	                        <ns2:expression xsi:type="ns2:ExpressionType">
+	                            <ns2:expressionString><![CDATA[
+	                            import org.shaolin.bmdp.workflow.ce.TaskStatusType;
+	                            import org.shaolin.bmdp.runtime.AppContext;
+	                            {
+	                                $rowBE.setStatus((TaskStatusType)AppContext.get().getConstantService().getConstantEntity("org.shaolin.bmdp.workflow.ce.TaskStatusType").getByIntValue(Integer.valueOf($value).intValue()));
+	                            }]]></ns2:expressionString>
+	                        </ns2:expression>
+	                    </ns2:updateCondition>
+	                </ns2:column>
+	                <ns2:defaultActions>
+	                    <ns2:defaultNewAction>createTask</ns2:defaultNewAction>
+	                    <ns2:defaultOpenAction>openTask</ns2:defaultOpenAction>
+	                </ns2:defaultActions>
+	                <ns2:actionGroup>
                        <ns2:type>radio</ns2:type>
                        <ns2:action>
                            <ns2:uiid>postponeTask</ns2:uiid>

@@ -74,7 +74,8 @@ public class HTMLFileType extends HTMLTextWidgetType
             HTMLUtil.generateTab(context, depth + 2);
             context.generateHTML("<input type=\"button\" value=\"Upload\" />");
             HTMLUtil.generateTab(context, depth + 2);
-            context.generateHTML("<div name=\"progressbox\" style=\"display:none;\"><div name=\"progressbar\"></div><div name=\"percent\">0%</div></div>");
+            context.generateHTML("<div name=\"progressbox\" style=\"display:none;\">");
+            context.generateHTML("<div name=\"progressbar\"></div><div name=\"percent\">0%</div></div>");
             context.generateHTML("<div name=\"message\"></div>");
             HTMLUtil.generateTab(context, depth);
             generateEndWidget(context);

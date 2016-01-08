@@ -42,6 +42,8 @@ public class JSConstants
     
     public static final String CALENDAR = "UIMaster.ui.calendar";
     
+    public static final String COUNTDOWN = "UIMaster.ui.countdown";
+    
     public static final String LINK = "UIMaster.ui.link";
     
     public static final String FRAME = "UIMaster.ui.frame";
