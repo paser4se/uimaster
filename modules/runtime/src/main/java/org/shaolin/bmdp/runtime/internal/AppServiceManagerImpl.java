@@ -42,6 +42,8 @@ public class AppServiceManagerImpl implements IAppServiceManager, Serializable {
 	private static final Logger logger = LoggerFactory.getLogger(AppServiceManagerImpl.class);
 
 	private final String appName;
+	
+	private State state = State.START;
 
 	private final transient List<ILifeCycleProvider> lifeCycleProviders = new ArrayList<ILifeCycleProvider>();
 
@@ -63,6 +65,14 @@ public class AppServiceManagerImpl implements IAppServiceManager, Serializable {
 	
 	public String getAppName() {
 		return this.appName;
+	}
+	
+	public State getState() {
+		return state;
+	}
+	
+	public void setState(State s) {
+		this.state = s;
 	}
 	
 	public IEntityManager getEntityManager() {

@@ -41,4 +41,7 @@ public class AppContext {
 		return IServerServiceManager.INSTANCE.getMasterNodeName().equals(AppContext.get().getAppName());
 	}
 	
+	public IAppServiceManager getMasterAppContext() {
+		return IServerServiceManager.INSTANCE.getApplication(IServerServiceManager.INSTANCE.getMasterNodeName());
+	}
 }

@@ -12,6 +12,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.internal.AppServiceManagerImpl;
+import org.shaolin.bmdp.runtime.spi.IAppServiceManager;
+import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,4 +97,32 @@ public class HibernateUtil {
 		return (SessionFactory)AppContext.get().getHibernateSessionFactory();
 	}
 
+	/**
+	 * Master node is the uimaster node.
+	 * @return
+	 */
+	public static Session getMasterNodeSession() {
+		Session session = HibernateUtil.getMasterNodeSessionFactory().getCurrentSession();
+		session.beginTransaction();
+		return session;
+	}
+	
+	public static void releaseMasterNodeSession(Session session, boolean isCommit) {
+		if (!session.isOpen()) {
+			return;
+		}
+		if (isCommit) {
+			session.getTransaction().commit();
+		} else {
+			session.getTransaction().rollback();
+		}
+	}
+	
+	public static SessionFactory getMasterNodeSessionFactory() {
+		IAppServiceManager masterApp = IServerServiceManager.INSTANCE.getApplication(
+				IServerServiceManager.INSTANCE.getMasterNodeName());
+		return (SessionFactory)masterApp.getHibernateSessionFactory();
+	}
+
+	
 }

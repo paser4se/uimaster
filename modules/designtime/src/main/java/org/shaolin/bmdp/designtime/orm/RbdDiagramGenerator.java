@@ -38,6 +38,7 @@ import org.shaolin.bmdp.datamodel.rdbdiagram.FieldMappingType;
 import org.shaolin.bmdp.datamodel.rdbdiagram.JoinTableType;
 import org.shaolin.bmdp.datamodel.rdbdiagram.ListFieldMappingType;
 import org.shaolin.bmdp.datamodel.rdbdiagram.ObjectFactory;
+import org.shaolin.bmdp.datamodel.rdbdiagram.PKType;
 import org.shaolin.bmdp.datamodel.rdbdiagram.RDBDiagram;
 import org.shaolin.bmdp.datamodel.rdbdiagram.SQLFieldMappingType;
 import org.shaolin.bmdp.datamodel.rdbdiagram.SearchConditionMappingType;
@@ -270,6 +271,10 @@ public class RbdDiagramGenerator implements
 				if (beField.isPk()) {
 					column.setAutoIncrement(true);
 					column.setIsNull(false);
+					
+					PKType pkType = new PKType();
+					pkType.setColumnName("ID");
+					table.getPrimaryKeies().add(pkType);
 				}
 				if (beField.getType() instanceof BEObjRefType) {
 					// one to one mapping

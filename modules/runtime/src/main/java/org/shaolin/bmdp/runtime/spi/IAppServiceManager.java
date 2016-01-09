@@ -25,12 +25,16 @@ import java.util.List;
  */
 public interface IAppServiceManager {
 
+	enum State {START, ACTIVE, FAILURE}
+	
 	/**
 	 * the name of current application.
 	 * 
 	 * @return
 	 */
 	String getAppName();
+	
+	State getState();
 	
 	/**
 	 * The life cycle provider only invokes when the system is up.

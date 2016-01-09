@@ -23,6 +23,7 @@ import org.shaolin.bmdp.runtime.cache.ConfigServerInvoker;
 import org.shaolin.bmdp.runtime.ce.ConstantServiceImpl;
 import org.shaolin.bmdp.runtime.internal.AppServiceManagerImpl;
 import org.shaolin.bmdp.runtime.spi.IAppServiceManager;
+import org.shaolin.bmdp.runtime.spi.IAppServiceManager.State;
 import org.shaolin.bmdp.runtime.spi.IEntityManager;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.javacc.StatementParser;
@@ -52,13 +53,28 @@ public class ApplicationInitializer {
 	
 	public void start(ServletContext servletContext) {
 		logger.info("Initializing application instance " + appName + "...");
+		IServerServiceManager serverManager = IServerServiceManager.INSTANCE;
+		if (!appName.equals(serverManager.getMasterNodeName())) {
+			IAppServiceManager appManager = serverManager.getApplication(serverManager.getMasterNodeName());
+			while (appManager.getState() == State.START) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+				}
+			}
+			if (appManager.getState() == State.FAILURE) {
+				logger.error("The state of the master node is failed, please check the master node!");
+				return;
+			}
+		}
+		
+		AppServiceManagerImpl appServiceManager = new AppServiceManagerImpl(appName, servletContext.getClassLoader());
 		try {
 			builtCacheObject.clear();
 			
-			AppServiceManagerImpl appServiceManager = new AppServiceManagerImpl(appName, servletContext.getClassLoader());
 			AppContext.register(appServiceManager);
 			// add application to the server manager.
-			IServerServiceManager.INSTANCE.addApplication(appName, appServiceManager);
+			serverManager.addApplication(appName, appServiceManager);
 			// bind the app context with the servlet context.
 			servletContext.setAttribute(IAppServiceManager.class.getCanonicalName(), appServiceManager);
 			
@@ -98,7 +114,9 @@ public class ApplicationInitializer {
 				}
 			}, "uimaster-config-server").start();
 			*/
+        	appServiceManager.setState(State.ACTIVE);
 		} catch (Throwable e) {
+			appServiceManager.setState(State.FAILURE);
 			HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
 			logger.error("Fails to start Config server start! Error: " + e.getMessage(), e);
 		} finally {

@@ -164,6 +164,9 @@ public class WebFlowServlet extends HttpServlet
     	this.initialized = true;
     	
     	this.appName = this.getInitParameter("AppName");
+    	if (this.appName == null || this.appName.trim().length() == 0) {
+    		throw new IllegalArgumentException("AppName must be configured for each web instance!");
+    	}
     	// all the listeners must be added before
     	// starting the config server.
     	// the application listeners must be made
@@ -363,7 +366,7 @@ public class WebFlowServlet extends HttpServlet
 				String userAgent = request.getHeader("user-agent");
 				boolean isMobile = MobilitySupport.isMobileRequest(userAgent);
 				//add user-context thread bind
-	            UserContext.registerCurrentUserContext(currentUserContext, userLocale, userRoles, isMobile);
+	            UserContext.registerCurrentUserContext(session, currentUserContext, userLocale, userRoles, isMobile);
 	            UserContext.setAppClient(request);
 	            //add request thread bind
 	            HttpRequestEvaluationContext.registerCurrentRequest(request);
