@@ -10,3 +10,8 @@ sql
 .project
 .settings
 hbm
+/modules/uipage/src/other/web/js/controls/countdown
+/modules/uipage/src/other/web/js/controls/jsgallery
+/modules/uipage/src/other/web/js/controls/jsplumb
+/modules/uipage/src/other/web/js/controls/bxslider
+/modules/uipage/src/other/web/js/controls/ckeditor
