@@ -112,7 +112,7 @@ public class AjaxServlet extends HttpServlet {
 		String userAgent = request.getHeader("user-agent");
 		boolean isMobile = MobilitySupport.isMobileRequest(userAgent);
 		//add user-context thread bind
-        UserContext.registerCurrentUserContext(currentUserContext, userLocale, userRoles, isMobile);
+        UserContext.registerCurrentUserContext(session, currentUserContext, userLocale, userRoles, isMobile);
         UserContext.setAppClient(request);
 		LocaleContext.createLocaleContext(userLocale);
 		

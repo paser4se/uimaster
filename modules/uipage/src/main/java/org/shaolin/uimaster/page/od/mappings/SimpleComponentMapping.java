@@ -117,8 +117,8 @@ public class SimpleComponentMapping extends ComponentMapping {
 				if (dataComp instanceof ComponentParamType) {
 					String varName = ((ComponentParamType)dataComp).getParamName();
 					if (!baseRule.getDataEntityClassInfo().containsKey(varName)) {
-						throw new ParsingException("This var " + varName 
-								+ " is not defined in the mapping rule " + ruleName);
+						throw new ParsingException("This variable '" + varName 
+								+ "' is not defined in the mapping rule " + ruleName);
 					}
 				}
 			}
@@ -138,8 +138,8 @@ public class SimpleComponentMapping extends ComponentMapping {
 					if (dataComp instanceof ComponentParamType) {
 						String varName = ((ComponentParamType)dataComp).getParamName();
 						if (!varList.contains(varName)) {
-							throw new ParsingException("This var " + varName 
-									+ " is not defined in the mapping rule " + ruleName);
+							throw new ParsingException("This variable '" + varName 
+									+ "' is not defined in the mapping rule " + ruleName);
 						}
 					}
 				}
