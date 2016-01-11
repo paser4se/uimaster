@@ -463,7 +463,7 @@ public class UIFormJSGenerator0 {
         {
             processTextConstraint(out, textComponent);
         }
-        //processReconfiguration(out,textComponent,inObjList,uiEntity);
+        processReconfiguration(out,textComponent,uiEntity);
     
         out.write("    });\n");
     }
@@ -494,7 +494,7 @@ public class UIFormJSGenerator0 {
 		} else if (singleChoice instanceof UIComboBoxType) {
 			processSelectConstraint(out, singleChoice);
 		}
-		// processReconfiguration(out,singleChoice,inObjList,uiEntity);
+		processReconfiguration(out,singleChoice,uiEntity);
 
 		out.write("    });\n");
     }
@@ -521,7 +521,7 @@ public class UIFormJSGenerator0 {
 		} else if (multiChoice instanceof UIListType) {
 			processSelectConstraint(out, multiChoice);
 		}
-        //processReconfiguration(out,multiChoice,inObjList,uiEntity);
+        processReconfiguration(out,multiChoice,uiEntity);
         out.write("    });\n");
     }
     
@@ -538,7 +538,7 @@ public class UIFormJSGenerator0 {
     
             processCommonField(out, selectComponent, uiEntity);
             processChoiceConstraint(out, selectComponent);
-            //processReconfiguration(out,selectComponent,inObjList,uiEntity);
+            processReconfiguration(out,selectComponent,uiEntity);
             out.write("    });\n");
         }
         else if (selectComponent instanceof UIRadioButtonType) //UIRadioButton in UIObjectList columns will be UIRadioButtonGroup
@@ -551,7 +551,7 @@ public class UIFormJSGenerator0 {
     
             processCommonField(out, selectComponent);
             processChoiceConstraint(out, selectComponent);
-            //processReconfiguration(out,selectComponent,inObjList,uiEntity);
+            processReconfiguration(out,selectComponent,uiEntity);
             out.write("    });\n");
         }
     }
@@ -679,7 +679,7 @@ public class UIFormJSGenerator0 {
     
         processCommonField(out, container, uiEntity);
         processContainerConstraint(out, container, isRootPanel, components);
-        //processReconfiguration(out,container,inObjList,uiEntity);
+        processReconfiguration(out,container,uiEntity);
     
         out.write("    });\n");
     }

@@ -62,7 +62,11 @@ import org.slf4j.LoggerFactory;
  */
 public class RefForm extends Container implements Serializable
 {
-    private static final long serialVersionUID = -1744731434666233557L;
+    public static final String RECONFIG_OVERRIDE = "ReconfigOverride";
+
+    public static final String RECONFIG_ORIGINAL = "ReconfigOriginal";
+
+	private static final long serialVersionUID = -1744731434666233557L;
 
     private static Logger logger = LoggerFactory.getLogger(RefForm.class);
 
@@ -324,9 +328,14 @@ public class RefForm extends Container implements Serializable
             ooeeContext.setDefaultEvaluationContext(evaContext);
             ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
             
+            HTMLReferenceEntityType refEntity = new HTMLReferenceEntityType(htmlContext, id);
+            if (inputParams.get(RECONFIG_ORIGINAL) != null && inputParams.get(RECONFIG_OVERRIDE) != null) {
+            	refEntity.addFunctionReconfiguration(inputParams.get(RECONFIG_ORIGINAL).toString(), 
+            			inputParams.get(RECONFIG_OVERRIDE).toString());
+            }
             PageDispatcher dispatcher = new PageDispatcher(entity, ooeeContext);
-            dispatcher.forwardForm(htmlContext, 0,
-                    isReadOnly(), new HTMLReferenceEntityType(htmlContext, id));
+            refEntity.initBegining(htmlContext);
+            dispatcher.forwardForm(htmlContext, 0, isReadOnly(), refEntity);
             htmlContext.getRequest().setAttribute("_framePagePrefix",oldFrameInfo);
             
             // append the dynamic js files.

@@ -100,7 +100,11 @@ public class HTMLReferenceEntityType extends HTMLWidgetType implements Serializa
 
     public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
     {
-        curUIEntityName = getUIEntityName();
+        initBegining(context);
+    }
+
+	public void initBegining(HTMLSnapshotContext context) {
+		curUIEntityName = getUIEntityName();
         divPrefix = context.getDIVPrefix();
         String name = getName();
         context.setHTMLPrefix(name + ".");
@@ -123,7 +127,7 @@ public class HTMLReferenceEntityType extends HTMLWidgetType implements Serializa
                 context.addReconfigVariable(key, variableReconfigurationMap.get(key));
             }
         }
-    }
+	}
 
     public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
     {
@@ -177,7 +181,7 @@ public class HTMLReferenceEntityType extends HTMLWidgetType implements Serializa
     }
 
     public void addFunctionReconfiguration(String name, String value)
-    {//TODO should be deleted
+    {
         if (functionReconfigurationMap == null)
         {
             functionReconfigurationMap = new HashMap();

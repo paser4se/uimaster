@@ -269,6 +269,9 @@ public abstract class AbstractConstant implements IConstantEntity {
 	 * @see bmiasia.ebos.constant.IConstantEntity#getDescription()
 	 */
 	public String getDescription() {
+		if (decorator != null && decorator.getDescription() != null) {
+			return decorator.getDescription();
+		}
 		return description;
 	}
 
