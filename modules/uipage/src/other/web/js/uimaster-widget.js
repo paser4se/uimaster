@@ -1867,6 +1867,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		var value = $(td).text();
 		this.tempCellValue = value;
 		var widget = this.tfoot.find('th');
+		if ($(widget[i]).children().length == 0) return;
 		var wd = $(widget[i]).children()[0];
 		var tagName = wd.tagName.toUpperCase();
 		if(tagName == "INPUT") {
@@ -2573,8 +2574,10 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
             			var b = buttons[i];
 						if ($(b).attr("disabled") == null || $(b).attr("disabled") == "false") {
 							buttonset[count++] = { text:b.value, 
-            					click:function(){var e=$(event.srcElement).text();for (var i=0;i<buttons.length;i++){ 
-            						if(e==buttons[i].value){$(buttons[i]).click();break;}} } };
+            					click:function(e){var e=$(e.srcElement?e.srcElement:e.target).text();
+								    for (var i=0;i<buttons.length;i++){ 
+            						    if(e==buttons[i].value){$(buttons[i]).click();break;}
+									} } };
 						}
 						if (IS_MOBILEVIEW) $(b).button();
             		}

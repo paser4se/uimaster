@@ -1259,8 +1259,9 @@ UIMaster.cmdHandler = function(json,status,result){
     }
     for (i=0;i<cmds.length;i++){
         win = getW(cmds[i].frameInfo);
-        if (win.UIMaster.handler[cmds[i].jsHandler])
-            win.UIMaster.handler[cmds[i].jsHandler](cmds[i],win);
+        if (win.UIMaster.handler[cmds[i].jsHandler]) {
+            try {win.UIMaster.handler[cmds[i].jsHandler](cmds[i],win);}catch(e){console.log(e);}
+		}
     }
     if (!MobileAppMode) {
         if ((cmds.length<=0||cmds[cmds.length-1].jsHandler!="appendError") && arguments.callee.caller.toString().indexOf('postInit')==-1) {

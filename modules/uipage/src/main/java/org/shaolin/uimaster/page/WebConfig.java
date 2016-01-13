@@ -357,7 +357,7 @@ public class WebConfig {
 	 * @return
 	 */
 	public static String getImportCSS(String entityName) {
-		String name = entityName.replace('.', File.separatorChar);
+		String name = entityName.replace('.', '/');//firefox only support '/'
 		return WebConfigFastCache.ResourceContextRoot + "/css/" + name + ".css";
 	}
 	
@@ -367,7 +367,7 @@ public class WebConfig {
 	 * @return
 	 */
 	public static String getImportJS(String entityName) {
-		String name = entityName.replace('.', File.separatorChar);
+		String name = entityName.replace('.', '/');//firefox only support '/'
 		return WebConfigFastCache.ResourceContextRoot + "/js/" + name + ".js";
 	}
 

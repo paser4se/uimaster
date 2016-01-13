@@ -319,7 +319,7 @@ public class Table extends Widget implements Serializable {
 		}
 	}
 	
-	private void updateFilter(String field, String value) {
+	public void updateFilter(String field, String value) {
 		for (UITableColumnType col : columns) {
 			if (col.getBeFieldId().equals(field) 
 					|| (col.getUiType().getType().equals("DateRange") 
