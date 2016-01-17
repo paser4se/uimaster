@@ -147,7 +147,7 @@ public class AppServiceManagerImpl implements IAppServiceManager, Serializable {
 					ILifeCycleProvider p = temp.remove(j);
 					logger.info("Start life cycle service: " + p);
 					p.startService();
-					i = 0;
+					j = 0;
 					continue;
 				}
 			}
@@ -169,7 +169,7 @@ public class AppServiceManagerImpl implements IAppServiceManager, Serializable {
 					ILifeCycleProvider p = temp.remove(j);
 					logger.info("Stop life cycle service: " + p);
 					p.stopService();
-					i = 0;
+					j = 0;
 					continue;
 				}
 			}
