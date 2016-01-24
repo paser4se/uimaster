@@ -85,12 +85,6 @@ public class HTMLTextFieldType extends HTMLTextWidgetType
     {
         try
         {
-            if (getIsCurrency())
-            {
-                context.generateHTML("\n<script type=\"text/javascript\"> ");
-                context.generateHTML("\naddOnLoadEvent(EventExecutor('" + getName() + "'));");
-                context.generateHTML("\n</script>");
-            }
             if ( isReadOnly() != null && isReadOnly().booleanValue() )
             {
                 addAttribute("allowBlank", "true");

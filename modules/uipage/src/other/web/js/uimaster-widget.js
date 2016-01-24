@@ -145,6 +145,10 @@ function postInit(){
 		for (var i = 0; i < items.length; i++) {if (items[i]) {items[i].postInit && items[i].postInit();}}
 		root.user_constructor();
 	}
+	while(UIMaster.pageInitFunctions.length > 0) {
+        var func = UIMaster.pageInitFunctions.shift();
+		func();
+	}
 };
 /**
  * @description UI Field class.
@@ -1885,7 +1889,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		$(td).append(wd);
 	},
 	hideEditorOnCell:function(i, td){
-		if (this.rowEmpty()) {return;}
+		if (this.rowEmpty() || $(td).children().length == 0) {return;}
 		var wd = $(td).children()[0];
 		var tagName = wd.tagName.toUpperCase();
 		if(tagName == "INPUT") {
@@ -1980,7 +1984,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		body.children().each(function(){
 		 $(this).bind('click', function(){
 			var tr = $(this);
-			if (othis.editable) {
+			if (othis.editable || (!this.isSingleSelection && !this.isMultipleSelection)) {
 				othis.selectedIndex = tr[0]._DT_RowIndex;
 				return true;
 			}
@@ -2049,7 +2053,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			}
 		  });
 		});
-		if (othis.editable || (selectedByDefault == undefined || !selectedByDefault)) {
+		if (othis.editable || (selectedByDefault == undefined || !selectedByDefault)
+		    || (!this.isSingleSelection && !this.isMultipleSelection)) {
 			return;
 		}
 		var c = body.children();

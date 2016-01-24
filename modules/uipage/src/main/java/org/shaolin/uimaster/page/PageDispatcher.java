@@ -487,6 +487,7 @@ public class PageDispatcher {
                 context.getRequest().setAttribute("_framePagePrefix", superPrefix);
             }
 
+            AjaxContext.registerPageAjaxContext(entityName, ajaxWidgetMap, context.getRequest());
             PageDispatcher dispatcher = new PageDispatcher(pageObject.getUIFormObject(), evaContext);
             dispatcher.forwardForm(context, 0);
             

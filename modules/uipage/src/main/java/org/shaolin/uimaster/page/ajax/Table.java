@@ -347,6 +347,32 @@ public class Table extends Widget implements Serializable {
 		}
 	}
 	
+	public void updateFilter(Object rowObject, String field, String value) {
+		for (UITableColumnType col : columns) {
+			if (col.getBeFieldId().equals(field) 
+					|| (col.getUiType().getType().equals("DateRange") 
+							&& (col.getUiType().getStartCondition().equals(field) 
+									|| col.getUiType().getEndCondition().equals(field)))){
+				try {
+					OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+					DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+					evaContext.setVariableValue("rowBE", rowObject);
+					evaContext.setVariableValue("value", value);
+					evaContext.setVariableValue("filterId", field);
+					ooeeContext.setDefaultEvaluationContext(evaContext);
+					ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+					
+					if (col.getUpdateCondition() != null) {
+						col.getUpdateCondition().getExpression().evaluate(ooeeContext);
+					}
+				} catch (Exception e) {
+					logger.error("error occurrs while updating table conditions."  + this.getId(), e);
+				}
+				break;
+			}
+		}
+	}
+	
 	public void addRow(Object object) {
 		this.listData.add(object);
 		if (this.addItems == null) {

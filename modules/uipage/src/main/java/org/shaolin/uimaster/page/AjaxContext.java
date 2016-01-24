@@ -220,6 +220,26 @@ public class AjaxContext extends OpExecuteContext implements Serializable
             logger.warn("Fail to register Page Ajax Context: " + e.getMessage(), e);
         }
     }
+    
+    public static void registerPageAjaxContext(String pageName, Map<?, ?> uiMap, HttpServletRequest request)
+    {
+        try
+        {
+            IRequestData requestData = new RequestData();
+            requestData.setEntityName(pageName);
+            requestData.setFrameId(request.getParameter("_framePrefix"));
+            requestData.setEntityUiid("");
+            requestData.setUiid("");
+            AjaxContext context = new AjaxContext(uiMap, requestData);
+            context.initData();
+            context.setRequest(request, null);
+            AjaxActionHelper.createAjaxContext(context);
+        }
+        catch (EvaluationException e)
+        {
+            logger.warn("Fail to register Page Ajax Context: " + e.getMessage(), e);
+        }
+    }
 
     public void removePageAjaxContext()
     {

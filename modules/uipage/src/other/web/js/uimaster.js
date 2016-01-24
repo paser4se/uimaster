@@ -377,7 +377,7 @@ function sideBar(parentPanel, leftPanel, rightPanel) {
 			rightPanelCell.css("width", readWidth); 
 		} 
 		
-		var b = p.parents("body:first");
+		var b = p.parents("html:first");
 		var bodyheight = $(b).height();
 		var complement = $(window).height() - bodyheight - 20;
         if (complement < 0) {
@@ -594,25 +594,6 @@ UIMaster.getAllScript = function(){
 	return UIMaster;
 };
 UIMaster.addResource = function(pageName){
-	/**
-    $(document).ready(function(){
-    var form = $('<form></form>')
-            .css({"marginBottom":"0px",'width':'95px'})
-            .attr('action',WEB_CONTEXTPATH+"/jsp/Resource.jsp")
-            .append($('<div></div>')
-                .css({'border-bottom':'1px solid'})
-                .append($('<span>Export Resource</span>').attr('title',pageName).css({'cursor':'pointer'}))
-                .append($('<input type="hidden"/>').attr({'name':'page','value':pageName}))
-                .click(function(){form.submit()}));
-    if ($("div[name=resource]").length > 0) {
-        $("div[name=resource]").append(form);
-    } else {
-        $('<div name="resource"></div>').css({'position':'absolute','top':'5px','left':$(document.body).width()-120,'zIndex':'500','background':'#3399cc','opacity':'.85','filter':'alpha(opacity=85)','color':'white','padding':'5px'}).append(form).appendTo($(document.body));
-    }
-    UIMaster.require('js/controls/dragdrop.js');
-    $("div[name=resource]").draggable();
-    });
-    */
 };
 /**
  * @description Get an element from the page.
@@ -2071,6 +2052,7 @@ function bmiasia_UIMaster_appbase_getCurrencyFormat(localeConfig, formatName){
 }
 
 var elementList = new Array();
+UIMaster.pageInitFunctions = new Array();
 
 function getFormElementList(formName){
     getElementListSingle(document.forms[formName]);

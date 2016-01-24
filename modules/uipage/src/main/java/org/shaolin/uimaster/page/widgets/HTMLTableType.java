@@ -435,7 +435,7 @@ public class HTMLTableType extends HTMLContainerType {
 			} else if (selectMode == UITableSelectModeType.SINGLE) {
 				context.generateHTML("<td>radio,"+count+"</td>");
 			} else {
-				context.generateHTML("<td></td>");
+				context.generateHTML("<td style=\"display:none;\"></td>");
 			}
 			
 			if (UserContext.isMobileRequest()) {

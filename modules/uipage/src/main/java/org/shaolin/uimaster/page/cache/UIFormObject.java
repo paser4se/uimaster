@@ -154,7 +154,7 @@ public class UIFormObject implements java.io.Serializable
     private Map<String, Object> funcMap = new HashMap<String, Object>();
 
     //App Name, UIPanel Name, UI Widgets.
-    private Map<String, Map<String, List<HTMLDynamicUIItem>>> dynamicItems; 
+    private Map<String, List<HTMLDynamicUIItem>> dynamicItems; 
     
     private List<String> workflowActions; 
     
@@ -1804,42 +1804,30 @@ public class UIFormObject implements java.io.Serializable
     public void addDynamicItem(HTMLDynamicUIItem item) throws EntityNotFoundException, 
 		ParsingException, ClassNotFoundException {
     	if (this.dynamicItems == null) {
-    		this.dynamicItems = new HashMap<String, Map<String, List<HTMLDynamicUIItem>>>();
+    		this.dynamicItems = new HashMap<String, List<HTMLDynamicUIItem>>();
     	}
     	
-		if (!this.dynamicItems.containsKey(AppContext.get().getAppName())) {
-			this.dynamicItems.put(AppContext.get().getAppName(), new HashMap());
-		}
-		Map<String, List<HTMLDynamicUIItem>> value = this.dynamicItems.get(AppContext.get().getAppName());
-		if (value.containsKey(item.getUipanel())) {
-			value.get(item.getUipanel()).add(item);
+		if (this.dynamicItems.containsKey(item.getUipanel())) {
+			this.dynamicItems.get(item.getUipanel()).add(item);
 		} else {
 			ArrayList<HTMLDynamicUIItem> items = new ArrayList<HTMLDynamicUIItem>();
 			items.add(item);
-			value.put(item.getUipanel(), items);
+			this.dynamicItems.put(item.getUipanel(), items);
 		}
 	}
 	
 	public List<HTMLDynamicUIItem> getDynamicItems(String panelId, String filter) {
-		if (AppContext.get() == null || this.dynamicItems == null) {
-			// App is not ready yet.
-			return null;
+		List<HTMLDynamicUIItem> items = this.dynamicItems.get(panelId);
+		if (filter == null || filter.isEmpty()) {
+			return items;
 		}
-		if (this.dynamicItems.containsKey(AppContext.get().getAppName())) {
-			Map<String, List<HTMLDynamicUIItem>> value = this.dynamicItems.get(AppContext.get().getAppName());
-			List<HTMLDynamicUIItem> items = value.get(panelId);
-			if (filter == null || filter.isEmpty()) {
-				return items;
+		List<HTMLDynamicUIItem> temps = new ArrayList<HTMLDynamicUIItem>();
+		for (HTMLDynamicUIItem i : items) {
+			if (i.getFilter() == null || i.getFilter().length() == 0 || i.getFilter().equals(filter)) {
+				temps.add(i);
 			}
-			List<HTMLDynamicUIItem> temps = new ArrayList<HTMLDynamicUIItem>();
-			for (HTMLDynamicUIItem i : items) {
-				if (i.getFilter().equals(filter)) {
-					temps.add(i);
-				}
-			}
-			return temps;
 		}
-		return null;
+		return temps;
 	}
 	
 	public void clearDynamicItems() {
