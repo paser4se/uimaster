@@ -193,5 +193,37 @@ public class CoordinatorModel extends BEEntityDaoObject {
         return this._count(inFlowCriteria);
     }
 
+    public List<org.shaolin.bmdp.workflow.be.INotification> searchNotification(org.shaolin.bmdp.workflow.be.NotificationImpl scFlow,
+           List<Order> orders, int offset, int count) {
+            Criteria inFlowCriteria = this._createCriteria(org.shaolin.bmdp.workflow.be.NotificationImpl.class, "inFlow");
+            if (orders == null) {
+            } else {
+                this._addOrders(inFlowCriteria, orders);
+            }
+
+            if (scFlow.getId() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.id", scFlow.getId()));
+            }
+            if (scFlow.getSubject() != null && scFlow.getSubject().length() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.START_WITH_RIGHT, "inFlow.subject", scFlow.getSubject()));
+            }
+
+        List result = this._list(offset, count, inFlowCriteria);
+        return result;
+    }
+
+    public long searchNotificationCount(org.shaolin.bmdp.workflow.be.NotificationImpl scFlow) {
+            Criteria inFlowCriteria = this._createCriteria(org.shaolin.bmdp.workflow.be.NotificationImpl.class, "inFlow");
+
+            if (scFlow.getId() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.id", scFlow.getId()));
+            }
+            if (scFlow.getSubject() != null && scFlow.getSubject().length() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.START_WITH_RIGHT, "inFlow.subject", scFlow.getSubject()));
+            }
+
+        return this._count(inFlowCriteria);
+    }
+
 }
 

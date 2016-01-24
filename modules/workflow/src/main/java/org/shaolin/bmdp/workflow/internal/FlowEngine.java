@@ -96,10 +96,12 @@ public class FlowEngine {
     public void init(FlowObject flowInfo) throws ConfigException {
     	this.flowInfo = flowInfo;
     	this.flowInfo.parse();
-        this.sessionService = (SessionService) AppContext.get().getService(this.flowInfo.getSessionService());
-        if (this.sessionService == null) {
-        	this.sessionService = new DefaultFlowSessionService();
-        }
+    	if (this.flowInfo.getSessionService() != null) {
+	        this.sessionService = (SessionService) AppContext.get().getService(this.flowInfo.getSessionService());
+	        if (this.sessionService == null) {
+	        	this.sessionService = new DefaultFlowSessionService();
+	        }
+    	}
     }
 
     /**

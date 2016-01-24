@@ -125,7 +125,7 @@
           </ns2:title>
           <ns2:beFieldId>rowBE.partyId</ns2:beFieldId>
           <ns2:uiType>
-            <ns2:type>Text</ns2:type>
+            <ns2:type>Label</ns2:type>
           </ns2:uiType>
         </ns2:column>
         <ns2:column>
@@ -135,7 +135,7 @@
           </ns2:title>
           <ns2:beFieldId>rowBE.subject</ns2:beFieldId>
           <ns2:uiType>
-            <ns2:type>Text</ns2:type>
+            <ns2:type>Label</ns2:type>
           </ns2:uiType>
         </ns2:column>
         <ns2:column>
@@ -145,7 +145,7 @@
           </ns2:title>
           <ns2:beFieldId>rowBE.description</ns2:beFieldId>
           <ns2:uiType>
-            <ns2:type>Text</ns2:type>
+            <ns2:type>Label</ns2:type>
           </ns2:uiType>
         </ns2:column>
         <ns2:defaultActions>
