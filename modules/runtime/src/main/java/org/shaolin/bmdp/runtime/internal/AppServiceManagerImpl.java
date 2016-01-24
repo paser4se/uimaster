@@ -192,8 +192,9 @@ public class AppServiceManagerImpl implements IAppServiceManager, Serializable {
 	@SuppressWarnings("unchecked")
 	public <T> T getService(Class<T> serviceClass) {
 		if (!services.containsKey(serviceClass)) {
-			throw new IllegalStateException("The service " + serviceClass.getName() 
+			logger.warn("The service " + serviceClass.getName() 
 					+ " is not existed! Are you sure it has registed or made a mistake while registering this service?");
+			return null;
 		}
 		return (T) services.get(serviceClass);
 	}
