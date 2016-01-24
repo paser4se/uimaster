@@ -29,6 +29,10 @@
             <bediagram:name>password</bediagram:name>
             <bediagram:type xsi:type="bediagram:StringType" />
         </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>webroot</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
 	</bediagram:beEntity>
 	
 	<bediagram:beEntity needPersist="true" needUIEntity="true">
