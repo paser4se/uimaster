@@ -220,6 +220,10 @@ public class DaoGenerator implements IEntityEventListener<TableType, RDBDiagram>
 					// add condition
 					out.print(context.getConditions());
 					
+					String fromName = query.getFromDatas().get(0).getName();
+					String sconditionName = query.getSearchConditionMapping().getSearchConditionDatas().get(0).getName();
+					out.write("\n        "+fromName+"Criteria.add(createCriterion(Operator.EQUALS, \""+fromName+"._enable\", "+sconditionName+".isEnabled()));\n");
+					
 					if (query.isStatistic()) {
 						out.write("\n        List result = this.listStatistic(offset, count, ");
 						out.print("new java.util.HashMap()");
@@ -253,6 +257,9 @@ public class DaoGenerator implements IEntityEventListener<TableType, RDBDiagram>
 					out.write("\n");
 					// add condition
 					out.print(context.getConditions());
+					
+					out.write("\n        "+fromName+"Criteria.add(createCriterion(Operator.EQUALS, \""+fromName+"._enable\", "+sconditionName+".isEnabled()));\n");
+					
 					if (query.isStatistic()) {
 						out.write("\n        return this.countStatistic(");
 						out.print("new java.util.HashMap()");

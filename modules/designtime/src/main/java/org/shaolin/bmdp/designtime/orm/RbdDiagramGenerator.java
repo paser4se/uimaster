@@ -337,6 +337,15 @@ public class RbdDiagramGenerator implements
 			}
 		}
 
+		ColumnType createDate = rdbObjFactory.createColumnType();
+		createDate.setName("CREATEDATE");
+		createDate.setType("DATETIME");
+		table.getColumns().add(createDate);
+		FieldMappingType createDateMP = rdbObjFactory.createFieldMappingType();
+		createDateMP.setBeFieldName("createDate");
+		createDateMP.setColumnName("CREATEDATE");
+		mapping.getFieldMappings().add(createDateMP);
+		
 		if (be.isNeedPersist()) {
 			ColumnType version = rdbObjFactory.createColumnType();
 			version.setName("_enable");
@@ -361,6 +370,19 @@ public class RbdDiagramGenerator implements
 					.createFieldMappingType();
 			taskFM.setBeFieldName("_taskId");
 			taskFM.setColumnName("_taskId");
+			mapping.getFieldMappings().add(taskFM);
+		}
+		if (be.isNeedOrgId()) {
+			ColumnType taskId = rdbObjFactory.createColumnType();
+			taskId.setName("ORGID");
+			taskId.setType("BIGINT");
+			taskId.setLength("38");
+			taskId.setDefault("0");
+			table.getColumns().add(taskId);
+			FieldMappingType taskFM = rdbObjFactory
+					.createFieldMappingType();
+			taskFM.setBeFieldName("orgId");
+			taskFM.setColumnName("ORGID");
 			mapping.getFieldMappings().add(taskFM);
 		}
 		if (be.isNeedHistory()) {

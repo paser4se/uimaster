@@ -261,6 +261,14 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			out.write("\n{\n    public final static String ENTITY_NAME = \"");
 			out.print(businessEntity.getEntityName());
 			out.write("\";\n    \n ");
+
+			if (businessEntity.isNeedOrgId()) {
+				out.write("\n    /**\n     *  get orgId");
+				out.write("\n     *\n     *  @return orgId");
+				out.write("\n     */\n    public long getOrgId();\n");
+				out.write("\n    /**\n     *  set orgId");
+				out.write("\n     */\n    public void setOrgId(long orgId);\n");
+			}
 			generateGetDeclaration(businessEntity, out);
 			generateSetDeclaration(businessEntity, out);
 
@@ -535,6 +543,14 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 	}
 
 	private void generateGetDefinition(BusinessEntityType beEntity, PumpWriter out) {
+		out.write("    /**\n");
+		out.write("     *  Get createDate\n");
+		out.write("     *\n");
+		out.write("     *  @return java.util.Date\n");
+		out.write("     */\n");
+		out.write("    public java.util.Date getCreateDate() {\n");
+		out.write("        return createDate;\n");
+		out.write("    }\n        ");
 		if (isSelfNeedPersist(beEntity) || isSelfNeedHistory(beEntity)) {
 			out.write("    /**\n");
 			out.write("     *  Is enable\n");
@@ -565,6 +581,14 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 				out.write("        return _taskId;\n");
 				out.write("    }\n        ");
 			}
+		}
+		if (beEntity.isNeedOrgId()) {
+			out.write("    /**\n");
+			out.write("     *  get orgId\n");
+			out.write("     */\n");
+			out.write("    public long getOrgId() {\n");
+			out.write("        return this.orgId;\n");
+			out.write("    }\n\n    ");
 		}
 		
 		if (isSelfNeedHistory(beEntity)) {
@@ -687,6 +711,13 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 	}
 
 	private void generateSetDefinition(BusinessEntityType beEntity, PumpWriter out) {
+		out.write("    /**\n");
+		out.write("     *  set createDate\n");
+		out.write("     *  @parameter true or false.\n");
+		out.write("     */\n");
+		out.write("    public void setCreateDate(java.util.Date createDate) {\n");
+		out.write("        this.createDate = createDate;\n");
+		out.write("    }\n\n    ");
 		if (isSelfNeedPersist(beEntity) || isSelfNeedHistory(beEntity)) {
 			out.write("    /**\n");
 			out.write("     *  set enable\n");
@@ -702,6 +733,7 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			out.write("    private void set_enable(boolean enable) {\n");
 			out.write("        _enable = enable;\n");
 			out.write("    }\n\n    ");
+			
 			if (beEntity.isNeedTask()) {
 				out.write("    /**\n");
 				out.write("     *  set taskId\n");
@@ -714,7 +746,17 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 				out.write("    }\n        ");
 			}
 		}
-			
+		
+		if (beEntity.isNeedOrgId()) {
+			out.write("    /**\n");
+			out.write("     *  set orgId\n");
+			out.write("     *  @parameter orgId.\n");
+			out.write("     */\n");
+			out.write("    public void setOrgId(long orgId) {\n");
+			out.write("        this.orgId = orgId;\n");
+			out.write("    }\n\n    ");
+		}
+		
 		if (isSelfNeedHistory(beEntity)) {
 			out.write("\n    /**\n");
 			out.write("     *  set version\n");
@@ -868,6 +910,10 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 	}
 
 	private void generateAttrDeclaration(BusinessEntityType beEntity, PumpWriter out) {
+		out.write("    /**\n");
+		out.write("     * Create Date\n");
+		out.write("     */\n");
+		out.write("    private java.util.Date createDate = null;\n\n");
 		if (isSelfNeedPersist(beEntity) || isSelfNeedHistory(beEntity)) {
 			out.write("    /**\n");
 			out.write("     * Enable record\n");
@@ -879,6 +925,14 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 				out.write("     */\n");
 				out.write("    private long _taskId;\n\n");
 			}
+		}
+		
+		if (beEntity.isNeedOrgId()) {
+			out.write("    /**\n");
+			out.write("     *  set orgId\n");
+			out.write("     *  @parameter orgId.\n");
+			out.write("     */\n");
+			out.write("    private long orgId = 0;\n\n");
 		}
 
 		if (isSelfNeedHistory(beEntity)) {
@@ -1028,6 +1082,10 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 
 			out.write("\n        aBuf.append(\" : \");\n        ");
 
+		}
+		out.write("\n        aBuf.append(\"createDate=\").append(createDate).append(\", \");\n        ");
+		if (businessEntity.isNeedOrgId()) {
+			out.write("\n        aBuf.append(\"orgId=\").append(orgId);\n        ");
 		}
 		if (isSelfNeedPersist(businessEntity) || isSelfNeedHistory(businessEntity)) {
 			out.write("\n        aBuf.append(\"enable=\").append(_enable).append(\", \");\n        ");
