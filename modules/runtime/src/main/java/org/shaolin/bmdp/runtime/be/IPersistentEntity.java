@@ -30,4 +30,16 @@ public interface IPersistentEntity extends IBusinessEntity {
 	 */
 	public void setEnabled(boolean isEnabled);
 	
+	/**
+	 * Get create date of this item.
+	 * 
+	 * @return
+	 */
+	public java.util.Date getCreateDate();
+	
+	/**
+	 * 
+	 * @param createDate
+	 */
+	public void setCreateDate(java.util.Date createDate);
 }

@@ -1,0 +1,246 @@
+package org.shaolin.bmdp.runtime.security;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.shaolin.bmdp.runtime.ce.CEUtil;
+import org.shaolin.bmdp.runtime.ce.IConstantEntity;
+
+public class UserContext {
+
+	long userId;
+	
+	String userAccount;
+	
+	String userLocale;
+	
+	String lastLoginDate;
+	
+	List<IConstantEntity> userRoles;
+	
+	long orgId;
+	
+	String orgCode;
+	
+	String orgType;
+	
+	String orgName;
+	
+	public UserContext() {
+	}
+	
+	public long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(long id) {
+		this.userId = id;
+	}
+
+	public String getUserAccount() {
+		return userAccount;
+	}
+
+	public void setUserAccount(String userAccount) {
+		this.userAccount = userAccount;
+	}
+
+	public String getLastLoginDate() {
+		return lastLoginDate;
+	}
+
+	public void setLastLoginDate(String lastLoginDate) {
+		this.lastLoginDate = lastLoginDate;
+	}
+
+	public String getOrgName() {
+		return orgName;
+	}
+
+	public void setOrgName(String orgName) {
+		this.orgName = orgName;
+	}
+	
+	public long getOrgId() {
+		return orgId;
+	}
+
+	public void setOrgId(long orgId) {
+		this.orgId = orgId;
+	}
+
+	public String getOrgCode() {
+		return orgCode;
+	}
+
+	public void setOrgCode(String orgCode) {
+		this.orgCode = orgCode;
+	}
+
+	public String getOrgType() {
+		return orgType;
+	}
+
+	public void setOrgType(String orgType) {
+		this.orgType = orgType;
+	}
+
+	public void setUserLocale(String userLocale) {
+		this.userLocale = userLocale;
+	}
+	
+	public String getLocale() {
+		return this.userLocale;
+	}
+
+	public void setUserRoles(List<IConstantEntity> userRoles) {
+		this.userRoles = userRoles;
+	}
+	
+	public List<IConstantEntity> getUserRole() {
+		return this.userRoles;
+	}
+
+	public static final String CURRENT_USER_ORGID = "CurrentUserOrgId";
+	
+	public static final String CURRENT_USER_ORGNAME = "CurrentUserOrgName";
+
+	public static final String CURRENT_USER_ORGTYPE = "CurrentUserOrgType";
+	
+	public static final String CURRENT_USER_ID = "CurrentUserId";
+	
+	private static ThreadLocal<UserContext> userSessionCache = new ThreadLocal<UserContext>();
+
+	private static ThreadLocal<String> userLocaleCache = new ThreadLocal<String>();
+
+	private static ThreadLocal<List<IConstantEntity>> userRolesCache = new ThreadLocal<List<IConstantEntity>>();
+
+	private static ThreadLocal<Boolean> userAccessMode = new ThreadLocal<Boolean>();
+	
+	private static ThreadLocal<Boolean> andriodAppDevice = new ThreadLocal<Boolean>();
+	
+	private static ThreadLocal<HttpSession> userSession = new ThreadLocal<HttpSession>();
+	
+	public static void registerCurrentUserContext(HttpSession session, UserContext userContext,
+			String userLocale, List<IConstantEntity> userRoles, Boolean isMobileAccess) {
+		userSession.set(session);
+		userSessionCache.set(userContext);
+		userLocaleCache.set(userLocale);
+		userRolesCache.set(userRoles);
+		userAccessMode.set(isMobileAccess);
+	}
+	
+	public static void unregister() {
+		userSession.set(null);
+		userSessionCache.set(null);
+		userLocaleCache.set(null);
+		userRolesCache.set(null);
+		userAccessMode.set(null);
+	}
+
+	public static Object getCurrentUserContext() {
+		return userSessionCache.get();
+	}
+
+	public static void unregisterCurrentUserContext() {
+		userSessionCache.set(null);
+		userLocaleCache.set(null);
+		userRolesCache.set(null);
+	}
+
+	public static void addUserData(String key, String value) {
+		userSession.get().setAttribute(key, value);
+	}
+	
+	public static Object getUserData(String key) {
+		if (userSessionCache.get() == null) {
+			return null;
+		}
+		if (key.equals(CURRENT_USER_ORGID)) {
+			return userSessionCache.get().getOrgId();
+		}
+		if (key.equals(CURRENT_USER_ORGNAME)) {
+			return userSessionCache.get().getOrgCode();
+		}
+		if (key.equals(CURRENT_USER_ORGTYPE)) {
+			return userSessionCache.get().getOrgType();
+		}
+		if (key.equals("CurrentUserId")) {
+			return userSessionCache.get().getUserId();
+		}
+		if (key.equals("CurrentUserAccount")) {
+			return userSessionCache.get().getUserAccount();
+		}
+		
+		return userSession.get().getAttribute(key);
+	}
+	
+	public static Object getUserData(String key, boolean needException) {
+		if (userSessionCache.get() == null) {
+			throw new IllegalStateException("No user context exist!");
+		}
+		
+		if (key.equals(CURRENT_USER_ORGID)) {
+			return userSessionCache.get().getOrgId();
+		}
+		if (key.equals(CURRENT_USER_ORGNAME)) {
+			return userSessionCache.get().getOrgCode();
+		}
+		if (key.equals(CURRENT_USER_ORGTYPE)) {
+			return userSessionCache.get().getOrgType();
+		}
+		if (key.equals("CurrentUserId")) {
+			return userSessionCache.get().getUserId();
+		}
+		if (key.equals("CurrentUserAccount")) {
+			return userSessionCache.get().getUserAccount();
+		}
+		
+		Object value = userSession.get().getAttribute(key);
+		if (value == null) {
+			throw new IllegalArgumentException(key + " can not be found!");
+		}
+		return value;
+	}
+	
+	public static String getUserLocale() {
+		return userLocaleCache.get();
+	}
+
+	public static List<IConstantEntity> getUserRoles() {
+		return userRolesCache.get();
+	}
+	
+	public static boolean hasRole(String role) {
+		for (IConstantEntity exist : userRolesCache.get()) {
+			if (role.equals(CEUtil.getValue(exist))) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public static boolean isMobileRequest() {
+		if (userAccessMode.get() == null) {
+			return false;
+		}
+		return userAccessMode.get();
+	}
+	
+	public static boolean isAppClient() {
+		if (andriodAppDevice.get() == null) {
+			return false;
+		}
+		return andriodAppDevice.get();
+	}
+	
+	public static void setAppClient(HttpServletRequest request) {
+		String appClient = request.getParameter("_appclient");
+		if (appClient != null) {
+			andriodAppDevice.set(true);
+		} 
+	}
+
+}

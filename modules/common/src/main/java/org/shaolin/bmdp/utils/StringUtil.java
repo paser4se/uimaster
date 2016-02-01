@@ -400,6 +400,81 @@ public class StringUtil
 
         return buf.toString();
     }
+    
+    public static String escapeJSONTags(String input)
+    {
+        if ((input == null) || (input.length() == 0))
+        {
+            return input;
+        }
+
+        StringBuffer buf = new StringBuffer();
+        char ch = ' ';
+
+        for (int i = 0; i < input.length(); i++)
+        {
+            ch = input.charAt(i);
+
+            if (ch == '<')
+            {
+                buf.append("&lt;");
+            }
+            else if (ch == '>')
+            {
+                buf.append("&gt;");
+            }
+            else if (ch == '&')
+            {
+                buf.append("&amp;");
+            }
+            else if (ch == '"')
+            {
+                buf.append("&quot;");
+            }
+            else if (ch == ' ')
+            {
+                buf.append("&nbsp;");
+            }
+            else if (ch == '\"') 
+            {
+            	buf.append("\\\"");
+            }
+            else if (ch == '\\') 
+            {        
+            	buf.append("\\\\");
+            }
+            else if (ch == '/') 
+            {        
+            	buf.append("\\/");        
+            }
+            else if (ch == '\b') 
+            {       
+            	buf.append("\\b");        
+            }
+            else if (ch == '\f') 
+            {        
+            	buf.append("\\f");        
+            }
+            else if (ch == '\n') 
+            {        
+            	buf.append("\\n");        
+            }
+            else if (ch == '\r') 
+            {        
+            	buf.append("\\r");        
+            }
+            else if (ch == '\t') 
+            {        
+            	buf.append("\\t");        
+            }
+            else
+            {
+                buf.append(ch);
+            }
+        }
+
+        return buf.toString();
+    }
 
     /**
      * Escape SQL tags, ' to ''; \ to \\.

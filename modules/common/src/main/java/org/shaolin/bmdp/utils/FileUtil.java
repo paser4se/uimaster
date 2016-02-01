@@ -19,6 +19,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -273,4 +274,18 @@ public final class FileUtil {
 		}
 		return sb.toString();
 	}
+    
+    public static byte[] read(InputStream in) throws IOException {
+    	try {
+	    	ByteArrayOutputStream swapStream = new ByteArrayOutputStream();  
+	        byte[] buff = new byte[100];  
+	        int rc = 0;  
+	        while ((rc = in.read(buff, 0, 100)) > 0) {  
+	            swapStream.write(buff, 0, rc);  
+	        }  
+	        return swapStream.toByteArray();  
+    	} finally {
+    		CloseUtil.close(in);
+    	}
+    }
 }

@@ -49,6 +49,8 @@ public class AppServiceManagerImpl implements IAppServiceManager, Serializable {
 
 	private final transient Map<Class<?>, IServiceProvider> services = new HashMap<Class<?>, IServiceProvider>();
 	
+	private final IAppServiceManager uimasterApp;
+	
 	private final transient ClassLoader appClassLoader;
 
 	private transient Object hibernateSessionFactory;
@@ -61,7 +63,16 @@ public class AppServiceManagerImpl implements IAppServiceManager, Serializable {
 		this.appName = appName;
 		this.appClassLoader = appClassLoader;
 		this.entityManager = new EntityManager(appName);
+		this.uimasterApp = null;
 	}
+	
+	public AppServiceManagerImpl(String appName, ClassLoader appClassLoader, IAppServiceManager uimasterApp) {
+		this.appName = appName;
+		this.appClassLoader = appClassLoader;
+		this.entityManager = new EntityManager(appName);
+		this.uimasterApp = uimasterApp;
+	}
+	
 	
 	public String getAppName() {
 		return this.appName;
@@ -192,6 +203,9 @@ public class AppServiceManagerImpl implements IAppServiceManager, Serializable {
 	@SuppressWarnings("unchecked")
 	public <T> T getService(Class<T> serviceClass) {
 		if (!services.containsKey(serviceClass)) {
+			if (uimasterApp != null) {
+				return uimasterApp.getService(serviceClass);
+			}
 			logger.warn("The service " + serviceClass.getName() 
 					+ " is not existed! Are you sure it has registed or made a mistake while registering this service?");
 			return null;

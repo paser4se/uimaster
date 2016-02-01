@@ -97,6 +97,9 @@ public class ServerServiceManagerImpl implements IServerServiceManager {
 	
 	@Override
 	public void addApplication(String name, IAppServiceManager app) {
+		if (applications.containsKey(name)) {
+			throw new IllegalStateException("Application name " + name + " has already existed!");
+		}
 		logger.info("Add an application: " + name);
 		applications.put(name, app);
 	}
@@ -109,6 +112,9 @@ public class ServerServiceManagerImpl implements IServerServiceManager {
 
 	@Override
 	public IAppServiceManager getApplication(String name) {
+		if (!applications.containsKey(name)) {
+			throw new IllegalArgumentException("The application " +name+ " is not existed!");
+		}
 		return applications.get(name);
 	}
 	
