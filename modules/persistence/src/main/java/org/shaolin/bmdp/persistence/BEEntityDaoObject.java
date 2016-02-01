@@ -1,7 +1,7 @@
 package org.shaolin.bmdp.persistence;
 
 import java.math.BigInteger;
-import java.sql.Date;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -38,6 +38,9 @@ public class BEEntityDaoObject {
 	public void create(IPersistentEntity entity) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Insert an entity: {}", entity);
+		}
+		if (entity.getCreateDate() == null) {
+			entity.setCreateDate(new Date());
 		}
 		
 		Session session = HibernateUtil.getSession();
@@ -119,6 +122,10 @@ public class BEEntityDaoObject {
 		
 		Session session = HibernateUtil.getSession();
 		for (IPersistentEntity entity: entities) {
+			if (entity.getCreateDate() == null) {
+				entity.setCreateDate(new Date());
+			}
+			
 			if (entity.getId() > 0) {
 				session.update(entity);
 			} else {

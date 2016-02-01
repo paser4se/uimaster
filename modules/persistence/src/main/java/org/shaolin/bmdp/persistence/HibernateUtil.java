@@ -5,7 +5,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -23,8 +22,6 @@ public class HibernateUtil {
 	
 	// thread control session factory by out side.
 	private static final ThreadLocal<Session> sessionFactoryTL = new ThreadLocal<Session>();
-	
-	private static final ThreadLocal<AtomicLong> refCounterTL = new ThreadLocal<AtomicLong>();
 	
 	@SuppressWarnings("deprecation")
 	private synchronized static SessionFactory buildSessionFactory() {
@@ -68,9 +65,15 @@ public class HibernateUtil {
 		if (sessionFactoryTL.get() != null) {
 			return sessionFactoryTL.get();
 		}
+		
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		session.beginTransaction();
 		sessionFactoryTL.set(session);
+		if (logger.isInfoEnabled()) {
+			logger.info("Start Hibernate Transaction: collections-{},entities-{}", 
+					new Object[] { session.getStatistics().getCollectionCount(), 
+									session.getStatistics().getEntityCount()});
+		}
 		return session;
 	}
 	
@@ -79,6 +82,11 @@ public class HibernateUtil {
 			 sessionFactoryTL.set(null);
 		}
 		
+		if (logger.isInfoEnabled()) {
+			logger.info("End Hibernate Transaction: isCommit-{},collections-{},entities-{}", 
+					new Object[] { isCommit, session.getStatistics().getCollectionCount(), 
+									session.getStatistics().getEntityCount()});
+		}
 		if (!session.isOpen()) {
 			return;
 		}
