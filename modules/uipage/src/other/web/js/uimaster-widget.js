@@ -1984,7 +1984,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		body.children().each(function(){
 		 $(this).bind('click', function(){
 			var tr = $(this);
-			if (othis.editable || (!this.isSingleSelection && !this.isMultipleSelection)) {
+			if (othis.editable || (!othis.isSingleSelection && !othis.isMultipleSelection)) {
 				othis.selectedIndex = tr[0]._DT_RowIndex;
 				return true;
 			}
@@ -2043,7 +2043,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 					tr.removeClass('selected');
 					othis.selectedIndex = -1;
 				} else {
-					othis.tbody.find('tr[class^=selected]').removeClass('selected');
+					othis.tbody.find('tr[class*=selected]').removeClass('selected');
 					tr.addClass('selected');
 					othis.selectedIndex = tr[0]._DT_RowIndex;
 					isselected=true;
@@ -2054,7 +2054,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		  });
 		});
 		if (othis.editable || (selectedByDefault == undefined || !selectedByDefault)
-		    || (!this.isSingleSelection && !this.isMultipleSelection)) {
+		    || (!othis.isSingleSelection && !othis.isMultipleSelection)) {
 			return;
 		}
 		var c = body.children();

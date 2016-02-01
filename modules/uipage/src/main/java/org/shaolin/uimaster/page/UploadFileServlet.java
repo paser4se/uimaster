@@ -33,13 +33,13 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.runtime.AppContext;
-import org.shaolin.bmdp.runtime.spi.IAppServiceManager;
+import org.shaolin.bmdp.runtime.security.UserContext;
+import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.uimaster.page.ajax.AFile;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.JSONArray;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
-import org.shaolin.uimaster.page.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +80,7 @@ public class UploadFileServlet extends HttpServlet {
 		}
 		
 		HttpSession session = request.getSession();
-		Object currentUserContext = session.getAttribute(WebflowConstants.USER_SESSION_KEY);
+		UserContext currentUserContext = (UserContext)session.getAttribute(WebflowConstants.USER_SESSION_KEY);
 		String userLocale = WebConfig.getUserLocale(request);
 		List userRoles = (List)session.getAttribute(WebflowConstants.USER_ROLE_KEY);
 		String userAgent = request.getHeader("user-agent");
@@ -89,7 +89,11 @@ public class UploadFileServlet extends HttpServlet {
         UserContext.registerCurrentUserContext(session, currentUserContext, userLocale, userRoles, isMobile);
 		LocaleContext.createLocaleContext(userLocale);
 		
-		AppContext.register((IAppServiceManager)this.getServletContext().getAttribute(IAppServiceManager.class.getCanonicalName()));
+		String orgCode = (String)UserContext.getUserData(UserContext.CURRENT_USER_ORGNAME);
+        if (orgCode == null) {
+        	orgCode = IServerServiceManager.INSTANCE.getMasterNodeName();
+        }
+        AppContext.register(IServerServiceManager.INSTANCE.getApplication(orgCode));
 		
 		// move the file to the real path.
 		AFile file = (AFile)uiMap.get(uiid);

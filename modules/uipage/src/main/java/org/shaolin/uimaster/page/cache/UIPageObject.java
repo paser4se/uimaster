@@ -23,10 +23,10 @@ import java.util.Map;
 
 import org.shaolin.bmdp.datamodel.page.UIPage;
 import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.uimaster.page.MobilitySupport;
 import org.shaolin.uimaster.page.WebConfig;
-import org.shaolin.uimaster.page.security.UserContext;
 
 public class UIPageObject implements java.io.Serializable {
 	private static final long serialVersionUID = -3835708230178517577L;

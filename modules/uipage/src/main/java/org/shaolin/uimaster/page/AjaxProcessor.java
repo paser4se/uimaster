@@ -22,7 +22,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
 import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.ajax.Widget;
@@ -249,7 +248,6 @@ public class AjaxProcessor implements Serializable
     public String execute() throws AjaxException
     {
     	boolean errorFlag = false;
-    	Session session = HibernateUtil.getSession();
         try
         {
             IAjaxHandler handler = null;
@@ -305,9 +303,9 @@ public class AjaxProcessor implements Serializable
             throw ex;
         } finally {
 			if (errorFlag) {
-				HibernateUtil.releaseSession(session, false);
+				HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
 			} else {
-				HibernateUtil.releaseSession(session, true);
+				HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 			}
         }
     }

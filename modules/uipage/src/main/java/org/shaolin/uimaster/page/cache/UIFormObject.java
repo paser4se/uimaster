@@ -104,6 +104,7 @@ import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.VariableUtil;
 import org.shaolin.bmdp.runtime.be.BEUtil;
 import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.context.OOEEContext;
@@ -125,7 +126,6 @@ import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.od.ODContextHelper;
 import org.shaolin.uimaster.page.od.mappings.ComponentMappingHelper;
-import org.shaolin.uimaster.page.security.UserContext;
 import org.shaolin.uimaster.page.widgets.HTMLDynamicUIItem;
 import org.shaolin.uimaster.page.widgets.HTMLReferenceEntityType;
 import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
@@ -1648,7 +1648,7 @@ public class UIFormObject implements java.io.Serializable
 				button.setUIID(node.getUiAction().getActionName());
 				ExpressionPropertyType property = new ExpressionPropertyType();
 				ExpressionType expr = new ExpressionType();
-				expr.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; "
+				expr.setExpressionString("import org.shaolin.bmdp.runtime.security.UserContext; "
 						+ "\n{ return UserContext.hasRole(\"" + node.getParticipant().getPartyType() + "\"); }");
 				property.setExpression(expr);
 				button.setVisible(property);

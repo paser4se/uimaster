@@ -162,6 +162,14 @@ abstract public class MultiChoice extends Choice implements Serializable
         return values == null? new ArrayList(): values;
     }
 
+    public String getValue()
+    {
+    	checkConstraint();
+    	
+        List<String> values = (List<String>)getAttribute("values");
+        return values == null || values.size() == 0? "": values.get(0);
+    }
+    
     protected boolean equal(String str)
     {
         List<String> values = getValues();

@@ -16,11 +16,11 @@
 package org.shaolin.uimaster.page.widgets;
 
 import org.apache.log4j.Logger;
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.cache.UIFormObject;
-import org.shaolin.uimaster.page.security.UserContext;
 
 public class HTMLCountDownType extends HTMLWidgetType {
 	

@@ -28,7 +28,8 @@ import javax.servlet.http.HttpSession;
 
 import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.runtime.AppContext;
-import org.shaolin.bmdp.runtime.spi.IAppServiceManager;
+import org.shaolin.bmdp.runtime.security.UserContext;
+import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.uimaster.page.ajax.Table;
 import org.shaolin.uimaster.page.ajax.handlers.ErrorHelper;
 import org.shaolin.uimaster.page.ajax.handlers.IAjaxCommand;
@@ -39,7 +40,6 @@ import org.shaolin.uimaster.page.ajax.json.JSONException;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.flow.ProcessHelper;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
-import org.shaolin.uimaster.page.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,13 +80,9 @@ public class AjaxServlet extends HttpServlet {
 	
 	protected void process(HttpServletRequest request, HttpServletResponse response) throws IOException
     {
-		
-		if (request.getProtocol().compareTo("HTTP/1.0") == 0) 
-		{
+		if (request.getProtocol().compareTo("HTTP/1.0") == 0) {
 			response.setHeader("Pragma", "no-cache");
-		} 
-		else if (request.getProtocol().compareTo("HTTP/1.1") == 0) 
-		{
+		} else if (request.getProtocol().compareTo("HTTP/1.1") == 0) {
 			response.setHeader("Cache-Control", "no-cache");
 		}
 		response.setDateHeader("Expires", 0);
@@ -106,7 +102,7 @@ public class AjaxServlet extends HttpServlet {
 			return;
 		}
 		HttpSession session = request.getSession();
-		Object currentUserContext = session.getAttribute(WebflowConstants.USER_SESSION_KEY);
+		UserContext currentUserContext = (UserContext)session.getAttribute(WebflowConstants.USER_SESSION_KEY);
 		String userLocale = WebConfig.getUserLocale(request);
 		List userRoles = (List)session.getAttribute(WebflowConstants.USER_ROLE_KEY);
 		String userAgent = request.getHeader("user-agent");
@@ -116,7 +112,11 @@ public class AjaxServlet extends HttpServlet {
         UserContext.setAppClient(request);
 		LocaleContext.createLocaleContext(userLocale);
 		
-		AppContext.register((IAppServiceManager)this.getServletContext().getAttribute(IAppServiceManager.class.getCanonicalName()));
+		String orgCode = (String)UserContext.getUserData(UserContext.CURRENT_USER_ORGNAME);
+        if (orgCode == null) {
+        	orgCode = IServerServiceManager.INSTANCE.getMasterNodeName();
+        }
+        AppContext.register(IServerServiceManager.INSTANCE.getApplication(orgCode));
 		
 		if (request.getParameter("_ajaxUserEvent") != null) 
 		{ // for new UI framework.

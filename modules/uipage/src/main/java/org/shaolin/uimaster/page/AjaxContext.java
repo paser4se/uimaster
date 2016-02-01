@@ -297,7 +297,7 @@ public class AjaxContext extends OpExecuteContext implements Serializable
         this.setEvaluationContextObject("@", globalEContext);
         globalEContext.setVariableValue("request", request);
         globalEContext.setVariableValue("page", this);
-        if (requestData.getUiid() != null) {
+        if (requestData.getUiid() != null && requestData.getUiid().length() > 0) {
         	globalEContext.setVariableValue("eventsource", this.getElement(requestData.getUiid()));
         }
     }

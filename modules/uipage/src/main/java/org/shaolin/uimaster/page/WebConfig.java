@@ -241,11 +241,11 @@ public class WebConfig {
 	}
 	
 	public static String getUploadFileRoot() {
-		return uploadFileRoot + "/" + AppContext.get().getAppName();
+		return uploadFileRoot + "/uimaster";
 	}
 	
 	public static String getWebRoot() {
-		return "/" + AppContext.get().getAppName();
+		return "/uimaster";
 	}
 	
 	public static String getWebContextRoot() {

@@ -40,6 +40,7 @@
 				<xs:attribute name="needHistory" type="xs:boolean" use="optional" default="false"/>
 				<xs:attribute name="needPersist" type="xs:boolean" use="optional" default="false"/>
 				<xs:attribute name="needTask" type="xs:boolean" use="optional" default="false"/>
+				<xs:attribute name="needOrgId" type="xs:boolean" use="optional" default="false"/>
 				<xs:attribute name="needUIEntity" type="xs:boolean" use="optional" default="false"/>
 				<xs:attribute name="needUITableEditor" type="xs:boolean" use="optional" default="false"/>
 				<xs:attribute name="extensible" type="xs:boolean" use="optional" default="true"/>

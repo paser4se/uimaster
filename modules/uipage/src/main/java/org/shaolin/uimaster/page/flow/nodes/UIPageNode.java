@@ -19,6 +19,7 @@ import org.shaolin.bmdp.datamodel.pagediagram.NextType;
 import org.shaolin.bmdp.datamodel.pagediagram.OutType;
 import org.shaolin.bmdp.datamodel.pagediagram.PageNodeType;
 import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IEntityManager;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.javacc.exception.EvaluationException;
@@ -35,7 +36,6 @@ import org.shaolin.uimaster.page.flow.error.WebflowErrorUtil;
 import org.shaolin.uimaster.page.javacc.WebFlowContext;
 import org.shaolin.uimaster.page.javacc.WebFlowContextHelper;
 import org.shaolin.uimaster.page.od.PageODProcessor;
-import org.shaolin.uimaster.page.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

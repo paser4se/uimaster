@@ -24,7 +24,9 @@ import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 import org.shaolin.bmdp.runtime.security.IPermissionService;
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IAppServiceManager;
+import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.AjaxActionHelper;
@@ -42,7 +44,6 @@ import org.shaolin.uimaster.page.flow.nodes.WebChunk;
 import org.shaolin.uimaster.page.flow.nodes.WebNode;
 import org.shaolin.uimaster.page.javacc.HttpRequestEvaluationContext;
 import org.shaolin.uimaster.page.javacc.WebFlowContext;
-import org.shaolin.uimaster.page.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +59,7 @@ public class WebFlowServlet extends HttpServlet
     /**
      * if this is a central node.
      */
-    private ApplicationInitializer appInitializer;
+    private ApplicationWebInitializer appInitializer;
 
     /**
      * page url for session timeout
@@ -172,7 +173,7 @@ public class WebFlowServlet extends HttpServlet
     	// the application listeners must be made
     	// before this flow servlet.
     	int port = Integer.valueOf(this.getInitParameter("ConfigServerPort"));
-    	this.appInitializer = new ApplicationInitializer(this.appName);
+    	this.appInitializer = new ApplicationWebInitializer(this.appName);
     	this.appInitializer.start(this.getServletContext());
         
         if (logger.isInfoEnabled()) {
@@ -290,13 +291,16 @@ public class WebFlowServlet extends HttpServlet
         {
             if(logger.isInfoEnabled())
                 logger.info("use default needCheckSessionTimeout=" + needCheckSessionTimeout);
-
         }
     }
     
     private boolean checkAccessPermission(AttributesAccessor attrAccessor, HttpServletRequest request) 
     {
-    	AppContext.register((IAppServiceManager)this.getServletContext().getAttribute(IAppServiceManager.class.getCanonicalName()));
+    	String orgCode = (String)UserContext.getUserData(UserContext.CURRENT_USER_ORGNAME);
+        if (orgCode == null) {
+        	orgCode = IServerServiceManager.INSTANCE.getMasterNodeName();
+        }
+        AppContext.register(IServerServiceManager.INSTANCE.getApplication(orgCode));
     	IPermissionService permiService = AppContext.get().getService(IPermissionService.class);
     	List<IConstantEntity> roleIds = (List<IConstantEntity>)request.getSession().getAttribute(WebflowConstants.USER_ROLE_KEY);
     	int decision = permiService.checkModule(attrAccessor.chunkName, attrAccessor.nodeName, roleIds);
@@ -360,7 +364,7 @@ public class WebFlowServlet extends HttpServlet
 					}
 				}
 				HttpSession session = request.getSession();
-				Object currentUserContext = session.getAttribute(WebflowConstants.USER_SESSION_KEY);
+				UserContext currentUserContext = (UserContext)session.getAttribute(WebflowConstants.USER_SESSION_KEY);
 				String userLocale = WebConfig.getUserLocale(request);
 				List userRoles = (List)session.getAttribute(WebflowConstants.USER_ROLE_KEY);
 				String userAgent = request.getHeader("user-agent");
@@ -371,7 +375,11 @@ public class WebFlowServlet extends HttpServlet
 	            //add request thread bind
 	            HttpRequestEvaluationContext.registerCurrentRequest(request);
 	            //add app context thread bind
-	            AppContext.register((IAppServiceManager)this.getServletContext().getAttribute(IAppServiceManager.class.getCanonicalName()));
+	            String orgCode = (String)UserContext.getUserData(UserContext.CURRENT_USER_ORGNAME);
+	            if (orgCode == null) {
+	            	orgCode = IServerServiceManager.INSTANCE.getMasterNodeName();
+	            }
+	            AppContext.register(IServerServiceManager.INSTANCE.getApplication(orgCode));
 				
                 _process(request, response, attrAccessor);
             }
@@ -543,15 +551,17 @@ public class WebFlowServlet extends HttpServlet
             	if (logger.isInfoEnabled()) {
 					logger.info("source node " + srcNode.toString());
 				}
-            	Session session = HibernateUtil.getSession();
+            	
                 try
                 {
                 	//validate and convert the output data of DisplayNode srcNode
                     srcNode.prepareOutputData(request, response);
+                    
+                    HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
                 }
                 catch (Throwable ex)
                 {
-                	HibernateUtil.releaseSession(session, false);
+                	HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
                     if (ex instanceof ParsingException)
                     {
                         logger.error("ParsingException when  prepare OutputData for node "
@@ -585,9 +595,7 @@ public class WebFlowServlet extends HttpServlet
                         ProcessHelper.processForwardError(srcNode, request, response);
                     }
                     return;
-                } finally {
-					HibernateUtil.releaseSession(session, true);
-		        }
+                } 
                 destNode = processDestWebNode(srcNode, request, attrAccessor);
             } 
             else
@@ -611,7 +619,6 @@ public class WebFlowServlet extends HttpServlet
                 logger.info("destination node " + destNode.toString());
             }
             
-            Session session = HibernateUtil.getSession();
             try
             {
                 while(destNode != null)
@@ -626,10 +633,12 @@ public class WebFlowServlet extends HttpServlet
                     WebNode nextNode = destNode.execute(request, response);
                     destNode = nextNode;
                 }
+                
+                HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
             }
             catch (Throwable ex)
             {
-            	HibernateUtil.releaseSession(session, false);
+            	HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
                 if(ex instanceof NoWebflowAPException)
                 {
                     String key = destNode.getChunk().getEntityName() + ".access.error";
@@ -697,9 +706,7 @@ public class WebFlowServlet extends HttpServlet
         
                     rollbackTransaction(request, destNode);
                 }
-            }  finally {
-				HibernateUtil.releaseSession(session, true);
-	        }
+            } 
         }
         finally
         {
