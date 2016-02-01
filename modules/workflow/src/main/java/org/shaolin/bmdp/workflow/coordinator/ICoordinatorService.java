@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.shaolin.bmdp.workflow.be.INotification;
+import org.shaolin.bmdp.workflow.be.IServerNodeInfo;
 import org.shaolin.bmdp.workflow.be.ITask;
 import org.shaolin.bmdp.workflow.be.ITaskHistory;
 import org.shaolin.bmdp.workflow.ce.TaskStatusType;
@@ -99,15 +100,38 @@ public interface ICoordinatorService {
 	 * The party id is required!
 	 * 
 	 * @param message
+	 * @param needRemote notify all the remote nodes.
+	 * 
 	 */
-	void addNotification(INotification message);
+	void addNotification(INotification message, boolean needRemoted);
+	
+	/**
+	 * Notify after receiving a message.
+	 * 
+	 * @param listener
+	 */
+	void addNotificationListener(INotificationListener listener);
 	
 	/**
 	 * Once invoke this method, the user notifications will be cleared from the cache.
+	 * Hence the client side must store these items in the cookie.
 	 * 
-	 * @param partyId
+	 * @param userId user id
 	 * @return
 	 */
-	List<INotification> pullNotification(long partyId);
+	List<INotification> pullNotifications(long userId);
+	
+	List<INotification> pullCommonNotifications();
+	
+	/**
+	 * get all remote servers.
+	 * 
+	 * @return
+	 */
+	List<IServerNodeInfo> getServerNodes();
+	
+	void addServerNode(String ipAddress, int port);
+	
+	void removeServerNode(String ipAddress, int port);
 	
 }

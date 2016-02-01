@@ -81,7 +81,8 @@ public class ProcessFlowTest extends TestContext {
 		}
 
 		@Override
-		public Object getResource(long partyId) {
+		public Object getResource(long orgId, long partyId) {
+			// TODO Auto-generated method stub
 			return null;
 		}
 		

@@ -22,6 +22,5 @@ public interface IResourceManager extends IServiceProvider {
 
 	public void assignOnwer(ITask task);
 	
-	public Object getResource(long partyId);
-	
+	public Object getResource(long orgId, long partyId);
 }

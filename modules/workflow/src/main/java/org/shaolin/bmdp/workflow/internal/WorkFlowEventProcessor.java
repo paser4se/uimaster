@@ -79,21 +79,24 @@ public final class WorkFlowEventProcessor implements EventProcessor, IServicePro
         for (String key: keys) {
         	Object var = event.getAttribute(key);
         	// get the previous flow context from the first task entity with task id.
-        	if (var instanceof ITaskEntity && ((ITaskEntity)var).getTaskId() > 0) {
-        		try {
-        			// find the previous context.
-	        		ICoordinatorService coordinator = AppContext.get().getService(ICoordinatorService.class);
-	        		ITask task = coordinator.getTask(((ITaskEntity)var).getTaskId());
-	        		FlowRuntimeContext flowContext = FlowRuntimeContext.unmarshall(task.getFlowState());
-	        		flowContext.changeEvent(event);
-	        		flowContext.getFlowContextInfo().setWaitingNode(flowContext.getCurrentNode());
-					flowContext.getEvent().setFlowContext(flowContext.getFlowContextInfo());
-					event.setFlowContext(flowContext.getFlowContextInfo());
-        		} catch (Exception e) {
-        			logger.warn(e.getMessage(), e);
-        		}
-        		break;
-        	}
+        	if (var instanceof ITaskEntity) {
+				ITaskEntity taskObject = (ITaskEntity)var;
+				if (taskObject.getTaskId() > 0) {
+	        		try {
+	        			// find the previous context.
+		        		ICoordinatorService coordinator = AppContext.get().getService(ICoordinatorService.class);
+		        		ITask task = coordinator.getTask(taskObject.getTaskId());
+		        		FlowRuntimeContext flowContext = FlowRuntimeContext.unmarshall(task.getFlowState());
+		        		flowContext.changeEvent(event);
+		        		flowContext.getFlowContextInfo().setWaitingNode(flowContext.getCurrentNode());
+						flowContext.getEvent().setFlowContext(flowContext.getFlowContextInfo());
+						event.setFlowContext(flowContext.getFlowContextInfo());
+	        		} catch (Exception e) {
+	        			logger.warn(e.getMessage(), e);
+	        		}
+	        		break;
+	        	} 
+			}
         }
 		if (logger.isTraceEnabled()) {
 			logger.trace("Assign Id {} to event {}", event.getId(), event);

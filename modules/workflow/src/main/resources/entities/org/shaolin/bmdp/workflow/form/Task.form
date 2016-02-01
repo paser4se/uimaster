@@ -296,9 +296,10 @@
            import org.shaolin.bmdp.runtime.AppContext;
            import org.shaolin.bmdp.runtime.AppContext;
            import org.shaolin.bmdp.workflow.coordinator.IResourceManager;
+           import org.shaolin.bmdp.runtime.security.UserContext;
            {
             IResourceManager service = (IResourceManager)AppContext.get().getService(IResourceManager.class);
-            String name = (String)service.getResource($beObject.getPartyId());
+            String name = (String)service.getResource((Long)UserContext.getUserData("CurrentUserOrgId"), $beObject.getPartyId());
             return name+"--"+org.shaolin.bmdp.runtime.ce.CEUtil.getValue($beObject.getPartyType()) ;
            }]]>
            </expressionString>

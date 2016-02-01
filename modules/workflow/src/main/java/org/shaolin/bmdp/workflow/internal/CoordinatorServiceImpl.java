@@ -15,13 +15,16 @@
 */
 package org.shaolin.bmdp.workflow.internal;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -30,19 +33,25 @@ import java.util.concurrent.TimeUnit;
 import org.hibernate.Session;
 import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.AppContext;
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IAppServiceManager;
 import org.shaolin.bmdp.runtime.spi.ILifeCycleProvider;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
+import org.shaolin.bmdp.utils.HttpSender;
+import org.shaolin.bmdp.utils.SerializeUtil;
 import org.shaolin.bmdp.workflow.be.INotification;
+import org.shaolin.bmdp.workflow.be.IServerNodeInfo;
 import org.shaolin.bmdp.workflow.be.ITask;
 import org.shaolin.bmdp.workflow.be.ITaskHistory;
 import org.shaolin.bmdp.workflow.be.NotificationImpl;
+import org.shaolin.bmdp.workflow.be.ServerNodeInfoImpl;
 import org.shaolin.bmdp.workflow.be.TaskHistoryImpl;
 import org.shaolin.bmdp.workflow.be.TaskImpl;
 import org.shaolin.bmdp.workflow.ce.PeriodicType;
 import org.shaolin.bmdp.workflow.ce.TaskStatusType;
 import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
+import org.shaolin.bmdp.workflow.coordinator.INotificationListener;
 import org.shaolin.bmdp.workflow.coordinator.IResourceManager;
 import org.shaolin.bmdp.workflow.coordinator.ITaskListener;
 import org.shaolin.bmdp.workflow.dao.CoordinatorModel;
@@ -64,6 +73,10 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	private final ConcurrentHashMap<Long, List<INotification>> allNotifications 
 		= new ConcurrentHashMap<Long, List<INotification>>();
 	
+	private final List<INotificationListener> listeners = new ArrayList<INotificationListener>();
+	
+	private List<IServerNodeInfo> serverNodes;
+	
 	private boolean testCaseFlag = false;
 	
 	private IAppServiceManager appService;
@@ -77,16 +90,30 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 	
 	@Override
+	public void addNotificationListener(INotificationListener listener) {
+		this.listeners.add(listener);
+	}
+	
+	@Override
 	public void reload() {
-		
+		if (AppContext.isMasterNode()) {
+			ServerNodeInfoImpl sc = new ServerNodeInfoImpl();
+			this.serverNodes = CoordinatorModel.INSTANCE.searchServerNodes(sc, null, 0, -1);
+		}
 	}
 	
 	@Override
 	public List<ITask> getAllTasks() {
+		long orgId = 0;
+		if (UserContext.getCurrentUserContext() != null) {
+			orgId = (Long)UserContext.getUserData(UserContext.CURRENT_USER_ORGID);
+		}
 		List<ITask> allTasks = new ArrayList<ITask>();
 		Collection<ITask> tasks= workingTasks.values();
 		for (ITask t : tasks) {
-			allTasks.add(t);
+			if (t.getOrgId() == orgId) {
+				allTasks.add(t);
+			}
 		}
 		return allTasks;
 	}
@@ -97,10 +124,16 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 	
 	public List<Long> getAllTaskOnwers() {
+		long orgId = 0;
+		if (UserContext.getCurrentUserContext() != null) {
+			orgId = (Long)UserContext.getUserData(UserContext.CURRENT_USER_ORGID);
+		}
 		List<Long> onwers = new ArrayList<Long>();
 		Collection<ITask> tasks= workingTasks.values();
 		for (ITask t : tasks) {
-			onwers.add(t.getPartyId());
+			if (t.getOrgId() == orgId) {
+				onwers.add(t.getPartyId());
+			}
 		}
 		return onwers;
 	}
@@ -108,6 +141,9 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	@Override
 	public List<ITaskHistory> getHistoryTasks(TaskStatusType status) {
 		TaskHistoryImpl condition = new TaskHistoryImpl();
+		if (UserContext.getCurrentUserContext() != null) {
+			condition.setOrgId((Long)UserContext.getUserData(UserContext.CURRENT_USER_ORGID));
+		}
 		condition.setStatus(TaskStatusType.EXPIRED);
 		return CoordinatorModel.INSTANCE.searchTasksHistory(condition, null, 0, -1);
 	}
@@ -116,14 +152,20 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	public List<ITask> getTasks(TaskStatusType status) {
 		if (status == TaskStatusType.EXPIRED) {
 			TaskImpl condition = new TaskImpl();
+			if (UserContext.getCurrentUserContext() != null) {
+				condition.setOrgId((Long)UserContext.getUserData(UserContext.CURRENT_USER_ORGID));
+    		}
 			condition.setStatus(TaskStatusType.EXPIRED);
 			return CoordinatorModel.INSTANCE.searchTasks(condition, null, 0, -1);
 		}
-		
+		long orgId = 0;
+		if (UserContext.getCurrentUserContext() != null) {
+			orgId = (Long)UserContext.getUserData(UserContext.CURRENT_USER_ORGID);
+		}
 		List<ITask> partyTasks = new ArrayList<ITask>();
 		Collection<ITask> tasks= workingTasks.values();
 		for (ITask t : tasks) {
-			if (t.getStatus() == status) {
+			if (t.getStatus() == status && t.getOrgId() == orgId) {
 				partyTasks.add(t);
 			}
 		}
@@ -179,10 +221,14 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	
 	@Override
 	public List<ITask> getPartyTasks(long partyId) {
+		long orgId = 0;
+		if (UserContext.getCurrentUserContext() != null) {
+			orgId = (Long)UserContext.getUserData(UserContext.CURRENT_USER_ORGID);
+		}
 		List<ITask> partyTasks = new ArrayList<ITask>();
-		Collection<ITask> tasks= workingTasks.values();
+		Collection<ITask> tasks = workingTasks.values();
 		for (ITask t : tasks) {
-			if (t.getPartyId() == partyId) {
+			if (t.getOrgId() == orgId && t.getPartyId() == partyId) {
 				partyTasks.add(t);
 			}
 		}
@@ -412,6 +458,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		}
 		TaskHistoryImpl history = new TaskHistoryImpl();
 		history.setTaskId(task.getId());
+		history.setOrgId(task.getOrgId());
 		history.setCompleteRate(task.getCompleteRate());
 		history.setDescription(task.getDescription());
 		history.setEnabled(task.isEnabled());
@@ -434,6 +481,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	private ITask moveToTask(ITaskHistory hTask) {
 		TaskImpl task = new TaskImpl();
 		task.setId(hTask.getTaskId());
+		task.setOrgId(hTask.getOrgId());
 		task.setCompleteRate(hTask.getCompleteRate());
 		task.setDescription(hTask.getDescription());
 		task.setEnabled(hTask.isEnabled());
@@ -455,7 +503,11 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	public void startService() {
 		this.workingTasks.clear();
 		this.futures.clear();
-		this.setAppService(AppContext.get());
+		
+		String masterNode = IServerServiceManager.INSTANCE.getMasterNodeName();
+		this.setAppService(IServerServiceManager.INSTANCE.getApplication(masterNode));
+		AppContext.get().register(this);
+		
 		// make this shared
 		this.pool = IServerServiceManager.INSTANCE.getSchedulerService()
 				.createScheduler("system", "wf-coordinator", Runtime.getRuntime().availableProcessors() * 2);
@@ -479,6 +531,19 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 				}
 			}
 		}
+		
+		if (AppContext.isMasterNode()) {
+			ServerNodeInfoImpl sc = new ServerNodeInfoImpl();
+			this.serverNodes = CoordinatorModel.INSTANCE.searchServerNodes(sc, null, 0, -1);
+			
+			// clean all notifications daily for saving memory.
+			this.pool.scheduleAtFixedRate(new Runnable() {
+				@Override
+				public void run() {
+					allNotifications.clear();
+				}
+			}, 1, 1, TimeUnit.DAYS);
+		}
 	}
 
 	@Override
@@ -490,6 +555,18 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	public void stopService() {
 		pool.shutdown();
 		workingTasks.clear();
+		listeners.clear();
+		if (httpSender != null) {
+			httpSender.shutdown();
+		}
+		
+		Set<ITask> tasks = futures.keySet();
+		for (ITask task: tasks) {
+			ScheduledFuture<?> future = futures.get(task);
+			if (future != null && !future.isDone()) {
+				future.cancel(true);
+			}
+		}
 		futures.clear();
 	}
 
@@ -504,29 +581,92 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 				+ "/" + t.getStatus().getDisplayName() + "] " + t.getSubject());
 		notifier.setDescription(t.getDescription());
 		notifier.setPartyId(t.getPartyId());
-		addNotification(notifier);
+		addNotification(notifier, false);
 	}
 	
 	@Override
-	public void addNotification(INotification message) {
-		long partyId = message.getPartyId();
-		if (partyId <= 0) {
-			throw new IllegalArgumentException("Please specify the party id.");
+	public void addNotification(INotification message, boolean needRemoted) {
+		if (needRemoted) {
+			// send to all nodes.
+			byte[] raw = null;
+			try {
+				raw = SerializeUtil.serializeData(message);
+			} catch (IOException e) {
+				logger.warn(e.getMessage(), e);
+				return;
+			}
+			IAppServiceManager serviceManager= IServerServiceManager.INSTANCE.getApplication(
+					IServerServiceManager.INSTANCE.getMasterNodeName());
+			ICoordinatorService coordinator = serviceManager.getService(ICoordinatorService.class);
+			List<IServerNodeInfo> nodes = coordinator.getServerNodes();
+			for (IServerNodeInfo serverNode : nodes) {
+				if (!sendNotification(serverNode, raw)) {
+					logger.warn("Failed to send the notification to {0}",
+							toURL(serverNode));
+				}
+			}
+		} else {
+			long partyId = message.getPartyId();
+			if (!allNotifications.containsKey(partyId)) {
+				allNotifications.put(partyId, new ArrayList<INotification>());
+			}
+			allNotifications.get(partyId).add(message);
+			
+			for (INotificationListener listener : listeners) {
+				listener.received(message);
+			}
 		}
+	}
+	
+	public List<IServerNodeInfo> getServerNodes() {
+		return new ArrayList<IServerNodeInfo>(this.serverNodes);
+	}
+	
+	@Override
+	public void addServerNode(String ipAddress, int port) {
+		// TODO Auto-generated method stub
 		
-		if (!allNotifications.containsKey(partyId)) {
-			allNotifications.put(partyId, new ArrayList<INotification>());
-		}
-		allNotifications.get(partyId).add(message);
 	}
 	
 	@Override
-	public List<INotification> pullNotification(long partyId) {
-		return allNotifications.remove(partyId);
+	public void removeServerNode(String ipAddress, int port) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public List<INotification> pullNotifications(long userId) {
+		if (allNotifications.contains(userId)) {
+			return allNotifications.remove(userId);
+		} else {
+			return Collections.EMPTY_LIST;
+		}
+	}
+	
+	/**
+	 * the common notifications must be refreshed every hour.
+	 * @return
+	 */
+	public List<INotification> pullCommonNotifications() {
+		return allNotifications.get(0);
+	}
+	
+	private HttpSender httpSender;
+	
+	private boolean sendNotification(IServerNodeInfo serverNode, byte[] rawMessage) {
+		if (httpSender == null) {
+			httpSender = new HttpSender();
+		}
+		return httpSender.post(toURL(serverNode), rawMessage);
 	}
 
+	public static String toURL(IServerNodeInfo serverNode) {
+		//TODO: whether is the http or http configured
+		return serverNode.getProtocol() + serverNode.getIpAddress() + ":" + serverNode.getPort() + serverNode.getDomain();
+	} 
+	
 	@Override
-	public Class getServiceInterface() {
+	public Class<?> getServiceInterface() {
 		return ICoordinatorService.class;
 	}
 	

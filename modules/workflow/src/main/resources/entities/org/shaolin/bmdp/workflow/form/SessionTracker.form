@@ -133,9 +133,10 @@
                         <ns2:expressionString><![CDATA[
                         import org.shaolin.bmdp.runtime.AppContext;
                         import org.shaolin.bmdp.workflow.coordinator.IResourceManager;
+                        import org.shaolin.bmdp.runtime.security.UserContext;
                         {
                          IResourceManager service = (IResourceManager)AppContext.get().getService(IResourceManager.class);
-                         return service.getResource(rowBE.getPartyId());
+                         return service.getResource((Long)UserContext.getUserData("CurrentUserOrgId"), rowBE.getPartyId());
                         }]]></ns2:expressionString>
                     </ns2:expression>
                 </ns2:rowExpression>

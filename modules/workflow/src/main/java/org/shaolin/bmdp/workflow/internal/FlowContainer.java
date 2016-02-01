@@ -31,6 +31,7 @@ import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.be.ITaskEntity;
 import org.shaolin.bmdp.runtime.cache.CacheManager;
 import org.shaolin.bmdp.runtime.cache.ICache;
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.workflow.be.ITask;
 import org.shaolin.bmdp.workflow.be.TaskImpl;
 import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
@@ -190,8 +191,11 @@ public class FlowContainer {
         }
     	
         //Notify the parties
-        ICoordinatorService coordinator = AppContext.get().getService(ICoordinatorService.class);
+		ICoordinatorService coordinator = AppContext.get().getService(ICoordinatorService.class);
         ITask task = new TaskImpl();
+        if (UserContext.getCurrentUserContext() != null) {
+			task.setOrgId((Long)UserContext.getUserData(UserContext.CURRENT_USER_ORGID));
+		}
         task.setSessionId(flowContext.getSession().getID());
         task.setSubject("Task: " + mission.getName());
         task.setDescription(mission.getDescription());

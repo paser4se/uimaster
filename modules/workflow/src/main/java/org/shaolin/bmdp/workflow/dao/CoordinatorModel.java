@@ -52,6 +52,8 @@ public class CoordinatorModel extends BEEntityDaoObject {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.priorityInt", scFlow.getPriority().getIntValue()));
             }
 
+        inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
+
         List result = this._list(offset, count, inFlowCriteria);
         return result;
     }
@@ -78,6 +80,8 @@ public class CoordinatorModel extends BEEntityDaoObject {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.priorityInt", scFlow.getPriority().getIntValue()));
             }
 
+        inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
+
         return this._count(inFlowCriteria);
     }
 
@@ -92,6 +96,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
             if (scFlow.getId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.id", scFlow.getId()));
             }
+            if (scFlow.getOrgId() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.orgId", scFlow.getOrgId()));
+            }
             if (scFlow.getSessionId() != null && scFlow.getSessionId().length() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sessionId", scFlow.getSessionId()));
             }
@@ -101,6 +108,8 @@ public class CoordinatorModel extends BEEntityDaoObject {
             if (scFlow.getPriority() != null && scFlow.getPriority() != org.shaolin.bmdp.workflow.ce.TaskPriorityType.NOT_SPECIFIED) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.priorityInt", scFlow.getPriority().getIntValue()));
             }
+
+        inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
 
         List result = this._list(offset, count, inFlowCriteria);
         return result;
@@ -112,6 +121,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
             if (scFlow.getId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.id", scFlow.getId()));
             }
+            if (scFlow.getOrgId() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.orgId", scFlow.getOrgId()));
+            }
             if (scFlow.getSessionId() != null && scFlow.getSessionId().length() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sessionId", scFlow.getSessionId()));
             }
@@ -121,6 +133,8 @@ public class CoordinatorModel extends BEEntityDaoObject {
             if (scFlow.getPriority() != null && scFlow.getPriority() != org.shaolin.bmdp.workflow.ce.TaskPriorityType.NOT_SPECIFIED) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.priorityInt", scFlow.getPriority().getIntValue()));
             }
+
+        inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
 
         return this._count(inFlowCriteria);
     }
@@ -136,6 +150,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
             if (scFlow.getId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.id", scFlow.getId()));
             }
+            if (scFlow.getOrgId() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.orgId", scFlow.getOrgId()));
+            }
             if (scFlow.getTaskId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.taskId", scFlow.getTaskId()));
             }
@@ -157,6 +174,8 @@ public class CoordinatorModel extends BEEntityDaoObject {
             if (scFlow.getPriority() != null && scFlow.getPriority() != org.shaolin.bmdp.workflow.ce.TaskPriorityType.NOT_SPECIFIED) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.priorityInt", scFlow.getPriority().getIntValue()));
             }
+
+        inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
 
         List result = this._list(offset, count, inFlowCriteria);
         return result;
@@ -168,6 +187,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
             if (scFlow.getId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.id", scFlow.getId()));
             }
+            if (scFlow.getOrgId() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.orgId", scFlow.getOrgId()));
+            }
             if (scFlow.getTaskId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.taskId", scFlow.getTaskId()));
             }
@@ -189,6 +211,8 @@ public class CoordinatorModel extends BEEntityDaoObject {
             if (scFlow.getPriority() != null && scFlow.getPriority() != org.shaolin.bmdp.workflow.ce.TaskPriorityType.NOT_SPECIFIED) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.priorityInt", scFlow.getPriority().getIntValue()));
             }
+
+        inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
 
         return this._count(inFlowCriteria);
     }
@@ -208,6 +232,8 @@ public class CoordinatorModel extends BEEntityDaoObject {
                 inFlowCriteria.add(createCriterion(Operator.START_WITH_RIGHT, "inFlow.subject", scFlow.getSubject()));
             }
 
+        inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
+
         List result = this._list(offset, count, inFlowCriteria);
         return result;
     }
@@ -221,6 +247,32 @@ public class CoordinatorModel extends BEEntityDaoObject {
             if (scFlow.getSubject() != null && scFlow.getSubject().length() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.START_WITH_RIGHT, "inFlow.subject", scFlow.getSubject()));
             }
+
+        inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
+
+        return this._count(inFlowCriteria);
+    }
+
+    public List<org.shaolin.bmdp.workflow.be.IServerNodeInfo> searchServerNodes(org.shaolin.bmdp.workflow.be.ServerNodeInfoImpl scFlow,
+           List<Order> orders, int offset, int count) {
+            Criteria inFlowCriteria = this._createCriteria(org.shaolin.bmdp.workflow.be.ServerNodeInfoImpl.class, "inFlow");
+            if (orders == null) {
+            } else {
+                this._addOrders(inFlowCriteria, orders);
+            }
+
+
+        inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
+
+        List result = this._list(offset, count, inFlowCriteria);
+        return result;
+    }
+
+    public long searchServerNodesCount(org.shaolin.bmdp.workflow.be.ServerNodeInfoImpl scFlow) {
+            Criteria inFlowCriteria = this._createCriteria(org.shaolin.bmdp.workflow.be.ServerNodeInfoImpl.class, "inFlow");
+
+
+        inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
 
         return this._count(inFlowCriteria);
     }

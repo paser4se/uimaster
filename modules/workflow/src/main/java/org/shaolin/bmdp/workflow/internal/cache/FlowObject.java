@@ -493,9 +493,9 @@ public class FlowObject implements java.io.Serializable {
                         	flowCompiler.initExceptionHandlers(flowContext, node.getExceptionHandlers(), classPrefix);
 							initNode(flowContext, intermediateEventNodes, node, classPrefix);
 						} catch (ClassNotFoundException e) {
-							throw new ConfigException(e.getMessage(), e);
+							throw new ConfigException(node.toString() +" : " + e.getMessage(), e);
 						} catch (ParsingException e) {
-							throw new ConfigException(e.getMessage(), e);
+							throw new ConfigException(node.toString() +" : " + e.getMessage(), e);
 						}
                     }
                 }

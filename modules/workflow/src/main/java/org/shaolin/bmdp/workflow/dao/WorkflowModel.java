@@ -47,6 +47,8 @@ public class WorkflowModel extends BEEntityDaoObject {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.entityName", scFlow.getEntityName()));
             }
 
+        inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
+
         List result = this._list(offset, count, inFlowCriteria);
         return result;
     }
@@ -57,6 +59,8 @@ public class WorkflowModel extends BEEntityDaoObject {
             if (scFlow.getEntityName() != null && scFlow.getEntityName().trim().length() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.entityName", scFlow.getEntityName()));
             }
+
+        inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
 
         return this._count(inFlowCriteria);
     }
@@ -79,6 +83,8 @@ public class WorkflowModel extends BEEntityDaoObject {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.name", scFlow.getName()));
             }
 
+        inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
+
         List result = this._list(offset, count, inFlowCriteria);
         return result;
     }
@@ -95,6 +101,8 @@ public class WorkflowModel extends BEEntityDaoObject {
             if (scFlow.getName() != null && !scFlow.getName().isEmpty()) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.name", scFlow.getName()));
             }
+
+        inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
 
         return this._count(inFlowCriteria);
     }
