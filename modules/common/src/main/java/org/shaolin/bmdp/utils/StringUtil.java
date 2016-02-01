@@ -427,18 +427,6 @@ public class StringUtil
             {
                 buf.append("&amp;");
             }
-            else if (ch == '"')
-            {
-                buf.append("&quot;");
-            }
-            else if (ch == ' ')
-            {
-                buf.append("&nbsp;");
-            }
-            else if (ch == '\"') 
-            {
-            	buf.append("\\\"");
-            }
             else if (ch == '\\') 
             {        
             	buf.append("\\\\");

@@ -16,7 +16,6 @@
 package org.shaolin.uimaster.page.ajax.handlers;
 
 import org.hibernate.criterion.Order;
-import org.shaolin.bmdp.utils.StringUtil;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.ajax.Table;
@@ -42,16 +41,16 @@ public class TableEventHandler implements IAjaxHandler {
 		}
 		if (actionName.endsWith("pull")) {
 			int offset = Integer
-					.valueOf(context.getRequest().getParameter("start"));
+					.parseInt(context.getRequest().getParameter("start"));
 			int count = Integer
-					.valueOf(context.getRequest().getParameter("length"));
+					.parseInt(context.getRequest().getParameter("length"));
 			if (context.getRequest().getParameter("order[0][column]") == null) {
 				return "";
 			}
-			int columnIndex = Integer.valueOf(context.getRequest().getParameter(
+			int columnIndex = Integer.parseInt(context.getRequest().getParameter(
 					"order[0][column]"));
 			String v = context.getRequest().getParameter("order[0][dir]");// :desc/asc
-			boolean isAscending = v.equals("asc");
+			boolean isAscending = "asc".equals(v);
 			
 			TableConditions conditions = comp.getConditions();
 			conditions.setCount(count);
@@ -64,7 +63,7 @@ public class TableEventHandler implements IAjaxHandler {
 				conditions.addOrder(isAscending ? Order.asc(colId) : Order
 						.desc(colId));
 			}
-			return StringUtil.escapeJSONTags(comp.refresh0());
+			return comp.refresh0();
 		} else if (actionName.endsWith("chart")) {
 			comp.showStatistic();
 			return AjaxActionHelper.getAjaxContext().getDataAsJSON();

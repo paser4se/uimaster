@@ -31,6 +31,7 @@ import org.shaolin.bmdp.datamodel.page.UITableColumnType;
 import org.shaolin.bmdp.datamodel.page.UITableSelectModeType;
 import org.shaolin.bmdp.datamodel.page.UITableStatsType;
 import org.shaolin.bmdp.runtime.security.UserContext;
+import org.shaolin.bmdp.utils.StringUtil;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.context.OOEEContext;
@@ -443,7 +444,7 @@ public class Table extends Widget implements Serializable {
 
 			Object value = totalExpr.evaluate(ooeeContext);
 			
-			StringBuffer sb = new  StringBuffer();
+			StringBuilder sb = new StringBuilder();
 	        sb.append("{\"recordsFiltered\":");
 	        sb.append(value);
 	        sb.append(",\"recordsTotal\":");
@@ -470,10 +471,10 @@ public class Table extends Widget implements Serializable {
 	        		sb.append("\"\",");
 	        	}
 	        	if (UserContext.isMobileRequest()) {
-	        		StringBuffer imageSB = new StringBuffer();
-	        		StringBuffer attrsSB = new StringBuffer();
+	        		StringBuilder imageSB = new StringBuilder();
+	        		StringBuilder attrsSB = new StringBuilder();
 	        		attrsSB.append("\"");
-					StringBuffer htmlAttrsSB = new StringBuffer();
+	        		StringBuilder htmlAttrsSB = new StringBuilder();
 	        		for (UITableColumnType col : columns) {
 	        			if ("Image".equals(col.getUiType().getType())) {
 	        				imageSB.append("\"");
@@ -491,6 +492,7 @@ public class Table extends Widget implements Serializable {
 			        		if (cellValue == null) {
 								cellValue = "";
 							}
+			        		cellValue = StringUtil.escapeHtmlTags(cellValue.toString());
 			        		htmlAttrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle())).append(":").append(cellValue).append(", ");
 			        		htmlAttrsSB.append("\",");
 	        			} else {

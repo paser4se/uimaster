@@ -101,7 +101,7 @@ public class HTMLSnapshotContext implements Serializable
 
     private transient Map refEntityMap;
 
-    private StringBuffer htmlBuffer;
+    private StringBuilder htmlBuffer;
 
     private transient ArrayList pageJs;
 
@@ -428,7 +428,7 @@ public class HTMLSnapshotContext implements Serializable
         {
             if (logger.isTraceEnabled())
             {
-                StringBuffer sb = new StringBuffer();
+            	StringBuilder sb = new StringBuilder();
                 
                 Iterator<String> i = repository.keySet().iterator();
                 while(i.hasNext()) {
@@ -507,7 +507,7 @@ public class HTMLSnapshotContext implements Serializable
 
     public String getImageUrl(String entityName, String src)
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         String imgRoot = WebConfig.getResourceContextRoot() + "/images";
         if (!WebConfig.getResourceContextRoot().equals(imgRoot))
         {
@@ -579,7 +579,7 @@ public class HTMLSnapshotContext implements Serializable
     {
         if (htmlBuffer == null)
         {
-            htmlBuffer = new StringBuffer(4096);
+            htmlBuffer = new StringBuilder(4096);
         }
         htmlBuffer.append(value);
     }
@@ -658,7 +658,7 @@ public class HTMLSnapshotContext implements Serializable
         return htmlBuffer.toString();
     }
 
-    public StringBuffer getHtmlBuffer()
+    public StringBuilder getHtmlBuffer()
     {
         return htmlBuffer;
     }
@@ -670,11 +670,7 @@ public class HTMLSnapshotContext implements Serializable
 		}
 
 		if (o instanceof HTMLReferenceEntityType) {
-			if (type.equals(((HTMLReferenceEntityType) o).getType())) {
-				return true;
-			} else {
-				return false;
-			}
+			return type.equals(((HTMLReferenceEntityType) o).getType());
 		} else {
 			return true;
 		}

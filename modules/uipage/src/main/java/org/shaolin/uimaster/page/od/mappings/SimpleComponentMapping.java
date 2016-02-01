@@ -50,6 +50,8 @@ import org.shaolin.uimaster.page.od.IODMappingConverter;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.od.ODEntityContext;
 import org.shaolin.uimaster.page.od.ODProcessor;
+import org.shaolin.uimaster.page.widgets.HTMLReferenceEntityType;
+import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -264,6 +266,11 @@ public class SimpleComponentMapping extends ComponentMapping {
 				logger.debug("[Simple Mapping]: ui to data mapping name: {}", 
 					type.getName());
 
+			Object uiid = this.uiDataParam.executeDataToUI(odContext);
+			if (uiid instanceof String) {
+				// remove the UI2Data context.
+				odContext.getHtmlContext().getODMapperContext(uiid.toString());
+			}
 			Map<String, Object> resultMap = odContext.getHtmlContext().getODMapperData();
 			if (resultMap == null || resultMap.isEmpty())
 				return;

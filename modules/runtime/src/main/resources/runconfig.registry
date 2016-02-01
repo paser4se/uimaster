@@ -32,15 +32,15 @@
         </node>
         <node name="i18n">
             <node name="default">
-	            <item name="locale" value="en_US" />
-            	<item name="dateTimeFormat" value="yyyy-MM-dd/HH:mm:ss" />
-            	<item name="dateFormat" value="yyyy-MM-dd" />
-            	<item name="floatNumberFormat" value="0.###" />
-            	<item name="numberFormat" value="0" />
-            	<item name="currencyFormat" value="0.##" />
-            	<item name="currencySymbol" value="&#164;" />
-            	<item name="isLeft" value="false" />
-            	<item name="constraintSymbol" value="/images/uimaster_constraint.gif" />
+	            <item name="locale" value="zh_CN" />
+                <item name="dateTimeFormat" value="yyyy-MM-dd/HH:mm:ss" />
+                <item name="dateFormat" value="yyyy-MM-dd" />
+                <item name="floatNumberFormat" value="0.###" />
+                <item name="numberFormat" value="0" />
+                <item name="currencyFormat" value="0.##" />
+                <item name="currencySymbol" value="&#165;" />
+                <item name="isLeft" value="false" />
+                <item name="constraintSymbol" value="/images/uimaster_constraint.gif" />
 	        </node>
 	        <node name="en_US">
 	            <item name="locale" value="en_US" />

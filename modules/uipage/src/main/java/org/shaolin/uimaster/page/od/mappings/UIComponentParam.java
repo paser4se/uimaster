@@ -40,6 +40,10 @@ public class UIComponentParam extends DataParam {
 		this.type = type;
 	}
 	
+	public String getComponentPath() {
+		return type.getComponentPath();
+	}
+	
 	@Override
 	public void parseDataToUI(OOEEContext ooeeContext)
 			throws ParsingException {
