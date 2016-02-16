@@ -1,13 +1,14 @@
 package org.shaolin.bmdp.persistence;
 
 import java.math.BigInteger;
-import java.util.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Criteria;
+import org.hibernate.NonUniqueObjectException;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
@@ -74,8 +75,16 @@ public class BEEntityDaoObject {
 			logger.debug("Update an entity: {}", entity);
 		}
 		
-		Session session = HibernateUtil.getSession();
-		session.update(entity);
+		try {
+			Session session = HibernateUtil.getSession();
+			session.update(entity);
+		} catch (NonUniqueObjectException e) {
+			// try committing session again.
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+			
+			Session session = HibernateUtil.getSession();
+			session.update(entity);
+		}
 	}
 	
 	/**

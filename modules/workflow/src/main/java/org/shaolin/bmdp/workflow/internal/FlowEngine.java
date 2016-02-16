@@ -98,9 +98,9 @@ public class FlowEngine {
     	this.flowInfo.parse();
     	if (this.flowInfo.getSessionService() != null) {
 	        this.sessionService = (SessionService) AppContext.get().getService(this.flowInfo.getSessionService());
-	        if (this.sessionService == null) {
-	        	this.sessionService = new DefaultFlowSessionService();
-	        }
+    	}
+    	if (this.sessionService == null) {
+    		this.sessionService = new DefaultFlowSessionService();
     	}
     }
 
@@ -224,7 +224,7 @@ public class FlowEngine {
             		currentNode = processGeneralNode(flowContext, currentNode);
             		ICoordinatorService coordinator = AppContext.get().getService(ICoordinatorService.class);
             		if (flowContext.getTaskId() == 0) {
-            			throw new IllegalStateException("Current flow context does not have task id! " + flowContext.toString());
+            			throw new IllegalStateException("Current flow context does not have the assgined task id! " + flowContext.toString());
             		}
         			coordinator.completeTask(coordinator.getTask(flowContext.getTaskId()));
                     break;
@@ -251,8 +251,10 @@ public class FlowEngine {
                          currentNode = (NodeInfo)currentNode.getDestFromName(destNodeName).getNode();
                      }
                     break;
-                case END:
-                    currentNode = null;
+                case END: {
+                	flowContainer.scheduleEndTask(flowContext);
+                	currentNode = null;
+                }
 			default:
 				break;
             }
@@ -361,7 +363,7 @@ public class FlowEngine {
         return currentNode;
     }
 
-    private void processTimerNode(FlowRuntimeContext flowContext, NodeInfo currentNode, MissionNodeType mission)
+    public void processTimerNode(FlowRuntimeContext flowContext, NodeInfo currentNode, MissionNodeType mission)
             throws Exception {
     	long daysMillis = 0;
     	if (mission.getExpiredDays() > 0) {
@@ -372,8 +374,11 @@ public class FlowEngine {
     		hoursMillis = mission.getExpiredHours() * 60 * 60 * 1000;
     	} 
     	long expiredDate = System.currentTimeMillis() + daysMillis + hoursMillis;
-    	
-        flowContainer.scheduleTask(new Date(expiredDate), flowContext, this, currentNode, mission);
+    	if (daysMillis == 0 && hoursMillis == 0) {
+    		flowContainer.scheduleTask(null, flowContext, this, currentNode, mission);
+    	} else {
+    		flowContainer.scheduleTask(new Date(expiredDate), flowContext, this, currentNode, mission);
+    	}
     }
 
     private void executeHandler(FlowRuntimeContext flowContext, Event evt, NodeInfo n)
@@ -664,7 +669,7 @@ public class FlowEngine {
         return null;
     }
 
-    public NodeInfo matchRequestNode(String producerName, Event event) {
+    public NodeInfo matchMissionNode(String producerName, Event event) {
         if (!flowInfo.isSessionBased()
                 && !BuiltInEventProducer.EXCEPTION_PRODUCER_NAME.equals(producerName)) {
             return null;
@@ -682,6 +687,19 @@ public class FlowEngine {
                             node.getFlow().getName(), node.getName() });
                 }
                 return node;
+            }
+        }
+        return null;
+    }
+    
+    public NodeInfo matchMissionNode(String producerName, String nodeName) {
+        List<NodeInfo> list = flowInfo.getMissionNodes(producerName);
+        if (list == null) {
+            return null;
+        }
+        for (int i = 0, t = list.size(); i < t; i++) {
+            if (nodeName.equals(list.get(i).getName())) {
+                return list.get(i);
             }
         }
         return null;

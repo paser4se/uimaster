@@ -100,67 +100,67 @@ function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration(json)
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createDBInfo(eventsource,event) {/* Gen_First:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createDBInfo */
+        var o = this;
+        var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"createDBInfo-201512052231",UIMaster.getValue(eventsource),this.__entityName);
-
-        var UIEntity = this;
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"createDBInfo-201512052231",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createDBInfo */
 
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openDBInfo(eventsource,event) {/* Gen_First:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openDBInfo */
+        var o = this;
+        var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"openDBInfo-201512052231",UIMaster.getValue(eventsource),this.__entityName);
-
-        var UIEntity = this;
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"openDBInfo-201512052231",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openDBInfo */
 
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createJobInfo(eventsource,event) {/* Gen_First:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createJobInfo */
+        var o = this;
+        var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"createJobInfo-201512052231",UIMaster.getValue(eventsource),this.__entityName);
-
-        var UIEntity = this;
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"createJobInfo-201512052231",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createJobInfo */
 
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openJobInfo(eventsource,event) {/* Gen_First:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openJobInfo */
+        var o = this;
+        var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"openJobInfo-201512052231",UIMaster.getValue(eventsource),this.__entityName);
-
-        var UIEntity = this;
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"openJobInfo-201512052231",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openJobInfo */
 
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createStatsInfo(eventsource,event) {/* Gen_First:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createStatsInfo */
+        var o = this;
+        var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"createStatsInfo-201512052231",UIMaster.getValue(eventsource),this.__entityName);
-
-        var UIEntity = this;
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"createStatsInfo-201512052231",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createStatsInfo */
 
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openStatsInfo(eventsource,event) {/* Gen_First:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openStatsInfo */
+        var o = this;
+        var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"openStatsInfo-201512052231",UIMaster.getValue(eventsource),this.__entityName);
-
-        var UIEntity = this;
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"openStatsInfo-201512052231",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openStatsInfo */
 
 

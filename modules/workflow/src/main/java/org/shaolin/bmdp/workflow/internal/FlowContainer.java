@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
 
 import org.shaolin.bmdp.datamodel.workflow.MissionNodeType;
 import org.shaolin.bmdp.datamodel.workflow.Workflow;
@@ -33,7 +32,10 @@ import org.shaolin.bmdp.runtime.cache.CacheManager;
 import org.shaolin.bmdp.runtime.cache.ICache;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.workflow.be.ITask;
+import org.shaolin.bmdp.workflow.be.ITaskHistory;
+import org.shaolin.bmdp.workflow.be.TaskHistoryImpl;
 import org.shaolin.bmdp.workflow.be.TaskImpl;
+import org.shaolin.bmdp.workflow.ce.TaskStatusType;
 import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
 import org.shaolin.bmdp.workflow.coordinator.ITaskListener;
 import org.shaolin.bmdp.workflow.dao.CoordinatorModel;
@@ -54,10 +56,7 @@ public class FlowContainer {
 	
     private static final Logger logger = LoggerFactory.getLogger(FlowContainer.class);
 
-    private ExecutorService executorService;
     private LogicalTransactionService transactionService;
-    
-    private long defaultWorkflowTimeout = 5000;
 
     // local variable
     private final ConcurrentMap<String, FlowEngine> allEngines = new ConcurrentHashMap<String, FlowEngine>();
@@ -145,7 +144,6 @@ public class FlowContainer {
     }
 
     public void runTask(final WorkFlowEventProcessor timeoutEventProcessor, final TimeoutEvent event) {
-        //executorService.submit(new TimeoutEventTask(timeoutEventProcessor, event));
     }
 
     public void startTransaction() {
@@ -183,11 +181,32 @@ public class FlowContainer {
         transactionService.resume(obj);
     }
 
+    public void scheduleEndTask(final FlowRuntimeContext flowContext) {
+        ITaskHistory task = new TaskHistoryImpl();
+        if (UserContext.getCurrentUserContext() != null) {
+			task.setOrgId((Long)UserContext.getUserData(UserContext.CURRENT_USER_ORGID));
+		}
+        task.setSessionId(flowContext.getSession().getID());
+        task.setTaskId(-1);
+        task.setExecutedNode(ICoordinatorService.END_SESSION_NODE_NAME);
+        task.setSubject("Task: " + ICoordinatorService.END_SESSION_NODE_NAME);
+        task.setDescription("Flow is finished!");
+        task.setEnabled(true);
+        task.setCreateTime(new Date());
+        task.setStatus(TaskStatusType.COMPLETED);
+        task.setCompleteRate(100);
+        CoordinatorModel.INSTANCE.create(task);
+    }
+    
     public ITask scheduleTask(Date timeout, final FlowRuntimeContext flowContext, final FlowEngine engine, 
     		final NodeInfo currentNode, final MissionNodeType mission) throws Exception {
     	if (logger.isTraceEnabled()) {
-            logger.trace("Schedule timer on {}, dealy time is {}", 
-            		currentNode.toString(), timeout.toString());
+    		if (timeout != null) {
+	            logger.trace("Schedule timer on {}, dealy time is {}", 
+	            		currentNode.toString(), timeout.toString());
+    		} else {
+    			logger.trace("Schedule a task directly {}.", currentNode.toString());
+    		}
         }
     	
         //Notify the parties
@@ -199,7 +218,9 @@ public class FlowContainer {
         task.setSessionId(flowContext.getSession().getID());
         task.setSubject("Task: " + mission.getName());
         task.setDescription(mission.getDescription());
-        task.setPartyType(mission.getParticipant().getPartyType());
+        if (mission.getParticipant() != null) {
+        	task.setPartyType(mission.getParticipant().getPartyType());
+        }
         task.setExpiredTime(timeout);
         task.setEnabled(true);
         task.setListener(new MissionListener(task));

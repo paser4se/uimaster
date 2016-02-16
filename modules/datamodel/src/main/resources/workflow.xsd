@@ -459,6 +459,8 @@
 				<xs:attribute name="expiredHours" type="xs:int" />
 				<xs:attribute name="expiredAction" type="xs:string" />
 				<xs:attribute name="autoTrigger" type="xs:boolean" />
+				<!-- whether allows the mission node to be invoked multiple time in one session. -->
+				<xs:attribute name="multipleInvoke" type="xs:boolean" default="false"/>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>

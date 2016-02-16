@@ -137,6 +137,7 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
 			}
 			
 		} catch (EvaluationException e) {
+			throw new IllegalStateException("Failed to initialize the flow context: " + e.getMessage(), e);
 		}
         this.setEvaluationContextObject("@", globalVariables);
         this.setEvaluationContextObject("$", localVariables);
@@ -591,7 +592,11 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
     
     @Override
     public String toString() {
-        return "FlowRuntimeContext [Node=" + currentNode + "]" + super.toString();
+        return "FlowRuntimeContext [Node=" + currentNode + "]";
+    }
+    
+    public String currentNodeToString() {
+    	return currentNode.toString();
     }
 
 }

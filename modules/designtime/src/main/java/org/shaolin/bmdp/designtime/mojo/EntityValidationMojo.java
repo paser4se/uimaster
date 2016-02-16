@@ -19,6 +19,7 @@ import org.shaolin.bmdp.designtime.page.UIFlowValidator;
 import org.shaolin.bmdp.designtime.page.UIFormValidator;
 import org.shaolin.bmdp.designtime.page.UIPageValidator;
 import org.shaolin.bmdp.designtime.page.WebServiceValidator;
+import org.shaolin.bmdp.designtime.page.WorkflowValidator;
 import org.shaolin.bmdp.designtime.tools.GeneratorOptions;
 import org.shaolin.bmdp.persistence.provider.DBMSProviderFactory;
 import org.shaolin.bmdp.runtime.AppContext;
@@ -27,6 +28,7 @@ import org.shaolin.bmdp.runtime.entity.IEntityEventListener;
 import org.shaolin.bmdp.runtime.internal.AppServiceManagerImpl;
 import org.shaolin.bmdp.runtime.spi.IEntityManager;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
+import org.shaolin.javacc.exception.ParsingException;
 
 /**
  * @goal validate-entity
@@ -154,6 +156,11 @@ public class EntityValidationMojo extends AbstractMojo {
 		listeners.add(new UIPageValidator(options));
 		listeners.add(new UIFormValidator(options));
 		listeners.add(new UIFlowValidator(options));
+		try {
+			listeners.add(new WorkflowValidator(options));
+		} catch (ParsingException e1) {
+			e1.printStackTrace();
+		}
 		listeners.add(new WebServiceValidator(options));
 		
 		// initialize entity manager.
@@ -191,7 +198,7 @@ public class EntityValidationMojo extends AbstractMojo {
 			for (File f : files) {
 				entityManager.reloadDir(f);
 			}
-			entityManager.reloadDir(entitiesDirectory, new String[] {"pageflow", "page", "form"});
+			entityManager.reloadDir(entitiesDirectory, new String[] {"pageflow", "page", "form", "workflow"});
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (DependencyResolutionRequiredException e) {

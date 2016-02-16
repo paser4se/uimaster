@@ -60,7 +60,8 @@
 				<xs:attribute name="eventConsumer" type="xs:string" use="required"/>
 				<xs:attribute name="partyType" type="xs:string" use="required"/>
 				<xs:attribute name="beforeActionWidget" type="xs:string" />
-    <xs:attribute name="nextActionWidget" type="xs:string" />
+                <xs:attribute name="nextActionWidget" type="xs:string" />
+                <xs:attribute name="adhocNodeName" type="xs:string" />
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
@@ -1179,6 +1180,7 @@ in simple component mapping, the paramName is required</xs:documentation>
             <xs:element maxOccurs="unbounded" minOccurs="0" name="vars" type="Common:VariableType"/>
         </xs:sequence>
         <xs:attribute name="functionName" type="xs:string" use="required"/>
+        <xs:attribute name="needAlert" type="xs:boolean" use="optional" default="false"/>
     </xs:complexType>
     
     <!--Variable Component-->

@@ -149,6 +149,20 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 	
 	@Override
+	public ITaskHistory getHistoryTask(long taskId) {
+		if (taskId == 0) {
+			return null;
+		}
+		TaskHistoryImpl condition = new TaskHistoryImpl();
+		condition.setTaskId(taskId);
+		List<ITaskHistory> result = CoordinatorModel.INSTANCE.searchTasksHistory(condition, null, 0, 1);
+		if (result == null || result.size() == 0) {
+			throw new IllegalArgumentException("Failed to search the history task by this id: " + taskId);
+		}
+		return result.get(0);
+	}
+	
+	@Override
 	public List<ITask> getTasks(TaskStatusType status) {
 		if (status == TaskStatusType.EXPIRED) {
 			TaskImpl condition = new TaskImpl();
@@ -175,7 +189,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	@Override
 	public List<ITask> getTasksBySessionId(String sessionId) {
 		if (sessionId == null || sessionId.trim().length() == 0) {
-			throw new IllegalArgumentException("Session Id can't be empty.");
+			return Collections.emptyList();
 		}
 		
 		List<ITask> sessionTasks = new ArrayList<ITask>();
@@ -197,7 +211,26 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		return sessionTasks;
 	}
 	
+	public List<ITaskHistory> getHistoryTasksBySessionId(String sessionId) {
+		if (sessionId == null || sessionId.trim().length() == 0) {
+			return Collections.emptyList();
+		}
+		
+		TaskHistoryImpl historyCriteria = new TaskHistoryImpl();
+		historyCriteria.setSessionId(sessionId);
+		List<ITaskHistory> list = CoordinatorModel.INSTANCE.searchTasksHistory(historyCriteria, null, 0, -1);
+		return list;
+	}
+	
+	public ITask getLastTaskBySessionId(String sessionId) {
+		return null;
+	}
+	
 	public String getSessionId(long taskId) {
+		if (taskId == 0) {
+			return "";
+		}
+		
 		Collection<ITask> tasks= workingTasks.values();
 		for (ITask t : tasks) {
 			if (t.getId() == taskId) {
@@ -237,6 +270,9 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	
 	@Override
 	public ITask getTask(long taskId) {
+		if (taskId == 0) {
+			return null;
+		}
 		Collection<ITask> tasks= workingTasks.values();
 		for (ITask t : tasks) {
 			if (t.getId() == taskId) {
@@ -247,9 +283,36 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 	
 	@Override
+	public boolean isTaskExecutedOnNode(long taskId, String flowNode) {
+		if (taskId == 0) {
+			return false;
+		}
+		
+		if (this.isPendingTask(taskId)) {
+			return true;
+		} else {
+			ITaskHistory history = this.getHistoryTask(taskId);
+			List<ITaskHistory> list = this.getHistoryTasksBySessionId(history.getSessionId());
+			for (ITaskHistory task : list) {
+				if (task.getExecutedNode() == null) {
+					continue;
+				}
+				if (flowNode.equals(task.getExecutedNode())) {
+					// matched node.
+					return true;
+				} else if (ICoordinatorService.END_SESSION_NODE_NAME.equals(task.getExecutedNode())) {
+					// session is terminated.
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	@Override
 	public boolean isPendingTask(long taskId) {
 		if (taskId == 0) {
-			return true; // new created.
+			return false;
 		}
 		ITask task = getTask(taskId);
 		if (task == null) {
@@ -278,6 +341,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		}
 		if (!testCaseFlag) {
 			CoordinatorModel.INSTANCE.update(task);
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
 	}
 
@@ -314,20 +378,21 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 			return;
 		}
 		
-		long delay = task.getExpiredTime().getTime() - System.currentTimeMillis();
-		if (delay <= 0) {
-			expireTask(task);
-			return;
-		}
-		ScheduledFuture<?> future = pool.schedule(new Runnable() {
-			@Override
-			public void run() {
+		if (task.getExpiredTime() != null) {
+			long delay = task.getExpiredTime().getTime() - System.currentTimeMillis();
+			if (delay <= 0) {
 				expireTask(task);
+				return;
 			}
-		}, delay, TimeUnit.MILLISECONDS);
-		
+			ScheduledFuture<?> future = pool.schedule(new Runnable() {
+				@Override
+				public void run() {
+					expireTask(task);
+				}
+			}, delay, TimeUnit.MILLISECONDS);
+			futures.put(task, future);
+		}
 		task.setStatus(TaskStatusType.INPROGRESS);
-		futures.put(task, future);
 		
 		taskToNotification(task);
 	}
@@ -363,6 +428,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		}
 		if (!testCaseFlag) {
 			CoordinatorModel.INSTANCE.update(task);
+	        HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
 	}
 	
@@ -387,8 +453,10 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		if (!testCaseFlag) {
 			// only update the task that give the customer change to make the decision.
 			CoordinatorModel.INSTANCE.update(task);
+			// commit DB session once task completed.
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
-		
+        
 		if (task.getListener() != null) {
 			ITaskListener listener = (ITaskListener)task.getListener();
 			listener.notifyExpired();
@@ -399,6 +467,9 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	
 	@Override
 	public void completeTask(ITask task) {
+		if (task == null) {
+			return;
+		}
 		AppContext.register(appService);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Task is completed.  {}", task.toString());
@@ -415,6 +486,8 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		
 		if (!testCaseFlag) {
 			moveToHistory(task, HibernateUtil.getSession());
+			// commit DB session once task completed.
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
 		
 		if (task.getListener() != null) {
@@ -436,11 +509,11 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 			future.cancel(true);
 			
 			workingTasks.remove(task.getId());
-			
 			task.setStatus(TaskStatusType.CANCELLED);
-			
 			if (!testCaseFlag) {
 				moveToHistory(task, HibernateUtil.getSession());
+				// commit DB session once task completed.
+				HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 			}
 			
 			if (task.getListener() != null) {
@@ -459,6 +532,15 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		TaskHistoryImpl history = new TaskHistoryImpl();
 		history.setTaskId(task.getId());
 		history.setOrgId(task.getOrgId());
+		history.setSessionId(task.getSessionId());
+		if (task.getFlowState() != null) {
+			FlowRuntimeContext runtime;
+			try {
+				runtime = FlowRuntimeContext.unmarshall(task.getFlowState());
+				history.setExecutedNode(runtime.currentNodeToString());
+			} catch (Exception e) {
+			}
+		}
 		history.setCompleteRate(task.getCompleteRate());
 		history.setDescription(task.getDescription());
 		history.setEnabled(task.isEnabled());
@@ -471,7 +553,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		history.setStatus(task.getStatus());
 		history.setSubject(task.getSubject());
 		history.setComments(task.getComments());
-		history.setSessionId(task.getSessionId());
 		history.setCreateTime(task.getCreateTime());
 		
 		session.save(history);
@@ -523,7 +604,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 			t.setListener(new MissionListener(t));
 			
 			if (t.getStatus() == TaskStatusType.NOTSTARTED || t.getStatus() == TaskStatusType.INPROGRESS) {
-				if (System.currentTimeMillis() < t.getExpiredTime().getTime()) {
+				if (t.getExpiredTime() == null || System.currentTimeMillis() < t.getExpiredTime().getTime()) {
 					schedule(t);
 				} else {
 					//trigger it directly.
@@ -577,8 +658,12 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	
 	private void taskToNotification(ITask t) {
 		NotificationImpl notifier = new NotificationImpl();
-		notifier.setSubject("[" + t.getExpiredTime().toString() 
+		if (t.getExpiredTime() != null) {
+			notifier.setSubject("[" + t.getExpiredTime().toString() 
 				+ "/" + t.getStatus().getDisplayName() + "] " + t.getSubject());
+		} else {
+			notifier.setSubject("[" + t.getStatus().getDisplayName() + "] " + t.getSubject());
+		}
 		notifier.setDescription(t.getDescription());
 		notifier.setPartyId(t.getPartyId());
 		addNotification(notifier, false);

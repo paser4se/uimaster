@@ -34,6 +34,8 @@ public class AanlysisModel extends BEEntityDaoObject {
             }
 
 
+        inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject._enable", scObject.isEnabled()));
+
         List result = this._list(offset, count, inObjectCriteria);
         return result;
     }
@@ -41,6 +43,8 @@ public class AanlysisModel extends BEEntityDaoObject {
     public long searchClientDBInfoCount(org.shaolin.bmdp.analyzer.be.ClientDBInfoImpl scObject) {
             Criteria inObjectCriteria = this._createCriteria(org.shaolin.bmdp.analyzer.be.ClientDBInfoImpl.class, "inObject");
 
+
+        inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject._enable", scObject.isEnabled()));
 
         return this._count(inObjectCriteria);
     }
@@ -54,6 +58,8 @@ public class AanlysisModel extends BEEntityDaoObject {
             }
 
 
+        inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject._enable", scObject.isEnabled()));
+
         List result = this._list(offset, count, inObjectCriteria);
         return result;
     }
@@ -61,6 +67,8 @@ public class AanlysisModel extends BEEntityDaoObject {
     public long searchJobCount(org.shaolin.bmdp.analyzer.be.JobImpl scObject) {
             Criteria inObjectCriteria = this._createCriteria(org.shaolin.bmdp.analyzer.be.JobImpl.class, "inObject");
 
+
+        inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject._enable", scObject.isEnabled()));
 
         return this._count(inObjectCriteria);
     }
@@ -74,6 +82,8 @@ public class AanlysisModel extends BEEntityDaoObject {
             }
 
 
+        inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject._enable", scObject.isEnabled()));
+
         List result = this._list(offset, count, inObjectCriteria);
         return result;
     }
@@ -81,6 +91,8 @@ public class AanlysisModel extends BEEntityDaoObject {
     public long searchChartStatsCount(org.shaolin.bmdp.analyzer.be.ChartStatisticImpl scObject) {
             Criteria inObjectCriteria = this._createCriteria(org.shaolin.bmdp.analyzer.be.ChartStatisticImpl.class, "inObject");
 
+
+        inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject._enable", scObject.isEnabled()));
 
         return this._count(inObjectCriteria);
     }

@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.spi.Event;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.shaolin.bmdp.workflow.spi.SessionService;
@@ -81,16 +82,19 @@ public class DefaultFlowSessionService implements SessionService, IServiceProvid
     @Override
     public void commitSession(WorkflowSession session) {
         sessionMap.put(session.getID(), session);
+        HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
     }
 
     @Override
     public void rollbackSession(WorkflowSession session) {
     	logger.info("Rollback " + session.getID());
+    	HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
     }
 
     @Override
     public void destroySession(WorkflowSession session) {
         sessionMap.remove(session.getID());
+        HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
     }
 
     @Override

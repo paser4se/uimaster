@@ -51,7 +51,15 @@ public class EventConsumer {
         this.engine = engine;
         this.eventConsumerName = eventConsumerName;
     }
-
+    
+    public String getEventConsumerName() {
+    	return eventConsumerName;
+    }
+    
+    public FlowEngine getFlowEngine() {
+    	return engine;
+    }
+    
     /**
      * Return true if the event handled by this app.
      * 
@@ -94,7 +102,7 @@ public class EventConsumer {
                     return false;
                 }
                 NodeInfo startNode = engine.matchStartNode(eventConsumerName, evt);
-                NodeInfo eventNode = engine.matchRequestNode(eventConsumerName, evt);
+                NodeInfo eventNode = engine.matchMissionNode(eventConsumerName, evt);
                 if (startNode == null && eventNode == null) {
                     return false;
                 }

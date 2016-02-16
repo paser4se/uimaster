@@ -269,6 +269,15 @@ public class UIFormJSGenerator0 {
             }
             else
             {
+            	out.write("        var o = this;\n");
+            	out.write("        var UIEntity = this;\n");
+            	if (fType.isNeedAlert()) {
+            		out.write("\n        ");
+            		out.write("new UIMaster.ui.dialog({");
+    				out.write("dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,message:'\u7EE7\u7EED\u5417\uFF1F',");
+    				out.write("messageType:UIMaster.ui.dialog.Warning,optionType:UIMaster.ui.dialog.YES_NO_OPTION,title:'',height:150,width:300,handler: function() {\n");
+            	}
+            	
 				if (referenceMap.containsKey(functionName)) {
 					String funcName = (String) referenceMap.get(functionName);
 					out.write("        ");
@@ -283,18 +292,23 @@ public class UIFormJSGenerator0 {
 						out.write("\n        // cal ajax function. \n");
 						out.write("\n        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),\"");
 						out.print(((OpCallAjaxType)op).getName());
-				      	out.write("\",UIMaster.getValue(eventsource),this.__entityName);\n");
+				      	out.write("\",UIMaster.getValue(eventsource),o.__entityName);\n");
 					} else if (op instanceof OpInvokeWorkflowType) {
 						out.write("\n        // cal ajax function. \n");
-						out.write("\n        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),event,UIMaster.getValue(eventsource),this.__entityName);\n");
+						out.write("\n        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),event,UIMaster.getValue(eventsource),o.__entityName);\n");
 					}
 				}
-				out.write("\n        var UIEntity = this;\n");
 				if (isOut) {
-					out.write("\n        this.");
+					out.write("\n        o.");
 					out.print(forOut.get(fType.getFunctionName())
 							+ "_OutFunctionName");
 					out.write("(eventsource);\n");
+				}
+				
+				if (fType.isNeedAlert()) {
+				out.write("\n        ");
+        		out.write("\n        }");
+        		out.write("\n        }).open();\n");
 				}
 	        }
     

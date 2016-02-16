@@ -414,11 +414,11 @@ public class FlowObject implements java.io.Serializable {
             	}
             	try {
         			UIFormObject uiCache = PageCacheManager.getUIFormObject(actionPage);
-        			uiCache.addWorkflowAction(n.getFlow().getEventConsumer(), m);
+        			uiCache.addWorkflowAction(n.getFlow().getEventConsumer(), m, n.toString());
         		} catch (EntityNotFoundException e0) {
         			try {
         				UIPageObject uiCache = PageCacheManager.getUIPageObject(actionPage);
-        				uiCache.getUIForm().addWorkflowAction(n.getFlow().getEventConsumer(), m);
+        				uiCache.getUIForm().addWorkflowAction(n.getFlow().getEventConsumer(), m, n.toString());
         			} catch (Exception e1) {
         				logger.error("Error to load the workflow action: " + e1.getMessage() 
             					+ ",ActionPage: " + actionPage
@@ -701,6 +701,10 @@ public class FlowObject implements java.io.Serializable {
         return this.requestNodes.get(producerName);
     }
 
+    public List<NodeInfo> getMissionNodes(String producerName) {
+        return this.missionNodes.get(producerName);
+    }
+    
     public List<NodeInfo> getExceptionNodes() {
         return exceptionNodes;
     }

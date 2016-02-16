@@ -26,6 +26,8 @@ import org.shaolin.bmdp.workflow.ce.TaskStatusType;
 
 public interface ICoordinatorService {
 
+	public static final String END_SESSION_NODE_NAME = "endSession";
+	
 	/**
 	 * monitor the task queue size.
 	 * 
@@ -82,7 +84,11 @@ public interface ICoordinatorService {
 	 */
 	List<ITaskHistory> getHistoryTasks(TaskStatusType status);
 	
+	ITaskHistory getHistoryTask(long taskId);
+	
 	boolean isPendingTask(long taskId);
+	
+	boolean isTaskExecutedOnNode(long taskId, String flowNode);
 	
 	ITask getTask(long taskId);
 	
