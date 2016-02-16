@@ -135,7 +135,7 @@ public class ODEntityContext extends ODContext
     		globalContext.setVariableValue("context", htmlContext);
     		globalContext.setVariableValue("odContext", this);
     		globalContext.setVariableValue(AJAX_UICOMP_NAME, 
-    				AjaxActionHelper.createAjaxContext(uiEntity.getPrefix() + uiEntity.getUIID(), 
+    				AjaxActionHelper.createUI2DataAjaxContext(uiEntity.getPrefix() + uiEntity.getUIID(), 
 					uiEntityName, htmlContext.getRequest()));
     		this.setEvaluationContextObject(GLOBAL_TAG, globalContext);
     	}

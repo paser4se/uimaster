@@ -100,7 +100,6 @@ import org.shaolin.bmdp.datamodel.page.ValidatorPropertyType;
 import org.shaolin.bmdp.datamodel.page.ValidatorsPropertyType;
 import org.shaolin.bmdp.datamodel.page.VariableReconfigurationType;
 import org.shaolin.bmdp.datamodel.workflow.MissionNodeType;
-import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.VariableUtil;
 import org.shaolin.bmdp.runtime.be.BEUtil;
 import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
@@ -808,16 +807,16 @@ public class UIFormObject implements java.io.Serializable
 //					importData.setTitle(strProperty);
 //					importData.setUiid(table.getUIID() + "_importItem");
 //					seqList.add(importData);
-					
-					UITableActionType exportData = new UITableActionType();
-					exportData.setFunction("exportData");
-					exportData.setIcon("ui-icon-arrowthickstop-1-n");
-					ResourceBundlePropertyType i18nInfoExport = new ResourceBundlePropertyType();
-	        		i18nInfoExport.setBundle("Common");
-	        		i18nInfoExport.setKey("ExportItem");
-					exportData.setTitle(i18nInfoExport);
-					exportData.setUiid(table.getUIID() + "_exportItem");
-					seqList.add(exportData);
+					// must be manually configured it.
+//					UITableActionType exportData = new UITableActionType();
+//					exportData.setFunction("exportData");
+//					exportData.setIcon("ui-icon-arrowthickstop-1-n");
+//					ResourceBundlePropertyType i18nInfoExport = new ResourceBundlePropertyType();
+//	        		i18nInfoExport.setBundle("Common");
+//	        		i18nInfoExport.setKey("ExportItem");
+//					exportData.setTitle(i18nInfoExport);
+//					exportData.setUiid(table.getUIID() + "_exportItem");
+//					seqList.add(exportData);
 					
 	        		propMap.put("defaultActionGroup", seqList);
             	}
@@ -1626,7 +1625,7 @@ public class UIFormObject implements java.io.Serializable
         return (Map)expressionMap.get(componentID);
     }
     
-	public void addWorkflowAction(String eventConsumer, MissionNodeType node) throws ParsingException {
+	public void addWorkflowAction(String eventConsumer, MissionNodeType node, String nodeInfo) throws ParsingException {
 		if (workflowActions == null) {
 			workflowActions = new ArrayList();
 		} else {
@@ -1659,27 +1658,18 @@ public class UIFormObject implements java.io.Serializable
 						+ "import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService; \n"
 						+ "\n{ "
 						+ "\n ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class); "
-						+ "\n return !service.isPendingTask($beObject.getTaskId()); "
+						+ "\n return service.isTaskExecutedOnNode($beObject.getTaskId(), \"" + nodeInfo + "\");"
 						+ "\n}");
 				property1.setExpression(expr1);
-				button.setReadOnly(property1);
+				if (!node.isMultipleInvoke()) {
+					button.setReadOnly(property1);
+				}
 				StringPropertyType originalStr = (StringPropertyType)button.getText();
 				if (originalStr == null) {
 					originalStr = new StringPropertyType();
 					originalStr.setValue(node.getUiAction().getActionText());
 					button.setText(originalStr);
 				}
-				ExpressionPropertyType strProperty = new ExpressionPropertyType();
-				ExpressionType strExpr = new ExpressionType();
-				strExpr.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; \n"
-						+ "import org.shaolin.bmdp.runtime.AppContext; \n"
-						+ "import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService; \n"
-						+ "\n{ "
-						+ "\n ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class); "
-						+ "\n return !service.isPendingTask($beObject.getTaskId()) ? \"" + originalStr.getValue() + "...\" : \"" + originalStr.getValue() + "\";"
-						+ "\n}");
-				strProperty.setExpression(strExpr);
-				button.setText(strProperty);
 				button.setUIStyle("uimaster_workflow_action");
 				ClickListenerType clickListener = new ClickListenerType();
 				FunctionCallType func = new FunctionCallType();
@@ -1706,16 +1696,18 @@ public class UIFormObject implements java.io.Serializable
 				tableLayout.getColumnWidthWeights().add(1.0D);
 				
 				FunctionType function = new FunctionType();
+				function.setNeedAlert(Boolean.TRUE);
 				function.setFunctionName(node.getUiAction().getActionName());
 				OpInvokeWorkflowType op = new OpInvokeWorkflowType();
 				op.setEventConsumer(eventConsumer);
 				op.setExpression(node.getUiAction().getExpression());
 				op.setPartyType(node.getParticipant().getPartyType());
 				op.setOperationId(node.getUiAction().getActionName());
+				op.setAdhocNodeName(node.getName());
 				function.getOps().add(op);
 				entity.getEventHandlers().add(function);
 				
-				// find ok button.
+				// find ok button if has.
 				for (UIComponentType b : actionPanel.getComponents()) {
 					if ("okbtn".equals(b.getUIID())) {
 						ExpressionPropertyType property2 = new ExpressionPropertyType();

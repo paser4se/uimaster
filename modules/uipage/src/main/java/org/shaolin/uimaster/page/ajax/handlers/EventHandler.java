@@ -77,6 +77,8 @@ public class EventHandler implements IAjaxHandler {
 						OpInvokeWorkflowType wfOp = (OpInvokeWorkflowType) op;
 						try {
 							FlowEvent e = new FlowEvent(wfOp.getEventConsumer());
+							//BuiltInAttributeConstant.KEY_AdhocNodeName
+							e.setAttribute("_AdhocNodeName", wfOp.getAdhocNodeName());
 							Map value0 = (Map)wfOp.getExpression().evaluate(context);
 							if (value0 != null && value0.size() > 0) {
 								Iterator i = value0.keySet().iterator();

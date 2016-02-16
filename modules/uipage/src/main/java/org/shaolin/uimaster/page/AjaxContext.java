@@ -550,7 +550,7 @@ public class AjaxContext extends OpExecuteContext implements Serializable
             logger.debug("No frame name specified, use this context's default frame.");
             return uiMap;
         }
-        Map ajaxComponentMap = AjaxActionHelper.getAjaxWidgetMap(request.getSession(true));
+        Map ajaxComponentMap = AjaxActionHelper.getAjaxWidgetMap(request.getSession(true));	
         if (frameName.equals(""))
         {
             frameName = "#GLOBAL#";
@@ -626,7 +626,7 @@ public class AjaxContext extends OpExecuteContext implements Serializable
     }
    
     public void removeFramePage(String frameId) {
-    	logger.info("remove frame page: " + frameId);
+    	logger.info("Remove frame page: " + frameId);
     	Map ajaxComponentMap = AjaxActionHelper.getAjaxWidgetMap(request.getSession());
     	ajaxComponentMap.remove(frameId);
     }

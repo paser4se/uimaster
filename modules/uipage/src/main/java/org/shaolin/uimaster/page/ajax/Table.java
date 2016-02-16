@@ -51,30 +51,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * DTable didn't have supported 'addRow', 'removeRow', 'updateRow' in
- * Auto-search mode. when we used these methods, we have to implement a
- * user-define SPI. Code Example: <br>
- * <br>
- * bmiasia.ebos.appbase.ajax.type.DTable dtable =
- * (bmiasia.ebos.appbase.ajax.type.DTable)@page.getElement("Form"); <br>
- * if( dtable == null ) <br>
- * { <br>
- * java.util.Map map = new java.util.HashMap(); <br>
- * map.put("sqName","bmiasia.ebos.appbase.test.sq.NormalEmployee");//according
- * to od component. <br>
- * map.put("serviceName","..."); <br>
- * dtable = new bmiasia.ebos.appbase.ajax.type.DTable("dtable1", map); <br>
- * Panel rootPanel = (Panel)@page.getElement("Form"); <br>
- * rootPanel.append(dtable); <br>
- * <br>
- * else <br>
- * { <br>
- * ... <br>
- * dtable.addRow(rowObject); <br>
- * dtable.refresh();// have to refresh. <br>
- * <br>
- * <br>
- * 
  * 
  * @author Shaolin Wu
  */

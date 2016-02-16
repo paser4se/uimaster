@@ -115,8 +115,7 @@ public class UIFlowCacheManager implements Serializable
             logger.debug("Add uiflow: " + webchunk.getEntityName());
         }
         String entityname = webchunk.getEntityName();
-        if (chunks.containsKey(entityname))
-        {	
+        if (chunks.containsKey(entityname)) {
         	logger.debug("This Webchunk has already existed in cache, replace it: {}", entityname);
         }
         // add node
@@ -147,7 +146,6 @@ public class UIFlowCacheManager implements Serializable
                     }
                 }
             }
-
         }
     }
 

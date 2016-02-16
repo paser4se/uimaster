@@ -101,6 +101,21 @@ public class HTMLTableType extends HTMLContainerType {
 			HTMLUtil.generateTab(context, depth + 1);
 			context.generateHTML("<div id='" + htmlId + "ActionBar' class=\"ui-widget-header ui-corner-all\">");
 			List<UITableActionType> defaultActions = (List<UITableActionType>)this.removeAttribute("defaultActionGroup");
+			if (UserContext.isMobileRequest()) {
+				if (defaultActions == null) {
+					defaultActions = new ArrayList();
+				} else {
+					defaultActions = new ArrayList(defaultActions); //make copy
+				}
+				List<UITableActionGroupType> actionGroups = (List<UITableActionGroupType>) this.removeAttribute("actionGroups");
+				if (actionGroups != null && actionGroups.size() > 0) {
+					for (UITableActionGroupType a : actionGroups) {
+						for (UITableActionType action: a.getActions()){
+							defaultActions.add(action);
+						}
+					}
+				}
+			}
 			if (defaultActions != null) {
 				HTMLUtil.generateTab(context, depth + 2);
 				String defaultBtnSet = "defaultBtnSet_" + htmlId;
@@ -441,7 +456,7 @@ public class HTMLTableType extends HTMLContainerType {
 			if (UserContext.isMobileRequest()) {
 				StringBuffer attrsSB = new StringBuffer();
 				StringBuffer htmlAttrsSB = new StringBuffer();
-				attrsSB.append("<td title=\"\">");
+				
 				for (UITableColumnType col : columns) {
 					// find image column at the second column.
 					if ("Image".equals(col.getUiType().getType())) {
@@ -451,10 +466,7 @@ public class HTMLTableType extends HTMLContainerType {
 						if (value == null) {
 							value = "";
 						}
-						context.generateHTML(UIVariableUtil.getI18NProperty(col.getTitle()));
-						context.generateHTML(":");
 						context.generateHTML(value.toString());
-						context.generateHTML(", ");
 						context.generateHTML("</td>");
 					} else if ("HTML".equals(col.getUiType().getType())
 							|| "HTMLItem".equals(col.getUiType().getType())) {
@@ -464,10 +476,7 @@ public class HTMLTableType extends HTMLContainerType {
 						if (value == null) {
 							value = "";
 						}
-						htmlAttrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle()));
-						htmlAttrsSB.append(":");
 						htmlAttrsSB.append(value.toString());
-						htmlAttrsSB.append(", ");
 						htmlAttrsSB.append("</td>");
 					} else {
 						Object value = col.getRowExpression().getExpression().evaluate(
@@ -482,8 +491,11 @@ public class HTMLTableType extends HTMLContainerType {
 						attrsSB.append("</pre>");
 					}
 				}
-				attrsSB.append("</td>");
-				context.generateHTML(attrsSB.toString());
+				if (attrsSB.length() > 0) {
+					context.generateHTML("<td title=\"\">");
+					context.generateHTML(attrsSB.toString());
+					context.generateHTML("</td>");
+				}
 				context.generateHTML(htmlAttrsSB.toString());
 			} else {
 				for (UITableColumnType col : columns) {

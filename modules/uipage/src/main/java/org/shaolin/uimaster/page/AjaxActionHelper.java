@@ -28,6 +28,7 @@ import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.IRequestData;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.ajax.json.RequestData;
+import org.shaolin.uimaster.page.flow.WebflowConstants;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -60,7 +61,7 @@ public class AjaxActionHelper {
 		threadLocal.set(null);
 	}
 
-	public static AjaxContext createAjaxContext(String entityUiid, String uiform, HttpServletRequest request) 
+	public static AjaxContext createUI2DataAjaxContext(String entityUiid, String uiform, HttpServletRequest request) 
 			throws EvaluationException {
 		Map uiMap = AjaxActionHelper.getFrameMap(request);
 		IRequestData requestData = AjaxActionHelper.createRequestData();
@@ -150,6 +151,28 @@ public class AjaxActionHelper {
 		return (Widget) obj;
 	}
 
+	public static String getFrameId(HttpServletRequest request) {
+		String frameName = request.getParameter(WebflowConstants.FRAME_NAME);
+        String superPrefix = null;
+        String framePrefix = request.getParameter("_framePrefix");
+        String frameTarget = request.getParameter("_frameTarget");
+		if (frameTarget != null && !frameTarget.equals("null")) {
+			superPrefix = frameTarget;
+		} else if (framePrefix != null && !framePrefix.equals("null")
+				&& framePrefix.length() != 0) {
+			superPrefix = framePrefix;
+			if (frameName != null) {
+				superPrefix += '.' + frameName;
+			}
+		} else if (frameName != null) {
+			superPrefix = frameName;
+		}
+		if (frameTarget == null || frameTarget.equals("null"))
+        {
+            frameTarget = superPrefix;
+        }
+		return frameTarget;
+	}
 
 	public static IRequestData createRequestData() {
 		return new RequestData();

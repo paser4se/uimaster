@@ -280,7 +280,10 @@ public class RefForm extends Container implements Serializable
     {
         try
         {
-            AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        	AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        	String frameId = AjaxActionHelper.getFrameId(ajaxContext.getRequest());
+        	this.setFrameInfo(frameId);
+        	
             StringWriter writer = new StringWriter();
             HTMLSnapshotContext htmlContext = new HTMLSnapshotContext(ajaxContext.getRequest(), writer);
             htmlContext.setIsDataToUI(true);
@@ -306,8 +309,8 @@ public class RefForm extends Container implements Serializable
             htmlContext.setReconfigVariable(variableReconfigurationMap);
             htmlContext.printHTMLAttributeValues();
 
-            htmlContext.setAjaxWidgetMap(AjaxActionHelper.getAjaxContext()
-                    .getFrameComponentMap(this.getFrameInfo()));
+            Map ajaxMap = AjaxActionHelper.getAjaxContext().getFrameComponentMap(this.getFrameInfo());
+            htmlContext.setAjaxWidgetMap(ajaxMap);
             String oldFrameInfo = (String)htmlContext.getRequest().getAttribute("_framePagePrefix");
             htmlContext.getRequest().setAttribute("_framePagePrefix", this.getFrameInfo());
             
@@ -343,7 +346,6 @@ public class RefForm extends Container implements Serializable
         	formObject.getJSPathSet(htmlContext, Collections.emptyMap());
             
             return writer.getBuffer().toString();
-//            form = (Panel)htmlContext.getAJAXComponent(getId() + ".Form");
         }
         catch (Exception ex)
         {
