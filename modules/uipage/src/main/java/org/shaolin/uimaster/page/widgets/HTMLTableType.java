@@ -484,11 +484,11 @@ public class HTMLTableType extends HTMLContainerType {
 						if (value == null) {
 							value = "";
 						}
-						attrsSB.append("<pre>");
+						attrsSB.append("<span>");
 						attrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle()));
 						attrsSB.append(":");
 						attrsSB.append(value.toString());
-						attrsSB.append("</pre>");
+						attrsSB.append("</span>");
 					}
 				}
 				if (attrsSB.length() > 0) {
@@ -614,7 +614,12 @@ public class HTMLTableType extends HTMLContainerType {
 
         t.setReadOnly(isReadOnly());
         t.setUIEntityName(getUIEntityName());
-
+        Boolean isAppendRowMode = (Boolean)this.removeAttribute("isAppendRowMode");
+		if (isAppendRowMode == null) {
+			isAppendRowMode = Boolean.FALSE;
+		}
+		t.setAppendRowMode(isAppendRowMode);
+		this.removeAttribute("refreshInterval");
 		try {
 			EvaluationContext expressionContext = ee.getExpressionContext(ODContext.LOCAL_TAG);
 			expressionContext.setVariableValue("table", t);
@@ -628,23 +633,20 @@ public class HTMLTableType extends HTMLContainerType {
 			}
 			ExpressionType initQueryExpr = (ExpressionType)this.removeAttribute("initQueryExpr");
 			ExpressionType queryExpr = (ExpressionType)this.removeAttribute("queryExpr");
-			ExpressionType totalExpr = (ExpressionType)this.removeAttribute("totalExpr");
 			Object result;
 			if (initQueryExpr != null) {
 				result = ee.evaluateExpression(initQueryExpr);
 			} else {
 				result = ee.evaluateExpression(queryExpr);
 			}
-			Object totalCount = ee.evaluateExpression(totalExpr);
 			this.addAttribute("query", result);
-			this.addAttribute("totalCount", totalCount);
-			
+			this.addAttribute("totalCount", result == null ? 0 : ((List) result).size());
+
 			t.setListData((List)result);
 			t.setConditions((TableConditions)expressionContext.getVariableValue("tableCondition"));
 			t.setColumns((List)this.getAttribute("columns"));
 			t.setSelectMode((UITableSelectModeType)this.getAttribute("selectMode"));
 			t.setQueryExpr(queryExpr);
-			t.setTotalExpr(totalExpr);
 		} catch (EvaluationException e) {
 			throw new IllegalStateException(e);
 		}

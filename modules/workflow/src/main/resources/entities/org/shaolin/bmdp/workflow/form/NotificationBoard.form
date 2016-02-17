@@ -48,27 +48,9 @@
             }]]></expressionString>
           </ns2:expression>
         </ns2:query>
-        <ns2:totalCount>
-          <ns2:expression>
-            <expressionString><![CDATA[
-            import java.util.List;
-            import org.shaolin.uimaster.page.ajax.TableConditions;
-            import org.shaolin.bmdp.workflow.be.TaskImpl;
-            import org.shaolin.bmdp.runtime.AppContext;
-            import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
-            import org.shaolin.bmdp.runtime.security.UserContext;
-            {
-                  if ($tableCondition == null) {
-                     $tableCondition = TableConditions.createCondition(new TaskImpl());
-                  }
-                  TaskImpl condition = (TaskImpl)$tableCondition.getCondition();
-                  ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class);
-                  Long userId = (Long)UserContext.getUserData("CurrentUserId");
-                  return service.pullNotifications(userId).size();
-            }]]></expressionString>
-          </ns2:expression>
-        </ns2:totalCount>
-        <ns2:defaultRowSize>20</ns2:defaultRowSize>
+        <ns2:appendRowMode>true</ns2:appendRowMode>
+        <ns2:refreshInterval>20</ns2:refreshInterval>
+        <ns2:defaultRowSize>100</ns2:defaultRowSize>
         <ns2:showActionBar>true</ns2:showActionBar>
         <ns2:showFilter>false</ns2:showFilter>
         <ns2:editableCell>false</ns2:editableCell>
@@ -78,7 +60,7 @@
             <ns2:value>消息</ns2:value>
           </ns2:title>
           <ns2:beFieldId>rowBE.subject</ns2:beFieldId>
-          <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>HTMLItem</ns2:type></ns2:uiType>
+          <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>HTML</ns2:type></ns2:uiType>
           <ns2:rowExpression xsi:type="ns2:ExpressionPropertyType">
               <ns2:expression xsi:type="ns2:ExpressionType">
                   <ns2:expressionString><![CDATA[

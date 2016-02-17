@@ -200,6 +200,7 @@
 		                            {
 		                                  if ($tableCondition == null) {
 		                                     $tableCondition = TableConditions.createCondition(new ClientDBInfoImpl());
+		                                     $tableCondition.setCount(10);
 		                                  }
 		                                  ClientDBInfoImpl condition = (ClientDBInfoImpl)$tableCondition.getCondition();
 		                                  return AanlysisModel.INSTANCE.searchClientDBInfo(condition,
@@ -209,21 +210,6 @@
 		                            }]]></ns2:expressionString>
 		                        </ns2:expression>
 		                    </ns2:query>
-		                    <ns2:totalCount xsi:type="ns2:ExpressionPropertyType">
-		                        <ns2:expression xsi:type="ns2:ExpressionType">
-		                            <ns2:expressionString><![CDATA[
-		                            import org.shaolin.uimaster.page.ajax.TableConditions;
-		                            import org.shaolin.bmdp.analyzer.be.ClientDBInfoImpl;
-                                    import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
-		                            {
-		                                 if ($tableCondition == null) {
-		                                    $tableCondition = TableConditions.createCondition(new ClientDBInfoImpl());
-		                                 }
-		                                 ClientDBInfoImpl condition = (ClientDBInfoImpl)$tableCondition.getCondition();
-		                                 return AanlysisModel.INSTANCE.searchClientDBInfoCount(condition);
-		                            }]]></ns2:expressionString>
-		                        </ns2:expression>
-		                    </ns2:totalCount>
 		                    <ns2:column xsi:type="ns2:UITableColumnType">
 		                        <ns2:title xsi:type="ns2:StringPropertyType">
 		                            <ns2:value>JDBC Class</ns2:value>
@@ -283,6 +269,7 @@
                                     {
                                           if ($tableCondition == null) {
                                              $tableCondition = TableConditions.createCondition(new JobImpl());
+                                             $tableCondition.setCount(10);
                                           }
                                           JobImpl condition = (JobImpl)$tableCondition.getCondition();
                                           return AanlysisModel.INSTANCE.searchJob(condition,
@@ -292,21 +279,6 @@
                                     }]]></ns2:expressionString>
                                 </ns2:expression>
                             </ns2:query>
-                            <ns2:totalCount xsi:type="ns2:ExpressionPropertyType">
-                                <ns2:expression xsi:type="ns2:ExpressionType">
-                                    <ns2:expressionString><![CDATA[
-                                    import org.shaolin.uimaster.page.ajax.TableConditions;
-                                    import org.shaolin.bmdp.analyzer.be.JobImpl;
-                                    import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
-                                    {
-                                         if ($tableCondition == null) {
-                                            $tableCondition = TableConditions.createCondition(new JobImpl());
-                                         }
-                                         JobImpl condition = (JobImpl)$tableCondition.getCondition();
-                                         return AanlysisModel.INSTANCE.searchJobCount(condition);
-                                    }]]></ns2:expressionString>
-                                </ns2:expression>
-                            </ns2:totalCount>
                             <ns2:column xsi:type="ns2:UITableColumnType">
                                 <ns2:title xsi:type="ns2:StringPropertyType">
                                     <ns2:value>Main Class</ns2:value>
@@ -366,6 +338,7 @@
                                     {
                                           if ($tableCondition == null) {
                                              $tableCondition = TableConditions.createCondition(new ChartStatisticImpl());
+                                             $tableCondition.setCount(10);
                                           }
                                           ChartStatisticImpl condition = (ChartStatisticImpl)$tableCondition.getCondition();
                                           return AanlysisModel.INSTANCE.searchChartStats(condition,
@@ -375,21 +348,6 @@
                                     }]]></ns2:expressionString>
                                 </ns2:expression>
                             </ns2:query>
-                            <ns2:totalCount xsi:type="ns2:ExpressionPropertyType">
-                                <ns2:expression xsi:type="ns2:ExpressionType">
-                                    <ns2:expressionString><![CDATA[
-                                    import org.shaolin.uimaster.page.ajax.TableConditions;
-                                    import org.shaolin.bmdp.analyzer.be.ChartStatisticImpl;
-                                    import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
-                                    {
-                                         if ($tableCondition == null) {
-                                            $tableCondition = TableConditions.createCondition(new ChartStatisticImpl());
-                                         }
-                                         ChartStatisticImpl condition = (ChartStatisticImpl)$tableCondition.getCondition();
-                                         return AanlysisModel.INSTANCE.searchChartStatsCount(condition);
-                                    }]]></ns2:expressionString>
-                                </ns2:expression>
-                            </ns2:totalCount>
                             <ns2:column xsi:type="ns2:UITableColumnType">
                                 <ns2:title xsi:type="ns2:StringPropertyType">
                                     <ns2:value>Action on UIFrom</ns2:value>

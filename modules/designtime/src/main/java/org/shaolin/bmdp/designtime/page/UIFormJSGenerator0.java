@@ -953,6 +953,15 @@ public class UIFormJSGenerator0 {
         
         if (component instanceof UITableType) {
         	UITableType table = (UITableType)component;
+        	
+        	if (table.isAppendRowMode()) {
+        		out.write("        ,appendRowMode: true\n");
+        	}
+        	if (table.getRefreshInterval() > 0) {
+        		out.write("        ,refreshInterval: ");
+    	        out.print(table.getRefreshInterval());
+    	        out.write("\n");
+        	}
         	if (table.getSelectedRowAction() != null) {
         		out.write("        ,selectedRowAction: Form.\"");
     	        out.print(table.getSelectedRowAction());

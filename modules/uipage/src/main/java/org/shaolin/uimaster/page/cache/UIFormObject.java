@@ -70,6 +70,7 @@ import org.shaolin.bmdp.datamodel.page.UIContainerType;
 import org.shaolin.bmdp.datamodel.page.UICustWidgetType;
 import org.shaolin.bmdp.datamodel.page.UIEntity;
 import org.shaolin.bmdp.datamodel.page.UIFileType;
+import org.shaolin.bmdp.datamodel.page.UIFlowDefaultActionType;
 import org.shaolin.bmdp.datamodel.page.UIFlowDiagramType;
 import org.shaolin.bmdp.datamodel.page.UIFrameType;
 import org.shaolin.bmdp.datamodel.page.UIImageType;
@@ -601,12 +602,13 @@ public class UIFormObject implements java.io.Serializable
             		getAttribute("loadDateModel", flow.getLoadDateModel(), propMap, i18nMap,
                             expMap, "", parsingContext);
             	}
-            	if (flow.getDefaultActions() != null) {
+            	UIFlowDefaultActionType defaultActions = flow.getDefaultActions();
+				if (defaultActions != null) {
             		LinkedList<UITableActionType> seqList = new LinkedList<UITableActionType>();
-            		if (flow.getDefaultActions().getSaveFlow() != null) {
+            		if (defaultActions.getSaveFlow() != null) {
 		    			UITableActionType saveAction = new UITableActionType();
 		    			saveAction.setUiid(flow.getUIID() + "_saveFlow");
-		        		saveAction.setFunction(flow.getDefaultActions().getSaveFlow());
+		        		saveAction.setFunction(defaultActions.getSaveFlow());
 		        		saveAction.setIcon("ui-icon-disk");
 		        		ResourceBundlePropertyType i18nInfo = new ResourceBundlePropertyType();
 		        		i18nInfo.setBundle("Common");
@@ -614,10 +616,10 @@ public class UIFormObject implements java.io.Serializable
 		        		saveAction.setTitle(i18nInfo);
 		        		seqList.add(saveAction);
 	    			}
-	            	if (flow.getDefaultActions().getNewNode() != null) {
+	            	if (defaultActions.getNewNode() != null) {
 	            		UITableActionType action = new UITableActionType();
 	            		action.setUiid(flow.getUIID() + "_newNode");
-	            		action.setFunction(flow.getDefaultActions().getNewNode());
+	            		action.setFunction(defaultActions.getNewNode());
 	            		action.setIcon("ui-icon-document");
 	            		ResourceBundlePropertyType i18nInfo = new ResourceBundlePropertyType();
 	            		i18nInfo.setBundle("Common");
@@ -625,10 +627,10 @@ public class UIFormObject implements java.io.Serializable
 	            		action.setTitle(i18nInfo);
 	            		seqList.add(action);
 	    			}
-	    			if (flow.getDefaultActions().getOpenNode() != null) {
+	    			if (defaultActions.getOpenNode() != null) {
 	    				UITableActionType action = new UITableActionType();
 	            		action.setUiid(flow.getUIID() + "_openNode");
-	            		action.setFunction(flow.getDefaultActions().getOpenNode());
+	            		action.setFunction(defaultActions.getOpenNode());
 	            		action.setIcon("ui-icon-pencil");
 	            		ResourceBundlePropertyType i18nInfo = new ResourceBundlePropertyType();
 	            		i18nInfo.setBundle("Common");
@@ -636,10 +638,10 @@ public class UIFormObject implements java.io.Serializable
 	            		action.setTitle(i18nInfo);
 	            		seqList.add(action);
 	    			}
-	    			if (flow.getDefaultActions().getDeleteNode() != null) {
+	    			if (defaultActions.getDeleteNode() != null) {
 	    				UITableActionType action = new UITableActionType();
 	    				action.setUiid(flow.getUIID() + "_deleteNode");
-	            		action.setFunction(flow.getDefaultActions().getDeleteNode());
+	            		action.setFunction(defaultActions.getDeleteNode());
 	            		action.setIcon("ui-icon-trash");
 	            		ResourceBundlePropertyType i18nInfo = new ResourceBundlePropertyType();
 	            		i18nInfo.setBundle("Common");
@@ -647,10 +649,10 @@ public class UIFormObject implements java.io.Serializable
 	            		action.setTitle(i18nInfo);
 	            		seqList.add(action);
 	    			}
-	    			if (flow.getDefaultActions().getRefreshFlow() != null) {
+	    			if (defaultActions.getRefreshFlow() != null) {
 		    			UITableActionType refreshAction = new UITableActionType();
 		    			refreshAction.setUiid(flow.getUIID() + "_refreshFlow");
-		        		refreshAction.setFunction(flow.getDefaultActions().getRefreshFlow());
+		        		refreshAction.setFunction(defaultActions.getRefreshFlow());
 		        		refreshAction.setIcon("ui-icon-refresh");
 		        		ResourceBundlePropertyType i18nInfo = new ResourceBundlePropertyType();
 		        		i18nInfo.setBundle("Common");
@@ -669,6 +671,8 @@ public class UIFormObject implements java.io.Serializable
             {
             	UITableType table = (UITableType)component;
             	propMap.put("beElememt", table.getBeElement());
+            	propMap.put("isAppendRowMode", table.isAppendRowMode());
+            	propMap.put("refreshInterval", table.getRefreshInterval());
             	propMap.put("defaultRowSize", table.getDefaultRowSize());
             	propMap.put("isShowBigItem", table.isShowBigItem());
             	propMap.put("isShowActionBar", table.isShowActionBar());
@@ -687,7 +691,6 @@ public class UIFormObject implements java.io.Serializable
             		table.setRowFilter(p);
             	}
             	propMap.put("rowFilterExpr", table.getRowFilter().getExpression());
-            	propMap.put("totalExpr", table.getTotalCount().getExpression());
             	if (table.getStats() != null) {
             		propMap.put("statistic", table.getStats());
             	}
@@ -851,7 +854,6 @@ public class UIFormObject implements java.io.Serializable
 					}
 					table.getRowFilter().getExpression().parse(parsingContext);
 					table.getQuery().getExpression().parse(parsingContext);
-					table.getTotalCount().getExpression().parse(parsingContext);
 					
 					for (UITableColumnType col : table.getColumns()) {
 						col.getRowExpression().getExpression().parse(parsingContext);

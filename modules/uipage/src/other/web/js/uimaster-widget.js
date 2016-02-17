@@ -1676,6 +1676,10 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 		});
 	}
 });
+function decodeHTML(input){
+   var arrEntities={'lt':'<','gt':'>','nbsp':' ','amp':'&','quot':'"'};
+   return input.replace(/&(lt|gt|nbsp|amp|quot);/ig,function(all,t){return arrEntities[t];});
+}
 UIMaster.ui.objectlist = function(conf){
 	UIMaster.apply(this, conf);
 };
@@ -1690,6 +1694,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	selectedIndexs:[],
 	selectNotify:[],
 	columnIds:[],
+	appendRowMode:false,
+	refreshInterval:0,
 	tbody:null,
 	tfoot:null,
 	init:function(){
@@ -1718,16 +1724,22 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			this.isSingleSelection = false;
 		    this.isMultipleSelection = false;
 		}
+		var othis = this;
+		var columnDefs = [{"targets":0,"orderable":false,"render":this.renderSelection}];
+		$($(this).find('thead').children()[0]).children().each(function(index){
+		    if ($(this).attr('htmltype') == "HTML" || $(this).attr('htmltype') == "html") {
+		       columnDefs.push({"targets":index,"orderable":false,"render":othis.renderSelection});
+			}
+		});
 		this.tfoot = $($(this).find('tfoot')[0]);
 		this.editable = (this.tfoot!=null && typeof(this.tfoot.attr('editablecell'))!="undefined");
-		var othis = this;
 		var table = $(this).dataTable({
 			"paging": !this.editable,"ordering":!this.editable,"info":!this.editable,
 			"pageLength": 10,
 			"filter": false,
 			"recordsFiltered": $(this).attr("recordsFiltered"),
 			"recordsTotal": $(this).attr("recordsTotal"),
-			"columnDefs": [{"targets":0,"orderable":false,"render":othis.renderSelection}], 
+			"columnDefs": columnDefs, 
 			"processing": false,
 			"serverSide": true,
 			"bServerSide": true,
@@ -1775,7 +1787,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				this.refreshBodyEvents(body, true);
 			}
 		}
-		var t = this;
+		window.setTimeout(function(){othis.autoRefresh(othis);}, this.refreshInterval * 1000);
 		if (this.tfoot.length == 0) {
 			return;
 		}
@@ -1787,11 +1799,13 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		this.refreshFoot();
 	},
 	renderSelection: function(data,type,row){
-		if (data.indexOf("radio") != -1) 
+		if (data.indexOf("radio,") == 0) 
 			return "<input type=\"radio\" name=\"selectRadio\" index=\""+data.substring(data.indexOf("radio")+6)+"\" />";
-		if (data.indexOf("checkbox") != -1) 
+		if (data.indexOf("checkbox,") == 0) 
 			return "<input type=\"checkbox\" name=\"\" index=\""+data.substring(data.indexOf("checkbox")+9)+"\"/>";
-		return "";
+		if (data.indexOf("&lt;div") != -1) //html content
+		    return decodeHTML(data);
+		return data;
 	},
 	refreshFoot:function(){
 	    var othis = this;
@@ -1807,8 +1821,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 							   othis.preCell = null;
 							   othis.refreshFoot();
 							} else {
-						       t.sync();
-							   t.refresh(0);
+						       othis.sync();
+							   othis.refresh(0);
 							}
 						}
 					});
@@ -1819,8 +1833,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 							othis.preCell = null;
 							othis.refreshFoot();
 						} else {
-							t.sync()
-							t.refresh(0);
+							othis.sync()
+							othis.refresh(0);
 						}
 					});
 				} else if(c[i].tagName.toLowerCase() == "img" && c[i].src.indexOf("calendar") != -1) {
@@ -1831,8 +1845,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 					    this.calendar.open();
 					});
 					$(c[i]).prev().change(function(e){
-						t.sync()
-						t.refresh(0);
+						othis.sync()
+						othis.refresh(0);
 					});
 				}
 			} 
@@ -2089,7 +2103,12 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		tds.each(function(){
 			$(this).unbind('click');
 		});
-		this.dtable._fnAjaxUpdateDraw(json);
+		if (this.appendRowMode) {
+		    for (var i=0;i<json.length;i++) 
+		       this.dtable.row.add(json[i]).draw();
+		} else {
+			this.dtable._fnAjaxUpdateDraw(json);
+		}
 	},
 	refresh:function(pageNumber){
 		var s = this.dtable.api().settings()[0];
@@ -2101,6 +2120,13 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			var curr = s._iDisplayStart/s._iDisplayLength;
 			this.dtable.fnPageChange(curr, true);
 		}
+	},
+	autoRefresh:function(t){
+	   if (t.refreshInterval > 0) {
+	       t.sync();
+		   t.refresh(0);
+		   window.setTimeout(function(){t.autoRefresh(t);}, t.refreshInterval * 1000);
+	   }
 	},
 	importData:function(){
 	},

@@ -61,34 +61,40 @@ function org_shaolin_bmdp_workflow_form_VariableDefinitionTable(json)
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_workflow_form_VariableDefinitionTable_createItem(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_VariableDefinitionTable_createItem */
+        var o = this;
+        var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"createItem_20150807-230248",UIMaster.getValue(eventsource),this.__entityName);
-
-        var UIEntity = this;
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"createItem_20150807-230248",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_workflow_form_VariableDefinitionTable_createItem */
 
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_workflow_form_VariableDefinitionTable_deleteItem(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_VariableDefinitionTable_deleteItem */
+        var o = this;
+        var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"deleteItem_20150807-230248",UIMaster.getValue(eventsource),this.__entityName);
-
-        var UIEntity = this;
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"deleteItem_20150807-230248",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_workflow_form_VariableDefinitionTable_deleteItem */
 
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_workflow_form_VariableDefinitionTable_invokeDynamicFunction(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_VariableDefinitionTable_invokeDynamicFunction */
+        var o = this;
+        var UIEntity = this;
+
+        new UIMaster.ui.dialog({dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,message:'????',messageType:UIMaster.ui.dialog.Warning,optionType:UIMaster.ui.dialog.YES_NO_OPTION,title:'',height:150,width:300,handler: function() {
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),event,UIMaster.getValue(eventsource),this.__entityName);
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),event,UIMaster.getValue(eventsource),o.__entityName);
 
-        var UIEntity = this;
+        
+        }
+        }).open();
     }/* Gen_Last:org_shaolin_bmdp_workflow_form_VariableDefinitionTable_invokeDynamicFunction */
 
 

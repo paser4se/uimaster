@@ -709,6 +709,9 @@ in simple component mapping, the paramName is required</xs:documentation>
                 	<xs:element name="selectMode" type="Page:UITableSelectModeType"  minOccurs="0"/>
                     <xs:element name="selectedRowAction" type="xs:string" />
                     <xs:element name="defaultRowSize" type="xs:int" />
+                    <!-- append row mode with auto refreshing.-->
+                    <xs:element name="appendRowMode" type="xs:boolean" default="false"/>
+                    <xs:element name="refreshInterval" type="xs:int"/>
                     <xs:element name="editableCell" type="xs:boolean" default="true"/>
                     <!-- show a row in a cell -->
                     <xs:element name="showBigItem" type="xs:boolean" default="false"/>

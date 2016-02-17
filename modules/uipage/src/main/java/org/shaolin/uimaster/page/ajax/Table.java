@@ -69,6 +69,8 @@ public class Table extends Widget implements Serializable {
 	
 	private List<Object> updateItems;
 	
+	private boolean isAppendRowMode;
+	
 	public static final ExpressionType statsExpr = new ExpressionType();
 	static{
 		statsExpr.setExpressionString("import org.shaolin.bmdp.analyzer.dao.AanlysisModelCust; {\n"
@@ -90,8 +92,6 @@ public class Table extends Widget implements Serializable {
 	
 	private ExpressionType queryExpr;
 
-	private ExpressionType totalExpr;
-	
 	private List<UITableColumnType> columns;
 	
 	private UITableSelectModeType selectMode;
@@ -223,6 +223,14 @@ public class Table extends Widget implements Serializable {
 		this.listData = listData;
 	}
 
+	public boolean isAppendRowMode() {
+		return isAppendRowMode;
+	}
+
+	public void setAppendRowMode(boolean isAppendRowMode) {
+		this.isAppendRowMode = isAppendRowMode;
+	}
+	
 	public List<Object> getAddItems() {
 		if (addItems == null) {
 			addItems = new ArrayList<Object>();
@@ -260,10 +268,6 @@ public class Table extends Widget implements Serializable {
 	
 	public void setQueryExpr(ExpressionType queryExpr) {
 		this.queryExpr = queryExpr;
-	}
-
-	public void setTotalExpr(ExpressionType totalExpr) {
-		this.totalExpr = totalExpr;
 	}
 
 	public String getColumnId(int index) {
@@ -418,20 +422,21 @@ public class Table extends Widget implements Serializable {
 			ooeeContext.setDefaultEvaluationContext(evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
 
-			Object value = totalExpr.evaluate(ooeeContext);
-			
+			List<Object> rows = (List<Object>)queryExpr.evaluate(ooeeContext);
+			if (rows == null) {
+				rows = Collections.emptyList();
+			}
 			StringBuilder sb = new StringBuilder();
 	        sb.append("{\"recordsFiltered\":");
-	        sb.append(value);
+	        sb.append(rows.size());
 	        sb.append(",\"recordsTotal\":");
-	        sb.append(value);
+	        sb.append(rows.size());
 	        sb.append(",\"selectedIndex\":");
 	        sb.append(this.getSelectedIndex());
 	        sb.append(",\"pageIndex\":");
 	        sb.append(this.conditions.getOffset());
 	        sb.append(",");
 	        sb.append("\"data\":[");
-	        List<Object> rows = (List<Object>)queryExpr.evaluate(ooeeContext);
 	        this.listData = rows;
 	        int count = 0;
 	        for (Object be : rows) {
@@ -452,34 +457,35 @@ public class Table extends Widget implements Serializable {
 	        		attrsSB.append("\"");
 	        		StringBuilder htmlAttrsSB = new StringBuilder();
 	        		for (UITableColumnType col : columns) {
-	        			if ("Image".equals(col.getUiType().getType())) {
+	        			if ("Image".equalsIgnoreCase(col.getUiType().getType())) {
 	        				imageSB.append("\"");
-	        				Object cellValue = col.getRowExpression().getExpression().evaluate(
+	        				Object value = col.getRowExpression().getExpression().evaluate(
 									ooeeContext);
-			        		if (cellValue == null) {
-								cellValue = "";
+			        		if (value == null) {
+								value = "";
 							}
-			        		imageSB.append(UIVariableUtil.getI18NProperty(col.getTitle())).append(":").append(cellValue).append(", ");
+			        		value = StringUtil.escapeHtmlTags(value.toString());
+			        		imageSB.append(value);
 			        		imageSB.append("\",");
-	        			} else if ("HTML".equals(col.getUiType().getType())) {
+	        			} else if ("HTML".equalsIgnoreCase(col.getUiType().getType())) {
 	        				htmlAttrsSB.append("\"");
-	        				Object cellValue = col.getRowExpression().getExpression().evaluate(
+	        				Object value = col.getRowExpression().getExpression().evaluate(
 									ooeeContext);
-			        		if (cellValue == null) {
-								cellValue = "";
+			        		if (value == null) {
+								value = "";
 							}
-			        		cellValue = StringUtil.escapeHtmlTags(cellValue.toString());
-			        		htmlAttrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle())).append(":").append(cellValue).append(", ");
+			        		value = StringUtil.escapeHtmlTags(value.toString());
+			        		htmlAttrsSB.append(value);
 			        		htmlAttrsSB.append("\",");
 	        			} else {
-			        		Object cellValue = col.getRowExpression().getExpression().evaluate(
+			        		Object value = col.getRowExpression().getExpression().evaluate(
 									ooeeContext);
-			        		if (cellValue == null) {
-								cellValue = "";
+			        		if (value == null) {
+								value = "";
 							}
-			        		attrsSB.append("<pre>");
-			        		attrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle())).append(":").append(cellValue);
-			        		attrsSB.append("</pre>");
+			        		attrsSB.append("<span>");
+			        		attrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle())).append(":").append(value);
+			        		attrsSB.append("</span>");
 	        			}
 		        	}
 	        		attrsSB.append("\",");
@@ -488,13 +494,13 @@ public class Table extends Widget implements Serializable {
 	        		sb.append(htmlAttrsSB.toString());
 	        	} else {
 		        	for (UITableColumnType col : columns) {
-		        		Object cellValue = col.getRowExpression().getExpression().evaluate(
+		        		Object value = col.getRowExpression().getExpression().evaluate(
 								ooeeContext);
-		        		if (cellValue == null) {
-							cellValue = "";
+		        		if (value == null) {
+							value = "";
 						}
 		        		sb.append("\"");
-		        		sb.append(cellValue);
+		        		sb.append(StringUtil.escapeHtmlTags(value.toString()));
 		        		sb.append("\",");
 		        	}
 	        	}

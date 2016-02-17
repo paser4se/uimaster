@@ -92,56 +92,62 @@ function org_shaolin_bmdp_workflow_form_NotificationTable(json)
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_workflow_form_NotificationTable_createItem(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_NotificationTable_createItem */
+        var o = this;
+        var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"createItem_20150809-191613",UIMaster.getValue(eventsource),this.__entityName);
-
-        var UIEntity = this;
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"createItem_20150809-191613",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_workflow_form_NotificationTable_createItem */
 
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_workflow_form_NotificationTable_deleteItem(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_NotificationTable_deleteItem */
+        var o = this;
+        var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"deleteItem_20150809-191613",UIMaster.getValue(eventsource),this.__entityName);
-
-        var UIEntity = this;
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"deleteItem_20150809-191613",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_workflow_form_NotificationTable_deleteItem */
 
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_workflow_form_NotificationTable_Save(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_NotificationTable_Save */
+        var o = this;
+        var UIEntity = this;
 {this.itemTable.syncBodyDataToServer();}
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"saveItem-20150809-191613",UIMaster.getValue(eventsource),this.__entityName);
-
-        var UIEntity = this;
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"saveItem-20150809-191613",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_workflow_form_NotificationTable_Save */
 
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_workflow_form_NotificationTable_Cancel(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_NotificationTable_Cancel */
+        var o = this;
+        var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"cancelDetail-20150809-191613",UIMaster.getValue(eventsource),this.__entityName);
-
-        var UIEntity = this;
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"cancelDetail-20150809-191613",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_workflow_form_NotificationTable_Cancel */
 
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_workflow_form_NotificationTable_invokeDynamicFunction(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_NotificationTable_invokeDynamicFunction */
+        var o = this;
+        var UIEntity = this;
+
+        new UIMaster.ui.dialog({dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,message:'????',messageType:UIMaster.ui.dialog.Warning,optionType:UIMaster.ui.dialog.YES_NO_OPTION,title:'',height:150,width:300,handler: function() {
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),event,UIMaster.getValue(eventsource),this.__entityName);
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),event,UIMaster.getValue(eventsource),o.__entityName);
 
-        var UIEntity = this;
+        
+        }
+        }).open();
     }/* Gen_Last:org_shaolin_bmdp_workflow_form_NotificationTable_invokeDynamicFunction */
 
 

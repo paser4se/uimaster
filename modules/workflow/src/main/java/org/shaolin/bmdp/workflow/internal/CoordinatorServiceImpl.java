@@ -721,7 +721,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	
 	@Override
 	public List<INotification> pullNotifications(long userId) {
-		if (allNotifications.contains(userId)) {
+		if (allNotifications.containsKey(userId)) {
 			return allNotifications.remove(userId);
 		} else {
 			return Collections.EMPTY_LIST;

@@ -148,84 +148,84 @@ function org_shaolin_bmdp_workflow_page_TasksManager(json)
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_workflow_page_TasksManager_createTask(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_TasksManager_createTask */
+        var o = this;
+        var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"showBlanktaskInfoPanel",UIMaster.getValue(eventsource),this.__entityName);
-
-        var UIEntity = this;
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"showBlanktaskInfoPanel",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_createTask */
 
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_workflow_page_TasksManager_openTask(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_TasksManager_openTask */
+        var o = this;
+        var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"openTask-20150809-2009",UIMaster.getValue(eventsource),this.__entityName);
-
-        var UIEntity = this;
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"openTask-20150809-2009",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_openTask */
 
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_workflow_page_TasksManager_postponeTask(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_TasksManager_postponeTask */
+        var o = this;
+        var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"postponeTask-20150827-1152",UIMaster.getValue(eventsource),this.__entityName);
-
-        var UIEntity = this;
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"postponeTask-20150827-1152",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_postponeTask */
 
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_workflow_page_TasksManager_completeTask(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_TasksManager_completeTask */
+        var o = this;
+        var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"completeTask-20150827-1152",UIMaster.getValue(eventsource),this.__entityName);
-
-        var UIEntity = this;
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"completeTask-20150827-1152",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_completeTask */
 
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_workflow_page_TasksManager_cancelTask(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_TasksManager_cancelTask */
+        var o = this;
+        var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"cancelTask-20150827-1152",UIMaster.getValue(eventsource),this.__entityName);
-
-        var UIEntity = this;
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"cancelTask-20150827-1152",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_cancelTask */
 
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_workflow_page_TasksManager_createServerNode(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_TasksManager_createServerNode */
+        var o = this;
+        var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"createServerNode-20150809-2009",UIMaster.getValue(eventsource),this.__entityName);
-
-        var UIEntity = this;
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"createServerNode-20150809-2009",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_createServerNode */
 
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_workflow_page_TasksManager_openServerNode(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_TasksManager_openServerNode */
+        var o = this;
+        var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"openServerNode-20150809-2009",UIMaster.getValue(eventsource),this.__entityName);
-
-        var UIEntity = this;
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"openServerNode-20150809-2009",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_openServerNode */
 
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_workflow_page_TasksManager_deleteUser(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_TasksManager_deleteUser */
-
+        var o = this;
         var UIEntity = this;
     }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_deleteUser */
 
