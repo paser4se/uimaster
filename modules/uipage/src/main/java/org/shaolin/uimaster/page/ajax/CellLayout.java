@@ -115,7 +115,7 @@ public class CellLayout extends Layout implements Serializable
      */
     public String generateHTML()
     {
-        StringBuffer html = new StringBuffer();
+    	StringBuilder html = new StringBuilder();
 		
         //hasviewpermission will be used to indicate whether the value of the component needs to be hidden
         //by default without viewpermission configs, the hasviewpermission is true, which means,

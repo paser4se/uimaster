@@ -43,7 +43,7 @@ abstract public class TextWidget extends Widget implements Serializable
         this.setValue(value);
     }
 
-    protected void generateAttribute(String name, Object value, StringBuffer sb)
+    protected void generateAttribute(String name, Object value, StringBuilder sb)
     {
 		if (!name.equals("value")) {
 			super.generateAttribute(name, value, sb);
@@ -70,7 +70,7 @@ abstract public class TextWidget extends Widget implements Serializable
             return;
         }
         
-        StringBuffer sb = new  StringBuffer();
+        StringBuilder sb = new  StringBuilder();
         sb.append("{'name':'value','value':'");
         sb.append(HTMLUtil.handleEscape(String.valueOf(value)));
         sb.append("'}");
@@ -145,7 +145,7 @@ abstract public class TextWidget extends Widget implements Serializable
         return isSysmbolLeft;
     }
     
-    protected void generateCurrencySymbol(StringBuffer sb)
+    protected void generateCurrencySymbol(StringBuilder sb)
     {
         sb.append("<span class=\"currencySymbol\"");
         sb.append(" id=\"" + getId() + "_currencySymbol\" >");

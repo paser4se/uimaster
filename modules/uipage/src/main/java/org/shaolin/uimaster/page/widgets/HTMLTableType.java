@@ -454,8 +454,8 @@ public class HTMLTableType extends HTMLContainerType {
 			}
 			
 			if (UserContext.isMobileRequest()) {
-				StringBuffer attrsSB = new StringBuffer();
-				StringBuffer htmlAttrsSB = new StringBuffer();
+				StringBuilder attrsSB = new StringBuilder();
+				StringBuilder htmlAttrsSB = new StringBuilder();
 				
 				for (UITableColumnType col : columns) {
 					// find image column at the second column.

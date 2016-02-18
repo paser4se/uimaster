@@ -173,7 +173,7 @@ public class TabPane extends Container implements Serializable
     
     public String generateHTML()
     {
-        StringBuffer html = new StringBuffer();
+    	StringBuilder html = new StringBuilder();
         generateWidget(html);
 
         //Generate the tab
@@ -296,7 +296,7 @@ public class TabPane extends Container implements Serializable
             panelLayout.generateComponentHTML(htmlContext, 0, true, Collections.emptyMap(), ee, layout);
             
             IJsGenerator jsGenerator = IServerServiceManager.INSTANCE.getService(IJsGenerator.class);
-            StringBuffer js = new StringBuffer();
+            StringBuilder js = new StringBuilder();
             js.append(jsGenerator.gen(this.getUIEntityName(), entityPrefix, tab.getPanel()));
             js.append("\ndefaultname.");
             if (entityPrefix != null && entityPrefix.length() > 0) {

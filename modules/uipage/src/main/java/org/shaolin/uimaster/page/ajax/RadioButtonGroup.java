@@ -60,7 +60,7 @@ public class RadioButtonGroup extends SingleChoice implements Serializable
             displayOptions = options;
         }
 
-        StringBuffer html = new StringBuffer();
+        StringBuilder html = new StringBuilder();
 
         if (isVisible())
         {

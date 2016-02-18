@@ -716,7 +716,7 @@ public class HTMLSnapshotContext implements Serializable
 			return "";
 		}
 
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (int i = 0, n = s.length(); i < n; i++) {
 			char c = s.charAt(i);
 			if (c == '%') {

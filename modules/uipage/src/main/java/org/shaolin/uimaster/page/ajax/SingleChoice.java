@@ -30,7 +30,7 @@ abstract public class SingleChoice extends Choice implements Serializable
         this.realValueDataType = realValueDataType;
     }
 
-    public void generateAttribute(String name, Object value, StringBuffer sb)
+    public void generateAttribute(String name, Object value, StringBuilder sb)
     {
         if ( !name.equals("value") )
         {

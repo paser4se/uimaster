@@ -53,7 +53,7 @@ public class HTMLChartBarType extends HTMLChartSuper {
 		List<Object> listData = (List<Object>)this.removeAttribute("query");
 		if (!listData.isEmpty() && listData.size() > 0) {
 			context.generateHTML("datasets: [");
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			// vertical iterator.
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();

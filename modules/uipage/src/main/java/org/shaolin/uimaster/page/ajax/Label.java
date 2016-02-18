@@ -69,7 +69,7 @@ public class Label extends TextWidget implements Serializable
     
     public String generateHTML()
     {
-        StringBuffer html = new StringBuffer();
+    	StringBuilder html = new StringBuilder();
 
         generateWidget(html);
         String currencySymbol = getCurrencySymbol();
@@ -97,7 +97,7 @@ public class Label extends TextWidget implements Serializable
         return html.toString();
     }
     
-    private void generateContent(StringBuffer sb)
+    private void generateContent(StringBuilder sb)
     {
         sb.append("<span");
         generateAttributes(sb);

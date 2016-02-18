@@ -98,7 +98,7 @@ public class TextField extends TextWidget implements java.io.Serializable
 
     public String generateHTML()
     {
-        StringBuffer html = new StringBuffer();
+    	StringBuilder html = new StringBuilder();
         generateWidget(html);
         String currencySymbol = getCurrencySymbol();
         if (currencySymbol == null || currencySymbol.equals(""))
@@ -119,7 +119,7 @@ public class TextField extends TextWidget implements java.io.Serializable
         return html.toString();
     }
 
-    protected void generateAttribute(String name, Object value, StringBuffer sb)
+    protected void generateAttribute(String name, Object value, StringBuilder sb)
     {
         if ("editable".equals(name))
         {
@@ -155,7 +155,7 @@ public class TextField extends TextWidget implements java.io.Serializable
             super.generateAttribute(name, value, sb);
         }
     }
-    private void generateContent(StringBuffer sb)
+    private void generateContent(StringBuilder sb)
     {
         sb.append("<input type=\"text\" name=\"");
         sb.append(getId());

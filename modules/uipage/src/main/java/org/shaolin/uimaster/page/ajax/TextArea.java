@@ -140,7 +140,7 @@ public class TextArea extends TextWidget implements Serializable
         return js.toString();
     }
     
-    protected void generateAttribute(String name, Object value, StringBuffer sb)
+    protected void generateAttribute(String name, Object value, StringBuilder sb)
     {
         String attrValue = (String)value;
         if ("editable".equals(name))
@@ -167,7 +167,7 @@ public class TextArea extends TextWidget implements Serializable
     
     public String generateHTML()
     {
-        StringBuffer html = new StringBuffer();
+    	StringBuilder html = new StringBuilder();
 
         generateWidget(html);
         html.append("<textarea name=\"");

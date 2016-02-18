@@ -76,7 +76,7 @@ public class ErrorHelper
     
     public static String createErrorHTMLCodeForPortlet(IErrorItem errorItem)
     {
-        StringBuffer htmlFrag = new StringBuffer();
+    	StringBuilder htmlFrag = new StringBuilder();
         
         //create the container
         htmlFrag.append("<div ");

@@ -472,7 +472,7 @@ public class PageDispatcher {
                 else
                 {
                 	if (ajaxWidgetMap.containsKey(frameTarget)) {
-                		throw new Exception("The sub page id["+frameTarget
+                		logger.error("The sub page id["+frameTarget
                 				+ "] is duplicated, please rename the sub page id in pageflow node!!!"
                 				+ ", Page name: " + pageObject.getUIForm().getName());
                 	} 
@@ -662,7 +662,7 @@ public class PageDispatcher {
 
     private String genLoaderMask()
     {
-        StringBuffer maskHtml = new StringBuffer();
+    	StringBuilder maskHtml = new StringBuilder();
         maskHtml.append("<div id=\"ui-mask-shadow\" class=\"ui-overlay\" style=\"display:block;\">\n");
         maskHtml.append("<div class=\"ui-widget-overlay\"></div>\n");
         maskHtml.append("<div id=\"ui-mask-content\" class=\"outer\" style=\"display:block;border:4px solid #8DB9DB;\">\n");

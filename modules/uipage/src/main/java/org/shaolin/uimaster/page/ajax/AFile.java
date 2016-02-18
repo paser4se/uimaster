@@ -79,7 +79,7 @@ public class AFile extends TextWidget implements Serializable
     
     public String generateHTML()
     {
-        StringBuffer html = new StringBuffer();
+    	StringBuilder html = new StringBuilder();
 
         generateWidget(html);
         html.append("<script language=\"javascript\">document.forms[0].encoding=\"multipart/form-data\";</script>");

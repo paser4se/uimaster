@@ -146,7 +146,7 @@ public class Chart extends Widget implements Serializable {
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
 	
 			Object value = queryExpr.evaluate(ooeeContext);
-			StringBuffer all = new StringBuffer();
+			StringBuilder all = new StringBuilder();
 			if (this.type == HTMLChartPieType.class 
 					|| this.type == HTMLChartDoughnutType.class
 					|| this.type == HTMLChartPolarPieType.class) {
@@ -167,7 +167,7 @@ public class Chart extends Widget implements Serializable {
 				List<Object> listData = (List<Object>)value;
 				if (!listData.isEmpty() && listData.size() > 0) {
 					all.append("datasets: [");
-					StringBuffer sb = new StringBuffer();
+					StringBuilder sb = new StringBuilder();
 					// vertical iterator.
 					for (int columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
 						sb.append("{");

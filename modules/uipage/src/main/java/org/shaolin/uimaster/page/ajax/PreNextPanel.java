@@ -122,7 +122,7 @@ public class PreNextPanel extends Container implements Serializable
     
     public String generateHTML()
     {
-        StringBuffer html = new StringBuffer();
+    	StringBuilder html = new StringBuilder();
         generateWidget(html);
 
         //Generate the tab

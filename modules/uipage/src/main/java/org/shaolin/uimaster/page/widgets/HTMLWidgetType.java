@@ -122,7 +122,7 @@ public abstract class HTMLWidgetType implements Serializable
         {
             return name;
         }
-        StringBuffer nameBuffer = new StringBuffer();
+        StringBuilder nameBuffer = new StringBuilder();
         if (prefix != null && prefix.length() > 0)
         {
             nameBuffer.append(prefix);
@@ -451,8 +451,14 @@ public abstract class HTMLWidgetType implements Serializable
     
     public String getReconfigurateFunction(String handler)
     {
+        return getReconfigurateFunction(handler, true);
+    }
+    
+    public String getReconfigurateFunction(final String handler, boolean needParameter)
+    {
+    	String aHandler = handler;
         String functionPrefix = prefix;
-        String reconfiguration = context.getReconfigFunction(functionPrefix, handler);
+        String reconfiguration = context.getReconfigFunction(functionPrefix, aHandler);
         while (reconfiguration != null)
         {
             if (functionPrefix.endsWith("."))
@@ -468,12 +474,12 @@ public abstract class HTMLWidgetType implements Serializable
             {
                 functionPrefix = functionPrefix.substring(0 ,endIndex + 1);
             }
-            handler = reconfiguration;
-            reconfiguration = context.getReconfigFunction(functionPrefix, handler);
+            aHandler = reconfiguration;
+            reconfiguration = context.getReconfigFunction(functionPrefix, aHandler);
         }
 
-        String functionName = "defaultname." + functionPrefix + handler;
-        if (handler.indexOf('(') == -1) {  
+        String functionName = "defaultname." + functionPrefix + aHandler;
+        if (needParameter && aHandler.indexOf('(') == -1) {  
 	        String parameter = "defaultname." + getName() + ",event";
 	        return "javascript:" + functionName + "(" + parameter + ")";
         } else {

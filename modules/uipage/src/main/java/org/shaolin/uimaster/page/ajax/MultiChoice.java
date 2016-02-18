@@ -57,7 +57,7 @@ abstract public class MultiChoice extends Choice implements Serializable
         }
     }
 
-    public void generateAttribute(String name, Object value, StringBuffer sb)
+    public void generateAttribute(String name, Object value, StringBuilder sb)
     {
         if ( !name.equals("values") )
         {

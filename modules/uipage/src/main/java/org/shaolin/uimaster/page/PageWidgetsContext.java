@@ -105,7 +105,7 @@ public class PageWidgetsContext implements java.io.Serializable {
 	public void printAllComponents() {
 		 if (logger.isTraceEnabled())
          {
-			 StringBuffer sb = new StringBuffer();
+			 StringBuilder sb = new StringBuilder();
 			 sb.append("\n\nPrint all created UIComponents in page: ").append(pageName).append("\n");
 			 
 			 Iterator<String> f = components.keySet().iterator();

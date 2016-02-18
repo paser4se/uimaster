@@ -268,7 +268,7 @@ public class FlowDiagram extends Widget implements Serializable {
 
 			flow = (FlowChunk)loadFlowExpr.evaluate(ooeeContext);
 			
-			StringBuffer sb = new  StringBuffer();
+			StringBuilder sb = new  StringBuilder();
 	        
 	        return sb.toString();
 		} catch (Exception e) {

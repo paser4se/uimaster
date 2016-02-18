@@ -100,27 +100,32 @@ public class HTMLMatrixType extends HTMLTextWidgetType
     {
         try
         {
-        	String coordination = (String)this.removeAttribute("coordination");
-        	String[] dimensions = coordination.split(",");
-        	int x = Integer.valueOf(dimensions[0]);
-        	int y = Integer.valueOf(dimensions[1]);
-        	
+        	String iconClick = (String)this.getEventListener("onclick");
+        	if (iconClick != null) {
+        		iconClick = this.getReconfigurateFunction(iconClick, false);
+        	}
             generateWidget(context);
-            context.generateHTML("<div class=\"uimaster_matrix\" type=\"");
-            context.generateHTML(coordination);
-            context.generateHTML("\" id=\"");
+            context.generateHTML("<div class=\"uimaster_matrix\" type=\"\" id=\"");
             context.generateHTML(getName());
             context.generateHTML("\"");
             generateAttributes(context);
             context.generateHTML(">");
             
-            List<List<String>> blocks = (List<List<String>>)this.removeAttribute("init");
-			for (int i = 0; i < x; i++) {
+            List<List> blocks = (List<List>)this.removeAttribute("init");
+			for (int i = 0; i < blocks.size(); i++) {
 				context.generateHTML("<div class=\"uimaster_matrix_row\" i='"+i+"'>");
-				List<String> row = blocks.get(i);
-				for (int j=0; j < y; j++) {
-					context.generateHTML("<div j='"+j+"' "+(j==0?"style=\"float:left;\"":"")+"><span class=\"uimaster_matrix_col\">");
-					context.generateHTML(row.get(j));
+				List<Object> row = blocks.get(i);
+				for (int j=0; j < row.size(); j++) {
+					context.generateHTML("<div j='"+j+"' "+(j<row.size()-1?"style=\"float:left;\"":"")+"><span class=\"uimaster_matrix_col\">");
+					Object v = row.get(j);
+					if (v instanceof DataMode) {
+						DataMode mode = (DataMode)v;
+						context.generateHTML("<div onclick=\"" + iconClick + "('"+escapeTNR(mode.link)+"','"+mode.name+"');\" class=\""+mode.css+"\">");
+						context.generateHTML(mode.name);
+						context.generateHTML("</div>");
+					} else {
+						context.generateHTML(v.toString());
+					}
 					context.generateHTML("</span></div>");
 				}
 				context.generateHTML("</div>");
@@ -136,16 +141,41 @@ public class HTMLMatrixType extends HTMLTextWidgetType
         }
     }
 
+    private static String escapeTNR(String line)
+    {
+        if (line == null)
+        {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0, n = line.length(); i < n; i++)
+        {
+            char c = line.charAt(i);
+            switch (c)
+            {
+                case '\t':
+                    sb.append("");
+                    break;
+                case '\n':
+                    sb.append("");
+                    break;
+                case '\r':
+                    sb.append("");
+                    break;
+                default:
+                    sb.append(c);
+            }
+        }
+        return new String(sb);
+    }
+    
     public Widget createAjaxWidget(VariableEvaluator ee)
     {
     	try {
 			ExpressionType initQueryExpr = (ExpressionType)this.removeAttribute("initExpr");
 			Object initResult = ee.evaluateExpression(initQueryExpr);
-			ExpressionType coordinateExpr = (ExpressionType)this.removeAttribute("coordinateExpr");
-			Object coorResult = ee.evaluateExpression(coordinateExpr);
 			
 			this.addAttribute("init", initResult);
-			this.addAttribute("coordination", coorResult);
     	} catch (EvaluationException e) {
 			throw new IllegalStateException(e);
 		}
@@ -157,4 +187,10 @@ public class HTMLMatrixType extends HTMLTextWidgetType
 		return matrix;
     }
 
+    public static class DataMode {
+    	public String name;
+    	public String image;
+    	public String css;
+    	public String link;
+    }
 }

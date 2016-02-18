@@ -68,7 +68,7 @@ public class Hidden extends TextWidget implements Serializable
     
     public String generateHTML()
     {
-        StringBuffer html = new StringBuffer();
+    	StringBuilder html = new StringBuilder();
 
         html.append("<input type=\"hidden\" name=\"");
         html.append(getId());

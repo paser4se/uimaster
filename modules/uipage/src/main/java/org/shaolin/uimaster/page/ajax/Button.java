@@ -84,7 +84,7 @@ public class Button extends TextWidget implements Serializable
     
     public String generateHTML()
     {
-        StringBuffer html = new StringBuffer();
+    	StringBuilder html = new StringBuilder();
         
         generateWidget(html);
         html.append("<input type=\"");

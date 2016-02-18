@@ -1097,7 +1097,7 @@ abstract public class Widget implements Serializable
     /**
      * @param sb
      */
-    public void generateWidget(StringBuffer sb)
+    public void generateWidget(StringBuilder sb)
     {
         boolean isNeed = false;
         if (!visible)
@@ -1356,7 +1356,7 @@ abstract public class Widget implements Serializable
      * 
      * @param sb
      */
-    protected void generateAttributes(StringBuffer sb)
+    protected void generateAttributes(StringBuilder sb)
     {
         for (Iterator it = attributeMap.keySet().iterator(); it.hasNext();)
         {
@@ -1386,7 +1386,7 @@ abstract public class Widget implements Serializable
         }
     }
 
-    protected void generateAttribute(String name, Object value, StringBuffer sb)
+    protected void generateAttribute(String name, Object value, StringBuilder sb)
     {
         if (value == null)
         {
@@ -1404,7 +1404,7 @@ abstract public class Widget implements Serializable
      * 
      * @param sb
      */
-    protected void generateEventListeners(StringBuffer sb)
+    protected void generateEventListeners(StringBuilder sb)
     {
         if (eventListenerMap == null)
         {
@@ -1567,7 +1567,7 @@ abstract public class Widget implements Serializable
             return;
         }
         
-        StringBuffer sb = new  StringBuffer();
+        StringBuilder sb = new  StringBuilder();
         sb.append("{'name':'");
         sb.append(name);
         sb.append("','value':'");
@@ -1608,7 +1608,7 @@ abstract public class Widget implements Serializable
             return;
         }
         
-        StringBuffer sb = new  StringBuffer();
+        StringBuilder sb = new  StringBuilder();
         sb.append("{'name':'");
         sb.append(name);
         sb.append("','value':'");
@@ -1651,7 +1651,7 @@ abstract public class Widget implements Serializable
             return;
         }
         String script = this.generateConstraint();
-        StringBuffer sb = new  StringBuffer();
+        StringBuilder sb = new  StringBuilder();
         if(script.length() > 0)
         {
             script = script.substring(1);//remove comma symbol at the beginning of this string

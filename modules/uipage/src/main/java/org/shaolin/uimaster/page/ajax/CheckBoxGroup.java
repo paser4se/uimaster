@@ -59,7 +59,7 @@ public class CheckBoxGroup extends MultiChoice implements Serializable
             displayOptions = options;
         }
 
-        StringBuffer html = new StringBuffer();
+        StringBuilder html = new StringBuilder();
 
         if (isVisible())
         {

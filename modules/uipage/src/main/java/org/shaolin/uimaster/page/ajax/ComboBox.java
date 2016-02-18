@@ -113,7 +113,7 @@ public class ComboBox extends SingleChoice implements Serializable
             displayOptions = options;
         }
 
-        StringBuffer html = new StringBuffer();
+        StringBuilder html = new StringBuilder();
 
         generateWidget(html);
         if (displayOptions != null && options != null)

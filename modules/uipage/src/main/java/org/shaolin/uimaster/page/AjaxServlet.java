@@ -182,7 +182,7 @@ public class AjaxServlet extends HttpServlet {
 			{
 				logger.error(ex.getMessage(), ex);
 
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				sb.append("[ajax_error]");
 				sb.append((new JSONException(ex)).toString());
 				PrintWriter out = response.getWriter();

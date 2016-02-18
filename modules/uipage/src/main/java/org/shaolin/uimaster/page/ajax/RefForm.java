@@ -258,7 +258,7 @@ public class RefForm extends Container implements Serializable
 
     public String generateJS()
     {
-    	StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
         sb.append("defaultname.").append(this.getId());
         sb.append(" = new ").append(getJsName()).append("('");
         sb.append(this.getId()).append(".');");

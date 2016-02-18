@@ -340,7 +340,7 @@ public class HTMLReferenceEntityType extends HTMLWidgetType implements Serializa
     
     public String getDIVPrefix()
     {
-        StringBuffer prefixBuffer = new StringBuffer();
+    	StringBuilder prefixBuffer = new StringBuilder();
         if (divPrefix != null && divPrefix.length() > 0)
         {
             prefixBuffer.append(divPrefix);

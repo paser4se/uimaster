@@ -947,6 +947,7 @@ public class UIFormObject implements java.io.Serializable
             } 
             else if (component instanceof UIMatrixType) 
             {
+            	getEventListeners(component.getEventListeners(), eventMap);
             	UIMatrixType matrix = (UIMatrixType) component;
             	try {
 	            	if (matrix.getColumns() != null && matrix.getColumns().size() > 0) {
@@ -958,9 +959,7 @@ public class UIFormObject implements java.io.Serializable
 						}
 	            	}
 	            	matrix.getInit().getExpression().parse(parsingContext);
-	            	matrix.getCoordination().getExpression().parse(parsingContext);
 	            	propMap.put("initExpr", matrix.getInit().getExpression());
-	            	propMap.put("coordinateExpr", matrix.getCoordination().getExpression());
             	} catch (ParsingException e) {
 					logger.error("Exception occured when pass the matrix expression: "
                                     + component.getUIID() + " in form: " + this.name, e);

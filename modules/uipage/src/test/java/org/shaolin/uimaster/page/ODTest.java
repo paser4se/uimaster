@@ -109,6 +109,15 @@ public class ODTest {
 	@Test
 	public void testUserContext() {
 		System.out.println(UserContext.isMobileRequest());
+		System.out.println("0/4=" + 0/4);
+    	System.out.println("1/4=" + 1/4);
+    	System.out.println("2/4=" + 2/4);
+    	System.out.println("3/4=" + 3/4);
+    	System.out.println("4/4=" + 4/4);
+    	System.out.println("5/4=" + 5/4);
+    	System.out.println("6/4=" + 6/4);
+    	System.out.println("7/4=" + 7/4);
+    	System.out.println("8/4=" + 8/4);
 	}
 	
 	@Test

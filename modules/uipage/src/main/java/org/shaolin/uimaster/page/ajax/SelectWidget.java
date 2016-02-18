@@ -29,7 +29,7 @@ abstract public class SelectWidget extends Widget implements Serializable
         this._setWidgetLabel(id);
     }
 
-	public void generateAttribute(String name, Object value, StringBuffer sb) {
+	public void generateAttribute(String name, Object value, StringBuilder sb) {
 		if (name.equals("selected")) {
 			if (value != null && Boolean.valueOf((String) value).booleanValue()) {
 				sb.append(" CHECKED");

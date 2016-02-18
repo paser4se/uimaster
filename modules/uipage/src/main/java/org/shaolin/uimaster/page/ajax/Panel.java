@@ -249,7 +249,7 @@ public class Panel extends Container implements Serializable
     
     public String generateHTML()
     {
-        StringBuffer html = new StringBuffer();
+    	StringBuilder html = new StringBuilder();
 
         generateWidget(html);
         if ( title != null )
@@ -315,7 +315,7 @@ public class Panel extends Container implements Serializable
         return html.toString();
     }
     
-    protected void generateAttribute(String name, Object value, StringBuffer sb)
+    protected void generateAttribute(String name, Object value, StringBuilder sb)
     {
         if ("editable".equals(name))
         {
@@ -563,7 +563,7 @@ public class Panel extends Container implements Serializable
     		return "";
     	}
     	int i = 0;
-    	StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
     	sb.append("[");
     	for (HTMLDynamicUIItem item : items) {
     		String uiid = this.getId() + "-dynamicUI" + i++;

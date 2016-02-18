@@ -52,7 +52,7 @@ public class CheckBox extends SelectWidget implements Serializable
 
     public String generateHTML()
     {
-        StringBuffer html = new StringBuffer();
+    	StringBuilder html = new StringBuilder();
 
         generateWidget(html);
         html.append("<input type=\"checkbox\" name=\"");

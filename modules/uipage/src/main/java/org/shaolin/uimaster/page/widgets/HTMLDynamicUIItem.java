@@ -226,7 +226,7 @@ public class HTMLDynamicUIItem {
 		} else if (this.getCeSelectMode() == HTMLDynamicUIItem.CHECKBOXGROUP) {
 			CheckBoxGroup group = AjaxActionHelper.getAjaxContext().getCheckBoxGroup(uiid);
 			List<String> values = group.getValues();
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			if (values != null && values.size() > 0) {
 				for (String v : values) {
 					sb.append(v).append(",");
@@ -239,7 +239,7 @@ public class HTMLDynamicUIItem {
 	}
 	
 	public static String toJsonArray(List<String> items) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("[");
 		for (String i : items) {
 			sb.append(i).append(",");
