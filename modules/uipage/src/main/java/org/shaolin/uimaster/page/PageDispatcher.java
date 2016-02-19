@@ -472,9 +472,15 @@ public class PageDispatcher {
                 else
                 {
                 	if (ajaxWidgetMap.containsKey(frameTarget)) {
-                		logger.error("The sub page id["+frameTarget
+                		if (UserContext.isMobileRequest()) {
+                			logger.error("The sub page id["+frameTarget
                 				+ "] is duplicated, please rename the sub page id in pageflow node!!!"
                 				+ ", Page name: " + pageObject.getUIForm().getName());
+                		} else {
+                			throw new IllegalStateException("The sub page id["+frameTarget
+                    				+ "] is duplicated, please rename the sub page id in pageflow node!!!"
+                    				+ ", Page name: " + pageObject.getUIForm().getName());
+                		}
                 	} 
                 	Map pageComponentMap = new HashMap();
                 	ajaxWidgetMap.put(frameTarget, pageComponentMap);

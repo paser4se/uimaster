@@ -104,6 +104,7 @@ public class HTMLMatrixType extends HTMLTextWidgetType
         	if (iconClick != null) {
         		iconClick = this.getReconfigurateFunction(iconClick, false);
         	}
+        	List<List> blocks = (List<List>)this.removeAttribute("init");
             generateWidget(context);
             context.generateHTML("<div class=\"uimaster_matrix\" type=\"\" id=\"");
             context.generateHTML(getName());
@@ -111,7 +112,6 @@ public class HTMLMatrixType extends HTMLTextWidgetType
             generateAttributes(context);
             context.generateHTML(">");
             
-            List<List> blocks = (List<List>)this.removeAttribute("init");
 			for (int i = 0; i < blocks.size(); i++) {
 				context.generateHTML("<div class=\"uimaster_matrix_row\" i='"+i+"'>");
 				List<Object> row = blocks.get(i);

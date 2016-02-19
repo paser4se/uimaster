@@ -1255,6 +1255,7 @@ UIMaster.ui.container = UIMaster.extend(UIMaster.ui.field, /** @lends UIMaster.u
      * @description Synchronize the values in the container.
      */
     sync:function(){
+	    if (this.items == null) return;
         for (var i = 0; i < this.items.length; i++)
             this.items[i].sync && (this.items[i].ui || this.items[i].Form || this.items[i] instanceof Array)&& this.items[i].sync();
     },
@@ -2591,10 +2592,9 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
         	var h = this.height == 0 ? 300: this.height;
         	var thisObj = this;
             this.content = $("<div><div>").html(this.data).attr("id", this.id);
-            
             var buttonset = [];
             if (this.isOnlyShowCloseBtn=="true") {
-            	buttonset = [{text:"Close", click:function(){thisObj.close();}}];
+            	buttonset = [{text:"Close", click:function(){thisObj.content.dialog("close");}}];
             } else {
             	var p = this.content.find("div[id$='actionPanel']");
             	if(p.length > 0) {
@@ -2605,6 +2605,7 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
             			var b = buttons[i];
 						if ($(b).attr("disabled") == null || $(b).attr("disabled") == "false") {
 							buttonset[count++] = { text:b.value, 
+							    open:function(){if(IS_MOBILEVIEW){$(this).addClass('uimaster_button');}},
             					click:function(e){var e=$(e.srcElement?e.srcElement:e.target).text();
 								    for (var i=0;i<buttons.length;i++){ 
             						    if(e==buttons[i].value){$(buttons[i]).click();break;}
@@ -2619,22 +2620,21 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
             	height: IS_MOBILEVIEW?$(window).height():h,
                 width: IS_MOBILEVIEW?"100%":w,
                 modal: true,
-                show: {
-                  effect: IS_MOBILEVIEW?"slide":"blind",
-                  duration: 500
-                },
-                close: function() {
-				  //todo: notify the server side.
-                  thisObj.close();
-                },
+				closeOnEscape: true,
+                show: {effect: IS_MOBILEVIEW?"slide":"blind", duration: 500},
+				hide: {effect: IS_MOBILEVIEW?"slide":"blind", duration: 500},
+				open: function() {if(IS_MOBILEVIEW){$(this).parent().parent().appendTo($("form:first"));}},//fix bug on mobile view.
+                beforeClose: function() {},
                 buttons: buttonset
             });
             $($("#"+this.id).children().get(0)).attr("_framePrefix",this.frameInfo);
-            getElementListSingle(this.content,true);
-            eval(this.js);
-            defaultname.addComponent(eval(D+this.uiid),true);
+			if (this.js) {
+				getElementListSingle(this.content,true);
+				eval(this.js);
+				defaultname.addComponent(eval(D+this.uiid),true);
+			}
             UIMaster.ui.window.addWindow(this.id,this);
-			if (IS_MOBILEVIEW) {$(this.content).trigger('create');}
+			if (IS_MOBILEVIEW) {$(this.content).enhanceWithin();}
             this.isOpen = true;
 			var p = this.content.find("div[id$='actionPanel']");
             if(p.length > 0) {
@@ -2656,9 +2656,11 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
 			}
         }
     },
-    close:function(e){
+    close:function(){
+	    if(event){ event.preventDefault()};
     	if (elementList[this.uiid+".Form"]) 
     		elementList[this.uiid+".Form"].parentEntity.releaseFormObject();
+		
     	this.content.dialog("close");
     	this.content.parent().remove();
     	defaultname.removeComponent(eval(D+this.uiid));
@@ -2673,6 +2675,35 @@ UIMaster.apply(UIMaster.ui.window,{
 });
 function iframeAutoFitHeight(parent, iframe) {
 	iframe.height = $("#"+parent).height() + "px"; 
+}
+function showMobileFrame(link, name) {
+   if (link == "#") return;
+   var frameId = link.substring(link.indexOf("_framename=") + "_framename=".length);
+   frameId = frameId.substring(0, frameId.indexOf("&"));
+   var d = $("<iframe id=\""+frameId+"\" name=\""+frameId+"\" src=\"about:blank\" needsrc=\"true\" frameborder=\"0\" style=\"min-width:100%;min-height:100%;\"></iframe>");
+   d.dialog({
+        id: "mobileOnlyOneFrame",
+		autoOpen:false,
+        title:name,
+        height: $(window).height(),
+		width: "99.5%",
+		modal: true,
+        resizable: false,
+        draggable: false,
+		show: {effect: "slide",duration: 500},
+		hide: {effect: "slide",duration: 500},
+		open: function(event, ui) {//jquery dialog with iframe is so weird!
+		    window.setTimeout(function(){d.attr("src",link);},600);
+		},
+		beforeClose: function() {
+		  d.attr("src","about:blank");
+		},
+		close: function() {
+		  $.ajax({url:AJAX_SERVICE_URL,async:true,data:{_ajaxUserEvent:"tabpane",_uiid:"Form",_valueName:"remveTabId",_value:frameId,    _framePrefix:UIMaster.getFramePrefix()}});
+		},
+		buttons: [{text:"Close", open:function(){$(this).addClass('uimaster_button');}, click:function(){d.dialog("close");}}]
+		});
+	d.dialog("open");
 }
 /**
  * @description UI Tab class. Need more information.

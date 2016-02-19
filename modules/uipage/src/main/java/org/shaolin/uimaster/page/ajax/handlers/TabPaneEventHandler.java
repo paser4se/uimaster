@@ -34,19 +34,20 @@ public class TabPaneEventHandler implements IAjaxHandler {
 	public String trigger(AjaxContext context) throws AjaxHandlerException {
 		try {
 			AjaxActionHelper.createAjaxContext(context);
-			String uiid = context.getRequest().getParameter(
-					AjaxContext.AJAX_UIID);
 			String propertyName = context.getRequest().getParameter(
 					"_valueName");
 			String index = context.getRequest().getParameter("_value");
-			TabPane comp = (TabPane) context.getElement(uiid);
-			if (log.isDebugEnabled())
-				log.debug("uiid: " + uiid + ",propertyName: "
-						+ propertyName + ",newValue: " + index);
 			if ("remveTabId".equals(propertyName)) {
 				AjaxActionHelper.getAjaxContext().removeFramePage(index);
 				return "";
 			} 
+			
+			String uiid = context.getRequest().getParameter(
+					AjaxContext.AJAX_UIID);
+			TabPane comp = (TabPane) context.getElement(uiid);
+			if (log.isDebugEnabled())
+				log.debug("uiid: " + uiid + ",propertyName: "
+						+ propertyName + ",newValue: " + index);
 			if ("selectedIndex".equals(propertyName)) {
 				comp.addAttribute("selectedIndex", index, false);
 			} 
