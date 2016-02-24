@@ -274,7 +274,7 @@ public class UIFormJSGenerator0 {
             	if (fType.isNeedAlert()) {
             		out.write("\n        ");
             		out.write("new UIMaster.ui.dialog({");
-    				out.write("dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,message:'\u7EE7\u7EED\u5417\uFF1F',");
+    				out.write("dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,message:'Continue?',");
     				out.write("messageType:UIMaster.ui.dialog.Warning,optionType:UIMaster.ui.dialog.YES_NO_OPTION,title:'',height:150,width:300,handler: function() {\n");
             	}
             	

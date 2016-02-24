@@ -36,7 +36,7 @@ public class BEEntityDaoObject {
 	 * 
 	 * @param entity
 	 */
-	public void create(IPersistentEntity entity) {
+	public void create(IPersistentEntity entity, boolean commit) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Insert an entity: {}", entity);
 		}
@@ -46,6 +46,13 @@ public class BEEntityDaoObject {
 		
 		Session session = HibernateUtil.getSession();
 		session.save(entity);
+		if (commit) {
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+		}
+	}
+	
+	public void create(IPersistentEntity entity) {
+		this.create(entity, false);
 	}
 
 	/**
@@ -53,7 +60,7 @@ public class BEEntityDaoObject {
 	 * 
 	 * @param entity
 	 */
-	public void delete(IPersistentEntity entity) {
+	public void delete(IPersistentEntity entity, boolean commit) {
 		if (entity.getId() == 0) {
 			return;
 		}
@@ -63,6 +70,17 @@ public class BEEntityDaoObject {
 		
 		Session session = HibernateUtil.getSession();
 		session.delete(entity);
+		if (commit) {
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+		}
+	}
+	
+	/**
+	 * 
+	 * @param entity
+	 */
+	public void delete(IPersistentEntity entity) {
+		this.delete(entity, false);
 	}
 
 	/**
@@ -70,7 +88,7 @@ public class BEEntityDaoObject {
 	 * 
 	 * @param entity
 	 */
-	public void update(IPersistentEntity entity) {
+	public void update(IPersistentEntity entity, boolean commit) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Update an entity: {}", entity);
 		}
@@ -85,6 +103,17 @@ public class BEEntityDaoObject {
 			Session session = HibernateUtil.getSession();
 			session.update(entity);
 		}
+		if (commit) {
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+		}
+	}
+	
+	/**
+	 * 
+	 * @param entity
+	 */
+	public void update(IPersistentEntity entity) {
+		this.update(entity, false);
 	}
 	
 	/**
@@ -102,6 +131,7 @@ public class BEEntityDaoObject {
 		
 		Session session = HibernateUtil.getSession();
 		session.load(entity, entity.getId());
+		HibernateUtil.releaseSession(session, true);
 	}
 	
 	public void cascadingUpdate(IPersistentEntity entity) {
@@ -114,6 +144,11 @@ public class BEEntityDaoObject {
 		
 		Session session = HibernateUtil.getSession();
 		session.merge(entity);
+		HibernateUtil.releaseSession(session, true);
+	}
+
+	public void batchInsert(List<IPersistentEntity> entities) {
+		this.batchInsert(entities, false);
 	}
 	
 	/**
@@ -121,7 +156,7 @@ public class BEEntityDaoObject {
 	 * 
 	 * @param entities
 	 */
-	public void batchInsert(List<IPersistentEntity> entities) {
+	public void batchInsert(List<IPersistentEntity> entities, boolean commit) {
 		if (entities == null || entities.size() == 0) {
 			return;
 		}
@@ -141,6 +176,13 @@ public class BEEntityDaoObject {
 				session.save(entity);
 			}
 		}
+		if (commit) {
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+		}
+	}
+	
+	public void batchUpdate(List<IPersistentEntity> entities) {
+		this.batchUpdate(entities, false);
 	}
 	
 	/**
@@ -148,7 +190,7 @@ public class BEEntityDaoObject {
 	 * 
 	 * @param entities
 	 */
-	public void batchUpdate(List<IPersistentEntity> entities) {
+	public void batchUpdate(List<IPersistentEntity> entities, boolean commit) {
 		if (entities == null || entities.size() == 0) {
 			return;
 		}
@@ -164,14 +206,21 @@ public class BEEntityDaoObject {
 				session.update(entity);
 			}
 		}
+		if (commit) {
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+		}
 	}
 
+	public void batchDelete(List<IPersistentEntity> entities) {
+		this.batchDelete(entities, false);
+	}
+	
 	/**
 	 * Batch delete for multiple entities.
 	 * 
 	 * @param entities
 	 */
-	public void batchDelete(List<IPersistentEntity> entities) {
+	public void batchDelete(List<IPersistentEntity> entities, boolean commit) {
 		if (entities == null || entities.size() == 0) {
 			return;
 		}
@@ -184,6 +233,9 @@ public class BEEntityDaoObject {
 			if (entity.getId() > 0) {
 				session.delete(entity);
 			}
+		}
+		if (commit) {
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
 	}
 	

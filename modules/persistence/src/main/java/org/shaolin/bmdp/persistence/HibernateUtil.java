@@ -69,8 +69,8 @@ public class HibernateUtil {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		session.beginTransaction();
 		sessionFactoryTL.set(session);
-		if (logger.isInfoEnabled()) {
-			logger.info("Start Hibernate Transaction: collections-{},entities-{}", 
+		if (logger.isDebugEnabled()) {
+			logger.debug("Start Hibernate Transaction: collections-{},entities-{}", 
 					new Object[] { session.getStatistics().getCollectionCount(), 
 									session.getStatistics().getEntityCount()});
 		}
@@ -82,8 +82,8 @@ public class HibernateUtil {
 			 sessionFactoryTL.set(null);
 		}
 		
-		if (logger.isInfoEnabled()) {
-			logger.info("End Hibernate Transaction: isCommit-{},collections-{},entities-{}", 
+		if (logger.isDebugEnabled()) {
+			logger.debug("End Hibernate Transaction: isCommit-{},collections-{},entities-{}", 
 					new Object[] { isCommit, session.getStatistics().getCollectionCount(), 
 									session.getStatistics().getEntityCount()});
 		}
