@@ -26,11 +26,10 @@ import org.shaolin.uimaster.page.ajax.Calendar;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.od.IODMappingConverter;
 import org.shaolin.uimaster.page.od.formats.FormatUtil;
-import org.shaolin.uimaster.page.widgets.HTMLDateType;
 import org.shaolin.uimaster.page.widgets.HTMLTextWidgetType;
 
 public class UITextWithDate implements IODMappingConverter {
-	private HTMLDateType uiDate;
+	private HTMLTextWidgetType uiDate;
 	private String uiid;
 	private Date date;
 	private boolean isDateOnly;
@@ -47,15 +46,15 @@ public class UITextWithDate implements IODMappingConverter {
 		return this.getClass().getName();
 	}
 
-	public HTMLDateType getUIText() {
+	public HTMLTextWidgetType getUIText() {
 		return this.uiDate;
 	}
 
-	public void setUIText(HTMLDateType UIText) {
+	public void setUIText(HTMLTextWidgetType UIText) {
 		this.uiDate = UIText;
 	}
 
-	private HTMLDateType getUIHTML() {
+	private HTMLTextWidgetType getUIHTML() {
 		return this.uiDate;
 	}
 
@@ -142,7 +141,7 @@ public class UITextWithDate implements IODMappingConverter {
 			throws UIConvertException {
 		try {
 			if (paramValue.containsKey(UI_WIDGET_TYPE)) {
-				this.uiDate = ((HTMLDateType) paramValue.get(UI_WIDGET_TYPE));
+				this.uiDate = ((HTMLTextWidgetType) paramValue.get(UI_WIDGET_TYPE));
 			}
 			if (paramValue.containsKey(UI_WIDGET_ID)) {
 				this.uiid = (String) paramValue.get(UI_WIDGET_ID);

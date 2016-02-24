@@ -1788,7 +1788,10 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				this.refreshBodyEvents(body, true);
 			}
 		}
-		window.setTimeout(function(){othis.autoRefresh(othis);}, this.refreshInterval * 1000);
+		if (this.refreshInterval > 0) {
+		    othis.autoRefresh(othis);//refresh first always.
+		    window.setTimeout(function(){othis.autoRefresh(othis);}, this.refreshInterval * 1000);
+		}
 		if (this.tfoot.length == 0) {
 			return;
 		}
@@ -1804,7 +1807,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			return "<input type=\"radio\" name=\"selectRadio\" index=\""+data.substring(data.indexOf("radio")+6)+"\" />";
 		if (data.indexOf("checkbox,") == 0) 
 			return "<input type=\"checkbox\" name=\"\" index=\""+data.substring(data.indexOf("checkbox")+9)+"\"/>";
-		if (data.indexOf("&lt;div") != -1) //html content
+		if (data.indexOf("&lt;div") != -1 || data.indexOf("&lt;span") != -1) //html content
 		    return decodeHTML(data);
 		return data;
 	},
@@ -2112,6 +2115,9 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		}
 	},
 	refresh:function(pageNumber){
+	    pageNumber = parseInt(pageNumber);
+		if (isNaN(pageNumber))
+			pageNumber = 1;
 		var s = this.dtable.api().settings()[0];
 		s.ajax.data={_ajaxUserEvent: "table", _uiid: this.id, _actionName: "pull", _framePrefix: UIMaster.getFramePrefix(UIMaster.El(this.id).get(0)),
             _actionPage: this.parentEntity.__entityName, _selectedIndex: this.selectedIndex, _sync: UIMaster.ui.sync()};
@@ -2598,8 +2604,8 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
             } else {
             	var p = this.content.find("div[id$='actionPanel']");
             	if(p.length > 0) {
-            		$(p[0]).css("display", "none");
-            		var buttons = $(p[0]).find("input[type='button']");
+            		$(p[p.length-1]).css("display", "none");//select the last one.
+            		var buttons = $(p[p.length-1]).find("input[type='button']");
 					var count = 0;
             		for (var i=0;i<buttons.length;i++) {
             			var b = buttons[i];
@@ -2830,7 +2836,7 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
         var selectedTab = titles[index];
 		$(selectedTab).attr("removed","true");
 		$(selectedTab).fadeOut(500, function(){
-			this.remove();
+			$(selectedTab).remove();
 			titles = $("#titles-container-" + othis.id).children();
 			if(titles.length != 0)
 				othis._setTab($(titles[titles.length-1]).attr("id"));

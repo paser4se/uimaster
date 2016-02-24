@@ -29,7 +29,7 @@ import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HTMLDateType extends HTMLWidgetType
+public class HTMLDateType extends HTMLTextWidgetType
 {
     private static Logger logger = LoggerFactory.getLogger(HTMLDateType.class);
 
@@ -82,11 +82,6 @@ public class HTMLDateType extends HTMLWidgetType
         return value == null ? "" : value;
     }
 
-    public void setValue(String value)
-    {
-        setHTMLAttribute("value", value);
-    }
-    
     private void generateContent(HTMLSnapshotContext context)
     {
         try

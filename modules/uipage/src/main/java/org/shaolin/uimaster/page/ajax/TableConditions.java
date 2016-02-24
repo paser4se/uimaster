@@ -75,6 +75,13 @@ public class TableConditions implements Serializable {
 		this.orders.add(order);
 	}
 	
+	public void addOrder(String name, boolean asc) {
+		if (this.orders == null) {
+			this.orders = new ArrayList<Order>();
+		}
+		this.orders.add(asc ? Order.asc(name) : Order.desc(name));
+	}
+	
 	public void clearOrder() {
 		if (this.orders != null) {
 			this.orders.clear();

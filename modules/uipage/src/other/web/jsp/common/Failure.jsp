@@ -1,11 +1,10 @@
-<% //$Revision: 1.11 $%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ page import="java.util.Iterator" %>
-<%@ page import="bmiasia.ebos.webflow.exception.WebflowError" %>
-<%@ page import="bmiasia.ebos.webflow.exception.WebflowErrors" %>
-<%@ page import="bmiasia.ebos.common.exception.EBOSRuntimeException" %>
-<%@ page import="bmiasia.ebos.webflow.WebflowConstants" %>
-<%@ page import="bmiasia.ebos.appbase.util.ResourceUtil" %>
+<%@ page import="org.shaolin.uimaster.page.flow.error.WebflowError" %>
+<%@ page import="org.shaolin.uimaster.page.flow.error.WebflowErrors" %>
+<%@ page import="org.shaolin.bmdp.exceptions.BaseRuntimeException" %>
+<%@ page import="org.shaolin.uimaster.page.flow.WebflowConstants" %>
+<%@ page import="org.shaolin.bmdp.i18n.ResourceUtil" %>
 <%@ include file="/jsp/common/common.jsp" %>
 <html>
 <head>
@@ -26,7 +25,7 @@ function initPage()
 <DIV id="uIPanel1Root.titlePanel" class=table-tp name="uIPanel1Root">
 <DIV class=title-tp>
 <DIV style="WIDTH: 20px; Height: 23px; FLOAT: left">&nbsp;</DIV>
-<DIV style="FLOAT: left; CLEAR: right"><%=ResourceUtil.getResourceByHttp(null,"bmiasia.ebos.appbase.appbase.Bundle","ERROR_MSG_TITLE") %></DIV>
+<DIV style="FLOAT: left; CLEAR: right">Error Log</DIV>
 </DIV>
 <DIV class=content-tp>
 <DIV id="uIPanel1Root.wrapperPanel">
@@ -47,12 +46,12 @@ function initPage()
                 WebflowError error = (WebflowError)it.next();
                 String errorKey = error.getKey();
                 String msg = (errorKey == null) ? null : MessageFormat.format(errorKey, error.getValues());
-				out.println(ResourceUtil.getResourceByHttp(null,"bmiasia.ebos.appbase.appbase.Bundle","ERROR_REASON")+prop+": "+msg);
+				out.println(ResourceUtil.getResource(null,"Errors","ERROR_REASON")+prop+": "+msg);
                 Throwable currThrowable = error.getThrowable();
                 if(currThrowable instanceof EBOSRuntimeException)
                 {
                 	String errorCode = ((EBOSRuntimeException)currThrowable).getReason();
-                	out.println("<br>"+ResourceUtil.getResourceByHttp(null,"bmiasia.ebos.appbase.appbase.Bundle","ERROR_CODE")+errorCode);
+                	out.println("<br>"+ResourceUtil.getResource(null,"Errors","ERROR_CODE")+errorCode);
                 }
             }
         }

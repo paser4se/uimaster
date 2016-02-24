@@ -1,13 +1,14 @@
-<% //$Revision: 1.9 $%>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <%@ page import="java.io.PrintWriter" %>
 <%@ page import="java.io.StringWriter" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.HashSet" %>
 <%@ page import="java.util.Iterator" %>
-<%@ page import="bmiasia.ebos.appbase.util.ResourceUtil" %>
-<%@ page import="bmiasia.ebos.webflow.exception.WebflowError" %>
-<%@ page import="bmiasia.ebos.webflow.exception.WebflowErrors" %>
-<%@ page import="bmiasia.ebos.webflow.WebflowConstants" %>
+<%@ page import="org.shaolin.uimaster.page.flow.error.WebflowError" %>
+<%@ page import="org.shaolin.uimaster.page.flow.error.WebflowErrors" %>
+<%@ page import="org.shaolin.bmdp.exceptions.BaseRuntimeException" %>
+<%@ page import="org.shaolin.uimaster.page.flow.WebflowConstants" %>
+<%@ page import="org.shaolin.bmdp.i18n.ResourceUtil" %>
 <%
     // clear timestamp set
     session.setAttribute("_timestamp", new HashSet());

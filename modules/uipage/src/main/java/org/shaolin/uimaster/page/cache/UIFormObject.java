@@ -1718,7 +1718,7 @@ public class UIFormObject implements java.io.Serializable
 								+ "import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService; \n"
 								+ "\n{ "
 								+ "\n ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class); "
-								+ "\n return !service.isPendingTask($beObject.getTaskId()); "
+								+ "\n return service.isPendingTask($beObject.getTaskId()); "
 								+ "\n}");
 						property2.setExpression(expr2);
 						b.setReadOnly(property2);
