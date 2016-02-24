@@ -81,6 +81,7 @@ public class NodeInfo implements Serializable {
     	this.node = node;
     	this.flow = flow;
     	this.name = node.getName();
+    	this.description = node.getDescription();
 		this.timeout = node.getTimeout() == null ? -1 : node.getTimeout();
     	this.asyn = node.isAsyn();
     	this.processHandler = node.getProcess();

@@ -18,6 +18,7 @@ package org.shaolin.bmdp.workflow.internal;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -587,6 +588,9 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
     }
     
     public List<ITaskEntity> getAllNewTaskEntities() {
+    	if (newTaskEntities == null) {
+			return Collections.emptyList();
+		} 
     	return newTaskEntities;
     }
     

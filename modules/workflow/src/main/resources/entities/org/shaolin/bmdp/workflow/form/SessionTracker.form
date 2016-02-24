@@ -75,21 +75,11 @@
                <ns2:expression xsi:type="ns2:ExpressionType">
                    <ns2:expressionString><![CDATA[
                    import java.util.List;
-											        {
-											            return $table.getListData();
-											        }]]></ns2:expressionString>
+                   {
+                      return $table.getListData();
+                    }]]></ns2:expressionString>
                </ns2:expression>
            </ns2:query>
-           <ns2:totalCount xsi:type="ns2:ExpressionPropertyType">
-               <ns2:expression xsi:type="ns2:ExpressionType">
-                   <ns2:expressionString><![CDATA[
-                   import java.util.List;
-	                  import java.util.List;
-											        {
-											            return $table.getListData().size();
-											        }]]></ns2:expressionString>
-               </ns2:expression>
-           </ns2:totalCount>
            <ns2:column xsi:type="ns2:UITableColumnType">
                <ns2:title xsi:type="ns2:StringPropertyType">
                    <ns2:value>Create Time</ns2:value>
@@ -136,7 +126,7 @@
                         import org.shaolin.bmdp.runtime.security.UserContext;
                         {
                          IResourceManager service = (IResourceManager)AppContext.get().getService(IResourceManager.class);
-                         return service.getResource((Long)UserContext.getUserData("CurrentUserOrgId"), rowBE.getPartyId());
+                         return service.getResource($rowBE.getOrgId(), $rowBE.getPartyId());
                         }]]></ns2:expressionString>
                     </ns2:expression>
                 </ns2:rowExpression>

@@ -203,6 +203,7 @@ public class FlowEngine {
 
     private void executeNode(NodeInfo _node, FlowRuntimeContext flowContext) throws Exception {
         NodeInfo currentNode = _node;
+        MissionNodeType lastMissionNode = null;
         do {
             flowContext.setCurrentNode(currentNode);
             if (logger.isTraceEnabled()) {
@@ -268,6 +269,7 @@ public class FlowEngine {
             	// must waiting for response trigger from next operator.
         		// notify the relevant parties to do the job.
         		MissionNodeType m = (MissionNodeType)currentNode.getNode();
+        		lastMissionNode = m;
         		flowContext.setCurrentNode(currentNode);
         		processTimerNode(flowContext, currentNode, m);
         		
@@ -278,6 +280,12 @@ public class FlowEngine {
         			currentNode = null;
         			break;
         		}
+            } else if (currentNode != null && flowContext.getAllNewTaskEntities().size() > 0) {
+            	// complete the unfinished task for any other node types.
+            	flowContainer.scheduleTask(null, flowContext, this, currentNode, 
+            			lastMissionNode.getParticipant().getPartyType());
+            	ICoordinatorService coordinator = AppContext.get().getService(ICoordinatorService.class);
+    			coordinator.completeTask(coordinator.getTask(flowContext.getTaskId()));
             }
         } while (currentNode != null);
     }
@@ -375,9 +383,10 @@ public class FlowEngine {
     	} 
     	long expiredDate = System.currentTimeMillis() + daysMillis + hoursMillis;
     	if (daysMillis == 0 && hoursMillis == 0) {
-    		flowContainer.scheduleTask(null, flowContext, this, currentNode, mission);
+    		flowContainer.scheduleTask(null, flowContext, this, currentNode, mission.getParticipant().getPartyType());
     	} else {
-    		flowContainer.scheduleTask(new Date(expiredDate), flowContext, this, currentNode, mission);
+    		flowContainer.scheduleTask(new Date(expiredDate), flowContext, this, currentNode, 
+    									mission.getParticipant().getPartyType());
     	}
     }
 

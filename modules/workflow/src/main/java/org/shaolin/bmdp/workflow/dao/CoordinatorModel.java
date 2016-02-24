@@ -225,11 +225,8 @@ public class CoordinatorModel extends BEEntityDaoObject {
                 this._addOrders(inFlowCriteria, orders);
             }
 
-            if (scFlow.getId() > 0) {
-                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.id", scFlow.getId()));
-            }
-            if (scFlow.getSubject() != null && scFlow.getSubject().length() > 0) {
-                inFlowCriteria.add(createCriterion(Operator.START_WITH_RIGHT, "inFlow.subject", scFlow.getSubject()));
+            if (scFlow.getPartyId() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.partyId", scFlow.getPartyId()));
             }
 
         inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
@@ -241,11 +238,8 @@ public class CoordinatorModel extends BEEntityDaoObject {
     public long searchNotificationCount(org.shaolin.bmdp.workflow.be.NotificationImpl scFlow) {
             Criteria inFlowCriteria = this._createCriteria(org.shaolin.bmdp.workflow.be.NotificationImpl.class, "inFlow");
 
-            if (scFlow.getId() > 0) {
-                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.id", scFlow.getId()));
-            }
-            if (scFlow.getSubject() != null && scFlow.getSubject().length() > 0) {
-                inFlowCriteria.add(createCriterion(Operator.START_WITH_RIGHT, "inFlow.subject", scFlow.getSubject()));
+            if (scFlow.getPartyId() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.partyId", scFlow.getPartyId()));
             }
 
         inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));

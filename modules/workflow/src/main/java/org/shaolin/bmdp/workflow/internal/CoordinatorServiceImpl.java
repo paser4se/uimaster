@@ -15,7 +15,6 @@
 */
 package org.shaolin.bmdp.workflow.internal;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -39,7 +38,6 @@ import org.shaolin.bmdp.runtime.spi.ILifeCycleProvider;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.shaolin.bmdp.utils.HttpSender;
-import org.shaolin.bmdp.utils.SerializeUtil;
 import org.shaolin.bmdp.workflow.be.INotification;
 import org.shaolin.bmdp.workflow.be.IServerNodeInfo;
 import org.shaolin.bmdp.workflow.be.ITask;
@@ -69,9 +67,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	private final Map<ITask, ScheduledFuture<?>> futures = new HashMap<ITask, ScheduledFuture<?>>();
 	
 	private final ConcurrentHashMap<Long, ITask> workingTasks = new ConcurrentHashMap<Long, ITask>();
-	
-	private final ConcurrentHashMap<Long, List<INotification>> allNotifications 
-		= new ConcurrentHashMap<Long, List<INotification>>();
 	
 	private final List<INotificationListener> listeners = new ArrayList<INotificationListener>();
 	
@@ -616,14 +611,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		if (AppContext.isMasterNode()) {
 			ServerNodeInfoImpl sc = new ServerNodeInfoImpl();
 			this.serverNodes = CoordinatorModel.INSTANCE.searchServerNodes(sc, null, 0, -1);
-			
-			// clean all notifications daily for saving memory.
-			this.pool.scheduleAtFixedRate(new Runnable() {
-				@Override
-				public void run() {
-					allNotifications.clear();
-				}
-			}, 1, 1, TimeUnit.DAYS);
 		}
 	}
 
@@ -666,40 +653,45 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		}
 		notifier.setDescription(t.getDescription());
 		notifier.setPartyId(t.getPartyId());
-		addNotification(notifier, false);
+		notifier.setRead(false);
+		// no need since all tasks have already been tracking.
+		//addNotification(notifier, false);
 	}
 	
 	@Override
 	public void addNotification(INotification message, boolean needRemoted) {
+		CoordinatorModel.INSTANCE.create(message);
+		
 		if (needRemoted) {
-			// send to all nodes.
-			byte[] raw = null;
-			try {
-				raw = SerializeUtil.serializeData(message);
-			} catch (IOException e) {
-				logger.warn(e.getMessage(), e);
-				return;
-			}
-			IAppServiceManager serviceManager= IServerServiceManager.INSTANCE.getApplication(
-					IServerServiceManager.INSTANCE.getMasterNodeName());
-			ICoordinatorService coordinator = serviceManager.getService(ICoordinatorService.class);
-			List<IServerNodeInfo> nodes = coordinator.getServerNodes();
-			for (IServerNodeInfo serverNode : nodes) {
-				if (!sendNotification(serverNode, raw)) {
-					logger.warn("Failed to send the notification to {0}",
-							toURL(serverNode));
-				}
-			}
-		} else {
-			long partyId = message.getPartyId();
-			if (!allNotifications.containsKey(partyId)) {
-				allNotifications.put(partyId, new ArrayList<INotification>());
-			}
-			allNotifications.get(partyId).add(message);
-			
-			for (INotificationListener listener : listeners) {
-				listener.received(message);
-			}
+//			// send to all nodes.
+//			byte[] raw = null;
+//			try {
+//				raw = SerializeUtil.serializeData(message);
+//			} catch (IOException e) {
+//				logger.warn(e.getMessage(), e);
+//				return;
+//			}
+//			IAppServiceManager serviceManager= IServerServiceManager.INSTANCE.getApplication(
+//					IServerServiceManager.INSTANCE.getMasterNodeName());
+//			ICoordinatorService coordinator = serviceManager.getService(ICoordinatorService.class);
+//			List<IServerNodeInfo> nodes = coordinator.getServerNodes();
+//			for (IServerNodeInfo serverNode : nodes) {
+//				if (!sendNotification(serverNode, raw)) {
+//					logger.warn("Failed to send the notification to {0}",
+//							toURL(serverNode));
+//				}
+//			}
+		} 
+//			else {
+//			long partyId = message.getPartyId();
+//			if (!allNotifications.containsKey(partyId)) {
+//				allNotifications.put(partyId, new ArrayList<INotification>());
+//			}
+//			allNotifications.get(partyId).add(message);
+//			
+//		}
+		for (INotificationListener listener : listeners) {
+			listener.received(message);
 		}
 	}
 	
@@ -720,12 +712,10 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 	
 	@Override
-	public List<INotification> pullNotifications(long userId) {
-		if (allNotifications.containsKey(userId)) {
-			return allNotifications.remove(userId);
-		} else {
-			return Collections.EMPTY_LIST;
-		}
+	public List<INotification> pullNotifications(long partyId) {
+		NotificationImpl scFlow = new NotificationImpl();
+		scFlow.setPartyId(partyId);
+		return CoordinatorModel.INSTANCE.searchNotification(scFlow, null, 0, -1);
 	}
 	
 	/**
@@ -733,7 +723,10 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	 * @return
 	 */
 	public List<INotification> pullCommonNotifications() {
-		return allNotifications.get(0);
+		return Collections.emptyList();
+//		NotificationImpl scFlow = new NotificationImpl();
+//		scFlow.setPartyId(0);
+//		return CoordinatorModel.INSTANCE.searchNotification(scFlow, null, 0, -1);
 	}
 	
 	private HttpSender httpSender;

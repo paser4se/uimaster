@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.shaolin.bmdp.datamodel.workflow.MissionNodeType;
 import org.shaolin.bmdp.datamodel.workflow.Workflow;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.be.ITaskEntity;
@@ -199,7 +198,7 @@ public class FlowContainer {
     }
     
     public ITask scheduleTask(Date timeout, final FlowRuntimeContext flowContext, final FlowEngine engine, 
-    		final NodeInfo currentNode, final MissionNodeType mission) throws Exception {
+    		final NodeInfo currentNode, final String role) throws Exception {
     	if (logger.isTraceEnabled()) {
     		if (timeout != null) {
 	            logger.trace("Schedule timer on {}, dealy time is {}", 
@@ -216,11 +215,9 @@ public class FlowContainer {
 			task.setOrgId((Long)UserContext.getUserData(UserContext.CURRENT_USER_ORGID));
 		}
         task.setSessionId(flowContext.getSession().getID());
-        task.setSubject("Task: " + mission.getName());
-        task.setDescription(mission.getDescription());
-        if (mission.getParticipant() != null) {
-        	task.setPartyType(mission.getParticipant().getPartyType());
-        }
+        task.setSubject("Task: " + currentNode.getName());
+        task.setDescription(currentNode.getDescription());
+    	task.setPartyType(role);
         task.setExpiredTime(timeout);
         task.setEnabled(true);
         task.setListener(new MissionListener(task));

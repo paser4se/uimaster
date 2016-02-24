@@ -7,27 +7,36 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
     ({
         ui: elementList[prefix + "itemTable"]
         ,appendRowMode: true
-        ,refreshInterval: 20
+        ,refreshInterval: 300
+    });
+
+    var cleanupBtn = new UIMaster.ui.button
+    ({
+        ui: elementList[prefix + "cleanupBtn"]
     });
 
     var fieldPanel = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "fieldPanel"]
         ,items: []
-        ,subComponents: [prefix + "itemTable"]
+        ,subComponents: [prefix + "itemTable",prefix + "cleanupBtn"]
     });
 
     var Form = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "Form"]
-        ,items: [itemTable,fieldPanel]
+        ,items: [itemTable,cleanupBtn,fieldPanel]
     });
 
     Form.itemTable=itemTable;
 
+    Form.cleanupBtn=cleanupBtn;
+
     Form.fieldPanel=fieldPanel;
 
     Form.itemTable=itemTable;
+
+    Form.cleanupBtn=cleanupBtn;
 
     Form.user_constructor = function()
     {
@@ -35,7 +44,7 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
         /* Construct_LAST:org_shaolin_bmdp_workflow_form_NotificationBoard */
     };
 
-    Form.pull = org_shaolin_bmdp_workflow_form_NotificationBoard_pull;
+    Form.cleanup = org_shaolin_bmdp_workflow_form_NotificationBoard_cleanup;
 
     Form.invokeDynamicFunction = org_shaolin_bmdp_workflow_form_NotificationBoard_invokeDynamicFunction;
 
@@ -50,14 +59,14 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
 /* Other_Func_LAST:org_shaolin_bmdp_workflow_form_NotificationBoard */
 
     /* auto generated eventlistener function declaration */
-    function org_shaolin_bmdp_workflow_form_NotificationBoard_pull(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_NotificationBoard_pull */
+    function org_shaolin_bmdp_workflow_form_NotificationBoard_cleanup(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_NotificationBoard_cleanup */
         var o = this;
         var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"pull-20160127-1507",UIMaster.getValue(eventsource),o.__entityName);
-    }/* Gen_Last:org_shaolin_bmdp_workflow_form_NotificationBoard_pull */
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"cleanup-20160127-1507",UIMaster.getValue(eventsource),o.__entityName);
+    }/* Gen_Last:org_shaolin_bmdp_workflow_form_NotificationBoard_cleanup */
 
 
     /* auto generated eventlistener function declaration */
@@ -65,7 +74,7 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
         var o = this;
         var UIEntity = this;
 
-        new UIMaster.ui.dialog({dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,message:'????',messageType:UIMaster.ui.dialog.Warning,optionType:UIMaster.ui.dialog.YES_NO_OPTION,title:'',height:150,width:300,handler: function() {
+        new UIMaster.ui.dialog({dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,message:'Continue?',messageType:UIMaster.ui.dialog.Warning,optionType:UIMaster.ui.dialog.YES_NO_OPTION,title:'',height:150,width:300,handler: function() {
 
         // cal ajax function. 
 

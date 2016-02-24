@@ -2,16 +2,18 @@
 <ns2:UIEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns5="http://bmdp.shaolin.org/datamodel/PageDiagram" xmlns:ns4="http://bmdp.shaolin.org/datamodel/RDBDiagram" xmlns:ns3="http://bmdp.shaolin.org/datamodel/BEDiagram" xmlns:ns2="http://bmdp.shaolin.org/datamodel/Page" xmlns="http://bmdp.shaolin.org/datamodel/Common" xsi:schemaLocation="">
   <entityName>org.shaolin.bmdp.workflow.form.NotificationBoard</entityName>
   <systemVersion>0</systemVersion>
-  <ns2:eventHandler functionName="pull">
-    <ns2:ops xsi:type="ns2:OpCallAjaxType" name="pull-20160127-1507">
+  <ns2:eventHandler functionName="cleanup">
+    <ns2:ops xsi:type="ns2:OpCallAjaxType" name="cleanup-20160127-1507">
       <ns2:exp>
         <expressionString><![CDATA[
         import java.util.HashMap;
         import org.shaolin.uimaster.page.AjaxContext;
         import org.shaolin.uimaster.page.ajax.*;
         import org.shaolin.bmdp.workflow.be.NotificationImpl;
+        import org.shaolin.bmdp.workflow.dao.CoordinatorModel;
         { 
-        
+           Table tableWidget = (Table)@page.getElement("itemTable");
+           CoordinatorModel.INSTANCE.batchDelete(tableWidget.getListData(), true);
         }]]></expressionString>
       </ns2:exp>
     </ns2:ops>
@@ -23,6 +25,7 @@
     </ns2:layout>
     <ns2:component xsi:type="ns2:UIPanelType" UIID="fieldPanel">
       <ns2:layout xsi:type="ns2:TableLayoutType">
+        <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
         <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
         <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
       </ns2:layout>
@@ -49,7 +52,8 @@
           </ns2:expression>
         </ns2:query>
         <ns2:appendRowMode>true</ns2:appendRowMode>
-        <ns2:refreshInterval>20</ns2:refreshInterval>
+        <!-- refresh 5 minutes per -->
+        <ns2:refreshInterval>300</ns2:refreshInterval>
         <ns2:defaultRowSize>100</ns2:defaultRowSize>
         <ns2:showActionBar>true</ns2:showActionBar>
         <ns2:showFilter>false</ns2:showFilter>
@@ -81,9 +85,21 @@
           </ns2:updateCondition>
         </ns2:column>
       </ns2:component>
+      <ns2:component xsi:type="ns2:UIButtonType" UIID="cleanupBtn">
+        <ns2:EventListener xsi:type="ns2:ClickListenerType">
+          <ns2:handler functionName="cleanup"></ns2:handler>
+        </ns2:EventListener>
+        <ns2:text xsi:type="ns2:StringPropertyType">
+          <ns2:value>清空通知</ns2:value>
+        </ns2:text>
+      </ns2:component>
       <ns2:layoutConstraint>
         <ns2:componentId>itemTable</ns2:componentId>
         <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="0" align="FULL"></ns2:constraint>
+      </ns2:layoutConstraint>
+      <ns2:layoutConstraint>
+        <ns2:componentId>cleanupBtn</ns2:componentId>
+        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="1" align="FULL"></ns2:constraint>
       </ns2:layoutConstraint>
     </ns2:component>
     <ns2:layoutConstraint>
