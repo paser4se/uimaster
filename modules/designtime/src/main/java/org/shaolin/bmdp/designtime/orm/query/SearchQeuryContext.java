@@ -166,6 +166,12 @@ public class SearchQeuryContext {
 		this.conditions = condition.toString();
 		
 		StringBuffer orderbyStr = new StringBuffer();
+		
+		if (definition.getDistinct() != null) {
+			orderbyStr.append("            ");
+			orderbyStr.append(criteriaName).append(".setProjection(Projections.distinct(Projections.property(\"");
+			orderbyStr.append(definition.getDistinct()).append("\")));\n");
+		}
 		orderbyStr.append("            if (orders == null) {\n");
 		if (definition.getOrderBies() != null && !definition.getOrderBies().isEmpty()) {
 			List<OrderingType> orderingTypes = definition.getOrderBies();

@@ -36,6 +36,7 @@ import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
+import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
@@ -220,9 +221,19 @@ public class Table extends Widget implements Serializable {
 	}
 
 	public void setListData(List<Object> listData) {
-		this.listData = listData;
+		setListData(listData, false);
 	}
 
+	public void setListData(List<Object> listData, boolean update) {
+		if (update) {
+			this.clear();
+		}
+		this.listData = listData;
+		if (update) {
+			this.refresh(this.listData);
+		}
+	}
+	
 	public boolean isAppendRowMode() {
 		return isAppendRowMode;
 	}
@@ -364,7 +375,7 @@ public class Table extends Widget implements Serializable {
 		IDataItem dataItem = AjaxActionHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
-		dataItem.setData(this.refresh0());
+		dataItem.setData(this.refresh0(this.listData));
 		dataItem.setFrameInfo(this.getFrameInfo());
 
 		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
@@ -390,7 +401,7 @@ public class Table extends Widget implements Serializable {
 		IDataItem dataItem = AjaxActionHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
-		dataItem.setData(this.refresh0());
+		dataItem.setData(this.refresh0(this.listData));
 		dataItem.setFrameInfo(this.getFrameInfo());
 
 		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
@@ -399,6 +410,18 @@ public class Table extends Widget implements Serializable {
 		return obj;
 	}
 	
+	public void clear() {
+		this.listData.clear();
+		this.addItems.clear();
+		this.deleteItems.clear();
+		this.updateItems.clear();
+		
+		this.refresh(this.listData);
+	}
+	
+	/**
+	 * Refresh from the query expression.
+	 */
 	public void refresh() {
 		IDataItem dataItem = AjaxActionHelper.createDataItem();
 		dataItem.setUiid(this.getId());
@@ -409,9 +432,19 @@ public class Table extends Widget implements Serializable {
 	}
 	
 	/**
-	 * After when called addRow,removeRow,removeAll,updateRow, we have to call
-	 * this method refreshing data set.
+	 * Refresh from the giving rows
+	 * 
+	 * @param rows
 	 */
+	private void refresh(List rows) {
+		IDataItem dataItem = AjaxActionHelper.createDataItem();
+		dataItem.setUiid(this.getId());
+		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
+		dataItem.setData(this.refresh0(rows));
+		dataItem.setFrameInfo(this.getFrameInfo());
+        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+	}
+	
 	public String refresh0() {
 		try {
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
@@ -421,11 +454,32 @@ public class Table extends Widget implements Serializable {
 			evaContext.setVariableValue("table", this);
 			ooeeContext.setDefaultEvaluationContext(evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
-
+			
 			List<Object> rows = (List<Object>)queryExpr.evaluate(ooeeContext);
 			if (rows == null) {
 				rows = Collections.emptyList();
 			}
+			return refresh0(rows);
+		} catch (EvaluationException e) {
+			logger.error("error occurrs while refreshing table: " + this.getId(), e);
+			return "";
+		}
+	}
+	
+	/**
+	 * After when called addRow,removeRow,removeAll,updateRow, we have to call
+	 * this method refreshing data set.
+	 */
+	private String refresh0(List rows) {
+		try {
+			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+			evaContext.setVariableValue("tableCondition", conditions);
+			evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+			evaContext.setVariableValue("table", this);
+			ooeeContext.setDefaultEvaluationContext(evaContext);
+			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+			
 			StringBuilder sb = new StringBuilder();
 	        sb.append("{\"recordsFiltered\":");
 	        sb.append(rows.size());
@@ -437,7 +491,6 @@ public class Table extends Widget implements Serializable {
 	        sb.append(this.conditions.getOffset());
 	        sb.append(",");
 	        sb.append("\"data\":[");
-	        this.listData = rows;
 	        int count = 0;
 	        for (Object be : rows) {
 	        	evaContext.setVariableValue("rowBE", be);

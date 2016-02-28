@@ -224,10 +224,10 @@
             <xs:element name="linkMapping" type="RDBDiagram:LinkConditionMappingType"/>
             <xs:element name="searchConditionMapping" type="RDBDiagram:SearchConditionMappingType"/>
             <xs:element name="orderBy" type="RDBDiagram:OrderingType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="distinct" type="xs:string"/>
             <xs:element name="postSearch" type="Common:ExpressionType"/>
         </xs:sequence>
         <xs:attribute name="timeoutSeconds" type="xs:int" use="optional" default="0"/>
-        <xs:attribute name="isDistinct" type="xs:boolean" use="optional" default="true"/>
         <xs:attribute name="statistic" type="xs:boolean" use="optional" default="false" />
         <xs:attribute name="queryName" type="xs:string" use="required"/>
     </xs:complexType>

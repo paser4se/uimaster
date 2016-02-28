@@ -110,6 +110,7 @@ public class DaoGenerator implements IEntityEventListener<TableType, RDBDiagram>
 		out.write("import org.hibernate.criterion.MatchMode;\n");
 		out.write("import org.hibernate.criterion.Restrictions;\n\n");
 		out.write("import org.hibernate.criterion.Order;\n\n");
+		out.write("import org.hibernate.criterion.Projections;\n\n");
 		
 		out.write("import org.shaolin.bmdp.persistence.BEEntityDaoObject;\n");
 		out.write("import org.shaolin.bmdp.persistence.HibernateUtil;\n");

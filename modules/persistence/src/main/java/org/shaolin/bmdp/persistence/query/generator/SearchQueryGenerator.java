@@ -166,8 +166,7 @@ public class SearchQueryGenerator {
 			SearchConditionMappingType conditionMapping = searchQueryDefinition
 					.getSearchConditionMapping();
 			searchConditionContext = new SearchConditionContext(
-					conditionMapping, totalParsingContext,
-					searchQueryDefinition.isIsDistinct());
+					conditionMapping, totalParsingContext, false);
 
 			// create selection from
 			searchResultContextList.clear();
@@ -245,7 +244,6 @@ public class SearchQueryGenerator {
 		}
 		// set select from
 		SearchQuery query = new SearchQuery(queryFromList.get(0), false, false);
-		query.setDistinct(searchQueryDefinition.isIsDistinct());
 		for (int i = 1, n = queryFromList.size(); i < n; i++) {
 			queryFromList.get(i);
 			query.addFrom(queryFromList.get(i));
