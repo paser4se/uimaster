@@ -22,6 +22,8 @@ public abstract class AbstractConstant implements IConstantEntity {
 	private boolean isPassivated = false;
 	private int priority = 65535;
 	private boolean isEnabled = true;
+	private String icon = "images/cedefaulticon.png";
+	private String bigIcon = null;
 	
 	public static final int INEFFICACY_PRIORITY = 65535;
 
@@ -417,7 +419,22 @@ public abstract class AbstractConstant implements IConstantEntity {
 		return constantList;
 	}
 
+	public String getIcon() {
+		return icon;
+	}
 
+	public void setIcon(String icon) {
+		this.icon = icon;
+	}
+
+	public String getBigIcon() {
+		return bigIcon;
+	}
+
+	public void setBigIcon(String bigIcon) {
+		this.bigIcon = bigIcon;
+	}
+	
 	public abstract String getI18nBundle();
 
 	public abstract void setI18nBundle(String bundle);

@@ -137,6 +137,8 @@ public interface IJSHandlerCollections {
      */
     public static final String TABLE_UPDATE = "table_update";
     
+    public static final String GALLERY_REFRESH = "gallery_refresh";
+    
     /**
      */
     public static final String TREE_REFRESH = "tree_refresh";

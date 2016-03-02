@@ -1598,13 +1598,64 @@ UIMaster.ui.frame = UIMaster.extend(UIMaster.ui);
 UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
     height:-1,
 	width:-1,
+	mode: 'slider',
+	thumbnailsFullScreen: true,
+	hideThumbnailsOnInit: false,
+	intialized:false,
 	init:function(){
+	    if (this.intialized)
+		    return;
+		this.intialized = true;
 		if (this.tagName.toLowerCase() == "div") {
-			if ($(this).attr("jheight") == "-1")
-				$(this).jGallery({hideThumbnailsOnInit: true});
-			else
-				$(this).jGallery({height:$(this).attr("jheight"),width:$(this).attr("jwidth"),hideThumbnailsOnInit: true});
+		    var t = this;
+		    var opts;
+			if ($(this).attr("jheight") == "-1") {
+				opts = {hideThumbnailsOnInit: true, mode: this.thumbnailsFullScreen?"standard":this.mode, 
+                        afterLoadPhoto: function(image) {t.clickImage(image);}};
+			} else {
+				opts = {height:$(this).attr("jheight"),width:$(this).attr("jwidth"),
+				        mode: this.thumbnailsFullScreen?"standard":this.mode, 
+				        hideThumbnailsOnInit: this.hideThumbnailsOnInit, 
+						afterLoadPhoto: function(image) {t.clickImage(image);}};
+			}
+			$(this).jGallery(opts);
 		}
+	},
+	clickImage:function(image){
+	   var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"false",_uiid:this.id,_valueName:"selectedImage",_value:$(image).attr("src"),_framePrefix:UIMaster.getFramePrefix()}};
+       if (MobileAppMode) {
+          _mobContext.ajax(JSON.stringify(opts));
+       } else {
+		  $.ajax(opts);
+       }
+	},
+	createAlbum:function(){
+	   var t = this;
+	   new UIMaster.ui.dialog({
+		  dialogType: UIMaster.ui.dialog.INPUT_DIALOG,
+		  message:'Enter a new name: ',
+		  messageType:UIMaster.ui.dialog.Information,
+		  optionType:UIMaster.ui.dialog.YES_NO_OPTION,
+		  title:'',
+		  height:150,
+		  width:300,
+		  handler: function() {
+			 if (this.value == null || this.value == "") return;
+			 var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"gallery",_uiid:t.id,_actionName:"createAlbum",_value:this.value,_framePrefix:UIMaster.getFramePrefix()}};
+			 if (MobileAppMode) {
+				_mobContext.ajax(JSON.stringify(opts));
+			 } else {
+				$.ajax(opts);
+			 }
+		  }
+	  }).open();
+	},
+	refresh:function(newContent){
+	   $(this).jGallery().destroy();
+	   $(this).children().each(function(){$(this).remove()});
+	   $(decodeHTML(newContent)).appendTo($(this));
+	   this.intialized = false;
+	   this.init();
 	}
 });
 UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
@@ -2298,7 +2349,8 @@ UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
 				children[i].children = true;
 			}
 		}
-		$(this).jstree({"core":{"data": children, "check_callback" : true}});
+		$(this).jstree(true).deselect_all();
+		$(this).jstree({"core":{"data": children}}).refresh();
 	}
 });
 var options = [[['YES_NO_OPTION','YES_OPTION','MESSAGE_DIALOG','Error'],0],

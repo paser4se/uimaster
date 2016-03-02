@@ -93,6 +93,22 @@ public class ConstantServiceImpl implements Serializable, IConstantService, IEnt
 		return result;
 	}
 	
+	@Override
+	public List<List>[] getRootCEList() {
+		List<String> rootNames = new ArrayList<String>();
+		List<IConstantEntity> temp = new ArrayList<IConstantEntity>(serverConstantMap.getValues());
+		for (IConstantEntity ce : temp) {
+			if (!accesor.hasParent(hierarchy, ce.getEntityName())) {
+				rootNames.add(ce.getEntityName());
+			}
+		}
+		List<String> indexs = new ArrayList<String>();
+		for (int i=0; i<rootNames.size(); i++) {
+			indexs.add(i + "");
+		}
+		return new List[] {indexs, rootNames};
+	}
+	
 	public int getServerConstantCount(IConstantEntity condition) {
 		return serverConstantMap.size();
 	}
@@ -246,7 +262,6 @@ public class ConstantServiceImpl implements Serializable, IConstantService, IEnt
 			}
 		}
 	}
-	
 	
 	@Override
 	public IConstantEntity getChildren(IConstantEntity item) {

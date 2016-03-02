@@ -54,6 +54,13 @@ public interface IConstantService {
 	public boolean hasConstantEntity(String ceName);
 	
 	/**
+	 * Get all root CEs in a list.
+	 * 
+	 * @return
+	 */
+	public List<List>[] getRootCEList();
+	
+	/**
 	 * Get an item by integer value from an CE.
 	 * 
 	 * @param ceName
@@ -122,5 +129,6 @@ public interface IConstantService {
 	
 	public interface HierarchyAccessor {
 		IConstantEntity getChild(List hierarchy, String ceName, int intValue);
+		public boolean hasParent(List hierarchy, String ceName);
 	}
 }

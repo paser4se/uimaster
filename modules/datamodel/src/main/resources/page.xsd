@@ -581,6 +581,7 @@ in simple component mapping, the paramName is required</xs:documentation>
                     </xs:element>
                     <xs:element name="isGallery" type="Page:BooleanPropertyType" />
                     <xs:element name="showWords" type="Page:BooleanPropertyType" />
+                    <xs:element name="selectedImageExpr" type="Page:ExpressionPropertyType"/>
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>

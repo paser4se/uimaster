@@ -3,6 +3,7 @@ package org.shaolin.uimaster.page.widgets;
 import java.io.File;
 import java.io.IOException;
 
+import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
@@ -17,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 public class HTMLImageType extends HTMLTextWidgetType
 {
+	private static final long serialVersionUID = 24011835838546883L;
+	
     private static final Logger logger = LoggerFactory.getLogger(HTMLImageType.class);
 
     public HTMLImageType()
@@ -48,23 +51,22 @@ public class HTMLImageType extends HTMLTextWidgetType
 	            String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
 	        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
 	        			
-//	        	These files are configurable in runconfig.registry file of each module.
 //	        	Because JGallary has a bug on importing these files in multiple time.
 //	            Please refer to org_shaolin_vogerp_productmodel runconfig.registry.
-//    			if (context.getRequest().getAttribute("_hasGallery") == null) {
-//    				context.getRequest().setAttribute("_hasGallery", Boolean.TRUE);
-//	            HTMLUtil.generateTab(context, depth);
-//	            context.generateHTML("<div><link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/font-awesome.min.css\" type=\"text/css\">");
-//	            HTMLUtil.generateTab(context, depth);
-//	            context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/jgallery.min.css?v=1.5.0\" type=\"text/css\">");
-//	            HTMLUtil.generateTab(context, depth);
-//	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/jgallery.js\"></script>");
-//	        	HTMLUtil.generateTab(context, depth);
-//	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/touchswipe.js\"></script>");
-//	        	HTMLUtil.generateTab(context, depth);
-//	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/tinycolor-0.9.16.min.js\"></script>");
-//	        	HTMLUtil.generateTab(context, depth);
-//    			}
+    			if (context.getRequest().getAttribute("_hasGallery") == null) {
+    				context.getRequest().setAttribute("_hasGallery", Boolean.TRUE);
+		            HTMLUtil.generateTab(context, depth);
+		            context.generateHTML("<div><link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/font-awesome.min.css\" type=\"text/css\">");
+		            HTMLUtil.generateTab(context, depth);
+		            context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/jgallery.min.css?v=1.5.0\" type=\"text/css\">");
+		            HTMLUtil.generateTab(context, depth);
+		        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/jgallery.js\"></script>");
+		        	HTMLUtil.generateTab(context, depth);
+		        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/touchswipe.js\"></script>");
+		        	HTMLUtil.generateTab(context, depth);
+		        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/tinycolor-0.9.16.min.js\"></script>");
+		        	HTMLUtil.generateTab(context, depth);
+    			}
 	        	context.generateHTML("<div id=\"");
 	        	context.generateHTML(getName());
 	            context.generateHTML("\" jwidth=\"");
@@ -96,9 +98,20 @@ public class HTMLImageType extends HTMLTextWidgetType
 			            File directory = new File(WebConfig.getResourcePath() + path);
 			            if (directory.exists()) {
 			            	String[] images = directory.list();
+			            	context.generateHTML("<div class=\"album\" data-jgallery-album-title=\""+directory.getName()+"\">");
 			            	for (String i : images) {
-			            		String item = root + path + "/" +  i;
-			            		context.generateHTML("<a href=\"" + item + "\"><img src=\"" + item + "\"/></a>");
+			            		File f = new File(directory, i);
+			            		if (f.isFile()) {
+				            		String item = root + path + "/" +  i;
+				            		context.generateHTML("<a href=\""+ item +"\"><img src=\""+ item +"\" alt=\""+i+"\"/></a>");
+			            		}
+			            	}
+			            	context.generateHTML("</div>");
+			            	for (String i : images) {
+			            		File f = new File(directory, i);
+			            		if (f.isDirectory()) {
+			            			genarateAblum(root + path + "/" + i, context, f);
+			            		}
 			            	}
 			            } else {
 			            	context.generateHTML("<a href=\"" + root + path + "\"><img src=\"" + root + path + "\"/></a>");
@@ -128,6 +141,19 @@ public class HTMLImageType extends HTMLTextWidgetType
         {
             logger.error("error. in entity: " + getUIEntityName(), e);
         }
+    }
+    
+    private void genarateAblum(String root, HTMLSnapshotContext context, File directory) {
+    	String[] images = directory.list();
+    	context.generateHTML("<div class=\"album\" data-jgallery-album-title=\""+directory.getName()+"\">");
+    	for (String i : images) {
+    		File f = new File(directory, i);
+    		if (f.isFile()) {
+        		String item = root + "/" +  i;
+        		context.generateHTML("<a href=\""+ item +"\"><img src=\""+ item +"\" alt=\""+i+"\"/></a>");
+    		}
+    	}
+    	context.generateHTML("</div>");
     }
 
     private String getSrc(HTMLSnapshotContext context)
@@ -170,9 +196,12 @@ public class HTMLImageType extends HTMLTextWidgetType
 		image.setListened(true);
 		image.setFrameInfo(getFrameInfo());
 
+		Object expr = this.removeAttribute("selectedImageExpr");
+		if (expr != null) {
+			image.setSelectedImageExpr((ExpressionType)expr);
+		}
+		
 		return image;
 	}
 
-
-    private static final long serialVersionUID = 24011835838546883L;
 }

@@ -231,7 +231,7 @@ public class WebConfig {
 	}
 	
 	public static String getRealPath(String relativePath) {
-		return servletContextPath + relativePath;
+		return WebConfig.getResourcePath() + relativePath;
 	}
 	
 	private static String uploadFileRoot = "";

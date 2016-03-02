@@ -65,7 +65,10 @@ public class Tree extends Widget implements Serializable {
 	}
 
 	public void setDataModel(Map<String, Object> newModel) {
-		this.dataModel = new HashMap<String, Object>();
+		if (this.dataModel == null) {
+			this.dataModel = new HashMap<String, Object>();
+		}
+		this.dataModel.clear();
 		this.dataModel.putAll(newModel);
 	}
 	
@@ -123,7 +126,6 @@ public class Tree extends Widget implements Serializable {
 			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
 			evaContext.setVariableValue("treeCondition", conditions);
 			evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
-			evaContext.setVariableValue("tree", this);
 			evaContext.setVariableValue("selectedNode", this.getSelectedItemId());
 			ooeeContext.setDefaultEvaluationContext(evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);

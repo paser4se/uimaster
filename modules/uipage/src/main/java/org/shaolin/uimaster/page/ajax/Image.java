@@ -18,19 +18,34 @@ package org.shaolin.uimaster.page.ajax;
 import java.io.File;
 import java.io.Serializable;
 
+import org.shaolin.bmdp.datamodel.common.ExpressionType;
+import org.shaolin.bmdp.utils.StringUtil;
+import org.shaolin.javacc.context.DefaultEvaluationContext;
+import org.shaolin.javacc.context.OOEEContext;
+import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.uimaster.page.AjaxActionHelper;
-import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.WebConfig;
+import org.shaolin.uimaster.page.ajax.json.IDataItem;
+import org.shaolin.uimaster.page.od.ODContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Image extends TextWidget implements Serializable
 {
     private static final long serialVersionUID = 3140747849841049235L;
     
+    private static final Logger logger = LoggerFactory.getLogger(Table.class);
+    
     private String src;
     
     private boolean isgallery;
 
-    public Image(String uiid)
+    private String selectedImage;
+    
+    private ExpressionType selectedImageExpr;
+
+	public Image(String uiid)
     {
         this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
         this.setListened(true);
@@ -52,6 +67,31 @@ public class Image extends TextWidget implements Serializable
     	this.isgallery = isgallery;
     }
     
+    public void addAttribute(String name, Object value, boolean update)
+    {
+    	if (!this.isgallery) {
+    		return;
+    	}
+    	
+		if ("selectedImage".equals(name)) {
+			try {
+				this.selectedImage = value.toString();
+				OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+				DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+				evaContext.setVariableValue("selectedImage", this.selectedImage);
+				evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+				ooeeContext.setDefaultEvaluationContext(evaContext);
+				ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+				ooeeContext.setEvaluationContextObject(ODContext.GLOBAL_TAG, evaContext);
+				if (this.selectedImageExpr != null) {
+					this.selectedImageExpr.evaluate(ooeeContext);
+				}
+			} catch (Exception e) {
+				logger.error("error occurrs after selecting image: " + this.getId(), e);
+			}
+		} 
+    }
+    
     public void setSrc(String src)
     {
     	if(src == null)
@@ -60,30 +100,10 @@ public class Image extends TextWidget implements Serializable
     	}
     	else
     	{
-    		String webRoot = HTMLUtil.getWebRoot();
-    		StringBuffer sb = new StringBuffer(webRoot);
-    		
-    		String uientityName = getUIEntityName();
-    		String imgRoot;
-    		if ( uientityName != null )
-    		{
-    			imgRoot = WebConfig.getResourceContextRoot() + "/images";
+    		this.src = src;
+    		if (!this.src.startsWith(WebConfig.getWebContextRoot())) {
+    			this.src = WebConfig.getWebContextRoot() + this.src;
     		}
-    		else
-    		{
-    			imgRoot = "/images";
-    		}
-    		
-    		if ( !webRoot.equals(imgRoot) )
-    		{
-    			sb.append(imgRoot);
-    		}
-    		if ( !src.startsWith("/") )
-    		{
-    			sb.append("/");
-    		}
-    		sb.append(src);
-    		this.src = sb.toString();
     	}
         addAttribute("src",this.src);
     }
@@ -143,11 +163,73 @@ public class Image extends TextWidget implements Serializable
         return html.toString();
     }
     
+    public void createAlbum(String name) {
+    	File root = new File(WebConfig.getRealPath("/images"));
+		if (root.exists()) {
+			String[] files = root.list();
+			for (String f: files) {
+				if (f.equals(name)) {
+					return;
+				}
+			}
+			File newFolder = new File(root, name.toString().replace('/', '.'));
+			newFolder.mkdir();
+			
+			this.refresh();
+		}
+    }
+    
     public void refresh() {
+    	if (!this.isgallery) {
+    		return;
+    	}
     	
-    	
+    	StringBuilder sb = new StringBuilder();
+    	String path = this.src;
+		if (path.startsWith(WebConfig.getWebRoot())) {
+			path = path.substring(WebConfig.getWebRoot().length());
+		}
+    	File directory = new File(WebConfig.getResourcePath() + File.separator + path);
+        if (directory.exists()) {
+        	String[] images = directory.list();
+        	sb.append("<div class=\"album\" data-jgallery-album-title=\""+directory.getName()+"\">");
+        	for (String i : images) {
+        		File f = new File(directory, i);
+        		if (f.isFile()) {
+            		String item = this.src + "/" +  i;
+            		sb.append("<a href=\""+ item +"\"><img src=\""+ item +"\" alt=\""+i+"\"/></a>");
+        		}
+        	}
+        	sb.append("</div>");
+        	for (String i : images) {
+        		File f = new File(directory, i);
+        		if (f.isDirectory()) {
+        			genarateAblum(this.src + "/" + i, sb, f);
+        		}
+        	}
+        }
+        
+        IDataItem dataItem = AjaxActionHelper.createDataItem();
+		dataItem.setUiid(this.getId());
+		dataItem.setJsHandler(IJSHandlerCollections.GALLERY_REFRESH);
+		dataItem.setData(StringUtil.escapeHtmlTags(sb.toString()));
+		dataItem.setFrameInfo(this.getFrameInfo());
+        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
     }
 
+    private void genarateAblum(String root, StringBuilder sb, File directory) {
+    	String[] images = directory.list();
+    	sb.append("<div class=\"album\" data-jgallery-album-title=\""+directory.getName()+"\">");
+    	for (String i : images) {
+    		File f = new File(directory, i);
+    		if (f.isFile()) {
+        		String item = root + "/" +  i;
+        		sb.append("<a href=\""+ item +"\"><img src=\""+ item +"\" alt=\""+i+"\"/></a>");
+    		}
+    	}
+    	sb.append("</div>");
+    }
+    
     /**
      * Whether this component can have editPermission.
      */
@@ -156,4 +238,11 @@ public class Image extends TextWidget implements Serializable
         return false;
     }
 
+    public String selectedImage() {
+    	return this.selectedImage;
+    }
+    
+	public void setSelectedImageExpr(ExpressionType selectedImageExpr) {
+		this.selectedImageExpr = selectedImageExpr;
+	}
 }

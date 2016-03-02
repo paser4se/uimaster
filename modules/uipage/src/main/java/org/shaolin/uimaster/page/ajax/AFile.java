@@ -51,6 +51,13 @@ public class AFile extends TextWidget implements Serializable
     
     public void setStoredPath(String storedPath) {
     	this.storedPath = storedPath;
+    	if (this.storedPath.lastIndexOf('.') != -1) {
+    		if (this.storedPath.lastIndexOf('/') != -1) {
+    			this.storedPath = this.storedPath.substring(0, this.storedPath.lastIndexOf('/'));
+    		} else if (this.storedPath.lastIndexOf('\\') != -1) {
+    			this.storedPath = this.storedPath.substring(0, this.storedPath.lastIndexOf('\\'));
+    		} 
+    	}
     }
     
     public String getStoredPath() {
@@ -67,7 +74,7 @@ public class AFile extends TextWidget implements Serializable
     
     public String generateJS()
     {
-        StringBuffer js = new StringBuffer(200);
+        StringBuilder js = new StringBuilder();
         js.append("defaultname.");
         js.append(getId());
         js.append("=new UIMaster.ui.file({");

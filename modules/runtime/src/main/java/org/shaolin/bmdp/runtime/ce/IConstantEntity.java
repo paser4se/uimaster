@@ -149,6 +149,24 @@ public interface IConstantEntity extends Serializable
     public void setExpTime(Date time);
     
     /**
+     * Get the normal icon of this ce item.
+     * 
+     * @return
+     */
+    public String getIcon();
+    
+	public void setIcon(String icon);
+
+	/**
+     * Get the big icon of this ce item.
+     * 
+     * @return
+     */
+	public String getBigIcon();
+
+	public void setBigIcon(String bigIcon);
+    
+    /**
      * Returns the priority of the ce
      * @return the priority
      */

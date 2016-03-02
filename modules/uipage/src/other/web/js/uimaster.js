@@ -1203,6 +1203,14 @@ UIMaster.registerHandler("fadeOut", function(data,win){
     if(!tree)
         return;
     tree.refresh(children);
+}).registerHandler("gallery_refresh",function(data,win){
+    var children = data.data,id = data.uiid,image,i;
+    for (i in win.elementList)
+        if (i.indexOf(id) == 0)
+            image = win.elementList[i];
+    if(!image)
+        return;
+    image.refresh(children);
 });
 /**
  * @description AJAX callback handler.
@@ -1244,7 +1252,7 @@ UIMaster.cmdHandler = function(json,status,result){
 		}
     }
     if (!MobileAppMode) {
-        if ((cmds.length<=0||cmds[cmds.length-1].jsHandler!="appendError") && arguments.callee.caller.toString().indexOf('postInit')==-1) {
+        if (cmds.length && (cmds.length<=0||cmds[cmds.length-1].jsHandler!="appendError") && arguments.callee.caller.toString().indexOf('postInit')==-1) {
             UIMaster.ui.mask.close();
         }
     }

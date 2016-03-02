@@ -29,6 +29,7 @@ import org.shaolin.uimaster.page.ajax.handlers.AjaxHandlerException;
 import org.shaolin.uimaster.page.ajax.handlers.ChartEventHandler;
 import org.shaolin.uimaster.page.ajax.handlers.CheckPropertyHandler;
 import org.shaolin.uimaster.page.ajax.handlers.EventHandler;
+import org.shaolin.uimaster.page.ajax.handlers.GalleryEventHandler;
 import org.shaolin.uimaster.page.ajax.handlers.HTMLContentEventHandler;
 import org.shaolin.uimaster.page.ajax.handlers.IAjaxHandler;
 import org.shaolin.uimaster.page.ajax.handlers.PreNextPanelEventHandler;
@@ -73,6 +74,8 @@ public class AjaxProcessor implements Serializable
     public static final String EVENT_CHART = "chart";
     
     public static final String HTML_EDITOR_TREE = "htmleditor";
+    
+    public static final String EVENT_GALLERY = "gallery";
     
     /**
      * current fired event type.
@@ -289,6 +292,9 @@ public class AjaxProcessor implements Serializable
             }
             else if (EVENT_CHART.equals(eventType)) {
             	handler = new ChartEventHandler();
+            }
+            else if (EVENT_GALLERY.equals(eventType)) {
+            	handler = new GalleryEventHandler();
             }
             
             if (handler == null)

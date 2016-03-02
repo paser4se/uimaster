@@ -121,6 +121,7 @@ import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.WebConfig.WebConfigFastCache;
 import org.shaolin.uimaster.page.ajax.Table;
 import org.shaolin.uimaster.page.ajax.TableConditions;
+import org.shaolin.uimaster.page.ajax.TreeConditions;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.shaolin.uimaster.page.od.ODContext;
@@ -504,6 +505,23 @@ public class UIFormObject implements java.io.Serializable
             	}
             	propMap.put("_chunkname", frame.getChunkName());
                 propMap.put("_nodename", frame.getNodeName());
+            }
+            else if (component instanceof UIImageType)
+            {
+            	UIImageType image = (UIImageType)component;
+            	if (image.getIsGallery() != null && image.getSelectedImageExpr() != null
+            			&& image.getSelectedImageExpr().getExpression() != null) {
+            		try {
+            			DefaultParsingContext localP = (DefaultParsingContext)
+                				parsingContext.getParsingContextObject(ODContext.LOCAL_TAG);
+            			localP.setVariableClass("selectedImage", String.class);
+						image.getSelectedImageExpr().getExpression().parse(parsingContext);
+						propMap.put("selectedImageExpr", image.getSelectedImageExpr().getExpression());
+					} catch (ParsingException e) {
+						logger.error("Exception occured when pass the tab pane expression: "
+                                + component.getUIID() + " in form: " + this.name, e);
+					}
+            	}
             }
             else if (component instanceof UITabPaneType)
             {
@@ -891,6 +909,7 @@ public class UIFormObject implements java.io.Serializable
 	            	DefaultParsingContext localP = (DefaultParsingContext)
 	        				parsingContext.getParsingContextObject(ODContext.LOCAL_TAG);
 	        		localP.setVariableClass("selectedNode", String.class);
+	        		localP.setVariableClass("treeCondition", TreeConditions.class);
 	            	try {
 						tree.getExpandExpression().getExpression().parse(parsingContext);
 					} catch (ParsingException e) {

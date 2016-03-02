@@ -21,6 +21,11 @@
     clear: both;
 }
 
+.uimaster_clicklink {
+    font-size: both;
+    color: blue;
+}
+
 .width_full {
     width: 100%
 }

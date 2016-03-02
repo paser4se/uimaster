@@ -104,7 +104,11 @@ public class UploadFileServlet extends HttpServlet {
 			response.getWriter().print(array.toString());
 			return;
 		}
-		File root = new File(WebConfig.getResourcePath() + File.separator + file.getStoredPath());
+		String path = file.getStoredPath();
+		if (path.startsWith(WebConfig.getWebRoot())) {
+			path = path.substring(WebConfig.getWebRoot().length());
+		}
+		File root = new File(WebConfig.getResourcePath() + File.separator + path);
 		if (file.getStoredPath().startsWith(WebConfig.getResourcePath())) {
 			root = new File(file.getStoredPath());
 		} 
