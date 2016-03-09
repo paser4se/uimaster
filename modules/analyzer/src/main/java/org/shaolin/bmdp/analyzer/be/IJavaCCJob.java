@@ -25,6 +25,7 @@ import org.shaolin.bmdp.runtime.AppContext;
 
 import org.shaolin.bmdp.runtime.ce.CEUtil;
 
+import org.shaolin.bmdp.analyzer.ce.*;
 
 
 /**
@@ -35,10 +36,10 @@ import org.shaolin.bmdp.runtime.ce.CEUtil;
  *
  */
 
-public interface IClientDBInfo 
+public interface IJavaCCJob 
     extends IPersistentEntity, IExtensibleEntity
 {
-    public final static String ENTITY_NAME = "org.shaolin.bmdp.analyzer.be.ClientDBInfo";
+    public final static String ENTITY_NAME = "org.shaolin.bmdp.analyzer.be.JavaCCJob";
     
  
     /**
@@ -49,39 +50,32 @@ public interface IClientDBInfo
     public long getId();
 
     /**
-     *  get jdbcClass
+     *  get script
      *
-     *  @return jdbcClass
+     *  @return script
      */
-    public java.lang.String getJdbcClass();
+    public java.lang.String getScript();
 
     /**
-     *  get url
+     *  get executeDays
      *
-     *  @return url
+     *  @return executeDays
      */
-    public java.lang.String getUrl();
+    public int getExecuteDays();
 
     /**
-     *  get userName
+     *  get executeTime
      *
-     *  @return userName
+     *  @return executeTime
      */
-    public java.lang.String getUserName();
+    public java.util.Date getExecuteTime();
 
     /**
-     *  get password
+     *  get status
      *
-     *  @return password
+     *  @return status
      */
-    public java.lang.String getPassword();
-
-    /**
-     *  get webroot
-     *
-     *  @return webroot
-     */
-    public java.lang.String getWebroot();
+    public JavaCCJobStatusType getStatus();
 
     /**
      *  set id
@@ -89,29 +83,24 @@ public interface IClientDBInfo
     public void setId(long id);
 
     /**
-     *  set jdbcClass
+     *  set script
      */
-    public void setJdbcClass(java.lang.String jdbcClass);
+    public void setScript(java.lang.String script);
 
     /**
-     *  set url
+     *  set executeDays
      */
-    public void setUrl(java.lang.String url);
+    public void setExecuteDays(int executeDays);
 
     /**
-     *  set userName
+     *  set executeTime
      */
-    public void setUserName(java.lang.String userName);
+    public void setExecuteTime(java.util.Date executeTime);
 
     /**
-     *  set password
+     *  set status
      */
-    public void setPassword(java.lang.String password);
-
-    /**
-     *  set webroot
-     */
-    public void setWebroot(java.lang.String webroot);
+    public void setStatus(JavaCCJobStatusType status);
 
 
 }

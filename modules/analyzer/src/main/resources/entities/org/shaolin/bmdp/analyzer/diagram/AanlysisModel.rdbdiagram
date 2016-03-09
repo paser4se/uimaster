@@ -30,6 +30,29 @@
     </ns2:mapping>
   </ns2:table>
   <ns2:table>
+    <entityName>ANAS_JAVACCJOB</entityName>
+    <systemVersion>0</systemVersion>
+    <ns2:column name="ID" type="BIGINT" isNull="false" autoIncrement="true"></ns2:column>
+    <ns2:column name="SCRIPT" type="VARCHAR" isNull="true"></ns2:column>
+    <ns2:column name="EXECUTEDAYS" type="INTEGER" length="3" isNull="true"></ns2:column>
+    <ns2:column name="EXECUTETIME" type="VARCHAR" isNull="true"></ns2:column>
+    <ns2:column name="STATUS" type="INTEGER" length="2" isNull="true"></ns2:column>
+    <ns2:column name="_enable" type="INTEGER" length="2" default="1"></ns2:column>
+    <ns2:primaryKey>
+      <ns2:columnName>ID</ns2:columnName>
+    </ns2:primaryKey>
+    <ns2:mapping>
+      <systemVersion>0</systemVersion>
+      <ns2:businessEntity entityName="org.shaolin.bmdp.analyzer.be.JavaCCJob"></ns2:businessEntity>
+      <ns2:fieldMapping beFieldName="id" columnName="ID"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="script" columnName="SCRIPT"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="executeDays" columnName="EXECUTEDAYS"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="executeTime" columnName="EXECUTETIME"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="status" columnName="STATUS"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="_enable" columnName="_enable"></ns2:fieldMapping>
+    </ns2:mapping>
+  </ns2:table>
+  <ns2:table>
     <entityName>ANAS_JOB</entityName>
     <systemVersion>0</systemVersion>
     <ns2:column name="ID" type="BIGINT" isNull="false" autoIncrement="true"></ns2:column>
@@ -92,6 +115,20 @@
       </ns2:fieldMapping>
     </ns2:searchResultMapping>
     <ns2:searchConditionMapping name="Search">
+      <ns2:fieldMapping>
+            <ns2:toDataFieldPath>inObject.id</ns2:toDataFieldPath>
+            <ns2:conditionValue>
+                <ns2:operator isReverse="false" xsi:type="ns2:LogicOperatorType">
+                    <ns2:type>=</ns2:type>
+                </ns2:operator>
+                <ns2:value xsi:type="ns2:SimpleFieldValueType">
+                    <ns2:valueFieldPath>scObject.id</ns2:valueFieldPath>
+                </ns2:value>
+                <ns2:condition>
+                    <expressionString><![CDATA[scObject.getId() > 0]]></expressionString>
+                </ns2:condition>
+            </ns2:conditionValue>
+        </ns2:fieldMapping>
       <ns2:searchConditionData name="scObject" category="BusinessEntity">
         <type entityName="org.shaolin.bmdp.analyzer.be.ClientDBInfo"></type>
       </ns2:searchConditionData>
@@ -113,8 +150,57 @@
       </ns2:fieldMapping>
     </ns2:searchResultMapping>
     <ns2:searchConditionMapping name="Search">
+      <ns2:fieldMapping>
+            <ns2:toDataFieldPath>inObject.id</ns2:toDataFieldPath>
+            <ns2:conditionValue>
+                <ns2:operator isReverse="false" xsi:type="ns2:LogicOperatorType">
+                    <ns2:type>=</ns2:type>
+                </ns2:operator>
+                <ns2:value xsi:type="ns2:SimpleFieldValueType">
+                    <ns2:valueFieldPath>scObject.id</ns2:valueFieldPath>
+                </ns2:value>
+                <ns2:condition>
+                    <expressionString><![CDATA[scObject.getId() > 0]]></expressionString>
+                </ns2:condition>
+            </ns2:conditionValue>
+        </ns2:fieldMapping>
       <ns2:searchConditionData name="scObject" category="BusinessEntity">
         <type entityName="org.shaolin.bmdp.analyzer.be.Job"></type>
+      </ns2:searchConditionData>
+    </ns2:searchConditionMapping>
+  </ns2:query>
+  <ns2:query queryName="searchJavaCCJob">
+    <ns2:searchResult name="outObject" category="BusinessEntity">
+      <type entityName="org.shaolin.bmdp.analyzer.be.JavaCCJob"></type>
+    </ns2:searchResult>
+    <ns2:fromData name="inObject" category="BusinessEntity">
+      <type entityName="org.shaolin.bmdp.analyzer.be.JavaCCJob"></type>
+    </ns2:fromData>
+    <ns2:searchResultMapping>
+      <ns2:fieldMapping>
+        <ns2:toDataFieldPath>outObject</ns2:toDataFieldPath>
+        <ns2:value xsi:type="ns2:SimpleFieldValueType">
+          <ns2:valueFieldPath>inObject</ns2:valueFieldPath>
+        </ns2:value>
+      </ns2:fieldMapping>
+    </ns2:searchResultMapping>
+    <ns2:searchConditionMapping name="Search">
+      <ns2:fieldMapping>
+            <ns2:toDataFieldPath>inObject.id</ns2:toDataFieldPath>
+            <ns2:conditionValue>
+                <ns2:operator isReverse="false" xsi:type="ns2:LogicOperatorType">
+                    <ns2:type>=</ns2:type>
+                </ns2:operator>
+                <ns2:value xsi:type="ns2:SimpleFieldValueType">
+                    <ns2:valueFieldPath>scObject.id</ns2:valueFieldPath>
+                </ns2:value>
+                <ns2:condition>
+                    <expressionString><![CDATA[scObject.getId() > 0]]></expressionString>
+                </ns2:condition>
+            </ns2:conditionValue>
+        </ns2:fieldMapping>
+      <ns2:searchConditionData name="scObject" category="BusinessEntity">
+        <type entityName="org.shaolin.bmdp.analyzer.be.JavaCCJob"></type>
       </ns2:searchConditionData>
     </ns2:searchConditionMapping>
   </ns2:query>
@@ -134,6 +220,20 @@
       </ns2:fieldMapping>
     </ns2:searchResultMapping>
     <ns2:searchConditionMapping name="Search">
+      <ns2:fieldMapping>
+            <ns2:toDataFieldPath>inObject.id</ns2:toDataFieldPath>
+            <ns2:conditionValue>
+                <ns2:operator isReverse="false" xsi:type="ns2:LogicOperatorType">
+                    <ns2:type>=</ns2:type>
+                </ns2:operator>
+                <ns2:value xsi:type="ns2:SimpleFieldValueType">
+                    <ns2:valueFieldPath>scObject.id</ns2:valueFieldPath>
+                </ns2:value>
+                <ns2:condition>
+                    <expressionString><![CDATA[scObject.getId() > 0]]></expressionString>
+                </ns2:condition>
+            </ns2:conditionValue>
+        </ns2:fieldMapping>
       <ns2:searchConditionData name="scObject" category="BusinessEntity">
         <type entityName="org.shaolin.bmdp.analyzer.be.ChartStatistic"></type>
       </ns2:searchConditionData>

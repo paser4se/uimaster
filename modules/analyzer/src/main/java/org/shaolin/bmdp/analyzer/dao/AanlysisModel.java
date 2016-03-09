@@ -35,6 +35,9 @@ public class AanlysisModel extends BEEntityDaoObject {
                 this._addOrders(inObjectCriteria, orders);
             }
 
+            if (scObject.getId() > 0) {
+                inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.id", scObject.getId()));
+            }
 
         inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject._enable", scObject.isEnabled()));
 
@@ -45,6 +48,9 @@ public class AanlysisModel extends BEEntityDaoObject {
     public long searchClientDBInfoCount(org.shaolin.bmdp.analyzer.be.ClientDBInfoImpl scObject) {
             Criteria inObjectCriteria = this._createCriteria(org.shaolin.bmdp.analyzer.be.ClientDBInfoImpl.class, "inObject");
 
+            if (scObject.getId() > 0) {
+                inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.id", scObject.getId()));
+            }
 
         inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject._enable", scObject.isEnabled()));
 
@@ -59,6 +65,9 @@ public class AanlysisModel extends BEEntityDaoObject {
                 this._addOrders(inObjectCriteria, orders);
             }
 
+            if (scObject.getId() > 0) {
+                inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.id", scObject.getId()));
+            }
 
         inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject._enable", scObject.isEnabled()));
 
@@ -69,6 +78,39 @@ public class AanlysisModel extends BEEntityDaoObject {
     public long searchJobCount(org.shaolin.bmdp.analyzer.be.JobImpl scObject) {
             Criteria inObjectCriteria = this._createCriteria(org.shaolin.bmdp.analyzer.be.JobImpl.class, "inObject");
 
+            if (scObject.getId() > 0) {
+                inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.id", scObject.getId()));
+            }
+
+        inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject._enable", scObject.isEnabled()));
+
+        return this._count(inObjectCriteria);
+    }
+
+    public List<org.shaolin.bmdp.analyzer.be.IJavaCCJob> searchJavaCCJob(org.shaolin.bmdp.analyzer.be.JavaCCJobImpl scObject,
+           List<Order> orders, int offset, int count) {
+            Criteria inObjectCriteria = this._createCriteria(org.shaolin.bmdp.analyzer.be.JavaCCJobImpl.class, "inObject");
+            if (orders == null) {
+            } else {
+                this._addOrders(inObjectCriteria, orders);
+            }
+
+            if (scObject.getId() > 0) {
+                inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.id", scObject.getId()));
+            }
+
+        inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject._enable", scObject.isEnabled()));
+
+        List result = this._list(offset, count, inObjectCriteria);
+        return result;
+    }
+
+    public long searchJavaCCJobCount(org.shaolin.bmdp.analyzer.be.JavaCCJobImpl scObject) {
+            Criteria inObjectCriteria = this._createCriteria(org.shaolin.bmdp.analyzer.be.JavaCCJobImpl.class, "inObject");
+
+            if (scObject.getId() > 0) {
+                inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.id", scObject.getId()));
+            }
 
         inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject._enable", scObject.isEnabled()));
 
@@ -83,6 +125,9 @@ public class AanlysisModel extends BEEntityDaoObject {
                 this._addOrders(inObjectCriteria, orders);
             }
 
+            if (scObject.getId() > 0) {
+                inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.id", scObject.getId()));
+            }
 
         inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject._enable", scObject.isEnabled()));
 
@@ -93,6 +138,9 @@ public class AanlysisModel extends BEEntityDaoObject {
     public long searchChartStatsCount(org.shaolin.bmdp.analyzer.be.ChartStatisticImpl scObject) {
             Criteria inObjectCriteria = this._createCriteria(org.shaolin.bmdp.analyzer.be.ChartStatisticImpl.class, "inObject");
 
+            if (scObject.getId() > 0) {
+                inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.id", scObject.getId()));
+            }
 
         inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject._enable", scObject.isEnabled()));
 

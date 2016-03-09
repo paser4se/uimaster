@@ -62,6 +62,32 @@
     </bediagram:beEntity>
     
     <bediagram:beEntity needPersist="true" needUIEntity="true">
+        <common:entityName>JavaCCJob</common:entityName>
+        <bediagram:member pk="true">
+            <bediagram:name>id</bediagram:name>
+            <bediagram:type xsi:type="bediagram:LongType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>script</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>executeDays</bediagram:name>
+            <bediagram:type xsi:type="bediagram:IntType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>executeTime</bediagram:name>
+            <bediagram:type xsi:type="bediagram:DateTimeType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>status</bediagram:name>
+            <bediagram:type xsi:type="bediagram:CEObjRefType">
+                <bediagram:targetEntity entityName="JavaCCJobStatusType" />
+            </bediagram:type>
+        </bediagram:member>
+    </bediagram:beEntity>
+    
+    <bediagram:beEntity needPersist="true" needUIEntity="true">
         <common:entityName>ChartStatistic</common:entityName>
         <bediagram:member pk="true">
             <bediagram:name>id</bediagram:name>
@@ -117,5 +143,19 @@
             <bediagram:type xsi:type="bediagram:StringType" />
         </bediagram:member>
     </bediagram:beEntity>
+    
+    <bediagram:ceEntity>
+        <common:entityName>JavaCCJobStatusType</common:entityName>
+        <bediagram:constantValue>
+            <bediagram:value>Stop</bediagram:value>
+            <bediagram:intValue>0</bediagram:intValue>
+            <bediagram:description>Stop</bediagram:description>
+        </bediagram:constantValue>
+        <bediagram:constantValue>
+            <bediagram:value>Start</bediagram:value>
+            <bediagram:intValue>1</bediagram:intValue>
+            <bediagram:description>Start</bediagram:description>
+        </bediagram:constantValue>
+    </bediagram:ceEntity>
 	
 </bediagram:BEDiagram>

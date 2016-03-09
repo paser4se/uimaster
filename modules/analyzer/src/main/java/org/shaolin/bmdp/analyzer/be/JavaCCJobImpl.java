@@ -25,6 +25,7 @@ import org.shaolin.bmdp.runtime.AppContext;
 
 import org.shaolin.bmdp.runtime.ce.CEUtil;
 
+import org.shaolin.bmdp.analyzer.ce.*;
 
 
 /**
@@ -35,7 +36,7 @@ import org.shaolin.bmdp.runtime.ce.CEUtil;
  *
  */
 
-public class ChartPointDataImpl  implements org.shaolin.bmdp.analyzer.be.IChartPointData
+public class JavaCCJobImpl  implements org.shaolin.bmdp.analyzer.be.IJavaCCJob
 {
     private static final long serialVersionUID = 0x90B1123CE87B50FFL;
 
@@ -43,10 +44,10 @@ public class ChartPointDataImpl  implements org.shaolin.bmdp.analyzer.be.IChartP
 
     protected String getBusinessEntityName()
     {
-        return "org.shaolin.bmdp.analyzer.be.ChartPointData";
+        return "org.shaolin.bmdp.analyzer.be.JavaCCJob";
     }
 
-    public ChartPointDataImpl()
+    public JavaCCJobImpl()
     {
         
         _extField = new BEExtensionInfo();
@@ -58,6 +59,11 @@ public class ChartPointDataImpl  implements org.shaolin.bmdp.analyzer.be.IChartP
      * Create Date
      */
     private java.util.Date createDate = null;
+
+    /**
+     * Enable record
+     */
+    private boolean _enable = true;
 
 
     /**
@@ -73,32 +79,29 @@ public class ChartPointDataImpl  implements org.shaolin.bmdp.analyzer.be.IChartP
    /**
      *  help is not available
      */    
-    protected java.lang.String label;
+    protected long id;
     
    /**
      *  help is not available
      */    
-    protected java.lang.String dataset;
+    protected java.lang.String script;
     
    /**
      *  help is not available
      */    
-    protected java.lang.String dataset1;
+    protected int executeDays;
     
    /**
      *  help is not available
      */    
-    protected java.lang.String dataset2;
+    protected java.util.Date executeTime;
     
    /**
      *  help is not available
      */    
-    protected java.lang.String dataset3;
+    protected JavaCCJobStatusType status = JavaCCJobStatusType.NOT_SPECIFIED;
     
-   /**
-     *  help is not available
-     */    
-    protected java.lang.String dataset4;
+    protected int statusInt = JavaCCJobStatusType.NOT_SPECIFIED.getIntValue();
     
         /**
      *  Get createDate
@@ -107,6 +110,22 @@ public class ChartPointDataImpl  implements org.shaolin.bmdp.analyzer.be.IChartP
      */
     public java.util.Date getCreateDate() {
         return createDate;
+    }
+            /**
+     *  Is enable
+     *
+     *  @return boolean
+     */
+    public boolean isEnabled() {
+        return _enable;
+    }
+            /**
+     *  Is enable
+     *
+     *  @return boolean
+     */
+    private boolean get_enable() {
+        return _enable;
     }
         
     /**
@@ -128,57 +147,57 @@ public class ChartPointDataImpl  implements org.shaolin.bmdp.analyzer.be.IChartP
     }
         
     /**
-     *  get label
+     *  get id
      *
-     *  @return label
+     *  @return id
      */
-    public java.lang.String getLabel() {
-        return label;
+    public long getId() {
+        return id;
     }
 
     /**
-     *  get dataset
+     *  get script
      *
-     *  @return dataset
+     *  @return script
      */
-    public java.lang.String getDataset() {
-        return dataset;
+    public java.lang.String getScript() {
+        return script;
     }
 
     /**
-     *  get dataset1
+     *  get executeDays
      *
-     *  @return dataset1
+     *  @return executeDays
      */
-    public java.lang.String getDataset1() {
-        return dataset1;
+    public int getExecuteDays() {
+        return executeDays;
     }
 
     /**
-     *  get dataset2
+     *  get executeTime
      *
-     *  @return dataset2
+     *  @return executeTime
      */
-    public java.lang.String getDataset2() {
-        return dataset2;
+    public java.util.Date getExecuteTime() {
+        return executeTime;
     }
 
     /**
-     *  get dataset3
+     *  get status
      *
-     *  @return dataset3
+     *  @return status
      */
-    public java.lang.String getDataset3() {
-        return dataset3;
+    public JavaCCJobStatusType getStatus() {
+        return status;
     }
 
     /**
-     *  get dataset4
+     *  get statusInt
      *
-     *  @return dataset4
+     *  @return statusInt
      */
-    public java.lang.String getDataset4() {
-        return dataset4;
+    private int getStatusInt() {
+        return statusInt;
     }
 
         /**
@@ -187,6 +206,22 @@ public class ChartPointDataImpl  implements org.shaolin.bmdp.analyzer.be.IChartP
      */
     public void setCreateDate(java.util.Date createDate) {
         this.createDate = createDate;
+    }
+
+        /**
+     *  set enable
+     *  @parameter true or false.
+     */
+    public void setEnabled(boolean enable) {
+        _enable = enable;
+    }
+
+        /**
+     *  set enable
+     *  @parameter true or false.
+     */
+    private void set_enable(boolean enable) {
+        _enable = enable;
     }
 
     /**
@@ -198,45 +233,51 @@ public class ChartPointDataImpl  implements org.shaolin.bmdp.analyzer.be.IChartP
     }
         
     /**
-     *  set label
+     *  set id
      */
-    public void setLabel(java.lang.String label) {
-        this.label = label;
+    public void setId(long id) {
+        this.id = id;
     }
 
     /**
-     *  set dataset
+     *  set script
      */
-    public void setDataset(java.lang.String dataset) {
-        this.dataset = dataset;
+    public void setScript(java.lang.String script) {
+        this.script = script;
     }
 
     /**
-     *  set dataset1
+     *  set executeDays
      */
-    public void setDataset1(java.lang.String dataset1) {
-        this.dataset1 = dataset1;
+    public void setExecuteDays(int executeDays) {
+        this.executeDays = executeDays;
     }
 
     /**
-     *  set dataset2
+     *  set executeTime
      */
-    public void setDataset2(java.lang.String dataset2) {
-        this.dataset2 = dataset2;
+    public void setExecuteTime(java.util.Date executeTime) {
+        this.executeTime = executeTime;
     }
 
     /**
-     *  set dataset3
+     *  set status
      */
-    public void setDataset3(java.lang.String dataset3) {
-        this.dataset3 = dataset3;
+    public void setStatus(JavaCCJobStatusType status) {
+        this.status = status;
+    if (statusInt != status.getIntValue()) {
+            statusInt = status.getIntValue();
+        }
     }
 
     /**
-     *  set dataset4
+     *  set int status
      */
-    public void setDataset4(java.lang.String dataset4) {
-        this.dataset4 = dataset4;
+    private void setStatusInt(int intValue) {
+        this.statusInt = intValue;
+        if (statusInt != status.getIntValue()) {
+            status = (JavaCCJobStatusType)ceService.getConstantEntity(JavaCCJobStatusType.ENTITY_NAME).getByIntValue(statusInt);
+        }
     }
 
     
@@ -246,9 +287,9 @@ public class ChartPointDataImpl  implements org.shaolin.bmdp.analyzer.be.IChartP
     public boolean equals(Object obj) {
         if (obj == this)
             return true;
-        if (!(obj instanceof org.shaolin.bmdp.analyzer.be.ChartPointDataImpl))
+        if (!(obj instanceof org.shaolin.bmdp.analyzer.be.JavaCCJobImpl))
             return false;
-        org.shaolin.bmdp.analyzer.be.ChartPointDataImpl o = (org.shaolin.bmdp.analyzer.be.ChartPointDataImpl)obj;
+        org.shaolin.bmdp.analyzer.be.JavaCCJobImpl o = (org.shaolin.bmdp.analyzer.be.JavaCCJobImpl)obj;
         
         boolean result = super.equals(obj);
 
@@ -275,40 +316,37 @@ public class ChartPointDataImpl  implements org.shaolin.bmdp.analyzer.be.IChartP
      */
     public  String  toString() {
         StringBuffer aBuf = new StringBuffer();
-        aBuf.append("org.shaolin.bmdp.analyzer.be.ChartPointData");
+        aBuf.append("org.shaolin.bmdp.analyzer.be.JavaCCJob");
     
         aBuf.append(" : ");
         
         aBuf.append("createDate=").append(createDate).append(", ");
         
-        aBuf.append("label");
+        aBuf.append("enable=").append(_enable).append(", ");
+        
+        aBuf.append("id");
         aBuf.append("=");
-        aBuf.append(label);
+        aBuf.append(id);
         aBuf.append(", ");
         
-        aBuf.append("dataset");
+        aBuf.append("script");
         aBuf.append("=");
-        aBuf.append(dataset);
+        aBuf.append(script);
         aBuf.append(", ");
         
-        aBuf.append("dataset1");
+        aBuf.append("executeDays");
         aBuf.append("=");
-        aBuf.append(dataset1);
+        aBuf.append(executeDays);
         aBuf.append(", ");
         
-        aBuf.append("dataset2");
+        aBuf.append("executeTime");
         aBuf.append("=");
-        aBuf.append(dataset2);
+        aBuf.append(executeTime);
         aBuf.append(", ");
         
-        aBuf.append("dataset3");
+        aBuf.append("status");
         aBuf.append("=");
-        aBuf.append(dataset3);
-        aBuf.append(", ");
-        
-        aBuf.append("dataset4");
-        aBuf.append("=");
-        aBuf.append(dataset4);
+        aBuf.append(status);
         aBuf.append(", ");
         
         return aBuf.toString();
@@ -325,66 +363,61 @@ public class ChartPointDataImpl  implements org.shaolin.bmdp.analyzer.be.IChartP
         
         MemberType member = null;
         
-        org.shaolin.bmdp.datamodel.bediagram.StringType labelBEType = new org.shaolin.bmdp.datamodel.bediagram.StringType();
+        org.shaolin.bmdp.datamodel.bediagram.LongType idBEType = new org.shaolin.bmdp.datamodel.bediagram.LongType();
     
-        //MemberType Define for label
+        //MemberType Define for id
         member = new MemberType();
-        member.setName("label");
+        member.setName("id");
         member.setDescription("null");
-        member.setType(labelBEType);
+        member.setType(idBEType);
         memberTypeList.add(member);
             
-        org.shaolin.bmdp.datamodel.bediagram.StringType datasetBEType = new org.shaolin.bmdp.datamodel.bediagram.StringType();
+        org.shaolin.bmdp.datamodel.bediagram.StringType scriptBEType = new org.shaolin.bmdp.datamodel.bediagram.StringType();
     
-        //MemberType Define for dataset
+        //MemberType Define for script
         member = new MemberType();
-        member.setName("dataset");
+        member.setName("script");
         member.setDescription("null");
-        member.setType(datasetBEType);
+        member.setType(scriptBEType);
         memberTypeList.add(member);
             
-        org.shaolin.bmdp.datamodel.bediagram.StringType dataset1BEType = new org.shaolin.bmdp.datamodel.bediagram.StringType();
+        org.shaolin.bmdp.datamodel.bediagram.IntType executeDaysBEType = new org.shaolin.bmdp.datamodel.bediagram.IntType();
     
-        //MemberType Define for dataset1
+        //MemberType Define for executeDays
         member = new MemberType();
-        member.setName("dataset1");
+        member.setName("executeDays");
         member.setDescription("null");
-        member.setType(dataset1BEType);
+        member.setType(executeDaysBEType);
         memberTypeList.add(member);
             
-        org.shaolin.bmdp.datamodel.bediagram.StringType dataset2BEType = new org.shaolin.bmdp.datamodel.bediagram.StringType();
+        org.shaolin.bmdp.datamodel.bediagram.DateTimeType executeTimeBEType = new org.shaolin.bmdp.datamodel.bediagram.DateTimeType();
     
-        //MemberType Define for dataset2
+        //MemberType Define for executeTime
         member = new MemberType();
-        member.setName("dataset2");
+        member.setName("executeTime");
         member.setDescription("null");
-        member.setType(dataset2BEType);
+        member.setType(executeTimeBEType);
         memberTypeList.add(member);
             
-        org.shaolin.bmdp.datamodel.bediagram.StringType dataset3BEType = new org.shaolin.bmdp.datamodel.bediagram.StringType();
+        org.shaolin.bmdp.datamodel.bediagram.CEObjRefType statusBEType = new org.shaolin.bmdp.datamodel.bediagram.CEObjRefType();
     
-        //MemberType Define for dataset3
-        member = new MemberType();
-        member.setName("dataset3");
-        member.setDescription("null");
-        member.setType(dataset3BEType);
-        memberTypeList.add(member);
+        TargetEntityType statusTargetEntity = new TargetEntityType();
+        statusBEType.setTargetEntity(statusTargetEntity);
+        statusTargetEntity.setEntityName("org.shaolin.bmdp.analyzer.ce.JavaCCJobStatusType");
             
-        org.shaolin.bmdp.datamodel.bediagram.StringType dataset4BEType = new org.shaolin.bmdp.datamodel.bediagram.StringType();
-    
-        //MemberType Define for dataset4
+        //MemberType Define for status
         member = new MemberType();
-        member.setName("dataset4");
+        member.setName("status");
         member.setDescription("null");
-        member.setType(dataset4BEType);
+        member.setType(statusBEType);
         memberTypeList.add(member);
             
         return memberTypeList;
     }
     
-    public IChartPointData createEntity ()
+    public IJavaCCJob createEntity ()
     {
-        return new ChartPointDataImpl();
+        return new JavaCCJobImpl();
     }
     
 }

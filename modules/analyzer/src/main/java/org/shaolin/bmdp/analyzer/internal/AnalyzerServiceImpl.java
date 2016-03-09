@@ -5,6 +5,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.shaolin.bmdp.analyzer.be.ChartStatisticImpl;
 import org.shaolin.bmdp.analyzer.be.IChartStatistic;
+import org.shaolin.bmdp.analyzer.be.IJavaCCJob;
+import org.shaolin.bmdp.analyzer.be.JavaCCJobImpl;
 import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
 import org.shaolin.bmdp.datamodel.page.UITableStatsType;
 import org.shaolin.bmdp.runtime.AppContext;
@@ -35,6 +37,8 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 	@Override
 	public void reload() {
 		if (AppContext.isMasterNode()) {
+			// only master node allows to run job.
+			
 			ChartStatisticImpl stats = new ChartStatisticImpl();
 			List<IChartStatistic> result = AanlysisModel.INSTANCE.searchChartStats(stats, null, 0, -1);
 			if (!result.isEmpty()) {
@@ -54,6 +58,11 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 		    		} 
 				}
 			}
+			
+			JavaCCJobImpl jobCondition = new JavaCCJobImpl();
+			jobCondition.setEnabled(true);
+			List<IJavaCCJob> jobs = AanlysisModel.INSTANCE.searchJavaCCJob(jobCondition, null, 0, -1);
+			//TODO:
 		}
 	}
 	
