@@ -234,6 +234,35 @@
         </bediagram:member>
 	</bediagram:beEntity>
 	
+	<bediagram:beEntity needOrgId="true" needPersist="true" needUIEntity="true">
+        <common:entityName>ChatHistory</common:entityName>
+        <bediagram:member pk="true">
+            <bediagram:name>id</bediagram:name>
+            <bediagram:type xsi:type="bediagram:LongType" />
+        </bediagram:member>
+        <!-- option -->
+        <bediagram:member>
+            <bediagram:name>taskId</bediagram:name>
+            <bediagram:type xsi:type="bediagram:LongType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>sentPartyId</bediagram:name>
+            <bediagram:type xsi:type="bediagram:LongType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>receivedPartyId</bediagram:name>
+            <bediagram:type xsi:type="bediagram:LongType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>message</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>read</bediagram:name>
+            <bediagram:type xsi:type="bediagram:BooleanType" />
+        </bediagram:member>
+    </bediagram:beEntity>
+	
 	<bediagram:beEntity needPersist="true" needUIEntity="true">
         <common:entityName>ServerNodeInfo</common:entityName>
         <bediagram:member pk="true">

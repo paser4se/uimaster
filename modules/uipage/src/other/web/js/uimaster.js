@@ -83,9 +83,25 @@ function Expression(components, expression){
 /**
  *  hard code for dynamic page links.
  */
-function dPageLink(link){
-	var t = parent.defaultname.functionTree._treeObj; t.deselect_node(t.get_selected()); t.select_node(link);
+function dPageLink(link,uipanel){
+    if (link != null) {
+	    parent.defaultname.functionTree.clickUiPanel = uipanel;
+		var t = parent.defaultname.functionTree._treeObj; 
+		t.deselect_node(t.get_selected()); t.select_node(link);
+	}
 };
+function dPageLinkOnPage(clickRemembered){
+    if (!clickRemembered || clickRemembered == "null" || clickRemembered == "") 
+	    return;
+    if (clickRemembered.indexOf(",") != -1) {
+       var ids = clickRemembered.split(",");
+	   for (var i=0;i<ids.length;i++) {
+	      $("#"+ids[i]).trigger("click");
+	   }
+	} else {
+       $("#"+clickRemembered).trigger("click");
+	}
+}
 /**
  * @description Set the required indicator for a widget.
  * @param {String} id Widget's id.
@@ -2075,6 +2091,19 @@ function getElementList(){
     disableDoubleSubmit();
     UIMaster.init();
     focusFirstTextField();
+}
+function establishWebsocket(eventType, onOpen, onMessage, onError) {
+    var webSocket = new WebSocket("ws://localhost:8080/"+WEB_CONTEXTPATH+eventType);
+    webSocket.onerror = function(event) {
+      onError(webSocket, event);
+    };
+    webSocket.onopen = function(event) {
+      onOpen(webSocket, event)
+    };
+    webSocket.onmessage = function(event) {
+      onMessage(webSocket, event)
+    };
+    return webSocket;
 }
 /*
  * Place focus on the first editable, non-defaulted control on the page so the user can begin typing immediately.

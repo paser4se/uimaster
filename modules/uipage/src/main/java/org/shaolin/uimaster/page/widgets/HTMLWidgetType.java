@@ -780,14 +780,17 @@ public abstract class HTMLWidgetType implements Serializable
 
     public void generateEndWidget(HTMLSnapshotContext context)
     {
-    	String dlinkInfo = (String)getAllAttribute("dlinkInfo");
+    	String dlinkInfo = (String)getAllAttribute("dtargetInfo");
         if (dlinkInfo != null)
         {
         	int index = dlinkInfo.lastIndexOf(";");
         	String link = dlinkInfo.substring(0, index);
-        	String comment = dlinkInfo.substring(index + 1);
+        	String uipanel = dlinkInfo.substring(index + 1);
+        	String comment = (String)getAllAttribute("dlinkInfo");
         	context.generateHTML("<span><a href=\"javascript:dPageLink('");
         	context.generateHTML(link);
+        	context.generateHTML("','");
+        	context.generateHTML(uipanel);
         	context.generateHTML("');\" title=\"");
         	context.generateHTML(comment);
         	context.generateHTML("\");\">");

@@ -85,7 +85,7 @@ public class FormatUtil {
 
 		IFormatProcessor processor = dataTypeMap.get(dataType);
 		if (logger.isTraceEnabled()) {
-			logger.trace("processor: " + processor.getClass());
+			logger.trace("processor: {}", processor.getClass());
 		}
 
 		String localeName = (String) localeData.get("locale");

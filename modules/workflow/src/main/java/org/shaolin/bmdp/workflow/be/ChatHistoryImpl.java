@@ -35,7 +35,7 @@ import org.shaolin.bmdp.runtime.ce.CEUtil;
  *
  */
 
-public class NotificationImpl  implements org.shaolin.bmdp.workflow.be.INotification
+public class ChatHistoryImpl  implements org.shaolin.bmdp.workflow.be.IChatHistory
 {
     private static final long serialVersionUID = 0x90B1123CE87B50FFL;
 
@@ -43,10 +43,10 @@ public class NotificationImpl  implements org.shaolin.bmdp.workflow.be.INotifica
 
     protected String getBusinessEntityName()
     {
-        return "org.shaolin.bmdp.workflow.be.Notification";
+        return "org.shaolin.bmdp.workflow.be.ChatHistory";
     }
 
-    public NotificationImpl()
+    public ChatHistoryImpl()
     {
         
         _extField = new BEExtensionInfo();
@@ -89,17 +89,22 @@ public class NotificationImpl  implements org.shaolin.bmdp.workflow.be.INotifica
    /**
      *  help is not available
      */    
-    protected long partyId;
+    protected long taskId;
     
    /**
      *  help is not available
      */    
-    protected java.lang.String subject;
+    protected long sentPartyId;
     
    /**
      *  help is not available
      */    
-    protected java.lang.String description;
+    protected long receivedPartyId;
+    
+   /**
+     *  help is not available
+     */    
+    protected java.lang.String message;
     
    /**
      *  help is not available
@@ -166,30 +171,39 @@ public class NotificationImpl  implements org.shaolin.bmdp.workflow.be.INotifica
     }
 
     /**
-     *  get partyId
+     *  get taskId
      *
-     *  @return partyId
+     *  @return taskId
      */
-    public long getPartyId() {
-        return partyId;
+    public long getTaskId() {
+        return taskId;
     }
 
     /**
-     *  get subject
+     *  get sentPartyId
      *
-     *  @return subject
+     *  @return sentPartyId
      */
-    public java.lang.String getSubject() {
-        return subject;
+    public long getSentPartyId() {
+        return sentPartyId;
     }
 
     /**
-     *  get description
+     *  get receivedPartyId
      *
-     *  @return description
+     *  @return receivedPartyId
      */
-    public java.lang.String getDescription() {
-        return description;
+    public long getReceivedPartyId() {
+        return receivedPartyId;
+    }
+
+    /**
+     *  get message
+     *
+     *  @return message
+     */
+    public java.lang.String getMessage() {
+        return message;
     }
 
     /**
@@ -249,24 +263,31 @@ public class NotificationImpl  implements org.shaolin.bmdp.workflow.be.INotifica
     }
 
     /**
-     *  set partyId
+     *  set taskId
      */
-    public void setPartyId(long partyId) {
-        this.partyId = partyId;
+    public void setTaskId(long taskId) {
+        this.taskId = taskId;
     }
 
     /**
-     *  set subject
+     *  set sentPartyId
      */
-    public void setSubject(java.lang.String subject) {
-        this.subject = subject;
+    public void setSentPartyId(long sentPartyId) {
+        this.sentPartyId = sentPartyId;
     }
 
     /**
-     *  set description
+     *  set receivedPartyId
      */
-    public void setDescription(java.lang.String description) {
-        this.description = description;
+    public void setReceivedPartyId(long receivedPartyId) {
+        this.receivedPartyId = receivedPartyId;
+    }
+
+    /**
+     *  set message
+     */
+    public void setMessage(java.lang.String message) {
+        this.message = message;
     }
 
     /**
@@ -283,9 +304,9 @@ public class NotificationImpl  implements org.shaolin.bmdp.workflow.be.INotifica
     public boolean equals(Object obj) {
         if (obj == this)
             return true;
-        if (!(obj instanceof org.shaolin.bmdp.workflow.be.NotificationImpl))
+        if (!(obj instanceof org.shaolin.bmdp.workflow.be.ChatHistoryImpl))
             return false;
-        org.shaolin.bmdp.workflow.be.NotificationImpl o = (org.shaolin.bmdp.workflow.be.NotificationImpl)obj;
+        org.shaolin.bmdp.workflow.be.ChatHistoryImpl o = (org.shaolin.bmdp.workflow.be.ChatHistoryImpl)obj;
         
         boolean result = super.equals(obj);
 
@@ -312,7 +333,7 @@ public class NotificationImpl  implements org.shaolin.bmdp.workflow.be.INotifica
      */
     public  String  toString() {
         StringBuffer aBuf = new StringBuffer();
-        aBuf.append("org.shaolin.bmdp.workflow.be.Notification");
+        aBuf.append("org.shaolin.bmdp.workflow.be.ChatHistory");
     
         aBuf.append(" : ");
         
@@ -327,19 +348,24 @@ public class NotificationImpl  implements org.shaolin.bmdp.workflow.be.INotifica
         aBuf.append(id);
         aBuf.append(", ");
         
-        aBuf.append("partyId");
+        aBuf.append("taskId");
         aBuf.append("=");
-        aBuf.append(partyId);
+        aBuf.append(taskId);
         aBuf.append(", ");
         
-        aBuf.append("subject");
+        aBuf.append("sentPartyId");
         aBuf.append("=");
-        aBuf.append(subject);
+        aBuf.append(sentPartyId);
         aBuf.append(", ");
         
-        aBuf.append("description");
+        aBuf.append("receivedPartyId");
         aBuf.append("=");
-        aBuf.append(description);
+        aBuf.append(receivedPartyId);
+        aBuf.append(", ");
+        
+        aBuf.append("message");
+        aBuf.append("=");
+        aBuf.append(message);
         aBuf.append(", ");
         
         aBuf.append("read");
@@ -370,31 +396,40 @@ public class NotificationImpl  implements org.shaolin.bmdp.workflow.be.INotifica
         member.setType(idBEType);
         memberTypeList.add(member);
             
-        org.shaolin.bmdp.datamodel.bediagram.LongType partyIdBEType = new org.shaolin.bmdp.datamodel.bediagram.LongType();
+        org.shaolin.bmdp.datamodel.bediagram.LongType taskIdBEType = new org.shaolin.bmdp.datamodel.bediagram.LongType();
     
-        //MemberType Define for partyId
+        //MemberType Define for taskId
         member = new MemberType();
-        member.setName("partyId");
+        member.setName("taskId");
         member.setDescription("null");
-        member.setType(partyIdBEType);
+        member.setType(taskIdBEType);
         memberTypeList.add(member);
             
-        org.shaolin.bmdp.datamodel.bediagram.StringType subjectBEType = new org.shaolin.bmdp.datamodel.bediagram.StringType();
+        org.shaolin.bmdp.datamodel.bediagram.LongType sentPartyIdBEType = new org.shaolin.bmdp.datamodel.bediagram.LongType();
     
-        //MemberType Define for subject
+        //MemberType Define for sentPartyId
         member = new MemberType();
-        member.setName("subject");
+        member.setName("sentPartyId");
         member.setDescription("null");
-        member.setType(subjectBEType);
+        member.setType(sentPartyIdBEType);
         memberTypeList.add(member);
             
-        org.shaolin.bmdp.datamodel.bediagram.StringType descriptionBEType = new org.shaolin.bmdp.datamodel.bediagram.StringType();
+        org.shaolin.bmdp.datamodel.bediagram.LongType receivedPartyIdBEType = new org.shaolin.bmdp.datamodel.bediagram.LongType();
     
-        //MemberType Define for description
+        //MemberType Define for receivedPartyId
         member = new MemberType();
-        member.setName("description");
+        member.setName("receivedPartyId");
         member.setDescription("null");
-        member.setType(descriptionBEType);
+        member.setType(receivedPartyIdBEType);
+        memberTypeList.add(member);
+            
+        org.shaolin.bmdp.datamodel.bediagram.StringType messageBEType = new org.shaolin.bmdp.datamodel.bediagram.StringType();
+    
+        //MemberType Define for message
+        member = new MemberType();
+        member.setName("message");
+        member.setDescription("null");
+        member.setType(messageBEType);
         memberTypeList.add(member);
             
         org.shaolin.bmdp.datamodel.bediagram.BooleanType readBEType = new org.shaolin.bmdp.datamodel.bediagram.BooleanType();
@@ -409,9 +444,9 @@ public class NotificationImpl  implements org.shaolin.bmdp.workflow.be.INotifica
         return memberTypeList;
     }
     
-    public INotification createEntity ()
+    public IChatHistory createEntity ()
     {
-        return new NotificationImpl();
+        return new ChatHistoryImpl();
     }
     
 }

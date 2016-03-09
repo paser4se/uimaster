@@ -125,7 +125,7 @@ public interface ICoordinatorService {
 	 * @param userId user id
 	 * @return
 	 */
-	List<INotification> pullNotifications(long userId);
+	List<INotification> pullNotifications(long userId, Date queryDate);
 	
 	List<INotification> pullCommonNotifications();
 	

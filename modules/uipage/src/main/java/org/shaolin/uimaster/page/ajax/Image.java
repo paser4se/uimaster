@@ -17,6 +17,9 @@ package org.shaolin.uimaster.page.ajax;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.utils.StringUtil;
@@ -179,6 +182,22 @@ public class Image extends TextWidget implements Serializable
 		}
     }
     
+	public List<String> getAllAlbums() {
+		File root = new File(WebConfig.getRealPath("/images"));
+		if (root.exists()) {
+			ArrayList<String> all = new ArrayList<String>();
+			String[] files = root.list();
+			for (String f : files) {
+				File newFolder = new File(root, f);
+				if (newFolder.isDirectory()) {
+					all.add(f);
+				}
+			}
+			return all;
+		}
+		return Collections.emptyList();
+	}
+    
     public void refresh() {
     	if (!this.isgallery) {
     		return;
@@ -238,7 +257,7 @@ public class Image extends TextWidget implements Serializable
         return false;
     }
 
-    public String selectedImage() {
+    public String getSelectedImage() {
     	return this.selectedImage;
     }
     

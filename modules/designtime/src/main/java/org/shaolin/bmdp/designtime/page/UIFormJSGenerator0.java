@@ -14,6 +14,7 @@ import org.shaolin.bmdp.datamodel.page.OpCallAjaxType;
 import org.shaolin.bmdp.datamodel.page.OpExecuteScriptType;
 import org.shaolin.bmdp.datamodel.page.OpInvokeWorkflowType;
 import org.shaolin.bmdp.datamodel.page.OpType;
+import org.shaolin.bmdp.datamodel.page.PropertyType;
 import org.shaolin.bmdp.datamodel.page.PropertyValueType;
 import org.shaolin.bmdp.datamodel.page.ReconfigurablePropertyType;
 import org.shaolin.bmdp.datamodel.page.ReconfigurableType;
@@ -951,7 +952,27 @@ public class UIFormJSGenerator0 {
 	        out.write("\"\n");
         }
         
-        if (component instanceof UITableType) {
+        if (component instanceof UITextAreaType) {
+        	UITextAreaType textarea = (UITextAreaType)component;
+        	
+        	boolean hiddenToolbar = false;
+        	boolean persistable = true;
+        	List<PropertyType> properties = textarea.getProperties();
+        	for (PropertyType p : properties) {
+        		if (p.getName().equals("hiddenToolbar")) {
+        			hiddenToolbar = true;
+        		}
+        		if (p.getName().equals("persistable")) {
+        			persistable = false;
+        		}
+        	}
+        	if (hiddenToolbar) {
+        		out.write("        ,hiddenToolbar: true\n");
+        	}
+        	if (!persistable) {
+        		out.write("        ,persistable: false\n");
+        	}
+        } else if (component instanceof UITableType) {
         	UITableType table = (UITableType)component;
         	
         	if (table.isAppendRowMode()) {

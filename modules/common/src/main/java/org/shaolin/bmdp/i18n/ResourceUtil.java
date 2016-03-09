@@ -37,7 +37,7 @@ public final class ResourceUtil {
 
 	private static String defaultConfig = "default";
 
-	private static String defaultLocale = "en_US";
+	private static String defaultLocale = "zh_CN";
 
 	public static void init(String defaultLocale, Map<String, String> localeConfigMap) {
 		ResourceUtil.defaultLocale = defaultLocale;

@@ -522,6 +522,7 @@ public class UIFormObject implements java.io.Serializable
                                 + component.getUIID() + " in form: " + this.name, e);
 					}
             	}
+            	getEventListeners(component.getEventListeners(), eventMap);
             }
             else if (component instanceof UITabPaneType)
             {
@@ -1804,12 +1805,13 @@ public class UIFormObject implements java.io.Serializable
 		
 	}
     
-    public void addDynamicLink(String uipanel, String uiwidget, String linkInfo) {
+    public void addDynamicLink(String uiPanel, String uiwidget, String linkInfo, String targetInfo) {
     	Map prop = getComponentProperty(uiwidget);
     	if (prop == null) {
     		logger.warn("UI widget does not exist! {}", uiwidget);
     	}
     	
+    	prop.put("dtargetInfo", targetInfo);
     	prop.put("dlinkInfo", linkInfo);
     }
     

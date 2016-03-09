@@ -106,7 +106,7 @@
     <ns2:column name="SUBJECT" type="VARCHAR" isNull="true"></ns2:column>
     <ns2:column name="DESCRIPTION" type="VARCHAR" isNull="true"></ns2:column>
     <ns2:column name="CREATEDATE" type="DATETIME"></ns2:column>
-    <ns2:column name="READ" type="INTEGER" length="2" default="0"></ns2:column>
+    <ns2:column name="ISREAD" type="INTEGER" length="2" default="0"></ns2:column>
     <ns2:column name="_enable" type="INTEGER" length="2" default="1"></ns2:column>
     <ns2:primaryKey>
       <ns2:columnName>ID</ns2:columnName>
@@ -119,6 +119,34 @@
       <ns2:fieldMapping beFieldName="partyId" columnName="PARTYID"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="subject" columnName="SUBJECT"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="description" columnName="DESCRIPTION"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="createDate" columnName="CREATEDATE"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="_enable" columnName="_enable"></ns2:fieldMapping>
+    </ns2:mapping>
+  </ns2:table>
+  <ns2:table>
+    <entityName>WF_CHATHISTORY</entityName>
+    <systemVersion>0</systemVersion>
+    <ns2:column name="ID" type="BIGINT" isNull="false" autoIncrement="true"></ns2:column>
+    <ns2:column name="ORGID" type="BIGINT" isNull="false"></ns2:column>
+    <ns2:column name="TASKID" type="BIGINT" isNull="true"></ns2:column>
+    <ns2:column name="SENTPARTYID" type="BIGINT" isNull="true"></ns2:column>
+    <ns2:column name="RECEIVEDPARTYID" type="BIGINT" isNull="true"></ns2:column>
+    <ns2:column name="MESSAGE" type="VARCHAR" isNull="true"></ns2:column>
+    <ns2:column name="ISREAD" type="INTEGER" length="2" default="0"></ns2:column>
+    <ns2:column name="_enable" type="INTEGER" length="2" default="1"></ns2:column>
+    <ns2:primaryKey>
+      <ns2:columnName>ID</ns2:columnName>
+    </ns2:primaryKey>
+    <ns2:mapping>
+      <systemVersion>0</systemVersion>
+      <ns2:businessEntity entityName="org.shaolin.bmdp.workflow.be.ChatHistory"></ns2:businessEntity>
+      <ns2:fieldMapping beFieldName="id" columnName="ID"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="orgId" columnName="ORGID"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="taskId" columnName="TASKID"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="sentPartyId" columnName="SENTPARTYID"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="receivedPartyId" columnName="RECEIVEDPARTYID"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="message" columnName="MESSAGE"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="read" columnName="ISREAD"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="createDate" columnName="CREATEDATE"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="_enable" columnName="_enable"></ns2:fieldMapping>
     </ns2:mapping>
@@ -525,8 +553,86 @@
                 </ns2:condition>
             </ns2:conditionValue>
         </ns2:fieldMapping>
+        <ns2:fieldMapping>
+            <ns2:toDataFieldPath>inFlow.createDate</ns2:toDataFieldPath>
+            <ns2:conditionValue>
+                <ns2:operator xsi:type="ns2:LogicOperatorType" isReverse="false">
+		            <ns2:type><![CDATA[>=]]></ns2:type>
+		        </ns2:operator>
+                <ns2:value xsi:type="ns2:SimpleFieldValueType">
+                    <ns2:valueFieldPath>scFlow.createDate</ns2:valueFieldPath>
+                </ns2:value>
+                <ns2:condition>
+                    <expressionString><![CDATA[scFlow.getCreateDate() != null]]></expressionString>
+                </ns2:condition>
+            </ns2:conditionValue>
+        </ns2:fieldMapping>
         <ns2:searchConditionData name="scFlow" category="BusinessEntity" searchable="false">
             <type entityName="org.shaolin.bmdp.workflow.be.Notification"/>
+        </ns2:searchConditionData>
+    </ns2:searchConditionMapping>
+  </ns2:query>
+  
+  <ns2:query queryName="searchChatHistory">
+    <ns2:searchResult name="outFlow" notes="" category="BusinessEntity" searchable="false">
+        <type entityName="org.shaolin.bmdp.workflow.be.ChatHistory" systemVersion="0"/>
+    </ns2:searchResult>
+    <ns2:fromData name="inFlow" category="BusinessEntity">
+        <type entityName="org.shaolin.bmdp.workflow.be.ChatHistory"/>
+    </ns2:fromData>
+    <ns2:searchResultMapping>
+        <ns2:fieldMapping>
+            <ns2:toDataFieldPath>outFlow</ns2:toDataFieldPath>
+            <ns2:value xsi:type="ns2:SimpleFieldValueType">
+                <ns2:valueFieldPath>inFlow</ns2:valueFieldPath>
+            </ns2:value>
+        </ns2:fieldMapping>
+    </ns2:searchResultMapping>
+    <ns2:searchConditionMapping name="Search">
+        <ns2:fieldMapping>
+            <ns2:toDataFieldPath>inFlow.orgId</ns2:toDataFieldPath>
+            <ns2:conditionValue>
+                <ns2:operator isReverse="false" xsi:type="ns2:LogicOperatorType">
+                    <ns2:type>=</ns2:type>
+                </ns2:operator>
+                <ns2:value xsi:type="ns2:SimpleFieldValueType">
+                    <ns2:valueFieldPath>scFlow.orgId</ns2:valueFieldPath>
+                </ns2:value>
+                <ns2:condition>
+                    <expressionString><![CDATA[scFlow.getOrgId() > 0]]></expressionString>
+                </ns2:condition>
+            </ns2:conditionValue>
+        </ns2:fieldMapping>
+        <ns2:fieldMapping>
+            <ns2:toDataFieldPath>inFlow.sentPartyId</ns2:toDataFieldPath>
+            <ns2:conditionValue>
+                <ns2:operator isReverse="false" xsi:type="ns2:LogicOperatorType">
+                    <ns2:type>=</ns2:type>
+                </ns2:operator>
+                <ns2:value xsi:type="ns2:SimpleFieldValueType">
+                    <ns2:valueFieldPath>scFlow.sentPartyId</ns2:valueFieldPath>
+                </ns2:value>
+                <ns2:condition>
+                    <expressionString><![CDATA[scFlow.getSentPartyId() > 0]]></expressionString>
+                </ns2:condition>
+            </ns2:conditionValue>
+        </ns2:fieldMapping>
+        <ns2:fieldMapping>
+            <ns2:toDataFieldPath>inFlow.receivedPartyId</ns2:toDataFieldPath>
+            <ns2:conditionValue>
+                <ns2:operator isReverse="false" xsi:type="ns2:LogicOperatorType">
+                    <ns2:type>=</ns2:type>
+                </ns2:operator>
+                <ns2:value xsi:type="ns2:SimpleFieldValueType">
+                    <ns2:valueFieldPath>scFlow.receivedPartyId</ns2:valueFieldPath>
+                </ns2:value>
+                <ns2:condition>
+                    <expressionString><![CDATA[scFlow.getReceivedPartyId() > 0]]></expressionString>
+                </ns2:condition>
+            </ns2:conditionValue>
+        </ns2:fieldMapping>
+        <ns2:searchConditionData name="scFlow" category="BusinessEntity" searchable="false">
+            <type entityName="org.shaolin.bmdp.workflow.be.ChatHistory"/>
         </ns2:searchConditionData>
     </ns2:searchConditionMapping>
   </ns2:query>

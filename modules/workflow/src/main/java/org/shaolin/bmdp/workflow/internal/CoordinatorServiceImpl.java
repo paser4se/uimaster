@@ -583,6 +583,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		String masterNode = IServerServiceManager.INSTANCE.getMasterNodeName();
 		this.setAppService(IServerServiceManager.INSTANCE.getApplication(masterNode));
 		AppContext.get().register(this);
+		IServerServiceManager.INSTANCE.register(this);
 		
 		// make this shared
 		this.pool = IServerServiceManager.INSTANCE.getSchedulerService()
@@ -712,9 +713,10 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 	
 	@Override
-	public List<INotification> pullNotifications(long partyId) {
+	public List<INotification> pullNotifications(long partyId, Date queryDate) {
 		NotificationImpl scFlow = new NotificationImpl();
 		scFlow.setPartyId(partyId);
+		scFlow.setCreateDate(queryDate);
 		return CoordinatorModel.INSTANCE.searchNotification(scFlow, null, 0, -1);
 	}
 	

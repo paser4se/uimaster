@@ -22,8 +22,9 @@
 }
 
 .uimaster_clicklink {
-    font-size: both;
+    font-weight: both;
     color: blue;
+    cursor: pointer;
 }
 
 .width_full {

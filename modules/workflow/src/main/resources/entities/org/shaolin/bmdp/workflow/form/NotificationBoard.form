@@ -3,19 +3,12 @@
   <entityName>org.shaolin.bmdp.workflow.form.NotificationBoard</entityName>
   <systemVersion>0</systemVersion>
   <ns2:eventHandler functionName="cleanup">
-    <ns2:ops xsi:type="ns2:OpCallAjaxType" name="cleanup-20160127-1507">
-      <ns2:exp>
+    <ns2:ops xsi:type="ns2:OpExecuteScriptType" name="a">
         <expressionString><![CDATA[
-        import java.util.HashMap;
-        import org.shaolin.uimaster.page.AjaxContext;
-        import org.shaolin.uimaster.page.ajax.*;
-        import org.shaolin.bmdp.workflow.be.NotificationImpl;
-        import org.shaolin.bmdp.workflow.dao.CoordinatorModel;
         { 
-           Table tableWidget = (Table)@page.getElement("itemTable");
-           CoordinatorModel.INSTANCE.batchDelete(tableWidget.getListData(), true);
+          
+        
         }]]></expressionString>
-      </ns2:exp>
     </ns2:ops>
   </ns2:eventHandler>
   <ns2:body xsi:type="ns2:UIPanelType" UIID="Form">
@@ -23,67 +16,19 @@
       <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
       <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
     </ns2:layout>
+    <ns2:component xsi:type="ns2:UIHiddenType" UIID="sentPartyIdUI">
+    </ns2:component>
     <ns2:component xsi:type="ns2:UIPanelType" UIID="fieldPanel">
       <ns2:layout xsi:type="ns2:TableLayoutType">
         <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
         <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
         <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
       </ns2:layout>
-      <ns2:component xsi:type="ns2:UITableType" UIID="itemTable">
-        <ns2:beElement>org.shaolin.bmdp.workflow.be.Notification</ns2:beElement>
-        <ns2:query>
-          <ns2:expression>
-            <expressionString><![CDATA[
-            import java.util.List;
-            import org.shaolin.uimaster.page.ajax.TableConditions;
-            import org.shaolin.bmdp.workflow.be.TaskImpl;
-            import org.shaolin.bmdp.runtime.AppContext;
-            import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
-            import org.shaolin.bmdp.runtime.security.UserContext;
-            {
-                  if ($tableCondition == null) {
-                     $tableCondition = TableConditions.createCondition(new TaskImpl());
-                  }
-                  TaskImpl condition = (TaskImpl)$tableCondition.getCondition();
-                  ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class);
-                  Long userId = (Long)UserContext.getUserData("CurrentUserId");
-                  return service.pullNotifications(userId);
-            }]]></expressionString>
-          </ns2:expression>
-        </ns2:query>
-        <ns2:appendRowMode>true</ns2:appendRowMode>
-        <!-- refresh 5 minutes per -->
-        <ns2:refreshInterval>300</ns2:refreshInterval>
-        <ns2:defaultRowSize>100</ns2:defaultRowSize>
-        <ns2:showActionBar>true</ns2:showActionBar>
-        <ns2:showFilter>false</ns2:showFilter>
-        <ns2:editableCell>false</ns2:editableCell>
-        <ns2:appendRowMode>true</ns2:appendRowMode>
-        <ns2:column>
-          <ns2:title xsi:type="ns2:StringPropertyType">
-            <ns2:value>消息</ns2:value>
-          </ns2:title>
-          <ns2:beFieldId>rowBE.subject</ns2:beFieldId>
-          <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>HTML</ns2:type></ns2:uiType>
-          <ns2:rowExpression xsi:type="ns2:ExpressionPropertyType">
-              <ns2:expression xsi:type="ns2:ExpressionType">
-                  <ns2:expressionString><![CDATA[
-                  import java.util.HashMap;
-                  import org.shaolin.uimaster.page.ajax.*;
-                  {
-                      return "<div style=\"color:blue;\">" + $rowBE.getSubject() + "</div><div style=\"width:100%;\">"+ $rowBE.getDescription() + "</div>";
-                  }]]></ns2:expressionString>
-              </ns2:expression>
-          </ns2:rowExpression>
-          <ns2:updateCondition xsi:type="ns2:ExpressionPropertyType">
-              <ns2:expression xsi:type="ns2:ExpressionType">
-                  <ns2:expressionString><![CDATA[
-                  import org.shaolin.bmdp.runtime.AppContext;
-                  {
-                  }]]></ns2:expressionString>
-              </ns2:expression>
-          </ns2:updateCondition>
-        </ns2:column>
+      <ns2:component xsi:type="ns2:UIPanelType" UIID="messagePanel">
+      <ns2:layout xsi:type="ns2:TableLayoutType">
+        <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+        <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
+      </ns2:layout>
       </ns2:component>
       <ns2:component xsi:type="ns2:UIButtonType" UIID="cleanupBtn">
         <ns2:EventListener xsi:type="ns2:ClickListenerType">
@@ -94,7 +39,7 @@
         </ns2:text>
       </ns2:component>
       <ns2:layoutConstraint>
-        <ns2:componentId>itemTable</ns2:componentId>
+        <ns2:componentId>messagePanel</ns2:componentId>
         <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="0" align="FULL"></ns2:constraint>
       </ns2:layoutConstraint>
       <ns2:layoutConstraint>
@@ -106,6 +51,25 @@
       <ns2:componentId>fieldPanel</ns2:componentId>
       <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="0" align="FULL"></ns2:constraint>
     </ns2:layoutConstraint>
+    <ns2:constructorCode><![CDATA[
+       var partyId = this.sentPartyIdUI.value;
+       var msgContainer = this.messagePanel;
+       this.chat = establishWebsocket("/wsnotificator", 
+         function(ws,e){
+            var msg = {action: "register", partyId: partyId};
+            ws.send(JSON.stringify(msg));
+         },
+         function(ws,e){
+            if (e.data == "_register_confirmed") {
+               return;
+            }
+            $(msgContainer).append(e.data);
+         },
+         function(ws,e){
+             console.log("error occurred while receiving a message: " + e.data);
+         });
+    ]]>
+    </ns2:constructorCode>
   </ns2:body>
   <ns2:mapping>
     <systemVersion>0</systemVersion>
@@ -115,6 +79,11 @@
     <ns2:DataEntity scope="InOut" name="editable" category="JavaPrimitive">
       <type entityName="java.lang.Boolean"></type>
     </ns2:DataEntity>
+    <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping0">
+      <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UITextWithNumber"></ns2:mappingRule>
+      <ns2:UIComponent componentPath="sentPartyIdUI" paramName="UIWidgetType"></ns2:UIComponent>
+      <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.partyId" paramName="Number"></ns2:DataComponent>
+    </ns2:ComponentMapping>
     <ns2:DataToUIMappingOperation>
       <expressionString>{
 @odContext.executeAllMappings();

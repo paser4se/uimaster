@@ -3,11 +3,9 @@
 function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
 {
     var prefix = (typeof(json) == "string") ? json : json.prefix; 
-    var itemTable = new UIMaster.ui.objectlist
+    var sentPartyIdUI = new UIMaster.ui.hidden
     ({
-        ui: elementList[prefix + "itemTable"]
-        ,appendRowMode: true
-        ,refreshInterval: 300
+        ui: elementList[prefix + "sentPartyIdUI"]
     });
 
     var cleanupBtn = new UIMaster.ui.button
@@ -15,33 +13,62 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
         ui: elementList[prefix + "cleanupBtn"]
     });
 
+    var messagePanel = new UIMaster.ui.panel
+    ({
+        ui: elementList[prefix + "messagePanel"]
+        ,items: []
+        ,subComponents: []
+    });
+
     var fieldPanel = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "fieldPanel"]
         ,items: []
-        ,subComponents: [prefix + "itemTable",prefix + "cleanupBtn"]
+        ,subComponents: [prefix + "messagePanel",prefix + "cleanupBtn"]
     });
 
     var Form = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "Form"]
-        ,items: [itemTable,cleanupBtn,fieldPanel]
+        ,items: [sentPartyIdUI,cleanupBtn,fieldPanel,messagePanel]
     });
 
-    Form.itemTable=itemTable;
+    Form.sentPartyIdUI=sentPartyIdUI;
 
     Form.cleanupBtn=cleanupBtn;
 
     Form.fieldPanel=fieldPanel;
 
-    Form.itemTable=itemTable;
+    Form.messagePanel=messagePanel;
 
     Form.cleanupBtn=cleanupBtn;
+
+    Form.messagePanel=messagePanel;
 
     Form.user_constructor = function()
     {
         /* Construct_FIRST:org_shaolin_bmdp_workflow_form_NotificationBoard */
-        /* Construct_LAST:org_shaolin_bmdp_workflow_form_NotificationBoard */
+
+        
+       var partyId = this.sentPartyIdUI.value;
+       var msgContainer = this.messagePanel;
+       this.chat = establishWebsocket("/wsnotificator", 
+         function(ws,e){
+            var msg = {action: "register", partyId: partyId};
+            ws.send(JSON.stringify(msg));
+         },
+         function(ws,e){
+            if (e.data == "_register_confirmed") {
+               return;
+            }
+            $(msgContainer).append(e.data);
+         },
+         function(ws,e){
+             console.log("error occurred while receiving a message: " + e.data);
+         });
+    
+    
+            /* Construct_LAST:org_shaolin_bmdp_workflow_form_NotificationBoard */
     };
 
     Form.cleanup = org_shaolin_bmdp_workflow_form_NotificationBoard_cleanup;
@@ -63,10 +90,10 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
         var o = this;
         var UIEntity = this;
 
-        // cal ajax function. 
-
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"cleanup-20160127-1507",UIMaster.getValue(eventsource),o.__entityName);
-    }/* Gen_Last:org_shaolin_bmdp_workflow_form_NotificationBoard_cleanup */
+        { 
+          
+        
+        }    }/* Gen_Last:org_shaolin_bmdp_workflow_form_NotificationBoard_cleanup */
 
 
     /* auto generated eventlistener function declaration */

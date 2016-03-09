@@ -438,7 +438,14 @@ UIMaster.ui.textfield = UIMaster.extend(UIMaster.ui.field, /** @lends UIMaster.u
  * @constructor
  */
 UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaster.ui.textarea */{
+    hiddenToolbar:false,
+	persistable:true,
+	initialized:false,
+	ckeditor:null,
 	init:function() {
+	    if (this.initialized)
+		    return;
+		this.initialized = true;
 		UIMaster.ui.textarea.superclass.init.call(this);
 		if ($(this).attr("htmlsupport")=="true") {
 		   this.initHtmlContent();
@@ -446,14 +453,35 @@ UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 	},
 	initHtmlContent:function() {
 	    var o = this;
-		var btn = $("<button>Save</button>");
-		$(this).parent().append(btn);
-		btn.button().click(function(){
-		   var data = CKEDITOR.instances[o.name+"_ckeditor"].getData();
-		   $.ajax({url:AJAX_SERVICE_URL,async:false,type:'POST',
-		   data:{_ajaxUserEvent:"htmleditor",_uiid:o.name,_valueName:"save",_value:data,_framePrefix:UIMaster.getFramePrefix(o)}});
-		});
-	    setTimeout(function(){CKEDITOR.replace(o.name+"_ckeditor");},500);
+		if (this.persistable) {
+			var btn = $("<button>Save</button>");
+			$(this).parent().append(btn);
+			btn.button().click(function(){
+			   var data = CKEDITOR.instances[o.name+"_ckeditor"].getData();
+			   $.ajax({url:AJAX_SERVICE_URL,async:false,type:'POST',
+			   data:{_ajaxUserEvent:"htmleditor",_uiid:o.name,_valueName:"save",_value:data,_framePrefix:UIMaster.getFramePrefix(o)}});
+			});
+		}
+		var opts = null;
+		if (this.hiddenToolbar)
+		  opts = {uiColor:'#0078AE', toolbar:[]};
+		else 
+		  opts = {uiColor:'#0078AE'};
+	    setTimeout(function(){
+		  CKEDITOR.replace(o.name+"_ckeditor", opts);
+		  o.ckeditor = CKEDITOR.instances[o.name+"_ckeditor"];
+		},500);
+	},
+	getHTMLText:function() {
+	    return this.ckeditor.getData();
+	},
+	clearHTMLText:function() {
+	    this.ckeditor.updateElement();
+	    this.ckeditor.setData("");
+	},
+	appendHTMLText:function(text) {
+	    if (this.ckeditor != null)
+	        this.ckeditor.insertHtml(text);
 	}
 });
 UIMaster.ui.countdown = UIMaster.extend(UIMaster.ui.textfield, {
@@ -2748,10 +2776,10 @@ function showMobileFrame(link, name) {
 		modal: true,
         resizable: false,
         draggable: false,
-		show: {effect: "slide",duration: 500},
+		show: {effect: "slide",duration: 150},
 		hide: {effect: "slide",duration: 500},
-		open: function(event, ui) {//jquery dialog with iframe is so weird!
-		    window.setTimeout(function(){d.attr("src",link);},600);
+		open: function(event, ui) {//jquery effect dialog with iframe loading is so weird!
+		    window.setTimeout(function(){d.attr("src",link);},200);
 		},
 		beforeClose: function() {
 		  d.attr("src","about:blank");
@@ -3103,5 +3131,10 @@ UIMaster.ui.map=UIMaster.extend(UIMaster.ui,{
 		localSearch.setSearchCompleteCallback(function(searchResult){
 		});
 		localSearch.searchInBounds(keyword, this.map.getBounds());
+	}
+});
+UIMaster.ui.chat=UIMaster.extend(UIMaster.ui,{
+    partyId: 0,
+    init:function() {
 	}
 });

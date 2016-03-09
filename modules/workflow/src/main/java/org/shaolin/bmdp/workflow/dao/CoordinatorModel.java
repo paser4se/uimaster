@@ -11,6 +11,8 @@ import org.hibernate.criterion.Restrictions;
 
 import org.hibernate.criterion.Order;
 
+import org.hibernate.criterion.Projections;
+
 import org.shaolin.bmdp.persistence.BEEntityDaoObject;
 import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.persistence.query.operator.Operator;
@@ -228,6 +230,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
             if (scFlow.getPartyId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.partyId", scFlow.getPartyId()));
             }
+            if (scFlow.getCreateDate() != null) {
+                inFlowCriteria.add(createCriterion(Operator.GREATER_THAN_OR_EQUALS, "inFlow.createDate", scFlow.getCreateDate()));
+            }
 
         inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
 
@@ -240,6 +245,51 @@ public class CoordinatorModel extends BEEntityDaoObject {
 
             if (scFlow.getPartyId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.partyId", scFlow.getPartyId()));
+            }
+            if (scFlow.getCreateDate() != null) {
+                inFlowCriteria.add(createCriterion(Operator.GREATER_THAN_OR_EQUALS, "inFlow.createDate", scFlow.getCreateDate()));
+            }
+
+        inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
+
+        return this._count(inFlowCriteria);
+    }
+
+    public List<org.shaolin.bmdp.workflow.be.IChatHistory> searchChatHistory(org.shaolin.bmdp.workflow.be.ChatHistoryImpl scFlow,
+           List<Order> orders, int offset, int count) {
+            Criteria inFlowCriteria = this._createCriteria(org.shaolin.bmdp.workflow.be.ChatHistoryImpl.class, "inFlow");
+            if (orders == null) {
+            } else {
+                this._addOrders(inFlowCriteria, orders);
+            }
+
+            if (scFlow.getOrgId() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.orgId", scFlow.getOrgId()));
+            }
+            if (scFlow.getSentPartyId() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sentPartyId", scFlow.getSentPartyId()));
+            }
+            if (scFlow.getReceivedPartyId() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.receivedPartyId", scFlow.getReceivedPartyId()));
+            }
+
+        inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
+
+        List result = this._list(offset, count, inFlowCriteria);
+        return result;
+    }
+
+    public long searchChatHistoryCount(org.shaolin.bmdp.workflow.be.ChatHistoryImpl scFlow) {
+            Criteria inFlowCriteria = this._createCriteria(org.shaolin.bmdp.workflow.be.ChatHistoryImpl.class, "inFlow");
+
+            if (scFlow.getOrgId() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.orgId", scFlow.getOrgId()));
+            }
+            if (scFlow.getSentPartyId() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sentPartyId", scFlow.getSentPartyId()));
+            }
+            if (scFlow.getReceivedPartyId() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.receivedPartyId", scFlow.getReceivedPartyId()));
             }
 
         inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));

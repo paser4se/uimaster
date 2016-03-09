@@ -1,6 +1,6 @@
 /*
  * This code is generated automatically, any change will be replaced after rebuild.
- * Generated on Mon Feb 22 22:39:37 CST 2016
+ * Generated on Wed Mar 09 23:50:02 CST 2016
  */
 
 package org.shaolin.bmdp.workflow.ce;

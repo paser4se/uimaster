@@ -374,7 +374,17 @@ public class PageDispatcher {
                 context.generateHTML("    UIMaster.addResource(\"" + entityName + "\");\n");
                 context.generateHTML("    getElementList();\n    defaultname = new ");
                 context.generateHTML(entityName.replaceAll("\\.", "_"));
-                context.generateHTML("(\"\");\n    defaultname.initPageJs();\n}\n");
+                String clickRemembered = "";
+                if (context.getRequest().getQueryString() != null) {
+	                String[] queryStrParams = context.getRequest().getQueryString().split("&");
+	                for (String param : queryStrParams) {
+	                	if (param.startsWith("_clickRemembered=")) {
+	                		clickRemembered = param.substring("_clickRemembered=".length());
+	                		break;
+	                	}
+	                }
+                }
+                context.generateHTML("(\"\");\n    defaultname.initPageJs();\n    dPageLinkOnPage('"+clickRemembered+"');\n}\n");
                 context.generateHTML("function finalizePage() \n{\n    defaultname.finalizePageJs();\n    releaseMem();\n}\n");
                 if (UserContext.isMobileRequest()) {
                 	context.generateHTML("window.onload=initPage;\n");

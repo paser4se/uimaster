@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.utils.FileUtil;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
@@ -66,6 +67,15 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
                 addAttribute("allowBlank", "true");
                 addAttribute("readOnly", "true");
             }
+            boolean isHTMLSupported = this.getAttribute("htmlSupport") != null && 
+            		"true".equals(this.getAttribute("htmlSupport").toString());
+            if (context.getRequest().getAttribute("_hasCKeditor") == null) {
+				context.getRequest().setAttribute("_hasCKeditor", Boolean.TRUE);
+	            String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
+	        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
+	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/ckeditor/ckeditor.js\"></script>");
+            }
+            
             context.generateHTML("<textarea name=\"");
             context.generateHTML(getName());
             context.generateHTML("\"");
@@ -79,8 +89,7 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
                 context.generateHTML(" cols=\"30\"");
             }
             generateEventListeners(context);
-            if (this.getAttribute("htmlSupport") != null && 
-            		"true".equals(this.getAttribute("htmlSupport").toString())) {
+			if (isHTMLSupported) {
             	context.generateHTML(" disabled=\"disabled\" style=\"display:none;\"");
             }
             context.generateHTML(">");
@@ -93,8 +102,7 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
         		context.generateHTML(HTMLUtil.formatHtmlValue(getValue()));
             }
             context.generateHTML("</textarea>");
-            if (this.getAttribute("htmlSupport") != null && 
-            		"true".equals(this.getAttribute("htmlSupport").toString())) {
+            if (isHTMLSupported) {
             	if (this.getAttribute("viewMode") != null && 
                 		"true".equals(this.getAttribute("viewMode").toString())) {
             		context.generateHTML("<iframe id=\"");
@@ -120,13 +128,6 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
 	        		}
 	        		context.generateHTML("</textarea>");
 	        		HTMLUtil.generateTab(context, depth);
-//	            	String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
-//		        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
-//		    	        	These files are configurable in runconfig.registry file of each module.
-//		    	        	Because JGallary has a bug on importing these files in multiple time.
-//		    	            Please refer to org_shaolin_vogerp_productmodel runconfig.registry.
-//		        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/ckeditor/ckeditor.js\"></script>");
-//		        	HTMLUtil.generateTab(context, depth);
 		        	HTMLUtil.generateTab(context, depth);
 		        	context.generateHTML("</div>");
             	}
