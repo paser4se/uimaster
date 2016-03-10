@@ -33,9 +33,11 @@ import javax.websocket.server.ServerEndpoint;
 
 import org.hibernate.criterion.Order;
 import org.shaolin.bmdp.runtime.AppContext;
+import org.shaolin.bmdp.runtime.be.IPersistentEntity;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.workflow.be.ChatHistoryImpl;
 import org.shaolin.bmdp.workflow.be.IChatHistory;
+import org.shaolin.bmdp.workflow.be.NotificationImpl;
 import org.shaolin.bmdp.workflow.dao.CoordinatorModel;
 import org.shaolin.uimaster.page.ajax.json.JSONException;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
@@ -92,65 +94,81 @@ public class ChatService {
 			
 			if ("register".equals(action)) {
 				session.getUserProperties().put("partyId", data.getLong("partyId"));
+				if (data.has("isAbc") && data.getBoolean("isAbc") == Boolean.TRUE) {//is admin
+					session.getUserProperties().put("admin", data.getBoolean("isAbc"));
+				}
 				session.getBasicRemote().sendText("_register_confirmed");
+				
+				//query for leaving words.
+				ChatHistoryImpl condition = new ChatHistoryImpl();
+				condition.setReceivedPartyId(data.getLong("partyId"));
+				List<IPersistentEntity> perItem = new ArrayList<IPersistentEntity>();
+				List<IChatHistory> result = CoordinatorModel.INSTANCE.searchChatHistory(condition, null, 0, -1);
+				for (IChatHistory item : result) {
+					send(item, session);
+					perItem.add(item);
+				}
+				CoordinatorModel.INSTANCE.batchDelete(perItem, true);
 			} else if ("chating".equals(action)) {
 				Long taskId = data.getLong("taskId");
 				Long orgId = data.getLong("orgId");
 				Long fromId = data.getLong("fromPartyId");
 				Long toId = data.getLong("toPartyId");
 				String message = data.getString("content");
-				
+				Boolean toAdmin = Boolean.FALSE;
+				if (data.has("toAdmin")) {
+					toAdmin = data.getBoolean("toAdmin");
+				}
 				boolean sentTo = false;
 				boolean sentFrom = false;
+				Session sentFromSession = null;
 				Set<Entry<String, Session>> entries = sessoins.entrySet();
 				for (Entry<String, Session> entry : entries) {
 					Session s = entry.getValue();
 					if (s.isOpen()) {
-						if (s.getUserProperties().containsKey("partyId")) {
-							if (toId.longValue() == ((Long)s.getUserProperties().get("partyId") ).longValue()) {
+						if (toAdmin == Boolean.TRUE && s.getUserProperties().containsKey("admin")
+								&& s.getUserProperties().containsKey("admin") == Boolean.TRUE) {
+							sentTo = true;
+							send(message, s);
+						} else if (s.getUserProperties().containsKey("partyId")) {
+							long partyId = ((Long)s.getUserProperties().get("partyId") ).longValue();
+							// online user.
+							if (toId.longValue() == partyId) {
 								sentTo = true;
-							    // online user.
-								String date;
-								try {
-									date = FormatUtil.convertDataToUI(FormatUtil.DATE_TIME, (new Date()), null, null);
-								} catch (FormatException e) {
-									date = (new Date()).toString();
-								}
-								s.getBasicRemote().sendText("<div class=\"uimaster_chat_item_to\"><div class=\"uimaster_chat_time\">["
-										 + date + "]:</div><div class=\"uimaster_chat_message\">" + message + "</div><div>");
-							} else if(fromId.longValue() == ((Long)s.getUserProperties().get("partyId") ).longValue()) {
+								send(message, s);
+							} else if(fromId.longValue() == partyId) {
+								sentFromSession = s;
 								sentFrom = true;
-								String date;
-								try {
-									date = FormatUtil.convertDataToUI(FormatUtil.DATE_TIME, (new Date()), null, null);
-								} catch (FormatException e) {
-									date = (new Date()).toString();
-								}
-								s.getBasicRemote().sendText("<div class=\"uimaster_chat_item_from\"><div class=\"uimaster_chat_time\">["
-										 + date + "]:</div><div class=\"uimaster_chat_message\">" + message + "</div><div>");
+								send(message, s);
 							}
 							
-							if (sentTo && sentFrom) {
-								break;
-							}
+						}
+						if (sentTo && sentFrom) {
+							break;
 						}
 					}
 				}
-			} else if ("leavewords".equals(action)) {
-				Long taskId = data.getLong("taskId");
-				Long orgId = data.getLong("orgId");
-				Long fromId = data.getLong("fromPartyId");
-				Long toId = data.getLong("toPartyId");
-				String message = data.getString("content");
-				// save to DB as history as well.
-				ChatHistoryImpl item = new ChatHistoryImpl();
-				item.setTaskId(taskId);
-				item.setOrgId(orgId);
-				item.setSentPartyId(fromId);
-				item.setReceivedPartyId(toId);
-				item.setMessage(message);
-				item.setRead(false);
-				CoordinatorModel.INSTANCE.create(item, true);
+				
+				if (!sentTo && sentFromSession != null) {
+					send("\u7528\u6237\u79BB\u7EBF\u4E2D\uFF0C\u8BF7\u7A0D\u540E\u8054\u7CFB!", sentFromSession);
+					// save to DB as history as well.
+					ChatHistoryImpl item = new ChatHistoryImpl();
+					item.setTaskId(taskId);
+					item.setSentPartyId(fromId);
+					item.setReceivedPartyId(toId);
+					item.setMessage(message);
+					item.setRead(false);
+					CoordinatorModel.INSTANCE.create(item, true);
+					
+					//send notification
+					NotificationImpl notifier = new NotificationImpl();
+					notifier.setSubject("\u60A8\u6709\u65B0\u7684\u6D88\u606F!");
+					notifier.setDescription("<span>"+message+"</span><button onclick=\"javascript:defaultname.showHelp(defaultname.helpIcon,'"+fromId+"');\">\u9A6C\u4E0A\u8054\u7CFB</button>");
+					notifier.setPartyId(toId);
+					notifier.setRead(false);
+					CoordinatorModel.INSTANCE.create(notifier, true);
+				}
+				
 			} else if ("history".equals(action)) {
 				Long fromId = data.getLong("fromPartyId");
 				Long toId = data.getLong("toPartyId");
@@ -163,14 +181,7 @@ public class ChatService {
 				orders.add(Order.asc("createDate"));
 				List<IChatHistory> result = CoordinatorModel.INSTANCE.searchChatHistory(condition, orders, 0, -1);
 				for (IChatHistory item: result) {
-					String date;
-					try {
-						date = FormatUtil.convertDataToUI(FormatUtil.DATE_TIME, item.getCreateDate(), null, null);
-					} catch (FormatException e) {
-						date = (item.getCreateDate()).toString();
-					}
-					session.getBasicRemote().sendText("<div class=\"uimaster_chat_item\"><div class=\"uimaster_chat_time\">[" + date + 
-							"]:</div><div class=\"uimaster_chat_message\">" + item.getMessage() + "</div></div>");
+					send(item, session);
 				}
 			} else if ("allhistory".equals(action)) {
 				Long fromId = data.getLong("fromPartyId");
@@ -182,19 +193,34 @@ public class ChatService {
 				orders.add(Order.asc("createDate"));
 				List<IChatHistory> result = CoordinatorModel.INSTANCE.searchChatHistory(condition, orders, 0, -1);
 				for (IChatHistory item: result) {
-					String date;
-					try {
-						date = FormatUtil.convertDataToUI(FormatUtil.DATE_TIME, item.getCreateDate(), null, null);
-					} catch (FormatException e) {
-						date = (item.getCreateDate()).toString();
-					}
-					session.getBasicRemote().sendText("<div class=\"uimaster_chat_item\"><div class=\"uimaster_chat_time\">[" + date + 
-							"]:</div><div class=\"uimaster_chat_message\">" + item.getMessage() + "</div></div>");
+					send(item, session);
 				}
 			}
 		} catch (JSONException e) {
 			logger.warn("Parsing client data error! session id: " + session, e);
 		}
+	}
+
+	public void send(String message, Session s) throws IOException {
+		String date;
+		try {
+			date = FormatUtil.convertDataToUI(FormatUtil.DATE_TIME, (new Date()), null, null);
+		} catch (FormatException e) {
+			date = (new Date()).toString();
+		}
+		s.getBasicRemote().sendText("<div class=\"uimaster_chat_item_to\"><div class=\"uimaster_chat_time\">["
+				 + date + "]:</div><div class=\"uimaster_chat_message\">" + message + "</div><div>");
+	}
+	
+	public void send(IChatHistory item, Session s) throws IOException {
+		String date;
+		try {
+			date = FormatUtil.convertDataToUI(FormatUtil.DATE_TIME, (item.getCreateDate()), null, null);
+		} catch (FormatException e) {
+			date = (new Date()).toString();
+		}
+		s.getBasicRemote().sendText("<div class=\"uimaster_chat_item_to\"><div class=\"uimaster_chat_time\">["
+				 + date + "]:</div><div class=\"uimaster_chat_message\">" + item.getMessage() + "</div><div>");
 	}
 	
 }

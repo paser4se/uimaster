@@ -3,12 +3,34 @@
   <entityName>org.shaolin.bmdp.workflow.form.NotificationBoard</entityName>
   <systemVersion>0</systemVersion>
   <ns2:eventHandler functionName="cleanup">
-    <ns2:ops xsi:type="ns2:OpExecuteScriptType" name="a">
+    <ns2:ops xsi:type="ns2:OpExecuteScriptType">
         <expressionString><![CDATA[
         { 
-          
+          this.msgCounter = 0;
+          this.realCounter.text("");
+          $(this.messagePanel).children().each(function(){
+             $(this).remove();
+          });
         
         }]]></expressionString>
+    </ns2:ops>
+    <ns2:ops xsi:type="ns2:OpCallAjaxType" name="cleanup-201506102211">
+        <ns2:exp>
+            <expressionString><![CDATA[
+        import org.shaolin.uimaster.page.AjaxContext;
+        import org.shaolin.uimaster.page.ajax.*;
+        import org.shaolin.vogerp.commonmodel.IUserService;
+        import org.shaolin.bmdp.runtime.AppContext;
+        import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
+        import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
+        import org.shaolin.bmdp.runtime.security.UserContext;
+        { 
+            ICoordinatorService service = (ICoordinatorService)
+                IServerServiceManager.INSTANCE.getService(ICoordinatorService.class);
+            service.cleanAllNotifications((Long)UserContext.getUserData("CurrentUserId"));
+        }
+        ]]></expressionString>
+        </ns2:exp>
     </ns2:ops>
   </ns2:eventHandler>
   <ns2:body xsi:type="ns2:UIPanelType" UIID="Form">
@@ -17,6 +39,8 @@
       <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
     </ns2:layout>
     <ns2:component xsi:type="ns2:UIHiddenType" UIID="sentPartyIdUI">
+    </ns2:component>
+    <ns2:component xsi:type="ns2:UIHiddenType" UIID="countUIId">
     </ns2:component>
     <ns2:component xsi:type="ns2:UIPanelType" UIID="fieldPanel">
       <ns2:layout xsi:type="ns2:TableLayoutType">
@@ -54,15 +78,23 @@
     <ns2:constructorCode><![CDATA[
        var partyId = this.sentPartyIdUI.value;
        var msgContainer = this.messagePanel;
+       var countUIId = this.countUIId.value;
+       this.msgCounter = 0;
+       this.realCounter = $("<span style='color:blue;font-weight:bold;margin-left:-55px;'></span>");
+       $("#"+countUIId).append(this.realCounter);
+       var o = this;
        this.chat = establishWebsocket("/wsnotificator", 
          function(ws,e){
             var msg = {action: "register", partyId: partyId};
+            ws.send(JSON.stringify(msg));
+            var msg = {action: "poll", partyId: partyId};
             ws.send(JSON.stringify(msg));
          },
          function(ws,e){
             if (e.data == "_register_confirmed") {
                return;
             }
+            o.realCounter.text("("+(++o.msgCounter)+")");
             $(msgContainer).append(e.data);
          },
          function(ws,e){
@@ -79,10 +111,18 @@
     <ns2:DataEntity scope="InOut" name="editable" category="JavaPrimitive">
       <type entityName="java.lang.Boolean"></type>
     </ns2:DataEntity>
+    <ns2:DataEntity scope="InOut" name="countUIId" category="JavaPrimitive">
+      <type entityName="java.lang.String"></type>
+    </ns2:DataEntity>
     <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping0">
       <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UITextWithNumber"></ns2:mappingRule>
       <ns2:UIComponent componentPath="sentPartyIdUI" paramName="UIWidgetType"></ns2:UIComponent>
       <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.partyId" paramName="Number"></ns2:DataComponent>
+    </ns2:ComponentMapping>
+    <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping1">
+      <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UIText"></ns2:mappingRule>
+      <ns2:UIComponent componentPath="countUIId" paramName="UIWidgetType"></ns2:UIComponent>
+      <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="countUIId" paramName="StringData"></ns2:DataComponent>
     </ns2:ComponentMapping>
     <ns2:DataToUIMappingOperation>
       <expressionString>{

@@ -12,11 +12,15 @@ public class UserContext {
 
 	long userId;
 	
+	String userName;
+	
 	String userAccount;
 	
 	String userLocale;
 	
 	String lastLoginDate;
+	
+	boolean isAdmin;
 	
 	List<IConstantEntity> userRoles;
 	
@@ -31,16 +35,32 @@ public class UserContext {
 	public UserContext() {
 	}
 	
+	public boolean isAdmin() {
+		return this.isAdmin;
+	}
+	
+	public void setIsAdmin(boolean isAdmin) {
+		this.isAdmin = isAdmin;
+	}
+	
 	public long getUserId() {
-		return userId;
+		return this.userId;
 	}
 
 	public void setUserId(long id) {
 		this.userId = id;
 	}
 
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	
 	public String getUserAccount() {
-		return userAccount;
+		return this.userAccount;
 	}
 
 	public void setUserAccount(String userAccount) {
@@ -48,7 +68,7 @@ public class UserContext {
 	}
 
 	public String getLastLoginDate() {
-		return lastLoginDate;
+		return this.lastLoginDate;
 	}
 
 	public void setLastLoginDate(String lastLoginDate) {
@@ -56,7 +76,7 @@ public class UserContext {
 	}
 
 	public String getOrgName() {
-		return orgName;
+		return this.orgName;
 	}
 
 	public void setOrgName(String orgName) {
@@ -64,7 +84,7 @@ public class UserContext {
 	}
 	
 	public long getOrgId() {
-		return orgId;
+		return this.orgId;
 	}
 
 	public void setOrgId(long orgId) {
@@ -72,7 +92,7 @@ public class UserContext {
 	}
 
 	public String getOrgCode() {
-		return orgCode;
+		return this.orgCode;
 	}
 
 	public void setOrgCode(String orgCode) {
@@ -80,7 +100,7 @@ public class UserContext {
 	}
 
 	public String getOrgType() {
-		return orgType;
+		return this.orgType;
 	}
 
 	public void setOrgType(String orgType) {
@@ -141,6 +161,10 @@ public class UserContext {
 	}
 
 	public static Object getCurrentUserContext() {
+		return userSessionCache.get();
+	}
+	
+	public static UserContext getUserContext() {
 		return userSessionCache.get();
 	}
 

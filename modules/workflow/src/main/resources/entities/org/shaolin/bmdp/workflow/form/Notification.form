@@ -69,6 +69,8 @@
           <ns2:value>true</ns2:value>
         </ns2:secure>
       </ns2:component>
+      <ns2:component xsi:type="ns2:UIHiddenType" UIID="countUIId">
+      </ns2:component>
       <ns2:component xsi:type="ns2:UILabelType" UIID="partyIdUILabel">
         <ns2:UIStyle>uimaster_leftform_widget</ns2:UIStyle>
         <ns2:text xsi:type="ns2:ResourceBundlePropertyType">
@@ -175,6 +177,9 @@
     <systemVersion>0</systemVersion>
     <ns2:DataEntity scope="InOut" name="beObject" category="BusinessEntity">
       <type entityName="org.shaolin.bmdp.workflow.be.Notification"></type>
+    </ns2:DataEntity>
+    <ns2:DataEntity scope="InOut" name="countUIId" category="JavaPrimitive">
+      <type entityName="java.lang.String"></type>
     </ns2:DataEntity>
     <ns2:DataEntity scope="InOut" name="editable" category="JavaPrimitive">
       <type entityName="java.lang.Boolean"></type>

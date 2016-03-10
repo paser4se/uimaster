@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import org.hibernate.Session;
 import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.AppContext;
+import org.shaolin.bmdp.runtime.be.IPersistentEntity;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IAppServiceManager;
 import org.shaolin.bmdp.runtime.spi.ILifeCycleProvider;
@@ -719,6 +720,19 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		scFlow.setCreateDate(queryDate);
 		return CoordinatorModel.INSTANCE.searchNotification(scFlow, null, 0, -1);
 	}
+	
+	@Override
+	public void cleanAllNotifications(Long partyId) {
+		NotificationImpl scFlow = new NotificationImpl();
+		scFlow.setPartyId(partyId);
+		List<INotification> items = CoordinatorModel.INSTANCE.searchNotification(scFlow, null, 0, -1);
+		List<IPersistentEntity> entities = new ArrayList<IPersistentEntity>();
+		for (INotification i : items) {
+			entities.add(i);
+		}
+		CoordinatorModel.INSTANCE.batchDelete(entities, true);
+	}
+	
 	
 	/**
 	 * the common notifications must be refreshed every hour.

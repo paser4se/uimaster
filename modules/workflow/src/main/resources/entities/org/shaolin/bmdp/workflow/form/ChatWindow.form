@@ -53,6 +53,8 @@
     </ns2:component>
     <ns2:component xsi:type="ns2:UIHiddenType" UIID="receivedPartyIdUI">
     </ns2:component>
+    <ns2:component xsi:type="ns2:UIHiddenType" UIID="isAbcUI"><!-- is admin -->
+    </ns2:component>
     <ns2:component xsi:type="ns2:UIPanelType" UIID="fieldPanel">
       <ns2:layout xsi:type="ns2:TableLayoutType">
         <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
@@ -185,13 +187,14 @@
       <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="1" align="FULL"></ns2:constraint>
     </ns2:layoutConstraint>
     <ns2:constructorCode><![CDATA[
+       var isAbc = this.isAbcUI.value;
        var partyId = this.sentPartyIdUI.value;
        var fromPartyId = this.sentPartyIdUI.value;
        var toPartyId = this.receivedPartyIdUI.value;
        var msgContainer = this.messageUI;
        this.chat = establishWebsocket("/wschart", 
          function(ws,e){
-            var msg = {action: "register", partyId: partyId};
+            var msg = {action: "register", partyId: partyId, isAbc: isAbc};
             ws.send(JSON.stringify(msg));
             var msg = {action: "history", fromPartyId: fromPartyId, toPartyId: toPartyId};
             ws.send(JSON.stringify(msg));
@@ -215,6 +218,9 @@
     </ns2:DataEntity>
     <ns2:DataEntity scope="InOut" name="sentPartyName" category="JavaPrimitive">
       <type entityName="java.lang.String"></type>
+    </ns2:DataEntity>
+    <ns2:DataEntity scope="Internal" name="isAdmin" category="JavaPrimitive">
+      <type entityName="java.lang.Boolean"></type>
     </ns2:DataEntity>
     <ns2:DataEntity scope="InOut" name="recievedPartyName" category="JavaPrimitive">
       <type entityName="java.lang.String"></type>
@@ -262,8 +268,16 @@
       <ns2:UIComponent componentPath="messageUI" paramName="UIWidgetType"></ns2:UIComponent>
       <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.message" paramName="StringData"></ns2:DataComponent>
     </ns2:ComponentMapping>
+    <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping7">
+      <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UIText"></ns2:mappingRule>
+      <ns2:UIComponent componentPath="isAbcUI" paramName="UIWidgetType"></ns2:UIComponent>
+      <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="isAdmin" paramName="StringData"></ns2:DataComponent>
+    </ns2:ComponentMapping>
     <ns2:DataToUIMappingOperation>
-      <expressionString>{
+      <expressionString>
+      import org.shaolin.bmdp.runtime.security.UserContext;
+      {
+      $isAdmin = UserContext.getUserContext().isAdmin();
 @odContext.executeAllMappings();
 }</expressionString>
     </ns2:DataToUIMappingOperation>

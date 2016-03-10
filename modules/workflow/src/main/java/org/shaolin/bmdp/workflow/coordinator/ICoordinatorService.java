@@ -129,6 +129,8 @@ public interface ICoordinatorService {
 	
 	List<INotification> pullCommonNotifications();
 	
+	void cleanAllNotifications(Long partyId);
+	
 	/**
 	 * get all remote servers.
 	 * 

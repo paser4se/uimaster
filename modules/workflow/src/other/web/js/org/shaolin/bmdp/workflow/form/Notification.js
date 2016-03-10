@@ -8,6 +8,11 @@ function org_shaolin_bmdp_workflow_form_Notification(json)
         ui: elementList[prefix + "idUI"]
     });
 
+    var countUIId = new UIMaster.ui.hidden
+    ({
+        ui: elementList[prefix + "countUIId"]
+    });
+
     var partyIdUILabel = new UIMaster.ui.label
     ({
         ui: elementList[prefix + "partyIdUILabel"]
@@ -59,16 +64,18 @@ function org_shaolin_bmdp_workflow_form_Notification(json)
     ({
         ui: elementList[prefix + "fieldPanel"]
         ,items: []
-        ,subComponents: [prefix + "idUI",prefix + "partyIdUILabel",prefix + "partyIdUI",prefix + "subjectUILabel",prefix + "subjectUI",prefix + "descriptionUILabel",prefix + "descriptionUI"]
+        ,subComponents: [prefix + "idUI",prefix + "countUIId",prefix + "partyIdUILabel",prefix + "partyIdUI",prefix + "subjectUILabel",prefix + "subjectUI",prefix + "descriptionUILabel",prefix + "descriptionUI"]
     });
 
     var Form = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "Form"]
-        ,items: [idUI,partyIdUILabel,partyIdUI,subjectUILabel,subjectUI,descriptionUILabel,descriptionUI,okbtn,cancelbtn,fieldPanel,actionPanel]
+        ,items: [idUI,countUIId,partyIdUILabel,partyIdUI,subjectUILabel,subjectUI,descriptionUILabel,descriptionUI,okbtn,cancelbtn,fieldPanel,actionPanel]
     });
 
     Form.idUI=idUI;
+
+    Form.countUIId=countUIId;
 
     Form.partyIdUILabel=partyIdUILabel;
 
@@ -89,6 +96,8 @@ function org_shaolin_bmdp_workflow_form_Notification(json)
     Form.fieldPanel=fieldPanel;
 
     Form.idUI=idUI;
+
+    Form.countUIId=countUIId;
 
     Form.partyIdUILabel=partyIdUILabel;
 

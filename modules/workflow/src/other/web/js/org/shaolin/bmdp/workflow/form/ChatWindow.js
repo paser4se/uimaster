@@ -23,6 +23,11 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
         ui: elementList[prefix + "receivedPartyIdUI"]
     });
 
+    var isAbcUI = new UIMaster.ui.hidden
+    ({
+        ui: elementList[prefix + "isAbcUI"]
+    });
+
     var sentPartyNameUI = new UIMaster.ui.textfield
     ({
         ui: elementList[prefix + "sentPartyNameUI"]
@@ -80,7 +85,7 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
     var Form = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "Form"]
-        ,items: [taskIdUI,orgIdUI,sentPartyIdUI,receivedPartyIdUI,sentPartyNameUI,receivedPartyNameUI,messageUI,enterMessageUI,okbtn,cancelbtn,fieldPanel,topPanel,actionPanel]
+        ,items: [taskIdUI,orgIdUI,sentPartyIdUI,receivedPartyIdUI,isAbcUI,sentPartyNameUI,receivedPartyNameUI,messageUI,enterMessageUI,okbtn,cancelbtn,fieldPanel,topPanel,actionPanel]
     });
 
     Form.taskIdUI=taskIdUI;
@@ -90,6 +95,8 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
     Form.sentPartyIdUI=sentPartyIdUI;
 
     Form.receivedPartyIdUI=receivedPartyIdUI;
+
+    Form.isAbcUI=isAbcUI;
 
     Form.sentPartyNameUI=sentPartyNameUI;
 
@@ -132,13 +139,14 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
         /* Construct_FIRST:org_shaolin_bmdp_workflow_form_ChatWindow */
 
         
+       var isAbc = this.isAbcUI.value;
        var partyId = this.sentPartyIdUI.value;
        var fromPartyId = this.sentPartyIdUI.value;
        var toPartyId = this.receivedPartyIdUI.value;
        var msgContainer = this.messageUI;
        this.chat = establishWebsocket("/wschart", 
          function(ws,e){
-            var msg = {action: "register", partyId: partyId};
+            var msg = {action: "register", partyId: partyId, isAbc: isAbc};
             ws.send(JSON.stringify(msg));
             var msg = {action: "history", fromPartyId: fromPartyId, toPartyId: toPartyId};
             ws.send(JSON.stringify(msg));
