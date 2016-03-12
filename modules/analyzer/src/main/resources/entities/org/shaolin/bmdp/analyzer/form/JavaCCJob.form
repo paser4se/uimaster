@@ -10,15 +10,26 @@
         import org.shaolin.uimaster.page.AjaxContext;
         import org.shaolin.uimaster.page.ajax.*;
         import org.shaolin.bmdp.analyzer.be.JavaCCJobImpl;
+        import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
+        import org.shaolin.javacc.context.*;
+        import org.shaolin.bmdp.datamodel.common.ExpressionType;
         { 
             RefForm form = (RefForm)@page.getElement(@page.getEntityUiid()); 
             HashMap out = (HashMap)form.ui2Data();
 
             JavaCCJobImpl defaultUser = (JavaCCJobImpl)out.get("beObject");
+            
+            OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+            DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+            ooeeContext.setDefaultEvaluationContext(evaContext);
+            ExpressionType expr = new ExpressionType();
+            expr.setExpressionString(defaultUser.getScript());
+            expr.parse(ooeeContext);
+            
             if (defaultUser.getId() == 0) {
-                System.out.println("created object: " + defaultUser);
+                AanlysisModel.INSTANCE.create(defaultUser);
             } else {
-                System.out.println("updated object: " + defaultUser);
+                AanlysisModel.INSTANCE.update(defaultUser);
             }
 
             form.closeIfinWindows();
@@ -67,7 +78,7 @@
           <ns2:key>org.shaolin.bmdp.analyzer.be.JavaCCJob.script</ns2:key>
         </ns2:text>
       </ns2:component>
-      <ns2:component xsi:type="ns2:UITextFieldType" UIID="scriptUI">
+      <ns2:component xsi:type="ns2:UITextAreaType" UIID="scriptUI">
         <ns2:UIStyle>uimaster_rightform_widget</ns2:UIStyle>
       </ns2:component>
       <ns2:component xsi:type="ns2:UILabelType" UIID="executeDaysUILabel">
@@ -87,7 +98,7 @@
           <ns2:key>org.shaolin.bmdp.analyzer.be.JavaCCJob.executeTime</ns2:key>
         </ns2:text>
       </ns2:component>
-      <ns2:component xsi:type="ns2:UIDateType" UIID="executeTimeUI">
+      <ns2:component xsi:type="ns2:UITextFieldType" UIID="executeTimeUI">
         <ns2:UIStyle>uimaster_rightform_widget</ns2:UIStyle>
       </ns2:component>
       <ns2:layoutConstraint>
@@ -170,15 +181,6 @@
     <ns2:DataEntity scope="InOut" name="editable" category="JavaPrimitive">
       <type entityName="java.lang.Boolean"></type>
     </ns2:DataEntity>
-    <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping0">
-      <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UITextWithNumber"></ns2:mappingRule>
-      <ns2:UIComponent componentPath="idUI" paramName="UIWidgetType"></ns2:UIComponent>
-      <ns2:DataComponent xsi:type="ns2:ExpressionParamType" paramName="Number">
-        <ns2:expression>
-          <expressionString>$beObject.getId()</expressionString>
-        </ns2:expression>
-      </ns2:DataComponent>
-    </ns2:ComponentMapping>
     <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping1">
       <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UIText"></ns2:mappingRule>
       <ns2:UIComponent componentPath="scriptUI" paramName="UIWidgetType"></ns2:UIComponent>
@@ -190,14 +192,9 @@
       <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.executeDays" paramName="Number"></ns2:DataComponent>
     </ns2:ComponentMapping>
     <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping3">
-      <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UITextWithDate"></ns2:mappingRule>
+      <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UITextWithNumber"></ns2:mappingRule>
       <ns2:UIComponent componentPath="executeTimeUI" paramName="UIWidgetType"></ns2:UIComponent>
-      <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.executeTime" paramName="Date"></ns2:DataComponent>
-      <ns2:DataComponent xsi:type="ns2:ExpressionParamType" paramName="IsDateOnly">
-        <ns2:expression>
-          <expressionString>true</expressionString>
-        </ns2:expression>
-      </ns2:DataComponent>
+      <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.executeTime" paramName="Number"></ns2:DataComponent>
     </ns2:ComponentMapping>
     <ns2:DataToUIMappingOperation>
       <expressionString>{

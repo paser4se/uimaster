@@ -108,6 +108,109 @@
                 </ns2:exp>
             </ns2:ops>
         </ns2:eventHandler>
+        <ns2:eventHandler functionName="createJavaCCJobInfo">
+           <ns2:ops xsi:type="ns2:OpCallAjaxType" name="createJavaCCJobInfo-201512052231">
+                <ns2:exp>
+                    <ns2:expressionString><![CDATA[
+                    import java.util.HashMap;
+                    import org.shaolin.uimaster.page.AjaxContext;
+                    import org.shaolin.uimaster.page.AjaxActionHelper;
+                    import org.shaolin.uimaster.page.ajax.*;
+                    import org.shaolin.bmdp.analyzer.be.JavaCCJobImpl;
+                    {
+                        JavaCCJobImpl defaultUser = new JavaCCJobImpl();
+                        
+                        HashMap input = new HashMap();
+                        input.put("beObject", defaultUser);
+                        input.put("editable", new Boolean(true));
+                        RefForm form = new RefForm("userForm", "org.shaolin.bmdp.analyzer.form.JavaCCJob", input);
+                        @page.addElement(form);
+                        
+                        form.openInWindows("添加JavaCC任务", new TableCallBack("javaCCJobInfoTable"));
+                    }
+                    ]]></ns2:expressionString>
+                </ns2:exp>
+            </ns2:ops>
+        </ns2:eventHandler>
+        <ns2:eventHandler functionName="openJavaCCJobInfo">
+            <ns2:ops xsi:type="ns2:OpCallAjaxType" name="openJavaCCJobInfo-201512052231">
+                <ns2:exp>
+                    <ns2:expressionString><![CDATA[
+                    import java.util.HashMap;
+                    import org.shaolin.uimaster.page.AjaxContext;
+                    import org.shaolin.uimaster.page.ajax.*;
+                    import org.shaolin.bmdp.analyzer.be.JavaCCJobImpl;
+                    {
+                        Table personalInfoTable = (Table)@page.getElement("javaCCJobInfoTable");
+                        if (personalInfoTable.getSelectedRow() == null) {
+                            return;
+                        }
+                        JavaCCJobImpl defaultUser = (JavaCCJobImpl)personalInfoTable.getSelectedRow();
+                        
+                        HashMap input = new HashMap();
+                        input.put("beObject", defaultUser);
+                        input.put("editable", new Boolean(true));
+                        RefForm form = new RefForm("userForm", "org.shaolin.bmdp.analyzer.form.JavaCCJob", input);
+                        @page.addElement(form);
+                        
+                        form.openInWindows("打开JavaCC任务", new TableCallBack("javaCCJobInfoTable"));
+                    }
+                    ]]></ns2:expressionString>
+                </ns2:exp>
+            </ns2:ops>
+        </ns2:eventHandler>
+        <ns2:eventHandler functionName="startJavaCCJob">
+            <ns2:ops xsi:type="ns2:OpCallAjaxType" name="startJavaCCJob-201512052231">
+                <ns2:exp>
+                    <ns2:expressionString><![CDATA[
+                    import java.util.HashMap;
+                    import org.shaolin.bmdp.runtime.AppContext;
+                    import org.shaolin.uimaster.page.AjaxContext;
+                    import org.shaolin.uimaster.page.ajax.*;
+                    import org.shaolin.bmdp.analyzer.be.IJavaCCJob;
+                    import org.shaolin.bmdp.analyzer.ce.JavaCCJobStatusType;
+                    import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
+                    import org.shaolin.bmdp.analyzer.IAnalyzerService;
+                    {
+                        Table personalInfoTable = (Table)@page.getElement("javaCCJobInfoTable");
+                        if (personalInfoTable.getSelectedRow() == null) {
+                            return;
+                        }
+                        IAnalyzerService service = (IAnalyzerService)AppContext.get().getService(IAnalyzerService.class);
+                        service.startJob((IJavaCCJob)personalInfoTable.getSelectedRow());
+                        
+                        personalInfoTable.refresh();
+                    }
+                    ]]></ns2:expressionString>
+                </ns2:exp>
+            </ns2:ops>
+        </ns2:eventHandler>
+        <ns2:eventHandler functionName="stopJavaCCJob">
+            <ns2:ops xsi:type="ns2:OpCallAjaxType" name="stopJavaCCJob-201512052231">
+                <ns2:exp>
+                    <ns2:expressionString><![CDATA[
+                    import java.util.HashMap;
+                    import org.shaolin.bmdp.runtime.AppContext;
+                    import org.shaolin.uimaster.page.AjaxContext;
+                    import org.shaolin.uimaster.page.ajax.*;
+                    import org.shaolin.bmdp.analyzer.be.IJavaCCJob;
+                    import org.shaolin.bmdp.analyzer.ce.JavaCCJobStatusType;
+                    import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
+                    import org.shaolin.bmdp.analyzer.IAnalyzerService;
+                    {
+                        Table personalInfoTable = (Table)@page.getElement("javaCCJobInfoTable");
+                        if (personalInfoTable.getSelectedRow() == null) {
+                            return;
+                        }
+                        IAnalyzerService service = (IAnalyzerService)AppContext.get().getService(IAnalyzerService.class);
+                        service.stopJob((IJavaCCJob)personalInfoTable.getSelectedRow());
+                        
+                        personalInfoTable.refresh();
+                    }
+                    ]]></ns2:expressionString>
+                </ns2:exp>
+            </ns2:ops>
+        </ns2:eventHandler>
         <ns2:eventHandler functionName="createStatsInfo">
            <ns2:ops xsi:type="ns2:OpCallAjaxType" name="createStatsInfo-201512052231">
                 <ns2:exp>
@@ -354,6 +457,16 @@
                                 </ns2:title>
                                 <ns2:beFieldId>rowBE.script</ns2:beFieldId>
                                 <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Label</ns2:type></ns2:uiType>
+                                <ns2:rowExpression xsi:type="ns2:ExpressionPropertyType">
+                                    <ns2:expression xsi:type="ns2:ExpressionType">
+                                        <ns2:expressionString><![CDATA[
+                                        import org.shaolin.bmdp.runtime.AppContext;
+                                        import org.shaolin.bmdp.utils.StringUtil;
+                                        {
+                                            return StringUtil.escapeJSONTags($rowBE.getScript());
+                                        }]]></ns2:expressionString>
+                                    </ns2:expression>
+                                </ns2:rowExpression>
                             </ns2:column>
                             <ns2:column xsi:type="ns2:UITableColumnType">
                                 <ns2:title xsi:type="ns2:StringPropertyType">
@@ -364,7 +477,7 @@
                             </ns2:column>
                             <ns2:column xsi:type="ns2:UITableColumnType">
                                 <ns2:title xsi:type="ns2:StringPropertyType">
-                                    <ns2:value>Execute Time Interval</ns2:value>
+                                    <ns2:value>Execute Hour Interval</ns2:value>
                                 </ns2:title>
                                 <ns2:beFieldId>rowBE.executeTime</ns2:beFieldId>
                                 <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Label</ns2:type></ns2:uiType>
@@ -376,9 +489,23 @@
                                 <ns2:beFieldId>rowBE.status</ns2:beFieldId>
                                 <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Label</ns2:type></ns2:uiType>
                             </ns2:column>
+                             <ns2:column xsi:type="ns2:UITableColumnType">
+                                <ns2:title xsi:type="ns2:StringPropertyType">
+                                    <ns2:value>Next Execution Time</ns2:value>
+                                </ns2:title>
+                                <ns2:beFieldId>rowBE.realExecutedTime</ns2:beFieldId>
+                                <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Label</ns2:type></ns2:uiType>
+                            </ns2:column>
+                            <ns2:column xsi:type="ns2:UITableColumnType">
+                                <ns2:title xsi:type="ns2:StringPropertyType">
+                                    <ns2:value>Executed Count</ns2:value>
+                                </ns2:title>
+                                <ns2:beFieldId>rowBE.count</ns2:beFieldId>
+                                <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Label</ns2:type></ns2:uiType>
+                            </ns2:column>
                             <ns2:defaultActions>
-                                <ns2:defaultNewAction>createJobInfo</ns2:defaultNewAction>
-                                <ns2:defaultOpenAction>openJobInfo</ns2:defaultOpenAction>
+                                <ns2:defaultNewAction>createJavaCCJobInfo</ns2:defaultNewAction>
+                                <ns2:defaultOpenAction>openJavaCCJobInfo</ns2:defaultOpenAction>
                             </ns2:defaultActions>
                             <ns2:actionGroup>
 		                       <ns2:type>radio</ns2:type>
@@ -388,7 +515,7 @@
 		                               <ns2:value>Start Job</ns2:value>
 		                           </ns2:title>
 		                           <ns2:icon>ui-icon-note</ns2:icon>
-		                           <ns2:function>startJob</ns2:function>
+		                           <ns2:function>startJavaCCJob</ns2:function>
 		                       </ns2:action>
 		                       <ns2:action>
                                    <ns2:uiid>stop</ns2:uiid>
@@ -396,7 +523,7 @@
                                        <ns2:value>Stop Job</ns2:value>
                                    </ns2:title>
                                    <ns2:icon>ui-icon-note</ns2:icon>
-                                   <ns2:function>stopJob</ns2:function>
+                                   <ns2:function>stopJavaCCJob</ns2:function>
                                </ns2:action>
                             </ns2:actionGroup>
                         </ns2:component>

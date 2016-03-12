@@ -98,6 +98,9 @@ public class AanlysisModel extends BEEntityDaoObject {
             if (scObject.getId() > 0) {
                 inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.id", scObject.getId()));
             }
+            if (scObject.getStatus() != null && scObject.getStatus() == org.shaolin.bmdp.analyzer.ce.JavaCCJobStatusType.START) {
+                inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.statusInt", scObject.getStatus().getIntValue()));
+            }
 
         inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject._enable", scObject.isEnabled()));
 
@@ -110,6 +113,9 @@ public class AanlysisModel extends BEEntityDaoObject {
 
             if (scObject.getId() > 0) {
                 inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.id", scObject.getId()));
+            }
+            if (scObject.getStatus() != null && scObject.getStatus() == org.shaolin.bmdp.analyzer.ce.JavaCCJobStatusType.START) {
+                inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.statusInt", scObject.getStatus().getIntValue()));
             }
 
         inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject._enable", scObject.isEnabled()));

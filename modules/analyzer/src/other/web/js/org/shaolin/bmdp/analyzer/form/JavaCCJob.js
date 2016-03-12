@@ -13,7 +13,7 @@ function org_shaolin_bmdp_analyzer_form_JavaCCJob(json)
         ui: elementList[prefix + "scriptUILabel"]
     });
 
-    var scriptUI = new UIMaster.ui.textfield
+    var scriptUI = new UIMaster.ui.textarea
     ({
         ui: elementList[prefix + "scriptUI"]
     });
@@ -33,7 +33,7 @@ function org_shaolin_bmdp_analyzer_form_JavaCCJob(json)
         ui: elementList[prefix + "executeTimeUILabel"]
     });
 
-    var executeTimeUI = new UIMaster.ui.calendar
+    var executeTimeUI = new UIMaster.ui.textfield
     ({
         ui: elementList[prefix + "executeTimeUI"]
     });

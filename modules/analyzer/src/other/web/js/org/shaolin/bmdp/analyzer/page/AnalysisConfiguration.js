@@ -93,6 +93,14 @@ function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration(json)
 
     Form.openJobInfo = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openJobInfo;
 
+    Form.createJavaCCJobInfo = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createJavaCCJobInfo;
+
+    Form.openJavaCCJobInfo = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openJavaCCJobInfo;
+
+    Form.startJavaCCJob = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_startJavaCCJob;
+
+    Form.stopJavaCCJob = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_stopJavaCCJob;
+
     Form.createStatsInfo = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createStatsInfo;
 
     Form.openStatsInfo = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openStatsInfo;
@@ -155,6 +163,50 @@ function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration(json)
 
         UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"openJobInfo-201512052231",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openJobInfo */
+
+
+    /* auto generated eventlistener function declaration */
+    function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createJavaCCJobInfo(eventsource,event) {/* Gen_First:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createJavaCCJobInfo */
+        var o = this;
+        var UIEntity = this;
+
+        // cal ajax function. 
+
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"createJavaCCJobInfo-201512052231",UIMaster.getValue(eventsource),o.__entityName);
+    }/* Gen_Last:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createJavaCCJobInfo */
+
+
+    /* auto generated eventlistener function declaration */
+    function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openJavaCCJobInfo(eventsource,event) {/* Gen_First:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openJavaCCJobInfo */
+        var o = this;
+        var UIEntity = this;
+
+        // cal ajax function. 
+
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"openJavaCCJobInfo-201512052231",UIMaster.getValue(eventsource),o.__entityName);
+    }/* Gen_Last:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openJavaCCJobInfo */
+
+
+    /* auto generated eventlistener function declaration */
+    function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_startJavaCCJob(eventsource,event) {/* Gen_First:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_startJavaCCJob */
+        var o = this;
+        var UIEntity = this;
+
+        // cal ajax function. 
+
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"startJavaCCJob-201512052231",UIMaster.getValue(eventsource),o.__entityName);
+    }/* Gen_Last:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_startJavaCCJob */
+
+
+    /* auto generated eventlistener function declaration */
+    function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_stopJavaCCJob(eventsource,event) {/* Gen_First:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_stopJavaCCJob */
+        var o = this;
+        var UIEntity = this;
+
+        // cal ajax function. 
+
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"stopJavaCCJob-201512052231",UIMaster.getValue(eventsource),o.__entityName);
+    }/* Gen_Last:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_stopJavaCCJob */
 
 
     /* auto generated eventlistener function declaration */

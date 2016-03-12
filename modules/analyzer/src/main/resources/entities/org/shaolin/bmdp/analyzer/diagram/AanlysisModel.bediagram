@@ -54,6 +54,14 @@
             <bediagram:type xsi:type="bediagram:LongType" />
         </bediagram:member>
         <bediagram:member>
+            <bediagram:name>count</bediagram:name>
+            <bediagram:type xsi:type="bediagram:IntType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>realExecutedTime</bediagram:name>
+            <bediagram:type xsi:type="bediagram:DateTimeType" />
+        </bediagram:member>
+        <bediagram:member>
             <bediagram:name>task</bediagram:name>
             <bediagram:type xsi:type="bediagram:BEObjRefType">
                 <bediagram:targetEntity entityName="org.shaolin.bmdp.workflow.be.Task" />
@@ -77,6 +85,15 @@
         </bediagram:member>
         <bediagram:member>
             <bediagram:name>executeTime</bediagram:name>
+            <bediagram:type xsi:type="bediagram:IntType" />
+        </bediagram:member>
+        <bediagram:member>
+            <!-- calculate the count of job executed. -->
+            <bediagram:name>count</bediagram:name>
+            <bediagram:type xsi:type="bediagram:IntType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>realExecutedTime</bediagram:name>
             <bediagram:type xsi:type="bediagram:DateTimeType" />
         </bediagram:member>
         <bediagram:member>
