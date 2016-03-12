@@ -123,6 +123,10 @@ public class EventHandler implements IAjaxHandler {
 				if (log.isDebugEnabled()) {
 					context.printUiMap();
 				}
+				if (context.itemSize() == 0) {
+					// at least needs one.
+					context.executeJavaScript("");
+				}
 				return context.getDataAsJSON();
 			}
 		} catch (Throwable ex) {
