@@ -28,6 +28,7 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.workflow.be.INotification;
 import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
@@ -78,6 +79,9 @@ public class NotificationService {
 			logger.info("Received a message: {0}", jsonMsg);
 		}
 		try {
+			AppContext.register(IServerServiceManager.INSTANCE.getApplication(
+					IServerServiceManager.INSTANCE.getMasterNodeName()));
+			
 			JSONObject data = new JSONObject(jsonMsg);
 			String action = data.getString("action");
 			
