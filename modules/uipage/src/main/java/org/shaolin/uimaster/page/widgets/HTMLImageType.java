@@ -56,7 +56,7 @@ public class HTMLImageType extends HTMLTextWidgetType
     			if (context.getRequest().getAttribute("_hasGallery") == null) {
     				context.getRequest().setAttribute("_hasGallery", Boolean.TRUE);
 		            HTMLUtil.generateTab(context, depth);
-		            context.generateHTML("<div><link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/font-awesome.min.css\" type=\"text/css\">");
+		            context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/font-awesome.min.css\" type=\"text/css\">");
 		            HTMLUtil.generateTab(context, depth);
 		            context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/jgallery.min.css?v=1.5.0\" type=\"text/css\">");
 		            HTMLUtil.generateTab(context, depth);

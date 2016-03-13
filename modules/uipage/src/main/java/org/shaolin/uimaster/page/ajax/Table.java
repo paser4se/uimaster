@@ -630,7 +630,6 @@ public class Table extends Widget implements Serializable {
 				OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 				DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
 				evaContext.setVariableValue("tableName", this.stats.getTableName());
-				//TODO:
 				evaContext.setVariableValue("conditions", new HashMap());
 				ooeeContext.setDefaultEvaluationContext(evaContext);
 				ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);

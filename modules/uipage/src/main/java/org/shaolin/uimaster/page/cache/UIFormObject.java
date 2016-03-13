@@ -1831,6 +1831,9 @@ public class UIFormObject implements java.io.Serializable
 	}
 	
 	public List<HTMLDynamicUIItem> getDynamicItems(String panelId, String filter) {
+		if (this.dynamicItems == null) {
+			return Collections.emptyList();
+		}
 		List<HTMLDynamicUIItem> items = this.dynamicItems.get(panelId);
 		if (filter == null || filter.isEmpty()) {
 			return items;

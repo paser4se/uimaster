@@ -1493,7 +1493,19 @@ UIMaster.ui.panel = function(conf){
     }else{
         UIMaster.apply(this, conf);
         UIMaster.apply(this, {
-            validate:function(){},
+            validate:function(){
+			   var result = new Array();
+			   if (this.subComponents.length > 0) {
+			      for (var i = 0; i < this.subComponents.length; i++) {
+						var comp = elementList[this.subComponents[i]];
+						if (comp && comp.validate) {
+							var r = comp.validate();
+							if (r != null && r.length > 0) {result.push(r);}
+						}
+					}
+			   }
+			   return result.length>0 ?result:null;
+			},
             init:function(){
 			    if (this.subComponents.length > 0) {
 					for (var i = 0; i < this.subComponents.length; i++) {
@@ -2979,15 +2991,18 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
         		$(this).append($(elementList[$(this).attr("uipanelid")]).parent());
 			}
 		});
+		
 		var btns = $($(s).children()[2]).children();
 		$(btns[0]).button().click(function(){
-		    if(!othis.setTab("prev")) return;
+			if(!othis.validate0()) return;
+			if(!othis.setTab("prev")) return;
 		    UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedIndex",_value:othis.selectedIndex,_framePrefix:UIMaster.getFramePrefix(this)});
 			$.ajax({url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
 			{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"prevbtn",_framePrefix:UIMaster.getFramePrefix(),_sync:UIMaster.ui.sync()}});
 		});
 		$(btns[1]).button().click(function(){
-		    if(!othis.setTab("next")) return;
+		    if(!othis.validate0()) return;
+		    if(!othis.setTab("next")) return;			
 		    UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedIndex",_value:othis.selectedIndex,_framePrefix:UIMaster.getFramePrefix(this)});
 			$.ajax({url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
 			{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"nextbtn",_framePrefix:UIMaster.getFramePrefix(),_sync:UIMaster.ui.sync()}});
@@ -2999,9 +3014,21 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 			}
 		}
     },
+	validate0:function() {
+	  if (this.subComponents != null && this.subComponents[this.selectedIndex]) {
+		  var id = "defaultname." + this.subComponents[this.selectedIndex];
+		  var constraint_result = eval(id).validate();
+		  if (constraint_result != true && constraint_result != null) {
+			  return false;
+		  }
+	  }
+	  return true;
+	},
 	sync:function(){
-       if (this.subComponents != null && this.subComponents[this.selectedIndex] && defaultname[this.subComponents[this.selectedIndex]] && defaultname[this.subComponents[this.selectedIndex]].sync)
-	      defaultname[this.subComponents[this.selectedIndex]].sync();
+	   if (this.subComponents != null && this.subComponents[this.selectedIndex]) {
+	      var id = "defaultname." + this.subComponents[this.selectedIndex];
+		  eval(id) != null && eval(id).sync != null && eval(id).sync();
+	   }
     },
     setTab:function(action){
 	    var id = null;
