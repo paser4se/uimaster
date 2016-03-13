@@ -21,14 +21,15 @@ public class AanlysisModelCust extends BEEntityDaoObject {
 	public List<org.shaolin.bmdp.analyzer.be.IChartPointData> stats(
 			String tableName, Map<String, Object> condition) {
 		List result = this.listStatistic(tableName, 0, -1, condition);
-		List<IChartPointData> data = new ArrayList<IChartPointData>(
-				result.size());
+		List<IChartPointData> data = new ArrayList<IChartPointData>(result.size());
 		Iterator iterator = result.iterator();
 		while (iterator.hasNext()) {
 			Object[] objects = (Object[]) iterator.next();
 
 			ChartPointDataImpl item = new ChartPointDataImpl();
-			item.setLabel(String.valueOf(objects[1]));//the label must be on the first column
+			//object[0] the primary key.
+			item.setLabel(String.valueOf(objects[1]));//the label must be on the first column.
+			
 			item.setDataset(String.valueOf(objects[2]));
 			if (objects.length >= 4) {
 				item.setDataset1(String.valueOf(objects[3]));

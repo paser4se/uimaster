@@ -7,29 +7,7 @@ function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration(json)
     ({
         ui: elementList[prefix + "functionsTab"]
         ,items: []
-        ,subComponents: [prefix + "dbInfoPanel",prefix + "jobInfoPanel",prefix + "javaccJobInfoPanel",prefix + "chartStatsPanel"]
-    });
-    var dbInfoTable = new UIMaster.ui.objectlist
-    ({
-        ui: elementList[prefix + "dbInfoTable"]
-    });
-
-    var dbInfoPanel = new UIMaster.ui.panel
-    ({
-        ui: elementList[prefix + "dbInfoPanel"]
-        ,items: []
-        ,subComponents: [prefix + "dbInfoTable"]
-    });
-    var jobInfoTable = new UIMaster.ui.objectlist
-    ({
-        ui: elementList[prefix + "jobInfoTable"]
-    });
-
-    var jobInfoPanel = new UIMaster.ui.panel
-    ({
-        ui: elementList[prefix + "jobInfoPanel"]
-        ,items: []
-        ,subComponents: [prefix + "jobInfoTable"]
+        ,subComponents: [prefix + "javaccJobInfoPanel",prefix + "jobInfoPanel",prefix + "chartStatsPanel"]
     });
     var javaCCJobInfoTable = new UIMaster.ui.objectlist
     ({
@@ -41,6 +19,17 @@ function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration(json)
         ui: elementList[prefix + "javaccJobInfoPanel"]
         ,items: []
         ,subComponents: [prefix + "javaCCJobInfoTable"]
+    });
+    var jobInfoTable = new UIMaster.ui.objectlist
+    ({
+        ui: elementList[prefix + "jobInfoTable"]
+    });
+
+    var jobInfoPanel = new UIMaster.ui.panel
+    ({
+        ui: elementList[prefix + "jobInfoPanel"]
+        ,items: []
+        ,subComponents: [prefix + "jobInfoTable"]
     });
     var chartStatsTable = new UIMaster.ui.objectlist
     ({
@@ -63,17 +52,13 @@ function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration(json)
 
     Form.functionsTab=functionsTab;
 
-    Form.dbInfoPanel=dbInfoPanel;
+    Form.javaccJobInfoPanel=javaccJobInfoPanel;
 
-    Form.dbInfoTable=dbInfoTable;
+    Form.javaCCJobInfoTable=javaCCJobInfoTable;
 
     Form.jobInfoPanel=jobInfoPanel;
 
     Form.jobInfoTable=jobInfoTable;
-
-    Form.javaccJobInfoPanel=javaccJobInfoPanel;
-
-    Form.javaCCJobInfoTable=javaCCJobInfoTable;
 
     Form.chartStatsPanel=chartStatsPanel;
 
