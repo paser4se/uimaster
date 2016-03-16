@@ -863,7 +863,7 @@ UIMaster.ui.checkboxgroup = UIMaster.extend(UIMaster.ui.field, /** @lends UIMast
     },
     validateEvent: function(evnt){
         var obj = UIMaster.getObject(evnt);
-        return eval(D+ obj.name).validate();
+        return eval(D+ obj.name) && eval(D+ obj.name).validate();
     },
     notifyChange: function(e){
         var obj = eval(D + UIMaster.getObject(e).name), v = obj.getValue().join(",")
@@ -2704,9 +2704,10 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
 						if ($(b).attr("disabled") == null || $(b).attr("disabled") == "false") {
 							buttonset[count++] = { text:b.value, 
 							    open:function(){if(IS_MOBILEVIEW){$(this).addClass('uimaster_button');}},
-            					click:function(e){var e=$(e.srcElement?e.srcElement:e.target).text();
+            					click:function(e){
+								    var text=$(e.srcElement?e.srcElement:e.target).text();
 								    for (var i=0;i<buttons.length;i++){ 
-            						    if(e==buttons[i].value){$(buttons[i]).click();break;}
+            						    if(text==buttons[i].value){$(buttons[i]).click();break;}
 									} } };
 						}
 						if (IS_MOBILEVIEW) $(b).button();

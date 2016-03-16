@@ -152,9 +152,14 @@ public class HTMLDynamicUIItem {
 		List<IConstantEntity> value = HTMLDynamicUIItem.toCElist(this.getCeName(), jsonValue);
 		IConstantEntity constant = AppContext.get().getConstantService().getConstantEntity(this.getCeName());
 		Map<Integer, String> avps = constant.getAllConstants(false);
-		
+		String filterUIID = uiid.replace("-", "").replace("_", "");
+		StringBuilder jssb = new StringBuilder();
+//		if (context.getHTMLPrefix().length() > 0) {
+//			String realid = "defaultname." + context.getHTMLPrefix().substring(0, context.getHTMLPrefix().length() - 1);
+//			jssb.append("if (!").append(realid).append(") {").append(realid).append(" = new Object();} \n");
+//		}
 		if (this.getCeSelectMode() == HTMLDynamicUIItem.LIST) {
-			HTMLComboBoxType list = new HTMLComboBoxType(context, uiid); 
+			HTMLComboBoxType list = new HTMLComboBoxType(context, filterUIID); 
 			list.setPrefix(context.getHTMLPrefix());
 			list.setHTMLLayout(layout);
 			list.setFrameInfo(context.getFrameInfo());
@@ -172,8 +177,13 @@ public class HTMLDynamicUIItem {
 			list.generateBeginHTML(context, ownerEntity, depth);
 			list.generateEndHTML(context, ownerEntity, depth);
 			
+			String jsvar = "defaultname." + newWidget.getId();
+			jssb.append(jsvar).append(" = new UIMaster.ui.combobox({ui: elementList[\"");
+			jssb.append(newWidget.getId()).append("\"]});\n");
+			jssb.append(jsvar).append(".init();\n");
+			
 		} else if (this.getCeSelectMode() == HTMLDynamicUIItem.RADIOBUTTONGROUP) {
-			HTMLRadioButtonGroupType list = new HTMLRadioButtonGroupType(context, uiid); 
+			HTMLRadioButtonGroupType list = new HTMLRadioButtonGroupType(context, filterUIID); 
 			list.setPrefix(context.getHTMLPrefix());
 			list.setHTMLLayout(layout);
 			list.setFrameInfo(context.getFrameInfo());
@@ -191,8 +201,13 @@ public class HTMLDynamicUIItem {
 			list.generateBeginHTML(context, ownerEntity, depth);
 			list.generateEndHTML(context, ownerEntity, depth);
 			
+			String jsvar = "defaultname." + newWidget.getId();
+			jssb.append(jsvar).append(" = new UIMaster.ui.radiobuttongroup({ui: elementList[\"");
+			jssb.append(newWidget.getId()).append("\"]});\n");
+			jssb.append(jsvar).append(".init();\n");
+			
 		} else if (this.getCeSelectMode() == HTMLDynamicUIItem.CHECKBOXGROUP) {
-			HTMLCheckBoxGroupType list = new HTMLCheckBoxGroupType(context, uiid); 
+			HTMLCheckBoxGroupType list = new HTMLCheckBoxGroupType(context, filterUIID); 
 			list.setPrefix(context.getHTMLPrefix());
 			list.setHTMLLayout(layout);
 			list.setFrameInfo(context.getFrameInfo());
@@ -213,18 +228,39 @@ public class HTMLDynamicUIItem {
 			
 			list.generateBeginHTML(context, ownerEntity, depth);
 			list.generateEndHTML(context, ownerEntity, depth);
+			
+			String jsvar = "defaultname." + newWidget.getId();
+			jssb.append(jsvar).append(" = new UIMaster.ui.checkboxgroup({ui: elementList[\"");
+			jssb.append(newWidget.getId()).append("\"]});\n");
+			jssb.append(jsvar).append(".init();\n");
+			
 		} 
+		
+		context.generateHTML("<script type=\"text/javascript\">\n");
+		context.generateHTML("UIMaster.pageInitFunctions.push(function(){\n");
+		context.generateHTML(jssb.toString());
+		context.generateHTML("});\n");
+		context.generateHTML("</script>");
 	}
 	
 	public Object retriveData(String uiid) {
+		String jsvar = uiid;
 		if (this.getCeSelectMode() == HTMLDynamicUIItem.LIST) {
-			ComboBox box = AjaxActionHelper.getAjaxContext().getComboBox(uiid);
-			return "{\"name\":\""+this.getCeName()+"\",\"value\":\""+box.getValue()+"\"}"; 
+			ComboBox box = AjaxActionHelper.getAjaxContext().getComboBox(jsvar);
+			String v = box.getValue();
+			if (v.length() == 0) {
+				v = "-1";
+			}
+			return "{\"name\":\""+this.getCeName()+"\",\"value\":\""+v+"\"}"; 
 		} else if (this.getCeSelectMode() == HTMLDynamicUIItem.RADIOBUTTONGROUP) {
-			RadioButtonGroup group = AjaxActionHelper.getAjaxContext().getRadioBtnGroup(uiid);
-			return "{\"name\":\""+this.getCeName()+"\",\"value\":\""+group.getValue()+"\"}"; 
+			RadioButtonGroup group = AjaxActionHelper.getAjaxContext().getRadioBtnGroup(jsvar);
+			String v = group.getValue();
+			if (v.length() == 0) {
+				v = "-1";
+			}
+			return "{\"name\":\""+this.getCeName()+"\",\"value\":\""+v+"\"}"; 
 		} else if (this.getCeSelectMode() == HTMLDynamicUIItem.CHECKBOXGROUP) {
-			CheckBoxGroup group = AjaxActionHelper.getAjaxContext().getCheckBoxGroup(uiid);
+			CheckBoxGroup group = AjaxActionHelper.getAjaxContext().getCheckBoxGroup(jsvar);
 			List<String> values = group.getValues();
 			StringBuilder sb = new StringBuilder();
 			if (values != null && values.size() > 0) {
@@ -232,6 +268,9 @@ public class HTMLDynamicUIItem {
 					sb.append(v).append(",");
 				}
 				sb.deleteCharAt(sb.length() - 1);
+			}
+			if (sb.length() == 0) {
+				sb.append("-1");
 			}
 			return "{\"name\":\""+this.getCeName()+"\",\"value\":\""+sb.toString()+"\"}"; 
 		}

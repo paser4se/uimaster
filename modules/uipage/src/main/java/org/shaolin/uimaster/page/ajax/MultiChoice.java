@@ -42,7 +42,7 @@ abstract public class MultiChoice extends Choice implements Serializable
                 values.clear();
                 if( ((String) value).length() > 0)
                 {
-                    String[] valueArray = ((String) value).split(";");
+                    String[] valueArray = ((String) value).split(",");
                     for(int i=0; i<valueArray.length; i++)
                     {
                         values.add(valueArray[i]);
@@ -114,11 +114,19 @@ abstract public class MultiChoice extends Choice implements Serializable
         //if values.length == 0, that means clear all values.
         for(int i = 0; i < values.size(); i++)//filter illegal item.
         {
-            if( !this.optionValues.contains(values.get(i)) )
-            {
-                values.remove(i);
-                i=0;//to prevent out of array index exception.
+        	boolean found = false;
+        	for(int j = 0; j < optionValues.size(); j++)//filter illegal item.
+            {//optionValues could be integer!
+        		if( String.valueOf(this.optionValues.get(j)).equals(values.get(i)) )
+        		{
+        			found = true;
+        			break;
+        		}
             }
+        	if (!found) {
+	        	values.remove(i);
+	        	i=0;//to prevent out of array index exception.
+        	}
         }
 
         super.addAttribute("values", values);

@@ -566,7 +566,7 @@ public class Panel extends Container implements Serializable
     	StringBuilder sb = new StringBuilder();
     	sb.append("[");
     	for (HTMLDynamicUIItem item : items) {
-    		String uiid = this.getId() + "-dynamicUI" + i++;
+    		String uiid = this.getId() + "dynamicUI" + i++;
     		sb.append(item.retriveData(uiid)).append(",");
     	}
     	sb.deleteCharAt(sb.length() - 1);

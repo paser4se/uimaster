@@ -261,8 +261,8 @@ public class RefForm extends Container implements Serializable
     	StringBuilder sb = new StringBuilder();
         sb.append("defaultname.").append(this.getId());
         sb.append(" = new ").append(getJsName()).append("('");
-        sb.append(this.getId()).append(".');");
-
+        sb.append(this.getId()).append(".');\n");
+        sb.append("postInit();\n");
         return sb.toString();
     }
 
@@ -278,6 +278,9 @@ public class RefForm extends Container implements Serializable
 
     String buildUpRefEntity()
     {
+    	if (this.getId() == null) {
+    		throw new IllegalStateException("Please make sure you are using the right refform object!");
+    	}
         try
         {
         	AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
