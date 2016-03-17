@@ -42,7 +42,21 @@ abstract public class MultiChoice extends Choice implements Serializable
                 values.clear();
                 if( ((String) value).length() > 0)
                 {
-                    String[] valueArray = ((String) value).split(",");
+                	// two cases supported:
+                	//1. ce values separation for instance: BuildingMaterial,5;BuildingMaterial,3
+                    String[] valueArray = ((String) value).split(";");
+                    if (valueArray.length == 1) {
+                    	//2. check wether is ce values separation with 1,2,3
+                    	 String[] valueArray2 = ((String) value).split(",");
+                    	 if (valueArray2.length > 1) {
+                    		 try {
+                    			 Integer.parseInt(valueArray2[0]);
+                    			 valueArray = valueArray2;//it's pure number array.
+                    		 } catch (Exception e) {
+                    			 //skip.
+                    		 }
+                    	 }
+                    }
                     for(int i=0; i<valueArray.length; i++)
                     {
                         values.add(valueArray[i]);
