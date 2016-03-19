@@ -76,6 +76,10 @@
             <bediagram:type xsi:type="bediagram:LongType" />
         </bediagram:member>
         <bediagram:member>
+            <bediagram:name>description</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
+        <bediagram:member>
             <bediagram:name>script</bediagram:name>
             <bediagram:type xsi:type="bediagram:StringType" />
         </bediagram:member>

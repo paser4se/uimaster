@@ -38,6 +38,16 @@ function org_shaolin_bmdp_analyzer_form_JavaCCJob(json)
         ui: elementList[prefix + "executeTimeUI"]
     });
 
+    var descUILabel = new UIMaster.ui.label
+    ({
+        ui: elementList[prefix + "descUILabel"]
+    });
+
+    var descUI = new UIMaster.ui.textfield
+    ({
+        ui: elementList[prefix + "descUI"]
+    });
+
     var okbtn = new UIMaster.ui.button
     ({
         ui: elementList[prefix + "okbtn"]
@@ -59,13 +69,13 @@ function org_shaolin_bmdp_analyzer_form_JavaCCJob(json)
     ({
         ui: elementList[prefix + "fieldPanel"]
         ,items: []
-        ,subComponents: [prefix + "idUI",prefix + "scriptUILabel",prefix + "scriptUI",prefix + "executeDaysUILabel",prefix + "executeDaysUI",prefix + "executeTimeUILabel",prefix + "executeTimeUI"]
+        ,subComponents: [prefix + "idUI",prefix + "scriptUILabel",prefix + "scriptUI",prefix + "executeDaysUILabel",prefix + "executeDaysUI",prefix + "executeTimeUILabel",prefix + "executeTimeUI",prefix + "descUILabel",prefix + "descUI"]
     });
 
     var Form = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "Form"]
-        ,items: [idUI,scriptUILabel,scriptUI,executeDaysUILabel,executeDaysUI,executeTimeUILabel,executeTimeUI,okbtn,cancelbtn,fieldPanel,actionPanel]
+        ,items: [idUI,scriptUILabel,scriptUI,executeDaysUILabel,executeDaysUI,executeTimeUILabel,executeTimeUI,descUILabel,descUI,okbtn,cancelbtn,fieldPanel,actionPanel]
     });
 
     Form.idUI=idUI;
@@ -81,6 +91,10 @@ function org_shaolin_bmdp_analyzer_form_JavaCCJob(json)
     Form.executeTimeUILabel=executeTimeUILabel;
 
     Form.executeTimeUI=executeTimeUI;
+
+    Form.descUILabel=descUILabel;
+
+    Form.descUI=descUI;
 
     Form.okbtn=okbtn;
 
@@ -101,6 +115,10 @@ function org_shaolin_bmdp_analyzer_form_JavaCCJob(json)
     Form.executeTimeUILabel=executeTimeUILabel;
 
     Form.executeTimeUI=executeTimeUI;
+
+    Form.descUILabel=descUILabel;
+
+    Form.descUI=descUI;
 
     Form.actionPanel=actionPanel;
 
