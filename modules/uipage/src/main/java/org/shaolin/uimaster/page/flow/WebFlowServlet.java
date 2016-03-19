@@ -84,17 +84,18 @@ public class WebFlowServlet extends HttpServlet
      */
     protected boolean nocache = false;
 
-    class AttributesAccessor {
+    public static class AttributesAccessor {
     	
     	private final transient HttpServletRequest request;
     	
-    	String chunkName;
-    	String nodeName;
-    	String outName;
-    	String entityName;
-    	String destnodename;
-    	String destchunkname;
-    	public AttributesAccessor(HttpServletRequest request){
+    	public String chunkName;
+    	public String nodeName;
+    	public String outName;
+    	public String entityName;
+    	public String destnodename;
+    	public String destchunkname;
+    	
+    	public AttributesAccessor(HttpServletRequest request) {
     		this.request = request;
     		
     		this.chunkName = (String)request.getAttribute(WebflowConstants.SOURCE_CHUNK_NAME);

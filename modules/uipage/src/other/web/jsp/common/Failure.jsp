@@ -2,10 +2,10 @@
 <%@ page import="java.util.Iterator" %>
 <%@ page import="org.shaolin.uimaster.page.flow.error.WebflowError" %>
 <%@ page import="org.shaolin.uimaster.page.flow.error.WebflowErrors" %>
-<%@ page import="org.shaolin.bmdp.exceptions.BaseRuntimeException" %>
+<%@ page import="org.shaolin.bmdp.exceptions.I18NRuntimeException" %>
 <%@ page import="org.shaolin.uimaster.page.flow.WebflowConstants" %>
 <%@ page import="org.shaolin.bmdp.i18n.ResourceUtil" %>
-<%@ include file="/jsp/common/common.jsp" %>
+<%String webRoot="/uimaster";%>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -45,12 +45,12 @@ function initPage()
             {
                 WebflowError error = (WebflowError)it.next();
                 String errorKey = error.getKey();
-                String msg = (errorKey == null) ? null : MessageFormat.format(errorKey, error.getValues());
-				out.println(ResourceUtil.getResource(null,"Errors","ERROR_REASON")+prop+": "+msg);
+                //String msg = (errorKey == null) ? null : MessageFormat.format(errorKey, error.getValues());
+				out.println(ResourceUtil.getResource(null,"Errors","ERROR_REASON")+prop+": "+errorKey);
                 Throwable currThrowable = error.getThrowable();
-                if(currThrowable instanceof EBOSRuntimeException)
+                if(currThrowable instanceof I18NRuntimeException)
                 {
-                	String errorCode = ((EBOSRuntimeException)currThrowable).getReason();
+                	String errorCode = ((I18NRuntimeException)currThrowable).getReason();
                 	out.println("<br>"+ResourceUtil.getResource(null,"Errors","ERROR_CODE")+errorCode);
                 }
             }
@@ -58,18 +58,6 @@ function initPage()
 	}
 	%>
 	</DIV> 
-	</DIV>
-	<br>
-	<DIV id=uIPanel1.titlePanel class=table-tp name="titlePanel">
-	<DIV class=title-tp onclick="bmiasia_slide('uIPanel1.wrapperPanel<%=suffix %>','<%=webRoot%>/images/table-close.gif','<%=webRoot%>/images/table-open.gif','uIPanel1.arrowIcon',event);">
-	<DIV style="WIDTH: 20px; FLOAT: left"><IMG id=uIPanel1.arrowIcon onclick="bmiasia_slide('uIPanel1.wrapperPanel<%=suffix %>','<%=webRoot%>/images/table-close.gif','<%=webRoot%>/images/table-open.gif','uIPanel1.arrowIcon',event);" border=0 src="<%=webRoot%>/images/table-close.gif"></DIV>
-	<DIV style="FLOAT: left; CLEAR: right"><%=bmiasia.ebos.appbase.util.ResourceUtil.getResourceByHttp(null,"bmiasia.ebos.appbase.appbase.Bundle","ERROR_MESSAGE") %></DIV>
-	</DIV>
-	<DIV class=content-tp>
-	<DIV id="uIPanel1.wrapperPanel<%=suffix %>" style="display:none;">
-	<%@ include file="/jsp/common/Errors.jsp" %>
-	</DIV>
-	</DIV>
 	</DIV>
 
 </DIV>

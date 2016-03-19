@@ -111,8 +111,8 @@ public class UIFlowCacheManager implements Serializable
      */
     private void addChunkIntoMap(org.shaolin.bmdp.datamodel.pagediagram.WebChunk webchunk, String appName) throws ParsingException
     {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Add uiflow: " + webchunk.getEntityName());
+        if (logger.isInfoEnabled()) {
+            logger.info("Add uiflow: " + webchunk.getEntityName());
         }
         String entityname = webchunk.getEntityName();
         if (chunks.containsKey(entityname)) {
@@ -135,6 +135,7 @@ public class UIFlowCacheManager implements Serializable
         {
             if (node instanceof UIPageNode)
             {
+            	logger.info("Page Node: " + node.getName());
                 String uipageEntity = ((UIPageNode)node).getSourceEntity();
                 if (uipageEntity != null)
                 {

@@ -487,9 +487,19 @@ public class PageDispatcher {
                 				+ "] is duplicated, please rename the sub page id in pageflow node!!!"
                 				+ ", Page name: " + pageObject.getUIForm().getName());
                 		} else {
-                			throw new IllegalStateException("The sub page id["+frameTarget
+                			logger.error("The sub page id["+frameTarget
                     				+ "] is duplicated, please rename the sub page id in pageflow node!!!"
                     				+ ", Page name: " + pageObject.getUIForm().getName());
+                			StringBuilder sb = new StringBuilder();
+                			sb.append("The sub page id[").append(frameTarget);
+                			sb.append("] is duplicated, please remove the URL parameter for example: _framename=");
+                			sb.append(frameTarget).append("!!!");
+                			sb.append("<br>Page name: ").append(pageObject.getUIForm().getName());
+                			context.generateHTML("<h2>");
+                			context.generateHTML(sb.toString());
+                			context.generateHTML("</h2>");
+                			context.generateHTML("\n</form></body>\n</html>\n");
+                			return;
                 		}
                 	} 
                 	Map pageComponentMap = new HashMap();

@@ -1330,12 +1330,16 @@ UIMaster.ui.panel = function(conf){
                 focusFirstTextField();
             }
             UIMaster.ui.mask.close();
-            if ($(this.parentDiv).is("form")) {
-            	$(this.parentDiv).css("display","block");
-            } else {
-            	var p = $(this.parentDiv); while(!(p=p.parent()).is("form")){};
-            	p.css("display","block");
-            }
+			if (this.parentDiv && $(this.parentDiv).length > 0) {
+				if ($(this.parentDiv).is("form")) {
+					$(this.parentDiv).css("display","block");
+				} else {
+					var p = $(this.parentDiv); while(!(p=p.parent()).is("form")){};
+					p.css("display","block");
+				}
+			} else {
+			    $(document).find("form").css("display","block");
+			}
         }
     }
     if (conf.items && conf.items.length > 0) {
