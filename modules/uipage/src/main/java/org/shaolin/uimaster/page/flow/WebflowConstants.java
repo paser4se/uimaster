@@ -116,6 +116,10 @@ public interface WebflowConstants
     
     public static final String USER_ROLE_KEY = "CurrentUserRole";
     
+    public static final String USER_ORGID = "orgid";
+    
+    public static final String USER_ORGNAME = "orgcode";
+    
     public static final String INDEX_PAGE_VISITED = "indexPageVisited";
 
     /*

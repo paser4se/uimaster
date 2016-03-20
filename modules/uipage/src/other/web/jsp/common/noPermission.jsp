@@ -6,8 +6,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-			<script language="javascript" src="<%=webRoot%>/js/common.js"></script>
-			<link rel="stylesheet" href="<%=webRoot%>/css/main.css" type="text/css">
+		<link rel="stylesheet" href="<%=webRoot%>/css/main.css" type="text/css">
 	</head>
 
 	<body>

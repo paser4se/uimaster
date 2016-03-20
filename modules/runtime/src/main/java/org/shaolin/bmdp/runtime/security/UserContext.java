@@ -1,5 +1,6 @@
 package org.shaolin.bmdp.runtime.security;
 
+import java.io.Serializable;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,7 +9,9 @@ import javax.servlet.http.HttpSession;
 import org.shaolin.bmdp.runtime.ce.CEUtil;
 import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 
-public class UserContext {
+public class UserContext implements Serializable {
+
+	private static final long serialVersionUID = -6470104359346201893L;
 
 	long userId;
 	

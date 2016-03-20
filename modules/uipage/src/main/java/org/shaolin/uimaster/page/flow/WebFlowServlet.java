@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.NDC;
-import org.hibernate.Session;
 import org.shaolin.bmdp.datamodel.pagediagram.NextType;
 import org.shaolin.bmdp.datamodel.pagediagram.OutType;
 import org.shaolin.bmdp.exceptions.BusinessOperationException;
@@ -95,6 +94,9 @@ public class WebFlowServlet extends HttpServlet
     	public String destnodename;
     	public String destchunkname;
     	
+    	String orgId;
+    	String orgCode;
+    	
     	public AttributesAccessor(HttpServletRequest request) {
     		this.request = request;
     		
@@ -121,6 +123,14 @@ public class WebFlowServlet extends HttpServlet
     		this.destchunkname = (String)request.getAttribute(WebflowConstants.DEST_CHUNK_NAME);
     		if (this.destchunkname == null) {
     			this.destchunkname = request.getParameter(WebflowConstants.DEST_CHUNK_NAME);
+    		}
+    		this.orgId = (String)request.getAttribute(WebflowConstants.USER_ORGID);
+    		if (this.orgId == null) {
+    			this.orgId = request.getParameter(WebflowConstants.USER_ORGID);
+    		}
+    		this.orgCode = (String)request.getAttribute(WebflowConstants.USER_ORGNAME);
+    		if (this.orgCode == null) {
+    			this.orgCode = request.getParameter(WebflowConstants.USER_ORGNAME);
     		}
     	}
     	
@@ -366,6 +376,12 @@ public class WebFlowServlet extends HttpServlet
 				}
 				HttpSession session = request.getSession();
 				UserContext currentUserContext = (UserContext)session.getAttribute(WebflowConstants.USER_SESSION_KEY);
+				if (currentUserContext == null && attrAccessor.orgId != null) {
+					currentUserContext = new UserContext();
+					currentUserContext.setOrgCode(attrAccessor.orgCode);
+					currentUserContext.setOrgId(Long.valueOf(attrAccessor.orgId));
+					session.setAttribute(WebflowConstants.USER_SESSION_KEY, currentUserContext);
+				}
 				String userLocale = WebConfig.getUserLocale(request);
 				List userRoles = (List)session.getAttribute(WebflowConstants.USER_ROLE_KEY);
 				String userAgent = request.getHeader("user-agent");

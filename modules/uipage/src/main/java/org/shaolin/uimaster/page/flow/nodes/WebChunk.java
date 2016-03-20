@@ -59,6 +59,10 @@ public class WebChunk implements java.io.Serializable {
 		}
 	}
 	
+	public org.shaolin.bmdp.datamodel.pagediagram.WebChunk getType() {
+		return type;
+	}
+	
 	public List<WebNode> getWebNodes(){
 		return this.webNodes;
 	}
@@ -125,7 +129,7 @@ public class WebChunk implements java.io.Serializable {
 				return node;
 			}
 		}
-        logger.error("can not find web node \"{}\" in webchunk {}",
+        logger.warn("Can not find web node \"{}\" in webchunk {}",
         		new Object[]{name, type.getEntityName()});
         return null;
     }

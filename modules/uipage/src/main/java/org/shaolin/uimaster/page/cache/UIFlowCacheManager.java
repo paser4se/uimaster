@@ -135,7 +135,7 @@ public class UIFlowCacheManager implements Serializable
         {
             if (node instanceof UIPageNode)
             {
-            	logger.info("Page Node: " + node.getName());
+            	logger.info("Add page node: {}.{}", entityname, node.getName());
                 String uipageEntity = ((UIPageNode)node).getSourceEntity();
                 if (uipageEntity != null)
                 {
@@ -182,11 +182,11 @@ public class UIFlowCacheManager implements Serializable
      * 
      * @param name the name of WebChunk
      */
-    public void removeAppChunk(String entityname)
+    public org.shaolin.bmdp.datamodel.pagediagram.WebChunk removeAppChunk(String entityname)
     {
     	UIFlowCacheManager flowCache = AppFlowCaches.get(AppContext.get().getAppName());
     	if (flowCache == null) {
-    		return;
+    		return null;
     	}
     	if (logger.isDebugEnabled())
     		logger.debug("Remove uiflow: " + entityname);
@@ -206,7 +206,9 @@ public class UIFlowCacheManager implements Serializable
                     }
                 }
             }
+            return webchunk.getType();
         }
+        return null;
     }
 
     /**
