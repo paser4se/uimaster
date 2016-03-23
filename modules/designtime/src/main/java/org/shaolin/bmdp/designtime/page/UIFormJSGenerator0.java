@@ -10,6 +10,7 @@ import org.shaolin.bmdp.datamodel.page.ArrayPropertyType;
 import org.shaolin.bmdp.datamodel.page.BooleanPropertyType;
 import org.shaolin.bmdp.datamodel.page.EntityPropertyType;
 import org.shaolin.bmdp.datamodel.page.FunctionType;
+import org.shaolin.bmdp.datamodel.page.NumericPropertyType;
 import org.shaolin.bmdp.datamodel.page.OpCallAjaxType;
 import org.shaolin.bmdp.datamodel.page.OpExecuteScriptType;
 import org.shaolin.bmdp.datamodel.page.OpInvokeWorkflowType;
@@ -952,27 +953,23 @@ public class UIFormJSGenerator0 {
 	        out.write("\"\n");
         }
         
-        if (component instanceof UITextAreaType) {
-        	UITextAreaType textarea = (UITextAreaType)component;
-        	
-        	boolean hiddenToolbar = false;
-        	boolean persistable = true;
-        	List<PropertyType> properties = textarea.getProperties();
-        	for (PropertyType p : properties) {
-        		if (p.getName().equals("hiddenToolbar")) {
-        			hiddenToolbar = true;
-        		}
-        		if (p.getName().equals("persistable")) {
-        			persistable = false;
-        		}
-        	}
-        	if (hiddenToolbar) {
-        		out.write("        ,hiddenToolbar: true\n");
-        	}
-        	if (!persistable) {
-        		out.write("        ,persistable: false\n");
-        	}
-        } else if (component instanceof UITableType) {
+        List<PropertyType> properties = component.getProperties();
+        for (PropertyType p : properties) {
+        	if (p.getValue() instanceof BooleanPropertyType) {
+        		out.write("        ," + p.getName() + ": ");
+    	        out.print(((BooleanPropertyType)p.getValue()).isValue());
+    	        out.write("\n");
+        	} else if (p.getValue() instanceof StringPropertyType) {
+        		out.write("        ," + p.getName() + ": \"");
+    	        out.print(((StringPropertyType)p.getValue()).getValue());
+    	        out.write("\"\n");
+        	} else if (p.getValue() instanceof NumericPropertyType) {
+        		out.write("        ," + p.getName() + ": ");
+    	        out.print(((NumericPropertyType)p.getValue()).getValue());
+    	        out.write("\n");
+        	} 
+        }
+        if (component instanceof UITableType) {
         	UITableType table = (UITableType)component;
         	
         	if (table.isAppendRowMode()) {

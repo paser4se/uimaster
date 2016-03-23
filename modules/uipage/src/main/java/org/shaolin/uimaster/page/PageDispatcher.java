@@ -402,7 +402,7 @@ public class PageDispatcher {
             if (!checkSupportAccess(context.getRequest())) {
             	context.generateHTML("<H1 style=\"color:red;\">Ops!!! We are so sorry that your browser is unsupported(");
             	context.generateHTML(context.getRequest().getHeader("User-Agent"));
-            	context.generateHTML("). Please choose Firefox, Chrome and IE 8 above.</H1>");
+            	context.generateHTML("). Please choose Firefox, Chrome, Safari, IE 9 and above.</H1>");
             	context.generateHTML("<H1 style=\"color:red;\">\u60A8\u597D\uFF0C\u672C\u7CFB\u7EDF\u4E0D\u652F\u6301\u4F4E\u7248\u672C\u7684\u6D4F\u89C8\u5668(");
             	context.generateHTML(context.getRequest().getHeader("User-Agent"));
             	context.generateHTML(")\u3002\u8BF7\u9009\u62E9\u9AD8\u7248\u672C\u7684\u6D4F\u89C8\u5668\u4F7F\u7528\uFF0C\u8C22\u8C22\uFF01</H1>");
@@ -568,7 +568,8 @@ public class PageDispatcher {
     	if (userAgent.indexOf("msie") != -1
     			&& (userAgent.indexOf("msie 5.0") != -1 
     				|| userAgent.indexOf("msie 6.0") != -1 
-    				|| userAgent.indexOf("msie 7.0") != -1)) {
+    				|| userAgent.indexOf("msie 7.0") != -1
+    				|| userAgent.indexOf("msie 8.0") != -1)) {
     		return false;
     	}
     	return true;

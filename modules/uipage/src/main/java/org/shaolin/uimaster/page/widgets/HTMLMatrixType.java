@@ -116,7 +116,7 @@ public class HTMLMatrixType extends HTMLTextWidgetType
 				context.generateHTML("<div class=\"uimaster_matrix_row\" i='"+i+"'>");
 				List<Object> row = blocks.get(i);
 				for (int j=0; j < row.size(); j++) {
-					context.generateHTML("<div j='"+j+"' "+(j<row.size()-1?"style=\"float:left;\"":"")+"><span class=\"uimaster_matrix_col\">");
+					context.generateHTML("<div j='"+j+"' class=\"uimaster_matrix_col\"><span>");
 					Object v = row.get(j);
 					if (v instanceof DataMode) {
 						DataMode mode = (DataMode)v;

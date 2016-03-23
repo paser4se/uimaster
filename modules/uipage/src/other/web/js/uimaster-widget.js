@@ -1642,7 +1642,7 @@ UIMaster.ui.frame = UIMaster.extend(UIMaster.ui);
 UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
     height:-1,
 	width:-1,
-	mode: 'slider',
+	mode: 'standard',
 	thumbnailsFullScreen: true,
 	hideThumbnailsOnInit: false,
 	intialized:false,
@@ -1654,11 +1654,11 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 		    var t = this;
 		    var opts;
 			if ($(this).attr("jheight") == "-1") {
-				opts = {hideThumbnailsOnInit: true, mode: this.thumbnailsFullScreen?"standard":this.mode, 
+				opts = {hideThumbnailsOnInit: true, mode: this.mode, 
                         afterLoadPhoto: function(image) {t.clickImage(image);}};
 			} else {
 				opts = {height:$(this).attr("jheight"),width:$(this).attr("jwidth"),
-				        mode: this.thumbnailsFullScreen?"standard":this.mode, 
+				        mode: this.mode, 
 				        hideThumbnailsOnInit: this.hideThumbnailsOnInit, 
 						afterLoadPhoto: function(image) {t.clickImage(image);}};
 			}
@@ -2693,7 +2693,7 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
         	var w = this.width == 0 ? 500: this.width;
         	var h = this.height == 0 ? 300: this.height;
         	var thisObj = this;
-            this.content = $("<div><div>").html(this.data).attr("id", this.id);
+            this.content = $("<div><div>").html(this.data).attr("id", this.id).css("-webkit-transform","translateZ(0)");
             var buttonset = [];
             if (this.isOnlyShowCloseBtn=="true") {
             	buttonset = [{text:"Close", click:function(){thisObj.content.dialog("close");}}];
@@ -2783,7 +2783,7 @@ function showMobileFrame(link, name) {
    if (link == "#") return;
    var frameId = link.substring(link.indexOf("_framename=") + "_framename=".length);
    frameId = frameId.substring(0, frameId.indexOf("&"));
-   var d = $("<iframe id=\""+frameId+"\" name=\""+frameId+"\" src=\"about:blank\" needsrc=\"true\" frameborder=\"0\" style=\"min-width:100%;min-height:100%;\"></iframe>");
+   var d = $("<iframe id=\""+frameId+"\" name=\""+frameId+"\" src=\"about:blank\" needsrc=\"true\" frameborder=\"0\" style=\"min-width:100%;min-height:100%;-webkit-transform: translateZ(0);\"></iframe>");
    d.dialog({
         id: "mobileOnlyOneFrame",
 		autoOpen:false,

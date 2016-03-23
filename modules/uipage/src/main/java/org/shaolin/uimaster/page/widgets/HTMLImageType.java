@@ -96,9 +96,21 @@ public class HTMLImageType extends HTMLTextWidgetType
 		            	}
 		            } else {
 			            File directory = new File(WebConfig.getResourcePath() + path);
+			            int dirCounter = 0;
 			            if (directory.exists()) {
 			            	String[] images = directory.list();
-			            	context.generateHTML("<div class=\"album\" data-jgallery-album-title=\""+directory.getName()+"\">");
+			            	for (String i : images) {
+			            		File f = new File(directory, i);
+			            		if (f.isDirectory()) {
+			            			dirCounter ++;
+			            		}
+			            	}
+			            }
+			            if (directory.exists()) {
+			            	String[] images = directory.list();
+			            	if (dirCounter > 0) {
+			            		context.generateHTML("<div class=\"album\" data-jgallery-album-title=\""+directory.getName()+"\">");
+			            	}
 			            	for (String i : images) {
 			            		File f = new File(directory, i);
 			            		if (f.isFile()) {
@@ -106,7 +118,9 @@ public class HTMLImageType extends HTMLTextWidgetType
 				            		context.generateHTML("<a href=\""+ item +"\"><img src=\""+ item +"\" alt=\""+i+"\"/></a>");
 			            		}
 			            	}
-			            	context.generateHTML("</div>");
+			            	if (dirCounter > 0) {
+			            		context.generateHTML("</div>");
+			            	}
 			            	for (String i : images) {
 			            		File f = new File(directory, i);
 			            		if (f.isDirectory()) {
