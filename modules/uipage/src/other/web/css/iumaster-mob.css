@@ -3,10 +3,6 @@
     vertical-align: top;        /* vertical aligns elements within the cell */ 
     margin: 5px 0px 5px 0px;   /* controls spacing around cell DIVs */
     padding: 0;	                /* zeros out the cell padding value, if any */
-    float: left;                /* floats the DIV to the left of the screen */
-    clear: none;                /* positions the next floated cell to the right of the previous cell */
-    max-width: 100%;             /* ensures that a cell will not exceed an unreasonable width */
-    position: relative;
 }
 
 .uimaster_container_cell {
@@ -450,7 +446,7 @@ html {
 .tab { width : 100%;}
 .tab-titles { width : 100%;  border-bottom: 0px;}
 .tab-titles div { display : block ; float : left ; padding : 8px; text-align : center ; cursor : pointer ; }
-.tab-bodies { margin-left: 5px; width : 100% ; clear : both ;}
+.tab-bodies { width : 100% ; clear : both ;}
 .tab-bodies .tab-unselected-body { display : none ; }
 .tab-bodies .tab-selected-body { display : block ; }
  

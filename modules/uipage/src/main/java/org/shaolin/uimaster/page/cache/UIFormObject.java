@@ -533,7 +533,7 @@ public class UIFormObject implements java.io.Serializable
 					if (tab.getRefEntity() != null) {
 	                    parseComponent(tab.getRefEntity(), parsingContext);
 	                    String referenceEntity = tab.getRefEntity().getReferenceEntity()
-	                            .getEntityName();
+	                            .getEntityName().trim();
 	
 	                    UIFormObject refEntity = HTMLUtil.parseUIForm(referenceEntity);
 	                    includeMap.put(refEntity, Long.valueOf(refEntity.lastModifyTime));
@@ -567,7 +567,7 @@ public class UIFormObject implements java.io.Serializable
 					if (tab.getRefEntity() != null) {
 	                    parseComponent(tab.getRefEntity(), parsingContext);
 	                    String referenceEntity = tab.getRefEntity().getReferenceEntity()
-	                            .getEntityName();
+	                            .getEntityName().trim();
 	
 	                    UIFormObject refEntity = HTMLUtil.parseUIForm(referenceEntity);
 	                    includeMap.put(refEntity, Long.valueOf(refEntity.lastModifyTime));
@@ -856,7 +856,7 @@ public class UIFormObject implements java.io.Serializable
 					// for cell value evaluation.
             		Class beClass = null;
             		try {
-            			beClass = BEUtil.getBEImplementClass(table.getBeElement());
+            			beClass = BEUtil.getBEImplementClass(table.getBeElement().trim());
             		} catch (ClassNotFoundException e) {
             			beClass = Class.forName(table.getBeElement());
             		}
@@ -1226,7 +1226,7 @@ public class UIFormObject implements java.io.Serializable
                 addAttribute(propMap, "isReferenceInterface", "true");
             }
             addAttribute(propMap, "referenceEntity", ((UIReferenceEntityType)component)
-                    .getReferenceEntity().getEntityName());
+                    .getReferenceEntity().getEntityName().trim());
         }
         else if (component instanceof UITableType)
         {

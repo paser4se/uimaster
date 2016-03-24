@@ -2090,7 +2090,9 @@ function getElementList(){
     getElementListSingle(document.forms[0]);
     disableDoubleSubmit();
     UIMaster.init();
-    focusFirstTextField();
+	if (!IS_MOBILEVIEW) {
+		focusFirstTextField();
+	}
 }
 function establishWebsocket(eventType, onOpen, onMessage, onError) {
     var webSocket = new WebSocket("ws://localhost:8080/"+WEB_CONTEXTPATH+eventType);

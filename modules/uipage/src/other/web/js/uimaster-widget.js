@@ -1829,6 +1829,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		});
 		this.tfoot = $($(this).find('tfoot')[0]);
 		this.editable = (this.tfoot!=null && typeof(this.tfoot.attr('editablecell'))!="undefined");
+		try {
 		var table = $(this).dataTable({
 			"paging": !this.editable,"ordering":!this.editable,"info":!this.editable,
 			"pageLength": 10,
@@ -1845,6 +1846,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				othis.refreshBodyEvents(othis.tbody, true);
 			}
 		});
+		} catch(e) {console.log(e); return;}//for unknown case.
 		this.dtable = table;
 		// enable ajax process after initialization.
         this.dtable.fnSettings().ajax = {
