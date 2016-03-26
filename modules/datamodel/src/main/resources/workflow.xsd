@@ -452,7 +452,7 @@
 			<xs:extension base="wf:generalNodeType">
 				<xs:sequence>
 					<xs:element name="filter" type="wf:destWithFilterType" minOccurs="0"></xs:element>
-					<xs:element name="uiAction" type="wf:missionActionType" minOccurs="1"></xs:element>
+					<xs:element name="uiAction" type="wf:missionActionType" minOccurs="0" maxOccurs="unbounded"></xs:element>
 					<xs:element name="participant" type="wf:missionParticipantType" minOccurs="1"></xs:element>
 				</xs:sequence>
 				<xs:attribute name="expiredDays" type="xs:int" />

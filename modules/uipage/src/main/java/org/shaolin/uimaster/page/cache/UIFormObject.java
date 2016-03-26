@@ -100,6 +100,7 @@ import org.shaolin.bmdp.datamodel.page.UIWebTreeType;
 import org.shaolin.bmdp.datamodel.page.ValidatorPropertyType;
 import org.shaolin.bmdp.datamodel.page.ValidatorsPropertyType;
 import org.shaolin.bmdp.datamodel.page.VariableReconfigurationType;
+import org.shaolin.bmdp.datamodel.workflow.MissionActionType;
 import org.shaolin.bmdp.datamodel.workflow.MissionNodeType;
 import org.shaolin.bmdp.runtime.VariableUtil;
 import org.shaolin.bmdp.runtime.be.BEUtil;
@@ -1650,9 +1651,13 @@ public class UIFormObject implements java.io.Serializable
 		if (workflowActions == null) {
 			workflowActions = new ArrayList();
 		} else {
-			clearWorkflowActions(node.getUiAction().getActionName());
+			for (MissionActionType action : node.getUiActions()) {
+				clearWorkflowActions(action.getActionName());
+			}
 		}
-		workflowActions.add(node.getUiAction().getActionName());
+		for (MissionActionType action : node.getUiActions()) {
+			workflowActions.add(action.getActionName());
+		}
 
 		// internal refresh.
 		UIEntity entity = IServerServiceManager.INSTANCE.getEntityManager()
@@ -1663,71 +1668,71 @@ public class UIFormObject implements java.io.Serializable
 		for (UIComponentType panel : panelList) {
 			if ("actionPanel".equals(panel.getUIID())) {
 				UIPanelType actionPanel = (UIPanelType) panel;
-				
-				UIButtonType button = new UIButtonType();
-				button.setUIID(node.getUiAction().getActionName());
-				ExpressionPropertyType property = new ExpressionPropertyType();
-				ExpressionType expr = new ExpressionType();
-				expr.setExpressionString("import org.shaolin.bmdp.runtime.security.UserContext; "
-						+ "\n{ return UserContext.hasRole(\"" + node.getParticipant().getPartyType() + "\"); }");
-				property.setExpression(expr);
-				button.setVisible(property);
-				ExpressionPropertyType property1 = new ExpressionPropertyType();
-				ExpressionType expr1 = new ExpressionType();
-				expr1.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; \n"
-						+ "import org.shaolin.bmdp.runtime.AppContext; \n"
-						+ "import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService; \n"
-						+ "\n{ "
-						+ "\n ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class); "
-						+ "\n return service.isTaskExecutedOnNode($beObject.getTaskId(), \"" + nodeInfo + "\");"
-						+ "\n}");
-				property1.setExpression(expr1);
-				if (!node.isMultipleInvoke()) {
-					button.setReadOnly(property1);
-				}
-				StringPropertyType originalStr = (StringPropertyType)button.getText();
-				if (originalStr == null) {
-					originalStr = new StringPropertyType();
-					originalStr.setValue(node.getUiAction().getActionText());
-					button.setText(originalStr);
-				}
-				button.setUIStyle("uimaster_workflow_action");
-				ClickListenerType clickListener = new ClickListenerType();
-				FunctionCallType func = new FunctionCallType();
-				func.setFunctionName("invokeDynamicFunction(this, '" + node.getUiAction().getActionName() + "')");
-				clickListener.setHandler(func);
-				button.getEventListeners().add(clickListener);
-				
-				ComponentConstraintType constraint = new ComponentConstraintType();
-				constraint.setComponentId(node.getUiAction().getActionName());
-				TableLayoutConstraintType position = new TableLayoutConstraintType();
-				position.setX(0);
-				position.setY(0);
-				constraint.setConstraint(position);
-				actionPanel.getComponents().add(button);
-				actionPanel.getLayoutConstraints().add(constraint);
-				int count = 0;
-				for (ComponentConstraintType ct: actionPanel.getLayoutConstraints()) {
-					if (count ++ > 0) {
-						((TableLayoutConstraintType)ct.getConstraint()).setX(0);
+				for (MissionActionType action : node.getUiActions()) {
+					UIButtonType button = new UIButtonType();
+					button.setUIID(action.getActionName());
+					ExpressionPropertyType property = new ExpressionPropertyType();
+					ExpressionType expr = new ExpressionType();
+					expr.setExpressionString("import org.shaolin.bmdp.runtime.security.UserContext; "
+							+ "\n{ return UserContext.hasRole(\"" + node.getParticipant().getPartyType() + "\"); }");
+					property.setExpression(expr);
+					button.setVisible(property);
+					ExpressionPropertyType property1 = new ExpressionPropertyType();
+					ExpressionType expr1 = new ExpressionType();
+					expr1.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; \n"
+							+ "import org.shaolin.bmdp.runtime.AppContext; \n"
+							+ "import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService; \n"
+							+ "\n{ "
+							+ "\n ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class); "
+							+ "\n return service.isTaskExecutedOnNode($beObject.getTaskId(), \"" + nodeInfo + "\");"
+							+ "\n}");
+					property1.setExpression(expr1);
+					if (!node.isMultipleInvoke()) {
+						button.setReadOnly(property1);
 					}
+					StringPropertyType originalStr = (StringPropertyType)button.getText();
+					if (originalStr == null) {
+						originalStr = new StringPropertyType();
+						originalStr.setValue(action.getActionText());
+						button.setText(originalStr);
+					}
+					button.setUIStyle("uimaster_workflow_action");
+					ClickListenerType clickListener = new ClickListenerType();
+					FunctionCallType func = new FunctionCallType();
+					func.setFunctionName("invokeDynamicFunction(this, '" + action.getActionName() + "')");
+					clickListener.setHandler(func);
+					button.getEventListeners().add(clickListener);
+					
+					ComponentConstraintType constraint = new ComponentConstraintType();
+					constraint.setComponentId(action.getActionName());
+					TableLayoutConstraintType position = new TableLayoutConstraintType();
+					position.setX(0);
+					position.setY(0);
+					constraint.setConstraint(position);
+					actionPanel.getComponents().add(button);
+					actionPanel.getLayoutConstraints().add(constraint);
+					int count = 0;
+					for (ComponentConstraintType ct: actionPanel.getLayoutConstraints()) {
+						if (count ++ > 0) {
+							((TableLayoutConstraintType)ct.getConstraint()).setX(0);
+						}
+					}
+					
+					TableLayoutType tableLayout = (TableLayoutType) actionPanel.getLayout();
+					tableLayout.getColumnWidthWeights().add(1.0D);
+					
+					FunctionType function = new FunctionType();
+					function.setNeedAlert(Boolean.TRUE);
+					function.setFunctionName(action.getActionName());
+					OpInvokeWorkflowType op = new OpInvokeWorkflowType();
+					op.setEventConsumer(eventConsumer);
+					op.setExpression(action.getExpression());
+					op.setPartyType(node.getParticipant().getPartyType());
+					op.setOperationId(action.getActionName());
+					op.setAdhocNodeName(node.getName());
+					function.getOps().add(op);
+					entity.getEventHandlers().add(function);
 				}
-				
-				TableLayoutType tableLayout = (TableLayoutType) actionPanel.getLayout();
-				tableLayout.getColumnWidthWeights().add(1.0D);
-				
-				FunctionType function = new FunctionType();
-				function.setNeedAlert(Boolean.TRUE);
-				function.setFunctionName(node.getUiAction().getActionName());
-				OpInvokeWorkflowType op = new OpInvokeWorkflowType();
-				op.setEventConsumer(eventConsumer);
-				op.setExpression(node.getUiAction().getExpression());
-				op.setPartyType(node.getParticipant().getPartyType());
-				op.setOperationId(node.getUiAction().getActionName());
-				op.setAdhocNodeName(node.getName());
-				function.getOps().add(op);
-				entity.getEventHandlers().add(function);
-				
 				// find ok button if has.
 				for (UIComponentType b : actionPanel.getComponents()) {
 					if ("okbtn".equals(b.getUIID())) {

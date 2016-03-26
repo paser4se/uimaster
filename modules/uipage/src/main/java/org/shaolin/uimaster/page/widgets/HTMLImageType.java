@@ -217,5 +217,20 @@ public class HTMLImageType extends HTMLTextWidgetType
 		
 		return image;
 	}
+	
+	public static String generateSimple(String srcs, int width, int height) {
+		if (srcs == null || srcs.length() == 0) {
+			return "";
+		}
+		StringBuilder sb = new StringBuilder();
+		sb.append("<div>");
+		String[] list = srcs.split(",");
+		for (String image : list) {
+			sb.append("<img src=\"").append(WebConfig.getWebContextRoot()).append(image);
+			sb.append("\" style=\"width:").append(width).append("px;height:").append(height).append("px;\">");
+		}
+		sb.append("</div>");
+		return sb.toString();
+	}
 
 }

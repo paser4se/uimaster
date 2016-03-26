@@ -48,6 +48,7 @@ import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.report.ImportTableToExcel;
+import org.shaolin.uimaster.page.widgets.HTMLImageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -517,7 +518,7 @@ public class Table extends Widget implements Serializable {
 			        		if (value == null) {
 								value = "";
 							}
-			        		value = StringUtil.escapeHtmlTags(value.toString());
+			        		value = StringUtil.escapeHtmlTags(HTMLImageType.generateSimple(value.toString(), 100, 100));
 			        		imageSB.append(value);
 			        		imageSB.append("\",");
 	        			} else if ("HTML".equalsIgnoreCase(col.getUiType().getType())) {
@@ -553,7 +554,11 @@ public class Table extends Widget implements Serializable {
 							value = "";
 						}
 		        		sb.append("\"");
-		        		sb.append(StringUtil.escapeHtmlTags(value.toString()));
+		        		if ("Image".equalsIgnoreCase(col.getUiType().getType())) {
+        					sb.append(StringUtil.escapeHtmlTags(HTMLImageType.generateSimple(value.toString(), 60, 60)));
+		        		} else {
+		        			sb.append(StringUtil.escapeHtmlTags(value.toString()));
+		        		}
 		        		sb.append("\",");
 		        	}
 	        	}

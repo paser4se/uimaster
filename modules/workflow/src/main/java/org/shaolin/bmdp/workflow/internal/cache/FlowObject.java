@@ -402,10 +402,10 @@ public class FlowObject implements java.io.Serializable {
             List<NodeInfo> l = new ArrayList<NodeInfo>();
             for (NodeInfo n : e.getValue()) {
             	MissionNodeType m = (MissionNodeType)n.getNode();
-            	if (m.getUiAction() == null) {
+            	if (m.getUiActions().isEmpty()) {
             		continue;
             	}
-            	String actionPage = m.getUiAction().getActionPage();
+            	String actionPage = m.getUiActions().get(0).getActionPage();
 				if (actionPage == null) {
             		continue;
             	}

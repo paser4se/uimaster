@@ -41,12 +41,13 @@
     <ns2:component xsi:type="ns2:UIPanelType" UIID="fieldPanel">
       <ns2:layout xsi:type="ns2:TableLayoutType">
         <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
-        <ns2:columnWidthWeight>0.0</ns2:columnWidthWeight>
+        <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+        <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
       </ns2:layout>
-      <ns2:component xsi:type="ns2:UIHiddenType" UIID="sessionId">
-        <ns2:secure>
-          <ns2:value>true</ns2:value>
-        </ns2:secure>
+      <ns2:component xsi:type="ns2:UILabelType" UIID="sessionId">
+        <ns2:widgetLabel xsi:type="ns2:StringPropertyType">
+             <ns2:value>Session Id:</ns2:value>
+         </ns2:widgetLabel>
       </ns2:component>
       <ns2:component xsi:type="ns2:UITableType" UIID="tasksTable">
            <ns2:beElement>org.shaolin.bmdp.workflow.be.Task</ns2:beElement>
@@ -180,9 +181,14 @@
            </ns2:defaultActions>
        </ns2:component>
        <ns2:layoutConstraint>
-           <ns2:componentId>tasksTable</ns2:componentId>
+           <ns2:componentId>sessionId</ns2:componentId>
            <ns2:constraint xsi:type="ns2:TableLayoutConstraintType"
                x="0" y="0" align="FULL"></ns2:constraint>
+       </ns2:layoutConstraint>
+       <ns2:layoutConstraint>
+           <ns2:componentId>tasksTable</ns2:componentId>
+           <ns2:constraint xsi:type="ns2:TableLayoutConstraintType"
+               x="0" y="1" align="FULL"></ns2:constraint>
        </ns2:layoutConstraint>
     </ns2:component>
     <ns2:component xsi:type="ns2:UIPanelType" UIID="actionPanel">

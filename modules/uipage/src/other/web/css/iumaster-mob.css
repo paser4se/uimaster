@@ -95,7 +95,7 @@ label {
 }
 
 .uimaster_leftform_widget {
-    padding-left: 15px;
+    font-weight: bold;
 }
 
 .uimaster_rightform_cell {}
