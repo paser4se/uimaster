@@ -678,7 +678,8 @@ public class ProcessHelper
         if (syncData != null && !syncData.trim().isEmpty())
         {
             try{
-                AjaxContext ajaxContext = new AjaxContext(AjaxActionHelper.getAjaxWidgetMap(request.getSession()), null);
+            	Map map = AjaxActionHelper.getFrameMap(request);
+                AjaxContext ajaxContext = new AjaxContext(map, null);
                 ajaxContext.setHttpRequest(request);
                 AjaxActionHelper.createAjaxContext(ajaxContext);
                 JSONArray syncSets = new JSONArray(syncData);

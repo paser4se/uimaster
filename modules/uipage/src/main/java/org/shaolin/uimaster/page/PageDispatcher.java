@@ -448,10 +448,10 @@ public class PageDispatcher {
                 }
             }
             Map ajaxWidgetMap = AjaxActionHelper.getAjaxWidgetMap(session);
+            Map pageComponentMap = new HashMap();
             if(ajaxWidgetMap == null)
             {
                 ajaxWidgetMap = new HashMap();
-                Map pageComponentMap = new HashMap();
                 session.setAttribute(AjaxContext.AJAX_COMP_MAP, ajaxWidgetMap);
                 if (superPrefix == null)
                 {
@@ -475,34 +475,11 @@ public class PageDispatcher {
                     if(logger.isDebugEnabled())
                         logger.debug("Remove all components in cache of ui map.");
                     ajaxWidgetMap.clear();
-                    Map pageComponentMap = new HashMap();
                     ajaxWidgetMap.put("#GLOBAL#", pageComponentMap);
                     context.setAjaxWidgetMap(pageComponentMap);
                 }
                 else
                 {
-                	if (ajaxWidgetMap.containsKey(frameTarget)) {
-                		if (UserContext.isMobileRequest()) {
-                			logger.error("The sub page id["+frameTarget
-                				+ "] is duplicated, please rename the sub page id in pageflow node!!!"
-                				+ ", Page name: " + pageObject.getUIForm().getName());
-                		} else {
-                			logger.error("The sub page id["+frameTarget
-                    				+ "] is duplicated, please rename the sub page id in pageflow node!!!"
-                    				+ ", Page name: " + pageObject.getUIForm().getName());
-                			StringBuilder sb = new StringBuilder();
-                			sb.append("The sub page id[").append(frameTarget);
-                			sb.append("] is duplicated, please remove the URL parameter for example: _framename=");
-                			sb.append(frameTarget).append("!!!");
-                			sb.append("<br>Page name: ").append(pageObject.getUIForm().getName());
-                			context.generateHTML("<h2>");
-                			context.generateHTML(sb.toString());
-                			context.generateHTML("</h2>");
-                			context.generateHTML("\n</form></body>\n</html>\n");
-                			return;
-                		}
-                	} 
-                	Map pageComponentMap = new HashMap();
                 	ajaxWidgetMap.put(frameTarget, pageComponentMap);
                 	context.setAjaxWidgetMap(pageComponentMap);
                 }
@@ -512,8 +489,7 @@ public class PageDispatcher {
             {
                 context.getRequest().setAttribute("_framePagePrefix", superPrefix);
             }
-
-            AjaxContext.registerPageAjaxContext(entityName, ajaxWidgetMap, context.getRequest());
+            AjaxContext.registerPageAjaxContext(entityName, pageComponentMap, context.getRequest());
             PageDispatcher dispatcher = new PageDispatcher(pageObject.getUIFormObject(), evaContext);
             dispatcher.forwardForm(context, 0);
             
