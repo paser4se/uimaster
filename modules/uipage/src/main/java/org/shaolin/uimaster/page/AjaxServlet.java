@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.shaolin.bmdp.i18n.LocaleContext;
+import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
@@ -140,6 +141,7 @@ public class AjaxServlet extends HttpServlet {
 			} 
 			catch (Throwable ex) 
 			{
+				HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
 				logger.error(ex.getMessage(), ex);
 //				JSONException json = new JSONException(ex);			
 //				IDataItem dataItem = AjaxActionHelper.createErrorDataItem(json.toString());
@@ -180,6 +182,7 @@ public class AjaxServlet extends HttpServlet {
 			} 
 			catch (Exception ex) 
 			{
+				HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
 				logger.error(ex.getMessage(), ex);
 
 				StringBuilder sb = new StringBuilder();
