@@ -537,9 +537,9 @@ public class Table extends Widget implements Serializable {
 			        		if (value == null) {
 								value = "";
 							}
-			        		attrsSB.append("<span>");
+			        		attrsSB.append("<div>");
 			        		attrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle())).append(":").append(value);
-			        		attrsSB.append("</span>");
+			        		attrsSB.append("</div>");
 	        			}
 		        	}
 	        		attrsSB.append("\",");

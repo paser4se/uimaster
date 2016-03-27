@@ -484,11 +484,11 @@ public class HTMLTableType extends HTMLContainerType {
 						if (value == null) {
 							value = "";
 						}
-						attrsSB.append("<span>");
+						attrsSB.append("<div>");
 						attrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle()));
 						attrsSB.append(":");
 						attrsSB.append(value.toString());
-						attrsSB.append("</span>");
+						attrsSB.append("</div>");
 					}
 				}
 				if (attrsSB.length() > 0) {

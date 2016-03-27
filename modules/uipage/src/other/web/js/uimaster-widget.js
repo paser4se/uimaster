@@ -2030,13 +2030,13 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		}
 		if (IS_MOBILEVIEW) { return;}
 		if (isselected){
-			$('#'+id+"_newItem").button({disabled:true});
+			//$('#'+id+"_newItem").button({disabled:true});
 			$('#'+id+"_openItem").button({disabled:false});
 			$('#'+id+"_disableItem").button({disabled:false});
 			$('#'+id+"_enableItem").button({disabled:false});
 			$('#'+id+"_deleteItem").button({disabled:false});
 		}else{
-			$('#'+id+"_newItem").button({disabled:false});
+			//$('#'+id+"_newItem").button({disabled:false});
 			$('#'+id+"_openItem").button({disabled:true});
 			$('#'+id+"_disableItem").button({disabled:true});
 			$('#'+id+"_enableItem").button({disabled:true});
@@ -2155,8 +2155,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			} else {
 			    var isselected=false;
 				if (tr.hasClass('selected')){
-					tr.removeClass('selected');
-					othis.selectedIndex = -1;
+				    var id = othis.id.replace(/\./g,"_");
+					$('#'+id+"_openItem").trigger('click');
 				} else {
 					othis.tbody.find('tr[class*=selected]').removeClass('selected');
 					tr.addClass('selected');
