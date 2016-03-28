@@ -73,6 +73,8 @@ public class Table extends Widget implements Serializable {
 	
 	private boolean isAppendRowMode;
 	
+	private boolean isEditableCell;
+	
 	public static final ExpressionType statsExpr = new ExpressionType();
 	static{
 		statsExpr.setExpressionString("import org.shaolin.bmdp.analyzer.dao.AanlysisModelCust; {\n"
@@ -241,6 +243,14 @@ public class Table extends Widget implements Serializable {
 
 	public void setAppendRowMode(boolean isAppendRowMode) {
 		this.isAppendRowMode = isAppendRowMode;
+	}
+	
+	public void setEditableCell(boolean isEditableCell) {
+		this.isEditableCell = isEditableCell;
+	}
+	
+	public boolean isEditableCell() {
+		return this.isEditableCell;
 	}
 	
 	public List<Object> getAddItems() {
@@ -505,7 +515,7 @@ public class Table extends Widget implements Serializable {
 	        	} else {
 	        		sb.append("\"\",");
 	        	}
-	        	if (UserContext.isMobileRequest()) {
+	        	if (UserContext.isMobileRequest() && !isEditableCell) {
 	        		StringBuilder imageSB = new StringBuilder();
 	        		StringBuilder attrsSB = new StringBuilder();
 	        		attrsSB.append("\"");

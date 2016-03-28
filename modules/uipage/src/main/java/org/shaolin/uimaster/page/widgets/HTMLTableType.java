@@ -87,6 +87,9 @@ public class HTMLTableType extends HTMLContainerType {
 			String totalCount = String.valueOf(this.removeAttribute("totalCount"));
 			Boolean isShowActionBar = (Boolean)this.removeAttribute("isShowActionBar");
 			Boolean isEditableCell = (Boolean)this.removeAttribute("isEditableCell");
+			if (isEditableCell == null) {
+				isEditableCell = Boolean.FALSE;
+			}
 			Boolean isShowBigItem = (Boolean)this.removeAttribute("isShowBigItem");
 			if (isShowBigItem==null) {
 				isShowBigItem = Boolean.FALSE;
@@ -99,7 +102,11 @@ public class HTMLTableType extends HTMLContainerType {
 			String htmlPrefix = this.getPrefix().replace('.', '_');
 			String htmlId = this.getPrefix().replace('.', '_') + this.getUIID();
 			HTMLUtil.generateTab(context, depth + 1);
-			context.generateHTML("<div id='" + htmlId + "ActionBar' class=\"ui-widget-header ui-corner-all\">");
+			context.generateHTML("<div id='" + htmlId + "ActionBar' class=\"ui-widget-header ui-corner-all\"");
+			if (isEditableCell == Boolean.TRUE) {
+				context.generateHTML(" editablecell=\"true\"");
+			}
+			context.generateHTML(">");
 			List<UITableActionType> defaultActions = (List<UITableActionType>)this.removeAttribute("defaultActionGroup");
 			if (UserContext.isMobileRequest()) {
 				if (defaultActions == null) {
@@ -218,7 +225,7 @@ public class HTMLTableType extends HTMLContainerType {
 			context.generateHTML("\">");
 
 			// generate thead.
-			generateTableHead(selectMode, isShowBigItem, context, depth, columns);
+			generateTableHead(selectMode, isEditableCell, isShowBigItem, context, depth, columns);
 			
 			// generate tbody.
 			HTMLUtil.generateTab(context, depth + 2);
@@ -233,7 +240,7 @@ public class HTMLTableType extends HTMLContainerType {
 				if (!UserContext.isMobileRequest() && isShowBigItem==Boolean.TRUE) {
 					generateBigItemBody(context, depth, columns, listData);
 				} else {
-					generateNormalBody(depth, selectMode, listData, columns);
+					generateNormalBody(isEditableCell, depth, selectMode, listData, columns);
 				}
 			}
 			HTMLUtil.generateTab(context, depth + 2);
@@ -241,10 +248,10 @@ public class HTMLTableType extends HTMLContainerType {
 			HTMLUtil.generateTab(context, depth + 2);
 			
 			Boolean showFilter = (Boolean)this.removeAttribute("isShowFilter");
-			if (!UserContext.isMobileRequest() && (showFilter == Boolean.TRUE || isEditableCell.booleanValue())) {
+			if (!UserContext.isMobileRequest() || isEditableCell == Boolean.TRUE) {
 				context.generateHTML("<tfoot");
-				if (isEditableCell.booleanValue()) {
-					context.generateHTML(" style=\"display:none;\" editablecell=\"true\" ");
+				if (isEditableCell == Boolean.TRUE || showFilter == Boolean.FALSE) {
+					context.generateHTML(" style=\"display:none;\"");
 				}
 				context.generateHTML(">");
 				HTMLUtil.generateTab(context, depth + 3);
@@ -343,7 +350,7 @@ public class HTMLTableType extends HTMLContainerType {
 		}
 	}
 
-	private void generateTableHead(UITableSelectModeType selectMode, Boolean isShowBigItem, 
+	private void generateTableHead(UITableSelectModeType selectMode, Boolean isEditableCell, Boolean isShowBigItem, 
 			HTMLSnapshotContext context, int depth, List<UITableColumnType> columns) {
 		HTMLUtil.generateTab(context, depth + 2);
 		context.generateHTML("<thead "+(isShowBigItem==Boolean.TRUE?"style='display:none;'":"")+">");
@@ -369,7 +376,7 @@ public class HTMLTableType extends HTMLContainerType {
 		}
 		context.generateHTML("</th>");
 		
-		if (UserContext.isMobileRequest()) {
+		if (UserContext.isMobileRequest() && isEditableCell == Boolean.FALSE) {
 			HTMLUtil.generateTab(context, depth + 3);
 			for (UITableColumnType col : columns) {
 				// find image column.
@@ -425,7 +432,7 @@ public class HTMLTableType extends HTMLContainerType {
 		context.generateHTML("</thead>");
 	}
 
-	private void generateNormalBody(int depth, UITableSelectModeType selectMode, List listData, List<UITableColumnType> columns)
+	private void generateNormalBody(Boolean isEditableCell, int depth, UITableSelectModeType selectMode, List listData, List<UITableColumnType> columns)
 		throws Exception {
 		int count = 0;
 		for (Object be : listData) {
@@ -453,7 +460,7 @@ public class HTMLTableType extends HTMLContainerType {
 				context.generateHTML("<td style=\"display:none;\"></td>");
 			}
 			
-			if (UserContext.isMobileRequest()) {
+			if (UserContext.isMobileRequest() && isEditableCell == Boolean.FALSE) {
 				StringBuilder attrsSB = new StringBuilder();
 				StringBuilder htmlAttrsSB = new StringBuilder();
 				
@@ -623,6 +630,11 @@ public class HTMLTableType extends HTMLContainerType {
 			isAppendRowMode = Boolean.FALSE;
 		}
 		t.setAppendRowMode(isAppendRowMode);
+		Boolean isEditableCell = (Boolean)this.getAttribute("isEditableCell");
+		if (isEditableCell == null) {
+			isEditableCell = Boolean.FALSE;
+		}
+		t.setEditableCell(isEditableCell);
 		this.removeAttribute("refreshInterval");
 		try {
 			EvaluationContext expressionContext = ee.getExpressionContext(ODContext.LOCAL_TAG);

@@ -1828,7 +1828,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			}
 		});
 		this.tfoot = $($(this).find('tfoot')[0]);
-		this.editable = (this.tfoot!=null && typeof(this.tfoot.attr('editablecell'))!="undefined");
+		this.editable = (typeof($(this).prev().attr('editablecell'))!="undefined");
 		try {
 		var table = $(this).dataTable({
 			"paging": !this.editable,"ordering":!this.editable,"info":!this.editable,
@@ -1956,7 +1956,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	syncCellEvent:function(body){
 		var othis = this;
 		$(body).find('td').each(function(){
-			$(this).dblclick(function(){
+			$(this).click(function(){
 			    if (othis.preCell != null && othis.preCell == this) {
 				   return;
 				}
@@ -1982,15 +1982,19 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		return i;
 	},
 	showEditorOnCell:function(i, td){
-		if (this.rowEmpty()) {return;}
+		if (i==0 || this.rowEmpty()) {return;}
 		var value = $(td).text();
 		this.tempCellValue = value;
 		var widget = this.tfoot.find('th');
 		if ($(widget[i]).children().length == 0) return;
 		var wd = $(widget[i]).children()[0];
-		var tagName = wd.tagName.toUpperCase();
+		var tagName = IS_MOBILEVIEW?$(wd).children()[0].tagName.toUpperCase():wd.tagName.toUpperCase();
 		if(tagName == "INPUT") {
-			wd.value = value;
+		    if (IS_MOBILEVIEW) { 
+				wd.value = $(wd).find("input")[0].value;
+			} else {
+			    wd.value = value;
+			}
 		} else if(tagName == "SELECT"){
 			$(wd).children().each(function(){
 				if($(this).text() == value) {
@@ -2004,12 +2008,16 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		$(td).append(wd);
 	},
 	hideEditorOnCell:function(i, td){
-		if (this.rowEmpty() || $(td).children().length == 0) {return;}
+		if (i==0 || this.rowEmpty() || $(td).children().length == 0) {return;}
 		var wd = $(td).children()[0];
-		var tagName = wd.tagName.toUpperCase();
+		var widget = this.tfoot.find('th');
+		$(widget[i]).children().remove();
+		$(widget[i]).append(wd);
+		var tagName = IS_MOBILEVIEW?$(wd).children()[0].tagName.toUpperCase():wd.tagName.toUpperCase();
 		if(tagName == "INPUT") {
-			$(td).text(wd.value);
-			if(this.tempCellValue != wd.value) {
+		    var v = IS_MOBILEVIEW?($(wd).find("input")[0].value):wd.value;
+			$(td).text(v);
+			if(this.tempCellValue != v) {
 				$(td).parent().attr("updated",true);
 			}
 		} else if(tagName == "SELECT"){
@@ -2020,8 +2028,6 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				$(td).parent().attr("updated",true);
 			}
 		}
-		var widget = this.tfoot.find('th');
-		$(widget[i]).append(wd);
 	},
 	syncButtonGroup:function(isselected){
 		var id = this.id.replace(/\./g,"_");
