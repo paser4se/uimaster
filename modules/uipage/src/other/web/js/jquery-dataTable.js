@@ -2394,10 +2394,12 @@
 		else
 		{
 			// Object to extend the base settings
+			if (ajax) {
 			oSettings.jqXHR = $.ajax( $.extend( baseAjax, ajax ) );
 	
 			// Restore for next time around
 			ajax.data = ajaxData;
+			}
 		}
 	}
 	
