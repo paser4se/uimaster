@@ -899,6 +899,7 @@ public class UIFormObject implements java.io.Serializable
             	propMap.put("itemIcon", tree.getItemIcon());
             	propMap.put("opened", tree.isOpened());
             	propMap.put("selectedNode", tree.getSelectNodeEvent());
+            	propMap.put("dblselectedNode", tree.getDblselectNodeEvent());
             	propMap.put("addNode", tree.getAddNodeEvent());
             	propMap.put("deleteNode", tree.getDeleteNodeEvent());
             	propMap.put("initExpr", tree.getInitExpression().getExpression());

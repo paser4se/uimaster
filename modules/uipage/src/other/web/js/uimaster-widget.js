@@ -1641,6 +1641,7 @@ UIMaster.ui.link = UIMaster.extend(UIMaster.ui.hidden,{
 UIMaster.ui.frame = UIMaster.extend(UIMaster.ui);
 UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
     height:-1,
+	mobheight:-1,
 	width:-1,
 	mode: 'standard',
 	thumbnailsFullScreen: true,
@@ -1653,11 +1654,11 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 		if (this.tagName.toLowerCase() == "div") {
 		    var t = this;
 		    var opts;
-			if ($(this).attr("jheight") == "-1") {
-				opts = {hideThumbnailsOnInit: true, mode: this.mode, 
+			if (this.mobheight == -1) {
+				opts = {mode: this.mode, hideThumbnailsOnInit: this.hideThumbnailsOnInit,
                         afterLoadPhoto: function(image) {t.clickImage(image);}};
 			} else {
-				opts = {height:$(this).attr("jheight"),width:$(this).attr("jwidth"),
+				opts = {height:IS_MOBILEVIEW?this.mobheight:this.height,width:(IS_MOBILEVIEW?"100%":this.width),
 				        mode: this.mode, 
 				        hideThumbnailsOnInit: this.hideThumbnailsOnInit, 
 						afterLoadPhoto: function(image) {t.clickImage(image);}};
@@ -1726,19 +1727,20 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 
 				// change message text to red after 50%
 				if (percentComplete > 50) {
-				$(messagebox).html("<font color='red'>File Upload is in progress</font>");
+				$(messagebox).html("<font color='red'>\u4E0A\u4F20\u8FDB\u5EA6</font>");
 				}
 			},
 			success : function() {
-				$(uploadBtn).before($(fileUI));
+			    if (IS_MOBILEVIEW){$($(uploadBtn).parent()).before($(fileUI).parent());}
+				else {$(uploadBtn).before($(fileUI));}
 				$(progressbar).width('100%');
 				$(percent).html('100%');
 			},
 			complete : function(response) {
-				$(messagebox).html("<font color='blue'>Your file has been uploaded!</font>");
+				$(messagebox).html("<font color='blue'>\u4E0A\u4F20\u6210\u529F!</font>");
 			},
 			error : function() {
-				$(messagebox).html("<font color='red'> ERROR: unable to upload files</font>");
+				$(messagebox).html("<font color='red'>\u4E0A\u4F20\u9519\u8BEF!!!</font>");
 			}
 		};
 		$(uploadBtn).click(function() {
@@ -1748,7 +1750,7 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 				return;
 			}
 			if (fileUI.value == "") {
-				alert("Please choose a file!");
+				alert("\u8BF7\u9009\u62E9\u4E00\u4E2A\u6587\u4EF6!");
 				return;
 			}
 			var fileName = fileUI.value;
@@ -1765,8 +1767,9 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 			
 			var _framePrefix=UIMaster.getFramePrefix(UIMaster.El(fileUI).get(0));
 			var form = $('<form action='+WEB_CONTEXTPATH+'/uploadFile?_uiid='+fileUI.name+'&_framePrefix='+_framePrefix+' method=post enctype=multipart/form-data></form>');
-			//encodeURI(fileUI.uploadName || fileUI.name)  
-			$(form).append($(fileUI));
+			//encodeURI(fileUI.uploadName || fileUI.name)
+			if (IS_MOBILEVIEW){$(form).append($(fileUI).parent());}
+			else {$(form).append($(fileUI));}
 			$(form).ajaxSubmit(options);
 			return;
 		});
@@ -2292,6 +2295,7 @@ UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
 		    this.custItems = $($(this).children()[0]).children();
 		}
 		var clickEvent = config.attr("clickevent");
+		var dblclickEvent = config.attr("dblclickevent");
 		this._addnodeevent = config.attr("addnodeevent");
 		this._addnodeevent0 = config.attr("addnodeevent0");
 		this._deletenodeevent = config.attr("deletenodeevent");
@@ -2329,6 +2333,10 @@ UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
 					}};
 			}};
 			$(this).bind("select_node.jstree", function(node,tree_obj,e){
+			    if (t._selectedNodeId == tree_obj.node.id) {
+				    eval(dblclickEvent);
+					return;
+				}
 				t._selectedNodeId=tree_obj.node.id;
 				t._selectedNodeName=tree_obj.node.text;
 				t._selectedParentNodeId=tree_obj.node.parent;

@@ -297,6 +297,15 @@ public class RefForm extends Container implements Serializable
             if (inputParams == null)
                 inputParams = new HashMap();
             inputParams.put(odEntityObject.getUiParamName(), newReferObject);
+            Map internalInputParams = odEntityObject.getLocalEContext().getVariableObjects();
+            Iterator iter = internalInputParams.keySet().iterator();
+            while (iter.hasNext()) {
+            	String varName = (String)iter.next();
+            	if (!inputParams.containsKey(varName)) {
+            		inputParams.put(varName, internalInputParams.get(varName));
+            	}
+            }
+            
             htmlContext.setHTMLPrefix("");
             htmlContext.setODMapperData(inputParams);
             callODMapper(htmlContext, this.getUIEntityName());
@@ -352,9 +361,9 @@ public class RefForm extends Container implements Serializable
         }
         catch (Exception ex)
         {
-            logger.error("Error in building up structure for entity: " + uiid, ex);
+            logger.error("Error occurred while building the UI form structure of entity: " + uiid, ex);
+            return "<div>Error occurred while building the UI form structure of entity: " + uiid + "</div>";
         }
-        return "";
     }
     
     public void callODMapper(HTMLSnapshotContext htmlContext, String odmapperName) throws ODException

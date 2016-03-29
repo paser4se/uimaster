@@ -65,6 +65,7 @@ public class HTMLWebTreeType extends HTMLWidgetType {
 	public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
 		try {
 			String selectedNodeEvent = (String)this.getAttribute("selectedNode");
+			String dblselectedNodeEvent = (String)this.getAttribute("dblselectedNode");
 			String deleteNodeEvent = (String)this.getAttribute("deleteNode");
 			String addNodeEvent = (String)this.getAttribute("addNode");
 			String refreshNodeEvent = (String)this.getAttribute("refreshNode");
@@ -120,6 +121,10 @@ public class HTMLWebTreeType extends HTMLWidgetType {
 			
 			context.generateHTML("<div style='display:none;' clickevent=\"defaultname.");
 			context.generateHTML(this.getPrefix() + selectedNodeEvent);
+			context.generateHTML("(tree, e)\" clickevent0=\"");
+			context.generateHTML(selectedNodeEvent);
+			context.generateHTML("\" dblclickevent=\"defaultname.");
+			context.generateHTML(this.getPrefix() + dblselectedNodeEvent);
 			context.generateHTML("(tree, e)\" clickevent0=\"");
 			context.generateHTML(selectedNodeEvent);
 			context.generateHTML("\"");

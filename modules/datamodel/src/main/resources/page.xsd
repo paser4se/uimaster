@@ -512,6 +512,7 @@ in simple component mapping, the paramName is required</xs:documentation>
                 	<xs:element name="itemIcon" type="xs:string" />
                 	<xs:element name="selectMode" type="xs:string" />
                 	<xs:element name="selectNodeEvent" type="xs:string" minOccurs="0"/>
+                	<xs:element name="dblselectNodeEvent" type="xs:string" minOccurs="0"/>
                 	<xs:element name="addNodeEvent" type="xs:string" minOccurs="0"/>
                 	<xs:element name="deleteNodeEvent" type="xs:string" minOccurs="0"/>
                  <xs:element name="action" type="Page:UITableActionType" maxOccurs="unbounded" minOccurs="0" />
