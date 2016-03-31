@@ -2704,6 +2704,7 @@ UIMaster.ui.mask={
  * @constructor
  */
 UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
+    hidePFrame:false,
     open:function(){
         if(!this.isOpen){
         	var w = this.width == 0 ? 500: this.width;
@@ -2734,15 +2735,32 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
             		}
             	}
             }
+			if (IS_MOBILEVIEW) {
+				var iframeObject = null;
+				$(window.parent.document).find("iframe").each(function(){
+					if($(this).prop('contentWindow').document == window.document) {
+					   iframeObject = $(this);
+					}
+				});
+				if (iframeObject.prev().css("display")!="none"){
+				iframeObject.prev().css("display","none");
+				iframeObject.next().css("display","none");	
+				iframeObject.height(iframeObject.height() + 110);
+				this.hidePFrame = true;
+				}
+			}
             this.content.dialog({
             	title: thisObj.title,
-            	height: IS_MOBILEVIEW?$(window).height():h,
+            	height: IS_MOBILEVIEW?$(window.top).height():h,
                 width: IS_MOBILEVIEW?"100%":w,
                 modal: true,
 				closeOnEscape: true,
                 show: {effect: IS_MOBILEVIEW?"slide":"blind", duration: 500},
 				hide: {effect: IS_MOBILEVIEW?"slide":"blind", duration: 500},
-				open: function() {if(IS_MOBILEVIEW){$(this).parent().parent().appendTo($("form:first"));}},//fix bug on mobile view.
+				open: function() {if(IS_MOBILEVIEW){//fix bug on mobile view.
+				    $(this).parent().parent().appendTo($("form:first"));
+					$($(this).parent().parent()).css("top","0px");
+			    }},
                 beforeClose: function() {},
                 buttons: buttonset
             });
@@ -2780,6 +2798,18 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
     	if (elementList[this.uiid+".Form"]) 
     		elementList[this.uiid+".Form"].parentEntity.releaseFormObject();
 		
+		if (IS_MOBILEVIEW && this.hidePFrame) {
+		    //only the guy who has reference.
+			var iframeObject = null;
+			$(window.parent.document).find("iframe").each(function(){
+				if($(this).prop('contentWindow').document == window.document) {
+				   iframeObject = $(this);
+				}
+			});
+			iframeObject.prev().css("display","block");
+			iframeObject.height(iframeObject.height() - 110);
+			iframeObject.next().css("display","block");	
+		}
     	this.content.dialog("close");
     	this.content.parent().remove();
     	defaultname.removeComponent(eval(D+this.uiid));
