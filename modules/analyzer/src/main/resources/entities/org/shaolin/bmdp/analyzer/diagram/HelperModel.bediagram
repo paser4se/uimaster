@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bediagram:BEDiagram xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:bediagram="http://bmdp.shaolin.org/datamodel/BEDiagram"
+	xmlns:common="http://bmdp.shaolin.org/datamodel/Common">
+	<name>HelperModel</name>
+	<bePackage>org.shaolin.bmdp.analyzer.be</bePackage>
+	<cePackage>org.shaolin.bmdp.analyzer.ce</cePackage>
+	<diagramPackage>org.shaolin.bmdp.analyzer.diagram</diagramPackage>
+	
+	<bediagram:beEntity needPersist="true" needUIEntity="true">
+		<common:entityName>PageHelper</common:entityName>
+		<bediagram:member pk="true">
+			<bediagram:name>id</bediagram:name>
+			<bediagram:type xsi:type="bediagram:LongType" />
+		</bediagram:member>
+		<bediagram:member>
+            <bediagram:name>htmlFile</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>isMobileView</bediagram:name>
+            <bediagram:type xsi:type="bediagram:BooleanType" />
+        </bediagram:member>
+        <bediagram:member>
+            <!-- user role -->
+            <bediagram:name>partyType</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
+	</bediagram:beEntity>
+	
+</bediagram:BEDiagram>

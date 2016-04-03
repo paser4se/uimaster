@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:UIPage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ns2="http://bmdp.shaolin.org/datamodel/Page" xmlns="http://bmdp.shaolin.org/datamodel/Common"
+	xsi:schemaLocation="">
+	<entityName>org.shaolin.bmdp.analyzer.page.PageHelperConfiguration</entityName>
+	<systemVersion>0</systemVersion>
+	<description>功能页面帮助</description>
+	<ns2:UIEntity xsi:type="ns2:UIEntityType">
+		<ns2:eventHandler functionName="createPageHelperInfo">
+		   <ns2:ops xsi:type="ns2:OpCallAjaxType" name="createPageHelperInfo-201512052231">
+                <ns2:exp>
+                    <ns2:expressionString><![CDATA[
+                    import java.util.HashMap;
+                    import org.shaolin.uimaster.page.AjaxContext;
+                    import org.shaolin.uimaster.page.AjaxActionHelper;
+                    import org.shaolin.uimaster.page.ajax.*;
+                    import org.shaolin.bmdp.analyzer.be.*;
+                    {
+                        PageHelperImpl defaultUser = new PageHelperImpl();
+                        
+                        HashMap input = new HashMap();
+                        input.put("beObject", defaultUser);
+                        input.put("editable", new Boolean(true));
+                        RefForm form = new RefForm("userForm", "org.shaolin.bmdp.analyzer.form.PageHelper", input);
+                        @page.addElement(form);
+                        
+                        form.openInWindows("Add Page Helper", new TableCallBack("helperTable"));
+                    }
+                    ]]></ns2:expressionString>
+                </ns2:exp>
+            </ns2:ops>
+		</ns2:eventHandler>
+		<ns2:eventHandler functionName="openHelperInfo">
+		    <ns2:ops xsi:type="ns2:OpCallAjaxType" name="openHelperInfo-201512052231">
+                <ns2:exp>
+                    <ns2:expressionString><![CDATA[
+                    import java.util.HashMap;
+                    import org.shaolin.uimaster.page.AjaxContext;
+                    import org.shaolin.uimaster.page.ajax.*;
+                    import org.shaolin.bmdp.analyzer.be.*;
+                    {
+                        Table personalInfoTable = (Table)@page.getElement("helperTable");
+                        if (personalInfoTable.getSelectedRow() == null) {
+                            return;
+                        }
+                        PageHelperImpl defaultUser = (PageHelperImpl)personalInfoTable.getSelectedRow();
+                        
+                        HashMap input = new HashMap();
+                        input.put("beObject", defaultUser);
+                        input.put("editable", new Boolean(true));
+                        RefForm form = new RefForm("userForm", "org.shaolin.bmdp.analyzer.form.PageHelper", input);
+                        @page.addElement(form);
+                        
+                        form.openInWindows("Modify Page Helper", new TableCallBack("helperTable"));
+                    }
+                    ]]></ns2:expressionString>
+                </ns2:exp>
+            </ns2:ops>
+		</ns2:eventHandler>
+		<ns2:body UIID="Form" xsi:type="ns2:UIPanelType">
+		    <ns2:UISkin xsi:type="ns2:UISkinType">
+                <ns2:skinName>org.shaolin.uimaster.page.skin.TitlePanel</ns2:skinName>
+                <ns2:param name="text">
+                    <ns2:value xsi:type="ns2:StringPropertyType">
+                        <ns2:value></ns2:value>
+                    </ns2:value>
+                </ns2:param>
+            </ns2:UISkin>
+			<ns2:layout xsi:type="ns2:TableLayoutType">
+				<ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+				<ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
+			</ns2:layout>
+			<ns2:component xsi:type="ns2:UITabPaneType" UIID="functionsTab">
+			    <ns2:ajaxLoad>false</ns2:ajaxLoad>
+                <ns2:tab uiid="javaCCJobInfoPanel">
+                    <ns2:title xsi:type="ns2:StringPropertyType">
+                        <ns2:value>帮助页面配制</ns2:value>
+                    </ns2:title>
+                    <ns2:panel UIID="javaCCJobInfoPanel">
+                        <ns2:layout xsi:type="ns2:TableLayoutType">
+                            <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+                            <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
+                        </ns2:layout>
+                        <ns2:component xsi:type="ns2:UITableType" UIID="helperTable">
+                            <ns2:beElement>org.shaolin.bmdp.analyzer.be.PageHelper</ns2:beElement>
+                            <ns2:selectMode xsi:type="ns2:UITableSelectModeType">Single</ns2:selectMode>
+                            <ns2:defaultRowSize>10</ns2:defaultRowSize>
+                            <ns2:showActionBar>true</ns2:showActionBar>
+                            <ns2:showFilter>true</ns2:showFilter>
+                            <ns2:query xsi:type="ns2:ExpressionPropertyType">
+                                <ns2:expression xsi:type="ns2:ExpressionType">
+                                    <ns2:expressionString><![CDATA[
+                                    import java.util.List;
+                                    import org.shaolin.uimaster.page.ajax.TableConditions;
+                                    import org.shaolin.bmdp.analyzer.be.PageHelperImpl;
+                                    import org.shaolin.bmdp.analyzer.dao.HelperModel;
+                                    {
+                                          if ($tableCondition == null) {
+                                             $tableCondition = TableConditions.createCondition(new PageHelperImpl());
+                                             $tableCondition.setCount(10);
+                                          }
+                                          PageHelperImpl condition = (PageHelperImpl)$tableCondition.getCondition();
+                                          return HelperModel.INSTANCE.searchPageHelper(condition,
+                                                        $tableCondition.getOrders(),
+                                                        $tableCondition.getOffset(), 
+                                                        $tableCondition.getCount());
+                                    }]]></ns2:expressionString>
+                                </ns2:expression>
+                            </ns2:query>
+                            <ns2:column xsi:type="ns2:UITableColumnType">
+                                <ns2:title xsi:type="ns2:StringPropertyType">
+                                    <ns2:value>Is Mobile View</ns2:value>
+                                </ns2:title>
+                                <ns2:beFieldId>rowBE.isMobileView</ns2:beFieldId>
+                                <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Label</ns2:type></ns2:uiType>
+                            </ns2:column>
+                            <ns2:column xsi:type="ns2:UITableColumnType">
+                                <ns2:title xsi:type="ns2:StringPropertyType">
+                                    <ns2:value>HTML Resource</ns2:value>
+                                </ns2:title>
+                                <ns2:beFieldId>rowBE.htmlFile</ns2:beFieldId>
+                                <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Label</ns2:type></ns2:uiType>
+                            </ns2:column>
+                            <ns2:column xsi:type="ns2:UITableColumnType">
+                                <ns2:title xsi:type="ns2:StringPropertyType">
+                                    <ns2:value>User Role</ns2:value>
+                                </ns2:title>
+                                <ns2:beFieldId>rowBE.partyType</ns2:beFieldId>
+                                <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Label</ns2:type></ns2:uiType>
+                            </ns2:column>
+                            <ns2:defaultActions>
+                                <ns2:defaultNewAction>createPageHelperInfo</ns2:defaultNewAction>
+                                <ns2:defaultOpenAction>openHelperInfo</ns2:defaultOpenAction>
+                            </ns2:defaultActions>
+                        </ns2:component>
+                        <ns2:layoutConstraint>
+                            <ns2:componentId>helperTable</ns2:componentId>
+                            <ns2:constraint xsi:type="ns2:TableLayoutConstraintType"
+                                x="0" y="0" align="FULL"></ns2:constraint>
+                        </ns2:layoutConstraint>
+                    </ns2:panel>
+                </ns2:tab>
+            </ns2:component>
+			<ns2:layoutConstraint>
+                <ns2:componentId>functionsTab</ns2:componentId>
+                <ns2:constraint xsi:type="ns2:TableLayoutConstraintType"
+                    x="0" y="0" align="FULL"></ns2:constraint>
+            </ns2:layoutConstraint>
+		</ns2:body>
+	</ns2:UIEntity>
+	<ns2:ODMapping>
+	</ns2:ODMapping>
+	<ns2:in>
+	</ns2:in>
+</ns2:UIPage>

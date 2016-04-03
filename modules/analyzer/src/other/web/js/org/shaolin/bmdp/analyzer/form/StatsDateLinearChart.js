@@ -6,6 +6,9 @@ function org_shaolin_bmdp_analyzer_form_StatsDateLinearChart(json)
     var linearChart = new UIMaster.ui.chart
     ({
         ui: elementList[prefix + "linearChart"]
+        ,width: 600
+        ,height: 400
+        ,dataType: "date"
     });
 
     var okbtn = new UIMaster.ui.button

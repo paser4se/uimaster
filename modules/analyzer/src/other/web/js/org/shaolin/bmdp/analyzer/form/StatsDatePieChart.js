@@ -6,6 +6,8 @@ function org_shaolin_bmdp_analyzer_form_StatsDatePieChart(json)
     var pieUI = new UIMaster.ui.chart
     ({
         ui: elementList[prefix + "pieUI"]
+        ,width: 250
+        ,height: 250
     });
 
     var okbtn = new UIMaster.ui.button

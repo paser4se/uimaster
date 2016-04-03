@@ -2761,7 +2761,20 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
 				    $(this).parent().parent().appendTo($("form:first"));
 					$($(this).parent().parent()).css("top","0px");
 			    }},
-                beforeClose: function() {},
+                beforeClose: function() {
+				    if (IS_MOBILEVIEW && thisObj.hidePFrame) {
+						//only the guy who has reference.
+						var iframeObject = null;
+						$(window.parent.document).find("iframe").each(function(){
+							if($(this).prop('contentWindow').document == window.document) {
+							   iframeObject = $(this);
+							}
+						});
+						iframeObject.prev().css("display","block");
+						iframeObject.height(iframeObject.height() - 110);
+						iframeObject.next().css("display","block");	
+					}
+				},
                 buttons: buttonset
             });
             $($("#"+this.id).children().get(0)).attr("_framePrefix",this.frameInfo);
@@ -2797,20 +2810,8 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
 	    if(event){ event.preventDefault()};
     	if (elementList[this.uiid+".Form"]) 
     		elementList[this.uiid+".Form"].parentEntity.releaseFormObject();
-		
-		if (IS_MOBILEVIEW && this.hidePFrame) {
-		    //only the guy who has reference.
-			var iframeObject = null;
-			$(window.parent.document).find("iframe").each(function(){
-				if($(this).prop('contentWindow').document == window.document) {
-				   iframeObject = $(this);
-				}
-			});
-			iframeObject.prev().css("display","block");
-			iframeObject.height(iframeObject.height() - 110);
-			iframeObject.next().css("display","block");	
-		}
-    	this.content.dialog("close");
+    	
+		this.content.dialog("close");
     	this.content.parent().remove();
     	defaultname.removeComponent(eval(D+this.uiid));
         UIMaster.ui.window.removeWindow(this.id,this);

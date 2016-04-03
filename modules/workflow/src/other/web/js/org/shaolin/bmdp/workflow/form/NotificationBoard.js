@@ -61,7 +61,7 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
        var msgContainer = this.messagePanel;
        var countUIId = this.countUIId.value;
        this.msgCounter = 0;
-       this.realCounter = $("<span style='color:blue;font-weight:bold;margin-left:-55px;'></span>");
+       this.realCounter = $("<span style='color:blue;font-weight:bold;margin-left:-25px;'></span>");
        $("#"+countUIId).append(this.realCounter);
        var o = this;
        this.chat = establishWebsocket("/wsnotificator", 
