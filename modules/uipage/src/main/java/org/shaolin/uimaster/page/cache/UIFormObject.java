@@ -778,6 +778,7 @@ public class UIFormObject implements java.io.Serializable
 	            		action.setTitle(i18nInfo);
 	            		seqList.add(action);
 	    			}
+	    			/**
 	    			if (table.getDefaultActions().getDefaultDisableAction() != null) {
 	    				UITableActionType action = new UITableActionType();
 	    				action.setUiid(table.getUIID() + "_disableItem");
@@ -799,7 +800,7 @@ public class UIFormObject implements java.io.Serializable
 	            		i18nInfo.setKey("EnableItem");
 	            		action.setTitle(i18nInfo);
 	            		seqList.add(action);
-	    			}
+	    			}*/
 	    			if (table.isEditableCell() && table.getDefaultActions().getDefaultDeleteAction() != null) {
 	    				UITableActionType action = new UITableActionType();
 	    				action.setUiid(table.getUIID() + "_deleteItem");

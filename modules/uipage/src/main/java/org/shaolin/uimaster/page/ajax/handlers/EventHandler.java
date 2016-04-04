@@ -79,22 +79,30 @@ public class EventHandler implements IAjaxHandler {
 							FlowEvent e = new FlowEvent(wfOp.getEventConsumer());
 							//BuiltInAttributeConstant.KEY_AdhocNodeName
 							e.setAttribute("_AdhocNodeName", wfOp.getAdhocNodeName());
-							Map value0 = (Map)wfOp.getExpression().evaluate(context);
-							if (value0 != null && value0.size() > 0) {
-								Iterator i = value0.keySet().iterator();
-								while (i.hasNext()) {
-									String key = (String)i.next();
-									Object v = value0.get(key);
-									if (v instanceof Serializable) {
-										e.setAttribute(key, (Serializable)v);
-									} else {
-										log.warn("Variable " + key + " is not seriablizable.");
+							Object obj = wfOp.getExpression().evaluate(context);
+							if (obj instanceof Map) {
+								Map map = (Map)obj;
+								if (map.size() > 0) {
+									Iterator i = map.keySet().iterator();
+									while (i.hasNext()) {
+										String key = (String)i.next();
+										Object v = map.get(key);
+										if (v instanceof Serializable) {
+											e.setAttribute(key, (Serializable)v);
+										} else {
+											log.warn("Variable " + key + " is not seriablizable.");
+										}
 									}
+									e.setComments(context.getRequest().getParameter("_comments"));
+									EventProcessor processor = (EventProcessor)AppContext.get().getService(
+											Class.forName("org.shaolin.bmdp.workflow.internal.WorkFlowEventProcessor"));
+									processor.process(e);
 								}
-								e.setComments(context.getRequest().getParameter("_comments"));
-								EventProcessor processor = (EventProcessor)AppContext.get().getService(
-										Class.forName("org.shaolin.bmdp.workflow.internal.WorkFlowEventProcessor"));
-								processor.process(e);
+							} else {
+								//if (obj instanceof Boolean)
+								if (log.isDebugEnabled()) {
+									log.debug("Workflow action result: " + obj);
+								}
 							}
 						} catch (EvaluationException ex) {
 							log.warn("This statement can not be evaluated: \n"+ wfOp.getExpression().getExpressionString());
