@@ -22,6 +22,18 @@ import java.util.regex.Pattern;
 
 public class StringUtil
 {
+	private StringUtil()
+    {
+    }
+
+	public static final String LINE_SEPARATOR   = System.getProperty("line.separator");
+	public static final String DEFAULT_ENCODING = System.getProperty("file.encoding");
+
+    private static final long KSIZE             = 1024L;
+    private static final long MSIZE             = KSIZE * 1024L;
+    private static final long GSIZE             = MSIZE * 1024L;
+    private static final long TSIZE             = GSIZE * 1024L;
+	
     /**
      * Returns a new string resulting from replacing all
      * occurrences of oldStr in a string with newStr. 
@@ -1346,16 +1358,29 @@ public class StringUtil
         return result;
     }
 
-    private StringUtil()
-    {
-    }
+	public static String string2Unicode(String string) {
+		StringBuilder unicode = new StringBuilder();
+		for (int i = 0; i < string.length(); i++) {
+			int chr1 = (char) string.charAt(i);
+			if (chr1 >= 19968 && chr1 <= 171941) {// Chinese characters range: \u4e00-\u9fa5
+				unicode.append("\\u" + Integer.toHexString(chr1));
+			} else {
+				unicode.append(string.charAt(i));
+			}
+		}
+		return unicode.toString();
+	}
+	
+	public static String unicode2String(String unicodeStr) {
+		StringBuilder sb = new StringBuilder();
+		String str[] = unicodeStr.toUpperCase().split("U");
+		for (int i = 0; i < str.length; i++) {
+			if (str[i].equals(""))
+				continue;
+			char c = (char) Integer.parseInt(str[i].trim(), 16);
+			sb.append(c);
+		}
+		return sb.toString();
+	} 
 
-	public static final String LINE_SEPARATOR   = System.getProperty("line.separator");
-	public static final String DEFAULT_ENCODING = System.getProperty("file.encoding");
-
-    private static final long KSIZE             = 1024L;
-    private static final long MSIZE             = KSIZE * 1024L;
-    private static final long GSIZE             = MSIZE * 1024L;
-    private static final long TSIZE             = GSIZE * 1024L;
-    
 }
