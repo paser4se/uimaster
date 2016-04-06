@@ -46,6 +46,12 @@ public class HTMLImageType extends HTMLTextWidgetType
     {
         try
         {
+        	if (this.getAttribute("captureScreen") != null) {
+        		String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
+            			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
+        		HTMLUtil.generateTab(context, depth);
+                context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/html2canvas.js\"></script>");
+            }
             generateWidget(context);
             if (this.getAttribute("isGallery") != null) {
 	            String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 

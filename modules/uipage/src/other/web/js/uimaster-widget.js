@@ -1601,7 +1601,8 @@ UIMaster.ui.hidden = UIMaster.extend(UIMaster.ui, /** @lends UIMaster.ui.hidden*
  * @constructor
  */
 UIMaster.ui.label = UIMaster.extend(UIMaster.ui.hidden, /** @lends UIMaster.ui.label*/{
-    /**
+    captureScreen: false,
+	/**
      * @description Set the widget's label text.
      * @param {String} text Label text to set.
      */
@@ -1622,6 +1623,24 @@ UIMaster.ui.label = UIMaster.extend(UIMaster.ui.hidden, /** @lends UIMaster.ui.l
     init:function(){
         UIMaster.ui.label.superclass.init.call(this);
         this.parentDiv = this.parentNode.parentNode.parentNode;
+		if (this.captureScreen) {
+		    $(this).click(function(){
+			    html2canvas(document.body, {
+					onrendered: function(canvas) {
+						// here is the most important part because 
+						// if you don't replace you will get a DOM 18 exception.
+                        var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+						var save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
+						save_link.href = image;
+						save_link.download = "vogerp-capture-"+Math.random()+".png";
+					   
+						var event = document.createEvent('MouseEvents');
+						event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+						save_link.dispatchEvent(event);
+					}
+				});
+			});
+		}
     }
 });
 /**
@@ -1644,6 +1663,7 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 	mobheight:-1,
 	width:-1,
 	mode: 'standard',
+	captureScreen: false,
 	thumbnailsFullScreen: true,
 	hideThumbnailsOnInit: false,
 	intialized:false,
@@ -1664,6 +1684,24 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 						afterLoadPhoto: function(image) {t.clickImage(image);}};
 			}
 			$(this).jGallery(opts);
+		}
+		if (this.captureScreen) {
+		    $($(this).next()).click(function(){
+			    html2canvas(document.body, {
+					onrendered: function(canvas) {
+						// here is the most important part because 
+						// if you don't replace you will get a DOM 18 exception.
+                        var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+						var save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
+						save_link.href = image;
+						save_link.download = "vogerp-capture-"+Math.random()+".png";
+					   
+						var event = document.createEvent('MouseEvents');
+						event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+						save_link.dispatchEvent(event);
+					}
+				});
+			});
 		}
 	},
 	clickImage:function(image){

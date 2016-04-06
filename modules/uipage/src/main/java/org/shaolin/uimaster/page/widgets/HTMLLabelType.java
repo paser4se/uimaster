@@ -17,6 +17,7 @@ package org.shaolin.uimaster.page.widgets;
 
 import java.io.IOException;
 
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
@@ -54,6 +55,12 @@ public class HTMLLabelType extends HTMLTextWidgetType
     @Override
     public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
     {
+    	if (this.getAttribute("captureScreen") != null) {
+    		String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
+        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
+    		HTMLUtil.generateTab(context, depth);
+            context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/html2canvas.js\"></script>");
+        }
         generateWidget(context);
         String currencySymbol = getCurrencySymbol();
         if ( currencySymbol == null || currencySymbol.equals("") )
@@ -98,6 +105,10 @@ public class HTMLLabelType extends HTMLTextWidgetType
             context.generateHTML("_Label\"");
             generateAttributes(context);
             generateEventListeners(context);
+            if (this.getAttribute("captureScreen") != null) {
+            	
+            }
+            
             context.generateHTML(">");
             context.generateHTML(HTMLUtil.htmlEncode(getDisplayValue()));
             context.generateHTML("<input type=hidden name=\"");
