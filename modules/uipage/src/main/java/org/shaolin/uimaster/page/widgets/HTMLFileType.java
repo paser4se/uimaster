@@ -70,9 +70,10 @@ public class HTMLFileType extends HTMLTextWidgetType
         	context.generateHTML("suffix=\"");
         	context.generateHTML(this.getAttribute("suffix").toString());
         	context.generateHTML("\" ");
-            context.generateHTML("/>");
+            context.generateHTML("/ class=\"uimaster_button\">");
             HTMLUtil.generateTab(context, depth + 2);
-            context.generateHTML("<input type=\"button\" value=\"\u4E0A\u4F20\" />");
+            context.generateHTML("<div class=\"uimaster_action_bar\"><input type=\"button\" value=\"\u4E0A\u4F20\" id=\"upload\" class=\"uimaster_button\"/>");
+            context.generateHTML("<input type=\"button\" value=\"\u6E05\u7A7A\" id=\"cleanupload\" class=\"uimaster_button\"/></div>");
             HTMLUtil.generateTab(context, depth + 2);
             context.generateHTML("<div name=\"progressbox\" style=\"display:none;\">");
             context.generateHTML("<div name=\"progressbar\"></div><div name=\"percent\">0%</div></div>");
@@ -106,6 +107,9 @@ public class HTMLFileType extends HTMLTextWidgetType
         }
         file.setStoredPath(this.getAttribute("storedPath").toString());
         file.setSuffix(this.getAttribute("suffix").toString());
+        if (this.getAttribute("allowedNumbers") != null) {
+        	file.setAllowedNumbers(Integer.parseInt(this.removeAttribute("allowedNumbers").toString()));
+        }
         file.setListened(true);
         file.setFrameInfo(getFrameInfo());
 

@@ -115,6 +115,15 @@ public class UploadFileServlet extends HttpServlet {
 		if (!root.exists()) {
 			root.mkdirs();
 		}
+		if (root.isDirectory() && file.getAllowedNumbers() > 0 
+				&& root.list().length >= file.getAllowedNumbers()) {
+			// exceeded.
+			IDataItem dataItem = AjaxActionHelper.createErrorDataItem("\u8D85\u51FA\u6700\u5927\u4E2A\u6570\u4E86\u3002");
+			JSONArray array = new JSONArray();
+			array.put(new JSONObject(dataItem));
+			response.getWriter().print(array.toString());
+			return;
+		}
 		
 		boolean isMultipart = ServletFileUpload.isMultipartContent(request);
 		// process only if its multipart content
@@ -133,7 +142,7 @@ public class UploadFileServlet extends HttpServlet {
 					if (item.getSize() > 1048576) {
 						// 2M
 						logger.warn("the size of the uploading file is exceeded!");
-						IDataItem dataItem = AjaxActionHelper.createErrorDataItem("The file size must be less than 2M.");
+						IDataItem dataItem = AjaxActionHelper.createErrorDataItem("\u4E0A\u4F20\u6587\u4EF6\u5FC5\u987B\u5C0F\u4E8E2M");
 						JSONArray array = new JSONArray();
 						array.put(new JSONObject(dataItem));
 						response.getWriter().print(array.toString());
