@@ -29,6 +29,8 @@ import org.shaolin.uimaster.page.MobilitySupport;
 import org.shaolin.uimaster.page.WebConfig;
 
 public class UIPageObject implements java.io.Serializable {
+	private static final String _CUST = "_cust";
+
 	private static final long serialVersionUID = -3835708230178517577L;
 
 	private static final String DEFAULT_LOCALE = "DEFAULT_LOCALE";
@@ -48,7 +50,9 @@ public class UIPageObject implements java.io.Serializable {
 	private final StringBuffer mobPageCSS = new StringBuffer();
 	
 	private boolean hasMobilePage = false;
-
+	
+	private boolean hasCustomizedPage = false;
+	
 	public UIPageObject(String entityName) {
 		this.entityName = entityName;
 		load();
@@ -64,6 +68,14 @@ public class UIPageObject implements java.io.Serializable {
 			hasMobilePage = true;
         } catch (EntityNotFoundException e) {
         	hasMobilePage = false;
+        }
+		
+		try {
+			IServerServiceManager.INSTANCE.getEntityManager()
+				.getEntity(entityName + _CUST, UIPage.class);
+			hasCustomizedPage = true;
+        } catch (EntityNotFoundException e) {
+        	hasCustomizedPage = false;
         }
 		
 		ui = new UIFormObject(entityName, entity);
@@ -156,6 +168,9 @@ public class UIPageObject implements java.io.Serializable {
 		if (UserContext.isMobileRequest() && hasMobilePage()) {
 			return entityName + MobilitySupport.MOB_PAGE_SUFFIX;
 		}
+		if (hasCustomizedPage()) {
+			return entityName + _CUST;
+		}
 		return entityName;
 	}
 
@@ -177,5 +192,9 @@ public class UIPageObject implements java.io.Serializable {
 	
 	public boolean hasMobilePage() {
 		return hasMobilePage;
+	}
+	
+	public boolean hasCustomizedPage() {
+		return hasCustomizedPage;
 	}
 }

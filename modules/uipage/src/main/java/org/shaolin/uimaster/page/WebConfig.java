@@ -51,6 +51,7 @@ public class WebConfig {
 	public static class WebConfigFastCache {
 		public static final String WebContextRoot = "${webcontext}";
 		public static final String ResourceContextRoot = "${resourceContext}";
+		final boolean customizedMode;
 		final String hiddenValueMask;
 		final String cssRootPath;
 		final String jsRootPath;
@@ -78,6 +79,8 @@ public class WebConfig {
 		
 		public WebConfigFastCache() {
 			Registry instance = Registry.getInstance();
+			customizedMode = Boolean.valueOf(instance.getValue(
+					"/System/webConstant/customizedMode"));
 			hiddenValueMask = instance.getValue(
 					"/System/webConstant/hiddenValueMask");
 			cssRootPath = ResourceContextRoot + "/css";
@@ -192,6 +195,10 @@ public class WebConfig {
 			instance.putInFastCache("webconfig", fastCache);
 		}
 		return (WebConfigFastCache)instance.readFromFastCache("webconfig");
+	}
+	
+	public static boolean isCustomizedMode() {
+		return getCacheObject().customizedMode;
 	}
 	
 	public static String getHiddenValueMask() {
