@@ -32,6 +32,7 @@ import java.util.StringTokenizer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.utils.CloseUtil;
 import org.shaolin.javacc.context.EvaluationContext;
 import org.shaolin.uimaster.page.ajax.Widget;
@@ -136,6 +137,9 @@ public class HTMLSnapshotContext implements Serializable
             resetRepository();
         }
         try {
+        	String charset = Registry.getInstance().getEncoding();
+        	response.setCharacterEncoding(charset);
+        	response.setContentType("text/html;charset=" + charset);
 			this.out = response.getWriter();
 		} catch (IOException e) {
 			logger.warn(e.getMessage(), e);

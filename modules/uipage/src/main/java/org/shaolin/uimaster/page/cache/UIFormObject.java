@@ -1955,7 +1955,11 @@ public class UIFormObject implements java.io.Serializable
             	} else {
             		importJSCode = WebConfig.replaceJsWebContext(importJSCode);
             	}
-                context.generateJS(importJSCode + timestamp + "\"></script>");
+            	if (jsFileName.startsWith("http") || jsFileName.startsWith("https")) {
+            		context.generateJS("<script type=\"text/javascript\" src=\"" + jsFileName + "\"></script>");
+            	} else {
+            		context.generateJS(importJSCode + timestamp + "\"></script>");
+            	}
                 HTMLUtil.generateTab(context, depth);
             }
         }
@@ -1979,9 +1983,14 @@ public class UIFormObject implements java.io.Serializable
             }
             if (jsFileName.endsWith(".js"))
             {
-                sb.append("<script type=\"text/javascript\" src=\"").append(HTMLUtil.getWebRoot());
-                sb.append(jsFileName).append("?_timestamp=").append(WebConfig.getTimeStamp())
-                        .append("\"></script>");
+				if (jsFileName.startsWith("http") || jsFileName.startsWith("https")) {
+					sb.append("<script type=\"text/javascript\" src=\"");
+	                sb.append(jsFileName).append("\"></script>");
+				} else {
+	                sb.append("<script type=\"text/javascript\" src=\"").append(HTMLUtil.getWebRoot());
+	                sb.append(jsFileName).append("?_timestamp=").append(WebConfig.getTimeStamp())
+	                        .append("\"></script>");
+				}
             }
         }
         return sb.toString();
@@ -2001,14 +2010,20 @@ public class UIFormObject implements java.io.Serializable
 			
 			if (jsFileName.endsWith(".js")) {
 				jsFileName = jsFileName.replace("\\", "/");
-				if (UserContext.isMobileRequest() && UserContext.isAppClient()) {
+				boolean needTimestamp = true;
+				if (jsFileName.startsWith("http") || jsFileName.startsWith("https")) {
+					needTimestamp = false;
+				} else if (UserContext.isMobileRequest() && UserContext.isAppClient()) {
 					jsFileName = jsFileName.replace(WebConfigFastCache.WebContextRoot, WebConfig.getAppContextRoot());
 					jsFileName = jsFileName.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getAppResourceContextRoot());
 				} else {
 					jsFileName = jsFileName.replace(WebConfigFastCache.WebContextRoot, WebConfig.getWebContextRoot());
 					jsFileName = jsFileName.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getResourceContextRoot());
 				}
-				sb.append("<script type=\"text/javascript\" src=\"").append(jsFileName).append("?_timestamp=").append(WebConfig.getTimeStamp());
+				sb.append("<script type=\"text/javascript\" src=\"").append(jsFileName);
+				if (needTimestamp) {
+					sb.append("?_timestamp=").append(WebConfig.getTimeStamp());
+				}
 				sb.append("\"").append("></script>");
 			}
 		}

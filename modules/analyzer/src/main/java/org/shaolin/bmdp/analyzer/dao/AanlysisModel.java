@@ -27,6 +27,36 @@ public class AanlysisModel extends BEEntityDaoObject {
     private AanlysisModel() {
     }
 
+    public List<org.shaolin.bmdp.analyzer.be.ITableStatistic> searchTableStatsDefinition(org.shaolin.bmdp.analyzer.be.TableStatisticImpl scObject,
+           List<Order> orders, int offset, int count) {
+            Criteria inObjectCriteria = this._createCriteria(org.shaolin.bmdp.analyzer.be.TableStatisticImpl.class, "inObject");
+            if (orders == null) {
+            } else {
+                this._addOrders(inObjectCriteria, orders);
+            }
+
+            if (scObject.getId() > 0) {
+                inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.id", scObject.getId()));
+            }
+
+        inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject._enable", scObject.isEnabled()));
+
+        List result = this._list(offset, count, inObjectCriteria);
+        return result;
+    }
+
+    public long searchTableStatsDefinitionCount(org.shaolin.bmdp.analyzer.be.TableStatisticImpl scObject) {
+            Criteria inObjectCriteria = this._createCriteria(org.shaolin.bmdp.analyzer.be.TableStatisticImpl.class, "inObject");
+
+            if (scObject.getId() > 0) {
+                inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.id", scObject.getId()));
+            }
+
+        inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject._enable", scObject.isEnabled()));
+
+        return this._count(inObjectCriteria);
+    }
+
     public List<org.shaolin.bmdp.analyzer.be.IClientDBInfo> searchClientDBInfo(org.shaolin.bmdp.analyzer.be.ClientDBInfoImpl scObject,
            List<Order> orders, int offset, int count) {
             Criteria inObjectCriteria = this._createCriteria(org.shaolin.bmdp.analyzer.be.ClientDBInfoImpl.class, "inObject");

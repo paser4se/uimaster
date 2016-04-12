@@ -241,6 +241,9 @@ public class UserContext implements Serializable {
 	}
 	
 	public static boolean hasRole(String role) {
+		if (userRolesCache.get() == null) {
+			return false;
+		}
 		for (IConstantEntity exist : userRolesCache.get()) {
 			if (role.equals(CEUtil.getValue(exist))) {
 				return true;

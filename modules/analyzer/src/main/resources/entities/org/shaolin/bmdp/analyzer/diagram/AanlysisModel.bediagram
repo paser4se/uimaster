@@ -107,6 +107,67 @@
             </bediagram:type>
         </bediagram:member>
     </bediagram:beEntity>
+    <bediagram:beEntity needPersist="true" needUIEntity="true">
+        <common:entityName>TableStatistic</common:entityName>
+        <bediagram:member pk="true">
+            <bediagram:name>id</bediagram:name>
+            <bediagram:type xsi:type="bediagram:LongType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>tableName</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>description</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>needOrgStats</bediagram:name>
+            <bediagram:type xsi:type="bediagram:BooleanType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>columns</bediagram:name>
+            <bediagram:type xsi:type="bediagram:BEListType">
+                <bediagram:elementType xsi:type="bediagram:BEObjRefType">
+                    <bediagram:targetEntity entityName="TableColumnStatistic" />
+                </bediagram:elementType>
+            </bediagram:type>
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>chartType</bediagram:name>
+            <bediagram:type xsi:type="bediagram:CEObjRefType">
+                <bediagram:targetEntity entityName="StatisticChartType" />
+            </bediagram:type>
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>statsPeriod</bediagram:name>
+            <bediagram:type xsi:type="bediagram:CEObjRefType">
+                <bediagram:targetEntity entityName="StatsPeriodType" />
+            </bediagram:type>
+        </bediagram:member>
+    </bediagram:beEntity>
+    
+    <bediagram:beEntity needPersist="true" needUIEntity="true">
+        <common:entityName>TableColumnStatistic</common:entityName>
+        <bediagram:member pk="true">
+            <bediagram:name>id</bediagram:name>
+            <bediagram:type xsi:type="bediagram:LongType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>name</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>description</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>statsType</bediagram:name>
+            <bediagram:type xsi:type="bediagram:CEObjRefType">
+                <bediagram:targetEntity entityName="DataStatisticType" />
+            </bediagram:type>
+        </bediagram:member>
+    </bediagram:beEntity>
     
     <bediagram:beEntity needPersist="true" needUIEntity="true">
         <common:entityName>ChartStatistic</common:entityName>
@@ -176,6 +237,83 @@
             <bediagram:value>Start</bediagram:value>
             <bediagram:intValue>1</bediagram:intValue>
             <bediagram:description>Start</bediagram:description>
+        </bediagram:constantValue>
+    </bediagram:ceEntity>
+    
+    <bediagram:ceEntity>
+        <common:entityName>DataStatisticType</common:entityName>
+        <bediagram:constantValue>
+            <bediagram:value>SUM</bediagram:value>
+            <bediagram:intValue>0</bediagram:intValue>
+            <bediagram:description>SUM</bediagram:description>
+        </bediagram:constantValue>
+        <bediagram:constantValue>
+            <bediagram:value>AVERAGE</bediagram:value>
+            <bediagram:intValue>1</bediagram:intValue>
+            <bediagram:description>Average</bediagram:description>
+        </bediagram:constantValue>
+        <bediagram:constantValue>
+            <bediagram:value>TPS</bediagram:value>
+            <bediagram:intValue>2</bediagram:intValue>
+            <bediagram:description>Throughput</bediagram:description>
+        </bediagram:constantValue>
+    </bediagram:ceEntity>
+    
+    <bediagram:ceEntity>
+        <common:entityName>StatisticChartType</common:entityName>
+        <bediagram:constantValue>
+            <bediagram:value>Radar</bediagram:value>
+            <bediagram:intValue>0</bediagram:intValue>
+            <bediagram:description>Radar</bediagram:description>
+        </bediagram:constantValue>
+        <bediagram:constantValue>
+            <bediagram:value>Pie</bediagram:value>
+            <bediagram:intValue>1</bediagram:intValue>
+            <bediagram:description>Pie</bediagram:description>
+        </bediagram:constantValue>
+        <bediagram:constantValue>
+            <bediagram:value>PolarPie</bediagram:value>
+            <bediagram:intValue>2</bediagram:intValue>
+            <bediagram:description>PolarPie</bediagram:description>
+        </bediagram:constantValue>
+        <bediagram:constantValue>
+            <bediagram:value>Bar</bediagram:value>
+            <bediagram:intValue>3</bediagram:intValue>
+            <bediagram:description>Bar</bediagram:description>
+        </bediagram:constantValue>
+        <bediagram:constantValue>
+            <bediagram:value>Linear</bediagram:value>
+            <bediagram:intValue>4</bediagram:intValue>
+            <bediagram:description>Linear</bediagram:description>
+        </bediagram:constantValue>
+    </bediagram:ceEntity>
+	
+	<bediagram:ceEntity>
+        <common:entityName>StatsPeriodType</common:entityName>
+        <bediagram:constantValue>
+            <bediagram:value>Hour</bediagram:value>
+            <bediagram:intValue>0</bediagram:intValue>
+            <bediagram:description>Hour</bediagram:description>
+        </bediagram:constantValue>
+        <bediagram:constantValue>
+            <bediagram:value>Daily</bediagram:value>
+            <bediagram:intValue>1</bediagram:intValue>
+            <bediagram:description>Daily</bediagram:description>
+        </bediagram:constantValue>
+        <bediagram:constantValue>
+            <bediagram:value>Weekly</bediagram:value>
+            <bediagram:intValue>2</bediagram:intValue>
+            <bediagram:description>Weekly</bediagram:description>
+        </bediagram:constantValue>
+        <bediagram:constantValue>
+            <bediagram:value>Monthly</bediagram:value>
+            <bediagram:intValue>3</bediagram:intValue>
+            <bediagram:description>Monthly</bediagram:description>
+        </bediagram:constantValue>
+        <bediagram:constantValue>
+            <bediagram:value>Yearly</bediagram:value>
+            <bediagram:intValue>4</bediagram:intValue>
+            <bediagram:description>Yearly</bediagram:description>
         </bediagram:constantValue>
     </bediagram:ceEntity>
 	

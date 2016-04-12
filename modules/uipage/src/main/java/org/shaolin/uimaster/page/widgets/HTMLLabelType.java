@@ -61,6 +61,7 @@ public class HTMLLabelType extends HTMLTextWidgetType
     		HTMLUtil.generateTab(context, depth);
             context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/html2canvas.js\"></script>");
         }
+    	
         generateWidget(context);
         String currencySymbol = getCurrencySymbol();
         if ( currencySymbol == null || currencySymbol.equals("") )

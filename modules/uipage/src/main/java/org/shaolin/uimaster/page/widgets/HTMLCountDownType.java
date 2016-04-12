@@ -22,7 +22,7 @@ import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 
-public class HTMLCountDownType extends HTMLWidgetType {
+public class HTMLCountDownType extends HTMLTextWidgetType {
 	
 	private static final long serialVersionUID = 1587046878874940935L;
 

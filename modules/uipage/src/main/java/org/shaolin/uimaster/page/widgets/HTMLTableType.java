@@ -270,10 +270,6 @@ public class HTMLTableType extends HTMLContainerType {
         		}
 				pContext.setVariableClass("rowBE", beClass);
 				
-				OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
-				DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
-				ooeeContext.setDefaultEvaluationContext(evaContext);
-				ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
 				for (UITableColumnType col : columns) {
 					HTMLUtil.generateTab(context, depth + 3);
 					context.generateHTML("<th>");
@@ -289,7 +285,7 @@ public class HTMLTableType extends HTMLContainerType {
 						List<String> optionDisplayValues = new ArrayList<String>();
 						if (col.getComboxExpression() != null) {
 							List[] values = (List[])col.getComboxExpression().getExpression().evaluate(
-									ooeeContext);
+									this.ee.getExpressionContext());
 							optionValues = values[0];
 							optionDisplayValues = values[1];
 						} else {
@@ -619,8 +615,11 @@ public class HTMLTableType extends HTMLContainerType {
 		return true;
 	}
 
+	VariableEvaluator ee;
+	
 	public Widget createAjaxWidget(VariableEvaluator ee)
     {
+		this.ee = ee;
         Table t = new Table(getName(), Layout.NULL);
 
         t.setReadOnly(isReadOnly());

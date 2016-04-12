@@ -7,7 +7,18 @@ function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration(json)
     ({
         ui: elementList[prefix + "functionsTab"]
         ,items: []
-        ,subComponents: [prefix + "javaccJobInfoPanel",prefix + "jobInfoPanel",prefix + "chartStatsPanel"]
+        ,subComponents: [prefix + "tableStatsPanel",prefix + "javaccJobInfoPanel",prefix + "jobInfoPanel",prefix + "chartStatsPanel"]
+    });
+    var tableStatsTable = new UIMaster.ui.objectlist
+    ({
+        ui: elementList[prefix + "tableStatsTable"]
+    });
+
+    var tableStatsPanel = new UIMaster.ui.panel
+    ({
+        ui: elementList[prefix + "tableStatsPanel"]
+        ,items: []
+        ,subComponents: [prefix + "tableStatsTable"]
     });
     var javaCCJobInfoTable = new UIMaster.ui.objectlist
     ({
@@ -52,6 +63,10 @@ function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration(json)
 
     Form.functionsTab=functionsTab;
 
+    Form.tableStatsPanel=tableStatsPanel;
+
+    Form.tableStatsTable=tableStatsTable;
+
     Form.javaccJobInfoPanel=javaccJobInfoPanel;
 
     Form.javaCCJobInfoTable=javaCCJobInfoTable;
@@ -70,9 +85,9 @@ function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration(json)
         /* Construct_LAST:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration */
     };
 
-    Form.createDBInfo = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createDBInfo;
+    Form.createStatsTableInfo = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createStatsTableInfo;
 
-    Form.openDBInfo = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openDBInfo;
+    Form.openStatsTableInfo = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openStatsTableInfo;
 
     Form.createJobInfo = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createJobInfo;
 
@@ -107,25 +122,25 @@ function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration(json)
 /* Other_Func_LAST:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration */
 
     /* auto generated eventlistener function declaration */
-    function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createDBInfo(eventsource,event) {/* Gen_First:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createDBInfo */
+    function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createStatsTableInfo(eventsource,event) {/* Gen_First:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createStatsTableInfo */
         var o = this;
         var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"createDBInfo-201512052231",UIMaster.getValue(eventsource),o.__entityName);
-    }/* Gen_Last:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createDBInfo */
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"createStatsTableInfo-201512052231",UIMaster.getValue(eventsource),o.__entityName);
+    }/* Gen_Last:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createStatsTableInfo */
 
 
     /* auto generated eventlistener function declaration */
-    function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openDBInfo(eventsource,event) {/* Gen_First:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openDBInfo */
+    function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openStatsTableInfo(eventsource,event) {/* Gen_First:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openStatsTableInfo */
         var o = this;
         var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"openDBInfo-201512052231",UIMaster.getValue(eventsource),o.__entityName);
-    }/* Gen_Last:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openDBInfo */
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"openStatsTableInfo-201512052231",UIMaster.getValue(eventsource),o.__entityName);
+    }/* Gen_Last:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openStatsTableInfo */
 
 
     /* auto generated eventlistener function declaration */

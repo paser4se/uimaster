@@ -56,6 +56,10 @@ public class HTMLButtonType extends HTMLTextWidgetType
     {
         try
         {
+        	if (this.getAttribute("jsscript") != null) {
+        		HTMLUtil.generateTab(context, depth);
+                context.generateHTML(this.removeAttribute("jsscript").toString());
+        	}
             generateWidget(context);
             context.generateHTML("<input type=\"");
             context.generateHTML(getButtonType());
