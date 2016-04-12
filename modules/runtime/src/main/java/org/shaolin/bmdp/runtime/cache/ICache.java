@@ -55,4 +55,8 @@ public interface ICache<K, V> extends Serializable {
 
 	public CacheInfoImpl getInfo();
 
+	public void setValueType(Class valueType);
+
+	public Class getValueType();
+
 }

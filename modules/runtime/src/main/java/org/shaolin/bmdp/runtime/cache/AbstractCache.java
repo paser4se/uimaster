@@ -15,6 +15,9 @@
 */
 package org.shaolin.bmdp.runtime.cache;
 
+import org.shaolin.bmdp.runtime.ddc.client.DDCFacade;
+import org.shaolin.bmdp.runtime.ddc.client.sample.CacheNodeListener;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,198 +26,232 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * 
- * @author wushaol
- *
  * @param <K>
  * @param <V>
+ * @author wushaol
  */
 abstract class AbstractCache<K, V> implements ICache<K, V> {
 
-	private final String name;
-	private volatile boolean needSynchronize;
-	private volatile boolean needStatistics = true;
+    private final String name;
+    private volatile boolean needSynchronize;
+    private volatile boolean needStatistics = true;
 
-	private long readCount;
-	private long writeCount;
-	private long readHitCount;
-	private long writeHitCount;
-	protected long refreshIntervalMinutes = -1L;
-	private String description;
+    private long readCount;
+    private long writeCount;
+    private long readHitCount;
+    private long writeHitCount;
+    protected long refreshIntervalMinutes = -1L;
+    private String description;
 
-	/**
-	 * the value inside this class might not always be 'V' type, but requires returning V type.
-	 */
-	protected final ConcurrentMap<K, Object> map = new ConcurrentHashMap<K, Object>();
+    protected Class valueType;
 
-	private static final Object READ_LOCK = new Object();
-	private static final Object WRITE_LOCK = new Object();
+    /**
+     * the value inside this class might not always be 'V' type, but requires returning V type.
+     */
+    protected final ConcurrentMap<K, Object> map = new ConcurrentHashMap<K, Object>();
 
-	private static final long serialVersionUID = 5756695363194673927L;
+    private static final Object READ_LOCK = new Object();
 
-	protected AbstractCache(String name, boolean needSynchronize) {
-		this.name = name;
-		this.needSynchronize = needSynchronize;
-	}
+    private static final Object WRITE_LOCK = new Object();
+    private DDCFacade ddcFacade;
 
-	public String getName() {
-		return name;
-	}
+    private static final long serialVersionUID = 5756695363194673927L;
 
-	@SuppressWarnings("unchecked")
-	public Collection<V> getValues() {
-		return (Collection<V>) map.values();
-	}
-	
-	@SuppressWarnings("unchecked")
-	public V get(K key) {
-		Object value = map.get(key);
-		if (needStatistics) {
-			synchronized (READ_LOCK) {
-				readCount++;
-				if (value != null) {
-					readHitCount++;
-				}
-			}
-		}
-		return (V) value;
-	}
+    protected AbstractCache(String name, boolean needSynchronize) {
+        this.name = name;
+        this.needSynchronize = needSynchronize;
+        if (needSynchronize) {
+            ddcFacade = new DDCFacade();
+            ddcFacade.setCache(this);
+        }
+    }
 
-	public boolean containsKey(K key) {
-		return this.get(key) != null;
-	}
+    public void init() {
+        ddcFacade.initCache(this);
+    }
 
-	public V put(K key, V value) {
-		V oldValue = localPut(key, value);
-		if (oldValue != null && !oldValue.equals(value))
-			syncOnPut(key, value, oldValue);
-		return oldValue;
-	}
+    public String getName() {
+        return name;
+    }
 
-	@SuppressWarnings("unchecked")
-	protected V localPut(K key, V value) {
-		fireWriteEvent();
-		if (map.containsKey(key))
-			plusWriteHitCount();
-		Object oldValue = map.put(key, value);
-		itemRemoved(oldValue);
-		itemAdded(value);
-		return (V) oldValue;
-	}
+    @SuppressWarnings("unchecked")
+    public Collection<V> getValues() {
+        return (Collection<V>) map.values();
+    }
 
-	public V putIfAbsent(K key, V value) {
-		return localPutIfAbsent(key, value);
-	}
+    @SuppressWarnings("unchecked")
+    public V get(K key) {
+        Object value = map.get(key);
+        if (needStatistics) {
+            synchronized (READ_LOCK) {
+                readCount++;
+                if (value != null) {
+                    readHitCount++;
+                }
+            }
+        }
+        return (V) value;
+    }
 
-	@SuppressWarnings("unchecked")
-	protected V localPutIfAbsent(K key, V value) {
-		fireWriteEvent();
-		if (map.containsKey(key))
-			plusWriteHitCount();
+    public boolean containsKey(K key) {
+        return this.get(key) != null;
+    }
 
-		Object oldValue = map.putIfAbsent(key, value);
-		if (oldValue == null) {
-			itemAdded(value);
-		}
-		return (V) oldValue;
-	}
+    public V put(K key, V value) {
+        V oldValue = localPut(key, value);
+        if (oldValue == null || (oldValue != null && !oldValue.equals(value)))
+            syncOnPut(key, value, oldValue);
+        return oldValue;
+    }
 
-	public V remove(K key) {
-		V oldValue = localRemove(key);
-		syncOnRemove(key, oldValue);
-		return oldValue;
-	}
+    @SuppressWarnings("unchecked")
+    protected V localPut(K key, V value) {
+        fireWriteEvent();
+        if (map.containsKey(key))
+            plusWriteHitCount();
+        Object oldValue = map.put(key, value);
+        itemRemoved(oldValue);
+        itemAdded(value);
+        return (V) oldValue;
+    }
 
-	@SuppressWarnings("unchecked")
-	public V localRemove(K key) {
-		fireWriteEvent();
-		if (map.containsKey(key))
-			plusWriteHitCount();
+    public V putIfAbsent(K key, V value) {
+        try {
+            return localPutIfAbsent(key, value);
+        }finally {
+            syncOnPut(key,value,value);
+        }
+    }
 
-		Object oldValue = map.remove(key);
-		itemRemoved(oldValue);
-		return (V) oldValue;
-	}
+    @SuppressWarnings("unchecked")
+    protected V localPutIfAbsent(K key, V value) {
+        fireWriteEvent();
+        if (map.containsKey(key))
+            plusWriteHitCount();
 
-	public void clear() {
-		localClear();
-	}
+        Object oldValue = map.putIfAbsent(key, value);
+        if (oldValue == null) {
+            itemAdded(value);
+        }
+        return (V) oldValue;
+    }
 
-	public void localClear() {
-		// iterator the keySet to call itemRemoved
-		for (Iterator<K> it = map.keySet().iterator(); it.hasNext();) {
-			K key = it.next();
-			localRemove(key);
-		}
-	}
+    public V remove(K key) {
+        V oldValue = localRemove(key);
+        syncOnRemove(key, oldValue);
+        return oldValue;
+    }
 
-	public int size() {
-		return map.size();
-	}
+    @SuppressWarnings("unchecked")
+    public V localRemove(K key) {
+        fireWriteEvent();
+        if (map.containsKey(key))
+            plusWriteHitCount();
 
-	public Map<K, V> getCacheData() {
-		Map<K, V> data = new HashMap<K, V>();
-		for (Iterator it = map.entrySet().iterator(); it.hasNext();) {
-			Map.Entry<K, V> entry = (Map.Entry<K, V>) it.next();
-			K key = entry.getKey();
-			V value = getValue(entry.getValue());
-			data.put(key, value);
-		}
-		return data;
-	}
+        Object oldValue = map.remove(key);
+        itemRemoved(oldValue);
+        return (V) oldValue;
+    }
 
-	public CacheInfoImpl getInfo() {
-		return new CacheInfoImpl(name, getMaxSize(), needSynchronize,
-				needStatistics, size(), readCount, writeCount, readHitCount,
-				writeHitCount, refreshIntervalMinutes, description);
-	}
+    public void clear() {
+        localClear();
+    }
 
-	public void setRefreshInterval(long minutes) {
-		this.refreshIntervalMinutes = minutes;
-	}
+    public void localClear() {
+        // iterator the keySet to call itemRemoved
+        for (Iterator<K> it = map.keySet().iterator(); it.hasNext(); ) {
+            K key = it.next();
+            localRemove(key);
+        }
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public int size() {
+        return map.size();
+    }
 
-	protected abstract V getValue(V value);
+    public Map<K, V> getCacheData() {
+        Map<K, V> data = new HashMap<K, V>();
+        for (Iterator it = map.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<K, V> entry = (Map.Entry<K, V>) it.next();
+            K key = entry.getKey();
+            V value = getValue(entry.getValue());
+            data.put(key, value);
+        }
+        return data;
+    }
 
-	public abstract int getMaxSize();
+    public CacheInfoImpl getInfo() {
+        return new CacheInfoImpl(name, getMaxSize(), needSynchronize,
+                needStatistics, size(), readCount, writeCount, readHitCount,
+                writeHitCount, refreshIntervalMinutes, description);
+    }
 
-	protected void fireWriteEvent() {
-		if (needStatistics) {
-			synchronized (WRITE_LOCK) {
-				writeCount++;
-			}
-		}
-	}
+    public void setRefreshInterval(long minutes) {
+        this.refreshIntervalMinutes = minutes;
+    }
 
-	protected void plusWriteHitCount() {
-		if (needStatistics) {
-			synchronized (WRITE_LOCK) {
-				writeHitCount++;
-			}
-		}
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	protected void itemAdded(Object obj) {
-		if (obj instanceof ICacheItem) {
-			((ICacheItem) obj).added();
-		}
-	}
+    protected abstract V getValue(V value);
 
-	protected void itemRemoved(Object obj) {
-		if (obj instanceof ICacheItem) {
-			((ICacheItem) obj).removed();
-		}
-	}
+    public abstract int getMaxSize();
 
-	private void syncOnPut(Object key, Object value, Object oldValue) {
-		// TODO:
-	}
+    protected void fireWriteEvent() {
+        if (needStatistics) {
+            synchronized (WRITE_LOCK) {
+                writeCount++;
+            }
+        }
+    }
 
-	private void syncOnRemove(Object key, Object oldValue) {
-		// TODO:
-	}
+    protected void plusWriteHitCount() {
+        if (needStatistics) {
+            synchronized (WRITE_LOCK) {
+                writeHitCount++;
+            }
+        }
+    }
+
+    protected void itemAdded(Object obj) {
+        if (obj instanceof ICacheItem) {
+            ((ICacheItem) obj).added();
+        }
+    }
+
+    protected void itemRemoved(Object obj) {
+        if (obj instanceof ICacheItem) {
+            ((ICacheItem) obj).removed();
+        }
+    }
+
+    private void syncOnPut(Object key, Object value, Object oldValue) {
+        // TODO:
+        if (ddcFacade != null) {
+            ddcFacade.put(DDCFacade.newData(key, value, name));
+        }
+
+    }
+
+    private void syncOnRemove(Object key, Object oldValue) {
+        // TODO:
+        if (ddcFacade != null) {
+            ddcFacade.remove(DDCFacade.newData(key, oldValue, name));
+        }
+    }
+
+    @Override
+    public Class getValueType() {
+        return valueType;
+    }
+
+    @Override
+    public void setValueType(Class valueType) {
+        this.valueType = valueType;
+        if (ddcFacade != null) {
+            ddcFacade.initCache(this);
+        }
+    }
 
 }

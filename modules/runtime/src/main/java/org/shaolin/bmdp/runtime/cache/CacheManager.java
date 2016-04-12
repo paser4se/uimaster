@@ -92,7 +92,9 @@ public class CacheManager
         {
             cache = new LRUCache<K, V>(cacheName, maxSize, needSynchronize);
         }
-        
+
+        cache.setValueType(valueType);
+
 		if (logger.isDebugEnabled()) {
 			logger.debug("built a cache block: {}, maxSize: {}",
 					new Object[] {cacheName, maxSize});
