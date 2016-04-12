@@ -13,6 +13,7 @@
         import org.shaolin.bmdp.runtime.AppContext;
         import org.shaolin.uimaster.page.ajax.*;
         import org.shaolin.bmdp.analyzer.be.TableStatisticImpl;
+        import org.shaolin.bmdp.analyzer.IAnalyzerService;
         {  
         	AList tree = @page.getList("tableListUI");
         	List values = tree.getValues();
@@ -28,8 +29,12 @@
             
             TableStatisticImpl defaultUser = new TableStatisticImpl();
             defaultUser.setTableName(values.get(0).toString());
+            
+            IAnalyzerService service = (IAnalyzerService)AppContext.get().getService(IAnalyzerService.class);
+            List[] columnNameList = new List[] {service.getTableColumnIds(defaultUser.getTableName()), service.getTableColumns(defaultUser.getTableName())};
         	HashMap input = new HashMap();
             input.put("beObject", defaultUser);
+            input.put("columnNameList", columnNameList);
             input.put("editable", new Boolean(false));
             RefForm form = new RefForm("tableDetail", "org.shaolin.bmdp.analyzer.form.TableStatistic", input);
             Panel secondPanel = @page.getPanel("secondPanel");
@@ -54,6 +59,13 @@
     </ns2:ops>
   </ns2:eventHandler>
   <ns2:eventHandler functionName="Save">
+    <ns2:ops xsi:type="ns2:OpExecuteScriptType">
+        <ns2:expressionString><![CDATA[
+        {
+            this.tableDetail.itemTable.syncBodyDataToServer();
+        }
+        ]]></ns2:expressionString>
+    </ns2:ops>
     <ns2:ops xsi:type="ns2:OpCallAjaxType" name="Save-20160412-1804">
       <ns2:exp>
         <expressionString><![CDATA[

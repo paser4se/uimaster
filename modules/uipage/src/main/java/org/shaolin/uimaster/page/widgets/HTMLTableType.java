@@ -17,6 +17,7 @@ package org.shaolin.uimaster.page.widgets;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
@@ -286,6 +287,9 @@ public class HTMLTableType extends HTMLContainerType {
 						if (col.getComboxExpression() != null) {
 							List[] values = (List[])col.getComboxExpression().getExpression().evaluate(
 									this.ee.getExpressionContext());
+							if (values == null) {
+								values = new List[] {Collections.emptyList(), Collections.emptyList()};
+							}
 							optionValues = values[0];
 							optionDisplayValues = values[1];
 						} else {

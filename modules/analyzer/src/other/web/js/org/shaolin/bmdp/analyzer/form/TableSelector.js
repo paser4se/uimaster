@@ -142,6 +142,10 @@ function org_shaolin_bmdp_analyzer_form_TableSelector(json)
         var o = this;
         var UIEntity = this;
 
+        {
+            this.tableDetail.itemTable.syncBodyDataToServer();
+        }
+        
         // cal ajax function. 
 
         UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"Save-20160412-1804",UIMaster.getValue(eventsource),o.__entityName);
