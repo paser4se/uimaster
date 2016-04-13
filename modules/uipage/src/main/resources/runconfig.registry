@@ -34,6 +34,7 @@
 	        </node>
         </node>
         <node name="webConstant">
+            <item name="customizedMode" value="false" />
             <item name="contextRoot" value="/uimaster" />
             <item name="ajaxServiceURL" value="/ajaxservice" />
             <item name="webport" value="8080" />

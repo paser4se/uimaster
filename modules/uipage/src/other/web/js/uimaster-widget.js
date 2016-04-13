@@ -1742,9 +1742,17 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 	}
 });
 UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
+    initialized: false,
+    callback:null,
+	cleanAll:null,
 	init:function(){
+	    if (this.initialized)
+			return;
+		this.initialized = true;
 		var fileUI = this;
-		var uploadBtn = this.nextElementSibling;
+		var actionBtns = this.nextElementSibling;
+		var uploadBtn = $(actionBtns).children()[0];
+		var cleanBtn = $(actionBtns).children()[1];
 		var progressbox = this.nextElementSibling.nextElementSibling;
 		var messagebox = progressbox.nextElementSibling;
 		var c = $(progressbox).children();
@@ -1769,10 +1777,13 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 				}
 			},
 			success : function() {
-			    if (IS_MOBILEVIEW){$($(uploadBtn).parent()).before($(fileUI).parent());}
-				else {$(uploadBtn).before($(fileUI));}
+			    if (IS_MOBILEVIEW){$(actionBtns).before($(fileUI).parent());}
+				else {$(actionBtns).before($(fileUI));}
 				$(progressbar).width('100%');
 				$(percent).html('100%');
+				if (fileUI.callback != null) {
+				    fileUI.callback(uploadBtn);
+				}
 			},
 			complete : function(response) {
 				$(messagebox).html("<font color='blue'>\u4E0A\u4F20\u6210\u529F!</font>");
@@ -1781,6 +1792,11 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 				$(messagebox).html("<font color='red'>\u4E0A\u4F20\u9519\u8BEF!!!</font>");
 			}
 		};
+		$(cleanBtn).click(function() {
+		   if (fileUI.cleanAll != null) {
+				fileUI.cleanAll(uploadBtn);
+			}
+		});
 		$(uploadBtn).click(function() {
 			var suffix = $(fileUI).attr("suffix");
 			if (suffix == "undefined" || suffix == "") {

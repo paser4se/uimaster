@@ -75,7 +75,7 @@ public class HTMLImageType extends HTMLTextWidgetType
     			}
 	        	context.generateHTML("<div id=\"");
 	        	context.generateHTML(getName());
-	            context.generateHTML("\">");
+	            context.generateHTML("\" style=\"display:none;\">");
 	            
 	            HTMLUtil.generateTab(context, depth + 1);
 	            String path = this.getValue();
@@ -211,15 +211,28 @@ public class HTMLImageType extends HTMLTextWidgetType
 	}
 	
 	public static String generateSimple(String srcs, int width, int height) {
-		if (srcs == null || srcs.length() == 0) {
+		if (srcs == null || srcs.trim().length() == 0) {
 			return "";
 		}
+		
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div>");
 		String[] list = srcs.split(",");
 		for (String image : list) {
-			sb.append("<img src=\"").append(WebConfig.getWebContextRoot()).append(image);
-			sb.append("\" style=\"width:").append(width).append("px;height:").append(height).append("px;\">");
+			File directory = new File(WebConfig.getResourcePath() + image);
+			if (directory.isDirectory()) {
+				File[] files = directory.listFiles();
+				for (File f : files) {
+            		if (f.isFile()) {
+	            		String realPath = image + "/" +  f.getName();
+	            		sb.append("<img src=\"").append(WebConfig.getWebContextRoot()).append(realPath);
+	    				sb.append("\" style=\"width:").append(width).append("px;height:").append(height).append("px;\">");
+            		}
+            	}
+			} else {
+				sb.append("<img src=\"").append(WebConfig.getWebContextRoot()).append(image);
+				sb.append("\" style=\"width:").append(width).append("px;height:").append(height).append("px;\">");
+			}
 		}
 		sb.append("</div>");
 		return sb.toString();

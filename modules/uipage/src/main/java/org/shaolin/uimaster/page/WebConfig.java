@@ -51,6 +51,7 @@ public class WebConfig {
 	public static class WebConfigFastCache {
 		public static final String WebContextRoot = "${webcontext}";
 		public static final String ResourceContextRoot = "${resourceContext}";
+		final boolean customizedMode;
 		final String hiddenValueMask;
 		final String cssRootPath;
 		final String jsRootPath;
@@ -78,6 +79,8 @@ public class WebConfig {
 		
 		public WebConfigFastCache() {
 			Registry instance = Registry.getInstance();
+			customizedMode = Boolean.valueOf(instance.getValue(
+					"/System/webConstant/customizedMode"));
 			hiddenValueMask = instance.getValue(
 					"/System/webConstant/hiddenValueMask");
 			cssRootPath = ResourceContextRoot + "/css";
@@ -117,14 +120,16 @@ public class WebConfig {
 					instance.getNodeItems("/System/webConstant/commoncss").values();
 			commoncss = values.toArray(new String[values.size()]);
 			for (int i=0; i<commoncss.length; i++) {
-				if (!commoncss[i].startsWith("http")) {
+				if (!commoncss[i].startsWith("http")
+						&& !commoncss[i].startsWith("https")) {
 					commoncss[i] = ResourceContextRoot + commoncss[i];
 				}
 			}
 			values = instance.getNodeItems("/System/webConstant/commonjs").values();
 			commonjs = values.toArray(new String[values.size()]);
 			for (int i=0; i<commonjs.length; i++) {
-				if (!commonjs[i].startsWith("http")) {
+				if (!commonjs[i].startsWith("http")
+						&& !commonjs[i].startsWith("https")) {
 					commonjs[i] = ResourceContextRoot + commonjs[i];
 				}
 			}
@@ -140,7 +145,8 @@ public class WebConfig {
 			values = instance.getNodeItems("/System/webConstant/commonjs-mob").values();
 			commonMobjs = values.toArray(new String[values.size()]);
 			for (int i=0; i<commonMobjs.length; i++) {
-				if (!commonMobjs[i].startsWith("http")) {
+				if (!commonMobjs[i].startsWith("http")
+						&& !commonMobjs[i].startsWith("https")) {
 					commonMobjs[i] = ResourceContextRoot + commonMobjs[i];
 				}
 			}
@@ -153,7 +159,10 @@ public class WebConfig {
 					values = (Collection<String>)instance.getNodeItems(commonssPath + "/" + child).values();
 					String[] items = values.toArray(new String[values.size()]);
 					for (int i=0; i<items.length; i++) {
-						items[i] = ResourceContextRoot + items[i];
+						if (!items[i].startsWith("http")
+								&& !items[i].startsWith("https")) {
+							items[i] = ResourceContextRoot + items[i];
+						}
 					}
 					singleCommonCss.put(child, items);
 				}
@@ -168,7 +177,8 @@ public class WebConfig {
 					String[] items = values.toArray(new String[values.size()]);
 					for (int i=0; i<items.length; i++) {
 						//skip http, https, www, 
-						if (items[i].startsWith("/")) {
+						if (!items[i].startsWith("http")
+								&& !items[i].startsWith("https")) {
 							items[i] = ResourceContextRoot + items[i];
 						}
 					}
@@ -185,6 +195,10 @@ public class WebConfig {
 			instance.putInFastCache("webconfig", fastCache);
 		}
 		return (WebConfigFastCache)instance.readFromFastCache("webconfig");
+	}
+	
+	public static boolean isCustomizedMode() {
+		return getCacheObject().customizedMode;
 	}
 	
 	public static String getHiddenValueMask() {

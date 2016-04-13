@@ -198,6 +198,28 @@ public class Image extends TextWidget implements Serializable
 		return Collections.emptyList();
 	}
     
+	public void clearAll() {
+		if (!this.isgallery) {
+    		return;
+    	}
+		
+		String path = this.src;
+		if (path.startsWith(WebConfig.getWebRoot())) {
+			path = path.substring(WebConfig.getWebRoot().length());
+		}
+    	File directory = new File(WebConfig.getResourcePath() + File.separator + path);
+        if (directory.exists()) {
+        	String[] images = directory.list();
+        	for (String i : images) {
+        		File f = new File(directory, i);
+        		logger.warn("Deleted the file: " + f.getAbsolutePath());
+        		f.delete();
+        	}
+        }
+		
+		refresh();
+	}
+	
     public void refresh() {
     	if (!this.isgallery) {
     		return;

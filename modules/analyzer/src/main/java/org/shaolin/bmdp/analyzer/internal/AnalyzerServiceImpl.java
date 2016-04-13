@@ -1,5 +1,8 @@
 package org.shaolin.bmdp.analyzer.internal;
 
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -16,14 +19,20 @@ import org.shaolin.bmdp.analyzer.be.IJavaCCJob;
 import org.shaolin.bmdp.analyzer.be.JavaCCJobImpl;
 import org.shaolin.bmdp.analyzer.ce.JavaCCJobStatusType;
 import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
+import org.shaolin.bmdp.datamodel.common.DiagramType;
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.UITableStatsType;
+import org.shaolin.bmdp.datamodel.rdbdiagram.ColumnType;
+import org.shaolin.bmdp.datamodel.rdbdiagram.TableType;
 import org.shaolin.bmdp.runtime.AppContext;
+import org.shaolin.bmdp.runtime.entity.EntityAddedEvent;
+import org.shaolin.bmdp.runtime.entity.EntityManager;
 import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
+import org.shaolin.bmdp.runtime.entity.EntityUpdatedEvent;
+import org.shaolin.bmdp.runtime.entity.IEntityEventListener;
 import org.shaolin.bmdp.runtime.spi.ILifeCycleProvider;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
-import org.shaolin.bmdp.workflow.be.ITask;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
@@ -40,6 +49,8 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 	private ScheduledExecutorService pool;
 		
 	private final Map<Long, ScheduledFuture<?>> futures = new HashMap<Long, ScheduledFuture<?>>();
+	
+	final List<TableType> tables = new ArrayList<TableType>();
 	
 	private static final Logger logger = LoggerFactory.getLogger(AnalyzerServiceImpl.class);
 	
@@ -95,6 +106,30 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 				this.startJob(job);
 			}
 		}
+		
+		this.tables.clear();
+		IServerServiceManager.INSTANCE.getEntityManager().executeListener(new IEntityEventListener<TableType, DiagramType>() {
+			@Override
+			public Class getEventType() {
+				return TableType.class;
+			}
+			@Override
+			public void notify(EntityAddedEvent<TableType, DiagramType> arg0) {
+				tables.add(arg0.getEntity());
+			}
+			@Override
+			public void notify(EntityUpdatedEvent<TableType, DiagramType> arg0) {
+			}
+			@Override
+			public void notifyAllLoadFinish() {
+			}
+			@Override
+			public void notifyLoadFinish(DiagramType arg0) {
+			}
+			@Override
+			public void setEntityManager(EntityManager arg0) {
+			}
+		});
 	}
 	
 	public UITableStatsType convert(IChartStatistic statsItem) {
@@ -182,5 +217,44 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 			job.setStatus(JavaCCJobStatusType.STOP);
             AanlysisModel.INSTANCE.update(job, true);
 		}
+	}
+	
+	@Override
+	public List<String> getAllTableList() {
+		final List<String> tableNames = new ArrayList<String>();
+		for (TableType t : tables) {
+			tableNames.add(t.getEntityName());
+		}
+		Collections.sort(tableNames, Collator.getInstance(java.util.Locale.CHINA));
+		return tableNames;
+	}
+	
+	@Override
+	public List<String> getTableColumns(String name) {
+		final List<String> columnNames = new ArrayList<String>();
+		for (TableType t : tables) {
+			if(t.getEntityName().equals(name)) {
+				List<ColumnType> columns  = t.getColumns();
+				for (ColumnType c : columns) {
+					columnNames.add(c.getName() + " : " + c.getType());
+				}
+				break;
+			}
+		}
+		return columnNames;
+	}
+	
+	public List<String> getTableColumnIds(String name) {
+		final List<String> columnNames = new ArrayList<String>();
+		for (TableType t : tables) {
+			if(t.getEntityName().equals(name)) {
+				List<ColumnType> columns  = t.getColumns();
+				for (ColumnType c : columns) {
+					columnNames.add(c.getName());
+				}
+				break;
+			}
+		}
+		return columnNames;
 	}
 }

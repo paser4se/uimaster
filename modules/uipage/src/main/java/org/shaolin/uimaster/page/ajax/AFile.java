@@ -29,6 +29,8 @@ public class AFile extends TextWidget implements Serializable
     
     private String suffix = "";
     
+    private int allowedNumbers = -1;
+    
 	public AFile(String uiid)
     {
         this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
@@ -59,6 +61,14 @@ public class AFile extends TextWidget implements Serializable
     		} 
     	}
     }
+    
+    public int getAllowedNumbers() {
+		return allowedNumbers;
+	}
+
+	public void setAllowedNumbers(int allowedNumbers) {
+		this.allowedNumbers = allowedNumbers;
+	}
     
     public String getStoredPath() {
     	return this.storedPath;

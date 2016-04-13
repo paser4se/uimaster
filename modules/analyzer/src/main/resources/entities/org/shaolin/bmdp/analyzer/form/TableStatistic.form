@@ -1,0 +1,356 @@
+<?xml version="1.0" ?>
+<ns2:UIEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns5="http://bmdp.shaolin.org/datamodel/PageDiagram" xmlns:ns4="http://bmdp.shaolin.org/datamodel/RDBDiagram" xmlns:ns3="http://bmdp.shaolin.org/datamodel/BEDiagram" xmlns:ns2="http://bmdp.shaolin.org/datamodel/Page" xmlns="http://bmdp.shaolin.org/datamodel/Common" xsi:schemaLocation="">
+  <entityName>org.shaolin.bmdp.analyzer.form.TableStatistic</entityName>
+  <systemVersion>0</systemVersion>
+  <ns2:eventHandler functionName="addItem">
+    <ns2:ops xsi:type="ns2:OpCallAjaxType" name="selectedProduct0_49169030">
+      <ns2:exp>
+        <expressionString><![CDATA[
+        import java.util.HashMap;
+        import org.shaolin.uimaster.page.AjaxContext;
+        import org.shaolin.uimaster.page.ajax.*;
+        import org.shaolin.bmdp.analyzer.be.TableColumnStatisticImpl;
+        { 
+            TableColumnStatisticImpl item = new TableColumnStatisticImpl();
+            Table tableWidget = (Table)@page.getElement("itemTable");
+            tableWidget.addRow(item);
+        }]]></expressionString>
+      </ns2:exp>
+    </ns2:ops>
+  </ns2:eventHandler>
+  <ns2:eventHandler functionName="deleteItem">
+    <ns2:ops xsi:type="ns2:OpCallAjaxType" name="deleteItem_839670735">
+      <ns2:exp>
+        <expressionString><![CDATA[
+        import org.shaolin.uimaster.page.AjaxContext;
+        import org.shaolin.uimaster.page.ajax.*;
+        { 
+            Table tableWidget = (Table)@page.getElement("itemTable");
+            if (tableWidget.getSelectedRow() == null) {
+                return;
+            }
+            tableWidget.deleteRow(tableWidget.getSelectedIndex());
+        }]]></expressionString>
+      </ns2:exp>
+    </ns2:ops>
+  </ns2:eventHandler>
+  <ns2:eventHandler functionName="Save">
+    <ns2:ops xsi:type="ns2:OpCallAjaxType" name="saveDetail-20160411-234815">
+      <ns2:exp>
+        <expressionString><![CDATA[
+        import java.util.HashMap;
+        import org.shaolin.uimaster.page.AjaxContext;
+        import org.shaolin.uimaster.page.ajax.*;
+        import org.shaolin.bmdp.analyzer.be.TableStatisticImpl;
+        { 
+            RefForm form = (RefForm)@page.getElement(@page.getEntityUiid()); 
+            HashMap out = (HashMap)form.ui2Data();
+
+            form.closeIfinWindows();
+            @page.removeForm(@page.getEntityUiid()); 
+        }]]></expressionString>
+      </ns2:exp>
+    </ns2:ops>
+  </ns2:eventHandler>
+  <ns2:eventHandler functionName="Cancel">
+    <ns2:ops xsi:type="ns2:OpCallAjaxType" name="cancelDetail-20160411-234815">
+      <ns2:exp>
+        <expressionString><![CDATA[
+        import org.shaolin.uimaster.page.AjaxContext;
+        import org.shaolin.uimaster.page.ajax.*;
+        { 
+            RefForm form = (RefForm)@page.getElement(@page.getEntityUiid()); 
+            form.closeIfinWindows(true);
+            @page.removeForm(@page.getEntityUiid()); 
+        }]]></expressionString>
+      </ns2:exp>
+    </ns2:ops>
+  </ns2:eventHandler>
+  <ns2:body xsi:type="ns2:UIPanelType" UIID="Form">
+    <ns2:layout xsi:type="ns2:TableLayoutType">
+      <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+      <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+      <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
+    </ns2:layout>
+    <ns2:component xsi:type="ns2:UIPanelType" UIID="fieldPanel">
+      <ns2:layout xsi:type="ns2:TableLayoutType">
+        <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+        <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+        <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+        <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+        <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+        <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+        <ns2:columnWidthWeight>0.0</ns2:columnWidthWeight>
+        <ns2:columnWidthWeight>0.0</ns2:columnWidthWeight>
+      </ns2:layout>
+      <ns2:component xsi:type="ns2:UILabelType" UIID="tableNameUILabel">
+        <ns2:UIStyle>uimaster_leftform_widget</ns2:UIStyle>
+        <ns2:text xsi:type="ns2:ResourceBundlePropertyType">
+          <ns2:bundle>org_shaolin_bmdp_analyzer_i18n</ns2:bundle>
+          <ns2:key>org.shaolin.bmdp.analyzer.be.TableStatistic.tableName</ns2:key>
+        </ns2:text>
+      </ns2:component>
+      <ns2:component xsi:type="ns2:UITextFieldType" UIID="tableNameUI">
+        <ns2:UIStyle>uimaster_rightform_widget</ns2:UIStyle>
+      </ns2:component>
+      <ns2:component xsi:type="ns2:UILabelType" UIID="descriptionUILabel">
+        <ns2:UIStyle>uimaster_leftform_widget</ns2:UIStyle>
+        <ns2:text xsi:type="ns2:ResourceBundlePropertyType">
+          <ns2:bundle>org_shaolin_bmdp_analyzer_i18n</ns2:bundle>
+          <ns2:key>org.shaolin.bmdp.analyzer.be.TableStatistic.description</ns2:key>
+        </ns2:text>
+      </ns2:component>
+      <ns2:component xsi:type="ns2:UITextAreaType" UIID="descriptionUI">
+        <ns2:UIStyle>uimaster_rightform_widget</ns2:UIStyle>
+      </ns2:component>
+      <ns2:component xsi:type="ns2:UILabelType" UIID="needOrgStatsUILabel">
+        <ns2:UIStyle>uimaster_leftform_widget</ns2:UIStyle>
+        <ns2:text xsi:type="ns2:ResourceBundlePropertyType">
+          <ns2:bundle>org_shaolin_bmdp_analyzer_i18n</ns2:bundle>
+          <ns2:key>org.shaolin.bmdp.analyzer.be.TableStatistic.needOrgStats</ns2:key>
+        </ns2:text>
+      </ns2:component>
+      <ns2:component xsi:type="ns2:UICheckBoxType" UIID="needOrgStatsUI"></ns2:component>
+      <ns2:component xsi:type="ns2:UILabelType" UIID="chartTypeUILabel">
+        <ns2:UIStyle>uimaster_leftform_widget</ns2:UIStyle>
+        <ns2:text xsi:type="ns2:ResourceBundlePropertyType">
+          <ns2:bundle>org_shaolin_bmdp_analyzer_i18n</ns2:bundle>
+          <ns2:key>org.shaolin.bmdp.analyzer.be.TableStatistic.chartType</ns2:key>
+        </ns2:text>
+      </ns2:component>
+      <ns2:component xsi:type="ns2:UIComboBoxType" UIID="chartTypeUI">
+        <ns2:UIStyle>uimaster_rightform_widget</ns2:UIStyle>
+      </ns2:component>
+      <ns2:component xsi:type="ns2:UILabelType" UIID="statsPeriodUILabel">
+        <ns2:UIStyle>uimaster_leftform_widget</ns2:UIStyle>
+        <ns2:text xsi:type="ns2:ResourceBundlePropertyType">
+          <ns2:bundle>org_shaolin_bmdp_analyzer_i18n</ns2:bundle>
+          <ns2:key>org.shaolin.bmdp.analyzer.be.TableStatistic.statsPeriod</ns2:key>
+        </ns2:text>
+      </ns2:component>
+      <ns2:component xsi:type="ns2:UIComboBoxType" UIID="statsPeriodUI">
+        <ns2:UIStyle>uimaster_rightform_widget</ns2:UIStyle>
+      </ns2:component>
+      <ns2:layoutConstraint>
+        <ns2:componentId>tableNameUILabel</ns2:componentId>
+        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="0" align="FULL" cellUIClass="uimaster_leftform_cell"></ns2:constraint>
+      </ns2:layoutConstraint>
+      <ns2:layoutConstraint>
+        <ns2:componentId>tableNameUI</ns2:componentId>
+        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="1" y="0" align="FULL" cellUIClass="uimaster_rightform_cell"></ns2:constraint>
+      </ns2:layoutConstraint>
+      <ns2:layoutConstraint>
+        <ns2:componentId>descriptionUILabel</ns2:componentId>
+        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="1" align="FULL" cellUIClass="uimaster_leftform_cell"></ns2:constraint>
+      </ns2:layoutConstraint>
+      <ns2:layoutConstraint>
+        <ns2:componentId>descriptionUI</ns2:componentId>
+        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="1" y="1" align="FULL" cellUIClass="uimaster_rightform_cell"></ns2:constraint>
+      </ns2:layoutConstraint>
+      <ns2:layoutConstraint>
+        <ns2:componentId>needOrgStatsUILabel</ns2:componentId>
+        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="2" align="FULL" cellUIClass="uimaster_leftform_cell"></ns2:constraint>
+      </ns2:layoutConstraint>
+      <ns2:layoutConstraint>
+        <ns2:componentId>needOrgStatsUI</ns2:componentId>
+        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="1" y="2" align="FULL" cellUIClass="uimaster_rightform_cell"></ns2:constraint>
+      </ns2:layoutConstraint>
+      <ns2:layoutConstraint>
+        <ns2:componentId>chartTypeUILabel</ns2:componentId>
+        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="3" align="FULL" cellUIClass="uimaster_leftform_cell"></ns2:constraint>
+      </ns2:layoutConstraint>
+      <ns2:layoutConstraint>
+        <ns2:componentId>chartTypeUI</ns2:componentId>
+        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="1" y="3" align="FULL" cellUIClass="uimaster_rightform_cell"></ns2:constraint>
+      </ns2:layoutConstraint>
+      <ns2:layoutConstraint>
+        <ns2:componentId>statsPeriodUILabel</ns2:componentId>
+        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="4" align="FULL" cellUIClass="uimaster_leftform_cell"></ns2:constraint>
+      </ns2:layoutConstraint>
+      <ns2:layoutConstraint>
+        <ns2:componentId>statsPeriodUI</ns2:componentId>
+        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="1" y="4" align="FULL" cellUIClass="uimaster_rightform_cell"></ns2:constraint>
+      </ns2:layoutConstraint>
+    </ns2:component>
+    <ns2:component xsi:type="ns2:UIPanelType" UIID="fieldPanel2">
+      <ns2:layout xsi:type="ns2:TableLayoutType">
+        <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+        <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
+      </ns2:layout>
+       <ns2:component xsi:type="ns2:UITableType" UIID="itemTable">
+        <ns2:editable xsi:type="ns2:BooleanPropertyType">
+          <ns2:value>true</ns2:value>
+        </ns2:editable>
+        <ns2:beElement>org.shaolin.bmdp.analyzer.be.TableColumnStatistic</ns2:beElement>
+        <ns2:initQuery>
+          <ns2:expression>
+            <expressionString><![CDATA[
+        import java.util.List;
+        {
+            return $beObject.getColumns();
+        }]]></expressionString>
+          </ns2:expression>
+        </ns2:initQuery>
+        <ns2:query>
+          <ns2:expression>
+            <expressionString><![CDATA[
+        import java.util.List;
+        {
+            return $table.getListData();
+        }]]></expressionString>
+          </ns2:expression>
+        </ns2:query>
+        <ns2:totalCount>
+          <ns2:expression>
+            <expressionString><![CDATA[
+        import java.util.List;
+        {
+            return $table.getListData().size();
+        }]]></expressionString>
+          </ns2:expression>
+        </ns2:totalCount>
+        <ns2:defaultRowSize>10</ns2:defaultRowSize>
+        <ns2:showActionBar>true</ns2:showActionBar>
+        <ns2:showFilter>false</ns2:showFilter>
+        <ns2:editableCell>true</ns2:editableCell>
+        <ns2:column>
+          <ns2:title xsi:type="ns2:StringPropertyType">
+            <ns2:value>Name</ns2:value>
+          </ns2:title>
+          <ns2:beFieldId>rowBE.name</ns2:beFieldId>
+          <ns2:uiType>
+            <ns2:type>ComBox</ns2:type>
+          </ns2:uiType>
+          <ns2:comboxExpression xsi:type="ns2:ExpressionPropertyType">
+              <ns2:expression xsi:type="ns2:ExpressionType">
+                  <ns2:expressionString><![CDATA[
+                  import java.util.List;
+                  import org.shaolin.bmdp.runtime.AppContext;
+                  import org.shaolin.bmdp.analyzer.IAnalyzerService;
+                  {
+                      return $columnNameList;
+                  }]]></ns2:expressionString>
+              </ns2:expression>
+          </ns2:comboxExpression>
+          <ns2:updateCondition xsi:type="ns2:ExpressionPropertyType">
+             <ns2:expression xsi:type="ns2:ExpressionType">
+                 <ns2:expressionString><![CDATA[
+                 import org.shaolin.bmdp.runtime.AppContext;
+                 import org.shaolin.bmdp.analyzer.ce.DataStatisticType;
+                 {
+                     $rowBE.setName($value);
+                 }]]></ns2:expressionString>
+             </ns2:expression>
+          </ns2:updateCondition>
+        </ns2:column>
+        <ns2:column>
+          <ns2:title xsi:type="ns2:StringPropertyType">
+            <ns2:value>Description</ns2:value>
+          </ns2:title>
+          <ns2:beFieldId>rowBE.description</ns2:beFieldId>
+          <ns2:uiType>
+            <ns2:type>Label</ns2:type>
+          </ns2:uiType>
+        </ns2:column>
+        <ns2:column>
+          <ns2:title xsi:type="ns2:StringPropertyType">
+            <ns2:value>Type</ns2:value>
+          </ns2:title>
+          <ns2:beFieldId>rowBE.statsType</ns2:beFieldId>
+          <ns2:uiType>
+            <ns2:type>ComBox</ns2:type>
+          </ns2:uiType>
+          <ns2:updateCondition xsi:type="ns2:ExpressionPropertyType">
+             <ns2:expression xsi:type="ns2:ExpressionType">
+                 <ns2:expressionString><![CDATA[
+                 import org.shaolin.bmdp.runtime.AppContext;
+                 import org.shaolin.bmdp.analyzer.ce.DataStatisticType;
+                 {
+                     $rowBE.setStatsType((DataStatisticType)AppContext.get().getConstantService().getConstantEntity("org.shaolin.bmdp.analyzer.ce.DataStatisticType").getByDisplayName($value));
+                 }]]></ns2:expressionString>
+             </ns2:expression>
+          </ns2:updateCondition>
+        </ns2:column>
+        <ns2:defaultActions>
+          <ns2:defaultNewAction>addItem</ns2:defaultNewAction>
+          <ns2:defaultDeleteAction>deleteItem</ns2:defaultDeleteAction>
+        </ns2:defaultActions>
+      </ns2:component>
+      <ns2:layoutConstraint>
+        <ns2:componentId>itemTable</ns2:componentId>
+        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="0" align="FULL"></ns2:constraint>
+      </ns2:layoutConstraint>
+    </ns2:component>  
+    <ns2:layoutConstraint>
+      <ns2:componentId>fieldPanel</ns2:componentId>
+      <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="0" align="FULL"></ns2:constraint>
+    </ns2:layoutConstraint>
+    <ns2:layoutConstraint>
+      <ns2:componentId>fieldPanel2</ns2:componentId>
+      <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="1" align="FULL"></ns2:constraint>
+    </ns2:layoutConstraint>
+  </ns2:body>
+  <ns2:mapping>
+    <systemVersion>0</systemVersion>
+    <ns2:DataEntity scope="InOut" name="beObject" category="BusinessEntity">
+      <type entityName="org.shaolin.bmdp.analyzer.be.TableStatistic"></type>
+    </ns2:DataEntity>
+    <ns2:DataEntity scope="InOut" name="columnNameList" category="JavaClass">
+      <type entityName="java.util.List[]"></type>
+    </ns2:DataEntity>
+    <ns2:DataEntity scope="InOut" name="editable" category="JavaPrimitive">
+      <type entityName="java.lang.Boolean"></type>
+    </ns2:DataEntity>
+    <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping1">
+      <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UIText"></ns2:mappingRule>
+      <ns2:UIComponent componentPath="tableNameUI" paramName="UIWidgetType"></ns2:UIComponent>
+      <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.tableName" paramName="StringData"></ns2:DataComponent>
+    </ns2:ComponentMapping>
+    <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping2">
+      <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UIText"></ns2:mappingRule>
+      <ns2:UIComponent componentPath="descriptionUI" paramName="UIWidgetType"></ns2:UIComponent>
+      <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.description" paramName="StringData"></ns2:DataComponent>
+    </ns2:ComponentMapping>
+    <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping3">
+      <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UISelect"></ns2:mappingRule>
+      <ns2:UIComponent componentPath="needOrgStatsUI" paramName="UIWidgetType"></ns2:UIComponent>
+      <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.needOrgStats" paramName="Value"></ns2:DataComponent>
+    </ns2:ComponentMapping>
+    <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping5">
+      <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UISingleChoiceAndCE"></ns2:mappingRule>
+      <ns2:UIComponent componentPath="chartTypeUI" paramName="UIWidgetType"></ns2:UIComponent>
+      <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.chartType" paramName="CEValue"></ns2:DataComponent>
+      <ns2:DataComponent xsi:type="ns2:ExpressionParamType" paramName="CEType">
+        <ns2:expression>
+          <expressionString>"org.shaolin.bmdp.analyzer.ce.StatisticChartType"</expressionString>
+        </ns2:expression>
+      </ns2:DataComponent>
+    </ns2:ComponentMapping>
+    <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping6">
+      <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UISingleChoiceAndCE"></ns2:mappingRule>
+      <ns2:UIComponent componentPath="statsPeriodUI" paramName="UIWidgetType"></ns2:UIComponent>
+      <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.statsPeriod" paramName="CEValue"></ns2:DataComponent>
+      <ns2:DataComponent xsi:type="ns2:ExpressionParamType" paramName="CEType">
+        <ns2:expression>
+          <expressionString>"org.shaolin.bmdp.analyzer.ce.StatsPeriodType"</expressionString>
+        </ns2:expression>
+      </ns2:DataComponent>
+    </ns2:ComponentMapping>
+    <ns2:DataToUIMappingOperation>
+      <expressionString><![CDATA[
+      import java.util.List;
+      import org.shaolin.bmdp.runtime.AppContext;
+      import org.shaolin.bmdp.analyzer.IAnalyzerService;
+      {
+         IAnalyzerService service = (IAnalyzerService)AppContext.get().getService(IAnalyzerService.class);
+         $columnNameList = new List[] {service.getTableColumnIds($beObject.getTableName()), service.getTableColumns($beObject.getTableName())};
+		 @odContext.executeAllMappings();
+      }]]></expressionString>
+    </ns2:DataToUIMappingOperation>
+    <ns2:UIToDataMappingOperation>
+      <expressionString>{
+@odContext.executeAllMappings();
+}</expressionString>
+    </ns2:UIToDataMappingOperation>
+  </ns2:mapping>
+</ns2:UIEntity>
