@@ -15,6 +15,8 @@
 */
 package org.shaolin.bmdp.i18n;
 
+import java.util.HashMap;
+
 import org.junit.Test;
 import org.shaolin.bmdp.utils.HttpSender;
 
@@ -24,8 +26,10 @@ public class HttpSenderTest {
 	public void testSend() throws Exception {
 		HttpSender sender = new HttpSender();
 		
-		sender.post("http://localhost:8080/uimaster/webflow.do?_chunkname=org.shaolin.bmdp.adminconsole.diagram.LoginAuthentication&_nodename=LoginPage", "a", "hello");
-		sender.get("http://localhost:8080/uimaster/ajaxservice", "a", "hello");
+		HashMap<String, String> a = new HashMap<String, String>();
+		a.put("a", "hello");
+		sender.post("http://localhost:8080/uimaster/webflow.do?_chunkname=org.shaolin.bmdp.adminconsole.diagram.LoginAuthentication&_nodename=LoginPage", a);
+		sender.get("http://localhost:8080/uimaster/ajaxservice", a);
 		
 		sender.shutdown();
 	}	

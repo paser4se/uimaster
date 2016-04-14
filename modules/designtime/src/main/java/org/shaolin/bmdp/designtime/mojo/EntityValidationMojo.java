@@ -189,7 +189,7 @@ public class EntityValidationMojo extends AbstractMojo {
 				if (systemEntityPath.indexOf(";") != -1) {
 					String[] paths = systemEntityPath.split(";");
 					for (String p : paths) {
-						files.add(new File(p));
+						files.add(new File(p.trim()));
 					}
 				} else {
 					files.add(new File(systemEntityPath));

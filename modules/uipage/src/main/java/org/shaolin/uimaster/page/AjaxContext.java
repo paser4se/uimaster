@@ -51,6 +51,8 @@ import org.shaolin.uimaster.page.ajax.TextArea;
 import org.shaolin.uimaster.page.ajax.TextField;
 import org.shaolin.uimaster.page.ajax.Tree;
 import org.shaolin.uimaster.page.ajax.Widget;
+import org.shaolin.uimaster.page.ajax.handlers.AjaxHandlerException;
+import org.shaolin.uimaster.page.ajax.handlers.EventHandler;
 import org.shaolin.uimaster.page.ajax.json.DataItem;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.IRequestData;
@@ -355,6 +357,11 @@ public class AjaxContext extends OpExecuteContext implements Serializable
         dataItems.add( new JSONObject(dataItem) );
     }
 
+    public void invokeEventHander(String actionName) throws AjaxHandlerException {
+    	EventHandler handler = new EventHandler();
+    	handler.trigger0(this, actionName);
+    }
+    
     public void executeJavaScript(String script)
     {
         executeJavaScript(script, requestData.getFrameId());

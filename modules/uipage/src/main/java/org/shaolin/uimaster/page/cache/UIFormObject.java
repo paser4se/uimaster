@@ -1712,12 +1712,10 @@ public class UIFormObject implements java.io.Serializable
 					position.setY(0);
 					constraint.setConstraint(position);
 					actionPanel.getComponents().add(button);
-					actionPanel.getLayoutConstraints().add(constraint);
+					actionPanel.getLayoutConstraints().add(0, constraint);
 					int count = 0;
 					for (ComponentConstraintType ct: actionPanel.getLayoutConstraints()) {
-						if (count ++ > 0) {
-							((TableLayoutConstraintType)ct.getConstraint()).setX(0);
-						}
+						((TableLayoutConstraintType)ct.getConstraint()).setX(count++);
 					}
 					
 					TableLayoutType tableLayout = (TableLayoutType) actionPanel.getLayout();
