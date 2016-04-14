@@ -15,13 +15,16 @@
 */
 package org.shaolin.bmdp.utils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.nio.charset.CodingErrorAction;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,12 +32,16 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
 
 import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
@@ -60,6 +67,8 @@ import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -82,6 +91,7 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.message.LineParser;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.EntityUtils;
@@ -394,18 +404,6 @@ public class HttpSender {
 			return "";
 		}
         try {
-        	if (logger.isDebugEnabled()) {
-            	logger.debug("----------------------------------------");
-            	logger.debug(response.getStatusLine().toString());
-            	try {
-					logger.debug(EntityUtils.toString(response.getEntity()));
-				} catch (ParseException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-            	logger.debug("----------------------------------------");
-        	}
         	if (response.getStatusLine().getStatusCode() != 200) {
         		if (logger.isDebugEnabled()) {
                 	logger.warn("Failed to execute http request: {0}. {1}", 
@@ -413,16 +411,7 @@ public class HttpSender {
                 }
         		return "";
         	} else {
-        		HttpEntity entity = response.getEntity();
-        		ContentType contentType = ContentType.getOrDefault(entity);
-                Charset charset = contentType.getCharset();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent(), charset));
-                String line = null;
-                StringBuffer rslt = new StringBuffer();
-                while ((line = reader.readLine()) != null) {
-                    rslt.append(line);
-                }
-                return rslt.toString();
+                return EntityUtils.toString(response.getEntity(), Charset.defaultCharset());
         	}
         } finally {
             try {
@@ -431,6 +420,169 @@ public class HttpSender {
 			}
         }
 	}
+
+	/**
+	 * send HTTPS get request
+	 * 
+	 * @param url
+	 * @param charset
+	 * @return
+	 * @throws Exception
+	 */
+	public String doGetSSL(String url, String charset) throws Exception {
+		// create SSL connection
+		CloseableHttpClient httpClient = HttpClients.custom()
+				.setSSLSocketFactory(createSSLSocketFactory())
+				.setConnectionManager(connManager)
+				.setDefaultRequestConfig(defaultRequestConfig).build();
+		// send get request
+		HttpGet httpGet = new HttpGet(url);
+		CloseableHttpResponse response = httpClient.execute(httpGet);
+		return getResult(response, charset);
+	}
+
+	/**
+	 * send HTTPS post request by K-V params
+	 * 
+	 * @param url
+	 * @param params
+	 * @param charset
+	 * @return
+	 * @throws Exception
+	 */
+	public String doPostSSL(String url, Map<String, Object> params,
+			String charset) throws Exception {
+		// create SSL connection
+		CloseableHttpClient httpClient = getHttpsClient();
+		// send post request
+		HttpPost httpPost = new HttpPost(url);
+		CloseableHttpResponse response = null;
+		try {
+			httpPost.setConfig(defaultRequestConfig);
+			List<NameValuePair> pairs = new ArrayList<>(params.size());
+			for (Map.Entry<String, Object> entry : params.entrySet()) {
+				NameValuePair pair = new BasicNameValuePair(entry.getKey(),
+						entry.getValue().toString());
+				pairs.add(pair);
+			}
+			httpPost.setEntity(new UrlEncodedFormEntity(pairs, charset));
+			response = httpClient.execute(httpPost);
+			return getResult(response, charset);
+		} finally {
+			if (response != null) {
+				EntityUtils.consume(response.getEntity());
+			}
+		}
+	}
+
+	/**
+	 * send HTTPS request by json params
+	 * 
+	 * @param url
+	 * @param json
+	 * @param charset
+	 * @return
+	 * @throws Exception
+	 */
+	public String doPostSSL(String url, String json, String charset)
+			throws Exception {
+		CloseableHttpClient httpClient = getHttpsClient();
+		HttpPost httpPost = new HttpPost(url);
+		CloseableHttpResponse response = null;
+		try {
+			StringEntity entity = new StringEntity(json, charset);
+			entity.setContentEncoding(charset);
+			entity.setContentType("application/json");
+			httpPost.setEntity(entity);
+			response = httpClient.execute(httpPost);
+			return getResult(response, charset);
+		} finally {
+			if (response != null) {
+				EntityUtils.consume(response.getEntity());
+			}
+		}
+	}
+
+	/**
+	 * create http client
+	 * 
+	 * @return
+	 * @throws NoSuchAlgorithmException
+	 * @throws KeyStoreException
+	 * @throws KeyManagementException
+	 */
+	private CloseableHttpClient getHttpsClient()
+			throws NoSuchAlgorithmException, KeyStoreException,
+			KeyManagementException {
+		return HttpClients.custom()
+				.setSSLSocketFactory(createSSLSocketFactory())
+				.setConnectionManager(connManager)
+				.setDefaultRequestConfig(defaultRequestConfig).build();
+	}
+
+	/**
+	 * resolve response
+	 * 
+	 * @param response
+	 * @param charset
+	 * @return
+	 * @throws IOException
+	 */
+	private static String getResult(CloseableHttpResponse response,
+			String charset) throws IOException {
+		int statusCode = response.getStatusLine().getStatusCode();
+		if (statusCode != HttpStatus.SC_OK) {
+			return null;
+		}
+		HttpEntity httpEntity = response.getEntity();
+		if (null == httpEntity) {
+			return null;
+		}
+		return EntityUtils.toString(httpEntity, charset);
+	}
+
+	/**
+	 * create SSL security connection
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("Convert2Lambda")
+	private static SSLConnectionSocketFactory createSSLSocketFactory()
+			throws KeyStoreException, NoSuchAlgorithmException,
+			KeyManagementException {
+		SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null,
+				new TrustStrategy() {
+					@Override
+					public boolean isTrusted(
+							X509Certificate[] x509Certificates, String s)
+							throws CertificateException {
+						return true;
+					}
+				}).build();
+		return new SSLConnectionSocketFactory(sslContext,
+				new X509HostnameVerifier() {
+					@Override
+					public void verify(String s, SSLSocket sslSocket)
+							throws IOException {
+					}
+
+					@Override
+					public void verify(String s, X509Certificate x509Certificate)
+							throws SSLException {
+					}
+
+					@Override
+					public void verify(String s, String[] strings,
+							String[] strings1) throws SSLException {
+					}
+
+					@Override
+					public boolean verify(String s, SSLSession sslSession) {
+						return true;
+					}
+				});
+	}
+
 	
 	public void shutdown() {
 		connManager.shutdown();
