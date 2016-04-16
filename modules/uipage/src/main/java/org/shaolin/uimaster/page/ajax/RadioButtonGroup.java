@@ -64,11 +64,11 @@ public class RadioButtonGroup extends SingleChoice implements Serializable
 
         if (isVisible())
         {
-            html.append("<p>");
+            html.append("<p name=\""+this.getId()+"\">");
         }
         else
         {
-            html.append("<p style=\"display:none\">");
+            html.append("<p name=\""+this.getId()+"\" style=\"display:none\">");
         }
         generateWidget(html);
         if (displayOptions != null && options != null)

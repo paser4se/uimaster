@@ -938,6 +938,9 @@ UIMaster.util.retrieveErrMsg = function(constraint){
 		msg[0] = constraint;
 	return msg;
 };
+UIMaster.util.forwardToPage = function(link){
+    window.top.location.href=link;
+};
 /**
  * @description Register an AJAX handler to handle UIMaster AJAX operations.
  * @param {String} name Handler's name.

@@ -69,7 +69,7 @@ public class HTMLCheckBoxGroupType extends HTMLMultiChoiceType
             }
             else
             {
-                context.generateHTML("<p>");
+                context.generateHTML("<p name=\""+name+"\">");
             }
             if (displayOptions != null && options != null)
             {

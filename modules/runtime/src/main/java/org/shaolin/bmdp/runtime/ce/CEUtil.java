@@ -265,6 +265,18 @@ public class CEUtil {
 		return pattern;
 	}
 	
+	public static IConstantEntity toCEValue(String pattern) {
+		if (pattern == null) {
+			return null;
+		}
+		int i = pattern.indexOf(",");
+		if (i!= -1) {
+			IConstantEntity constant = IServerServiceManager.INSTANCE.getConstantService().getConstantEntity(pattern.substring(0, i));
+			return constant.getByIntValue(Integer.valueOf(pattern.substring(i+1)));
+		}
+		return null;
+	}
+	
 	public static String getValue(IConstantEntity item) {
 		return item.getEntityName() + "," + item.getIntValue();
 	}

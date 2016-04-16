@@ -71,7 +71,7 @@ public class HTMLRadioButtonGroupType extends HTMLSingleChoiceType
             }
             else
             {
-                context.generateHTML("<p>");
+                context.generateHTML("<p name=\""+name+"\">");
             }
             generateWidget(context);
             if (displayOptions != null && options != null)

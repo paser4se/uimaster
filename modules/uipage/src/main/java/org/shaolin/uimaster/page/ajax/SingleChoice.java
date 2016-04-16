@@ -89,14 +89,6 @@ abstract public class SingleChoice extends Choice implements Serializable
     	}
 	}
 
-    public String getValue()
-    {
-    	checkConstraint();
-    	
-        String value = String.valueOf(getAttribute("value"));
-        return value == null ? "" : value;
-    }
-    
     public Object getRealValue() {
     	String value = getValue();
     	if (this.realValueDataType == Long.class || this.realValueDataType == long.class) {

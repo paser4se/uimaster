@@ -179,6 +179,10 @@ abstract public class Choice extends Widget
             dataItem.setFrameInfo(getFrameInfo());
             ajaxContext.addDataItem(dataItem);
         }
+        String str = "{'finish':'true'}";
+        IDataItem dataItem = AjaxActionHelper.updateAttrItem(this.getId(), str);
+        dataItem.setFrameInfo(getFrameInfo());
+        ajaxContext.addDataItem(dataItem);
     }
     
     public List<String> getOptionValues()
@@ -190,5 +194,23 @@ abstract public class Choice extends Widget
     {
         return optionDisplayValues;
     }
-
+    
+    public String getValue()
+    {
+    	checkConstraint();
+    	
+        String value = String.valueOf(getAttribute("value"));
+        return value == null ? "" : value;
+    }
+    
+    public String getSelectedDisplayValue() {
+    	String value = getValue();
+    	for (int i=0; i<optionValues.size(); i++) {
+    		if (value.equals(optionValues.get(i))) {
+    			return optionDisplayValues.get(i);
+    		}
+    	}
+    	return "";
+    }
+    
 }
