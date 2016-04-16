@@ -139,7 +139,8 @@ public class UploadFileServlet extends HttpServlet {
 				for (FileItem item : multiparts) {
 					// TODO: security check
 					// item.getContentType(); file.getSuffix(); image/jpg
-					if (item.getSize() > 1048576) {
+					//if (item.getSize() > 1048576) {
+					if (item.getSize() > 5120000) {
 						// 2M
 						logger.warn("the size of the uploading file is exceeded!");
 						IDataItem dataItem = AjaxActionHelper.createErrorDataItem("\u4E0A\u4F20\u6587\u4EF6\u5FC5\u987B\u5C0F\u4E8E2M");
