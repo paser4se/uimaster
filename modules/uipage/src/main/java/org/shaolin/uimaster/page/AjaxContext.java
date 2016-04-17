@@ -217,7 +217,7 @@ public class AjaxContext extends OpExecuteContext implements Serializable
             context.setRequest(request, null);
             AjaxActionHelper.createAjaxContext(context);
         }
-        catch (EvaluationException e)
+        catch (Exception e)
         {
             logger.warn("Fail to register Page Ajax Context: " + e.getMessage(), e);
         }

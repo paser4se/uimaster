@@ -39,6 +39,7 @@ import org.shaolin.uimaster.page.ajax.AFile;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.JSONArray;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
+import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +70,13 @@ public class UploadFileServlet extends HttpServlet {
 			return;
 		}
 		
-		Map uiMap = AjaxActionHelper.getFrameMap(request);
+		Map uiMap = null;
+		try {
+			uiMap = AjaxActionHelper.getFrameMap(request);
+		} catch (AjaxException e1) {
+			logger.warn("Session maybe timeout: " + e1.getMessage(), e1);
+			return;
+		}
 		String uiid = request.getParameter("_uiid");
 		if (!uiMap.containsKey(uiid)) {
 			IDataItem dataItem = AjaxActionHelper.createNoPermission("User does not have the permission to upload the file.");

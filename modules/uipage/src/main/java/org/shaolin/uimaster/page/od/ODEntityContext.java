@@ -32,6 +32,7 @@ import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.cache.ODFormObject;
 import org.shaolin.uimaster.page.cache.ODObject;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
+import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.exception.ODException;
 import org.shaolin.uimaster.page.exception.ODProcessException;
 import org.shaolin.uimaster.page.od.mappings.ComponentMapping;
@@ -62,8 +63,10 @@ public class ODEntityContext extends ODContext
      * @throws BusinessOperationException
      * @throws RepositoryException
      * @throws ClassNotFoundException
+     * @throws AjaxException 
      */
-    public void initContext() throws ODProcessException, EvaluationException, ParsingException, BusinessOperationException, ClassNotFoundException
+    public void initContext() throws ODProcessException, EvaluationException, ParsingException, 
+    	BusinessOperationException, ClassNotFoundException, AjaxException
     {
     	if(logger.isInfoEnabled())
     		logger.info("Initialize UI Form: " + odEntityName + 
