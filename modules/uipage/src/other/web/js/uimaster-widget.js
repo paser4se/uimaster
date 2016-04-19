@@ -1935,7 +1935,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		var othis = this;
 		var columnDefs = [{"targets":0,"orderable":false,"render":this.renderSelection}];
 		$($(this).find('thead').children()[0]).children().each(function(index){
-		    if ($(this).attr('htmltype') == "HTML" || $(this).attr('htmltype') == "html") {
+		    if ($(this).attr('htmltype') == "HTML" || $(this).attr('htmltype') == "html"
+			    || $(this).attr('htmltype') == "Image" || $(this).attr('htmltype') == "image") {
 		       columnDefs.push({"targets":index,"orderable":false,"render":othis.renderSelection});
 			}
 		});

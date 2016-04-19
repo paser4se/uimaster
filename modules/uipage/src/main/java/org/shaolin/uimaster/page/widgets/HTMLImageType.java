@@ -230,7 +230,11 @@ public class HTMLImageType extends HTMLTextWidgetType
             		}
             	}
 			} else {
-				sb.append("<img src=\"").append(WebConfig.getWebContextRoot()).append(image);
+				if (image.startsWith(WebConfig.getWebContextRoot())) {
+					sb.append("<img src=\"").append(image);
+				} else {
+					sb.append("<img src=\"").append(WebConfig.getWebContextRoot()).append(image);
+				}
 				sb.append("\" style=\"width:").append(width).append("px;height:").append(height).append("px;\">");
 			}
 		}

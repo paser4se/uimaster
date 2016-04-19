@@ -42,6 +42,7 @@ import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.cache.UIPageObject;
 import org.shaolin.uimaster.page.exception.AjaxException;
+import org.shaolin.uimaster.page.exception.UIComponentNotFoundException;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.shaolin.uimaster.page.od.PageODProcessor;
@@ -141,9 +142,13 @@ public class PageDispatcher {
                         + (realReadOnly == null ? "null" : realReadOnly.toString()));
             }
 
-            HTMLWidgetType htmlComponent;
+            HTMLWidgetType htmlComponent = null;
             if (parent != null) {
-            	htmlComponent = context.getHtmlWidget(parent.getName() + "." + uiEntity.getBodyName());
+            	try {
+            		htmlComponent = context.getHtmlWidget(parent.getName() + "." + uiEntity.getBodyName());
+            	} catch (UIComponentNotFoundException e) {
+            		throw new IllegalStateException("Make sure the od mapping is invoked for this form", e);
+            	}
             	htmlComponent.setHTMLLayout(parent.getHTMLLayout());
 
                 String visible = (String)parent.getAttribute("visible");
@@ -670,7 +675,7 @@ public class PageDispatcher {
         maskHtml.append("<div class=\"ui-widget-overlay\"></div>\n");
         maskHtml.append("<div id=\"ui-mask-content\" class=\"outer\" style=\"display:block;border:4px solid #8DB9DB;\">\n");
         maskHtml.append("<div class=\"inner\"><p class=\"ui-info-msg\"><span></span>");
-        maskHtml.append("Processing...Please wait</p></div>\n");
+        maskHtml.append("\u62FC\u6B7B\u73A9\u547D\u52A0\u8F7D\u4E2D\u3002\u3002\u3002</p></div>\n");
         maskHtml.append("</div>\n");
         maskHtml.append("</div>\n");
         
