@@ -356,19 +356,44 @@ public class PageDispatcher {
             	context.generateHTML("<meta name=\"apple-mobile-web-app-capable\" content=\"yes\">\n");
             	context.generateHTML("<meta name=\"apple-mobile-web-app-status-bar-style\" content=\"black-translucent\">\n");
             	context.generateHTML("<meta name=\"format-detection\" content=\"telephone=no\">\n");
+            	if (WebConfig.isProductMode()) {
+            		context.generateHTML("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
+            		context.generateHTML(WebConfig.getWebContextRoot());
+            		context.generateHTML(WebConfig.getCommoncompressedmobcss());
+            		context.generateHTML("\">");
+            	} 
             	if (UserContext.isAppClient()) {
             		context.generateHTML(WebConfig.replaceAppCssWebContext(pageObject.getMobPageCSS().toString()));
             	} else {
             		context.generateHTML(WebConfig.replaceCssWebContext(pageObject.getMobPageCSS().toString()));
             	}
             } else {
-            	context.generateHTML(WebConfig.replaceCssWebContext(pageObject.getPageCSS().toString()));
+            	if (WebConfig.isProductMode()) {
+            		context.generateHTML("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
+            		context.generateHTML(WebConfig.getWebContextRoot());
+            		context.generateHTML(WebConfig.getCommoncompressedcss());
+            		context.generateHTML("\">");
+            	} 
+        		context.generateHTML(WebConfig.replaceCssWebContext(pageObject.getPageCSS().toString()));
             }
             
             if (logger.isDebugEnabled())
             {
                 logger.debug("import js to the uipage: " + entityName);
             }
+            if (WebConfig.isProductMode()) {
+            	if (UserContext.isMobileRequest()) {
+	        		context.generateHTML("<script type=\"text/javascript\" src=\"");
+	        		context.generateHTML(WebConfig.getWebContextRoot());
+	        		context.generateHTML(WebConfig.getCommoncompressedmobjs());
+	        		context.generateHTML("\"></script>");
+            	} else {
+            		context.generateHTML("<script type=\"text/javascript\" src=\"");
+            		context.generateHTML(WebConfig.getWebContextRoot());
+	        		context.generateHTML(WebConfig.getCommoncompressedjs());
+	        		context.generateHTML("\"></script>");
+            	}
+        	} 
             importAllJS(context, 0);
 
             if (!frameMode)

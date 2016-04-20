@@ -210,8 +210,8 @@ public class UIFormObject implements java.io.Serializable
         UIEntity uientity = (UIEntity)entity.getUIEntity();
         OOEEContext parsingContext = parseVariable(entity);
         parseUI(parsingContext, uientity, null);
-        HTMLUtil.includeJsFiles(name, jsIncludeMap, jsIncludeList, true);
-        HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, true);
+        HTMLUtil.includeJsFiles(name, jsIncludeMap, jsIncludeList, !WebConfig.isProductMode());
+        HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, !WebConfig.isProductMode());
     }
     
     private void load()
@@ -2012,11 +2012,11 @@ public class UIFormObject implements java.io.Serializable
 				if (jsFileName.startsWith("http") || jsFileName.startsWith("https")) {
 					needTimestamp = false;
 				} else if (UserContext.isMobileRequest() && UserContext.isAppClient()) {
-					jsFileName = jsFileName.replace(WebConfigFastCache.WebContextRoot, WebConfig.getAppContextRoot());
-					jsFileName = jsFileName.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getAppResourceContextRoot());
+					jsFileName = jsFileName.replace(WebConfig.WebContextRoot, WebConfig.getAppContextRoot());
+					jsFileName = jsFileName.replace(WebConfig.ResourceContextRoot, WebConfig.getAppResourceContextRoot());
 				} else {
-					jsFileName = jsFileName.replace(WebConfigFastCache.WebContextRoot, WebConfig.getWebContextRoot());
-					jsFileName = jsFileName.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getResourceContextRoot());
+					jsFileName = jsFileName.replace(WebConfig.WebContextRoot, WebConfig.getWebContextRoot());
+					jsFileName = jsFileName.replace(WebConfig.ResourceContextRoot, WebConfig.getResourceContextRoot());
 				}
 				sb.append("<script type=\"text/javascript\" src=\"").append(jsFileName);
 				if (needTimestamp) {

@@ -101,13 +101,15 @@ public class UIPageObject implements java.io.Serializable {
 						+ "\" type=\"text/css\">\n");
 			}
 		}
-		String[] common = WebConfig.getCommonCss();
-		if (isMobile) {
-			common = WebConfig.getCommonMobCss();
-		}
-		for (int i = 0; common != null && i < common.length; i++) {
-			importCSSCode.add("<link rel=\"stylesheet\" href=\"" + common[i]
-					+ "\" type=\"text/css\">\n");
+		if (!WebConfig.isProductMode()) {
+			String[] common = WebConfig.getCommonCss();
+			if (isMobile) {
+				common = WebConfig.getCommonMobCss();
+			}
+			for (int i = 0; common != null && i < common.length; i++) {
+				importCSSCode.add("<link rel=\"stylesheet\" href=\"" + common[i]
+						+ "\" type=\"text/css\">\n");
+			}
 		}
 		if (isMobile) {
 			importMobCSSCodeMap.put(locale, importCSSCode);

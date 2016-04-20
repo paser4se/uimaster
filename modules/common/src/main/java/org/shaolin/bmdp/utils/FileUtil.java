@@ -275,6 +275,46 @@ public final class FileUtil {
 		return sb.toString();
 	}
     
+    public static String readFileWithoutSpace(InputStream in, String encoding) throws UnsupportedEncodingException {
+    	StringBuffer sb = new StringBuffer();
+		InputStreamReader rd = new InputStreamReader(in, encoding);
+		BufferedReader br = new BufferedReader(rd);
+		String text = new String();
+		try {
+			while (text != null) {
+					text = br.readLine();
+				if (text != null && text.trim().length() > 0) {
+					sb.append(text.trim() + " ");
+				}
+			}
+		} catch (IOException e) {
+			
+		} finally {
+			CloseUtil.close(in);
+		}
+		return sb.toString();
+	}
+    
+    public static String readFileWithLine(InputStream in, String encoding) throws UnsupportedEncodingException {
+    	StringBuffer sb = new StringBuffer();
+		InputStreamReader rd = new InputStreamReader(in, encoding);
+		BufferedReader br = new BufferedReader(rd);
+		String text = new String();
+		try {
+			while (text != null) {
+					text = br.readLine();
+				if (text != null && text.trim().length() > 0) {
+					sb.append(text.trim() + " \n");
+				}
+			}
+		} catch (IOException e) {
+			
+		} finally {
+			CloseUtil.close(in);
+		}
+		return sb.toString();
+	}
+    
     public static byte[] read(InputStream in) throws IOException {
     	try {
 	    	ByteArrayOutputStream swapStream = new ByteArrayOutputStream();  

@@ -157,6 +157,15 @@ public class ODPageContext extends ODContext
 		if (pageOutType.getServerOperation() != null 
 				&& pageOutType.getServerOperation().getExpressionString() != null) {
 			pageOutType.getServerOperation().evaluate(this);
+			if (!processedOdMapping) {
+				try {
+					this.executeAllMappings();
+				} catch (ODException e) {
+					throw new EvaluationException(e);
+				} finally {
+					processedOdMapping = false;
+				}
+			}
 		} else {
 			executeAllMappings();
 		}

@@ -75,7 +75,11 @@ public class MasterInstanceListener implements ServletContextListener {
     		cache.setRefreshInterval(minutes);
     		cache.setDescription(description);
     	}
-    	WebConfig.setResourcePath(sce.getServletContext().getRealPath("/"));
+    	try {
+			WebConfig.setResourcePath(sce.getServletContext().getRealPath("/"));
+		} catch (Exception e) {
+			throw new IllegalStateException("Error to initialize UI Master online system!!!!!", e);
+		}
 		// load all entities from applications. only load once if there were many web instances.
 		IEntityManager entityManager = IServerServiceManager.INSTANCE.getEntityManager();
 		addEntityListeners(entityManager);
