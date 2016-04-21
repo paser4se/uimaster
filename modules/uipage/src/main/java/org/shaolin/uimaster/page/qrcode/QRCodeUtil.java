@@ -116,13 +116,14 @@ public class QRCodeUtil {
 	 * @param needCompress
 	 * @throws Exception
 	 */
-	public static void encode(String content, String imgPath, String destPath,
+	public static String encode(String content, String imgPath, String destPath,
 			boolean needCompress) throws Exception {
 		BufferedImage image = QRCodeUtil.createImage(content, imgPath,
 				needCompress);
 		mkdirs(destPath);
 		String file = "vogerp-qrcode-" + new Random().nextInt(99999999) + ".jpg";
 		ImageIO.write(image, FORMAT_NAME, new File(destPath + "/" + file));
+		return file;
 	}
 
 	/**
@@ -148,9 +149,9 @@ public class QRCodeUtil {
 	 * @param needCompress
 	 * @throws Exception
 	 */
-	public static void encode(String content, String destPath,
+	public static String encode(String content, String destPath,
 			boolean needCompress) throws Exception {
-		QRCodeUtil.encode(content, null, destPath, needCompress);
+		return QRCodeUtil.encode(content, null, destPath, needCompress);
 	}
 
 	/**
