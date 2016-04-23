@@ -127,8 +127,7 @@ public class ServerServiceManagerImpl implements IServerServiceManager {
 	@Override
 	public void register(IServiceProvider service) {
 		if (services.containsKey(service.getServiceInterface())) {
-			throw new IllegalArgumentException(
-					"The server service has already registered!"
+			logger.warn("The server service has already registered!"
 							+ service.getServiceInterface());
 		}
 		logger.info("Register service: " + service.getServiceInterface());

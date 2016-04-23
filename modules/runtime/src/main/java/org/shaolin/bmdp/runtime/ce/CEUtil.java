@@ -273,8 +273,9 @@ public class CEUtil {
 		if (i!= -1) {
 			IConstantEntity constant = IServerServiceManager.INSTANCE.getConstantService().getConstantEntity(pattern.substring(0, i));
 			return constant.getByIntValue(Integer.valueOf(pattern.substring(i+1)));
+		} else {
+			return IServerServiceManager.INSTANCE.getConstantService().getConstantEntity(pattern);
 		}
-		return null;
 	}
 	
 	public static String getValue(IConstantEntity item) {

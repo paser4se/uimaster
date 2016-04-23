@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.runtime.AppContext;
+import org.shaolin.bmdp.runtime.ce.CEUtil;
 import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 import org.shaolin.bmdp.runtime.spi.IConstantService;
 import org.shaolin.uimaster.page.AjaxActionHelper;
@@ -149,8 +150,16 @@ public class HTMLDynamicUIItem {
 	
 	public void generate(String jsonValue, String uiid, HTMLLayoutType layout, 
 			VariableEvaluator ee, HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) throws Exception {
-		List<IConstantEntity> value = HTMLDynamicUIItem.toCElist(this.getCeName(), jsonValue);
-		IConstantEntity constant = AppContext.get().getConstantService().getConstantEntity(this.getCeName());
+		List<IConstantEntity> value;
+		IConstantEntity constant ;
+		if (this.getCeName().indexOf(",") != -1) { //name,0 support.
+			constant = AppContext.get().getConstantService().getChildren(CEUtil.toCEValue(this.getCeName()));
+			value = HTMLDynamicUIItem.toCElist(constant.getEntityName(), jsonValue);
+			this.setCeName(constant.getEntityName());
+		} else {
+			constant = AppContext.get().getConstantService().getConstantEntity(this.getCeName());
+			value = HTMLDynamicUIItem.toCElist(this.getCeName(), jsonValue);
+		}
 		Map<Integer, String> avps = constant.getAllConstants(false);
 		String filterUIID = uiid.replace("-", "").replace("_", "");
 		StringBuilder jssb = new StringBuilder();
