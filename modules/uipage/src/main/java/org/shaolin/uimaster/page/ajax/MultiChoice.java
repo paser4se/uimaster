@@ -167,6 +167,14 @@ abstract public class MultiChoice extends Choice implements Serializable
     	}
 	}
     
+    public String getSelectedDisplayValue() {
+    	List<String> values = getSelectedDisplayValues();
+    	if (values.size() > 0) {
+    		return values.get(0);
+    	}
+    	return "";
+    }
+    
     public List<String> getSelectedDisplayValues() {
     	List<Integer> indexs = new ArrayList<Integer>();
     	List<String> svalues = new ArrayList<String>();

@@ -36,6 +36,7 @@ import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.cache.ODFormObject;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
 import org.shaolin.uimaster.page.cache.UIFormObject;
+import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.exception.ODException;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.od.ODProcessor;
@@ -452,14 +453,20 @@ public class RefForm extends Container implements Serializable
 		return window != null;
 	}
     
-    public void remove()
+    public void remove() 
     {
         AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
         if(ajaxContext == null)
             return;
         if(ajaxContext.existElmByAbsoluteId(getId(), getFrameInfo()))
         {
-            Map map = AjaxActionHelper.getFrameMap(ajaxContext.getRequest());
+            Map map = null;
+			try {
+				map = AjaxActionHelper.getFrameMap(ajaxContext.getRequest());
+			} catch (AjaxException e) {
+				logger.warn("Session maybe timeout: " + e.getMessage(), e);
+				return;
+			}
             Iterator iterator = map.entrySet().iterator();
             while(iterator.hasNext())
             {

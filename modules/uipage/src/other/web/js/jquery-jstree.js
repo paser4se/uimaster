@@ -606,11 +606,7 @@
 							case 113:
 								e.preventDefault();
 								o = this.get_node(e.currentTarget);
-								/*!
-								if(o && o.id && o.id !== '#') {
-									// this.edit(o);
-								}
-								*/
+								
 								break;
 							default:
 								// console.log(e.which);
@@ -2782,13 +2778,6 @@
 						'left' : this.element.scrollLeft(),
 						'top' : this.element.scrollTop()
 					},
-					/*!
-					'themes' : {
-						'name' : this.get_theme(),
-						'icons' : this._data.core.themes.icons,
-						'dots' : this._data.core.themes.dots
-					},
-					*/
 					'selected' : []
 				}
 			}, i;
@@ -2869,23 +2858,6 @@
 						this.set_state(state, callback);
 						return false;
 					}
-					/*!
-					if(state.core.themes) {
-						if(state.core.themes.name) {
-							this.set_theme(state.core.themes.name);
-						}
-						if(typeof state.core.themes.dots !== 'undefined') {
-							this[ state.core.themes.dots ? "show_dots" : "hide_dots" ]();
-						}
-						if(typeof state.core.themes.icons !== 'undefined') {
-							this[ state.core.themes.icons ? "show_icons" : "hide_icons" ]();
-						}
-						delete state.core.themes;
-						delete state.core.open;
-						this.set_state(state, callback);
-						return false;
-					}
-					*/
 					if(state.core.selected) {
 						_this = this;
 						this.deselect_all();
@@ -3724,12 +3696,7 @@
 				w  = this.element.width(),
 				a  = obj.children('.jstree-anchor'),
 				s  = $('<span>'),
-				/*!
-				oi = obj.children("i:visible"),
-				ai = a.children("i:visible"),
-				w1 = oi.width() * oi.length,
-				w2 = ai.width() * ai.length,
-				*/
+
 				t  = typeof default_text === 'string' ? default_text : this.get_text(obj),
 				h1 = $("<"+"div />", { css : { "position" : "absolute", "top" : "-200px", "left" : (rtl ? "0px" : "-1000px"), "visibility" : "hidden" } }).appendTo("body"),
 				h2 = $("<"+"input />", {
@@ -5199,11 +5166,6 @@
 										i = ref.parent().index() + 1;
 										break;
 								}
-								/*!
-								// TODO: moving inside, but the node is not yet loaded?
-								// the check will work anyway, as when moving the node will be loaded first and checked again
-								if(v === 'i' && !ins.is_loaded(p)) { }
-								*/
 								ok = true;
 								for(t1 = 0, t2 = data.data.nodes.length; t1 < t2; t1++) {
 									op = data.data.origin && (data.data.origin.settings.dnd.always_copy || (data.data.origin.settings.dnd.copy && (data.event.metaKey || data.event.ctrlKey))) ? "copy_node" : "move_node";

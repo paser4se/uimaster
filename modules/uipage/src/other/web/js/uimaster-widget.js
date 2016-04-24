@@ -485,12 +485,18 @@ UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 	}
 });
 UIMaster.ui.countdown = UIMaster.extend(UIMaster.ui.textfield, {
+    initialized:false,
+    labelsOptions: {lang: {days: "\u5929", hours: "\u65F6", minutes: "\u5206", seconds: "\u79D2"}},
 	init: function() {
-		var v = parseInt($(this).attr("value"));
-		$(this).redCountdown({preset: "flat-colors-fat", end: ($.now() + v), onEndCallback: this.onEndCall});
+	    if (this.initialized)
+		    return;
+		this.initialized = true;
+		var v = parseInt($(this).attr("count"));
+		$(this).redCountdown({preset: "flat-colors-fat", end: ($.now() + v), 
+			labelsOptions: this.labelsOptions, onEndCallback: this.onEndCall});
 	},
 	onEndCall: function() {
-		alert("Time out!"); 
+		//alert("Time out!"); 
 	}
 });
 /**
@@ -825,6 +831,30 @@ UIMaster.ui.checkboxgroup = UIMaster.extend(UIMaster.ui.field, /** @lends UIMast
             for (var i = 0; i < this.length; i++)
                 v ? this[i].disabled = false : this[i].disabled = true;
     },
+	addAttr: function(a){
+	    if (a.item) {
+		   var id = $(this.p).attr("name");
+		   var item = $("<input type=\"checkbox\" id=\""+a.value+"\" name=\""+id+"\" value=\""+a.value
+		          +"\" class=\"uimaster_checkboxGroup\"/><label class=\"uimaster_checkout_text_gap\" for=\""+a.value+"\">"+a.name+"</label>");
+		   $(this.p).append(item);  
+		   this.push(item[0]);
+		} else if (a.finish) {
+		   this.initialized = false;
+		   this.init();
+		}
+	},
+	removeAttr: function(v) {
+	   this.clearOptions();
+	},
+	clearOptions: function(){
+	   while(this.length > 0){
+	      this.splice(0, 1);
+	   }
+	   $(this.p).children().each(function(){
+	      $(this).remove();
+	   });
+	   this._v = null;
+	},
     /**
      * @description Set the checkboxgroup's value.
      * @param {Array} c Values to set.
@@ -928,6 +958,9 @@ UIMaster.ui.checkboxgroup = UIMaster.extend(UIMaster.ui.field, /** @lends UIMast
         this._v = this.getDefaultValue().join(",");
     },
     init: function(){
+	    if (this.initialized) { return;}
+		this.initialized = true;
+		this.p = $(this).parent();
         this.parentDiv = this.nodeType?this.parentNode.parentNode:this[0].parentNode.parentNode;
         this.initV();
         this.validators = [];
@@ -946,10 +979,13 @@ UIMaster.ui.checkboxgroup = UIMaster.extend(UIMaster.ui.field, /** @lends UIMast
             this.onclick = null;
             f && $(this).bind('click',f);
         }else{
+		    if (this.onchangeEvent == null) this.onchangeEvent = this[0].onchange;
             for(var i=0;i<this.length;i++){
                 var f = this[i].onclick;
+				var fc = this[i].onchange;
                 this[i].onclick = null;
                 f && $(this[i]).bind('click',f);
+				if(fc==null)$(this[i]).bind('change',this.onchangeEvent);
             }
         }
 
@@ -968,7 +1004,19 @@ UIMaster.ui.checkboxgroup = UIMaster.extend(UIMaster.ui.field, /** @lends UIMast
  * @constructor
  */
 UIMaster.ui.radiobuttongroup = UIMaster.extend(UIMaster.ui.checkboxgroup, /** @lends UIMaster.ui.radiobuttongroup*/{
-    /**
+    addAttr: function(a){
+	    if (a.item) {
+		   var id = $(this.p).attr("name");
+		   var item = $("<input type=\"radio\" id=\""+a.value+"\" name=\""+id+"\" value=\""+a.value
+		          +"\" class=\"uimaster_radioButtonGroup\"/><label class=\"uimaster_radio_text_gap\" for=\""+a.value+"\">"+a.name+"</label>");
+		   $(this.p).append(item);  
+		   this.push(item[0]);
+		} else if (a.finish) {
+		   this.initialized = false;
+		   this.init();
+		}
+	},
+	/**
      * @description Set the radiobuttongroup's value.
      * @param {String} c Value to set.
      */
@@ -1664,9 +1712,13 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 	width:-1,
 	mode: 'standard',
 	captureScreen: false,
+	thumbnails:true,
 	thumbnailsFullScreen: true,
 	hideThumbnailsOnInit: false,
+	slideshow:false,
+	slideshowAutostart:false,
 	intialized:false,
+	enableSelectSync:true,
 	init:function(){
 	    if (this.intialized)
 		    return;
@@ -1675,15 +1727,17 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 		    var t = this;
 		    var opts;
 			if (this.mobheight == -1) {
-				opts = {mode: this.mode, hideThumbnailsOnInit: this.hideThumbnailsOnInit,
+				opts = {mode: this.mode, thumbnails: this.thumbnails, hideThumbnailsOnInit: this.hideThumbnailsOnInit,
                         afterLoadPhoto: function(image) {t.clickImage(image);}};
 			} else {
 				opts = {height:IS_MOBILEVIEW?this.mobheight:this.height,width:(IS_MOBILEVIEW?"100%":this.width),
 				        mode: this.mode, 
-				        hideThumbnailsOnInit: this.hideThumbnailsOnInit, 
+				        thumbnails: this.thumbnails, hideThumbnailsOnInit: this.hideThumbnailsOnInit, 
+						slideshow: this.slideshow, slideshowAutostart: this.slideshowAutostart,
 						afterLoadPhoto: function(image) {t.clickImage(image);}};
 			}
-			$(this).jGallery(opts);
+			//performance issue solved by delay loading instead
+			setTimeout(function(){try {$(t).jGallery(opts);} catch (e){console.log(e);}},200);
 		}
 		if (this.captureScreen) {
 		    $($(this).next()).click(function(){
@@ -1705,6 +1759,7 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 		}
 	},
 	clickImage:function(image){
+	   if (!this.enableSelectSync) {return;}
 	   var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"false",_uiid:this.id,_valueName:"selectedImage",_value:$(image).attr("src"),_framePrefix:UIMaster.getFramePrefix()}};
        if (MobileAppMode) {
           _mobContext.ajax(JSON.stringify(opts));
@@ -1880,7 +1935,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		var othis = this;
 		var columnDefs = [{"targets":0,"orderable":false,"render":this.renderSelection}];
 		$($(this).find('thead').children()[0]).children().each(function(index){
-		    if ($(this).attr('htmltype') == "HTML" || $(this).attr('htmltype') == "html") {
+		    if ($(this).attr('htmltype') == "HTML" || $(this).attr('htmltype') == "html"
+			    || $(this).attr('htmltype') == "Image" || $(this).attr('htmltype') == "image") {
 		       columnDefs.push({"targets":index,"orderable":false,"render":othis.renderSelection});
 			}
 		});
@@ -2387,6 +2443,7 @@ UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
 					}};
 			}};
 			$(this).bind("select_node.jstree", function(node,tree_obj,e){
+			    var tree = t;
 			    if (t._selectedNodeId == tree_obj.node.id) {
 				    eval(dblclickEvent);
 					return;
@@ -2394,7 +2451,6 @@ UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
 				t._selectedNodeId=tree_obj.node.id;
 				t._selectedNodeName=tree_obj.node.text;
 				t._selectedParentNodeId=tree_obj.node.parent;
-				var tree = t;
 				eval(clickEvent);
 			}).bind("open_node.jstree", function(node,tree_obj,e){
 				t._selectedNodeId=tree_obj.node.id;
@@ -2767,7 +2823,7 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
             this.content = $("<div><div>").html(this.data).attr("id", this.id).css("-webkit-transform","translateZ(0)");
             var buttonset = [];
             if (this.isOnlyShowCloseBtn=="true") {
-            	buttonset = [{text:"Close", click:function(){thisObj.content.dialog("close");}}];
+            	buttonset = [{text:"\u5173\u95ED", click:function(){thisObj.content.dialog("close");}}];
             } else {
             	var p = this.content.find("div[id$='actionPanel']");
             	if(p.length > 0) {
@@ -2905,7 +2961,7 @@ function showMobileFrame(link, name) {
 		close: function() {
 		  $.ajax({url:AJAX_SERVICE_URL,async:true,data:{_ajaxUserEvent:"tabpane",_uiid:"Form",_valueName:"remveTabId",_value:frameId,    _framePrefix:UIMaster.getFramePrefix()}});
 		},
-		buttons: [{text:"Close", open:function(){$(this).addClass('uimaster_button');}, click:function(){d.dialog("close");}}]
+		buttons: [{text:"\u5173\u95ED", open:function(){$(this).addClass('uimaster_button');}, click:function(){d.dialog("close");}}]
 		});
 	d.dialog("open");
 }

@@ -16,6 +16,7 @@
 package org.shaolin.uimaster.page;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,8 +30,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.Registry;
+import org.shaolin.bmdp.utils.FileUtil;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
 
 public class WebConfig {
@@ -48,9 +49,18 @@ public class WebConfig {
 	
 	private static String servletContextPath = "";
 	
+	private static final String commonCompressedJS = "/common.js";
+	private static final String commonCompressedCss = "/common.css";
+	private static final String commonCompressedMobJS = "/common-mob.js";
+	private static final String commonCompressedMobCss = "/common-mob.css";
+	
+	public static final String WebContextRoot = "${webcontext}";
+	public static final String ResourceContextRoot = "${resourceContext}";
+	
+	private static String uploadFileRoot = "";
+	
 	public static class WebConfigFastCache {
-		public static final String WebContextRoot = "${webcontext}";
-		public static final String ResourceContextRoot = "${resourceContext}";
+		final String runningMode;
 		final boolean customizedMode;
 		final String hiddenValueMask;
 		final String cssRootPath;
@@ -79,6 +89,7 @@ public class WebConfig {
 		
 		public WebConfigFastCache() {
 			Registry instance = Registry.getInstance();
+			runningMode = instance.getValue("/System/runningMode");
 			customizedMode = Boolean.valueOf(instance.getValue(
 					"/System/webConstant/customizedMode"));
 			hiddenValueMask = instance.getValue(
@@ -197,6 +208,10 @@ public class WebConfig {
 		return (WebConfigFastCache)instance.readFromFastCache("webconfig");
 	}
 	
+	public static boolean isProductMode() {
+		return getCacheObject().runningMode != null && "product".equalsIgnoreCase(getCacheObject().runningMode);
+	}
+	
 	public static boolean isCustomizedMode() {
 		return getCacheObject().customizedMode;
 	}
@@ -248,8 +263,6 @@ public class WebConfig {
 		return WebConfig.getResourcePath() + relativePath;
 	}
 	
-	private static String uploadFileRoot = "";
-	
 	public static void setUploadFileRoot(String path) {
 		uploadFileRoot = path;
 	}
@@ -289,8 +302,79 @@ public class WebConfig {
 		return resourcePath;
 	}
 	
-	public static void setResourcePath(String path) {
+	public static void setResourcePath(String path) throws Exception {
 		resourcePath = path;
+		
+		// compress all js & css in one.
+		File commonJs = new File(resourcePath + "/common.js");
+		if (isProductMode() && !commonJs.exists()) {
+			StringBuilder commonCompressedJS = new StringBuilder();
+			StringBuilder commonCompressedCss = new StringBuilder();
+			StringBuilder commonCompressedMobJS = new StringBuilder();
+			StringBuilder commonCompressedMobCss = new StringBuilder();
+			
+			String[] commoncss = getCommonCss();
+			for (String css : commoncss) {
+				File f = new File(resourcePath + css.replace(ResourceContextRoot, ""));
+				if (f.isFile() && f.exists()) {
+					String content = FileUtil.readFileWithLine(new FileInputStream(f), "UTF-8");
+					if (css.endsWith("jquery-dataTable.css")) {
+						content = content.replace("\"../images/", "\"images/");
+					} else if (css.endsWith("jquery-jstree.css")) {
+						content = content.replace("\"../images/", "\"images/");
+					} else if (css.endsWith("jquery-ui-orange.css")) {
+						content = content.replace("\"images/", "\"css/images/");
+					} else if (css.endsWith("jquery-ui.css")) {
+						content = content.replace("\"images/", "\"css/images/");
+					} else if (css.endsWith("iumaster.css")) {
+						content = content.replace("\"images/", "\"css/images/");
+						content = content.replace("(../images/", "(images/");
+					}
+					commonCompressedCss.append(content);
+				}
+			}
+			String[] commonjs = getCommonJs();
+			for (String js : commonjs) {
+				File f = new File(resourcePath + js.replace(ResourceContextRoot, ""));
+				if (f.isFile() && f.exists()) {
+					commonCompressedJS.append(FileUtil.readFileWithLine(new FileInputStream(f), "UTF-8"));
+				}
+			}
+			commoncss = getCommonMobCss();
+			for (String css : commoncss) {
+				File f = new File(resourcePath + css.replace(ResourceContextRoot, ""));
+				if (f.isFile() && f.exists()) {
+					String content = FileUtil.readFileWithLine(new FileInputStream(f), "UTF-8");
+					if (css.endsWith("jquery-dataTable.css")) {
+						content = content.replace("\"../images/", "\"images/");
+					} else if (css.endsWith("jquery-jstree.css")) {
+						content = content.replace("\"../images/", "\"images/");
+					} else if (css.endsWith("jquery-ui-orange.css")) {
+						content = content.replace("\"images/", "\"css/images/");
+					} else if (css.endsWith("jquery-ui.css")) {
+						content = content.replace("\"images/", "\"css/images/");
+					} else if (css.endsWith("jquery-mobile.css")) {
+						content = content.replace("url(images/", "url(css/images/");
+					} else if (css.endsWith("iumaster-mob.css")) {
+						content = content.replace("\"images/", "\"css/images/");
+						content = content.replace("(../images/", "(images/");
+					}
+					commonCompressedMobCss.append(content);
+				}
+			}
+			commonjs = getCommonMobJs();
+			for (String js : commonjs) {
+				File f = new File(resourcePath + js.replace(ResourceContextRoot, ""));
+				if (f.isFile() && f.exists()) {
+					commonCompressedMobJS.append(FileUtil.readFileWithLine(new FileInputStream(f), "UTF-8"));
+				}
+			}
+			
+			FileUtil.write(resourcePath + "/common.js", commonCompressedJS.toString());
+			FileUtil.write(resourcePath + "/common-mob.js", commonCompressedMobJS.toString());
+			FileUtil.write(resourcePath + "/common.css", commonCompressedCss.toString());
+			FileUtil.write(resourcePath + "/common-mob.css", commonCompressedMobCss.toString());
+		}
 	}
 	
 	public static String getCssRootPath() {
@@ -372,7 +456,7 @@ public class WebConfig {
 	 */
 	public static String getImportCSS(String entityName) {
 		String name = entityName.replace('.', '/');//firefox only support '/'
-		return WebConfigFastCache.ResourceContextRoot + "/css/" + name + ".css";
+		return ResourceContextRoot + "/css/" + name + ".css";
 	}
 	
 	/**
@@ -382,51 +466,51 @@ public class WebConfig {
 	 */
 	public static String getImportJS(String entityName) {
 		String name = entityName.replace('.', '/');//firefox only support '/'
-		return WebConfigFastCache.ResourceContextRoot + "/js/" + name + ".js";
+		return ResourceContextRoot + "/js/" + name + ".js";
 	}
 
 	public static String replaceAppCssWebContext(String str) {
-		if (str.indexOf(WebConfigFastCache.ResourceContextRoot) != -1) {
-			str = str.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getAppResourceContextRoot());
+		if (str.indexOf(ResourceContextRoot) != -1) {
+			str = str.replace(ResourceContextRoot, WebConfig.getAppResourceContextRoot());
 		}
-		if (str.indexOf(WebConfigFastCache.WebContextRoot) != -1) {
-			return str.replace(WebConfigFastCache.WebContextRoot, WebConfig.getAppContextRoot());
+		if (str.indexOf(WebContextRoot) != -1) {
+			return str.replace(WebContextRoot, WebConfig.getAppContextRoot());
 		}
 		return str;
 	}
 	
 	public static String replaceAppJsWebContext(String str) {
-		if (str.indexOf(WebConfigFastCache.ResourceContextRoot) != -1) {
-			return str.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getAppResourceContextRoot());
+		if (str.indexOf(ResourceContextRoot) != -1) {
+			return str.replace(ResourceContextRoot, WebConfig.getAppResourceContextRoot());
 		}
-		if (str.indexOf(WebConfigFastCache.WebContextRoot) != -1) {
-			return str.replace(WebConfigFastCache.WebContextRoot, WebConfig.getAppContextRoot());
+		if (str.indexOf(WebContextRoot) != -1) {
+			return str.replace(WebContextRoot, WebConfig.getAppContextRoot());
 		}
 		return str;
 	}
 	
 	public static String replaceCssWebContext(String str) {
-		if (str.indexOf(WebConfigFastCache.ResourceContextRoot) != -1) {
-			str = str.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getResourceContextRoot());
+		if (str.indexOf(ResourceContextRoot) != -1) {
+			str = str.replace(ResourceContextRoot, WebConfig.getResourceContextRoot());
 		}
-		if (str.indexOf(WebConfigFastCache.WebContextRoot) != -1) {
-			return str.replace(WebConfigFastCache.WebContextRoot, WebConfig.getWebContextRoot());
+		if (str.indexOf(WebContextRoot) != -1) {
+			return str.replace(WebContextRoot, WebConfig.getWebContextRoot());
 		}
 		return str;
 	}
 	
 	public static String replaceJsWebContext(String str) {
-		if (str.indexOf(WebConfigFastCache.ResourceContextRoot) != -1) {
-			return str.replace(WebConfigFastCache.ResourceContextRoot, WebConfig.getResourceContextRoot());
+		if (str.indexOf(ResourceContextRoot) != -1) {
+			return str.replace(ResourceContextRoot, WebConfig.getResourceContextRoot());
 		}
-		if (str.indexOf(WebConfigFastCache.WebContextRoot) != -1) {
-			return str.replace(WebConfigFastCache.WebContextRoot, WebConfig.getWebContextRoot());
+		if (str.indexOf(WebContextRoot) != -1) {
+			return str.replace(WebContextRoot, WebConfig.getWebContextRoot());
 		}
 		return str;
 	}
 	
 	public static String replaceWebContext(String str) {
-		return str.replace(WebConfigFastCache.WebContextRoot, WebConfig.getWebContextRoot());
+		return str.replace(WebContextRoot, WebConfig.getWebContextRoot());
 	}
 
 	public static String[] getCommonCss() {
@@ -443,6 +527,22 @@ public class WebConfig {
 
 	public static String[] getCommonMobJs() {
 		return getCacheObject().commonMobjs;
+	}
+	
+	public static String getCommoncompressedjs() {
+		return commonCompressedJS;
+	}
+
+	public static String getCommoncompressedcss() {
+		return commonCompressedCss;
+	}
+
+	public static String getCommoncompressedmobjs() {
+		return commonCompressedMobJS;
+	}
+
+	public static String getCommoncompressedmobcss() {
+		return commonCompressedMobCss;
 	}
 	
 	public static String[] getSingleCommonJS(String entityName) {

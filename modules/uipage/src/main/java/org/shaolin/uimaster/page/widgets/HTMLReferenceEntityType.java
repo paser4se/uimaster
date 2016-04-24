@@ -146,7 +146,7 @@ public class HTMLReferenceEntityType extends HTMLWidgetType implements Serializa
         }
         catch (Exception e)
         {
-            logger.error("Error occur when include uientity jsp page in " + curUIEntityName, e);
+            throw new IllegalStateException("Error occur when include uientity jsp page in " + curUIEntityName, e);
         }
     }
 

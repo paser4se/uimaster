@@ -59,6 +59,8 @@ public class ODPageContext extends ODContext
 	
 	private final String pageName;
 	
+	private boolean processedOdMapping;
+	
 	public ODPageContext(HTMLSnapshotContext htmlContext, String pageName)
     {
         super(htmlContext, true);
@@ -138,6 +140,15 @@ public class ODPageContext extends ODContext
     		return;
     	}
     	inType.getServerOperation().evaluate(this);
+		if (!processedOdMapping) {
+			try {
+				this.executeAllMappings();
+			} catch (ODException e) {
+				throw new EvaluationException(e);
+			} finally {
+				processedOdMapping = false;
+			}
+		}
 	}
 	
 	public void executePageOut(String outNode) throws EvaluationException, ODException
@@ -146,12 +157,22 @@ public class ODPageContext extends ODContext
 		if (pageOutType.getServerOperation() != null 
 				&& pageOutType.getServerOperation().getExpressionString() != null) {
 			pageOutType.getServerOperation().evaluate(this);
+			if (!processedOdMapping) {
+				try {
+					this.executeAllMappings();
+				} catch (ODException e) {
+					throw new EvaluationException(e);
+				} finally {
+					processedOdMapping = false;
+				}
+			}
 		} else {
 			executeAllMappings();
 		}
 	}
     
     public void executeAllMappings() throws ODException {
+    	processedOdMapping = true;
 		List<ComponentMapping> mappings = odPageEntityObject.getAllMappings();
 		for (ComponentMapping mapping: mappings) {
 			mapping.execute(this);
@@ -159,6 +180,7 @@ public class ODPageContext extends ODContext
 	}
 	
 	public void executeMapping(String name) throws ODException {
+		processedOdMapping = true;
 		List<ComponentMapping> mappings = odPageEntityObject.getAllMappings();
 		for (ComponentMapping mapping : mappings) {
 			if (mapping.getMappingName().equals(name)) {

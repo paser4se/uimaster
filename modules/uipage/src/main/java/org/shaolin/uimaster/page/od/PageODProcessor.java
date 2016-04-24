@@ -28,6 +28,7 @@ import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.PageWidgetsContext;
 import org.shaolin.uimaster.page.cust.IODPagePlugin;
 import org.shaolin.uimaster.page.cust.ODPagePlugin;
+import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.exception.ODProcessException;
 
 /**
@@ -183,7 +184,7 @@ public class PageODProcessor
 	        }
 			return odPageContext;
 		}
-		catch(Throwable e)
+		catch (Throwable e)
 		{
 			throw new ODProcessException(ExceptionConstants.EBOS_ODMAPPER_067, e, new Object[]{pageName});
 		}

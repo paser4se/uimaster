@@ -39,6 +39,7 @@ import org.shaolin.uimaster.page.ajax.AFile;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.JSONArray;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
+import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +70,13 @@ public class UploadFileServlet extends HttpServlet {
 			return;
 		}
 		
-		Map uiMap = AjaxActionHelper.getFrameMap(request);
+		Map uiMap = null;
+		try {
+			uiMap = AjaxActionHelper.getFrameMap(request);
+		} catch (AjaxException e1) {
+			logger.warn("Session maybe timeout: " + e1.getMessage(), e1);
+			return;
+		}
 		String uiid = request.getParameter("_uiid");
 		if (!uiMap.containsKey(uiid)) {
 			IDataItem dataItem = AjaxActionHelper.createNoPermission("User does not have the permission to upload the file.");
@@ -139,7 +146,8 @@ public class UploadFileServlet extends HttpServlet {
 				for (FileItem item : multiparts) {
 					// TODO: security check
 					// item.getContentType(); file.getSuffix(); image/jpg
-					if (item.getSize() > 1048576) {
+					//if (item.getSize() > 1048576) {
+					if (item.getSize() > 5120000) {
 						// 2M
 						logger.warn("the size of the uploading file is exceeded!");
 						IDataItem dataItem = AjaxActionHelper.createErrorDataItem("\u4E0A\u4F20\u6587\u4EF6\u5FC5\u987B\u5C0F\u4E8E2M");

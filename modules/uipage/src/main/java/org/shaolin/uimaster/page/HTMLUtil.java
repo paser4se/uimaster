@@ -243,9 +243,8 @@ public class HTMLUtil
         }
         catch (Exception e)
         {
-            logger.error(
-                    "error occured when get HTMLUIComponent for type: "
-                            + uiComponentType + " \n error message is " + e.getMessage(), e);
+            throw new IllegalStateException("error occured when get HTMLUIComponent for type: "
+                            + uiComponentType + ". The error message is: " + e.getMessage(), e);
         }
 
         htmlComponent.setContext(context);

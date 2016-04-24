@@ -44,6 +44,7 @@ import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
 import org.shaolin.uimaster.page.cache.UIFormObject;
+import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.od.ODEntityContext;
@@ -238,12 +239,20 @@ public class TabPane extends Container implements Serializable
     	loadedTabs.put(index, true);
     	this.accessedIndex.incrementAndGet();
     	
-    	try {
+    	
     	AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+    	Map ajaxMap = null;
+		try {
+			ajaxMap = AjaxActionHelper.getFrameMap(ajaxContext.getRequest());
+		} catch (AjaxException e1) {
+			logger.warn("Session maybe timeout: " + e1.getMessage(), e1);
+			return;
+		}
+    	try {
     	HTMLSnapshotContext htmlContext = new HTMLSnapshotContext(ajaxContext.getRequest());
         htmlContext.setFormName(this.getUIEntityName());
         htmlContext.setIsDataToUI(true);//Don't set prefix in here.
-        htmlContext.setAjaxWidgetMap(AjaxActionHelper.getFrameMap(ajaxContext.getRequest()));
+        htmlContext.setAjaxWidgetMap(ajaxMap);
         htmlContext.setHTMLPrefix(ajaxContext.getEntityPrefix());
         htmlContext.setDIVPrefix(ajaxContext.getEntityPrefix().replace(".", "-"));
         htmlContext.setJSONStyle(true);

@@ -28,6 +28,7 @@ import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.IRequestData;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.ajax.json.RequestData;
+import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +63,7 @@ public class AjaxActionHelper {
 	}
 
 	public static AjaxContext createUI2DataAjaxContext(String entityUiid, String uiform, HttpServletRequest request) 
-			throws EvaluationException {
+			throws AjaxException  {
 		Map uiMap = AjaxActionHelper.getFrameMap(request);
 		IRequestData requestData = AjaxActionHelper.createRequestData();
 		requestData.setUiid(entityUiid);
@@ -71,10 +72,14 @@ public class AjaxActionHelper {
         requestData.setFrameId("");
 		Widget comp = (Widget)uiMap.get(requestData.getUiid());
         if (comp == null) {
-            throw new IllegalStateException("Can not find this component[" + requestData.getUiid() + "] in the UI map!");
+            throw new AjaxException("Can not find this component[" + requestData.getUiid() + "] in the UI map!");
         }
         AjaxContext context = new AjaxContext(uiMap, requestData);
-        context.initData();
+        try {
+			context.initData();
+		} catch (EvaluationException e) {
+			throw new AjaxException(e.getMessage(), e);
+		}
         return context;
 	}
 	
@@ -84,10 +89,13 @@ public class AjaxActionHelper {
 	 * @param request
 	 * @return the frame map
 	 */
-	public static Map<?, ?> getFrameMap(HttpServletRequest request) {
+	public static Map<?, ?> getFrameMap(HttpServletRequest request) throws AjaxException {
 		String framePrefix = request.getParameter("_framePrefix");
 		Map<?, ?> ajaxComponentMap = (Map<?, ?>) request.getSession()
 				.getAttribute(AjaxContext.AJAX_COMP_MAP);
+		if (ajaxComponentMap == null) {
+			throw new AjaxException("Please re-initialize the whole page.");
+		}
 		Map<?, ?> pageComponentMap;
 		if (framePrefix == null || "null".equalsIgnoreCase(framePrefix)
 				|| framePrefix.length() == 0) {
@@ -141,11 +149,11 @@ public class AjaxActionHelper {
 	}
 	
 	public static Widget getCachedAjaxWidget(String name,
-			HTMLSnapshotContext htmlContext) {
+			HTMLSnapshotContext htmlContext) throws AjaxException {
 		Map uiMap = AjaxActionHelper.getFrameMap(htmlContext.getRequest());
 		Object obj = uiMap.get(name);
 		if (obj == null) {
-			throw new IllegalArgumentException("Can not be found this uiid["
+			throw new AjaxException("Can not be found this uiid["
 					+ name + "] in UI map!");
 		}
 		return (Widget) obj;

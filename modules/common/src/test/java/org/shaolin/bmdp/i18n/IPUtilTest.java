@@ -15,22 +15,14 @@
 */
 package org.shaolin.bmdp.i18n;
 
-import java.util.HashMap;
-
 import org.junit.Test;
-import org.shaolin.bmdp.utils.HttpSender;
+import org.shaolin.bmdp.utils.HttpUserUtil;
 
-public class HttpSenderTest {
+public class IPUtilTest {
 
 	@Test
-	public void testSend() throws Exception {
-		HttpSender sender = new HttpSender();
-		
-		HashMap<String, String> a = new HashMap<String, String>();
-		a.put("a", "hello");
-		sender.post("http://localhost:8080/uimaster/webflow.do?_chunkname=org.shaolin.bmdp.adminconsole.diagram.LoginAuthentication&_nodename=LoginPage", a);
-		sender.get("http://localhost:8080/uimaster/ajaxservice", a);
-		
-		sender.shutdown();
+	public void testGetRealAddress() throws Exception {
+		String realInfo = HttpUserUtil.getRealLocationInfo("210.75.225.254", "UTF-8");
+		System.out.println(realInfo);
 	}	
 }

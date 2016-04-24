@@ -42,6 +42,7 @@ import org.shaolin.uimaster.page.ajax.RefForm;
 import org.shaolin.uimaster.page.cache.ODFormObject;
 import org.shaolin.uimaster.page.cache.ODObject;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
+import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.exception.ODException;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
@@ -362,7 +363,12 @@ public class SimpleComponentMapping extends ComponentMapping {
 			long start = System.currentTimeMillis();
 			if (!odContext.isDataToUI()) {
 				String uiid = odMapperData.get(IODMappingConverter.UI_WIDGET_ID).toString();
-				RefForm refEntity = (RefForm)AjaxActionHelper.getCachedAjaxWidget(uiid, htmlContext);
+				RefForm refEntity = null;
+				try {
+					refEntity = (RefForm)AjaxActionHelper.getCachedAjaxWidget(uiid, htmlContext);
+				} catch (AjaxException e) {
+					throw new ODException("Failed to get UIform: " + e.getMessage(), e);
+				}
 				odMapperData.put(uiDataParam.getParamName(), refEntity.getCopy());
 			}
 			ODProcessor processor = new ODProcessor(htmlContext, odmapperName, odContext.getDeepLevel());

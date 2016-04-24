@@ -84,7 +84,7 @@ public class AjaxProcessor implements Serializable
 
     private final AjaxContext context;
 
-    public AjaxProcessor(HTMLSnapshotContext htmlContext) throws AjaxInitializedException
+    public AjaxProcessor(HTMLSnapshotContext htmlContext) throws AjaxException
     {
         this.context = createAjaxContext(htmlContext);
         AjaxActionHelper.createAjaxContext(this.context);
@@ -128,7 +128,7 @@ public class AjaxProcessor implements Serializable
     }
 
     private AjaxContext createAjaxContext(HTMLSnapshotContext htmlContext)
-            throws AjaxInitializedException
+            throws AjaxException
     {
         HttpServletRequest request = htmlContext.getRequest();
         IRequestData requestData = getRequestData(request);
