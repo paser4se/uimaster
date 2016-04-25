@@ -464,8 +464,12 @@ public final class EntityManager implements IEntityManager {
 			String entityType, boolean reload) throws JAXBException {
 		if (entityMapping.containsKey(entityType)) {
 			Class<?> type = entityMapping.get(entityType);
-			Object obj = EntityUtil.unmarshaller(type, in);
-			addEntity(name, obj, reload);
+			try {
+				Object obj = EntityUtil.unmarshaller(type, in);
+				addEntity(name, obj, reload);
+			} catch (Exception e) {
+				throw new JAXBException("Failed to load entity: " + name, e);
+			}
 		}
 	}
 	

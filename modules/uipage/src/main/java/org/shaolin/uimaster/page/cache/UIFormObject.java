@@ -144,6 +144,8 @@ public class UIFormObject implements java.io.Serializable
 
     private String desc = null;
     
+    private ExpressionType descExpr = null;
+    
     private String bodyName = null;
 
     private Map<String, Map<String, Object>> componentMap = 
@@ -224,10 +226,17 @@ public class UIFormObject implements java.io.Serializable
         HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, false);
     }
 
-
     private void parseUI(OOEEContext parsingContext, UIEntity entity, Map extraInfo)
     {
     	this.clear();
+    	if (entity.getDescriptionExpr() != null) {
+    		try {
+				entity.getDescriptionExpr().parse(parsingContext);
+				descExpr = entity.getDescriptionExpr();
+			} catch (ParsingException e) {
+				logger.error("UI Form description parsing error: " + e.getMessage(), e);
+			}
+    	}
     	
 		if (logger.isDebugEnabled()) {
 			logger.debug("parse reconfigurable for form: " + name);
@@ -1622,6 +1631,10 @@ public class UIFormObject implements java.io.Serializable
     		return desc;
     	}
     	return this.name;
+    }
+    
+    public ExpressionType getDescriptionExpr() {
+    	return descExpr;
     }
     
     public Map getComponentProperty(String componentID)

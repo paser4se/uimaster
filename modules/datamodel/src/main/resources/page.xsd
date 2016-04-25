@@ -216,12 +216,12 @@ in simple component mapping, the paramName is required</xs:documentation>
 	</xs:complexType>
 	<xs:complexType name="PageInType">
 		<xs:sequence>
-			<xs:element name="clientAction" type="Common:ExpressionType">
+			<xs:element name="clientAction" type="Common:ExpressionType" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>client side JS</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="serverOperation" type="Common:ExpressionType"/>
+			<xs:element name="serverOperation" type="Common:ExpressionType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="PageOutType">
@@ -234,7 +234,7 @@ in simple component mapping, the paramName is required</xs:documentation>
 					<xs:documentation>client side JS</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="serverOperation" type="Common:ExpressionType"/>
+			<xs:element name="serverOperation" type="Common:ExpressionType" minOccurs="0"/>
 		</xs:sequence>
 		<xs:attribute name="name" type="xs:string" use="required"/>
 		<xs:attribute name="functionName" type="xs:string" use="required"/>

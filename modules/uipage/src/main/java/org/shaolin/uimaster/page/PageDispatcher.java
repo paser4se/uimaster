@@ -306,7 +306,13 @@ public class PageDispatcher {
 
             context.generateHTML("<!DOCTYPE html>\n");
             context.generateHTML("<html>\n<head>\n<title>");
-            context.generateHTML(pageObject.getUIForm().getDescription());
+            UIFormObject uiForm = pageObject.getUIForm();
+			if (uiForm.getDescriptionExpr() != null) {
+            	Object title = uiForm.getDescriptionExpr().evaluate(evaContext);
+				context.generateHTML(title != null ? title.toString() : "");
+            } else {
+				context.generateHTML(uiForm.getDescription());
+            }
             //is the title need i18n? -- the name should not be i18n, but the <title> should be i18n
             //currently all uipages are embedded in frame, so the title can't be seen by user
             context.generateHTML("</title>\n");
