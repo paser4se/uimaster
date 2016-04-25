@@ -96,9 +96,7 @@ public class ZKDistributedJobEngine implements DistributedJobEngine, ILifeCycleP
     }
 
     public void elect() {
-
         try {
-
             String path = zookeeper
                     .create(LEADER_PATH + "/"
                             + LEADER, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
@@ -155,7 +153,6 @@ public class ZKDistributedJobEngine implements DistributedJobEngine, ILifeCycleP
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
 
     @Override
@@ -165,14 +162,14 @@ public class ZKDistributedJobEngine implements DistributedJobEngine, ILifeCycleP
 
     @Override
     public void stopService() {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     public void reload() {
-        leader.reload();
-
+    	if (leader != null) {
+    		leader.reload();
+    	}
     }
 
     @Override

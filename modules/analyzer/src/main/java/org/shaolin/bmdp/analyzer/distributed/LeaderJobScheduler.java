@@ -3,7 +3,6 @@
  */
 package org.shaolin.bmdp.analyzer.distributed;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -26,7 +25,6 @@ import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 import org.shaolin.bmdp.analyzer.be.IJavaCCJob;
 import org.shaolin.bmdp.analyzer.be.JavaCCJobImpl;
-import org.shaolin.bmdp.analyzer.ce.JavaCCJobStatusType;
 import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
 import org.shaolin.bmdp.analyzer.distributed.api.IJobDispatcher;
 
@@ -39,7 +37,7 @@ public class LeaderJobScheduler implements IJobDispatcher {
 
     private final SchedulerFactory scheduleFactory = new StdSchedulerFactory();
 
-    private Queue<IJavaCCJob> jobQueue = new ConcurrentLinkedQueue<IJavaCCJob>();
+    private final Queue<IJavaCCJob> jobQueue = new ConcurrentLinkedQueue<IJavaCCJob>();
 
     public static final String DEFAULT_GROUP = "default_group";
 
@@ -84,20 +82,17 @@ public class LeaderJobScheduler implements IJobDispatcher {
         loadAllJobs();
 
         // run scheduler for all jobs
-
         scheduleJobs();
 
     }
 
     @Override
     public boolean readyToStop() {
-        // TODO Auto-generated method stub
         return true;
     }
 
     @Override
     public void stopService() {
-        // TODO Auto-generated method stub
     }
 
     @Override
@@ -127,12 +122,10 @@ public class LeaderJobScheduler implements IJobDispatcher {
         JavaCCJobImpl job = new JavaCCJobImpl();
         job.setEnabled(true);
         // job.setStatus(JavaCCJobStatusType.START);
-        long c = AanlysisModel.INSTANCE.searchJavaCCJobCount(job);
-
-        List<IJavaCCJob> jobs = AanlysisModel.INSTANCE.searchJavaCCJob(job, null, 0, (int) c);
+        List<IJavaCCJob> jobs = AanlysisModel.INSTANCE.searchJavaCCJob(job, null, 0, -1);
         jobQueue.addAll(jobs);
 
-        logger.info("--------------------------totally " + c + " jobs loaded -------------------------");
+        logger.info("--------------------------totally " + jobs.size() + " jobs loaded -------------------------");
 
     }
 
@@ -163,7 +156,6 @@ public class LeaderJobScheduler implements IJobDispatcher {
 
         } while (jobInfo != null);
         try {
-
             scheduler.start();
         } catch (Exception e) {
             logger.warn("", e);
@@ -173,7 +165,6 @@ public class LeaderJobScheduler implements IJobDispatcher {
 
     @Override
     public void dispatchJobs(IJavaCCJob jobInfo) {
-        // /
         counter.compareAndSet(Integer.MAX_VALUE, 0);
 
         List<String> workers = workerNodeListener.getKnownWorkers();
@@ -227,13 +218,11 @@ public class LeaderJobScheduler implements IJobDispatcher {
 
     @Override
     public String getJobNameFromJobInfo(IJavaCCJob jobInfo) {
-        // TODO Auto-generated method stub
         return jobInfo.getId() + "";
     }
 
     @Override
     public String getTriggerNameFromJobInfo(IJavaCCJob jobInfo) {
-        // TODO Auto-generated method stub
         return jobInfo.getId() + "";
     }
 

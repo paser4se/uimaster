@@ -67,7 +67,6 @@ public class WorkerJobExecutor implements IJobExecutor<IJavaCCJob> {
     @Override
     public void executeJob(IJavaCCJob job) {
         executingJobList.add(job.getId());
-
     }
 
     @Override
