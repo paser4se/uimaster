@@ -1,13 +1,9 @@
 package org.shaolin.bmdp.analyzer.internal;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.text.Collator;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -19,12 +15,14 @@ import org.shaolin.bmdp.analyzer.be.IJavaCCJob;
 import org.shaolin.bmdp.analyzer.be.JavaCCJobImpl;
 import org.shaolin.bmdp.analyzer.ce.JavaCCJobStatusType;
 import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
+import org.shaolin.bmdp.analyzer.distributed.ZKDistributedJobEngine;
 import org.shaolin.bmdp.datamodel.common.DiagramType;
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.UITableStatsType;
 import org.shaolin.bmdp.datamodel.rdbdiagram.ColumnType;
 import org.shaolin.bmdp.datamodel.rdbdiagram.TableType;
 import org.shaolin.bmdp.runtime.AppContext;
+import org.shaolin.bmdp.runtime.ddc.client.ZooKeeperFactory;
 import org.shaolin.bmdp.runtime.entity.EntityAddedEvent;
 import org.shaolin.bmdp.runtime.entity.EntityManager;
 import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
@@ -53,7 +51,21 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 	final List<TableType> tables = new ArrayList<TableType>();
 	
 	private static final Logger logger = LoggerFactory.getLogger(AnalyzerServiceImpl.class);
-	
+
+	private ZKDistributedJobEngine javaCCJobEngine;
+
+	private String nodeName ;
+
+	public AnalyzerServiceImpl() {
+		try {
+			nodeName = InetAddress.getLocalHost().getHostName()+System.currentTimeMillis();
+		}catch (Exception e) {
+			nodeName = UUID.randomUUID().toString();
+		}
+
+		javaCCJobEngine = new ZKDistributedJobEngine(ZooKeeperFactory.getInstance().getCachedZookeeper(),nodeName);
+	}
+
 	@Override
 	public Class getServiceInterface() {
 		return IAnalyzerService.class;
@@ -61,13 +73,14 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 
 	@Override
 	public int getRunLevel() {
-		return 10;
+		return 20;
 	}
 
 	@Override
 	public boolean readyToStop() {
 		return true;
 	}
+
 
 	@Override
 	public void reload() {
@@ -78,33 +91,37 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 					.createScheduler("system", "data-analyzer", 1);
 			
 			ChartStatisticImpl stats = new ChartStatisticImpl();
-			List<IChartStatistic> result = AanlysisModel.INSTANCE.searchChartStats(stats, null, 0, -1);
-			if (!result.isEmpty()) {
-				for (IChartStatistic statsItem: result) {
-					UITableStatsType uiStatsType = convert(statsItem);
-					try {
-						UIFormObject uiCache = PageCacheManager.getUIFormObject(statsItem.getActionOnUIFrom());
-		    			uiCache.addStatsAction(uiStatsType);
-		    		} catch (EntityNotFoundException e) {
-		    			try {
-		    				UIPageObject uiCache = PageCacheManager.getUIPageObject(statsItem.getActionOnUIFrom());
-		    				UIFormObject uiForm = uiCache.getUIForm();
-		    				uiForm.addStatsAction(uiStatsType);
-		    			} catch (Exception e1) {
-		    				logger.error("Error to load the dynamic UI items: " + e.getMessage(), e);
-		    			} 
-		    		} 
-				}
-			}
+//			List<IChartStatistic> result = AanlysisModel.INSTANCE.searchChartStats(stats, null, 0, -1);
+//			if (!result.isEmpty()) {
+//				for (IChartStatistic statsItem: result) {
+//					UITableStatsType uiStatsType = convert(statsItem);
+//					try {
+//						UIFormObject uiCache = PageCacheManager.getUIFormObject(statsItem.getActionOnUIFrom());
+//		    			uiCache.addStatsAction(uiStatsType);
+//		    		} catch (EntityNotFoundException e) {
+//		    			try {
+//		    				UIPageObject uiCache = PageCacheManager.getUIPageObject(statsItem.getActionOnUIFrom());
+//		    				UIFormObject uiForm = uiCache.getUIForm();
+//		    				uiForm.addStatsAction(uiStatsType);
+//		    			} catch (Exception e1) {
+//		    				logger.error("Error to load the dynamic UI items: " + e.getMessage(), e);
+//		    			}
+//		    		}
+//				}
+//			}
+
+
 			
-			//TODO: check the distribution status of java cc jobs.
-			JavaCCJobImpl jobCondition = new JavaCCJobImpl();
-			jobCondition.setEnabled(true);
-			jobCondition.setStatus(JavaCCJobStatusType.START);
-			List<IJavaCCJob> jobs = AanlysisModel.INSTANCE.searchJavaCCJob(jobCondition, null, 0, -1);
-			for (IJavaCCJob job : jobs) {
-				this.startJob(job);
-			}
+//			//TODO: check the distribution status of java cc jobs.
+//			JavaCCJobImpl jobCondition = new JavaCCJobImpl();
+//			jobCondition.setEnabled(true);
+//			jobCondition.setStatus(JavaCCJobStatusType.START);
+//			List<IJavaCCJob> jobs = AanlysisModel.INSTANCE.searchJavaCCJob(jobCondition, null, 0, -1);
+//			for (IJavaCCJob job : jobs) {
+//				this.startJob(job);
+//			}
+
+			javaCCJobEngine.startService();
 		}
 		
 		this.tables.clear();
@@ -157,7 +174,9 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 				}
 			}
 			futures.clear();
-		} 
+		}
+
+		javaCCJobEngine.stopService();
 	}
 	
 	@Override

@@ -83,6 +83,10 @@
             <bediagram:name>script</bediagram:name>
             <bediagram:type xsi:type="bediagram:StringType" />
         </bediagram:member>
+         <bediagram:member>
+            <bediagram:name>cronExp</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
         <bediagram:member>
             <bediagram:name>executeDays</bediagram:name>
             <bediagram:type xsi:type="bediagram:IntType" />
