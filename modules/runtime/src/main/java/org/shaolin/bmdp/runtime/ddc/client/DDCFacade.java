@@ -1,15 +1,14 @@
 package org.shaolin.bmdp.runtime.ddc.client;
 
+import java.io.IOException;
+import java.io.Serializable;
+
 import org.apache.log4j.Logger;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.cache.ICache;
 import org.shaolin.bmdp.runtime.ddc.client.api.IZookeeperClient;
-import org.shaolin.bmdp.runtime.ddc.client.sample.CacheNodeListener;
 import org.shaolin.bmdp.runtime.ddc.client.sample.DDCHelper;
 import org.shaolin.bmdp.utils.SerializeUtil;
-
-import java.io.IOException;
-import java.io.Serializable;
 
 /**
  * Created by lizhiwe on 4/7/2016.

@@ -1,19 +1,18 @@
 package org.shaolin.bmdp.runtime.ddc.client;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.AsyncCallback;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
-import org.shaolin.bmdp.runtime.ddc.Executor;
 import org.shaolin.bmdp.runtime.ddc.client.api.DataListener;
 import org.shaolin.bmdp.runtime.ddc.client.api.ZData;
 import org.shaolin.bmdp.runtime.ddc.client.sample.ZDataImpl;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by lizhiwe on 4/5/2016.

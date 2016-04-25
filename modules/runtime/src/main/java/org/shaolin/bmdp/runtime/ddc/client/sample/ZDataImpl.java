@@ -4,6 +4,7 @@ import org.apache.zookeeper.Watcher;
 import org.shaolin.bmdp.runtime.ddc.client.api.ZData;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by lizhiwe on 4/5/2016.
@@ -13,6 +14,7 @@ public class ZDataImpl implements ZData {
     private String path;
     private int version;
     private Watcher watcher;
+    private List<String> children;
 
     @Override
     public byte[] getData() {
@@ -54,12 +56,8 @@ public class ZDataImpl implements ZData {
 
     @Override
     public String toString() {
-        return "ZDataImpl{" +
-                "data=" + Arrays.toString(data) +
-                ", path='" + path + '\'' +
-                ", version=" + version +
-                ", watcher=" + watcher +
-                '}';
+        return "ZDataImpl{" + "data=" + Arrays.toString(data) + ", path='" + path + '\'' + ", version=" + version
+                + ", watcher=" + watcher + '}';
     }
 
     public static ZData newInstance(String path, byte[] data, int version) {
@@ -68,6 +66,18 @@ public class ZDataImpl implements ZData {
         fragment.setVersion(version);
         fragment.setPath(path);
         return fragment;
+    }
+
+    @Override
+    public List<String> getChildren() {
+        // TODO Auto-generated method stub
+        return children;
+    }
+
+    @Override
+    public void setChildren(List<String> children) {
+        this.children = children;
+
     }
 
 }

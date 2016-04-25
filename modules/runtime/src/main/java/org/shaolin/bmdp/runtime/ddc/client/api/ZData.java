@@ -1,5 +1,7 @@
 package org.shaolin.bmdp.runtime.ddc.client.api;
 
+import java.util.List;
+
 import org.apache.zookeeper.Watcher;
 
 /**
@@ -18,4 +20,7 @@ public interface ZData {
 
     Watcher getWatcher();
     void setWatcher(Watcher watcher);
+    
+    List<String> getChildren();
+    void setChildren(List<String> children);
 }

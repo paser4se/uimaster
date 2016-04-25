@@ -1,10 +1,9 @@
 package org.shaolin.bmdp.ddc;
 
+import java.net.URL;
+
 import org.junit.Test;
 import org.shaolin.bmdp.runtime.ddc.ZookeeperServiceLauncher;
-
-import java.io.InputStream;
-import java.net.URL;
 
 /**
  * Created by lizhiwe on 4/7/2016.
@@ -13,10 +12,11 @@ public class ZookeeperLauncherTest {
 
     @Test
     public void testZookeeperService() {
+        
         final ZookeeperServiceLauncher launcher0 = new ZookeeperServiceLauncher();
 
-
         URL in = ZookeeperLauncherTest.class.getResource("zoo.cfg");
+        
         launcher0.setConfigFileLocation(in.getPath());
 
         final ZookeeperServiceLauncher launcher1 = new ZookeeperServiceLauncher();
@@ -37,7 +37,7 @@ public class ZookeeperLauncherTest {
         }).start();
 
         try {
-            Thread.sleep(9999999l);
+            Thread.sleep(300000l);
         } catch (Exception e) {
             e.printStackTrace();
         }
