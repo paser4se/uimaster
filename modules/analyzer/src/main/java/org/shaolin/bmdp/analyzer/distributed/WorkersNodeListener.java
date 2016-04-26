@@ -60,6 +60,10 @@ public class WorkersNodeListener implements DataListener {
     public void onChildChanged(ZData zData) {
 
         List<String> newWorkers = zData.getChildren();
+        
+        if (newWorkers == null) {
+            return;
+        }
 
         List<String> workersTobeRemove = new ArrayList<String>();
         for (String knownWorker : knownWorkers) {

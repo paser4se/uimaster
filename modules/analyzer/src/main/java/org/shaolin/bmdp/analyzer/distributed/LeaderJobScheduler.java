@@ -103,11 +103,11 @@ public class LeaderJobScheduler implements IJobDispatcher {
     @Override
     public void reload() {
         jobQueue.clear();
+        this.scheduledJobCache.clear();
         try {
             scheduler.clear();
         } catch (SchedulerException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.warn("", e);
         }
 
         loadAllJobs();
@@ -158,6 +158,12 @@ public class LeaderJobScheduler implements IJobDispatcher {
 
     private void scheduleAJob(IJavaCCJob jobInfo) {
         logger.info("--------------------------scheduling job [" + jobInfo.getId() + "] -------------------------");
+        
+        if (scheduledJobCache.containsKey(jobInfo.getId())) {
+            logger.info("JavaCCJob ["+jobInfo.getId()+"] already scheduled. ignore this schedule request!");
+            return;
+        }
+        
         JobDetail job = JobBuilder.newJob(DispatcherJob.class)
                 .withIdentity(getJobNameFromJobInfo(jobInfo), DEFAULT_GROUP).build();
 
@@ -220,6 +226,8 @@ public class LeaderJobScheduler implements IJobDispatcher {
 
                     }
 
+                }catch (Exception e) {
+                    logger.warn("error set data", e);
                 }
             }
         }, null);
@@ -251,6 +259,7 @@ public class LeaderJobScheduler implements IJobDispatcher {
         if (trigger != null) {
             try {
                 scheduler.unscheduleJob(trigger.getKey());
+                scheduledJobCache.remove(job.getId());
             } catch (SchedulerException e) {
                 logger.warn("Error:", e);
             }
