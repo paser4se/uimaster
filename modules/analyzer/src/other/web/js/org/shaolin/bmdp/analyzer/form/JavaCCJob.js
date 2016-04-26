@@ -18,24 +18,14 @@ function org_shaolin_bmdp_analyzer_form_JavaCCJob(json)
         ui: elementList[prefix + "scriptUI"]
     });
 
-    var executeDaysUILabel = new UIMaster.ui.label
+    var cronExprUILabel = new UIMaster.ui.label
     ({
-        ui: elementList[prefix + "executeDaysUILabel"]
+        ui: elementList[prefix + "cronExprUILabel"]
     });
 
-    var executeDaysUI = new UIMaster.ui.textfield
+    var cronExprUI = new UIMaster.ui.textfield
     ({
-        ui: elementList[prefix + "executeDaysUI"]
-    });
-
-    var executeTimeUILabel = new UIMaster.ui.label
-    ({
-        ui: elementList[prefix + "executeTimeUILabel"]
-    });
-
-    var executeTimeUI = new UIMaster.ui.textfield
-    ({
-        ui: elementList[prefix + "executeTimeUI"]
+        ui: elementList[prefix + "cronExprUI"]
     });
 
     var descUILabel = new UIMaster.ui.label
@@ -69,13 +59,13 @@ function org_shaolin_bmdp_analyzer_form_JavaCCJob(json)
     ({
         ui: elementList[prefix + "fieldPanel"]
         ,items: []
-        ,subComponents: [prefix + "idUI",prefix + "scriptUILabel",prefix + "scriptUI",prefix + "executeDaysUILabel",prefix + "executeDaysUI",prefix + "executeTimeUILabel",prefix + "executeTimeUI",prefix + "descUILabel",prefix + "descUI"]
+        ,subComponents: [prefix + "idUI",prefix + "scriptUILabel",prefix + "scriptUI",prefix + "cronExprUILabel",prefix + "cronExprUI",prefix + "descUILabel",prefix + "descUI"]
     });
 
     var Form = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "Form"]
-        ,items: [idUI,scriptUILabel,scriptUI,executeDaysUILabel,executeDaysUI,executeTimeUILabel,executeTimeUI,descUILabel,descUI,okbtn,cancelbtn,fieldPanel,actionPanel]
+        ,items: [idUI,scriptUILabel,scriptUI,cronExprUILabel,cronExprUI,descUILabel,descUI,okbtn,cancelbtn,fieldPanel,actionPanel]
     });
 
     Form.idUI=idUI;
@@ -84,13 +74,9 @@ function org_shaolin_bmdp_analyzer_form_JavaCCJob(json)
 
     Form.scriptUI=scriptUI;
 
-    Form.executeDaysUILabel=executeDaysUILabel;
+    Form.cronExprUILabel=cronExprUILabel;
 
-    Form.executeDaysUI=executeDaysUI;
-
-    Form.executeTimeUILabel=executeTimeUILabel;
-
-    Form.executeTimeUI=executeTimeUI;
+    Form.cronExprUI=cronExprUI;
 
     Form.descUILabel=descUILabel;
 
@@ -108,13 +94,9 @@ function org_shaolin_bmdp_analyzer_form_JavaCCJob(json)
 
     Form.scriptUI=scriptUI;
 
-    Form.executeDaysUILabel=executeDaysUILabel;
+    Form.cronExprUILabel=cronExprUILabel;
 
-    Form.executeDaysUI=executeDaysUI;
-
-    Form.executeTimeUILabel=executeTimeUILabel;
-
-    Form.executeTimeUI=executeTimeUI;
+    Form.cronExprUI=cronExprUI;
 
     Form.descUILabel=descUILabel;
 

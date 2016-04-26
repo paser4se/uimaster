@@ -82,24 +82,14 @@
       <ns2:component xsi:type="ns2:UITextAreaType" UIID="scriptUI">
         <ns2:UIStyle>uimaster_rightform_widget</ns2:UIStyle>
       </ns2:component>
-      <ns2:component xsi:type="ns2:UILabelType" UIID="executeDaysUILabel">
-        <ns2:UIStyle>uimaster_leftform_widget</ns2:UIStyle>
-        <ns2:text xsi:type="ns2:ResourceBundlePropertyType">
-          <ns2:bundle>org_shaolin_bmdp_analyzer_i18n</ns2:bundle>
-          <ns2:key>org.shaolin.bmdp.analyzer.be.JavaCCJob.executeDays</ns2:key>
-        </ns2:text>
-      </ns2:component>
-      <ns2:component xsi:type="ns2:UITextFieldType" UIID="executeDaysUI">
-        <ns2:UIStyle>uimaster_rightform_widget</ns2:UIStyle>
-      </ns2:component>
-      <ns2:component xsi:type="ns2:UILabelType" UIID="executeTimeUILabel">
+      <ns2:component xsi:type="ns2:UILabelType" UIID="cronExprUILabel">
         <ns2:UIStyle>uimaster_leftform_widget</ns2:UIStyle>
         <ns2:text xsi:type="ns2:ResourceBundlePropertyType">
           <ns2:bundle>org_shaolin_bmdp_analyzer_i18n</ns2:bundle>
           <ns2:key>org.shaolin.bmdp.analyzer.be.JavaCCJob.executeTime</ns2:key>
         </ns2:text>
       </ns2:component>
-      <ns2:component xsi:type="ns2:UITextFieldType" UIID="executeTimeUI">
+      <ns2:component xsi:type="ns2:UITextFieldType" UIID="cronExprUI">
         <ns2:UIStyle>uimaster_rightform_widget</ns2:UIStyle>
       </ns2:component>
       <ns2:component xsi:type="ns2:UILabelType" UIID="descUILabel">
@@ -121,28 +111,20 @@
         <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="1" y="0" align="FULL" cellUIClass="uimaster_rightform_cell"></ns2:constraint>
       </ns2:layoutConstraint>
       <ns2:layoutConstraint>
-        <ns2:componentId>executeDaysUILabel</ns2:componentId>
+        <ns2:componentId>cronExprUILabel</ns2:componentId>
         <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="1" align="FULL" cellUIClass="uimaster_leftform_cell"></ns2:constraint>
       </ns2:layoutConstraint>
       <ns2:layoutConstraint>
-        <ns2:componentId>executeDaysUI</ns2:componentId>
+        <ns2:componentId>cronExprUI</ns2:componentId>
         <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="1" y="1" align="FULL" cellUIClass="uimaster_rightform_cell"></ns2:constraint>
       </ns2:layoutConstraint>
       <ns2:layoutConstraint>
-        <ns2:componentId>executeTimeUILabel</ns2:componentId>
+        <ns2:componentId>descUILabel</ns2:componentId>
         <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="2" align="FULL" cellUIClass="uimaster_leftform_cell"></ns2:constraint>
       </ns2:layoutConstraint>
       <ns2:layoutConstraint>
-        <ns2:componentId>executeTimeUI</ns2:componentId>
-        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="1" y="2" align="FULL" cellUIClass="uimaster_rightform_cell"></ns2:constraint>
-      </ns2:layoutConstraint>
-      <ns2:layoutConstraint>
-        <ns2:componentId>descUILabel</ns2:componentId>
-        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="3" align="FULL" cellUIClass="uimaster_leftform_cell"></ns2:constraint>
-      </ns2:layoutConstraint>
-      <ns2:layoutConstraint>
         <ns2:componentId>descUI</ns2:componentId>
-        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="1" y="3" align="FULL" cellUIClass="uimaster_rightform_cell"></ns2:constraint>
+        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="1" y="2" align="FULL" cellUIClass="uimaster_rightform_cell"></ns2:constraint>
       </ns2:layoutConstraint>
     </ns2:component>
     <ns2:component xsi:type="ns2:UIPanelType" UIID="actionPanel">
@@ -206,16 +188,11 @@
       <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.script" paramName="StringData"></ns2:DataComponent>
     </ns2:ComponentMapping>
     <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping2">
-      <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UITextWithNumber"></ns2:mappingRule>
-      <ns2:UIComponent componentPath="executeDaysUI" paramName="UIWidgetType"></ns2:UIComponent>
-      <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.executeDays" paramName="Number"></ns2:DataComponent>
+      <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UIText"></ns2:mappingRule>
+      <ns2:UIComponent componentPath="cronExprUI" paramName="UIWidgetType"></ns2:UIComponent>
+      <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.cronExp" paramName="StringData"></ns2:DataComponent>
     </ns2:ComponentMapping>
     <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping3">
-      <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UITextWithNumber"></ns2:mappingRule>
-      <ns2:UIComponent componentPath="executeTimeUI" paramName="UIWidgetType"></ns2:UIComponent>
-      <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.executeTime" paramName="Number"></ns2:DataComponent>
-    </ns2:ComponentMapping>
-    <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping4">
       <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UIText"></ns2:mappingRule>
       <ns2:UIComponent componentPath="descUI" paramName="UIWidgetType"></ns2:UIComponent>
       <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.description" paramName="StringData"></ns2:DataComponent>
