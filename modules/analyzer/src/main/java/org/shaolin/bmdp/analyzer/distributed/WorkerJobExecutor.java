@@ -29,6 +29,7 @@ import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 import org.shaolin.bmdp.analyzer.be.IJavaCCJob;
 import org.shaolin.bmdp.analyzer.be.JavaCCJobImpl;
+import org.shaolin.bmdp.analyzer.ce.JavaCCJobStatusType;
 import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
 import org.shaolin.bmdp.analyzer.distributed.api.IJobExecutor;
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
@@ -72,7 +73,6 @@ public class WorkerJobExecutor implements IJobExecutor<IJavaCCJob> {
 
     @Override
     public void init() {
-        // TODO Auto-generated method stub
 
     }
 
@@ -97,7 +97,10 @@ public class WorkerJobExecutor implements IJobExecutor<IJavaCCJob> {
             JavaCCJobImpl job = new JavaCCJobImpl();
             job.setId(Long.parseLong(id));
             final IJavaCCJob task = AanlysisModel.INSTANCE.searchJavaCCJob(job, null, 0, 1).get(0);
-
+            if (task.getStatus() == JavaCCJobStatusType.STOP) {
+            	return;
+            }
+            
             executingJobList.add(task.getId());
           //  logger.info("----get latest jobIds ["+ Arrays.toString(executingJobList.toArray())+"]");
 //            executor.submit(new Runnable() {
@@ -148,7 +151,9 @@ public class WorkerJobExecutor implements IJobExecutor<IJavaCCJob> {
                     String txt = new String(data);
                     txt = txt.replace(task.getId() + "", "");
                     txt = txt.replace(";;", ";");
-                    logger.debug("----notify loeader the job ["+ task.getId()+"] finished");
+                    if (logger.isDebugEnabled()) {
+                    	logger.debug("Notify the leader's job ["+ task.getId()+"] finished");
+                    }
                     zookeeper.setData(path, txt.getBytes(), stat.getVersion());
                 } catch (KeeperException | InterruptedException e) {
                     logger.warn("error update data", e);
