@@ -376,7 +376,9 @@ public class WebFlowServlet extends HttpServlet
 				}
 				HttpSession session = request.getSession();
 				UserContext currentUserContext = (UserContext)session.getAttribute(WebflowConstants.USER_SESSION_KEY);
-				if (currentUserContext == null && attrAccessor.orgId != null) {
+				if ((currentUserContext == null && attrAccessor.orgId != null)
+						|| (currentUserContext != null && attrAccessor.orgId != null && attrAccessor.orgCode == null 
+							&& !attrAccessor.orgId.equals(String.valueOf(currentUserContext.getOrgId())))) {
 					currentUserContext = new UserContext();
 					currentUserContext.setOrgCode(attrAccessor.orgCode);
 					currentUserContext.setOrgId(Long.valueOf(attrAccessor.orgId));
