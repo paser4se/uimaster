@@ -1,6 +1,18 @@
-/**
- *
- */
+/*
+* Copyright 2015 The UIMaster Project
+*
+* The UIMaster Project licenses this file to you under the Apache License,
+* version 2.0 (the "License"); you may not use this file except in compliance
+* with the License. You may obtain a copy of the License at:
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations
+* under the License.
+*/
 package org.shaolin.bmdp.analyzer.distributed;
 
 import java.util.List;
@@ -98,6 +110,15 @@ public class LeaderJobScheduler implements IJobDispatcher {
 
     @Override
     public void stopService() {
+    	try {
+			scheduler.shutdown();
+		} catch (SchedulerException e) {
+			logger.warn(e);
+		}
+    	try {
+			scheduler.clear();
+		} catch (SchedulerException e) {
+		}
     }
 
     @Override
@@ -107,7 +128,7 @@ public class LeaderJobScheduler implements IJobDispatcher {
         try {
             scheduler.clear();
         } catch (SchedulerException e) {
-            logger.warn("", e);
+            logger.warn(e);
         }
 
         loadAllJobs();
@@ -123,14 +144,14 @@ public class LeaderJobScheduler implements IJobDispatcher {
 
     @Override
     public void loadAllJobs() {
-        logger.info("--------------------------loading all jobs -------------------------");
+        logger.info("loading all jobs.");
         JavaCCJobImpl job = new JavaCCJobImpl();
         job.setEnabled(true);
         // job.setStatus(JavaCCJobStatusType.START);
         List<IJavaCCJob> jobs = AanlysisModel.INSTANCE.searchJavaCCJob(job, null, 0, -1);
         jobQueue.addAll(jobs);
 
-        logger.info("--------------------------totally " + jobs.size() + " jobs loaded -------------------------");
+        logger.info("totally " + jobs.size() + " jobs loaded.");
 
     }
 
@@ -154,10 +175,8 @@ public class LeaderJobScheduler implements IJobDispatcher {
 
     }
 
-
-
     private void scheduleAJob(IJavaCCJob jobInfo) {
-        logger.info("--------------------------scheduling job [" + jobInfo.getId() + "] -------------------------");
+        logger.info("scheduling job [" + jobInfo.getId() + "]");
         
         if (scheduledJobCache.containsKey(jobInfo.getId())) {
             logger.info("JavaCCJob ["+jobInfo.getId()+"] already scheduled. ignore this schedule request!");
@@ -190,7 +209,9 @@ public class LeaderJobScheduler implements IJobDispatcher {
         List<String> workers = workerNodeListener.getKnownWorkers();
         int i = counter.incrementAndGet() % workers.size();
         String workerName = workers.get(i);
-        logger.info("--------------------------dispatching job [" + jobInfo.getId() + "] to [" + workerName + "]");
+        if (logger.isDebugEnabled()) {
+        	logger.debug("dispatching job [" + jobInfo.getId() + "] to [" + workerName + "]");
+        }
         notifyWorkerToExecuteJob(workerName, jobInfo.getId());
     }
 
@@ -198,8 +219,10 @@ public class LeaderJobScheduler implements IJobDispatcher {
         zookeeper.getData(ZKDistributedJobEngine.NODES_PATH + "/" + workerName, watcher, new DataCallback() {
             @Override
             public void processResult(int rc, String path, Object ctx, byte[] data, Stat stat) {
-                logger.info("--------------------------notifing worker [" + workerName + "] to execute job [" + id
+            	if (logger.isDebugEnabled()) {
+                	logger.debug("notifing worker [" + workerName + "] to execute job [" + id
                         + "]");
+            	}
                 try {
                     String s = "";
                     if (data != null && data.length > 0) {
@@ -207,9 +230,12 @@ public class LeaderJobScheduler implements IJobDispatcher {
                     }
                     if (s.length() == 0) {
                         s = id + "";
-
                     } else {
                         s = ";" + id;
+                    }
+                    if (stat == null) {
+                    	stat = new Stat();
+                    	stat.setVersion(1);
                     }
                     zookeeper.setData(path, s.getBytes(), stat.getVersion());
                 } catch (KeeperException | InterruptedException e) {
@@ -261,7 +287,7 @@ public class LeaderJobScheduler implements IJobDispatcher {
                 scheduler.unscheduleJob(trigger.getKey());
                 scheduledJobCache.remove(job.getId());
             } catch (SchedulerException e) {
-                logger.warn("Error:", e);
+                logger.warn("Failed to cancel the job:" + e.getMessage(), e);
             }
         }
 

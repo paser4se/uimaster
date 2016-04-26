@@ -7,7 +7,7 @@ function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration(json)
     ({
         ui: elementList[prefix + "functionsTab"]
         ,items: []
-        ,subComponents: [prefix + "tableStatsPanel",prefix + "javaccJobInfoPanel",prefix + "jobInfoPanel",prefix + "chartStatsPanel"]
+        ,subComponents: [prefix + "tableStatsPanel",prefix + "javaccJobInfoPanel",prefix + "chartStatsPanel"]
     });
     var tableStatsTable = new UIMaster.ui.objectlist
     ({
@@ -30,17 +30,6 @@ function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration(json)
         ui: elementList[prefix + "javaccJobInfoPanel"]
         ,items: []
         ,subComponents: [prefix + "javaCCJobInfoTable"]
-    });
-    var jobInfoTable = new UIMaster.ui.objectlist
-    ({
-        ui: elementList[prefix + "jobInfoTable"]
-    });
-
-    var jobInfoPanel = new UIMaster.ui.panel
-    ({
-        ui: elementList[prefix + "jobInfoPanel"]
-        ,items: []
-        ,subComponents: [prefix + "jobInfoTable"]
     });
     var chartStatsTable = new UIMaster.ui.objectlist
     ({
@@ -70,10 +59,6 @@ function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration(json)
     Form.javaccJobInfoPanel=javaccJobInfoPanel;
 
     Form.javaCCJobInfoTable=javaCCJobInfoTable;
-
-    Form.jobInfoPanel=jobInfoPanel;
-
-    Form.jobInfoTable=jobInfoTable;
 
     Form.chartStatsPanel=chartStatsPanel;
 

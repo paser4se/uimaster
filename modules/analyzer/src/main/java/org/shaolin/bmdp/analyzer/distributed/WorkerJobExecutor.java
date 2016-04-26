@@ -1,6 +1,18 @@
-/**
- * 
- */
+/*
+* Copyright 2015 The UIMaster Project
+*
+* The UIMaster Project licenses this file to you under the Apache License,
+* version 2.0 (the "License"); you may not use this file except in compliance
+* with the License. You may obtain a copy of the License at:
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations
+* under the License.
+*/
 package org.shaolin.bmdp.analyzer.distributed;
 
 import java.util.*;
@@ -71,7 +83,9 @@ public class WorkerJobExecutor implements IJobExecutor<IJavaCCJob> {
 
     @Override
     public synchronized void onJobListUpdate(List<String> jobIds) {
-        logger.debug("----get latest jobIds ["+ Arrays.toString(jobIds.toArray())+"]");
+    	if (logger.isDebugEnabled()) {
+    		logger.debug("Get latest jobIds ["+ Arrays.toString(jobIds.toArray())+"]");
+    	}
         for (String id : jobIds) {
             if ("".equals(id)) {
                 continue;
@@ -90,7 +104,9 @@ public class WorkerJobExecutor implements IJobExecutor<IJavaCCJob> {
 //                @Override
 //                public void run() {
                     try {
-                        logger.info("----------------- executing job ["+ task.getId()+"]");
+                    	if (logger.isDebugEnabled()) {
+                    		logger.debug("executing job ["+ task.getId()+"]");
+                    	}
                         OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
                         DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
                         ooeeContext.setDefaultEvaluationContext(evaContext);
@@ -106,9 +122,9 @@ public class WorkerJobExecutor implements IJobExecutor<IJavaCCJob> {
                        // synchronized( AanlysisModel.INSTANCE) {                            
                             AanlysisModel.INSTANCE.update(task,true);
                        // }
-                        // /
-                        logger.info("-----------------done execute job ["+ task.getId()+"]");
-
+                        if (logger.isDebugEnabled()) {
+                    		logger.debug("done execute job ["+ task.getId()+"]");
+                        }
                     } catch (Exception e) {
                         logger.warn("Error occurred while executing JavaCC job!", e);
                     }finally {

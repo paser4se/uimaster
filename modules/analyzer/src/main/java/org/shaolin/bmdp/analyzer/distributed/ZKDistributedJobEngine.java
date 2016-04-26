@@ -1,9 +1,20 @@
-/**
- *
- */
+/*
+* Copyright 2015 The UIMaster Project
+*
+* The UIMaster Project licenses this file to you under the Apache License,
+* version 2.0 (the "License"); you may not use this file except in compliance
+* with the License. You may obtain a copy of the License at:
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations
+* under the License.
+*/
 package org.shaolin.bmdp.analyzer.distributed;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -17,6 +28,7 @@ import org.apache.zookeeper.data.Stat;
 import org.shaolin.bmdp.analyzer.be.IJavaCCJob;
 import org.shaolin.bmdp.analyzer.distributed.api.IJobDispatcher;
 import org.shaolin.bmdp.analyzer.distributed.api.IJobExecutor;
+import org.shaolin.bmdp.runtime.ddc.client.ZooKeeperFactory;
 import org.shaolin.bmdp.runtime.ddc.client.api.IZookeeperClient;
 import org.shaolin.bmdp.runtime.spi.ILifeCycleProvider;
 
@@ -140,7 +152,7 @@ public class ZKDistributedJobEngine implements DistributedJobEngine, ILifeCycleP
     public void setLeader() {
         role = Role.LEADER;
 
-        logger.info("-----------------------------node ["+name+"] was elected as leader -------------------------");
+        logger.info("node ["+name+"] was elected as leader.");
         try {
             workerNodesWatcher = new DefaultWatcher(zookeeper);
             // / 1 set watcher to nodes path
@@ -150,7 +162,7 @@ public class ZKDistributedJobEngine implements DistributedJobEngine, ILifeCycleP
             ((LeaderJobScheduler) leader).init();
 
             //load jobs and start to schedule jobs
-            logger.info("-----------------------------leader node ["+name+"] start to schedule and dispatch jobs -------------------------");
+            logger.info("leader node ["+name+"] start to schedule and dispatch jobs.");
             leader.startService();
 
         } catch (Exception e) {
@@ -165,7 +177,7 @@ public class ZKDistributedJobEngine implements DistributedJobEngine, ILifeCycleP
 
     @Override
     public void stopService() {
-
+    	leader.stopService();
     }
 
     @Override
@@ -191,12 +203,5 @@ public class ZKDistributedJobEngine implements DistributedJobEngine, ILifeCycleP
         leader.cancelScheduleJob(job);
         
     }
-
-//    @Override
-//    public void onJobListUpdate(List<String> jobList) {
-//        this.jobList.clear();
-//        this.jobList.addAll(jobList);
-//
-//    }
 
 }
