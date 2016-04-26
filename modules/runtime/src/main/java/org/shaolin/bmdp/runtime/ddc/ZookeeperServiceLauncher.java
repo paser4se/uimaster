@@ -1,19 +1,47 @@
 package org.shaolin.bmdp.runtime.ddc;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+import org.apache.log4j.Logger;
+import org.apache.zookeeper.server.ServerConfig;
+import org.apache.zookeeper.server.ZooKeeperServerMain;
+import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
+import org.apache.zookeeper.server.quorum.QuorumPeerConfig.ConfigException;
+import org.apache.zookeeper.server.quorum.QuorumPeerMain;
 import org.shaolin.bmdp.runtime.spi.ILifeCycleProvider;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
-import org.apache.zookeeper.server.quorum.QuorumPeerMain;
+
 /**
  * Created by lizhiwe on 4/6/2016.
  */
 public class ZookeeperServiceLauncher implements IServiceProvider, ILifeCycleProvider, IZookeeperServiceLauncher {
-    private static final String DEFAULT_CFG = "/opt/uimaster/zkcfg/zookeeper.cfg";
-    private String configFileLocation = DEFAULT_CFG;
+    // private static final String DEFAULT_CFG = "/opt/uimaster/zkcfg/zookeeper.cfg";
+    // private String configFileLocation = DEFAULT_CFG;
 
     private boolean started = false;
 
-    public ZookeeperServiceLauncher() {
+    private Properties properties = new Properties();
+
+    private Logger logger = Logger.getLogger(getClass());
+
+    public static final String CLIENT_PORT = "clientPort";
+
+    public static final String DATADIR = "dataDir";
+
+    private boolean isClusterNode = false;
+
+    public ZookeeperServiceLauncher(boolean isClusterNode) {
         super();
+        this.isClusterNode = isClusterNode;
+        InputStream in = getClass().getResourceAsStream("default_zookeeper.cfg");
+        try {
+            properties.load(in);
+        } catch (IOException e) {
+            logger.error("Error loading default properties", e);
+        }
+
     }
 
     /**
@@ -26,8 +54,55 @@ public class ZookeeperServiceLauncher implements IServiceProvider, ILifeCyclePro
         if (started) {
             return;
         }
-        QuorumPeerMain.main(new String[]{configFileLocation});
-        started = true;
+        final QuorumPeerConfig qCfg = new QuorumPeerConfig();
+        try {
+            qCfg.parseProperties(properties);
+        } catch (IOException | ConfigException e) {
+            logger.error("Error starting Zookeeper server serivce", e);
+        }
+
+        if (isClusterNode) {
+            final QuorumPeerMain peer = new QuorumPeerMain();
+
+            new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+
+                    try {
+
+                        peer.runFromConfig(qCfg);
+
+                        started = true;
+                    } catch (IOException e) {
+                        logger.error("Error starting Zookeeper server serivce", e);
+                    }
+
+                }
+
+            }).start();
+
+            return;
+        }
+
+        final ZooKeeperServerMain serverMain = new ZooKeeperServerMain();
+        final ServerConfig cfg = new ServerConfig();
+        cfg.readFrom(qCfg);
+
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    serverMain.runFromConfig(cfg);
+                } catch (IOException e) {
+                    logger.error("Error starting Zookeeper server serivce", e);
+                }
+
+            }
+
+        }).start();
+
     }
 
     /**
@@ -55,16 +130,15 @@ public class ZookeeperServiceLauncher implements IServiceProvider, ILifeCyclePro
      */
     @Override
     public void reload() {
-        //nothing to do
+        // nothing to do
     }
 
     /**
-     * Indicate the service will be run on which level.
-     * By default is 0, which means the highest priority.
+     * Indicate the service will be run on which level. By default is 0, which means the highest priority.
      */
     @Override
     public int getRunLevel() {
-        return 0;
+        return 1;
     }
 
     @Override
@@ -72,11 +146,8 @@ public class ZookeeperServiceLauncher implements IServiceProvider, ILifeCyclePro
         return IZookeeperServiceLauncher.class;
     }
 
-    public String getConfigFileLocation() {
-        return configFileLocation;
+    public Properties getProperties() {
+        return properties;
     }
 
-    public void setConfigFileLocation(String configFileLocation) {
-        this.configFileLocation = configFileLocation;
-    }
 }

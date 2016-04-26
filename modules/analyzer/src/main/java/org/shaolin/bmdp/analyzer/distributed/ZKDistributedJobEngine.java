@@ -14,6 +14,7 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
+import org.shaolin.bmdp.analyzer.be.IJavaCCJob;
 import org.shaolin.bmdp.analyzer.distributed.api.IJobDispatcher;
 import org.shaolin.bmdp.analyzer.distributed.api.IJobExecutor;
 import org.shaolin.bmdp.runtime.ddc.client.api.IZookeeperClient;
@@ -41,7 +42,7 @@ public class ZKDistributedJobEngine implements DistributedJobEngine, ILifeCycleP
     private DefaultWatcher jobWatcher = null;
     private DefaultWatcher workerNodesWatcher = null;
 
-    private List<String> jobList = new ArrayList<String>();
+    //private List<String> jobList = new ArrayList<String>();
 
     private IJobDispatcher leader;
     private IJobExecutor worker;
@@ -119,7 +120,8 @@ public class ZKDistributedJobEngine implements DistributedJobEngine, ILifeCycleP
             int i = children.indexOf(path);
             if (i == -1) {
                 throw new RuntimeException("unrecoverable error!");
-            } else if (i == 0) {
+            } else if (i == (children.size()-1)) {
+                //TODO this should be improved!
                 setLeader();
             } else {
 
@@ -133,6 +135,7 @@ public class ZKDistributedJobEngine implements DistributedJobEngine, ILifeCycleP
             logger.warn("Error:", e);
         }
     }
+
 
     public void setLeader() {
         role = Role.LEADER;
@@ -178,10 +181,22 @@ public class ZKDistributedJobEngine implements DistributedJobEngine, ILifeCycleP
     }
 
     @Override
-    public void onJobListUpdate(List<String> jobList) {
-        this.jobList.clear();
-        this.jobList.addAll(jobList);
-
+    public void startJob(IJavaCCJob job) {
+        leader.startScheduleJob(job);
+        
     }
+
+    @Override
+    public void stopJob(IJavaCCJob job) {
+        leader.cancelScheduleJob(job);
+        
+    }
+
+//    @Override
+//    public void onJobListUpdate(List<String> jobList) {
+//        this.jobList.clear();
+//        this.jobList.addAll(jobList);
+//
+//    }
 
 }

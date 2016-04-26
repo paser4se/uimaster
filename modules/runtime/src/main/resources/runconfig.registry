@@ -70,9 +70,15 @@
      	   <node name="zookeeper_server_service">
  	   	       <expression><![CDATA[
  	   	       import org.shaolin.bmdp.runtime.AppContext;
+			   import org.shaolin.bmdp.runtime.ddc.*;
  	   	       import org.shaolin.bmdp.persistence.internal.InitialPersistenceService;
  	   	       {
- 	   	           IZookeeperServiceLauncher zkLauncher = new ZookeeperServiceLauncher();
+ 	   	           ZookeeperServiceLauncher zkLauncher = new ZookeeperServiceLauncher(false);
+				   //custom attributes here
+				   zkLauncher.getProperties().setProperty(ZookeeperServiceLauncher.CLIENT_PORT,"2182");
+				   zkLauncher.getProperties().setProperty(ZookeeperServiceLauncher.DATADIR, "/tmp/zookeeper");
+	
+				   //
  	   	           AppContext.get().registerLifeCycleProvider(zkLauncher);
  	   	       }
  	   	       ]]></expression>
@@ -80,10 +86,11 @@
             <node name="zookeeper_client_service">
        	   	       <expression><![CDATA[
        	   	       import org.shaolin.bmdp.runtime.AppContext;
+				   import org.shaolin.bmdp.runtime.ddc.*;
        	   	       import org.shaolin.bmdp.runtime.ddc.client.ZookeeperClient;
        	   	       {
        	   	           ZookeeperClient zkClient = new ZookeeperClient();
-       	   	           zkClient.setConnectString("127.0.0.1:2182,127.0.0.1:2183");
+       	   	           zkClient.setConnectString("127.0.0.1:2182");
        	   	           zkClient.setTimeout(30000);
        	   	           AppContext.get().registerLifeCycleProvider(zkClient);
        	   	           AppContext.get().register(zkClient);

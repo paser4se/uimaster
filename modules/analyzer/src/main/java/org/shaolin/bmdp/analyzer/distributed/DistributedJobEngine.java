@@ -5,6 +5,8 @@ package org.shaolin.bmdp.analyzer.distributed;
 
 import java.util.List;
 
+import org.shaolin.bmdp.analyzer.be.IJavaCCJob;
+
 /**
  * @author lizhiwe
  *
@@ -24,5 +26,7 @@ public interface DistributedJobEngine {
 
     // 2)
     
-    public void onJobListUpdate(List<String> jobList);
+    public void startJob(IJavaCCJob job);
+    
+    public void stopJob(IJavaCCJob job);
 }

@@ -91,6 +91,7 @@ public class ZookeeperClient implements ILifeCycleProvider, IZookeeperClient, IS
 
     public void setConnectString(String connectString) {
         this.connectString = connectString;
+        ZooKeeperFactory.getInstance().cacheClientInfo(connectString, timeout);
     }
 
     public int getTimeout() {
@@ -99,6 +100,7 @@ public class ZookeeperClient implements ILifeCycleProvider, IZookeeperClient, IS
 
     public void setTimeout(int timeout) {
         this.timeout = timeout;
+        ZooKeeperFactory.getInstance().cacheClientInfo(connectString, timeout);
     }
 
     @Override

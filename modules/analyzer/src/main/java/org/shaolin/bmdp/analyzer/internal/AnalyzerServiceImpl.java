@@ -47,7 +47,14 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 			nodeName = UUID.randomUUID().toString();
 		}
 
-		javaCCJobEngine = new ZKDistributedJobEngine(ZooKeeperFactory.getInstance().getCachedZookeeper(),nodeName);
+		
+	}
+	
+	private synchronized ZKDistributedJobEngine getJavaCCJobEngine() {
+	    if (javaCCJobEngine == null) {	        
+	        javaCCJobEngine = new ZKDistributedJobEngine(ZooKeeperFactory.getInstance().getCachedZookeeper(),nodeName);
+	    } 
+	    return javaCCJobEngine;
 	}
 
 	@Override
@@ -57,7 +64,7 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 
 	@Override
 	public int getRunLevel() {
-		return 20;
+		return 10;
 	}
 
 	@Override
@@ -68,8 +75,9 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 
 	@Override
 	public void reload() {
+	    logger.debug("-------------------------------starting Analyzer--------------------------------------");
 		if (AppContext.isMasterNode()) {
-			javaCCJobEngine.startService();
+		    getJavaCCJobEngine().startService();
 		}
 		
 		this.tables.clear();
@@ -113,7 +121,7 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 
 	@Override
 	public void stopService() {
-		javaCCJobEngine.stopService();
+	    getJavaCCJobEngine().stopService();
 	}
 	
 	@Override
@@ -124,6 +132,7 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
         
     	job.setStatus(JavaCCJobStatusType.START);
     	//job.setRealExecutedTime(new Date(nextExecutedTime));
+    	getJavaCCJobEngine().startJob(job);
     	AanlysisModel.INSTANCE.update(job, true);
     	//TODO:
 	}
@@ -132,6 +141,7 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 	public void stopJob(IJavaCCJob job) {
 		if (job.getStatus() != JavaCCJobStatusType.STOP) {
 			job.setStatus(JavaCCJobStatusType.STOP);
+			getJavaCCJobEngine().stopJob(job);
             AanlysisModel.INSTANCE.update(job, true);
 		}
 	}

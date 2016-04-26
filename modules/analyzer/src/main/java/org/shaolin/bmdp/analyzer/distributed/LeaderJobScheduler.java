@@ -4,7 +4,9 @@
 package org.shaolin.bmdp.analyzer.distributed;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -21,6 +23,7 @@ import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
+import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 import org.shaolin.bmdp.analyzer.be.IJavaCCJob;
@@ -50,6 +53,8 @@ public class LeaderJobScheduler implements IJobDispatcher {
     private ZooKeeper zookeeper;
 
     private final AtomicInteger counter = new AtomicInteger(-1);
+    
+    private Map<Long, Trigger> scheduledJobCache = new ConcurrentHashMap<Long, Trigger>();
 
     /**
      * @throws Exception
@@ -135,30 +140,39 @@ public class LeaderJobScheduler implements IJobDispatcher {
         do {
             jobInfo = jobQueue.poll();
             if (jobInfo == null) {
-                continue;
-            }
-            logger.info("--------------------------scheduling job [" + jobInfo.getId() + "] -------------------------");
-            JobDetail job = JobBuilder.newJob(DispatcherJob.class)
-                    .withIdentity(getJobNameFromJobInfo(jobInfo), DEFAULT_GROUP).build();
-
-            CronTrigger trigger = TriggerBuilder.newTrigger()
-                    .withIdentity(getTriggerNameFromJobInfo(jobInfo), DEFAULT_GROUP)
-                    .withSchedule(CronScheduleBuilder.cronSchedule(getCronExpressionFromJobInfo(jobInfo))).build();
-
-            trigger.getJobDataMap().put(DispatcherJob.JOB_DISPATCHER, this);
-            trigger.getJobDataMap().put(DispatcherJob.JOB_INFO, jobInfo);
-
-            try {
-                scheduler.scheduleJob(job, trigger);
-            } catch (SchedulerException e) {
-                logger.warn("error schedule job", e);
+                break;
             }
 
+            scheduleAJob(jobInfo);
         } while (jobInfo != null);
+
         try {
             scheduler.start();
         } catch (Exception e) {
             logger.warn("", e);
+        }
+
+    }
+
+
+
+    private void scheduleAJob(IJavaCCJob jobInfo) {
+        logger.info("--------------------------scheduling job [" + jobInfo.getId() + "] -------------------------");
+        JobDetail job = JobBuilder.newJob(DispatcherJob.class)
+                .withIdentity(getJobNameFromJobInfo(jobInfo), DEFAULT_GROUP).build();
+
+        CronTrigger trigger = TriggerBuilder.newTrigger()
+                .withIdentity(getTriggerNameFromJobInfo(jobInfo), DEFAULT_GROUP)
+                .withSchedule(CronScheduleBuilder.cronSchedule(getCronExpressionFromJobInfo(jobInfo))).build();
+
+        trigger.getJobDataMap().put(DispatcherJob.JOB_DISPATCHER, this);
+        trigger.getJobDataMap().put(DispatcherJob.JOB_INFO, jobInfo);
+
+        try {
+            scheduler.scheduleJob(job, trigger);
+            scheduledJobCache.put(jobInfo.getId(), trigger);
+        } catch (SchedulerException e) {
+            logger.warn("error schedule job", e);
         }
 
     }
@@ -224,6 +238,24 @@ public class LeaderJobScheduler implements IJobDispatcher {
     @Override
     public String getTriggerNameFromJobInfo(IJavaCCJob jobInfo) {
         return jobInfo.getId() + "";
+    }
+
+    @Override
+    public void startScheduleJob(IJavaCCJob job) {
+        scheduleAJob(job);
+    }
+
+    @Override
+    public void cancelScheduleJob(IJavaCCJob job) {
+        Trigger trigger = scheduledJobCache.get(job.getId());
+        if (trigger != null) {
+            try {
+                scheduler.unscheduleJob(trigger.getKey());
+            } catch (SchedulerException e) {
+                logger.warn("Error:", e);
+            }
+        }
+
     }
 
 }

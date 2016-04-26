@@ -21,6 +21,10 @@ public interface IJobDispatcher<T extends IJavaCCJob> extends ILifeCycleProvider
     public String getCronExpressionFromJobInfo(T jobInfo) ;
     public String getJobNameFromJobInfo(T jobInfo);
     public String getTriggerNameFromJobInfo(T jobInfo);
+
+    public void startScheduleJob(IJavaCCJob job);
+    
+    public void cancelScheduleJob(IJavaCCJob job);
     
 
 }
