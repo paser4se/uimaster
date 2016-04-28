@@ -1599,9 +1599,6 @@ UIMaster.ajaxCompleteHandler = function(target, fn) {
     return target;
 };
 })();
-if (window.jQuery == undefined) UIMaster.require("/js/jquery.js", true);
-UIMaster.ready = $(document).ready;
-
 
 var bmiasia_UIMaster_appbase_Util = {
     checkBrowser: function(){return UIMaster.browser.msie?'IE':(UIMaster.browser.opera?'Opera':(UIMaster.browser.mozilla?'Mozilla':'Unknown'));},

@@ -15,8 +15,6 @@
 */
 package org.shaolin.uimaster.page;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.shaolin.bmdp.runtime.Registry;
-import org.shaolin.bmdp.utils.FileUtil;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
 
 public class WebConfig {
@@ -84,6 +81,7 @@ public class WebConfig {
 		final String[] commonjs;
 		final String[] commonMobcss;
 		final String[] commonMobjs;
+		final String[] syncLoadJs;
 		final Map<String, String[]> singleCommonCss;
 		final Map<String, String[]> singleCommonJs;
 		
@@ -126,6 +124,8 @@ public class WebConfig {
 					"/System/webConstant/timeoutPage");
 			hasAjaxErrorHandler = instance.getValue(
 					"/System/webConstant/ajaxHandlingError");
+			syncLoadJs = instance.getValue(
+					"/System/webConstant/syncLoadJs").split(";");
 			
 			Collection<String> values = (Collection<String>)
 					instance.getNodeItems("/System/webConstant/commoncss").values();
@@ -208,9 +208,9 @@ public class WebConfig {
 		return (WebConfigFastCache)instance.readFromFastCache("webconfig");
 	}
 	
-	public static boolean isProductMode() {
-		return getCacheObject().runningMode != null && "product".equalsIgnoreCase(getCacheObject().runningMode);
-	}
+//	public static boolean isProductMode() {
+//		return getCacheObject().runningMode != null && "product".equalsIgnoreCase(getCacheObject().runningMode);
+//	}
 	
 	public static boolean isCustomizedMode() {
 		return getCacheObject().customizedMode;
@@ -304,77 +304,6 @@ public class WebConfig {
 	
 	public static void setResourcePath(String path) throws Exception {
 		resourcePath = path;
-		
-		// compress all js & css in one.
-		File commonJs = new File(resourcePath + "/common.js");
-		if (isProductMode() && !commonJs.exists()) {
-			StringBuilder commonCompressedJS = new StringBuilder();
-			StringBuilder commonCompressedCss = new StringBuilder();
-			StringBuilder commonCompressedMobJS = new StringBuilder();
-			StringBuilder commonCompressedMobCss = new StringBuilder();
-			
-			String[] commoncss = getCommonCss();
-			for (String css : commoncss) {
-				File f = new File(resourcePath + css.replace(ResourceContextRoot, ""));
-				if (f.isFile() && f.exists()) {
-					String content = FileUtil.readFileWithLine(new FileInputStream(f), "UTF-8");
-					if (css.endsWith("jquery-dataTable.css")) {
-						content = content.replace("\"../images/", "\"images/");
-					} else if (css.endsWith("jquery-jstree.css")) {
-						content = content.replace("\"../images/", "\"images/");
-					} else if (css.endsWith("jquery-ui-orange.css")) {
-						content = content.replace("\"images/", "\"css/images/");
-					} else if (css.endsWith("jquery-ui.css")) {
-						content = content.replace("\"images/", "\"css/images/");
-					} else if (css.endsWith("iumaster.css")) {
-						content = content.replace("\"images/", "\"css/images/");
-						content = content.replace("(../images/", "(images/");
-					}
-					commonCompressedCss.append(content);
-				}
-			}
-			String[] commonjs = getCommonJs();
-			for (String js : commonjs) {
-				File f = new File(resourcePath + js.replace(ResourceContextRoot, ""));
-				if (f.isFile() && f.exists()) {
-					commonCompressedJS.append(FileUtil.readFileWithLine(new FileInputStream(f), "UTF-8"));
-				}
-			}
-			commoncss = getCommonMobCss();
-			for (String css : commoncss) {
-				File f = new File(resourcePath + css.replace(ResourceContextRoot, ""));
-				if (f.isFile() && f.exists()) {
-					String content = FileUtil.readFileWithLine(new FileInputStream(f), "UTF-8");
-					if (css.endsWith("jquery-dataTable.css")) {
-						content = content.replace("\"../images/", "\"images/");
-					} else if (css.endsWith("jquery-jstree.css")) {
-						content = content.replace("\"../images/", "\"images/");
-					} else if (css.endsWith("jquery-ui-orange.css")) {
-						content = content.replace("\"images/", "\"css/images/");
-					} else if (css.endsWith("jquery-ui.css")) {
-						content = content.replace("\"images/", "\"css/images/");
-					} else if (css.endsWith("jquery-mobile.css")) {
-						content = content.replace("url(images/", "url(css/images/");
-					} else if (css.endsWith("iumaster-mob.css")) {
-						content = content.replace("\"images/", "\"css/images/");
-						content = content.replace("(../images/", "(images/");
-					}
-					commonCompressedMobCss.append(content);
-				}
-			}
-			commonjs = getCommonMobJs();
-			for (String js : commonjs) {
-				File f = new File(resourcePath + js.replace(ResourceContextRoot, ""));
-				if (f.isFile() && f.exists()) {
-					commonCompressedMobJS.append(FileUtil.readFileWithLine(new FileInputStream(f), "UTF-8"));
-				}
-			}
-			
-			FileUtil.write(resourcePath + "/common.js", commonCompressedJS.toString());
-			FileUtil.write(resourcePath + "/common-mob.js", commonCompressedMobJS.toString());
-			FileUtil.write(resourcePath + "/common.css", commonCompressedCss.toString());
-			FileUtil.write(resourcePath + "/common-mob.css", commonCompressedMobCss.toString());
-		}
 	}
 	
 	public static String getCssRootPath() {
@@ -439,6 +368,16 @@ public class WebConfig {
 
 	public static boolean getIsJAAS() {
 		return getCacheObject().isJAAS;
+	}
+	
+	public static String isSyncLoadingJs(String url) {
+		String[] list = getCacheObject().syncLoadJs;
+		for (String js : list) {
+			if (url.indexOf(js) != -1) {
+				return "";
+			}
+		}
+		return "async";
 	}
 	
 	public static boolean isFormatHTML() {

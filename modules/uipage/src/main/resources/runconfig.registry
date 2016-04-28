@@ -53,6 +53,7 @@
             <item name="ajaxHandlingError" value="true" />
             <item name="isJAAS" value="false" />
             <item name="formatHTML" value="true" />
+            <item name="syncLoadJs" value="jquery.js;uimaster.js;api.map.baidu.com/api" />
             <node name="commoncss">
             	<item name="jquery-dataTable" value="/css/jquery-dataTable.css" />
             	<item name="jquery-jstree" value="/css/jquery-jstree.css" />
@@ -85,9 +86,7 @@
             	-->
             </node>
             <node name="commonjs">
-                <!-- support async mode
-                <item name="google-analytics" value="https://www.google-analytics.com/ga.js" />
-                 -->
+                <!--  item name="google-analytics" value="https://www.google-analytics.com/ga.js" /-->
             	<item name="jquery" value="/js/jquery.js" />
             	<item name="jquery-ui" value="/js/jquery-ui.js" />
             	<item name="jquery-dataTable" value="/js/jquery-dataTable.js" />
@@ -97,9 +96,7 @@
             	<item name="uimaster-chart" value="/js/uimaster-chart.js" />
             </node>
             <node name="commonjs-mob">
-                <!-- support async mode
-                <item name="google-analytics" value="https://www.google-analytics.com/ga.js" />
-                 -->
+                <!-- item name="google-analytics" value="https://www.google-analytics.com/ga.js" /-->
             	<item name="jquery" value="/js/jquery.js" />
             	<item name="jquery-ui" value="/js/jquery-ui.js" />
             	<item name="jquery-mobile" value="/js/jquery-mobile.js" />

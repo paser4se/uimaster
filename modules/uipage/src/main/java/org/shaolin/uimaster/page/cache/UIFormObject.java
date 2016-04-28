@@ -212,8 +212,8 @@ public class UIFormObject implements java.io.Serializable
         UIEntity uientity = (UIEntity)entity.getUIEntity();
         OOEEContext parsingContext = parseVariable(entity);
         parseUI(parsingContext, uientity, null);
-        HTMLUtil.includeJsFiles(name, jsIncludeMap, jsIncludeList, !WebConfig.isProductMode());
-        HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, !WebConfig.isProductMode());
+        HTMLUtil.includeJsFiles(name, jsIncludeMap, jsIncludeList, true);
+        HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, true);
     }
     
     private void load()
@@ -1967,9 +1967,13 @@ public class UIFormObject implements java.io.Serializable
             		importJSCode = WebConfig.replaceJsWebContext(importJSCode);
             	}
             	if (jsFileName.startsWith("http") || jsFileName.startsWith("https")) {
-            		context.generateJS("<script type=\"text/javascript\" src=\"" + jsFileName + "\"></script>");
+            		context.generateJS("<script type=\"text/javascript\" src=\"" + jsFileName + "\" ");
+            		context.generateJS(WebConfig.isSyncLoadingJs(jsFileName));
+            		context.generateJS("></script>");
             	} else {
-            		context.generateJS(importJSCode + timestamp + "\"></script>");
+            		context.generateJS(importJSCode + timestamp + "\" ");
+            		context.generateJS(WebConfig.isSyncLoadingJs(jsFileName));
+            		context.generateJS("></script>");
             	}
                 HTMLUtil.generateTab(context, depth);
             }
@@ -1996,11 +2000,15 @@ public class UIFormObject implements java.io.Serializable
             {
 				if (jsFileName.startsWith("http") || jsFileName.startsWith("https")) {
 					sb.append("<script type=\"text/javascript\" src=\"");
-	                sb.append(jsFileName).append("\"></script>");
+	                sb.append(jsFileName).append("\" ");
+	                sb.append(WebConfig.isSyncLoadingJs(jsFileName));
+	                sb.append("></script>");
 				} else {
 	                sb.append("<script type=\"text/javascript\" src=\"").append(HTMLUtil.getWebRoot());
 	                sb.append(jsFileName).append("?_timestamp=").append(WebConfig.getTimeStamp())
-	                        .append("\"></script>");
+	                        .append("\" ");
+	                sb.append(WebConfig.isSyncLoadingJs(jsFileName));
+	                sb.append("></script>");
 				}
             }
         }
@@ -2035,7 +2043,9 @@ public class UIFormObject implements java.io.Serializable
 				if (needTimestamp) {
 					sb.append("?_timestamp=").append(WebConfig.getTimeStamp());
 				}
-				sb.append("\"").append("></script>");
+				sb.append("\"").append(" ");
+				sb.append(WebConfig.isSyncLoadingJs(jsFileName));
+				sb.append("></script>");
 			}
 		}
 

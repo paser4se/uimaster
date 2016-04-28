@@ -1,4 +1,12 @@
-
+#uimaster_mask_content{
+    display: block;
+    border: 2px solid #8DB9DB;
+    position: absolute;
+    z-index: 10;
+    width: 200px;
+    color: green;
+    background-color: #FFFFD5;
+}
 .uimaster_widget_cell {             /* sets fluid layout for all DIVs with class "cell" */
     vertical-align: top;        /* vertical aligns elements within the cell */ 
     margin: 5px 0px 5px 0px;   /* controls spacing around cell DIVs */

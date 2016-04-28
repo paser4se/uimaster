@@ -362,24 +362,12 @@ public class PageDispatcher {
             	context.generateHTML("<meta name=\"apple-mobile-web-app-capable\" content=\"yes\">\n");
             	context.generateHTML("<meta name=\"apple-mobile-web-app-status-bar-style\" content=\"black-translucent\">\n");
             	context.generateHTML("<meta name=\"format-detection\" content=\"telephone=no\">\n");
-            	if (WebConfig.isProductMode()) {
-            		context.generateHTML("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
-            		context.generateHTML(WebConfig.getWebContextRoot());
-            		context.generateHTML(WebConfig.getCommoncompressedmobcss());
-            		context.generateHTML("\">");
-            	} 
             	if (UserContext.isAppClient()) {
             		context.generateHTML(WebConfig.replaceAppCssWebContext(pageObject.getMobPageCSS().toString()));
             	} else {
             		context.generateHTML(WebConfig.replaceCssWebContext(pageObject.getMobPageCSS().toString()));
             	}
             } else {
-            	if (WebConfig.isProductMode()) {
-            		context.generateHTML("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
-            		context.generateHTML(WebConfig.getWebContextRoot());
-            		context.generateHTML(WebConfig.getCommoncompressedcss());
-            		context.generateHTML("\">");
-            	} 
         		context.generateHTML(WebConfig.replaceCssWebContext(pageObject.getPageCSS().toString()));
             }
             
@@ -387,24 +375,16 @@ public class PageDispatcher {
             {
                 logger.debug("import js to the uipage: " + entityName);
             }
-            if (WebConfig.isProductMode()) {
-            	if (UserContext.isMobileRequest()) {
-	        		context.generateHTML("<script type=\"text/javascript\" src=\"");
-	        		context.generateHTML(WebConfig.getWebContextRoot());
-	        		context.generateHTML(WebConfig.getCommoncompressedmobjs());
-	        		context.generateHTML("\"></script>");
-            	} else {
-            		context.generateHTML("<script type=\"text/javascript\" src=\"");
-            		context.generateHTML(WebConfig.getWebContextRoot());
-	        		context.generateHTML(WebConfig.getCommoncompressedjs());
-	        		context.generateHTML("\"></script>");
-            	}
-        	} 
             importAllJS(context, 0);
 
             if (!frameMode)
             { 
                 context.generateHTML("<script type=\"text/javascript\">\n");
+                context.generateHTML("function checkUIMasterReady0() \n{\n");
+                context.generateHTML("    if (jQuery && UIMaster.El && checkUIMasterReady) {\n");
+                context.generateHTML("       initPage();\n");
+                context.generateHTML("    } else { window.setTimeout(checkUIMasterReady0,500);}\n");
+                context.generateHTML("}\n");
                 context.generateHTML("function initPage() \n{\n");
                 context.generateHTML("    UIMaster.ui.mask.open();\n");
                 context.generateHTML("    UIMaster.addResource(\"" + entityName + "\");\n");
@@ -431,7 +411,7 @@ public class PageDispatcher {
                 if (UserContext.isMobileRequest()) {
                 	context.generateHTML(">\n");
                 } else {
-                	context.generateHTML(" onload=\"initPage()\" onunload=\"finalizePage()\">\n");
+                	context.generateHTML(" onload=\"checkUIMasterReady0()\" onunload=\"finalizePage()\">\n");
                 	context.generateHTML(genLoaderMask());
                 }
             }
@@ -450,7 +430,7 @@ public class PageDispatcher {
             if (UserContext.isMobileRequest()) {
             	context.generateHTML("<form action=\"" + actionPath + "\" method=\"post\" name=\"everything\" onsubmit=\"return false;\"");
             } else {
-            	context.generateHTML("<form action=\"" + actionPath + "\" method=\"post\" name=\"everything\" style=\"display:none;\" onsubmit=\"return false;\"");
+            	context.generateHTML("<form action=\"" + actionPath + "\" method=\"post\" name=\"everything\" onsubmit=\"return false;\"");
             }
             if (superPrefix != null)
             {
@@ -704,7 +684,7 @@ public class PageDispatcher {
     	StringBuilder maskHtml = new StringBuilder();
         maskHtml.append("<div id=\"ui-mask-shadow\" class=\"ui-overlay\" style=\"display:block;\">\n");
         maskHtml.append("<div class=\"ui-widget-overlay\"></div>\n");
-        maskHtml.append("<div id=\"ui-mask-content\" class=\"outer\" style=\"display:block;border:4px solid #8DB9DB;\">\n");
+        maskHtml.append("<div id=\"uimaster_mask_content\" class=\"outer\">\n");
         maskHtml.append("<div class=\"inner\"><p class=\"ui-info-msg\"><span></span>");
         maskHtml.append("\u62FC\u6B7B\u73A9\u547D\u52A0\u8F7D\u4E2D\u3002\u3002\u3002</p></div>\n");
         maskHtml.append("</div>\n");

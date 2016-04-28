@@ -1,3 +1,6 @@
+function checkUIMasterReady(){
+   return true;
+}
 function g(t,v){
     return UIMaster.browser.mozilla?t.getAttribute(v):$(t).attr(v);
 }
@@ -450,6 +453,10 @@ UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 		if ($(this).attr("htmlsupport")=="true") {
 		   this.initHtmlContent();
 		}
+	},
+	addAttr: function(a){
+		$(this).attr(a.name, a.value);
+		$(this).text(a.value);
 	},
 	initHtmlContent:function() {
 	    var o = this;
@@ -2747,7 +2754,7 @@ UIMaster.ui.mask={
             divMask.id="ui-mask-shadow";
             divMask.className="ui-overlay";
             divMask.innerHTML = '<div class="ui-widget-overlay"></div>' +
-                                '<div id="ui-mask-content" class="outer">' +
+                                '<div id="uimaster_mask_content" class="outer">' +
                                 '<div class="inner"><p></p></div></div>';
             divMask.style.display="none";
 
