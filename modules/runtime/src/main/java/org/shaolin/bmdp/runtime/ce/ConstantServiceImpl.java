@@ -54,7 +54,9 @@ public class ConstantServiceImpl implements Serializable, IConstantService, IEnt
 	 */
 	public void reloadData(IConstantEntity[] constants) {
 		for (IConstantEntity ce: constants) {
-			logger.info("Load the constant entity: " + ce.getEntityName() + " from DB data.");
+			if (logger.isDebugEnabled()) {
+				logger.debug("Load the constant entity: " + ce.getEntityName() + " from DB data.");
+			}
 			serverConstantMap.put(ce.getEntityName(), ce);
 		}
 	}
