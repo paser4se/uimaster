@@ -108,6 +108,7 @@ public class BaseWatcher implements Watcher {
                     case NodeChildrenChanged:
                         try {
                         List<String> children =  zooKeeper.getChildren(path,BaseWatcher.this);
+                        zData.setChildren(children);
                         listenerList.get(i).onChildChanged(zData);
                         }catch (Exception e) {
                             logger.error("Error", e);

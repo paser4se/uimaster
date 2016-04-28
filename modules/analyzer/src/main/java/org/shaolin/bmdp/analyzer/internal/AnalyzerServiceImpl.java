@@ -53,14 +53,19 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 
 	private ZKDistributedJobEngine javaCCJobEngine;
 
-	private String nodeName ;
+	private final String nodeName ;
 
 	public AnalyzerServiceImpl() {
+	    String hostName = "localhost";
 		try {
-			nodeName = InetAddress.getLocalHost().getHostName()+System.currentTimeMillis();
+		    hostName = InetAddress.getLocalHost().getHostName();
 		}catch (Exception e) {
-			nodeName = UUID.randomUUID().toString();
+		    hostName = UUID.randomUUID().toString();
 		}
+		
+		nodeName = hostName+System.currentTimeMillis();
+		
+		logger.info("Get node name ["+nodeName+"] automatically.");
 	}
 	
 	private synchronized ZKDistributedJobEngine getJavaCCJobEngine() {

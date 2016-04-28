@@ -40,6 +40,7 @@ import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 import org.shaolin.bmdp.analyzer.be.IJavaCCJob;
 import org.shaolin.bmdp.analyzer.be.JavaCCJobImpl;
+import org.shaolin.bmdp.analyzer.ce.JavaCCJobStatusType;
 import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
 import org.shaolin.bmdp.analyzer.distributed.api.IJobDispatcher;
 
@@ -89,7 +90,7 @@ public class LeaderJobScheduler implements IJobDispatcher {
 
         zookeeper.getChildren(ZKDistributedJobEngine.NODES_PATH, watcher, new ChildrenCallback() {
             @Override
-            public void processResult(int version, String path, Object ctx, List<String> children) {
+            public void processResult(int rc, String path, Object ctx, List<String> children) {
                 // TODO Auto-generated method stub
             }
 
@@ -147,7 +148,7 @@ public class LeaderJobScheduler implements IJobDispatcher {
         logger.info("loading all jobs.");
         JavaCCJobImpl job = new JavaCCJobImpl();
         job.setEnabled(true);
-        // job.setStatus(JavaCCJobStatusType.START);
+        job.setStatus(JavaCCJobStatusType.START);
         List<IJavaCCJob> jobs = AanlysisModel.INSTANCE.searchJavaCCJob(job, null, 0, -1);
         jobQueue.addAll(jobs);
 
@@ -212,32 +213,35 @@ public class LeaderJobScheduler implements IJobDispatcher {
         if (logger.isDebugEnabled()) {
         	logger.debug("dispatching job [" + jobInfo.getId() + "] to [" + workerName + "]");
         }
-        notifyWorkerToExecuteJob(workerName, jobInfo.getId());
+        notifyWorkerToExecuteJob(workerName, jobInfo);
     }
 
-    private void notifyWorkerToExecuteJob(final String workerName, final long id) {
-        zookeeper.getData(ZKDistributedJobEngine.NODES_PATH + "/" + workerName, watcher, new DataCallback() {
+    private void notifyWorkerToExecuteJob(final String workerName, final IJavaCCJob jobInfo) {
+        final String workerPath = ZKDistributedJobEngine.NODES_PATH + "/" + workerName;
+        zookeeper.getData(workerPath, watcher, new DataCallback() {
             @Override
             public void processResult(int rc, String path, Object ctx, byte[] data, Stat stat) {
+                long id = jobInfo.getId();
             	if (logger.isDebugEnabled()) {
-                	logger.debug("notifing worker [" + workerName + "] to execute job [" + id
+                	logger.debug("notifing worker [" + workerName + "] to execute job [" + jobInfo.getId()
                         + "]");
             	}
+
                 try {
                     String s = "";
                     if (data != null && data.length > 0) {
                         s = new String(data);
                     }
                     if (s.length() == 0) {
-                        s = id + "";
+                        s = jobInfo + "";
                     } else {
                         s = ";" + id;
                     }
-                    if (stat == null) {
-                    	stat = new Stat();
-                    	stat.setVersion(1);
-                    }
-                    zookeeper.setData(path, s.getBytes(), stat.getVersion());
+//                    if (stat == null) {
+//                    	stat = new Stat();
+//                    	stat.setVersion(1);
+//                    }
+                    zookeeper.setData(workerPath, s.getBytes(), stat.getVersion());
                 } catch (KeeperException | InterruptedException e) {
                     if (e instanceof InterruptedException) {
                         logger.warn("error set data", e);
@@ -245,8 +249,10 @@ public class LeaderJobScheduler implements IJobDispatcher {
                     }
                     switch (((KeeperException) e).code()) {
                     case BADVERSION:
-                        notifyWorkerToExecuteJob(workerName, id);
+                        notifyWorkerToExecuteJob(workerName, jobInfo);
                         break;
+                    case NONODE:
+                        dispatchJobs(jobInfo);
                     default:
                         logger.warn("error set data", e);
 

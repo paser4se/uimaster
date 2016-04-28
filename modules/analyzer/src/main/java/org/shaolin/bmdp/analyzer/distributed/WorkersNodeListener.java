@@ -16,6 +16,7 @@
 package org.shaolin.bmdp.analyzer.distributed;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -56,6 +57,7 @@ public class WorkersNodeListener implements DataListener {
     public void init() {
         try {
             knownWorkers = zookeeper.getChildren(ZKDistributedJobEngine.NODES_PATH, watcher);
+            logger.info("get workers in init :"+Arrays.toString(knownWorkers.toArray()));
         } catch (KeeperException | InterruptedException e) {
             logger.warn("error get node children", e);
         }
@@ -72,7 +74,7 @@ public class WorkersNodeListener implements DataListener {
     public void onChildChanged(ZData zData) {
 
         List<String> newWorkers = zData.getChildren();
-        
+        logger.info("get workers in init :"+Arrays.toString(newWorkers.toArray()));
         if (newWorkers == null) {
             return;
         }
@@ -127,10 +129,10 @@ public class WorkersNodeListener implements DataListener {
         final String workerPath = ZKDistributedJobEngine.NODES_PATH + "/" + worker;
         zookeeper.getData(workerPath, false, new DataCallback() {
             @Override
-            public void processResult(int version, String path, Object ctx, byte[] data, Stat stat) {
+            public void processResult(int rc, String path, Object ctx, byte[] data, Stat stat) {
                 // TODO Auto-generated method stub
                 try {
-                    zookeeper.delete(workerPath, version);
+                    zookeeper.delete(workerPath, stat.getVersion());
                 } catch (Exception e) {
                     logger.warn("exception delete node", e);
                 }

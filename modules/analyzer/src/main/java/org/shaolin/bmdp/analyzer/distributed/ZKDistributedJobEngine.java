@@ -73,17 +73,15 @@ public class ZKDistributedJobEngine implements DistributedJobEngine, ILifeCycleP
         jobWatcher = new DefaultWatcher(zookeeper);
         worker = new WorkerJobExecutor(zookeeper, jobWatcher, NODES_PATH + "/" + name);
         jobWatcher.addListener(new NodeDataListener(worker));
+        
+        initCfgIfNeed();
 
     }
 
     @Override
     public void startService() {
-
-        initCfgIfNeed();
-
         // elect
         elect();
-
     }
 
     private void initCfgIfNeed() {
@@ -102,6 +100,7 @@ public class ZKDistributedJobEngine implements DistributedJobEngine, ILifeCycleP
         // /create host node
         try {
             zookeeper.create(NODES_PATH + "/" + name, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+            logger.info("created node ["+NODES_PATH + "/" + name+"] automatically.");
         } catch (Exception e) {
             logger.warn("Error:", e);
         }

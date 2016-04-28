@@ -1,25 +1,25 @@
 /*
-* Copyright 2015 The UIMaster Project
-*
-* The UIMaster Project licenses this file to you under the Apache License,
-* version 2.0 (the "License"); you may not use this file except in compliance
-* with the License. You may obtain a copy of the License at:
-*
-*   http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-* License for the specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright 2015 The UIMaster Project
+ *
+ * The UIMaster Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
 package org.shaolin.bmdp.analyzer.distributed;
 
-import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.AsyncCallback.DataCallback;
@@ -47,7 +47,8 @@ public class WorkerJobExecutor implements IJobExecutor<IJavaCCJob> {
 
     private List<Long> executingJobList = Collections.synchronizedList(new ArrayList<Long>());
 
-    private ExecutorService executor = new ThreadPoolExecutor(6, 20, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(20));
+    // private ExecutorService executor = new ThreadPoolExecutor(6, 20, 60, TimeUnit.SECONDS, new
+    // ArrayBlockingQueue<Runnable>(20));
 
     private String path;
 
@@ -83,62 +84,66 @@ public class WorkerJobExecutor implements IJobExecutor<IJavaCCJob> {
 
     @Override
     public synchronized void onJobListUpdate(List<String> jobIds) {
-    	if (logger.isDebugEnabled()) {
-    		logger.debug("Get latest jobIds ["+ Arrays.toString(jobIds.toArray())+"]");
-    	}
+        if (logger.isDebugEnabled()) {
+            logger.debug("Get latest jobIds [" + Arrays.toString(jobIds.toArray()) + "]");
+        }
         for (String id : jobIds) {
             if ("".equals(id)) {
                 continue;
             }
             if (executingJobList.contains(Long.parseLong(id))) {
+                logger.info("Job[" + id + "] in executing, ignore duplicated request!");
                 continue;
             }
             // /new job added
-            JavaCCJobImpl job = new JavaCCJobImpl();
-            job.setId(Long.parseLong(id));
-            final IJavaCCJob task = AanlysisModel.INSTANCE.searchJavaCCJob(job, null, 0, 1).get(0);
+            JavaCCJobImpl task = new JavaCCJobImpl();
+            task.setId(Long.parseLong(id));
+            // final IJavaCCJob task = AanlysisModel.INSTANCE.searchJavaCCJob(job, null, 0, 1).get(0);
+            AanlysisModel.INSTANCE.reload(task);
+
             if (task.getStatus() == JavaCCJobStatusType.STOP) {
-            	return;
+                logger.warn("Job[" + id + "] in stopped status, should not be executed!");
+                return;
             }
-            
+
             executingJobList.add(task.getId());
-          //  logger.info("----get latest jobIds ["+ Arrays.toString(executingJobList.toArray())+"]");
-//            executor.submit(new Runnable() {
-//                @Override
-//                public void run() {
-                    try {
-                    	if (logger.isDebugEnabled()) {
-                    		logger.debug("executing job ["+ task.getId()+"]");
-                    	}
-                        OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
-                        DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
-                        ooeeContext.setDefaultEvaluationContext(evaContext);
-                        ExpressionType expr = new ExpressionType();
-                        expr.setExpressionString(task.getScript());
-                        expr.parse(ooeeContext);
-                        expr.evaluate(ooeeContext);
-
-                        task.setCount(task.getCount() + 1);
-                        task.setRealExecutedTime(new Date(System.currentTimeMillis()));
-                        //AanlysisModel.INSTANCE.updateWithTx(task);
-                        
-                       // synchronized( AanlysisModel.INSTANCE) {                            
-                            AanlysisModel.INSTANCE.update(task,true);
-                       // }
-                        if (logger.isDebugEnabled()) {
-                    		logger.debug("done execute job ["+ task.getId()+"]");
-                        }
-                    } catch (Exception e) {
-                        logger.warn("Error occurred while executing JavaCC job!", e);
-                    }finally {
-                        executingJobList.remove(task.getId());
-                        notifyJobFinished(task);
-                    }
-
+            // logger.info("----get latest jobIds ["+ Arrays.toString(executingJobList.toArray())+"]");
+            // executor.submit(new Runnable() {
+            // @Override
+            // public void run() {
+            try {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("executing job [" + task.getId() + "]");
                 }
+                OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+                DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+                ooeeContext.setDefaultEvaluationContext(evaContext);
+                ExpressionType expr = new ExpressionType();
+                expr.setExpressionString(task.getScript());
+                expr.parse(ooeeContext);
+                expr.evaluate(ooeeContext);
 
-//            });
-//        }
+                task.setCount(task.getCount() + 1);
+                task.setRealExecutedTime(new Date(System.currentTimeMillis()));
+                // AanlysisModel.INSTANCE.updateWithTx(task);
+
+                // synchronized( AanlysisModel.INSTANCE) {
+                AanlysisModel.INSTANCE.update(task, true);
+                // }
+                if (logger.isDebugEnabled()) {
+                    logger.debug("done execute job [" + task.getId() + "]");
+                }
+            } catch (Exception e) {
+                logger.warn("Error occurred while executing JavaCC job!", e);
+            } finally {
+                executingJobList.remove(task.getId());
+                notifyJobFinished(task);
+            }
+
+        }
+
+        // });
+        // }
 
     }
 
@@ -152,7 +157,7 @@ public class WorkerJobExecutor implements IJobExecutor<IJavaCCJob> {
                     txt = txt.replace(task.getId() + "", "");
                     txt = txt.replace(";;", ";");
                     if (logger.isDebugEnabled()) {
-                    	logger.debug("Notify the leader's job ["+ task.getId()+"] finished");
+                        logger.debug("Notify the leader's job [" + task.getId() + "] finished");
                     }
                     zookeeper.setData(path, txt.getBytes(), stat.getVersion());
                 } catch (KeeperException | InterruptedException e) {
