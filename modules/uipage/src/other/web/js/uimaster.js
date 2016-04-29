@@ -1318,6 +1318,7 @@ function syncAll() {
  * @param {String} entityName The UIEntity name of the action.
  */
 UIMaster.triggerServerEvent = function(uiid,actionName,data,entityName,action){
+    UIMaster.ui.mask.open();
     syncAll();
     
     var opt = {
@@ -1330,7 +1331,7 @@ UIMaster.triggerServerEvent = function(uiid,actionName,data,entityName,action){
                 _framePrefix: UIMaster.getFramePrefix(UIMaster.El(uiid).get(0)),
                 _actionPage: entityName,
                 _sync: UIMaster.ui.sync()},
-            beforeSend: UIMaster.ui.mask.open(),
+            beforeSend: function(){},
             success: UIMaster.cmdHandler
         };
 

@@ -403,7 +403,7 @@ public class PageDispatcher {
                 context.generateHTML("(\"\");\n    defaultname.initPageJs();\n    dPageLinkOnPage('"+clickRemembered+"');\n}\n");
                 context.generateHTML("function finalizePage() \n{\n    defaultname.finalizePageJs();\n    releaseMem();\n}\n");
                 if (UserContext.isMobileRequest()) {
-                	context.generateHTML("window.onload=initPage;\n");
+                	context.generateHTML("window.onload=checkUIMasterReady0;\n");
                 	context.generateHTML("window.onunload=finalizePage;\n");
                 }
                 context.generateHTML("</script>\n</head>\n");
@@ -412,8 +412,8 @@ public class PageDispatcher {
                 	context.generateHTML(">\n");
                 } else {
                 	context.generateHTML(" onload=\"checkUIMasterReady0()\" onunload=\"finalizePage()\">\n");
-                	context.generateHTML(genLoaderMask());
                 }
+                context.generateHTML(genLoaderMask());
             }
             if (!checkSupportAccess(context.getRequest())) {
             	context.generateHTML("<H1 style=\"color:red;\">Ops!!! We are so sorry that your browser is unsupported(");

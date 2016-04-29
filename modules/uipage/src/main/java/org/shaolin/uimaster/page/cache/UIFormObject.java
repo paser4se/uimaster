@@ -212,8 +212,8 @@ public class UIFormObject implements java.io.Serializable
         UIEntity uientity = (UIEntity)entity.getUIEntity();
         OOEEContext parsingContext = parseVariable(entity);
         parseUI(parsingContext, uientity, null);
-        HTMLUtil.includeJsFiles(name, jsIncludeMap, jsIncludeList, true);
-        HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, true);
+        HTMLUtil.includeJsFiles(name, jsIncludeMap, jsIncludeList, !WebConfig.skipCommonJs(name));
+        HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, !WebConfig.skipCommonJs(name));
     }
     
     private void load()
@@ -810,7 +810,7 @@ public class UIFormObject implements java.io.Serializable
 	            		action.setTitle(i18nInfo);
 	            		seqList.add(action);
 	    			}*/
-	    			if (table.isEditableCell() && table.getDefaultActions().getDefaultDeleteAction() != null) {
+	    			if (table.getDefaultActions().getDefaultDeleteAction() != null) {
 	    				UITableActionType action = new UITableActionType();
 	    				action.setUiid(table.getUIID() + "_deleteItem");
 	            		action.setFunction(table.getDefaultActions().getDefaultDeleteAction());

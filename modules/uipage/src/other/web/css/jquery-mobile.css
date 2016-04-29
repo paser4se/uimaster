@@ -951,7 +951,6 @@ html body .ui-group-theme-a .ui-bar-inherit {
 .ui-overlay-a,
 .ui-page-theme-a,
 .ui-page-theme-a .ui-panel-wrapper {
-	background-color: 			#f9f9f9 /*{a-page-background-color}*/;
 	border-color:	 		#bbb /*{a-page-border}*/;
 	color: 					#333 /*{a-page-color}*/;
 }
@@ -2925,14 +2924,12 @@ li.ui-block-e {
 .ui-controlgroup,
 fieldset.ui-controlgroup {
 	padding: 0;
-	margin: .5em 0;
 }
 .ui-field-contain .ui-controlgroup,
 .ui-field-contain fieldset.ui-controlgroup {
 	margin: 0;
 }
 .ui-mini .ui-controlgroup-label {
-	font-size: 16px;
 }
 .ui-controlgroup.ui-mini .ui-btn-icon-notext,
 .ui-controlgroup .ui-mini.ui-btn-icon-notext {

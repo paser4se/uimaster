@@ -84,6 +84,8 @@ public class WebConfig {
 		final String[] syncLoadJs;
 		final Map<String, String[]> singleCommonCss;
 		final Map<String, String[]> singleCommonJs;
+		final List<String> singleCustJs = new ArrayList<String>();
+		
 		
 		public WebConfigFastCache() {
 			Registry instance = Registry.getInstance();
@@ -187,9 +189,13 @@ public class WebConfig {
 					values = (Collection<String>)instance.getNodeItems(commonjsPath + "/" + child).values();
 					String[] items = values.toArray(new String[values.size()]);
 					for (int i=0; i<items.length; i++) {
-						//skip http, https, www, 
-						if (!items[i].startsWith("http")
+						if (items[i].equals("skipCommonJs")) {
+							// the common js files will be skipped if specified.
+							singleCustJs.add(child);
+							items[i] = "";
+						} else if (!items[i].startsWith("http")
 								&& !items[i].startsWith("https")) {
+							//skip http, https, www, 
 							items[i] = ResourceContextRoot + items[i];
 						}
 					}
@@ -466,6 +472,10 @@ public class WebConfig {
 
 	public static String[] getCommonMobJs() {
 		return getCacheObject().commonMobjs;
+	}
+	
+	public static boolean skipCommonJs(String pageName) {
+		return getCacheObject().singleCustJs.contains(pageName);
 	}
 	
 	public static String getCommoncompressedjs() {

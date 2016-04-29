@@ -128,39 +128,56 @@ public class HTMLTableType extends HTMLContainerType {
 				HTMLUtil.generateTab(context, depth + 2);
 				String defaultBtnSet = "defaultBtnSet_" + htmlId;
 				if (UserContext.isMobileRequest()) {
-					context.generateHTML("<fieldset id=\""+defaultBtnSet+"\" data-role=\"controlgroup\" data-type=\"horizontal\">");
+					context.generateHTML("<div id=\""+defaultBtnSet+"\" data-role=\"controlgroup\" data-type=\"horizontal\">");
+					for (UITableActionType action: defaultActions) {
+						HTMLUtil.generateTab(context, depth + 3);
+						String btnId = htmlPrefix + action.getUiid();
+						context.generateHTML("<a id=\""+ btnId + "\" ");
+						if ("refreshTable".equals(action.getFunction())) {
+							context.generateHTML("href=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".refresh");
+						} else if ("statistic".equals(action.getFunction()) && this.hasStatistic) {
+							context.generateHTML("href=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".statistic");
+						} else if ("exportData".equals(action.getFunction())) {
+							context.generateHTML("href=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".exportData");
+						} else {
+							context.generateHTML("href=\"javascript:defaultname.");
+							context.generateHTML(this.getPrefix() + action.getFunction());
+						}
+						context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\"");
+						context.generateHTML("' class=\"ui-btn ui-corner-all\">");
+						String i18nProperty = UIVariableUtil.getI18NProperty(action.getTitle());
+						context.generateHTML(i18nProperty);
+						context.generateHTML("</a>");
+					}
+					context.generateHTML("</div>");
 				} else {
 					context.generateHTML("<span id=\""+defaultBtnSet+"\" style=\"display:none;\">");
-				}
-				for (UITableActionType action: defaultActions){
-					HTMLUtil.generateTab(context, depth + 3);
-					String btnId = htmlPrefix + action.getUiid();
-					context.generateHTML("<input type=\"radio\" name=\""+defaultBtnSet+"\" id=\""+ btnId + "\" ");
-					if ("refreshTable".equals(action.getFunction())) {
-						context.generateHTML("onclick=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".refresh");
-					} else if ("statistic".equals(action.getFunction()) && this.hasStatistic) {
-						context.generateHTML("onclick=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".statistic");
+					for (UITableActionType action: defaultActions) {
+						HTMLUtil.generateTab(context, depth + 3);
+						String btnId = htmlPrefix + action.getUiid();
+						context.generateHTML("<input type=\"radio\" name=\""+defaultBtnSet+"\" id=\""+ btnId + "\" ");
+						if ("refreshTable".equals(action.getFunction())) {
+							context.generateHTML("onclick=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".refresh");
+						} else if ("statistic".equals(action.getFunction()) && this.hasStatistic) {
+							context.generateHTML("onclick=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".statistic");
 //					} else if ("importData".equals(action.getFunction())) {
 //						context.generateHTML("onclick=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".importData");
-					} else if ("exportData".equals(action.getFunction())) {
-						context.generateHTML("onclick=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".exportData");
-					} else {
-						context.generateHTML("onclick=\"javascript:defaultname.");
-						context.generateHTML(this.getPrefix() + action.getFunction());
+						} else if ("exportData".equals(action.getFunction())) {
+							context.generateHTML("onclick=\"javascript:defaultname." + this.getPrefix() + this.getUIID() + ".exportData");
+						} else {
+							context.generateHTML("onclick=\"javascript:defaultname.");
+							context.generateHTML(this.getPrefix() + action.getFunction());
+						}
+						context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\" title='");
+						String i18nProperty = UIVariableUtil.getI18NProperty(action.getTitle());
+						context.generateHTML(i18nProperty);
+						context.generateHTML("' icon=\""+action.getIcon()+"\">");
+						context.generateHTML("<label for=\"" + btnId + "\">");
+						context.generateHTML(i18nProperty);
+						context.generateHTML("</label>");
+						context.generateHTML("</input>");
 					}
-					context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\" title='");
-					String i18nProperty = UIVariableUtil.getI18NProperty(action.getTitle());
-					context.generateHTML(i18nProperty);
-					context.generateHTML("' icon=\""+action.getIcon()+"\">");
-					context.generateHTML("<label for=\"" + btnId + "\">");
-					context.generateHTML(i18nProperty);
-					context.generateHTML("</label>");
-					context.generateHTML("</input>");
-				}
-				HTMLUtil.generateTab(context, depth + 2);
-				if (UserContext.isMobileRequest()) {
-					context.generateHTML("</fieldset>");
-				} else {
+					HTMLUtil.generateTab(context, depth + 2);
 					context.generateHTML("</span>");
 				}
 			}

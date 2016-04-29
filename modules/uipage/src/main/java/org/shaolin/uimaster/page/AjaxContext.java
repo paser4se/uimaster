@@ -633,7 +633,7 @@ public class AjaxContext extends OpExecuteContext implements Serializable
     }
    
     public void removeFramePage(String frameId) {
-    	logger.info("Remove frame page: " + frameId);
+    	logger.info("Close the frame page: " + frameId);
     	Map ajaxComponentMap = AjaxActionHelper.getAjaxWidgetMap(request.getSession());
     	ajaxComponentMap.remove(frameId);
     }

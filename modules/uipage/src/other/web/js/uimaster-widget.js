@@ -1160,7 +1160,8 @@ UIMaster.ui.combobox = UIMaster.extend(UIMaster.ui.field, /** @lends UIMaster.ui
             if (result.length > 0)
                 constraint(this.name, result.join(" * "));
         }
-        this.style.backgroundColor=result.length>0?CONSTRAINT_BACKGROUNDCOLOR:"#FFFFFF";
+		if (this.style) this.style.backgroundColor=result.length>0?CONSTRAINT_BACKGROUNDCOLOR:"#FFFFFF";
+		else $(this).parent()[0].style.backgroundColor=result.length>0?CONSTRAINT_BACKGROUNDCOLOR:"#FFFFFF";
         return result.length > 0 ? result : null;
     },
     notifyChange: function(e,t){
@@ -1968,6 +1969,10 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		});
 		} catch(e) {console.log(e); return;}//for unknown case.
 		this.dtable = table;
+		if ($(this).height() > $(document.body).height()) {
+		   $(this).parent().height($(document.body).height() - 150);
+		   $(this).parent().css("overflow-y","scroll");
+		}
 		// enable ajax process after initialization.
         this.dtable.fnSettings().ajax = {
 			async: false,
@@ -2282,7 +2287,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			    var isselected=false;
 				if (tr.hasClass('selected')){
 				    var id = othis.id.replace(/\./g,"_");
-					$('#'+id+"_openItem").trigger('click');
+					if (IS_MOBILEVIEW) eval($('#'+id+"_openItem")[0].href);
+					else $('#'+id+"_openItem").trigger('click');
 				} else {
 					othis.tbody.find('tr[class*=selected]').removeClass('selected');
 					tr.addClass('selected');
@@ -2852,45 +2858,20 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
             		}
             	}
             }
-			if (IS_MOBILEVIEW) {
-				var iframeObject = null;
-				$(window.parent.document).find("iframe").each(function(){
-					if($(this).prop('contentWindow').document == window.document) {
-					   iframeObject = $(this);
-					}
-				});
-				if (iframeObject.prev().css("display")!="none"){
-				iframeObject.prev().css("display","none");
-				iframeObject.next().css("display","none");	
-				iframeObject.height(iframeObject.height() + 110);
-				this.hidePFrame = true;
-				}
-			}
             this.content.dialog({
             	title: thisObj.title,
-            	height: IS_MOBILEVIEW?$(window.top).height():h,
+            	height: IS_MOBILEVIEW?($(window.top).height() - 50):h,
                 width: IS_MOBILEVIEW?"100%":w,
                 modal: true,
 				closeOnEscape: true,
                 show: {effect: IS_MOBILEVIEW?"slide":"blind", duration: 500},
 				hide: {effect: IS_MOBILEVIEW?"slide":"blind", duration: 500},
-				open: function() {if(IS_MOBILEVIEW){//fix bug on mobile view.
-				    $(this).parent().parent().appendTo($("form:first"));
-					$($(this).parent().parent()).css("top","0px");
-			    }},
-                beforeClose: function() {
-				    if (IS_MOBILEVIEW && thisObj.hidePFrame) {
-						//only the guy who has reference.
-						var iframeObject = null;
-						$(window.parent.document).find("iframe").each(function(){
-							if($(this).prop('contentWindow').document == window.document) {
-							   iframeObject = $(this);
-							}
-						});
-						iframeObject.prev().css("display","block");
-						iframeObject.height(iframeObject.height() - 110);
-						iframeObject.next().css("display","block");	
+				open: function() {
+					if(IS_MOBILEVIEW){//fix css style unrender bug in mobile view.
+						$(this).parent().parent().appendTo($("form:first"));
 					}
+				},
+                beforeClose: function() {
 				},
                 buttons: buttonset
             });
@@ -2947,7 +2928,9 @@ function showMobileFrame(link, name) {
    if (link == "#") return;
    var frameId = link.substring(link.indexOf("_framename=") + "_framename=".length);
    frameId = frameId.substring(0, frameId.indexOf("&"));
-   var d = $("<iframe id=\""+frameId+"\" name=\""+frameId+"\" src=\"about:blank\" needsrc=\"true\" frameborder=\"0\" style=\"min-width:100%;min-height:100%;-webkit-transform: translateZ(0);\"></iframe>");
+   var fc = $("<iframe id=\""+frameId+"\" name=\""+frameId+"\" src=\"about:blank\" needsrc=\"true\" frameborder=\"0\" style=\"min-width:100%;min-height:100%;-webkit-transform: translateZ(0);\"></iframe>");
+   var d = $("<div><div style=\"position: absolute;top:150px;left:100px;\"><img style=\"width:150px\" src=\"/uimaster/images/qd-logo.png\"></div></div>");
+   d.append(fc);
    d.dialog({
         id: "mobileOnlyOneFrame",
 		autoOpen:false,
@@ -2959,16 +2942,17 @@ function showMobileFrame(link, name) {
         draggable: false,
 		show: {effect: "slide",duration: 150},
 		hide: {effect: "slide",duration: 500},
-		open: function(event, ui) {//jquery effect dialog with iframe loading is so weird!
-		    window.setTimeout(function(){d.attr("src",link);},200);
+		open: function(event, ui) {//jquery effect dialog with iframe loading is so weird!	
+		    window.setTimeout(function(){fc.attr("src",link);},200);
+			window.setTimeout(function(){$(d.children()[0]).css("display","none");},8000);//hide it.
 		},
 		beforeClose: function() {
-		  d.attr("src","about:blank");
+		  fc.attr("src","about:blank");
 		},
 		close: function() {
 		  $.ajax({url:AJAX_SERVICE_URL,async:true,data:{_ajaxUserEvent:"tabpane",_uiid:"Form",_valueName:"remveTabId",_value:frameId,    _framePrefix:UIMaster.getFramePrefix()}});
-		},
-		buttons: [{text:"\u5173\u95ED", open:function(){$(this).addClass('uimaster_button');}, click:function(){d.dialog("close");}}]
+		}
+		//buttons: [{text:"\u5173\u95ED", open:function(){$(this).addClass('uimaster_button');}, click:function(){d.dialog("close");}}]
 		});
 	d.dialog("open");
 }
