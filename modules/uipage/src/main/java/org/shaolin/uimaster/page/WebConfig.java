@@ -192,7 +192,7 @@ public class WebConfig {
 						if (items[i].equals("skipCommonJs")) {
 							// the common js files will be skipped if specified.
 							singleCustJs.add(child);
-							items[i] = "";
+							items[i] = "/uimaster/js/emtpy.js";
 						} else if (!items[i].startsWith("http")
 								&& !items[i].startsWith("https")) {
 							//skip http, https, www, 
