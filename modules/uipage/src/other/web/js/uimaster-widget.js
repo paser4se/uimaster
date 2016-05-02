@@ -2230,7 +2230,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		body.children().each(function(){
 		 $(this).bind('click', function(){
 			var tr = $(this);
-			if (othis.editable || (!othis.isSingleSelection && !othis.isMultipleSelection)) {
+			if (othis.editable) {
 				othis.selectedIndex = tr[0]._DT_RowIndex;
 				return true;
 			}
@@ -2295,7 +2295,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 					othis.selectedIndex = tr[0]._DT_RowIndex;
 					isselected=true;
 				}
-				$($(tr).children()[0]).children()[0].checked=true;
+				if ($($(tr).children()[0]).children() > 0) 
+				    $($(tr).children()[0]).children()[0].checked=true;
 				othis.syncButtonGroup(isselected);
 			}
 		  });

@@ -95,6 +95,10 @@ public class HTMLTableType extends HTMLContainerType {
 			if (isShowBigItem==null) {
 				isShowBigItem = Boolean.FALSE;
 			}
+			if (!this.isEditable()) {
+				selectMode = UITableSelectModeType.NORMAL;
+				isEditableCell = Boolean.FALSE;
+			}
 			List<UITableColumnType> columns = (List<UITableColumnType>)this.removeAttribute("columns");
 			if (columns == null || columns.size() == 0) {
 				return;
@@ -124,7 +128,7 @@ public class HTMLTableType extends HTMLContainerType {
 					}
 				}
 			}
-			if (defaultActions != null) {
+			if (defaultActions != null && this.isEditable()) {
 				HTMLUtil.generateTab(context, depth + 2);
 				String defaultBtnSet = "defaultBtnSet_" + htmlId;
 				if (UserContext.isMobileRequest()) {
@@ -182,7 +186,7 @@ public class HTMLTableType extends HTMLContainerType {
 				}
 			}
 			List<UITableActionGroupType> actionGroups = (List<UITableActionGroupType>)this.removeAttribute("actionGroups");
-			if (actionGroups !=null && actionGroups.size() > 0) {
+			if (actionGroups !=null && actionGroups.size() > 0 && this.isEditable()) {
 				int count = 0;
 				for (UITableActionGroupType a : actionGroups) {
 					HTMLUtil.generateTab(context, depth + 2);

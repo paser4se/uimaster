@@ -877,7 +877,7 @@ public abstract class HTMLWidgetType implements Serializable
     public boolean isEditable()
     {
         Object editable = getAllAttribute("editable");
-        return editable == null ? true : "true".equals(editable.toString());
+        return (editable == null || editable.toString().trim().isEmpty()) ? true : "true".equalsIgnoreCase(editable.toString());
     }
 
     public void setEditable(boolean editable)

@@ -167,6 +167,8 @@ label {
 
 .uimaster_workflow_action {
  text-decoration: underline;
+ background-color: #ffeded;
+ border: 1px solid #77d5f7;
 }
 
 .uimaster_prenext_title {
