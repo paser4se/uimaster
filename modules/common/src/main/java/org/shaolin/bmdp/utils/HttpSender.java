@@ -102,7 +102,7 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpSender {
 
-	private static final Logger logger = LoggerFactory.getLogger(Registry.class);
+	private static final Logger logger = LoggerFactory.getLogger(HttpSender.class);
 
 	private PoolingHttpClientConnectionManager connManager;
 	private CookieStore cookieStore;
