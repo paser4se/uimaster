@@ -486,6 +486,13 @@
         </xs:documentation>
        </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="onlyOwner" type="xs:boolean" default="true">
+       <xs:annotation>
+        <xs:documentation>
+         designates only the primitive owner having the permission to execute this mission.
+        </xs:documentation>
+       </xs:annotation>
+    </xs:attribute>
  </xs:complexType>
 
 	<xs:complexType name="endNodeType">

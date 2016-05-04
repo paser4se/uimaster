@@ -74,6 +74,7 @@ import org.shaolin.bmdp.datamodel.page.UIFlowDefaultActionType;
 import org.shaolin.bmdp.datamodel.page.UIFlowDiagramType;
 import org.shaolin.bmdp.datamodel.page.UIFrameType;
 import org.shaolin.bmdp.datamodel.page.UIImageType;
+import org.shaolin.bmdp.datamodel.page.UILayoutConstraintType;
 import org.shaolin.bmdp.datamodel.page.UILayoutType;
 import org.shaolin.bmdp.datamodel.page.UILinkType;
 import org.shaolin.bmdp.datamodel.page.UIListType;
@@ -119,7 +120,6 @@ import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.OpExecuteContext;
 import org.shaolin.uimaster.page.WebConfig;
-import org.shaolin.uimaster.page.WebConfig.WebConfigFastCache;
 import org.shaolin.uimaster.page.ajax.Table;
 import org.shaolin.uimaster.page.ajax.TableConditions;
 import org.shaolin.uimaster.page.ajax.TreeConditions;
@@ -1666,9 +1666,7 @@ public class UIFormObject implements java.io.Serializable
 		if (workflowActions == null) {
 			workflowActions = new ArrayList();
 		} else {
-			for (MissionActionType action : node.getUiActions()) {
-				clearWorkflowActions(action.getActionName());
-			}
+			clearWorkflowActions();
 		}
 		for (MissionActionType action : node.getUiActions()) {
 			workflowActions.add(action.getActionName());
@@ -1683,6 +1681,8 @@ public class UIFormObject implements java.io.Serializable
 		for (UIComponentType panel : panelList) {
 			if ("actionPanel".equals(panel.getUIID())) {
 				UIPanelType actionPanel = (UIPanelType) panel;
+				UIPanelType wfactionPanel = new UIPanelType();
+				wfactionPanel.setUIID("wfactions");
 				for (MissionActionType action : node.getUiActions()) {
 					UIButtonType button = new UIButtonType();
 					button.setUIID(action.getActionName());
@@ -1718,21 +1718,23 @@ public class UIFormObject implements java.io.Serializable
 					clickListener.setHandler(func);
 					button.getEventListeners().add(clickListener);
 					
+					if (wfactionPanel.getLayout() == null) {
+						TableLayoutType tableLayout = new TableLayoutType();
+						tableLayout.getColumnWidthWeights().add(0.0);
+						tableLayout.getRowHeightWeights().add(0.0);
+						wfactionPanel.setLayout(tableLayout);
+					} else {
+						TableLayoutType tableLayout = (TableLayoutType)wfactionPanel.getLayout();
+						tableLayout.getColumnWidthWeights().add(0.0);
+					}
 					ComponentConstraintType constraint = new ComponentConstraintType();
 					constraint.setComponentId(action.getActionName());
 					TableLayoutConstraintType position = new TableLayoutConstraintType();
-					position.setX(0);
+					position.setX(wfactionPanel.getLayoutConstraints().size());
 					position.setY(0);
 					constraint.setConstraint(position);
-					actionPanel.getComponents().add(button);
-					actionPanel.getLayoutConstraints().add(0, constraint);
-					int count = 0;
-					for (ComponentConstraintType ct: actionPanel.getLayoutConstraints()) {
-						((TableLayoutConstraintType)ct.getConstraint()).setX(count++);
-					}
-					
-					TableLayoutType tableLayout = (TableLayoutType) actionPanel.getLayout();
-					tableLayout.getColumnWidthWeights().add(1.0D);
+					wfactionPanel.getComponents().add(button);
+					wfactionPanel.getLayoutConstraints().add(constraint);
 					
 					FunctionType function = new FunctionType();
 					function.setNeedAlert(Boolean.TRUE);
@@ -1746,6 +1748,21 @@ public class UIFormObject implements java.io.Serializable
 					function.getOps().add(op);
 					entity.getEventHandlers().add(function);
 				}
+				TableLayoutType tableLayout = (TableLayoutType)actionPanel.getLayout();
+				tableLayout.getColumnWidthWeights().add(0.0);
+				ComponentConstraintType wfconstraint = new ComponentConstraintType();
+				wfconstraint.setComponentId(wfactionPanel.getUIID());
+				TableLayoutConstraintType wfposition = new TableLayoutConstraintType();
+				wfposition.setX(0);
+				wfposition.setY(0);
+				wfconstraint.setConstraint(wfposition);
+				actionPanel.getComponents().add(0, wfactionPanel);
+				actionPanel.getLayoutConstraints().add(0, wfconstraint);
+				int count = 0; //reposition.
+				for (ComponentConstraintType c : actionPanel.getLayoutConstraints()) {
+					((TableLayoutConstraintType)c.getConstraint()).setX(count++);
+				}
+				
 				// find ok button if has.
 				for (UIComponentType b : actionPanel.getComponents()) {
 					if ("okbtn".equals(b.getUIID())) {
@@ -1775,50 +1792,35 @@ public class UIFormObject implements java.io.Serializable
 		load();
 	}
     
-    public void clearWorkflowActions(String newActionName) {
+    public void clearWorkflowActions() {
 		if (this.workflowActions != null && this.workflowActions.size() > 0) {
 			UIEntity entity = IServerServiceManager.INSTANCE.getEntityManager()
 					.getEntity(this.name, UIEntity.class);
-			for (String actionName : workflowActions) {
-				if (!newActionName.equals(actionName)) {
-					continue;
-				}
-				boolean hasActionPanel = false;
-				List<UIComponentType> panelList = entity.getBody().getComponents();
-				for (UIComponentType panel : panelList) {
-					if ("actionPanel".equals(panel.getUIID())) {
-						logger.info("remove workflow action {} from {}", panel.getUIID(), this.name);
-						UIPanelType actionPanel = (UIPanelType) panel;
-						for (UIComponentType comp : actionPanel.getComponents()) {
-							if (actionName.equals(comp.getUIID())) {
-								actionPanel.getComponents().remove(comp);
-								break;
-							}
-						}
-						
-						((TableLayoutType)actionPanel.getLayout()).getColumnWidthWeights().remove(0);
-						for (ComponentConstraintType constraint : actionPanel.getLayoutConstraints()) {
-							if (actionName.equals(constraint.getComponentId())) {
-								actionPanel.getLayoutConstraints().remove(constraint);
-								break;
-							}
-						}
-						int count = 0;
-						for (ComponentConstraintType ct: actionPanel.getLayoutConstraints()) {
-							((TableLayoutConstraintType)ct.getConstraint()).setX(count ++);
-						}
-						
-						for (FunctionType func : entity.getEventHandlers()) {
-							if (actionName.equals(func.getFunctionName())) {
-								entity.getEventHandlers().remove(func);
-								break;
-							}
+			List<UIComponentType> panelList = entity.getBody().getComponents();
+			for (UIComponentType panel : panelList) {
+				if ("actionPanel".equals(panel.getUIID())) {
+					logger.info("remove workflow action {} from {}", panel.getUIID(), this.name);
+					UIPanelType actionPanel = (UIPanelType) panel;
+					for (UIComponentType comp : actionPanel.getComponents()) {
+						if ("wfactions".equals(comp.getUIID())) {
+							actionPanel.getComponents().remove(comp);
+							break;
 						}
 					}
+					((TableLayoutType)actionPanel.getLayout()).getColumnWidthWeights().remove(0);
+					for (ComponentConstraintType constraint : actionPanel.getLayoutConstraints()) {
+						if ("wfactions".equals(constraint.getComponentId())) {
+							actionPanel.getLayoutConstraints().remove(constraint);
+							break;
+						}
+					}
+					int count = 0;
+					for (ComponentConstraintType ct: actionPanel.getLayoutConstraints()) {
+						((TableLayoutConstraintType)ct.getConstraint()).setX(count ++);
+					}
 				}
-				this.workflowActions.remove(actionName);
-				break;
 			}
+			this.workflowActions.clear();
 		}
 		
 	}
