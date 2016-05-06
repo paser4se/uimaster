@@ -59,6 +59,7 @@ public class WebConfig {
 	public static class WebConfigFastCache {
 		final String runningMode;
 		final boolean customizedMode;
+		final int jsVersion;
 		final String hiddenValueMask;
 		final String cssRootPath;
 		final String jsRootPath;
@@ -86,8 +87,8 @@ public class WebConfig {
 		final Map<String, String[]> singleCommonJs;
 		final List<String> singleCustJs = new ArrayList<String>();
 		
-		
 		public WebConfigFastCache() {
+			jsVersion = (int)(Math.random() * 100);
 			Registry instance = Registry.getInstance();
 			runningMode = instance.getValue("/System/runningMode");
 			customizedMode = Boolean.valueOf(instance.getValue(
@@ -365,7 +366,7 @@ public class WebConfig {
 	}
 
 	public static String getTimeStamp() {
-		return "1";
+		return String.valueOf(WebConfig.getJsVersion());
 	}
 	
 	public static boolean hasAjaxErrorHandler() {
@@ -458,6 +459,10 @@ public class WebConfig {
 		return str.replace(WebContextRoot, WebConfig.getWebContextRoot());
 	}
 
+	public static int getJsVersion() {
+		return getCacheObject().jsVersion;
+	}
+	
 	public static String[] getCommonCss() {
 		return getCacheObject().commoncss;
 	}

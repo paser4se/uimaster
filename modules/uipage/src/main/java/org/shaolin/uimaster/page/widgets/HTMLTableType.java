@@ -84,6 +84,9 @@ public class HTMLTableType extends HTMLContainerType {
 			if (selectMode == null) {
 				selectMode = UITableSelectModeType.SINGLE;
 			}
+			if (UserContext.isMobileRequest() && selectMode == UITableSelectModeType.SINGLE) {
+				selectMode = UITableSelectModeType.NORMAL;
+			}
 			int defaultRowSize = (Integer)this.removeAttribute("defaultRowSize");
 			String totalCount = String.valueOf(this.removeAttribute("totalCount"));
 			Boolean isShowActionBar = (Boolean)this.removeAttribute("isShowActionBar");
@@ -413,8 +416,7 @@ public class HTMLTableType extends HTMLContainerType {
 					context.generateHTML("</th>");
 				}
 			}
-			context.generateHTML("<th id=\"attColumn\" htmlType=\"HTML\" title=\"\">");
-			context.generateHTML("</th>");
+			context.generateHTML("<th id=\"attColumn\" htmlType=\"HTML\" title=\"\">\u8BE6\u7EC6\u4FE1\u606F</th>");
 			// find html column.
 			for (UITableColumnType col : columns) {
 				if ("HTML".equals(col.getUiType().getType())) {

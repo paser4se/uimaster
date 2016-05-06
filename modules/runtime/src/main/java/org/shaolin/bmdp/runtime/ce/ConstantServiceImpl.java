@@ -38,9 +38,15 @@ public class ConstantServiceImpl implements Serializable, IConstantService, IEnt
 	
 	private HierarchyAccessor accesor;
 	
+	private Runnable reloadFunction;
+	
 	public ConstantServiceImpl() {
 		serverConstantMap = CacheManager.getInstance().getCache(
 				"__sys_constants_cache", String.class, IConstantEntity.class);
+	}
+	
+	public void setReloadFunction(Runnable reloadFunction) {
+		this.reloadFunction = reloadFunction;
 	}
 	
 	public void setHierarchyAccessor(HierarchyAccessor accesor) {
@@ -171,7 +177,6 @@ public class ConstantServiceImpl implements Serializable, IConstantService, IEnt
 
 	@Override
 	public void startService() {
-		
 	}
 
 	@Override
@@ -186,7 +191,10 @@ public class ConstantServiceImpl implements Serializable, IConstantService, IEnt
 
 	@Override
 	public void reload() {
-		
+		serverConstantMap.clear();
+		if (this.reloadFunction != null) {
+			this.reloadFunction.run();
+		}
 	}
 
 	@Override

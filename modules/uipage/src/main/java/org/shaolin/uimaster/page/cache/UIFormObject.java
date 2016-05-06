@@ -1954,7 +1954,7 @@ public class UIFormObject implements java.io.Serializable
             {
                 context.addJsName(jsFileName);
             }
-            long timestamp = 1;
+            long timestamp = WebConfig.getJsVersion();
             if (timestamp >= 0)
             {
             	String importJSCode = null;

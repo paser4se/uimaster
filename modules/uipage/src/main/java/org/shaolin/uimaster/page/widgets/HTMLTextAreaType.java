@@ -90,7 +90,7 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
             }
             generateEventListeners(context);
 			if (isHTMLSupported) {
-            	context.generateHTML(" disabled=\"disabled\" style=\"display:none;\"");
+            	context.generateHTML(" style=\"display:none;\"");
             }
             context.generateHTML(">");
             if (context.isValueMask())

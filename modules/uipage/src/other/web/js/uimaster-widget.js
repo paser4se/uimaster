@@ -461,9 +461,9 @@ UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 	initHtmlContent:function() {
 	    var o = this;
 		if (this.persistable) {
-			var btn = $("<button>Save</button>");
+			var btn = $("<button>\u4FDD\u5B58</button>");
 			$(this).parent().append(btn);
-			btn.button().click(function(){
+			btn.click(function(){
 			   var data = CKEDITOR.instances[o.name+"_ckeditor"].getData();
 			   $.ajax({url:AJAX_SERVICE_URL,async:false,type:'POST',
 			   data:{_ajaxUserEvent:"htmleditor",_uiid:o.name,_valueName:"save",_value:data,_framePrefix:UIMaster.getFramePrefix(o)}});
@@ -2855,7 +2855,6 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
             						    if(text==buttons[i].value){$(buttons[i]).click();break;}
 									} } };
 						}
-						if (IS_MOBILEVIEW) $(b).button();
             		}
             	}
             }
@@ -2864,11 +2863,12 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
             	height: IS_MOBILEVIEW?($(window.top).height() - 50):h,
                 width: IS_MOBILEVIEW?"100%":w,
                 modal: true,
-				closeOnEscape: true,
+				closeOnEscape: false,
                 show: {effect: IS_MOBILEVIEW?"slide":"blind", duration: 500},
 				hide: {effect: IS_MOBILEVIEW?"slide":"blind", duration: 500},
-				open: function() {
-					if(IS_MOBILEVIEW){//fix css style unrender bug in mobile view.
+				open: function(event, ui) {
+				    $(".ui-dialog-titlebar-close", ui.dialog | ui).hide();
+					if(IS_MOBILEVIEW){//fix mobile css style bug in mobile view.
 						$(this).parent().parent().appendTo($("form:first"));
 					}
 				},
@@ -2941,9 +2941,12 @@ function showMobileFrame(link, name) {
 		modal: true,
         resizable: false,
         draggable: false,
+		closeOnEscape: true,
 		show: {effect: "slide",duration: 150},
 		hide: {effect: "slide",duration: 500},
-		open: function(event, ui) {//jquery effect dialog with iframe loading is so weird!	
+		open: function(event, ui) {//jquery effect dialog with iframe loading is so weird!
+		    $(".ui-dialog-titlebar-close", ui.dialog | ui).addClass("ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-dialog-titlebar-close");
+
 		    window.setTimeout(function(){fc.attr("src",link);},200);
 			window.setTimeout(function(){$(d.children()[0]).css("display","none");},8000);//hide it.
 		},
@@ -3147,14 +3150,14 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 		});
 		
 		var btns = $($(s).children()[2]).children();
-		$(btns[0]).button().click(function(){
+		$(btns[0]).click(function(){
 			if(!othis.validate0()) return;
 			if(!othis.setTab("prev")) return;
 		    UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedIndex",_value:othis.selectedIndex,_framePrefix:UIMaster.getFramePrefix(this)});
 			$.ajax({url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
 			{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"prevbtn",_framePrefix:UIMaster.getFramePrefix(),_sync:UIMaster.ui.sync()}});
 		});
-		$(btns[1]).button().click(function(){
+		$(btns[1]).click(function(){
 		    if(!othis.validate0()) return;
 		    if(!othis.setTab("next")) return;			
 		    UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedIndex",_value:othis.selectedIndex,_framePrefix:UIMaster.getFramePrefix(this)});

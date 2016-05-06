@@ -2096,7 +2096,7 @@ function getElementList(){
 	}
 }
 function establishWebsocket(eventType, onOpen, onMessage, onError) {
-    var webSocket = new WebSocket("ws://localhost:8080/"+WEB_CONTEXTPATH+eventType);
+    var webSocket = new WebSocket("ws://"+window.location.host+WEB_CONTEXTPATH+eventType);
     webSocket.onerror = function(event) {
       onError(webSocket, event);
     };
