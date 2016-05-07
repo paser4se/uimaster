@@ -86,6 +86,7 @@ public class WebConfig {
 		final Map<String, String[]> singleCommonCss;
 		final Map<String, String[]> singleCommonJs;
 		final List<String> singleCustJs = new ArrayList<String>();
+		final List<String> singleCustCss = new ArrayList<String>();
 		
 		public WebConfigFastCache() {
 			jsVersion = (int)(Math.random() * 100);
@@ -173,7 +174,11 @@ public class WebConfig {
 					values = (Collection<String>)instance.getNodeItems(commonssPath + "/" + child).values();
 					String[] items = values.toArray(new String[values.size()]);
 					for (int i=0; i<items.length; i++) {
-						if (!items[i].startsWith("http")
+						if (items[i].equals("skipCommonCss")) {
+							// the common js files will be skipped if specified.
+							singleCustCss.add(child);
+							items[i] = "/uimaster/js/emtpy.js";
+						} else if (!items[i].startsWith("http")
 								&& !items[i].startsWith("https")) {
 							items[i] = ResourceContextRoot + items[i];
 						}
@@ -481,6 +486,10 @@ public class WebConfig {
 	
 	public static boolean skipCommonJs(String pageName) {
 		return getCacheObject().singleCustJs.contains(pageName);
+	}
+	
+	public static boolean skipCommonCss(String pageName) {
+		return getCacheObject().singleCustCss.contains(pageName);
 	}
 	
 	public static String getCommoncompressedjs() {
