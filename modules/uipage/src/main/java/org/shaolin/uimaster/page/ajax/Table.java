@@ -457,6 +457,19 @@ public class Table extends Widget implements Serializable {
 	}
 	
 	public String refresh0() {
+		if (null != this.listData) {
+			this.listData.clear();
+		}
+		if (null != this.addItems) {
+			this.addItems.clear();
+		}
+		if (null != this.deleteItems) {
+			this.deleteItems.clear();
+		}
+		if (null != this.updateItems) {
+			this.updateItems.clear();
+		}
+		
 		try {
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
@@ -470,6 +483,7 @@ public class Table extends Widget implements Serializable {
 			if (rows == null) {
 				rows = Collections.emptyList();
 			}
+			this.listData = rows;
 			return refresh0(rows);
 		} catch (EvaluationException e) {
 			logger.error("error occurrs while refreshing table: " + this.getId(), e);
