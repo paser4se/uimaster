@@ -53,7 +53,7 @@
             <item name="ajaxHandlingError" value="true" />
             <item name="isJAAS" value="false" />
             <item name="formatHTML" value="true" />
-            <item name="syncLoadJs" value="jquery.js;uimaster.js;api.map.baidu.com/api" />
+            <item name="syncLoadJs" value="jquery.js;uimaster.js;api.map.baidu.com/api;coupon-common.js" />
             <node name="commoncss">
             	<item name="jquery-dataTable" value="/css/jquery-dataTable.css" />
             	<item name="jquery-jstree" value="/css/jquery-jstree.css" />
