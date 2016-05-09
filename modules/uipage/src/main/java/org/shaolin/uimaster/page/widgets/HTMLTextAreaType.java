@@ -69,7 +69,7 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
             }
             boolean isHTMLSupported = this.getAttribute("htmlSupport") != null && 
             		"true".equals(this.getAttribute("htmlSupport").toString());
-            if (context.getRequest().getAttribute("_hasCKeditor") == null) {
+            if (isHTMLSupported && context.getRequest().getAttribute("_hasCKeditor") == null) {
 				context.getRequest().setAttribute("_hasCKeditor", Boolean.TRUE);
 	            String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
 	        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
