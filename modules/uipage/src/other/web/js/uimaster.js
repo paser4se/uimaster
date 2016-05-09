@@ -1,3 +1,4 @@
+$.ajaxSetup({'cache':true});//disable JQuery add number at the end of js url.
 var MobileAppMode = (typeof(_mobContext) != undefined && typeof(_mobContext) != "undefined"); 
 if (MobileAppMode) {
     var AJAX_SERVICE_URL="";
