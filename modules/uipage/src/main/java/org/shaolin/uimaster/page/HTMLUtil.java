@@ -65,8 +65,6 @@ public class HTMLUtil
 
     private static final Map<String, Class<?>> skinMap = new ConcurrentHashMap<String, Class<?>>();
 
-    private static boolean isFormatHTML = WebConfig.isFormatHTML();
-
     /**
 	 * change to html code
 	 * 
@@ -701,7 +699,7 @@ public class HTMLUtil
 	}
 
 	public static void generateTab(HTMLSnapshotContext context, int depth) {
-		if (isFormatHTML) {
+		if (WebConfig.isFormatHTML()) {
 			StringBuffer sb = new StringBuffer("\n");
 			for (int i = 0; i < depth; i++) {
 				sb.append("\t");

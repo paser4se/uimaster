@@ -1073,8 +1073,11 @@ abstract public class Widget implements Serializable
 
     public boolean isEditable()
     {
+    	if (!attributeMap.containsKey("disabled")) {
+    		return true;
+    	}
         String editable = (String)attributeMap.get("disabled");
-        return editable == null ? true : "true".equals(editable);
+        return "false".equals(editable);
     }
 
     public String generateHTML()

@@ -49,6 +49,14 @@ public class HTMLChartLinearType extends HTMLChartSuper {
 		}
 		List<Object> listData = (List<Object>)this.removeAttribute("query");
 		if (!listData.isEmpty() && listData.size() > 0) {
+			if (listData.size() > cssStyles.size()) {
+				int gap = listData.size() - cssStyles.size();
+				while (gap-- > 0) {
+					// auto fill the gap.
+					cssStyles.add(cssStyles.get(cssStyles.size() - 1));
+				}
+			}
+			
 			context.generateHTML("datasets: [");
 			StringBuilder sb = new StringBuilder();
 			// vertical iterator.

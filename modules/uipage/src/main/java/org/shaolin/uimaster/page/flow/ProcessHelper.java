@@ -696,9 +696,11 @@ public class ProcessHelper
                         logger.warn("Component not found in synchronizing values: uiid=" + uiid +
                                      ", framePrefix=" + framePrefix);
                     } else {
-                        component.addAttribute(valueName,value,false);
-                        // constraint check is necessary.
-                        component.checkConstraint();
+                    	if (component.isEditable()) {
+	                        component.addAttribute(valueName,value,false);
+	                        // constraint check is necessary.
+	                        component.checkConstraint();
+                    	}
                     }
                 }
             }
