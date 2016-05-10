@@ -72,7 +72,7 @@ public abstract class HTMLChartSuper extends HTMLWidgetType
 				context.generateHTML(this.getAttribute("labels").toString());
 				context.generateHTML(",");
 			} else {
-				StringBuffer sb = new StringBuffer("[");
+				StringBuilder sb = new StringBuilder("[");
 				Object data = this.getAttribute("query");
 				OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 				DefaultEvaluationContext evaContext = new DefaultEvaluationContext();

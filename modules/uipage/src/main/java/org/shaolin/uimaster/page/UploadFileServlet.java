@@ -157,7 +157,12 @@ public class UploadFileServlet extends HttpServlet {
 						return;
 					}
 					if (!item.isFormField()) {
-						String name = new File(item.getName()).getName();
+						String name;
+						if ((new File(root, item.getName())).exists()) {
+							name = ((int)(Math.random()*1000)) + item.getName();
+						} else {
+							name = new File(item.getName()).getName();
+						}
 						name = URLDecoder.decode(name, "UTF-8");  
 						logger.info("Received the uploading file: " + name + ", saving path: " + root);
 						item.write(new File(root, name));

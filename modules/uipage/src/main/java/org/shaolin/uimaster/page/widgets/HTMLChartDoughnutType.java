@@ -70,7 +70,7 @@ public class HTMLChartDoughnutType extends HTMLChartSuper {
 		}
 		Map<String, Integer> listData = (Map<String, Integer>)this.removeAttribute("query");
 		if (listData != null && !listData.isEmpty()) {
-			StringBuffer sb = new StringBuffer("datasets: [{ data: [");
+			StringBuilder sb = new StringBuilder("datasets: [{ data: [");
 			Set<String> keys = listData.keySet();
 			for (String key : keys) {
 				sb.append(listData.get(key)).append(",");
@@ -81,6 +81,9 @@ public class HTMLChartDoughnutType extends HTMLChartSuper {
 				String css = cssStyles.get(key);
 				if (css != null) {
 					sb.append(css).append(",");
+				} else {
+					//get default
+					sb.append(cssStyles.get(0)).append(",");
 				}
 			}
 			sb.deleteCharAt(sb.length()-1);
