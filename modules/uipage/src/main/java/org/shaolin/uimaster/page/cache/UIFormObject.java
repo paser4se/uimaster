@@ -209,8 +209,17 @@ public class UIFormObject implements java.io.Serializable
         }
         this.name = name;
         this.desc = entity.getDescription();
+        
         UIEntity uientity = (UIEntity)entity.getUIEntity();
         OOEEContext parsingContext = parseVariable(entity);
+        if (entity.getDescriptionExpr() != null) {
+        	try {
+        		entity.getDescriptionExpr().parse(parsingContext);
+        		descExpr = entity.getDescriptionExpr();
+        	} catch (ParsingException e) {
+        		logger.error("UI Form description parsing error: " + e.getMessage(), e);
+        	}
+        }
         parseUI(parsingContext, uientity, null);
         HTMLUtil.includeJsFiles(name, jsIncludeMap, jsIncludeList, !WebConfig.skipCommonJs(name));
         HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, !WebConfig.skipCommonJs(name));
@@ -229,15 +238,6 @@ public class UIFormObject implements java.io.Serializable
     private void parseUI(OOEEContext parsingContext, UIEntity entity, Map extraInfo)
     {
     	this.clear();
-    	if (entity.getDescriptionExpr() != null) {
-    		try {
-				entity.getDescriptionExpr().parse(parsingContext);
-				descExpr = entity.getDescriptionExpr();
-			} catch (ParsingException e) {
-				logger.error("UI Form description parsing error: " + e.getMessage(), e);
-			}
-    	}
-    	
 		if (logger.isDebugEnabled()) {
 			logger.debug("parse reconfigurable for form: " + name);
 		}
