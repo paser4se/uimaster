@@ -65,17 +65,29 @@ public class HibernateUtil {
 			return sessionFactoryTL.get();
 		}
 		
+		/*
+		 * getCurrentSession() creates the session and bound to the current thread. OpenSession() won't.
+		 * getCurrentSession()'s session will be closed after either doing 'commit' or 'rollback'. OpenSession() won't.
+		 */
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		try {
-			session.beginTransaction();
+			// hibernate transaction is thread bound or thread safe.
+			// we must to promise the transaction being 'commit' or 'rollback' in the same thread where begins.
+			if (session.getTransaction() == null || !session.getTransaction().isActive()) {
+				session.beginTransaction();
+			}
 		} catch (TransactionException e) {
 			logger.warn("Hibernate TransactionException error: " + e.getMessage());
 			logger.warn("Hibernate Session Info: collections-{},entities-{},transaction-{}", 
 					new Object[] { session.getStatistics().getCollectionCount(), 
 									session.getStatistics().getEntityCount(),
 									session.getTransaction().getLocalStatus()});
-			session.getTransaction().rollback();
+			try {
+				session.getTransaction().rollback();
+			} catch (Exception e0) {}
+			// break transaction before rebuild.
 			session = HibernateUtil.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
 		}
 		sessionFactoryTL.set(session);
 		if (logger.isDebugEnabled()) {
@@ -85,6 +97,7 @@ public class HibernateUtil {
 		}
 		return session;
 	}
+
 	
 	public static void releaseSession(Session session, boolean isCommit) {
 		if (sessionFactoryTL.get() != null) {
@@ -96,7 +109,8 @@ public class HibernateUtil {
 					new Object[] { isCommit, session.getStatistics().getCollectionCount(), 
 									session.getStatistics().getEntityCount()});
 		}
-		if (!session.isOpen()) {
+		if (!session.isOpen() || session.getTransaction() == null 
+				|| !session.getTransaction().isActive()) {
 			return;
 		}
 		
@@ -105,6 +119,7 @@ public class HibernateUtil {
 		} else {
 			session.getTransaction().rollback();
 		}
+		// no need close session manually. it close automatically.
 	}
 	
 	public static SessionFactory getSessionFactory() {

@@ -252,6 +252,8 @@ public class BEEntityDaoObject {
 		Session session = HibernateUtil.getSession();
 		entity.setEnabled(false);
 		session.update(entity);
+		
+		HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 	}
 
 	/**
@@ -268,6 +270,8 @@ public class BEEntityDaoObject {
 
 		entity.setEnabled(true);
 		session.update(entity);
+		
+		HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 	}
 	
 	/**
