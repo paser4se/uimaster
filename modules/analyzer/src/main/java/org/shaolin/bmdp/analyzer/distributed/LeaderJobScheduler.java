@@ -1,20 +1,22 @@
 /*
-* Copyright 2015 The UIMaster Project
-*
-* The UIMaster Project licenses this file to you under the Apache License,
-* version 2.0 (the "License"); you may not use this file except in compliance
-* with the License. You may obtain a copy of the License at:
-*
-*   http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-* License for the specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright 2015 The UIMaster Project
+ *
+ * The UIMaster Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
 package org.shaolin.bmdp.analyzer.distributed;
 
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -49,7 +51,11 @@ import org.shaolin.bmdp.analyzer.distributed.api.IJobDispatcher;
  */
 public class LeaderJobScheduler implements IJobDispatcher {
 
-    private Logger logger = Logger.getLogger(getClass());
+    private static final Logger logger = Logger.getLogger(LeaderJobScheduler.class);
+
+    public static final String DATA = "data";
+    public static final String PATH = "path";
+    public static final String STAT2 = "Stat";
 
     private final SchedulerFactory scheduleFactory = new StdSchedulerFactory();
 
@@ -66,7 +72,7 @@ public class LeaderJobScheduler implements IJobDispatcher {
     private ZooKeeper zookeeper;
 
     private final AtomicInteger counter = new AtomicInteger(-1);
-    
+
     private Map<Long, Trigger> scheduledJobCache = new ConcurrentHashMap<Long, Trigger>();
 
     /**
@@ -111,15 +117,15 @@ public class LeaderJobScheduler implements IJobDispatcher {
 
     @Override
     public void stopService() {
-    	try {
-			scheduler.shutdown();
-		} catch (SchedulerException e) {
-			logger.warn(e);
-		}
-    	try {
-			scheduler.clear();
-		} catch (SchedulerException e) {
-		}
+        try {
+            scheduler.shutdown();
+        } catch (SchedulerException e) {
+            logger.warn(e);
+        }
+        try {
+            scheduler.clear();
+        } catch (SchedulerException e) {
+        }
     }
 
     @Override
@@ -178,12 +184,12 @@ public class LeaderJobScheduler implements IJobDispatcher {
 
     private void scheduleAJob(IJavaCCJob jobInfo) {
         logger.info("scheduling job [" + jobInfo.getId() + "]");
-        
+
         if (scheduledJobCache.containsKey(jobInfo.getId())) {
-            logger.info("JavaCCJob ["+jobInfo.getId()+"] already scheduled. ignore this schedule request!");
+            logger.info("JavaCCJob [" + jobInfo.getId() + "] already scheduled. ignore this schedule request!");
             return;
         }
-        
+
         JobDetail job = JobBuilder.newJob(DispatcherJob.class)
                 .withIdentity(getJobNameFromJobInfo(jobInfo), DEFAULT_GROUP).build();
 
@@ -211,7 +217,7 @@ public class LeaderJobScheduler implements IJobDispatcher {
         int i = counter.incrementAndGet() % workers.size();
         String workerName = workers.get(i);
         if (logger.isDebugEnabled()) {
-        	logger.debug("dispatching job [" + jobInfo.getId() + "] to [" + workerName + "]");
+            logger.debug("dispatching job [" + jobInfo.getId() + "] to [" + workerName + "]");
         }
         notifyWorkerToExecuteJob(workerName, jobInfo);
     }
@@ -221,46 +227,23 @@ public class LeaderJobScheduler implements IJobDispatcher {
         zookeeper.getData(workerPath, watcher, new DataCallback() {
             @Override
             public void processResult(int rc, String path, Object ctx, byte[] data, Stat stat) {
-                long id = jobInfo.getId();
-            	if (logger.isDebugEnabled()) {
-                	logger.debug("notifing worker [" + workerName + "] to execute job [" + jobInfo.getId()
-                        + "]");
-            	}
 
-                try {
-                    String s = "";
-                    if (data != null && data.length > 0) {
-                        s = new String(data);
-                    }
-                    if (s.length() == 0) {
-                        s = jobInfo + "";
-                    } else {
-                        s = ";" + id;
-                    }
-//                    if (stat == null) {
-//                    	stat = new Stat();
-//                    	stat.setVersion(1);
-//                    }
-                    zookeeper.setData(workerPath, s.getBytes(), stat.getVersion());
-                } catch (KeeperException | InterruptedException e) {
-                    if (e instanceof InterruptedException) {
-                        logger.warn("error set data", e);
-                        return;
-                    }
-                    switch (((KeeperException) e).code()) {
-                    case BADVERSION:
-                        notifyWorkerToExecuteJob(workerName, jobInfo);
-                        break;
-                    case NONODE:
-                        dispatchJobs(jobInfo);
-                    default:
-                        logger.warn("error set data", e);
-
-                    }
-
-                }catch (Exception e) {
-                    logger.warn("error set data", e);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("notifing worker [" + workerName + "] to execute job [" + jobInfo.getId() + "],stat ="
+                            + stat + "\n rc=" + rc + "\n path=" + path);
                 }
+                Map<String, Object> context = new HashMap<String, Object>();
+                context.put(DATA, data);
+                context.put(PATH, path);
+                context.put(STAT2, stat);
+
+                Operation operation = Operation.get(rc);
+                if (operation != null) {
+                    operation.apply(workerName, jobInfo, LeaderJobScheduler.this, context);
+                    return;
+                }
+                logger.warn("Fail notify worker '" + workerName + "' to execute job '" + jobInfo.getId()
+                        + "'   errorCode = " + rc);
             }
         }, null);
     }
@@ -297,6 +280,96 @@ public class LeaderJobScheduler implements IJobDispatcher {
             }
         }
 
+    }
+
+    public ZooKeeper getZookeeper() {
+        return zookeeper;
+    }
+
+    enum Operation {
+        OK(KeeperException.Code.OK.intValue()) {
+
+            @Override
+            void apply(String workerName, IJavaCCJob jobInfo, LeaderJobScheduler schelder, Map<String, Object> ctx) {
+                long id = jobInfo.getId();
+                byte[] data = (byte[]) ctx.get(DATA);
+                Stat stat = (Stat) ctx.get(STAT2);
+                String workerPath = (String) ctx.get(PATH);
+                try {
+                    String s = "";
+
+                    if (data != null && data.length > 0) {
+                        s = new String(data);
+                    }
+                    if (s.length() == 0) {
+                        s = id + "";
+                    } else {
+                        s = ";" + id;
+                    }
+
+                    schelder.getZookeeper().setData(workerPath, s.getBytes(), stat.getVersion());
+                } catch (KeeperException | InterruptedException e) {
+                    if (e instanceof InterruptedException) {
+                        logger.warn("error set data", e);
+                        return;
+                    }
+                    switch (((KeeperException) e).code()) {
+                    case BADVERSION:
+                        schelder.notifyWorkerToExecuteJob(workerName, jobInfo);
+                        break;
+                    case NONODE:
+                        schelder.dispatchJobs(jobInfo);
+                    default:
+                        logger.warn("error set data", e);
+
+                    }
+
+                } catch (Exception e) {
+                    logger.warn("error set data", e);
+                }
+
+            }
+
+        },
+
+        BADVERSION(KeeperException.Code.BADVERSION.intValue()) {
+            @Override
+            void apply(String workerName, IJavaCCJob jobInfo, LeaderJobScheduler schelder, Map<String, Object> ctx) {
+                schelder.notifyWorkerToExecuteJob(workerName, jobInfo);
+            }
+        },
+        
+        NONODE(KeeperException.Code.NONODE.intValue()) {
+            @Override
+            void apply(String workerName, IJavaCCJob jobInfo, LeaderJobScheduler schelder, Map<String, Object> ctx) {
+                schelder.getWorkerNodeListener().refreshWorkers();
+                schelder.dispatchJobs(jobInfo);
+            }
+        };
+
+        private static final Map<Integer, Operation> lookup = new HashMap<Integer, Operation>();
+
+        static {
+            for (Operation c : EnumSet.allOf(Operation.class))
+                lookup.put(c.code, c);
+        }
+
+        private int code;
+
+        Operation(int code) {
+            this.code = code;
+        }
+
+        public static Operation get(int code) {
+            return lookup.get(code);
+        }
+
+        abstract void apply(String workerName, IJavaCCJob jobInfo, LeaderJobScheduler schelder, Map<String, Object> ctx);
+
+    }
+
+    public WorkersNodeListener getWorkerNodeListener() {
+        return workerNodeListener;
     }
 
 }

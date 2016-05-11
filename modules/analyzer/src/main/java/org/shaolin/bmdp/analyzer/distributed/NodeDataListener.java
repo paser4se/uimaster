@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.shaolin.bmdp.analyzer.distributed.api.IJobExecutor;
 import org.shaolin.bmdp.runtime.ddc.client.api.DataListener;
 import org.shaolin.bmdp.runtime.ddc.client.api.ZData;
@@ -29,7 +30,7 @@ import org.shaolin.bmdp.runtime.ddc.client.api.ZData;
  */
 public class NodeDataListener implements DataListener {
 
-  //  private DistributedJobEngine engine;
+    private Logger logger = Logger.getLogger(getClass());
     
     private IJobExecutor jobExecutor;
     /**
@@ -55,8 +56,11 @@ public class NodeDataListener implements DataListener {
             taskIds.addAll(Arrays.asList(ids));
         }
         
-        
-        jobExecutor.onJobListUpdate(taskIds);
+        try {
+            jobExecutor.onJobListUpdate(taskIds);
+        }catch(Exception e) {
+            logger.warn("Error executing job tasks:'"+taskIds+"'", e);
+        }
         
 
     }
