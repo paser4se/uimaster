@@ -62,6 +62,10 @@ public class WorkersNodeListener implements DataListener {
             logger.warn("error get node children", e);
         }
     }
+    
+    public void refreshWorkers() {
+        init();
+    }
 
     /*
      * (non-Javadoc)
@@ -130,11 +134,12 @@ public class WorkersNodeListener implements DataListener {
         zookeeper.getData(workerPath, false, new DataCallback() {
             @Override
             public void processResult(int rc, String path, Object ctx, byte[] data, Stat stat) {
-                // TODO Auto-generated method stub
-                try {
-                    zookeeper.delete(workerPath, stat.getVersion());
-                } catch (Exception e) {
-                    logger.warn("exception delete node", e);
+                if (rc == KeeperException.Code.OK.intValue())  {                    
+                    try {
+                        zookeeper.delete(workerPath, stat.getVersion());
+                    } catch (Exception e) {
+                        logger.warn("exception delete node", e);
+                    }
                 }
             }
         }, null);
