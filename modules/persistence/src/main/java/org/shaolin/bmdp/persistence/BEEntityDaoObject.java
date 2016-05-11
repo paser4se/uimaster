@@ -284,8 +284,13 @@ public class BEEntityDaoObject {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> List<T> listStatistic(String table, int offset, int count, Map<String, Object> conditions) {
-		Session session = HibernateUtil.getSession();
-		return session.createSQLQuery("select * from " + table).list(); 
+		try {
+			Session session = HibernateUtil.getSession();
+			return session.createSQLQuery("select * from " + table).list(); 
+		} finally {
+			// release session ASAP. but it's an issue for transaction manipulation.
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+		}
 	}
 	
 	/**
@@ -332,30 +337,35 @@ public class BEEntityDaoObject {
 	public <T> List<T> list(int offset, int count, Class<T> elementType, 
 			Class<?> persistentType, String alias, List<Criterion> criterions, List<Order> orders) {
 		Session session = HibernateUtil.getSession();
-		Criteria criteria = null;
-		if (alias != null) {
-			criteria = session.createCriteria(persistentType, alias);
-		} else {
-			criteria = session.createCriteria(persistentType);
-		}
-		if (count > 0) {
-			criteria.setFirstResult(offset);
-			criteria.setMaxResults(count);
-		}
-		
-		if (criterions != null) {
-			for (Criterion c : criterions) {
-				criteria.add(c);
+		try {
+			Criteria criteria = null;
+			if (alias != null) {
+				criteria = session.createCriteria(persistentType, alias);
+			} else {
+				criteria = session.createCriteria(persistentType);
 			}
-			// Restrictions
-		}
-		if (orders != null) {
-			for (Order c : orders) {
-				criteria.addOrder(c);
+			if (count > 0) {
+				criteria.setFirstResult(offset);
+				criteria.setMaxResults(count);
 			}
+			
+			if (criterions != null) {
+				for (Criterion c : criterions) {
+					criteria.add(c);
+				}
+				// Restrictions
+			}
+			if (orders != null) {
+				for (Order c : orders) {
+					criteria.addOrder(c);
+				}
+			}
+			
+			return criteria.list();
+		} finally {
+			// release session ASAP. but it's an issue for transaction manipulation.
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
-		
-		return criteria.list();
 	}
 	
 	/**
