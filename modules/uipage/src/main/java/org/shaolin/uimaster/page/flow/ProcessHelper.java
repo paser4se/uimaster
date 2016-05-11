@@ -23,6 +23,7 @@ import org.shaolin.bmdp.datamodel.common.TargetEntityType;
 import org.shaolin.bmdp.datamodel.common.VariableType;
 import org.shaolin.bmdp.datamodel.pagediagram.OutType;
 import org.shaolin.bmdp.datamodel.pagediagram.WebNodeType;
+import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.VariableUtil;
 import org.shaolin.bmdp.runtime.be.BEUtil;
 import org.shaolin.bmdp.utils.SerializeUtil;
@@ -490,6 +491,8 @@ public class ProcessHelper
         if (logger.isDebugEnabled())
             logger.debug("processForwardError()");
 
+        HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
+        
         //set some attributes
         ProcessHelper.processPreForward(srcNode, request);
 
