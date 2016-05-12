@@ -30,6 +30,7 @@ public class SlidePanel extends BaseSkin implements IUISkin {
 		
 		String uiid = component.getUIID();
 		context.generateHTML("<script>");
+		context.generateHTML("UIMaster.pageInitFunctions.push(function(){\n");
 		context.generateHTML("sideBar(\"" + context.getHTMLPrefix() + uiid
 				+ "\", \"" + context.getHTMLPrefix() + this.getParam("leftPanel")
 				+ "\", \"" + context.getHTMLPrefix() + this.getParam("rightPanel")
@@ -37,6 +38,7 @@ public class SlidePanel extends BaseSkin implements IUISkin {
 				+ "\", \"" + context.getHTMLPrefix() + this.getParam("leftPanel")
 				+ "\", \"" + context.getHTMLPrefix() + this.getParam("rightPanel")
 				+ "\");});");
+		context.generateHTML("});\n");
 		context.generateHTML("</script>");
 	}
 
