@@ -189,6 +189,12 @@ public class HTMLTabPaneType extends HTMLContainerType
 	                	this.context.getRequest().setAttribute("_tabcontent", "true");
 	                	HTMLFrameType frame = new HTMLFrameType(this.context, tab.getUiid());
 	                	frame.setHTMLAttribute(HTMLFrameType.NEED_SRC, "true");
+	                	frame.addAttribute(HTMLFrameType.NEED_SRC, "true");
+	                	frame.addAttribute("_chunkname", tab.getFrame().getChunkName());
+	                	frame.addAttribute("_nodename", tab.getFrame().getNodeName());
+	                	frame.addAttribute("_framePagePrefix", this.context.getFrameInfo());
+	                	frame.addAttribute("_tabcontent", "true");
+	                	frame.setHTMLLayout(this.getHTMLLayout());
 	                	frame.generateBeginHTML(context, ownerEntity, depth + 1);
 	                	frame.generateEndHTML(context, ownerEntity, depth + 1);
 	                } 
