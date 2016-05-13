@@ -99,13 +99,6 @@ public interface IServerServiceManager {
 	 */
 	IAppServiceManager removeApplication(String name);
 	
-	/**
-	 * Get all applications' names.
-	 * 
-	 * @return
-	 */
-	String[] getApplicationNames();
-
 	/********DB access APIs*********/
 	Object getHibernateConfiguration();
 

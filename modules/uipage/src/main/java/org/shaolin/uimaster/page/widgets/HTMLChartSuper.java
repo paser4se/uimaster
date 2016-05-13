@@ -63,7 +63,7 @@ public abstract class HTMLChartSuper extends HTMLWidgetType
     	String height = heightProp == null? "100%": heightProp.toString();
     	context.generateHTML("<canvas id=\"");
 		context.generateHTML(getName());
-		context.generateHTML("\" width=\""+width+"\" height=\""+height+"\">");
+		context.generateHTML("\" width=\""+width+"\" height=\""+height+"\" title=\""+this.removeAttribute("title")+"\">");
 		context.generateHTML("{type: '" + this.getClass().getSimpleName() + "',");
 		try {
 			context.generateHTML("data: {labels:");

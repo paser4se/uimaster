@@ -1,9 +1,11 @@
 package org.shaolin.bmdp.analyzer.dao;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.shaolin.bmdp.analyzer.be.ChartPointDataImpl;
 import org.shaolin.bmdp.analyzer.be.IChartPointData;
@@ -53,6 +55,22 @@ public class AanlysisModelCust extends BEEntityDaoObject {
 		for (IChartPointData item: data) {
 			sb.append("'");
 			sb.append(item.getLabel());
+			sb.append("',");
+		}
+		if (sb.length() > 0) {
+			sb.deleteCharAt(sb.length()-1);
+		}
+		sb.append("]");
+		
+		return sb.toString();
+	}
+	
+	public static String getLabels(HashMap<String, Integer>  listData) {
+		StringBuffer sb = new StringBuffer("[");
+		Set<String> keys = listData.keySet();
+		for (String key : keys) {
+			sb.append("'");
+			sb.append(key);
 			sb.append("',");
 		}
 		if (sb.length() > 0) {

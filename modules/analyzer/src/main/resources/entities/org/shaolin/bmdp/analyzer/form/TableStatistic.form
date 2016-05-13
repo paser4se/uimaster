@@ -13,7 +13,11 @@
         { 
             TableColumnStatisticImpl item = new TableColumnStatisticImpl();
             Table tableWidget = (Table)@page.getElement("itemTable");
-            tableWidget.addRow(item);
+            if (tableWidget.getListData() != null && tableWidget.getListData().size() <= 9) {
+                tableWidget.addRow(item);
+            } else {
+                @page.executeJavaScript("alert('the max size of configured columns are 9.');");
+            }
         }]]></expressionString>
       </ns2:exp>
     </ns2:ops>
@@ -103,14 +107,51 @@
       <ns2:component xsi:type="ns2:UITextAreaType" UIID="descriptionUI">
         <ns2:UIStyle>uimaster_rightform_widget</ns2:UIStyle>
       </ns2:component>
-      <ns2:component xsi:type="ns2:UILabelType" UIID="needOrgStatsUILabel">
+      <ns2:component xsi:type="ns2:UILabelType" UIID="needsPanelLabel">
         <ns2:UIStyle>uimaster_leftform_widget</ns2:UIStyle>
         <ns2:text xsi:type="ns2:ResourceBundlePropertyType">
           <ns2:bundle>org_shaolin_bmdp_analyzer_i18n</ns2:bundle>
-          <ns2:key>org.shaolin.bmdp.analyzer.be.TableStatistic.needOrgStats</ns2:key>
+          <ns2:key>org.shaolin.bmdp.analyzer.be.TableStatistic.description</ns2:key>
         </ns2:text>
       </ns2:component>
-      <ns2:component xsi:type="ns2:UICheckBoxType" UIID="needOrgStatsUI"></ns2:component>
+      <ns2:component xsi:type="ns2:UIPanelType" UIID="needsPanel">
+	      <ns2:layout xsi:type="ns2:TableLayoutType">
+	        <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+	        <ns2:columnWidthWeight>50</ns2:columnWidthWeight>
+	        <ns2:columnWidthWeight>50</ns2:columnWidthWeight>
+	        <ns2:columnWidthWeight>50</ns2:columnWidthWeight>
+	      </ns2:layout>
+	      <ns2:component xsi:type="ns2:UICheckBoxType" UIID="needOrgStatsUI">
+	         <ns2:widgetLabel xsi:type="ns2:ResourceBundlePropertyType">
+	            <ns2:bundle>org_shaolin_bmdp_analyzer_i18n</ns2:bundle>
+	            <ns2:key>org.shaolin.bmdp.analyzer.be.TableStatistic.needOrgStats</ns2:key>
+	        </ns2:widgetLabel>
+	      </ns2:component>
+	      <ns2:component xsi:type="ns2:UICheckBoxType" UIID="needSumUI">
+	         <ns2:widgetLabel xsi:type="ns2:ResourceBundlePropertyType">
+	            <ns2:bundle>org_shaolin_bmdp_analyzer_i18n</ns2:bundle>
+	            <ns2:key>org.shaolin.bmdp.analyzer.be.TableStatistic.needSum</ns2:key>
+	        </ns2:widgetLabel>
+	      </ns2:component>
+	      <ns2:component xsi:type="ns2:UICheckBoxType" UIID="needAverageUI">
+	         <ns2:widgetLabel xsi:type="ns2:ResourceBundlePropertyType">
+	            <ns2:bundle>org_shaolin_bmdp_analyzer_i18n</ns2:bundle>
+	            <ns2:key>org.shaolin.bmdp.analyzer.be.TableStatistic.needAverage</ns2:key>
+	        </ns2:widgetLabel>
+	      </ns2:component>
+	      <ns2:layoutConstraint>
+	        <ns2:componentId>needOrgStatsUI</ns2:componentId>
+	        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="0" align="FULL" cellUIClass=""></ns2:constraint>
+	      </ns2:layoutConstraint>
+	      <ns2:layoutConstraint>
+	        <ns2:componentId>needSumUI</ns2:componentId>
+	        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="1" y="0" align="FULL" cellUIClass=""></ns2:constraint>
+	      </ns2:layoutConstraint>
+	      <ns2:layoutConstraint>
+            <ns2:componentId>needAverageUI</ns2:componentId>
+            <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="2" y="0" align="FULL" cellUIClass=""></ns2:constraint>
+          </ns2:layoutConstraint>
+      </ns2:component>
       <ns2:component xsi:type="ns2:UILabelType" UIID="chartTypeUILabel">
         <ns2:UIStyle>uimaster_leftform_widget</ns2:UIStyle>
         <ns2:text xsi:type="ns2:ResourceBundlePropertyType">
@@ -148,11 +189,11 @@
         <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="1" y="1" align="FULL" cellUIClass="uimaster_rightform_cell"></ns2:constraint>
       </ns2:layoutConstraint>
       <ns2:layoutConstraint>
-        <ns2:componentId>needOrgStatsUILabel</ns2:componentId>
-        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="2" align="FULL" cellUIClass="uimaster_leftform_cell"></ns2:constraint>
+        <ns2:componentId>needsPanelLabel</ns2:componentId>
+        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="2" align="FULL" cellUIClass="uimaster_rightform_cell"></ns2:constraint>
       </ns2:layoutConstraint>
       <ns2:layoutConstraint>
-        <ns2:componentId>needOrgStatsUI</ns2:componentId>
+        <ns2:componentId>needsPanel</ns2:componentId>
         <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="1" y="2" align="FULL" cellUIClass="uimaster_rightform_cell"></ns2:constraint>
       </ns2:layoutConstraint>
       <ns2:layoutConstraint>
@@ -316,7 +357,17 @@
       <ns2:UIComponent componentPath="needOrgStatsUI" paramName="UIWidgetType"></ns2:UIComponent>
       <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.needOrgStats" paramName="Value"></ns2:DataComponent>
     </ns2:ComponentMapping>
+    <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping4">
+      <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UISelect"></ns2:mappingRule>
+      <ns2:UIComponent componentPath="needSumUI" paramName="UIWidgetType"></ns2:UIComponent>
+      <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.needSum" paramName="Value"></ns2:DataComponent>
+    </ns2:ComponentMapping>
     <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping5">
+      <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UISelect"></ns2:mappingRule>
+      <ns2:UIComponent componentPath="needAverageUI" paramName="UIWidgetType"></ns2:UIComponent>
+      <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.needAverage" paramName="Value"></ns2:DataComponent>
+    </ns2:ComponentMapping>
+    <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping6">
       <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UISingleChoiceAndCE"></ns2:mappingRule>
       <ns2:UIComponent componentPath="chartTypeUI" paramName="UIWidgetType"></ns2:UIComponent>
       <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.chartType" paramName="CEValue"></ns2:DataComponent>
@@ -326,7 +377,7 @@
         </ns2:expression>
       </ns2:DataComponent>
     </ns2:ComponentMapping>
-    <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping6">
+    <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping7">
       <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UISingleChoiceAndCE"></ns2:mappingRule>
       <ns2:UIComponent componentPath="statsPeriodUI" paramName="UIWidgetType"></ns2:UIComponent>
       <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.statsPeriod" paramName="CEValue"></ns2:DataComponent>

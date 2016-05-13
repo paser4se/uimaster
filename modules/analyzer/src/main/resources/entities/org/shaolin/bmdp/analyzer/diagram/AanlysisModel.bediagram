@@ -130,6 +130,19 @@
             <bediagram:type xsi:type="bediagram:BooleanType" />
         </bediagram:member>
         <bediagram:member>
+            <bediagram:name>needSum</bediagram:name>
+            <bediagram:type xsi:type="bediagram:BooleanType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>needAverage</bediagram:name>
+            <bediagram:type xsi:type="bediagram:BooleanType" />
+        </bediagram:member>
+        <bediagram:member>
+            <!-- for the parties who have this chart. -->
+            <bediagram:name>partyType</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
+        <bediagram:member>
             <bediagram:name>columns</bediagram:name>
             <bediagram:type xsi:type="bediagram:BEListType">
                 <bediagram:elementType xsi:type="bediagram:BEObjRefType">
@@ -148,6 +161,14 @@
             <bediagram:type xsi:type="bediagram:CEObjRefType">
                 <bediagram:targetEntity entityName="StatsPeriodType" />
             </bediagram:type>
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>x</bediagram:name>
+            <bediagram:type xsi:type="bediagram:IntType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>y</bediagram:name>
+            <bediagram:type xsi:type="bediagram:IntType" />
         </bediagram:member>
     </bediagram:beEntity>
     
@@ -226,6 +247,26 @@
         </bediagram:member>
         <bediagram:member>
             <bediagram:name>dataset4</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>dataset5</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>dataset6</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>dataset7</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>dataset8</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>dataset9</bediagram:name>
             <bediagram:type xsi:type="bediagram:StringType" />
         </bediagram:member>
     </bediagram:beEntity>

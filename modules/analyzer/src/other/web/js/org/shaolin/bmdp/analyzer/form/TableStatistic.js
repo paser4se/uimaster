@@ -23,14 +23,24 @@ function org_shaolin_bmdp_analyzer_form_TableStatistic(json)
         ui: elementList[prefix + "descriptionUI"]
     });
 
-    var needOrgStatsUILabel = new UIMaster.ui.label
+    var needsPanelLabel = new UIMaster.ui.label
     ({
-        ui: elementList[prefix + "needOrgStatsUILabel"]
+        ui: elementList[prefix + "needsPanelLabel"]
     });
 
     var needOrgStatsUI = new UIMaster.ui.checkbox
     ({
         ui: elementList[prefix + "needOrgStatsUI"]
+    });
+
+    var needSumUI = new UIMaster.ui.checkbox
+    ({
+        ui: elementList[prefix + "needSumUI"]
+    });
+
+    var needAverageUI = new UIMaster.ui.checkbox
+    ({
+        ui: elementList[prefix + "needAverageUI"]
     });
 
     var chartTypeUILabel = new UIMaster.ui.label
@@ -66,17 +76,24 @@ function org_shaolin_bmdp_analyzer_form_TableStatistic(json)
         ,subComponents: [prefix + "itemTable"]
     });
 
+    var needsPanel = new UIMaster.ui.panel
+    ({
+        ui: elementList[prefix + "needsPanel"]
+        ,items: []
+        ,subComponents: [prefix + "needOrgStatsUI",prefix + "needSumUI",prefix + "needAverageUI"]
+    });
+
     var fieldPanel = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "fieldPanel"]
         ,items: []
-        ,subComponents: [prefix + "tableNameUILabel",prefix + "tableNameUI",prefix + "descriptionUILabel",prefix + "descriptionUI",prefix + "needOrgStatsUILabel",prefix + "needOrgStatsUI",prefix + "chartTypeUILabel",prefix + "chartTypeUI",prefix + "statsPeriodUILabel",prefix + "statsPeriodUI"]
+        ,subComponents: [prefix + "tableNameUILabel",prefix + "tableNameUI",prefix + "descriptionUILabel",prefix + "descriptionUI",prefix + "needsPanelLabel",prefix + "needsPanel",prefix + "chartTypeUILabel",prefix + "chartTypeUI",prefix + "statsPeriodUILabel",prefix + "statsPeriodUI"]
     });
 
     var Form = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "Form"]
-        ,items: [tableNameUILabel,tableNameUI,descriptionUILabel,descriptionUI,needOrgStatsUILabel,needOrgStatsUI,chartTypeUILabel,chartTypeUI,statsPeriodUILabel,statsPeriodUI,itemTable,fieldPanel,fieldPanel2]
+        ,items: [tableNameUILabel,tableNameUI,descriptionUILabel,descriptionUI,needsPanelLabel,needOrgStatsUI,needSumUI,needAverageUI,chartTypeUILabel,chartTypeUI,statsPeriodUILabel,statsPeriodUI,itemTable,fieldPanel,needsPanel,fieldPanel2]
     });
 
     Form.tableNameUILabel=tableNameUILabel;
@@ -87,9 +104,13 @@ function org_shaolin_bmdp_analyzer_form_TableStatistic(json)
 
     Form.descriptionUI=descriptionUI;
 
-    Form.needOrgStatsUILabel=needOrgStatsUILabel;
+    Form.needsPanelLabel=needsPanelLabel;
 
     Form.needOrgStatsUI=needOrgStatsUI;
+
+    Form.needSumUI=needSumUI;
+
+    Form.needAverageUI=needAverageUI;
 
     Form.chartTypeUILabel=chartTypeUILabel;
 
@@ -111,9 +132,15 @@ function org_shaolin_bmdp_analyzer_form_TableStatistic(json)
 
     Form.descriptionUI=descriptionUI;
 
-    Form.needOrgStatsUILabel=needOrgStatsUILabel;
+    Form.needsPanelLabel=needsPanelLabel;
+
+    Form.needsPanel=needsPanel;
 
     Form.needOrgStatsUI=needOrgStatsUI;
+
+    Form.needSumUI=needSumUI;
+
+    Form.needAverageUI=needAverageUI;
 
     Form.chartTypeUILabel=chartTypeUILabel;
 
@@ -122,6 +149,14 @@ function org_shaolin_bmdp_analyzer_form_TableStatistic(json)
     Form.statsPeriodUILabel=statsPeriodUILabel;
 
     Form.statsPeriodUI=statsPeriodUI;
+
+    Form.needsPanel=needsPanel;
+
+    Form.needOrgStatsUI=needOrgStatsUI;
+
+    Form.needSumUI=needSumUI;
+
+    Form.needAverageUI=needAverageUI;
 
     Form.fieldPanel2=fieldPanel2;
 
