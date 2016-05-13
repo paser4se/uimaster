@@ -17,7 +17,6 @@ package org.shaolin.bmdp.runtime.internal;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.ce.ConstantServiceImpl;
@@ -49,7 +48,7 @@ public class ServerServiceManagerImpl implements IServerServiceManager {
 
 	private final Map<Class<?>, IServiceProvider> services = new HashMap<Class<?>, IServiceProvider>();
 
-	private final Map<String, IAppServiceManager> applications = new HashMap<String, IAppServiceManager>();
+	private IAppServiceManager appService;
 	
 	private final ConstantServiceImpl constantService;
 	
@@ -97,31 +96,21 @@ public class ServerServiceManagerImpl implements IServerServiceManager {
 	
 	@Override
 	public void addApplication(String name, IAppServiceManager app) {
-		if (applications.containsKey(name)) {
-			throw new IllegalStateException("Application name " + name + " has already existed!");
-		}
+		if (this.appService != null) {
+			return;
+		} 
 		logger.info("Add an application: " + name);
-		applications.put(name, app);
+		this.appService = app;
 	}
 	
 	@Override
 	public IAppServiceManager removeApplication(String name) {
-		logger.info("Removed an application: " + name);
-		return applications.remove(name);
+		return null;
 	}
 
 	@Override
 	public IAppServiceManager getApplication(String name) {
-		if (!applications.containsKey(name)) {
-			throw new IllegalArgumentException("The application " +name+ " is not existed!");
-		}
-		return applications.get(name);
-	}
-	
-	@Override
-	public String[] getApplicationNames() {
-		Set<String> keys = applications.keySet();
-		return keys.toArray(new String[keys.size()]);
+		return this.appService;
 	}
 
 	@Override

@@ -47,9 +47,9 @@ import org.slf4j.LoggerFactory;
 
 public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider, IAnalyzerService {
 	
-	final List<TableType> tables = new ArrayList<TableType>();
-	
 	private static final Logger logger = LoggerFactory.getLogger(AnalyzerServiceImpl.class);
+	
+	final List<TableType> tables = new ArrayList<TableType>();
 
 	private ZKDistributedJobEngine javaCCJobEngine;
 
@@ -179,7 +179,7 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 			if(t.getEntityName().equals(name)) {
 				List<ColumnType> columns  = t.getColumns();
 				for (ColumnType c : columns) {
-					columnNames.add(c.getName() + " : " + c.getType());
+					columnNames.add(c.getName());
 				}
 				break;
 			}

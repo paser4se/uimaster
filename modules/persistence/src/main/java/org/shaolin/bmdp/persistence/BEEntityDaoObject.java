@@ -414,11 +414,15 @@ public class BEEntityDaoObject {
 	 */
 	@SuppressWarnings("unchecked")
 	protected <T> List<T> _list(int offset, int count, Criteria criteria) {
-		if (count > 0) {
-			criteria.setFirstResult(offset);
-			criteria.setMaxResults(count);
+		try {
+			if (count > 0) {
+				criteria.setFirstResult(offset);
+				criteria.setMaxResults(count);
+			}
+			return criteria.list();
+		} finally {
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
-		return criteria.list();
 	}
 	
 	/**

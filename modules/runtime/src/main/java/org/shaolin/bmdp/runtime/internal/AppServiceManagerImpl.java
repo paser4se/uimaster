@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.shaolin.bmdp.runtime.entity.EntityManager;
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IAppServiceManager;
 import org.shaolin.bmdp.runtime.spi.IConstantService;
 import org.shaolin.bmdp.runtime.spi.IEntityManager;
@@ -75,6 +76,9 @@ public class AppServiceManagerImpl implements IAppServiceManager, Serializable {
 	
 	
 	public String getAppName() {
+		if (UserContext.getUserContext() != null) {
+			return UserContext.getUserContext().getOrgCode();
+		}
 		return this.appName;
 	}
 	
