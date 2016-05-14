@@ -98,6 +98,8 @@ public final class Registry implements IRegistry, Serializable {
 		try {
 			Enumeration<URL> urls1 = EntityManager.class.getClassLoader()
 					.getResources("runconfig.registry");
+			List<URL> files = new ArrayList<URL>();
+			// load jar first.
 			while (urls1.hasMoreElements()) {
 				URL url = urls1.nextElement();
 				String path = url.toString();
@@ -112,14 +114,15 @@ public final class Registry implements IRegistry, Serializable {
 												 path.indexOf(".jar") + 4);
 					loadFromJar(file);
 				} else {
-					/**
-					 * file:/E:/projects/uimaster/runconfig.registry
-					 */
-					try {
-						loadFromDir(new File(url.toURI()), false);
-					} catch (URISyntaxException e) {
-						logger.error(e.getMessage(), e);
-					}
+					files.add(url);
+				}
+			}
+			// load files secondly for replacement.
+			for (URL url: files) {
+				try {
+					loadFromDir(new File(url.toURI()), false);
+				} catch (URISyntaxException e) {
+					logger.error(e.getMessage(), e);
 				}
 			}
 			init();
