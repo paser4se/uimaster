@@ -27,6 +27,7 @@ import org.shaolin.bmdp.exceptions.I18NRuntimeException;
 import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.i18n.ResourceUtil;
 import org.shaolin.uimaster.page.ajax.handlers.IAjaxCommand;
+import org.shaolin.uimaster.page.flow.WebflowConstants;
 import org.shaolin.uimaster.page.od.formats.FormatUtil;
 
 /**
@@ -46,6 +47,7 @@ public class AjaxFactory
         try
         {
             // register common services.
+        	register("pagestatesync", new PageStatusSync());
             register("I18NService", new I18NService());
             register("DateFormatService", new DateFormatService());
             register("SetTimezoneOffset", new SetTimezoneOffset());
@@ -99,6 +101,21 @@ public class AjaxFactory
     {
         return services.size();
     }
+    
+    private static class PageStatusSync implements IAjaxCommand {
+		public Object execute(HttpServletRequest request,
+				HttpServletResponse response) throws Exception {
+			String chunk = request.getParameter("_chunkname");
+			String node = request.getParameter("_nodename");
+			String clientPage = chunk +"."+ node;
+			String currentPage = (String)request.getSession().getAttribute(WebflowConstants.USER_PAGE);
+			if (currentPage != null && currentPage.equals(clientPage)) {
+				return "1";//matched!
+			} else {
+				return "0";//need refreshing!
+			}
+		}
+	}
     
 	private static class I18NService implements IAjaxCommand {
 		

@@ -427,6 +427,13 @@ public class PageDispatcher {
             }
             
             HTMLUtil.generateJSBundleConstants(context);
+            
+            // function made for solution of hinting back button for only page except the iframes.
+            String chunk = (String)context.getRequest().getAttribute(WebflowConstants.SOURCE_CHUNK_NAME);
+            String node = (String)context.getRequest().getAttribute(WebflowConstants.SOURCE_NODE_NAME);
+            if (chunk != null && node != null && superPrefix == null) {
+        		context.getRequest().getSession().setAttribute(WebflowConstants.USER_PAGE, chunk+"."+node);
+            }
             if (UserContext.isMobileRequest()) {
             	context.generateHTML("<form action=\"" + actionPath + "\" method=\"post\" name=\"everything\" onsubmit=\"return false;\"");
             } else {
