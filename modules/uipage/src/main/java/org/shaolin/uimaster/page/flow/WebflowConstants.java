@@ -108,6 +108,8 @@ public interface WebflowConstants
     public static final String ERROR_KEY =
             "org.shaolin.uimaster.page.flow.ERROR";
 
+    public static final String USER_PAGE = "CurrentUserPage";
+    
     public static final String USER_TOKEN = "CurrentUserToken";
 
     public static final String USER_SESSION_KEY = "CurrentUserSession";

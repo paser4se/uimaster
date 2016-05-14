@@ -11,6 +11,14 @@ if (MobileAppMode) {
 	  $.mobile.page.prototype.options.keepNative = "select,input.foo";
 	});
 }
+function isWeiXinBrowser(){
+    var ua = window.navigator.userAgent.toLowerCase();
+    if(ua.match(/MicroMessenger/i) == 'micromessenger'){
+        return true;
+    }else{
+        return false;
+    }
+}
 /**
  * @description Background color of the combobox.
  */
@@ -2078,6 +2086,30 @@ function bmiasia_UIMaster_appbase_getCurrencyFormat(localeConfig, formatName){
 
 var elementList = new Array();
 UIMaster.pageInitFunctions = new Array();
+
+UIMaster.pageInitFunctions.push(function() {//handle back button event and reload server page.
+    var f = $($(document.body).find("form")[0]);
+    var url = f.attr("action");
+	var chunkNameIndex = url.indexOf("_chunkname=");
+	var nodenameIndex = url.indexOf("_nodename=");
+	if (chunkNameIndex != -1) {
+		var path = url.substring(chunkNameIndex + "_chunkname=".length, nodenameIndex - 1);
+		var node = url.substring(nodenameIndex + "_nodename=".length);
+		if (node.indexOf('&') != -1) {
+			node = node.substring(0, node.indexOf('&'));
+		}
+		var frameprefix = f.attr("_frameprefix");
+		if (frameprefix == undefined) {//only for main page.
+		$.ajax({async:true,url:AJAX_SERVICE_URL,
+			data:{serviceName:'pagestatesync',r:Math.random(),_chunkname:path,_nodename:node,_frameprefix:frameprefix},
+			success:function(data){
+			    if(data == '0')
+			       window.location.reload();
+			}
+		});
+		}
+	}
+});
 
 function getFormElementList(formName){
     getElementListSingle(document.forms[formName]);
