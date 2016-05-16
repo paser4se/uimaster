@@ -35,6 +35,7 @@ import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
+import org.shaolin.bmdp.utils.ImageUtil;
 import org.shaolin.uimaster.page.ajax.AFile;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.JSONArray;
@@ -146,9 +147,8 @@ public class UploadFileServlet extends HttpServlet {
 				for (FileItem item : multiparts) {
 					// TODO: security check
 					// item.getContentType(); file.getSuffix(); image/jpg
-					//if (item.getSize() > 1048576) {
 					if (item.getSize() > 5120000) {
-						// 2M
+						// 5M
 						logger.warn("the size of the uploading file is exceeded!");
 						IDataItem dataItem = AjaxActionHelper.createErrorDataItem("\u4E0A\u4F20\u6587\u4EF6\u5FC5\u987B\u5C0F\u4E8E2M");
 						JSONArray array = new JSONArray();
@@ -165,7 +165,13 @@ public class UploadFileServlet extends HttpServlet {
 						}
 						name = URLDecoder.decode(name, "UTF-8");  
 						logger.info("Received the uploading file: " + name + ", saving path: " + root);
-						item.write(new File(root, name));
+						File finalPicture = new File(root, name);
+						item.write(finalPicture);
+						
+						if (file.getWidth() > 0 && file.getHeight() > 0) {
+							ImageUtil.resizeImage(finalPicture, file.getWidth(), file.getHeight(), finalPicture);
+						}
+						file.refresh();
 					}
 				}
 				

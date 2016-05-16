@@ -16,9 +16,7 @@
 package org.shaolin.uimaster.page.cache;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.shaolin.bmdp.datamodel.pagediagram.DisplayNodeType;
 import org.shaolin.bmdp.datamodel.pagediagram.LogicNodeType;
@@ -26,7 +24,6 @@ import org.shaolin.bmdp.datamodel.pagediagram.NextType;
 import org.shaolin.bmdp.datamodel.pagediagram.OutType;
 import org.shaolin.bmdp.datamodel.pagediagram.PageNodeType;
 import org.shaolin.bmdp.datamodel.pagediagram.WebNodeType;
-import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.cache.CacheManager;
 import org.shaolin.bmdp.runtime.cache.ICache;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
@@ -56,9 +53,6 @@ public class UIFlowCacheManager implements Serializable
      */
     private static ICache<String, WebChunk> chunks;
 
-    ICache<String, WebChunk> appChunks;
-
-    
     /**
      * the map of the UIPage Display Node with the source entity, the key:the name of the source
      * entity, value:WebNodeType object Using this map, we can find the Web Node with the source
@@ -67,8 +61,6 @@ public class UIFlowCacheManager implements Serializable
      */
     private static ICache<String, WebNode> displayNodes;
 
-    ICache<String, WebNode> appDisplayNodes;
-    
     private static volatile long sessionObjectLimit = -1L;
 
     static
@@ -81,26 +73,14 @@ public class UIFlowCacheManager implements Serializable
     
     private final static UIFlowCacheManager INSTANCE = new UIFlowCacheManager();
 
-    private final static Map<String, UIFlowCacheManager> AppFlowCaches = new HashMap<String, UIFlowCacheManager>();
-    
     public static UIFlowCacheManager getInstance() {
     	return INSTANCE;
     }
     
     public static void addFlowCacheIfAbsent(String appName) {
-    	if (!AppFlowCaches.containsKey(appName)) {
-    		AppFlowCaches.put(appName, new UIFlowCacheManager(appName));
-    	}
     }
     
     public UIFlowCacheManager() {}
-    
-    public UIFlowCacheManager(String appName) {
-    	appChunks = CacheManager.getInstance().getCache(appName + 
-        		"_webflow_cache", String.class, WebChunk.class);
-    	appDisplayNodes = CacheManager.getInstance().getCache(appName + 
-        		"_webflow_pagenode_cache", String.class, WebNode.class);
-    }
     
     /**
      * add chunk into map
@@ -109,7 +89,7 @@ public class UIFlowCacheManager implements Serializable
      * @return the webchunk that was added; if not added, returns existed chunk in chunk
      * @throws ParsingException 
      */
-    private void addChunkIntoMap(org.shaolin.bmdp.datamodel.pagediagram.WebChunk webchunk, String appName) throws ParsingException
+    private void addChunkIntoMap(org.shaolin.bmdp.datamodel.pagediagram.WebChunk webchunk) throws ParsingException
     {
         if (logger.isInfoEnabled()) {
             logger.info("Add uiflow: " + webchunk.getEntityName());
@@ -122,12 +102,7 @@ public class UIFlowCacheManager implements Serializable
     	WebChunk chunk = new WebChunk(webchunk);
     	chunk.initChunk();
         // add new
-        if (appName != null) {
-        	UIFlowCacheManager flowCache = AppFlowCaches.get(appName);
-        	flowCache.appChunks.put(entityname, chunk);
-        } else {
-        	chunks.put(entityname, chunk);
-        }
+    	chunks.put(entityname, chunk);
 
         // cache uipage displayNodes, only UIPageDisplayNode has SourceEntity
         List<WebNode> nodes = chunk.getWebNodes();
@@ -139,12 +114,7 @@ public class UIFlowCacheManager implements Serializable
                 String uipageEntity = ((UIPageNode)node).getSourceEntity();
                 if (uipageEntity != null)
                 {
-                	if (appName != null) {
-                		UIFlowCacheManager flowCache = AppFlowCaches.get(appName);
-                		flowCache.appDisplayNodes.putIfAbsent(uipageEntity, node);
-                    } else {
-                    	displayNodes.putIfAbsent(uipageEntity, node);
-                    }
+                	displayNodes.putIfAbsent(uipageEntity, node);
                 }
             }
         }
@@ -169,12 +139,7 @@ public class UIFlowCacheManager implements Serializable
      */
     public void addChunk(org.shaolin.bmdp.datamodel.pagediagram.WebChunk chunkType) throws ParsingException
     {
-        addChunkIntoMap(chunkType, null);
-    }
-
-    public void addChunk(org.shaolin.bmdp.datamodel.pagediagram.WebChunk chunkType, String appName) throws ParsingException
-    {
-        addChunkIntoMap(chunkType, appName);
+        addChunkIntoMap(chunkType);
     }
     
     /**
@@ -184,14 +149,10 @@ public class UIFlowCacheManager implements Serializable
      */
     public org.shaolin.bmdp.datamodel.pagediagram.WebChunk removeAppChunk(String entityname)
     {
-    	UIFlowCacheManager flowCache = AppFlowCaches.get(AppContext.get().getAppName());
-    	if (flowCache == null) {
-    		return null;
-    	}
     	if (logger.isDebugEnabled())
     		logger.debug("Remove uiflow: " + entityname);
     	
-        WebChunk webchunk = (WebChunk)flowCache.appChunks.remove(entityname);
+        WebChunk webchunk = (WebChunk)chunks.remove(entityname);
         // remove uipagedisplay node
         if (webchunk != null)
         {
@@ -202,7 +163,7 @@ public class UIFlowCacheManager implements Serializable
                     String uipageEntity = ((UIPageNode)node).getSourceEntity();
                     if (uipageEntity != null)
                     {
-                    	flowCache.appDisplayNodes.remove(uipageEntity);
+                    	displayNodes.remove(uipageEntity);
                     }
                 }
             }
@@ -242,10 +203,8 @@ public class UIFlowCacheManager implements Serializable
      */
     public WebChunk get(String entityname) throws ParsingException
     {
-    	if (AppContext.get() != null && this.appChunks != null) {
-    		if (this.appChunks.containsKey(entityname)) {
-    			return this.appChunks.get(entityname);
-    		}
+    	if (this.chunks != null && this.chunks.containsKey(entityname)) {
+			return this.chunks.get(entityname);
     	}
     	
         if (!chunks.containsKey(entityname))
@@ -253,7 +212,7 @@ public class UIFlowCacheManager implements Serializable
         	org.shaolin.bmdp.datamodel.pagediagram.WebChunk chunkType = 
         			IServerServiceManager.INSTANCE.getEntityManager().getEntity(entityname, 
         					org.shaolin.bmdp.datamodel.pagediagram.WebChunk.class);
-            addChunkIntoMap(chunkType, null);
+            addChunkIntoMap(chunkType);
         }
         return chunks.get(entityname);
     }
@@ -332,16 +291,6 @@ public class UIFlowCacheManager implements Serializable
             logger.error("the chunkname is {}, the nodeName is empty.", chunkName);
             return null;
         }
-
-        if (AppContext.get() != null) {
-        	UIFlowCacheManager flowCache = AppFlowCaches.get(AppContext.get().getAppName());
-        	if (flowCache != null) {
-        		if (flowCache.appChunks.containsKey(chunkName)) {
-        			WebChunk chunk = flowCache.appChunks.get(chunkName);
-        			return chunk.findWebNode(nodeName);
-        		}
-        	}
-        }
         
 		if (chunks.containsKey(chunkName)) {
 			WebChunk chunk = chunks.get(chunkName);
@@ -361,15 +310,6 @@ public class UIFlowCacheManager implements Serializable
      */
     public WebNode findWebNodeBySourceEntity(String entityName)
     {
-    	if (AppContext.get() != null) {
-        	UIFlowCacheManager flowCache = AppFlowCaches.get(AppContext.get().getAppName());
-        	if (flowCache != null) {
-        		if (flowCache.appDisplayNodes.containsKey(entityName)) {
-        			return flowCache.appDisplayNodes.get(entityName);
-        		}
-        	}
-        }
-    	
         WebNode node = (WebNode)displayNodes.get(entityName);
         if (node == null)
             logger.error("findWebNodeBySourceEntity(): cannot find the webnode for page "

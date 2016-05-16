@@ -294,8 +294,9 @@ in simple component mapping, the paramName is required</xs:documentation>
             <xs:element minOccurs="0" name="widgetLabelFont" type="Page:PropertyValueType"/>
             <xs:element minOccurs="0" name="initValidation" type="Page:PropertyValueType"/>
             <xs:element minOccurs="0" name="validator" type="Page:PropertyValueType"/>
-	    <xs:element minOccurs="0" name="viewPermission" type="Page:PropertyValueType"/>
-	    <xs:element minOccurs="0" name="editPermission" type="Page:PropertyValueType"/>
+	        <xs:element minOccurs="0" name="viewPermission" type="Page:PropertyValueType"/>
+	        <xs:element minOccurs="0" name="editPermission" type="Page:PropertyValueType"/>
+	        <xs:element minOccurs="0" name="changedNotification" type="Page:ExpressionPropertyType"/>
         </xs:sequence>
         <xs:attribute name="UIID" type="xs:string" use="required"/>
     </xs:complexType>

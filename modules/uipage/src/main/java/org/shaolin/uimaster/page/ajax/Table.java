@@ -49,8 +49,7 @@ import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.report.ImportTableToExcel;
 import org.shaolin.uimaster.page.widgets.HTMLImageType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 /**
  * 
@@ -59,8 +58,6 @@ import org.slf4j.LoggerFactory;
 public class Table extends Widget implements Serializable {
 	private static final long serialVersionUID = -1744731434666233557L;
 
-	private static final Logger logger = LoggerFactory.getLogger(Table.class);
-	
 	private TableConditions conditions = TableConditions.createCondition();
 
 	private transient List<Object> listData;
@@ -90,7 +87,7 @@ public class Table extends Widget implements Serializable {
 		try {
 			statsExpr.parse(ooeeContext);
 		} catch (ParsingException e) {
-			logger.warn("Table statistic function is disabled due to :" + e.getMessage(), e);
+			Logger.getLogger(Table.class.getClass()).warn("Table statistic function is disabled due to :" + e.getMessage(), e);
 		}
 	}
 	

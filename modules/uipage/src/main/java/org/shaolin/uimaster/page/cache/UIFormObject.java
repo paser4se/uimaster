@@ -516,6 +516,20 @@ public class UIFormObject implements java.io.Serializable
             	propMap.put("_chunkname", frame.getChunkName());
                 propMap.put("_nodename", frame.getNodeName());
             }
+            else if (component instanceof UIFileType)
+            {
+            	UIFileType file = (UIFileType)component;
+            	if (file.getChangedNotification() != null
+            			&& file.getChangedNotification().getExpression() != null) {
+            		try {
+            			file.getChangedNotification().getExpression().parse(parsingContext);
+						propMap.put("refreshExpr", file.getChangedNotification().getExpression());
+					} catch (ParsingException e) {
+						logger.error("Exception occured when pass the tab pane expression: "
+                                + component.getUIID() + " in form: " + this.name, e);
+					}
+            	}
+            }
             else if (component instanceof UIImageType)
             {
             	UIImageType image = (UIImageType)component;

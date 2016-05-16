@@ -31,6 +31,7 @@ import org.shaolin.bmdp.runtime.entity.EntityUtil;
 import org.shaolin.bmdp.runtime.entity.IEntityEventListener;
 import org.shaolin.bmdp.runtime.spi.IEntityManager;
 import org.shaolin.bmdp.runtime.spi.ILifeCycleProvider;
+import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.shaolin.bmdp.workflow.be.FlowEntityImpl;
 import org.shaolin.bmdp.workflow.be.IFlowEntity;
@@ -47,12 +48,12 @@ public class WorkflowLifecycleServiceImpl implements ILifeCycleProvider, IServic
 	private final FlowContainer flowContainer;
 
 	public WorkflowLifecycleServiceImpl() {
-		this.flowContainer = new FlowContainer(AppContext.get().getAppName());
+		this.flowContainer = new FlowContainer(IServerServiceManager.INSTANCE.getMasterNodeName());
 	}
 	
 	@Override
 	public void startService() {
-		IEntityManager entityManager = AppContext.get().getEntityManager();
+		IEntityManager entityManager = IServerServiceManager.INSTANCE.getEntityManager();
 
 		FlowEntityImpl searchCriteria = new FlowEntityImpl();
 		List<IFlowEntity> allFlowEntities = WorkflowModel.INSTANCE.searchFlowEntities(searchCriteria, null, 0, -1);

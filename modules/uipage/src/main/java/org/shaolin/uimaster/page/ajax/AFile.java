@@ -17,9 +17,14 @@ package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
 
+import org.shaolin.bmdp.datamodel.common.ExpressionType;
+import org.shaolin.javacc.context.DefaultEvaluationContext;
+import org.shaolin.javacc.context.OOEEContext;
+import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
+import org.shaolin.uimaster.page.od.ODContext;
 
 public class AFile extends TextWidget implements Serializable
 {
@@ -31,6 +36,12 @@ public class AFile extends TextWidget implements Serializable
     
     private int allowedNumbers = -1;
     
+    private int width = -1;
+    
+	private int height = -1;
+    
+	private ExpressionType refreshExpr = null;
+	
 	public AFile(String uiid)
     {
         this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
@@ -53,13 +64,18 @@ public class AFile extends TextWidget implements Serializable
     
     public void setStoredPath(String storedPath) {
     	this.storedPath = storedPath;
-    	if (this.storedPath.lastIndexOf('.') != -1) {
-    		if (this.storedPath.lastIndexOf('/') != -1) {
-    			this.storedPath = this.storedPath.substring(0, this.storedPath.lastIndexOf('/'));
-    		} else if (this.storedPath.lastIndexOf('\\') != -1) {
-    			this.storedPath = this.storedPath.substring(0, this.storedPath.lastIndexOf('\\'));
-    		} 
-    	}
+    	// check whether the given path is a file or directory.
+		if (this.storedPath.lastIndexOf('/') != -1) {
+			String tempPath = this.storedPath.substring(this.storedPath.lastIndexOf('/') + 1);
+			if (tempPath.lastIndexOf('.') != -1) {
+				this.storedPath = this.storedPath.substring(0, this.storedPath.lastIndexOf('/'));
+			}
+		} else if (this.storedPath.lastIndexOf('\\') != -1) {
+			String tempPath = this.storedPath.substring(this.storedPath.lastIndexOf('\\') + 1);
+			if (tempPath.lastIndexOf('.') != -1) {
+				this.storedPath = this.storedPath.substring(0, this.storedPath.lastIndexOf('\\'));
+			}
+		} 
     }
     
     public int getAllowedNumbers() {
@@ -112,5 +128,47 @@ public class AFile extends TextWidget implements Serializable
         
         return html.toString();
     }
+    
+    public int getWidth() {
+		return width;
+	}
 
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
+	}
+
+	public void refresh() {
+		if (this.refreshExpr == null) {
+			return;
+		}
+		try {
+			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+			evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+			ooeeContext.setDefaultEvaluationContext(evaContext);
+			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+			ooeeContext.setEvaluationContextObject(ODContext.GLOBAL_TAG, evaContext);
+			this.refreshExpr.evaluate(ooeeContext);
+		} catch (Exception e) {
+			logger.error("error occurrs after selecting image: " + this.getId(), e);
+		}
+	}
+	
+	public ExpressionType getRefreshExpr() {
+		return refreshExpr;
+	}
+
+	public void setRefreshExpr(ExpressionType refreshExpr) {
+		this.refreshExpr = refreshExpr;
+	}
+
+	
 }

@@ -15,6 +15,7 @@
 */
 package org.shaolin.uimaster.page.widgets;
 
+import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
@@ -72,6 +73,10 @@ public class HTMLFileType extends HTMLTextWidgetType
         	context.generateHTML("\" ");
             context.generateHTML("/ class=\"uimaster_button\">");
             HTMLUtil.generateTab(context, depth + 2);
+            context.generateHTML("<div class=\"uimaster_file_hints\">");
+            context.generateHTML((String)this.getAttribute("text"));
+            context.generateHTML("</div>");
+            HTMLUtil.generateTab(context, depth + 2);
             context.generateHTML("<div class=\"uimaster_action_bar\"><input type=\"button\" value=\"\u4E0A\u4F20\" id=\"upload\" class=\"uimaster_button\"/>");
             context.generateHTML("<input type=\"button\" value=\"\u6E05\u7A7A\" id=\"cleanupload\" class=\"uimaster_button\"/></div>");
             HTMLUtil.generateTab(context, depth + 2);
@@ -110,6 +115,26 @@ public class HTMLFileType extends HTMLTextWidgetType
         if (this.getAttribute("allowedNumbers") != null) {
         	file.setAllowedNumbers(Integer.parseInt(this.removeAttribute("allowedNumbers").toString()));
         }
+        if (this.getAttribute("photoWidth") != null) {
+        	Object a = this.removeAttribute("photoWidth");
+        	if (a instanceof String) {
+        		file.setWidth(Integer.valueOf((String)a));
+        	} else if (a instanceof Integer) {
+        		file.setWidth((Integer)a);
+        	} 
+        }
+        if (this.getAttribute("photoHeight") != null) {
+        	Object a = this.removeAttribute("photoHeight");
+        	if (a instanceof String) {
+        		file.setHeight(Integer.valueOf((String)a));
+        	} else if (a instanceof Integer) {
+        		file.setHeight((Integer)a);
+        	} 
+        }
+        if (this.getAttribute("refreshExpr") != null) {
+        	file.setRefreshExpr((ExpressionType)this.removeAttribute("refreshExpr"));
+        }
+        
         file.setListened(true);
         file.setFrameInfo(getFrameInfo());
 

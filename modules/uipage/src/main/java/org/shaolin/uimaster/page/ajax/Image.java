@@ -31,14 +31,10 @@ import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.od.ODContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Image extends TextWidget implements Serializable
 {
     private static final long serialVersionUID = 3140747849841049235L;
-    
-    private static final Logger logger = LoggerFactory.getLogger(Table.class);
     
     private String src;
     
@@ -76,7 +72,7 @@ public class Image extends TextWidget implements Serializable
     		return;
     	}
     	
-		if ("selectedImage".equals(name)) {
+		if ("selectedImage".equals(name) && this.selectedImageExpr != null) {
 			try {
 				this.selectedImage = value.toString();
 				OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
@@ -86,9 +82,7 @@ public class Image extends TextWidget implements Serializable
 				ooeeContext.setDefaultEvaluationContext(evaContext);
 				ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
 				ooeeContext.setEvaluationContextObject(ODContext.GLOBAL_TAG, evaContext);
-				if (this.selectedImageExpr != null) {
-					this.selectedImageExpr.evaluate(ooeeContext);
-				}
+				this.selectedImageExpr.evaluate(ooeeContext);
 			} catch (Exception e) {
 				logger.error("error occurrs after selecting image: " + this.getId(), e);
 			}

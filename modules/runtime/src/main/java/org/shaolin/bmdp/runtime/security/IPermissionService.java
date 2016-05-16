@@ -53,6 +53,8 @@ public interface IPermissionService {
 	
 	int checkModule(String chunkName, String nodeName, List<IConstantEntity> roles);
 
+	int checkModule(String chunkName, String nodeName, String orgId, List<IConstantEntity> roles);
+	
 	/**
 	 * 
 	 * 

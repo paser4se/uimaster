@@ -100,7 +100,7 @@ import org.shaolin.uimaster.page.security.ComponentPermission;
  */
 abstract public class Widget implements Serializable
 {
-    private static final Logger logger = Logger.getLogger(Widget.class);
+    protected final Logger logger = Logger.getLogger(this.getClass());
 
     private static final long serialVersionUID = 6011414203344569865L;
 
