@@ -63,6 +63,16 @@ function org_shaolin_bmdp_analyzer_form_TableStatistic(json)
         ui: elementList[prefix + "statsPeriodUI"]
     });
 
+    var groupIdUILabel = new UIMaster.ui.label
+    ({
+        ui: elementList[prefix + "groupIdUILabel"]
+    });
+
+    var groupIdUI = new UIMaster.ui.textfield
+    ({
+        ui: elementList[prefix + "groupIdUI"]
+    });
+
     var itemTable = new UIMaster.ui.objectlist
     ({
         ui: elementList[prefix + "itemTable"]
@@ -87,13 +97,13 @@ function org_shaolin_bmdp_analyzer_form_TableStatistic(json)
     ({
         ui: elementList[prefix + "fieldPanel"]
         ,items: []
-        ,subComponents: [prefix + "tableNameUILabel",prefix + "tableNameUI",prefix + "descriptionUILabel",prefix + "descriptionUI",prefix + "needsPanelLabel",prefix + "needsPanel",prefix + "chartTypeUILabel",prefix + "chartTypeUI",prefix + "statsPeriodUILabel",prefix + "statsPeriodUI"]
+        ,subComponents: [prefix + "tableNameUILabel",prefix + "tableNameUI",prefix + "descriptionUILabel",prefix + "descriptionUI",prefix + "needsPanelLabel",prefix + "needsPanel",prefix + "chartTypeUILabel",prefix + "chartTypeUI",prefix + "statsPeriodUILabel",prefix + "statsPeriodUI",prefix + "groupIdUILabel",prefix + "groupIdUI"]
     });
 
     var Form = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "Form"]
-        ,items: [tableNameUILabel,tableNameUI,descriptionUILabel,descriptionUI,needsPanelLabel,needOrgStatsUI,needSumUI,needAverageUI,chartTypeUILabel,chartTypeUI,statsPeriodUILabel,statsPeriodUI,itemTable,fieldPanel,needsPanel,fieldPanel2]
+        ,items: [tableNameUILabel,tableNameUI,descriptionUILabel,descriptionUI,needsPanelLabel,needOrgStatsUI,needSumUI,needAverageUI,chartTypeUILabel,chartTypeUI,statsPeriodUILabel,statsPeriodUI,groupIdUILabel,groupIdUI,itemTable,fieldPanel,needsPanel,fieldPanel2]
     });
 
     Form.tableNameUILabel=tableNameUILabel;
@@ -119,6 +129,10 @@ function org_shaolin_bmdp_analyzer_form_TableStatistic(json)
     Form.statsPeriodUILabel=statsPeriodUILabel;
 
     Form.statsPeriodUI=statsPeriodUI;
+
+    Form.groupIdUILabel=groupIdUILabel;
+
+    Form.groupIdUI=groupIdUI;
 
     Form.itemTable=itemTable;
 
@@ -149,6 +163,10 @@ function org_shaolin_bmdp_analyzer_form_TableStatistic(json)
     Form.statsPeriodUILabel=statsPeriodUILabel;
 
     Form.statsPeriodUI=statsPeriodUI;
+
+    Form.groupIdUILabel=groupIdUILabel;
+
+    Form.groupIdUI=groupIdUI;
 
     Form.needsPanel=needsPanel;
 

@@ -25,6 +25,7 @@ import java.util.UUID;
 import org.shaolin.bmdp.analyzer.IAnalyzerService;
 import org.shaolin.bmdp.analyzer.be.IChartStatistic;
 import org.shaolin.bmdp.analyzer.be.IJavaCCJob;
+import org.shaolin.bmdp.analyzer.be.JavaCCJobImpl;
 import org.shaolin.bmdp.analyzer.ce.JavaCCJobStatusType;
 import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
 import org.shaolin.bmdp.analyzer.distributed.ZKDistributedJobEngine;
@@ -187,6 +188,7 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 		return columnNames;
 	}
 	
+	@Override
 	public List<String> getTableColumnIds(String name) {
 		final List<String> columnNames = new ArrayList<String>();
 		for (TableType t : tables) {
@@ -199,5 +201,13 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 			}
 		}
 		return columnNames;
+	}
+	
+	@Override
+	public boolean hasJob(String jobName) {
+		JavaCCJobImpl job = new JavaCCJobImpl();
+		job.setName(jobName);
+		List<IJavaCCJob> result = AanlysisModel.INSTANCE.searchJavaCCJob(job, null, 0, -1);
+		return result != null && result.size() > 0;
 	}
 }

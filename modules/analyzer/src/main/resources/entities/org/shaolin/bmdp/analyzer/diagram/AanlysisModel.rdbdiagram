@@ -33,6 +33,7 @@
     <entityName>ANAS_JAVACCJOB</entityName>
     <systemVersion>0</systemVersion>
     <ns2:column name="ID" type="BIGINT" isNull="false" autoIncrement="true"></ns2:column>
+    <ns2:column name="NAME" type="VARCHAR" isNull="true"></ns2:column>
     <ns2:column name="SCRIPT" type="VARCHAR" isNull="true"></ns2:column>
     <ns2:column name="CRONEXP" type="VARCHAR" isNull="true"></ns2:column>
     <ns2:column name="DESCRIPTION" type="VARCHAR" isNull="true"></ns2:column>
@@ -50,6 +51,7 @@
       <systemVersion>0</systemVersion>
       <ns2:businessEntity entityName="org.shaolin.bmdp.analyzer.be.JavaCCJob"></ns2:businessEntity>
       <ns2:fieldMapping beFieldName="id" columnName="ID"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="name" columnName="NAME"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="script" columnName="SCRIPT"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="cronExp" columnName="CRONEXP"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="description" columnName="DESCRIPTION"></ns2:fieldMapping>
@@ -92,6 +94,7 @@
     <ns2:column name="ID" type="BIGINT" isNull="false" autoIncrement="true"></ns2:column>
     <ns2:column name="tableName" type="VARCHAR" isNull="true"></ns2:column>
     <ns2:column name="description" type="VARCHAR" isNull="true"></ns2:column>
+    <ns2:column name="groupId" type="VARCHAR" isNull="true"></ns2:column>
     <ns2:column name="needOrgStats" type="INTEGER" length="2" isNull="true"></ns2:column>
     <ns2:column name="needSum" type="INTEGER" length="2" isNull="true"></ns2:column>
     <ns2:column name="needAverage" type="INTEGER" length="2" isNull="true"></ns2:column>
@@ -108,6 +111,7 @@
       <ns2:businessEntity entityName="org.shaolin.bmdp.analyzer.be.TableStatistic"></ns2:businessEntity>
       <ns2:fieldMapping beFieldName="id" columnName="ID"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="tableName" columnName="tableName"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="groupId" columnName="groupId"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="description" columnName="description"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="needOrgStats" columnName="needOrgStats"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="needSum" columnName="needSum"></ns2:fieldMapping>
@@ -195,6 +199,20 @@
                 </ns2:value>
                 <ns2:condition>
                     <expressionString><![CDATA[scObject.getId() > 0]]></expressionString>
+                </ns2:condition>
+            </ns2:conditionValue>
+        </ns2:fieldMapping>
+        <ns2:fieldMapping>
+            <ns2:toDataFieldPath>inObject.tableName</ns2:toDataFieldPath>
+            <ns2:conditionValue>
+                <ns2:operator isReverse="false" xsi:type="ns2:LogicOperatorType">
+                    <ns2:type>=</ns2:type>
+                </ns2:operator>
+                <ns2:value xsi:type="ns2:SimpleFieldValueType">
+                    <ns2:valueFieldPath>scObject.tableName</ns2:valueFieldPath>
+                </ns2:value>
+                <ns2:condition>
+                    <expressionString><![CDATA[scObject.getTableName() != null && scObject.getTableName().trim().length() > 0]]></expressionString>
                 </ns2:condition>
             </ns2:conditionValue>
         </ns2:fieldMapping>
@@ -290,7 +308,7 @@
       </ns2:fieldMapping>
     </ns2:searchResultMapping>
     <ns2:searchConditionMapping name="Search">
-      <ns2:fieldMapping>
+       <ns2:fieldMapping>
             <ns2:toDataFieldPath>inObject.id</ns2:toDataFieldPath>
             <ns2:conditionValue>
                 <ns2:operator isReverse="false" xsi:type="ns2:LogicOperatorType">
@@ -301,6 +319,20 @@
                 </ns2:value>
                 <ns2:condition>
                     <expressionString><![CDATA[scObject.getId() > 0]]></expressionString>
+                </ns2:condition>
+            </ns2:conditionValue>
+        </ns2:fieldMapping>
+        <ns2:fieldMapping>
+            <ns2:toDataFieldPath>inObject.name</ns2:toDataFieldPath>
+            <ns2:conditionValue>
+                <ns2:operator isReverse="false" xsi:type="ns2:LogicOperatorType">
+                    <ns2:type>=</ns2:type>
+                </ns2:operator>
+                <ns2:value xsi:type="ns2:SimpleFieldValueType">
+                    <ns2:valueFieldPath>scObject.name</ns2:valueFieldPath>
+                </ns2:value>
+                <ns2:condition>
+                    <expressionString><![CDATA[scObject.getName() != null && scObject.getName().trim().length() > 0]]></expressionString>
                 </ns2:condition>
             </ns2:conditionValue>
         </ns2:fieldMapping>

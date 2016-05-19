@@ -70,6 +70,10 @@ function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration(json)
         /* Construct_LAST:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration */
     };
 
+    Form.createTableJob = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createTableJob;
+
+    Form.stopTableJob = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_stopTableJob;
+
     Form.createStatsTableInfo = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createStatsTableInfo;
 
     Form.openStatsTableInfo = org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_openStatsTableInfo;
@@ -105,6 +109,28 @@ function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration(json)
     /* EventHandler Functions */
 /* Other_Func_FIRST:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration */
 /* Other_Func_LAST:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration */
+
+    /* auto generated eventlistener function declaration */
+    function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createTableJob(eventsource,event) {/* Gen_First:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createTableJob */
+        var o = this;
+        var UIEntity = this;
+
+        // cal ajax function. 
+
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"createTableJob-201512052231",UIMaster.getValue(eventsource),o.__entityName);
+    }/* Gen_Last:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createTableJob */
+
+
+    /* auto generated eventlistener function declaration */
+    function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_stopTableJob(eventsource,event) {/* Gen_First:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_stopTableJob */
+        var o = this;
+        var UIEntity = this;
+
+        // cal ajax function. 
+
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"stopTableJob-201512052231",UIMaster.getValue(eventsource),o.__entityName);
+    }/* Gen_Last:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_stopTableJob */
+
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createStatsTableInfo(eventsource,event) {/* Gen_First:org_shaolin_bmdp_analyzer_page_AnalysisConfiguration_createStatsTableInfo */

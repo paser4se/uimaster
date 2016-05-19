@@ -1,6 +1,7 @@
 package org.shaolin.bmdp.persistence;
 
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -24,13 +25,13 @@ import org.slf4j.LoggerFactory;
 public class BEEntityDaoObject {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
+
 	public static final BEEntityDaoObject DAOOBJECT = new BEEntityDaoObject();
-	
+
 	public void addResource(String hbmMapping) {
 		HibernateUtil.getConfiguration().addResource(hbmMapping);
 	}
-	
+
 	/**
 	 * Insert a business entity record to database.
 	 * 
@@ -43,14 +44,14 @@ public class BEEntityDaoObject {
 		if (entity.getCreateDate() == null) {
 			entity.setCreateDate(new Date());
 		}
-		
+
 		Session session = HibernateUtil.getSession();
 		session.save(entity);
 		if (commit) {
 			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
 	}
-	
+
 	public void create(IPersistentEntity entity) {
 		this.create(entity, false);
 	}
@@ -67,14 +68,14 @@ public class BEEntityDaoObject {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Remove an entity: {}", entity);
 		}
-		
+
 		Session session = HibernateUtil.getSession();
 		session.delete(entity);
 		if (commit) {
 			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param entity
@@ -92,14 +93,14 @@ public class BEEntityDaoObject {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Update an entity: {}", entity);
 		}
-		
+
 		try {
 			Session session = HibernateUtil.getSession();
 			session.update(entity);
 		} catch (NonUniqueObjectException e) {
 			// try committing session again.
 			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
-			
+
 			Session session = HibernateUtil.getSession();
 			session.update(entity);
 		}
@@ -107,7 +108,7 @@ public class BEEntityDaoObject {
 			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param entity
@@ -115,7 +116,7 @@ public class BEEntityDaoObject {
 	public void update(IPersistentEntity entity) {
 		this.update(entity, false);
 	}
-	
+
 	/**
 	 * Reload the entity
 	 * 
@@ -128,12 +129,12 @@ public class BEEntityDaoObject {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Reload an entity: {}", entity);
 		}
-		
+
 		Session session = HibernateUtil.getSession();
 		session.load(entity, entity.getId());
 		HibernateUtil.releaseSession(session, true);
 	}
-	
+
 	public void cascadingUpdate(IPersistentEntity entity) {
 		if (entity.getId() == 0) {
 			return;
@@ -141,7 +142,7 @@ public class BEEntityDaoObject {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Cascading update an entity: {}", entity);
 		}
-		
+
 		Session session = HibernateUtil.getSession();
 		session.merge(entity);
 		HibernateUtil.releaseSession(session, true);
@@ -150,7 +151,7 @@ public class BEEntityDaoObject {
 	public void batchInsert(List<IPersistentEntity> entities) {
 		this.batchInsert(entities, false);
 	}
-	
+
 	/**
 	 * Batch insert for multiple entities.
 	 * 
@@ -163,13 +164,13 @@ public class BEEntityDaoObject {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Insert a batch of entities: {}", entities);
 		}
-		
+
 		Session session = HibernateUtil.getSession();
-		for (IPersistentEntity entity: entities) {
+		for (IPersistentEntity entity : entities) {
 			if (entity.getCreateDate() == null) {
 				entity.setCreateDate(new Date());
 			}
-			
+
 			if (entity.getId() > 0) {
 				session.update(entity);
 			} else {
@@ -180,11 +181,11 @@ public class BEEntityDaoObject {
 			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
 	}
-	
+
 	public void batchUpdate(List<IPersistentEntity> entities) {
 		this.batchUpdate(entities, false);
 	}
-	
+
 	/**
 	 * Batch update for multiple entities.
 	 * 
@@ -197,9 +198,9 @@ public class BEEntityDaoObject {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Update a batch of entities: {}", entities);
 		}
-		
+
 		Session session = HibernateUtil.getSession();
-		for (IPersistentEntity entity: entities) {
+		for (IPersistentEntity entity : entities) {
 			if (entity.getId() == 0) {
 				session.save(entity);
 			} else {
@@ -214,7 +215,7 @@ public class BEEntityDaoObject {
 	public void batchDelete(List<IPersistentEntity> entities) {
 		this.batchDelete(entities, false);
 	}
-	
+
 	/**
 	 * Batch delete for multiple entities.
 	 * 
@@ -227,9 +228,9 @@ public class BEEntityDaoObject {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Remove a batch of entities: {}", entities);
 		}
-		
+
 		Session session = HibernateUtil.getSession();
-		for (IPersistentEntity entity: entities) {
+		for (IPersistentEntity entity : entities) {
 			if (entity.getId() > 0) {
 				session.delete(entity);
 			}
@@ -238,7 +239,7 @@ public class BEEntityDaoObject {
 			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
 	}
-	
+
 	/**
 	 * Delete a business entity record to database.
 	 * 
@@ -248,11 +249,11 @@ public class BEEntityDaoObject {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Disable an entity: {}", entity);
 		}
-		
+
 		Session session = HibernateUtil.getSession();
 		entity.setEnabled(false);
 		session.update(entity);
-		
+
 		HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 	}
 
@@ -265,15 +266,15 @@ public class BEEntityDaoObject {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Enable an entity: {}", entity);
 		}
-		
+
 		Session session = HibernateUtil.getSession();
 
 		entity.setEnabled(true);
 		session.update(entity);
-		
+
 		HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 	}
-	
+
 	/**
 	 * Query for the statistic tables which analyzed by Scala engine
 	 * 
@@ -283,16 +284,56 @@ public class BEEntityDaoObject {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> List<T> listStatistic(String table, int offset, int count, Map<String, Object> conditions) {
+	public <T> List<T> listStatistic(String table, int offset, int count,
+			Map<String, Object> conditions) {
 		try {
 			Session session = HibernateUtil.getSession();
-			return session.createSQLQuery("select * from " + table).list(); 
+			return session.createSQLQuery("select * from " + table).list();
 		} finally {
-			// release session ASAP. but it's an issue for transaction manipulation.
+			// release session ASAP. but it's an issue for transaction
+			// manipulation.
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> List<T> statsPerDayByOrgId(String table) {
+		try {
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			String day = simpleDateFormat.format(new Date());
+			StringBuilder sb = new StringBuilder();
+	
+			sb.append("SELECT ORGID, COUNT(1) FROM " + table
+					+ " WHERE CREATEDATE between '" + day + " 00-00-00' and '"
+					+ day + " 23:59:59' GROUP BY ORGID");
+			Session session = HibernateUtil.getSession();
+			return session.createSQLQuery(sb.toString()).list();
+		} finally {
+			// release session ASAP. but it's an issue for transaction
+			// manipulation.
 			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
+	public <T> List<T> statsPerDay(String table) {
+		try {
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY-MM-DD");
+			String day = simpleDateFormat.format(new Date());
+			StringBuilder sb = new StringBuilder();
+	
+			sb.append("SELECT COUNT(1) FROM " + table
+					+ " WHERE CREATEDATE between '" + day + " 00-00-00' and '"
+					+ day + " 23:59:59' GROUP BY DAY(CREATEDATE)");
+			Session session = HibernateUtil.getSession();
+			return session.createSQLQuery(sb.toString()).list();
+		} finally {
+			// release session ASAP. but it's an issue for transaction
+			// manipulation.
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+		}
+	}
+
 	/**
 	 * Query for the normal tables.
 	 * 
@@ -302,28 +343,31 @@ public class BEEntityDaoObject {
 	 * @param persistentClass
 	 * @return
 	 */
-	public <T> List<T> list(int offset, int count, Class<T> elementType, 
+	public <T> List<T> list(int offset, int count, Class<T> elementType,
 			Class<?> persistentClass) {
-		return list( offset, count, elementType, persistentClass, null, null);
+		return list(offset, count, elementType, persistentClass, null, null);
 	}
-	
-	public <T> List<T> list(int offset, int count, Class<T> elementType, 
+
+	public <T> List<T> list(int offset, int count, Class<T> elementType,
 			String alias) {
 		return list(offset, count, elementType, elementType, alias, null);
 	}
-	
-	public <T> List<T> list(int offset, int count, Class<T> elementType, 
+
+	public <T> List<T> list(int offset, int count, Class<T> elementType,
 			Class<?> persistentType, String alias) {
-		return list(offset, count, elementType, persistentType, alias, null, null);
+		return list(offset, count, elementType, persistentType, alias, null,
+				null);
 	}
 
-	public <T> List<T> list(int offset, int count, Class<T> elementType, 
+	public <T> List<T> list(int offset, int count, Class<T> elementType,
 			Class<?> persistentType, String alias, List<Criterion> criterions) {
-		return list(offset, count, elementType, persistentType, alias, criterions, null);
+		return list(offset, count, elementType, persistentType, alias,
+				criterions, null);
 	}
-	
+
 	/**
-	 * Single table query with returning a list of the business entity recorded by conditions.
+	 * Single table query with returning a list of the business entity recorded
+	 * by conditions.
 	 * 
 	 * @param offset
 	 * @param count
@@ -334,8 +378,9 @@ public class BEEntityDaoObject {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> List<T> list(int offset, int count, Class<T> elementType, 
-			Class<?> persistentType, String alias, List<Criterion> criterions, List<Order> orders) {
+	public <T> List<T> list(int offset, int count, Class<T> elementType,
+			Class<?> persistentType, String alias, List<Criterion> criterions,
+			List<Order> orders) {
 		Session session = HibernateUtil.getSession();
 		try {
 			Criteria criteria = null;
@@ -348,7 +393,7 @@ public class BEEntityDaoObject {
 				criteria.setFirstResult(offset);
 				criteria.setMaxResults(count);
 			}
-			
+
 			if (criterions != null) {
 				for (Criterion c : criterions) {
 					criteria.add(c);
@@ -360,14 +405,15 @@ public class BEEntityDaoObject {
 					criteria.addOrder(c);
 				}
 			}
-			
+
 			return criteria.list();
 		} finally {
-			// release session ASAP. but it's an issue for transaction manipulation.
+			// release session ASAP. but it's an issue for transaction
+			// manipulation.
 			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
 	}
-	
+
 	/**
 	 * 
 	 * Create Criteria. internal only.
@@ -390,18 +436,19 @@ public class BEEntityDaoObject {
 	 * @param alias
 	 * @return
 	 */
-	protected Criteria _createJoinAlias(Criteria criteria, String refField, String alias) {
+	protected Criteria _createJoinAlias(Criteria criteria, String refField,
+			String alias) {
 		return criteria.createAlias(refField, alias);
 	}
-	
+
 	protected void _addOrders(Criteria criteria, List<Order> orders) {
 		if (orders != null && !orders.isEmpty()) {
-			for (Order r: orders) {
+			for (Order r : orders) {
 				criteria.addOrder(r);
 			}
 		}
 	}
-	
+
 	/**
 	 * Does query. internal only.
 	 * 
@@ -424,7 +471,7 @@ public class BEEntityDaoObject {
 			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
 	}
-	
+
 	/**
 	 * Does count query. internal only.
 	 * 
@@ -439,19 +486,20 @@ public class BEEntityDaoObject {
 		if (result == null) {
 			return 0;
 		}
-		return (Long)result;
+		return (Long) result;
 	}
-	
+
 	public long count(Class<?> persistentClass) {
 		return count(persistentClass, null, null);
 	}
-	
+
 	public long count(Class<?> persistentClass, String alias) {
 		return count(persistentClass, alias, null);
 	}
-	
+
 	/**
-	 * Query the total count of the statistic tables which analyzed by Scala engine
+	 * Query the total count of the statistic tables which analyzed by Scala
+	 * engine
 	 * 
 	 * @param offset
 	 * @param count
@@ -461,16 +509,18 @@ public class BEEntityDaoObject {
 	 */
 	public long countStatistic(String table, Map<String, Object> condition) {
 		Session session = HibernateUtil.getSession();
-		return (Long)session.createSQLQuery("select count(1) from " + table).uniqueResult(); 
+		return (Long) session.createSQLQuery("select count(1) from " + table)
+				.uniqueResult();
 	}
-	
+
 	/**
-	 * Single table query with returning the total count of current business entities.
+	 * Single table query with returning the total count of current business
+	 * entities.
 	 * 
 	 * @param queryStr
 	 * @return
 	 */
-	public long count(Class<?> persistentType, String alias, 
+	public long count(Class<?> persistentType, String alias,
 			List<Criterion> criterions) {
 		Session session = HibernateUtil.getSession();
 		Criteria criteria = null;
@@ -484,9 +534,9 @@ public class BEEntityDaoObject {
 				criteria.add(c);
 			}
 		}
-		
+
 		criteria.setProjection(Projections.rowCount());
-		return (Long)criteria.uniqueResult();
+		return (Long) criteria.uniqueResult();
 	}
 
 	/**
@@ -497,26 +547,27 @@ public class BEEntityDaoObject {
 	 * @param condition
 	 * @return
 	 */
-	public <T> List<T> sqlList(int offset, int count, StringBuffer sql, List<Object> condition, List<SQLTableInfo> tableInfo) {
+	public <T> List<T> sqlList(int offset, int count, StringBuffer sql,
+			List<Object> condition, List<SQLTableInfo> tableInfo) {
 		Session session = HibernateUtil.getSession();
- 		SQLQuery sqlQuery = session.createSQLQuery(sql.toString());
- 		sqlQuery.setFirstResult(offset);
- 		sqlQuery.setMaxResults(count);
- 		
+		SQLQuery sqlQuery = session.createSQLQuery(sql.toString());
+		sqlQuery.setFirstResult(offset);
+		sqlQuery.setMaxResults(count);
+
 		for (int i = 0; i < condition.size(); i++) {
 			Object value = condition.get(i);
 			if (value instanceof String) {
 				sqlQuery.setString(i, value.toString());
 			} else if (value instanceof Integer) {
-				sqlQuery.setInteger(i, (Integer)value);
+				sqlQuery.setInteger(i, (Integer) value);
 			} else if (value instanceof Long) {
-				sqlQuery.setLong(i, (Long)value);
+				sqlQuery.setLong(i, (Long) value);
 			} else if (value instanceof Boolean) {
-				sqlQuery.setBoolean(i, (Boolean)value);
+				sqlQuery.setBoolean(i, (Boolean) value);
 			} else if (value instanceof Date) {
-				sqlQuery.setDate(i, (Date)value);
+				sqlQuery.setDate(i, (Date) value);
 			} else if (value instanceof Calendar) {
-				sqlQuery.setCalendar(i, (Calendar)value);
+				sqlQuery.setCalendar(i, (Calendar) value);
 			} else {
 				sqlQuery.setString(i, value.toString());
 			}
@@ -524,10 +575,10 @@ public class BEEntityDaoObject {
 		for (SQLTableInfo info : tableInfo) {
 			sqlQuery.addEntity(info.tableAlias, info.pElementType);
 		}
- 		
- 		return sqlQuery.list();
+
+		return sqlQuery.list();
 	}
-	
+
 	/**
 	 * 
 	 * @param sql
@@ -536,31 +587,31 @@ public class BEEntityDaoObject {
 	 */
 	public long sqlCount(StringBuffer sql, List<Object> condition) {
 		Session session = HibernateUtil.getSession();
- 		SQLQuery sqlQuery = session.createSQLQuery(sql.toString());
- 		
- 		for (int i = 0; i < condition.size(); i++) {
- 			Object value = condition.get(i);
+		SQLQuery sqlQuery = session.createSQLQuery(sql.toString());
+
+		for (int i = 0; i < condition.size(); i++) {
+			Object value = condition.get(i);
 			if (value instanceof String) {
 				sqlQuery.setString(i, value.toString());
 			} else if (value instanceof Integer) {
-				sqlQuery.setInteger(i, (Integer)value);
+				sqlQuery.setInteger(i, (Integer) value);
 			} else if (value instanceof Long) {
-				sqlQuery.setLong(i, (Long)value);
+				sqlQuery.setLong(i, (Long) value);
 			} else if (value instanceof Boolean) {
-				sqlQuery.setBoolean(i, (Boolean)value);
+				sqlQuery.setBoolean(i, (Boolean) value);
 			} else if (value instanceof Date) {
-				sqlQuery.setDate(i, (Date)value);
+				sqlQuery.setDate(i, (Date) value);
 			} else if (value instanceof Calendar) {
-				sqlQuery.setCalendar(i, (Calendar)value);
+				sqlQuery.setCalendar(i, (Calendar) value);
 			} else {
 				sqlQuery.setString(i, value.toString());
 			}
 		}
- 		
-		BigInteger result = (BigInteger)sqlQuery.uniqueResult();
+
+		BigInteger result = (BigInteger) sqlQuery.uniqueResult();
 		return result.longValue();
 	}
-	
+
 	protected class SQLTableInfo {
 		String tableAlias;
 		Class<?> pElementType;
@@ -579,13 +630,13 @@ public class BEEntityDaoObject {
 			sb.append(')');
 		}
 	}
-	
+
 	protected void addTableInfo(ArrayList<SQLTableInfo> tableInfo,
 			String tableAlias, Class<?> elementType) {
 		SQLTableInfo inFileInfo = new SQLTableInfo(tableAlias, elementType);
 		tableInfo.add(inFileInfo);
 	}
-	
+
 	/**
 	 * Create criterions.
 	 * 
@@ -594,12 +645,14 @@ public class BEEntityDaoObject {
 	 * @param value
 	 * @return
 	 */
-	protected Criterion createCriterion(final Operator operator, String propertyName, Object... value) {
+	protected Criterion createCriterion(final Operator operator,
+			String propertyName, Object... value) {
 		if (Operator.IS_NULL == operator && value == null) {
-			throw new IllegalStateException("PropertyName [" + propertyName + "], OperatorType[" 
-					+ operator + "] the value can't be null.");
+			throw new IllegalStateException("PropertyName [" + propertyName
+					+ "], OperatorType[" + operator
+					+ "] the value can't be null.");
 		}
-		
+
 		if (Operator.EQUALS == operator) {
 			return Restrictions.eq(propertyName, value[0]);
 		} else if (Operator.EQUALS_IGNORE_CASE == operator) {
@@ -618,29 +671,39 @@ public class BEEntityDaoObject {
 			return Restrictions.in(propertyName, value);
 		} else if (Operator.BETWEEN == operator) {
 			if (value.length < 2) {
-				throw new IllegalStateException("Two value required for SQL Between Operator.");
+				throw new IllegalStateException(
+						"Two value required for SQL Between Operator.");
 			}
 			return Restrictions.between(propertyName, value[0], value[1]);
 		} else if (Operator.EXISTS == operator) {
-			//TODO:
-			
-		} else if (Operator.START_WITH == operator || Operator.START_WITH_LEFT == operator) {
-			return Restrictions.ilike(propertyName, value[0].toString(), MatchMode.START);
+			// TODO:
+
+		} else if (Operator.START_WITH == operator
+				|| Operator.START_WITH_LEFT == operator) {
+			return Restrictions.ilike(propertyName, value[0].toString(),
+					MatchMode.START);
 		} else if (Operator.START_WITH_IGNORE_CASE == operator) {
-			return Restrictions.like(propertyName, value[0].toString(), MatchMode.START);
+			return Restrictions.like(propertyName, value[0].toString(),
+					MatchMode.START);
 		} else if (Operator.START_WITH_RIGHT == operator) {
-			return Restrictions.ilike(propertyName, value[0].toString(), MatchMode.END);
+			return Restrictions.ilike(propertyName, value[0].toString(),
+					MatchMode.END);
 		} else if (Operator.CONTAINS_PARTIAL == operator) {
-			return Restrictions.ilike(propertyName, value[0].toString(), MatchMode.ANYWHERE);
+			return Restrictions.ilike(propertyName, value[0].toString(),
+					MatchMode.ANYWHERE);
 		} else if (Operator.CONTAINS_PARTIAL_IGNORE_CASE == operator) {
-			return Restrictions.like(propertyName, value[0].toString(), MatchMode.ANYWHERE);
+			return Restrictions.like(propertyName, value[0].toString(),
+					MatchMode.ANYWHERE);
 		} else if (Operator.CONTAINS_WORD == operator) {
-			return Restrictions.ilike(propertyName, value[0].toString(), MatchMode.EXACT);
+			return Restrictions.ilike(propertyName, value[0].toString(),
+					MatchMode.EXACT);
 		} else if (Operator.CONTAINS_WORD_IGNORE_CASE == operator) {
-			return Restrictions.like(propertyName, value[0].toString(), MatchMode.EXACT);
-		} 
-		
-		throw new IllegalStateException("Unsupported SQL OperatorType : " + operator);
+			return Restrictions.like(propertyName, value[0].toString(),
+					MatchMode.EXACT);
+		}
+
+		throw new IllegalStateException("Unsupported SQL OperatorType : "
+				+ operator);
 	}
-	
+
 }

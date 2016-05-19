@@ -38,6 +38,9 @@ public class AanlysisModel extends BEEntityDaoObject {
             if (scObject.getId() > 0) {
                 inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.id", scObject.getId()));
             }
+            if (scObject.getTableName() != null && scObject.getTableName().trim().length() > 0) {
+                inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.tableName", scObject.getTableName()));
+            }
 
         inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject._enable", scObject.isEnabled()));
 
@@ -50,6 +53,9 @@ public class AanlysisModel extends BEEntityDaoObject {
 
             if (scObject.getId() > 0) {
                 inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.id", scObject.getId()));
+            }
+            if (scObject.getTableName() != null && scObject.getTableName().trim().length() > 0) {
+                inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.tableName", scObject.getTableName()));
             }
 
         inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject._enable", scObject.isEnabled()));
@@ -128,6 +134,9 @@ public class AanlysisModel extends BEEntityDaoObject {
             if (scObject.getId() > 0) {
                 inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.id", scObject.getId()));
             }
+            if (scObject.getName() != null && scObject.getName().trim().length() > 0) {
+                inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.name", scObject.getName()));
+            }
             if (scObject.getStatus() != null && scObject.getStatus() == org.shaolin.bmdp.analyzer.ce.JavaCCJobStatusType.START) {
                 inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.statusInt", scObject.getStatus().getIntValue()));
             }
@@ -143,6 +152,9 @@ public class AanlysisModel extends BEEntityDaoObject {
 
             if (scObject.getId() > 0) {
                 inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.id", scObject.getId()));
+            }
+            if (scObject.getName() != null && scObject.getName().trim().length() > 0) {
+                inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.name", scObject.getName()));
             }
             if (scObject.getStatus() != null && scObject.getStatus() == org.shaolin.bmdp.analyzer.ce.JavaCCJobStatusType.START) {
                 inObjectCriteria.add(createCriterion(Operator.EQUALS, "inObject.statusInt", scObject.getStatus().getIntValue()));

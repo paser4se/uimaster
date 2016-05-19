@@ -10,6 +10,8 @@ public interface IAnalyzerService {
 	
 	public void stopJob(IJavaCCJob job);
 	
+	public boolean hasJob(String jobName);
+	
 	public List<String> getAllTableList();
 	
 	public List<String> getTableColumns(String tableName);

@@ -76,6 +76,10 @@
             <bediagram:type xsi:type="bediagram:LongType" />
         </bediagram:member>
         <bediagram:member>
+            <bediagram:name>name</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
+        <bediagram:member>
             <bediagram:name>description</bediagram:name>
             <bediagram:type xsi:type="bediagram:StringType" />
         </bediagram:member>
@@ -161,6 +165,10 @@
             <bediagram:type xsi:type="bediagram:CEObjRefType">
                 <bediagram:targetEntity entityName="StatsPeriodType" />
             </bediagram:type>
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>groupId</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
         </bediagram:member>
         <bediagram:member>
             <bediagram:name>x</bediagram:name>
@@ -288,19 +296,19 @@
     <bediagram:ceEntity>
         <common:entityName>DataStatisticType</common:entityName>
         <bediagram:constantValue>
-            <bediagram:value>SUM</bediagram:value>
+            <bediagram:value>COUNT</bediagram:value>
             <bediagram:intValue>0</bediagram:intValue>
+            <bediagram:description>COUNT</bediagram:description>
+        </bediagram:constantValue>
+        <bediagram:constantValue>
+            <bediagram:value>SUM</bediagram:value>
+            <bediagram:intValue>1</bediagram:intValue>
             <bediagram:description>SUM</bediagram:description>
         </bediagram:constantValue>
         <bediagram:constantValue>
             <bediagram:value>AVERAGE</bediagram:value>
-            <bediagram:intValue>1</bediagram:intValue>
-            <bediagram:description>Average</bediagram:description>
-        </bediagram:constantValue>
-        <bediagram:constantValue>
-            <bediagram:value>TPS</bediagram:value>
             <bediagram:intValue>2</bediagram:intValue>
-            <bediagram:description>Throughput</bediagram:description>
+            <bediagram:description>AVERAGE</bediagram:description>
         </bediagram:constantValue>
     </bediagram:ceEntity>
     

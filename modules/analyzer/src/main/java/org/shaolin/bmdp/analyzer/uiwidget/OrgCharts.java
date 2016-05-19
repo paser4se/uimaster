@@ -15,6 +15,7 @@ import org.shaolin.bmdp.analyzer.be.TableStatisticImpl;
 import org.shaolin.bmdp.analyzer.ce.StatisticChartType;
 import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
 import org.shaolin.bmdp.analyzer.dao.AanlysisModelCust;
+import org.shaolin.bmdp.analyzer.util.AnalyzerUtil;
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.ExpressionPropertyType;
 import org.shaolin.bmdp.datamodel.page.StringPropertyType;
@@ -130,7 +131,7 @@ public class OrgCharts extends HTMLWidgetType {
     		if (UserContext.isMobileRequest()) {
     			context.generateHTML(" style=\"width:100%;\">");
     		} else {
-    			context.generateHTML(" style=\"width:30%;\">");
+    			context.generateHTML(" style=\"width:40%;\">");
     		}
     		HTMLUtil.generateTab(context, depth + 2);
     		HTMLChartSuper chartWidget = null;
@@ -270,7 +271,7 @@ public class OrgCharts extends HTMLWidgetType {
 		if (sb.charAt(sb.length() - 1) == ',') {
 			sb.deleteCharAt(sb.length() - 1);
 		}
-		sb.append(" FROM STATS_").append(group.getTableName());
+		sb.append(" FROM ").append(AnalyzerUtil.StatsTablePrefix).append(group.getTableName());
 		if (group.getNeedOrgStats()) {
 			sb.append(" WHERE ORGID=? ");
 		}

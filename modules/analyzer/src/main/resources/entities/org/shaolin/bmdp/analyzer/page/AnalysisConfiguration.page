@@ -6,6 +6,45 @@
 	<systemVersion>0</systemVersion>
 	<description>数据统计与分析配制</description>
 	<ns2:UIEntity xsi:type="ns2:UIEntityType">
+	   <ns2:eventHandler functionName="createTableJob">
+           <ns2:ops xsi:type="ns2:OpCallAjaxType" name="createTableJob-201512052231">
+                <ns2:exp>
+                    <ns2:expressionString><![CDATA[
+                    import java.util.HashMap;
+                    import org.shaolin.uimaster.page.AjaxContext;
+                    import org.shaolin.uimaster.page.AjaxActionHelper;
+                    import org.shaolin.uimaster.page.ajax.*;
+                    import org.shaolin.bmdp.analyzer.be.TableStatisticImpl;
+                    import org.shaolin.bmdp.analyzer.util.AnalyzerUtil;
+                    {
+                        Table personalInfoTable = (Table)@page.getElement("tableStatsTable");
+                        if (personalInfoTable.getSelectedRow() == null) {
+                            return;
+                        }
+                        TableStatisticImpl defaultUser = (TableStatisticImpl)personalInfoTable.getSelectedRow();
+                        AnalyzerUtil.genAndStartTableJob(defaultUser);
+                        Dialog.showMessageDialog("Job Started!", "Information", Dialog.INFORMATION_MESSAGE, null);
+                    }
+                    ]]></ns2:expressionString>
+                </ns2:exp>
+            </ns2:ops>
+        </ns2:eventHandler>
+        <ns2:eventHandler functionName="stopTableJob">
+           <ns2:ops xsi:type="ns2:OpCallAjaxType" name="stopTableJob-201512052231">
+                <ns2:exp>
+                    <ns2:expressionString><![CDATA[
+                    import java.util.HashMap;
+                    import org.shaolin.uimaster.page.AjaxContext;
+                    import org.shaolin.uimaster.page.AjaxActionHelper;
+                    import org.shaolin.uimaster.page.ajax.*;
+                    import org.shaolin.bmdp.analyzer.be.TableStatisticImpl;
+                    {
+                        
+                    }
+                    ]]></ns2:expressionString>
+                </ns2:exp>
+            </ns2:ops>
+        </ns2:eventHandler>
 		<ns2:eventHandler functionName="createStatsTableInfo">
 		   <ns2:ops xsi:type="ns2:OpCallAjaxType" name="createStatsTableInfo-201512052231">
                 <ns2:exp>
@@ -180,6 +219,8 @@
                         service.startJob((IJavaCCJob)personalInfoTable.getSelectedRow());
                         
                         personalInfoTable.refresh();
+                        
+                        Dialog.showMessageDialog("Job Started!", "Information", Dialog.INFORMATION_MESSAGE, null);
                     }
                     ]]></ns2:expressionString>
                 </ns2:exp>
@@ -206,6 +247,8 @@
                         service.stopJob((IJavaCCJob)personalInfoTable.getSelectedRow());
                         
                         personalInfoTable.refresh();
+                        
+                        Dialog.showMessageDialog("Job Stopped!", "Information", Dialog.INFORMATION_MESSAGE, null);
                     }
                     ]]></ns2:expressionString>
                 </ns2:exp>
@@ -352,6 +395,25 @@
 		                        <ns2:defaultNewAction>createStatsTableInfo</ns2:defaultNewAction>
 		                        <ns2:defaultOpenAction>openStatsTableInfo</ns2:defaultOpenAction>
 		                    </ns2:defaultActions>
+		                    <ns2:actionGroup>
+                               <ns2:type>radio</ns2:type>
+                               <ns2:action>
+                                   <ns2:uiid>createTableJob</ns2:uiid>
+                                   <ns2:title xsi:type="ns2:StringPropertyType">
+                                       <ns2:value>Start Job</ns2:value>
+                                   </ns2:title>
+                                   <ns2:icon>ui-icon-note</ns2:icon>
+                                   <ns2:function>createTableJob</ns2:function>
+                               </ns2:action>
+                               <ns2:action>
+                                   <ns2:uiid>stopTableJob</ns2:uiid>
+                                   <ns2:title xsi:type="ns2:StringPropertyType">
+                                       <ns2:value>Stop Job</ns2:value>
+                                   </ns2:title>
+                                   <ns2:icon>ui-icon-note</ns2:icon>
+                                   <ns2:function>stopTableJob</ns2:function>
+                               </ns2:action>
+                            </ns2:actionGroup>
 		                </ns2:component>
 		                <ns2:layoutConstraint>
 		                    <ns2:componentId>tableStatsTable</ns2:componentId>
@@ -396,6 +458,13 @@
                                     }]]></ns2:expressionString>
                                 </ns2:expression>
                             </ns2:query>
+                            <ns2:column xsi:type="ns2:UITableColumnType">
+                                <ns2:title xsi:type="ns2:StringPropertyType">
+                                    <ns2:value>Job Name</ns2:value>
+                                </ns2:title>
+                                <ns2:beFieldId>rowBE.description</ns2:beFieldId>
+                                <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Label</ns2:type></ns2:uiType>
+                            </ns2:column>
                             <ns2:column xsi:type="ns2:UITableColumnType">
                                 <ns2:title xsi:type="ns2:StringPropertyType">
                                     <ns2:value>Script</ns2:value>

@@ -8,6 +8,11 @@ function org_shaolin_bmdp_analyzer_form_TableSelector(json)
         ui: elementList[prefix + "tableListUI"]
     });
 
+    var showSQL = new UIMaster.ui.button
+    ({
+        ui: elementList[prefix + "showSQL"]
+    });
+
     var okbtn = new UIMaster.ui.button
     ({
         ui: elementList[prefix + "okbtn"]
@@ -24,7 +29,7 @@ function org_shaolin_bmdp_analyzer_form_TableSelector(json)
     ({
         ui: elementList[prefix + "actionPanel"]
         ,items: []
-        ,subComponents: [prefix + "okbtn",prefix + "cancelbtn"]
+        ,subComponents: [prefix + "showSQL",prefix + "okbtn",prefix + "cancelbtn"]
     });
 
     var secondPanel = new UIMaster.ui.panel
@@ -52,10 +57,12 @@ function org_shaolin_bmdp_analyzer_form_TableSelector(json)
     var Form = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "Form"]
-        ,items: [tableListUI,okbtn,cancelbtn,tableDetail,fieldPanel,firstPanel,secondPanel,actionPanel]
+        ,items: [tableListUI,showSQL,okbtn,cancelbtn,tableDetail,fieldPanel,firstPanel,secondPanel,actionPanel]
     });
 
     Form.tableListUI=tableListUI;
+
+    Form.showSQL=showSQL;
 
     Form.okbtn=okbtn;
 
@@ -83,6 +90,8 @@ function org_shaolin_bmdp_analyzer_form_TableSelector(json)
 
     Form.actionPanel=actionPanel;
 
+    Form.showSQL=showSQL;
+
     Form.okbtn=okbtn;
 
     Form.cancelbtn=cancelbtn;
@@ -102,6 +111,8 @@ function org_shaolin_bmdp_analyzer_form_TableSelector(json)
     Form.Cancel = org_shaolin_bmdp_analyzer_form_TableSelector_Cancel;
 
     Form.Save = org_shaolin_bmdp_analyzer_form_TableSelector_Save;
+
+    Form.showSQLFunc = org_shaolin_bmdp_analyzer_form_TableSelector_showSQLFunc;
 
     Form.invokeDynamicFunction = org_shaolin_bmdp_analyzer_form_TableSelector_invokeDynamicFunction;
 
@@ -150,6 +161,21 @@ function org_shaolin_bmdp_analyzer_form_TableSelector(json)
 
         UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"Save-20160412-1804",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_analyzer_form_TableSelector_Save */
+
+
+    /* auto generated eventlistener function declaration */
+    function org_shaolin_bmdp_analyzer_form_TableSelector_showSQLFunc(eventsource,event) {/* Gen_First:org_shaolin_bmdp_analyzer_form_TableSelector_showSQLFunc */
+        var o = this;
+        var UIEntity = this;
+
+        {
+            this.tableDetail.itemTable.syncBodyDataToServer();
+        }
+        
+        // cal ajax function. 
+
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"showSQLFunc-20160412-1804",UIMaster.getValue(eventsource),o.__entityName);
+    }/* Gen_Last:org_shaolin_bmdp_analyzer_form_TableSelector_showSQLFunc */
 
 
     /* auto generated eventlistener function declaration */

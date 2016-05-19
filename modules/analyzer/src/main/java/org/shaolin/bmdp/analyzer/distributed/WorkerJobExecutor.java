@@ -33,6 +33,7 @@ import org.shaolin.bmdp.analyzer.ce.JavaCCJobStatusType;
 import org.shaolin.bmdp.analyzer.dao.AanlysisModel;
 import org.shaolin.bmdp.analyzer.distributed.api.IJobExecutor;
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
+import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
@@ -134,6 +135,7 @@ public class WorkerJobExecutor implements IJobExecutor<IJavaCCJob> {
                     logger.debug("done execute job [" + task.getId() + "]");
                 }
             } catch (Exception e) {
+            	HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
                 logger.warn("Error occurred while executing JavaCC job!", e);
             } finally {
                 executingJobList.remove(task.getId());
