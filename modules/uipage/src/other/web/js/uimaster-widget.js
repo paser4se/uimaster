@@ -1735,12 +1735,11 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 		    var t = this;
 		    var opts;
 			if (this.mobheight == -1) {
-				opts = {mode: this.mode, thumbnails: this.thumbnails, hideThumbnailsOnInit: this.hideThumbnailsOnInit,
+				opts = {mode: this.mode, hideThumbnailsOnInit: this.hideThumbnailsOnInit,
                         afterLoadPhoto: function(image) {t.clickImage(image);}};
 			} else {
 				opts = {height:IS_MOBILEVIEW?this.mobheight:this.height,width:(IS_MOBILEVIEW?"100%":this.width),
-				        mode: this.mode, 
-				        thumbnails: this.thumbnails, hideThumbnailsOnInit: this.hideThumbnailsOnInit, 
+				        mode: this.mode, hideThumbnailsOnInit: this.hideThumbnailsOnInit, 
 						slideshow: this.slideshow, slideshowAutostart: this.slideshowAutostart,
 						afterLoadPhoto: function(image) {t.clickImage(image);}};
 			}
@@ -1813,10 +1812,10 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 			return;
 		this.initialized = true;
 		var fileUI = this;
-		var actionBtns = this.nextElementSibling;
+		var actionBtns = this.nextElementSibling.nextElementSibling;
 		var uploadBtn = $(actionBtns).children()[0];
 		var cleanBtn = $(actionBtns).children()[1];
-		var progressbox = this.nextElementSibling.nextElementSibling;
+		var progressbox = this.nextElementSibling.nextElementSibling.nextElementSibling;
 		var messagebox = progressbox.nextElementSibling;
 		var c = $(progressbox).children();
 		var progressbar = c[0];
@@ -3257,21 +3256,21 @@ UIMaster.ui.chart=UIMaster.extend(UIMaster.ui,{
        if (this.type == "HTMLChartBarType") {
 	       obj.type = "bar";
     	   this.chart = new Chart(ctx,obj);
-       } else if (this.type == "HTMLChartDoughnutType") {
-	       obj.type = "doughnut";
-    	   this.chart = new Chart.Doughnut(ctx,obj.obj);
        } else if (this.type == "HTMLChartLinearType") {
 	       obj.type = "line";
     	   this.chart = new Chart(ctx,obj);
+	   } else if (this.type == "HTMLChartRadarType") {
+	       obj.type = "radar";
+    	   this.chart = new Chart(ctx, obj);
        } else if (this.type == "HTMLChartPieType") {
 	       obj.type = "pie";
     	   this.chart = new Chart(ctx, obj);
        } else if (this.type == "HTMLChartPolarPieType") {
     	   this.chart = new Chart.PolarArea(ctx, obj.data);
-       } else if (this.type == "HTMLChartRadarType") {
-	       obj.type = "radar";
-    	   this.chart = new Chart(ctx, obj);
-       }
+	   } else if (this.type == "HTMLChartDoughnutType") {
+	       obj.type = "doughnut";
+    	   this.chart = new Chart.Doughnut(ctx,obj);
+       } 
     }
 });
 UIMaster.ui.matrix=UIMaster.extend(UIMaster.ui,{
