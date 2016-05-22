@@ -38,6 +38,8 @@ public class Image extends TextWidget implements Serializable
     
     private String src;
     
+    private List<String> links;// the customized links.
+    
     private boolean isgallery;
 
     private String selectedImage;
@@ -72,19 +74,22 @@ public class Image extends TextWidget implements Serializable
     		return;
     	}
     	
-		if ("selectedImage".equals(name) && this.selectedImageExpr != null) {
-			try {
-				this.selectedImage = value.toString();
-				OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
-				DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
-				evaContext.setVariableValue("selectedImage", this.selectedImage);
-				evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
-				ooeeContext.setDefaultEvaluationContext(evaContext);
-				ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
-				ooeeContext.setEvaluationContextObject(ODContext.GLOBAL_TAG, evaContext);
-				this.selectedImageExpr.evaluate(ooeeContext);
-			} catch (Exception e) {
-				logger.error("error occurrs after selecting image: " + this.getId(), e);
+		if ("selectedImage".equals(name)) {
+			this.selectedImage = value.toString();
+			
+			if (this.selectedImageExpr != null) {
+				try {
+					OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+					DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+					evaContext.setVariableValue("selectedImage", this.selectedImage);
+					evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+					ooeeContext.setDefaultEvaluationContext(evaContext);
+					ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+					ooeeContext.setEvaluationContextObject(ODContext.GLOBAL_TAG, evaContext);
+					this.selectedImageExpr.evaluate(ooeeContext);
+				} catch (Exception e) {
+					logger.error("error occurrs after selecting image: " + this.getId(), e);
+				}
 			}
 		} 
     }
@@ -105,6 +110,25 @@ public class Image extends TextWidget implements Serializable
         addAttribute("src",this.src);
     }
 
+    public void updateCustLinks(List<String> links) {
+    	this.links = links;
+    	
+    	StringBuilder html = new StringBuilder();
+    	html.append("<div class=\"album\" data-jgallery-album-title=\"tmp\">");
+        
+    	for (String item : links) {
+    		html.append("<a href=\"" + item + "\"><img src=\"" + item + "\"/></a>");
+    	}
+        html.append("</div>");
+        
+        IDataItem dataItem = AjaxActionHelper.createDataItem();
+		dataItem.setUiid(this.getId());
+		dataItem.setJsHandler(IJSHandlerCollections.GALLERY_REFRESH);
+		dataItem.setData(StringUtil.escapeHtmlTags(html.toString()));
+		dataItem.setFrameInfo(this.getFrameInfo());
+        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+    }
+    
     public String getSrc()
     {
         return src;
@@ -216,6 +240,11 @@ public class Image extends TextWidget implements Serializable
 	
     public void refresh() {
     	if (!this.isgallery) {
+    		return;
+    	}
+    	
+    	if (this.links != null && this.links.size() > 0) {
+    		updateCustLinks(this.links);
     		return;
     	}
     	

@@ -1,5 +1,8 @@
 package org.shaolin.bmdp.i18n;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -9,6 +12,11 @@ public class ResourceUtilTest {
 
 	@Test
 	public void testGetResourceStringString() {
+		
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		String day = simpleDateFormat.format(new Date());
+		System.out.println(day);
+		System.out.println(new Date());
 		
 		Assert.assertNotNull(ResourceUtil.getResource("Common", "OKbtn"));
 		Assert.assertNotNull(ResourceUtil.getResource("Common", "Cancelbtn"));

@@ -20,4 +20,8 @@ public class ImageUtilTest {
 		ImageUtil.cropImage(new File(url.getFile()), 200, 200);
 	}
 
+	@Test
+	public void testSearchImageOnInternet() {
+		ImageUtil.searchImageOnInternet("", "·ÊÔí");
+	}
 }

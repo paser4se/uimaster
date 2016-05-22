@@ -10,19 +10,23 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
@@ -46,6 +50,10 @@ import org.apache.sanselan.formats.tiff.write.TiffOutputSet;
 import org.apache.sanselan.util.IOUtils;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Method;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -910,4 +918,71 @@ public class ImageUtil {
 	    String suffix = image.getName().substring(image.getName().indexOf(".") + 1);
         ImageIO.write(thumbnail, suffix, dest);
 	}
+	
+//		String buiduImageURL = "http://image.baidu.com/search/index?tn=baiduimage"
+//				+ "&ipn=r&ct=201326592&cl=2&lm=-1&st=-1&fm=index&fr=&sf=1&fmq=&pv="
+//				+ "&ic=0&nc=1&z=&se=1&showtab=0&fb=0&width=&height=&face=0&istype=2"
+//				+ "&ie=utf-8&word=" + StringUtil.string2Unicode(word) + "&f=3&oq="
+//				+ StringUtil.string2Unicode(preword)+"&rsp=2";
+	public static List<String> searchImageOnInternet(String imageURL) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("parsing url: " + imageURL);
+		}
+		try {
+			List<String> links = new ArrayList<String>();
+			Document doc = Jsoup.connect(imageURL).get();
+			Elements result = doc.select("script");
+			Iterator<Element> i = result.iterator();
+			while (i.hasNext()) {
+				Element e = i.next();
+				String text = e.toString();
+				if (text.indexOf("app.setPageInfo") != -1) {
+					// grab the link in between.
+					String regexString = Pattern.quote("middleURL") + "(.*?)" + Pattern.quote("largeTnImageUrl");
+					Pattern p1 = Pattern.compile(regexString);
+			        Matcher m = p1.matcher(text);
+					while (m.find()) {
+						MatchResult matched = m.toMatchResult();
+						String item = matched.group(1);
+						item = item.replace("\":\"", "").replace("\",            \"", "");
+						links.add(item);
+					}
+					break;
+				};
+			}
+			if (logger.isDebugEnabled()) {
+				logger.debug("get image links: " + links);
+			}
+			return links;
+		} catch (Exception e) {
+			logger.error("Could not get metdata from {}", imageURL, e);
+			return Collections.emptyList();
+		}
+	}
+	
+	public static void searchImageOnHTML(String html) {
+		try {
+			Document doc = Jsoup.parse(html);
+			Elements result = doc.select("script");
+			Iterator<Element> i = result.iterator();
+			while (i.hasNext()) {
+				Element e = i.next();
+				String text = e.toString();
+				if (text.indexOf("app.setPageInfo") != -1) {
+					// grab the link in between.
+					String regexString = Pattern.quote("middleURL") + "(.*?)" + Pattern.quote("largeTnImageUrl");
+					Pattern p1 = Pattern.compile(regexString);
+			        Matcher m = p1.matcher(text);
+					while (m.find()) {
+						MatchResult matched = m.toMatchResult();
+						System.out.println(matched.group(1));
+					}
+					break;
+				};
+			}
+		} catch (Exception e) {
+			logger.error("Could not parse html!!!", e);
+		}
+	}
+	
 }

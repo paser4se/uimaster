@@ -77,8 +77,10 @@ public class HTMLFileType extends HTMLTextWidgetType
             context.generateHTML((String)this.getAttribute("text"));
             context.generateHTML("</div>");
             HTMLUtil.generateTab(context, depth + 2);
-            context.generateHTML("<div class=\"uimaster_action_bar\"><input type=\"button\" value=\"\u4E0A\u4F20\" id=\"upload\" class=\"uimaster_button\"/>");
-            context.generateHTML("<input type=\"button\" value=\"\u6E05\u7A7A\" id=\"cleanupload\" class=\"uimaster_button\"/></div>");
+            context.generateHTML("<div class=\"uimaster_action_bar\">");
+            context.generateHTML("<input type=\"button\" value=\"\u4E0A\u4F20\" id=\"upload\" class=\"uimaster_button\"/>");
+            context.generateHTML("<input type=\"button\" value=\"\u6E05\u7A7A\u6240\u6709\u6587\u4EF6\" id=\"cleanupload\" class=\"uimaster_button\"/>");
+            context.generateHTML("<input type=\"button\" value=\"\u5728\u7EBF\u641C\u7D22\u56FE\u7247\" id=\"onlinesearch\" class=\"uimaster_button\"/></div>");
             HTMLUtil.generateTab(context, depth + 2);
             context.generateHTML("<div name=\"progressbox\" style=\"display:none;\">");
             context.generateHTML("<div name=\"progressbar\"></div><div name=\"percent\">0%</div></div>");
