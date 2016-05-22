@@ -103,11 +103,13 @@ UIMaster.ui.sync = function(){
     function getR(frame){
         var rl=[],i;
         for (i=0;i<frame.frames.length;i++){
+		    try {//cross domain will fail.
             if (frame.frames[i].UIMaster){
                 rl=rl.concat(frame.frames[i].UIMaster.syncList);
                 frame.frames[i].UIMaster.syncList=[];
             }
             rl=rl.concat(getR(frame.frames[i]));
+			} catch(e){console.log(e);}
         }
         return rl;
     }
@@ -1621,7 +1623,8 @@ UIMaster.ui.button = UIMaster.extend(UIMaster.ui,{
  * @extends UIMaster.ui
  * @constructor
  */
-UIMaster.ui.hidden = UIMaster.extend(UIMaster.ui, /** @lends UIMaster.ui.hidden*/{
+UIMaster.ui.hidden = UIMaster.extend(UIMaster.ui, /** @lends UIMaster.`*/{
+    intialized: false,
     sync:function(){
         if(this.value!=this._v)
             this.notifyChange(this);
@@ -1643,6 +1646,9 @@ UIMaster.ui.hidden = UIMaster.extend(UIMaster.ui, /** @lends UIMaster.ui.hidden*
         this.value = v;
     },
     init:function(){
+	    if (this.intialized)
+		    return;
+		this.intialized = true;
         $(this).bind('propertychange', this.n).bind('DOMAttrModified',this.n);
         this.parentDiv = this;
         this._v = this.value;
@@ -1658,6 +1664,7 @@ UIMaster.ui.hidden = UIMaster.extend(UIMaster.ui, /** @lends UIMaster.ui.hidden*
  */
 UIMaster.ui.label = UIMaster.extend(UIMaster.ui.hidden, /** @lends UIMaster.ui.label*/{
     captureScreen: false,
+	intialized: false,
 	/**
      * @description Set the widget's label text.
      * @param {String} text Label text to set.
@@ -1677,6 +1684,9 @@ UIMaster.ui.label = UIMaster.extend(UIMaster.ui.hidden, /** @lends UIMaster.ui.l
         this.previousSibling?this.previousSibling.nodeValue = text:$(this).before(text);
     },
     init:function(){
+	    if (this.intialized)
+		    return;
+		this.intialized = true;
         UIMaster.ui.label.superclass.init.call(this);
         this.parentDiv = this.parentNode.parentNode.parentNode;
 		if (this.captureScreen) {
@@ -1815,6 +1825,7 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 		var actionBtns = this.nextElementSibling.nextElementSibling;
 		var uploadBtn = $(actionBtns).children()[0];
 		var cleanBtn = $(actionBtns).children()[1];
+		var searchBtn = $(actionBtns).children()[2];
 		var progressbox = this.nextElementSibling.nextElementSibling.nextElementSibling;
 		var messagebox = progressbox.nextElementSibling;
 		var c = $(progressbox).children();
@@ -1856,7 +1867,12 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 		};
 		$(cleanBtn).click(function() {
 		   if (fileUI.cleanAll != null) {
-				fileUI.cleanAll(uploadBtn);
+				fileUI.cleanAll(cleanBtn);
+			}
+		});
+		$(searchBtn).click(function() {
+		   if (fileUI.onlineSearch != null) {
+				fileUI.onlineSearch(searchBtn);
 			}
 		});
 		$(uploadBtn).click(function() {

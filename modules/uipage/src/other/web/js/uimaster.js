@@ -1326,12 +1326,12 @@ function syncAll() {
  * @param {String} data Data sent to the server. Not in use now.
  * @param {String} entityName The UIEntity name of the action.
  */
-UIMaster.triggerServerEvent = function(uiid,actionName,data,entityName,action){
+UIMaster.triggerServerEvent = function(uiid,actionName,data,entityName,action,async){
     UIMaster.ui.mask.open();
     syncAll();
-    
+    //(typeof(async) != "undefined")?async:false,
     var opt = {
-            async: false,
+            async: true,
             url: AJAX_SERVICE_URL,
             type: 'POST',
             data:{_ajaxUserEvent: action==undefined?true:action,
