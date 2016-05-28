@@ -1984,8 +1984,12 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		});
 		} catch(e) {console.log(e); return;}//for unknown case.
 		this.dtable = table;
-		if ($(this).height() > $(document.body).height()) {
-		   $(this).parent().height($(document.body).height() - 150);
+		var screenHeight = $(document.body).height();
+		if (MobileAppMode && screenHeight == 0) {
+		   screenHeight= window.screen.height;
+		}
+		if ($(this).height() > screenHeight) {
+		   $(this).parent().height(screenHeight - 150);
 		   $(this).parent().css("overflow-y","scroll");
 		}
 		// enable ajax process after initialization.
