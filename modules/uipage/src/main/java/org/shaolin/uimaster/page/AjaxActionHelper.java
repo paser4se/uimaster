@@ -21,6 +21,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.ajax.json.DataItem;

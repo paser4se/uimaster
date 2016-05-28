@@ -109,7 +109,7 @@ public class AjaxServlet extends HttpServlet {
 		String userAgent = request.getHeader("user-agent");
 		boolean isMobile = MobilitySupport.isMobileRequest(userAgent);
 		//add user-context thread bind
-        UserContext.registerCurrentUserContext(session, currentUserContext, userLocale, userRoles, isMobile);
+        UserContext.register(session, currentUserContext, userLocale, userRoles, isMobile);
         UserContext.setAppClient(request);
 		LocaleContext.createLocaleContext(userLocale);
 		
@@ -160,6 +160,10 @@ public class AjaxServlet extends HttpServlet {
 				array.put(new JSONObject(dataItem));
 				PrintWriter out = response.getWriter();
 				out.print(array.toString());
+			} finally {
+				AjaxActionHelper.removeAjaxContext();
+				UserContext.unregister();
+				LocaleContext.clearLocaleContext();
 			}
 		} 
 		else 
@@ -190,10 +194,11 @@ public class AjaxServlet extends HttpServlet {
 				sb.append((new JSONException(ex)).toString());
 				PrintWriter out = response.getWriter();
 				out.print(sb.toString());
+			} finally {
+				AjaxActionHelper.removeAjaxContext();
+				UserContext.unregister();
+				LocaleContext.clearLocaleContext();
 			}
 		}
-		AjaxActionHelper.removeAjaxContext();
-		UserContext.unregisterCurrentUserContext();
-		LocaleContext.clearLocaleContext();
     }
 }

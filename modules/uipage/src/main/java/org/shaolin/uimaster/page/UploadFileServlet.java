@@ -94,7 +94,7 @@ public class UploadFileServlet extends HttpServlet {
 		String userAgent = request.getHeader("user-agent");
 		boolean isMobile = MobilitySupport.isMobileRequest(userAgent);
 		//add user-context thread bind
-        UserContext.registerCurrentUserContext(session, currentUserContext, userLocale, userRoles, isMobile);
+        UserContext.register(session, currentUserContext, userLocale, userRoles, isMobile);
 		LocaleContext.createLocaleContext(userLocale);
 		
 		String orgCode = (String)UserContext.getUserData(UserContext.CURRENT_USER_ORGNAME);

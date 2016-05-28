@@ -389,7 +389,7 @@ public class WebFlowServlet extends HttpServlet
 				String userAgent = request.getHeader("user-agent");
 				boolean isMobile = MobilitySupport.isMobileRequest(userAgent);
 				//add user-context thread bind
-	            UserContext.registerCurrentUserContext(session, currentUserContext, userLocale, userRoles, isMobile);
+	            UserContext.register(session, currentUserContext, userLocale, userRoles, isMobile);
 	            UserContext.setAppClient(request);
 	            //add request thread bind
 	            HttpRequestEvaluationContext.registerCurrentRequest(request);
@@ -527,7 +527,7 @@ public class WebFlowServlet extends HttpServlet
 				WebNode srcNode = processSourceWebNode(request, attrAccessor);
 				ProcessHelper.processForwardError(srcNode, request, response);
 				
-		        UserContext.unregisterCurrentUserContext();
+		        UserContext.unregister();
 		        LocaleContext.clearLocaleContext();
 				return;
 			} 
@@ -540,7 +540,7 @@ public class WebFlowServlet extends HttpServlet
 				WebNode srcNode = processSourceWebNode(request, attrAccessor);
 				ProcessHelper.processForwardError(srcNode, request, response);
 				
-		        UserContext.unregisterCurrentUserContext();
+		        UserContext.unregister();
 		        LocaleContext.clearLocaleContext();
 				return;
 			}
@@ -733,7 +733,7 @@ public class WebFlowServlet extends HttpServlet
             {
                 NDC.pop();
             }
-            UserContext.unregisterCurrentUserContext();
+            UserContext.unregister();
             LocaleContext.clearLocaleContext();
         }
     }

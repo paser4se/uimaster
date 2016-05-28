@@ -146,7 +146,7 @@ public class UserContext implements Serializable {
 	
 	private static ThreadLocal<HttpSession> userSession = new ThreadLocal<HttpSession>();
 	
-	public static void registerCurrentUserContext(HttpSession session, UserContext userContext,
+	public static void register(HttpSession session, UserContext userContext,
 			String userLocale, List<IConstantEntity> userRoles, Boolean isMobileAccess) {
 		userSession.set(session);
 		userSessionCache.set(userContext);
@@ -169,12 +169,6 @@ public class UserContext implements Serializable {
 	
 	public static UserContext getUserContext() {
 		return userSessionCache.get();
-	}
-
-	public static void unregisterCurrentUserContext() {
-		userSessionCache.set(null);
-		userLocaleCache.set(null);
-		userRolesCache.set(null);
 	}
 
 	public static void addUserData(String key, String value) {
@@ -270,7 +264,9 @@ public class UserContext implements Serializable {
 		String appClient = request.getParameter("_appclient");
 		if (appClient != null) {
 			andriodAppDevice.set(true);
-		} 
+		} else {
+			andriodAppDevice.set(null);
+		}
 	}
 
 }
