@@ -142,7 +142,7 @@ public class UserContext implements Serializable {
 
 	private static ThreadLocal<Boolean> userAccessMode = new ThreadLocal<Boolean>();
 	
-	private static ThreadLocal<Boolean> andriodAppDevice = new ThreadLocal<Boolean>();
+	private static ThreadLocal<String> andriodAppDevice = new ThreadLocal<String>();
 	
 	private static ThreadLocal<HttpSession> userSession = new ThreadLocal<HttpSession>();
 	
@@ -257,13 +257,20 @@ public class UserContext implements Serializable {
 		if (andriodAppDevice.get() == null) {
 			return false;
 		}
+		return true;
+	}
+	
+	public static String getAppClientType() {
+		if (andriodAppDevice.get() == null) {
+			return "";
+		}
 		return andriodAppDevice.get();
 	}
 	
 	public static void setAppClient(HttpServletRequest request) {
 		String appClient = request.getParameter("_appclient");
 		if (appClient != null) {
-			andriodAppDevice.set(true);
+			andriodAppDevice.set(appClient);
 		} else {
 			andriodAppDevice.set(null);
 		}

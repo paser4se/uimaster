@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.shaolin.bmdp.runtime.Registry;
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.utils.CloseUtil;
 import org.shaolin.javacc.context.EvaluationContext;
 import org.shaolin.uimaster.page.ajax.Widget;
@@ -509,20 +510,21 @@ public class HTMLSnapshotContext implements Serializable
         return jsNameSet == null ? false : jsNameSet.contains(jsName);
     }
 
-    public String getImageUrl(String entityName, String src)
+    public String getImageUrl(String entityName, final String src)
     {
+    	String url = src;
         StringBuilder sb = new StringBuilder();
-        String imgRoot = WebConfig.getResourceContextRoot() + "/images";
-        if (!WebConfig.getResourceContextRoot().equals(imgRoot))
-        {
-            sb.append(imgRoot);
-        }  
-        if(src == null) src = "";
-        if (!src.startsWith("/"))
-        {
+        if(url == null) {
+        	url = "";
+        }
+        if (!(url.startsWith("http") || url.startsWith("https"))) {
+	        String imgRoot = WebConfig.getAppImageContextRoot(AjaxActionHelper.getAjaxContext().getRequest()) + "/images";
+	        sb.append(imgRoot);
+        }
+        if (!url.startsWith("/")) {
             sb.append("/");
         }
-        sb.append(src);
+        sb.append(url);
         return sb.toString();
     }
 

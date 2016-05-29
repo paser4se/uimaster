@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.utils.StringUtil;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
@@ -159,6 +160,9 @@ public class Image extends TextWidget implements Serializable
             String path = this.getAttribute("src").toString();
             
             String root = WebConfig.getResourceContextRoot();
+            if (UserContext.isAppClient()) {
+            	root = WebConfig.getAppImageContextRoot(AjaxActionHelper.getAjaxContext().getRequest());
+            }
             File directory = new File(WebConfig.getResourcePath() + path);
             if (directory.exists()) {
             	String[] images = directory.list();
@@ -261,6 +265,9 @@ public class Image extends TextWidget implements Serializable
         		File f = new File(directory, i);
         		if (f.isFile()) {
             		String item = this.src + "/" +  i;
+            		if (UserContext.isAppClient()) {
+            			WebConfig.getAppImageContextRoot(AjaxActionHelper.getAjaxContext().getRequest());
+            		}
             		sb.append("<a href=\""+ item +"\"><img src=\""+ item +"\" alt=\""+i+"\"/></a>");
         		}
         	}
@@ -288,6 +295,9 @@ public class Image extends TextWidget implements Serializable
     		File f = new File(directory, i);
     		if (f.isFile()) {
         		String item = root + "/" +  i;
+        		if (UserContext.isAppClient()) {
+        			WebConfig.getAppImageContextRoot(AjaxActionHelper.getAjaxContext().getRequest());
+        		}
         		sb.append("<a href=\""+ item +"\"><img src=\""+ item +"\" alt=\""+i+"\"/></a>");
     		}
     	}

@@ -1,7 +1,6 @@
 $.ajaxSetup({'cache':true});//disable JQuery add number at the end of js url.
 var MobileAppMode = (typeof(_mobContext) != undefined && typeof(_mobContext) != "undefined"); 
 if (MobileAppMode) {
-    var AJAX_SERVICE_URL="";
     var LANG = "zh-CN";
     var USER_CONSTRAINT_IMG="/images/uimaster_constraint.gif";
     var USER_CONSTRAINT_LEFT=false;
@@ -840,9 +839,14 @@ UIMaster.i18nmsg = UIMaster_getI18NInfo;
  * @param {String} value Value of the attribute.
  */
 UIMaster.synAttr = function(uiid, name, value){
-    $.ajax({url:AJAX_SERVICE_URL,
+    var opts = {url:AJAX_SERVICE_URL,
             asnyc:false,
-            data:{_ajaxUserEvent:false,_uiid:uiid,_valueName:name,_value:value,_framePrefix:UIMaster.getFramePrefix()}});
+            data:{_ajaxUserEvent:false,_uiid:uiid,_valueName:name,_value:value,_framePrefix:UIMaster.getFramePrefix()}};
+    if (MobileAppMode) {
+       _mobContext.ajax(JSON.stringify(opts));
+    } else {
+       $.ajax(opts);
+	}
 };
 /**
  * @description Extend a class with configurations.
@@ -1354,62 +1358,9 @@ UIMaster.triggerServerEvent = function(uiid,actionName,data,entityName,action,as
     }
     if (MobileAppMode) {
         _mobContext.ajax(JSON.stringify(opt));
+		setTimeout(function(){UIMaster.ui.mask.close()},3000);
     } else {
         $.ajax(jQuery.extend({}, opt, opt2));
-    }
-};
-/**
- * @description Trigger a two phase submit.
- * @ignore
- * @param {String} destUrl Destination URL.
- * @param {String} pageName Current UIPage name.
- * @param {String} outName Out name of the action.
- * @param {String} framePrefix Frame's prefix of current window.
- * @param {String} portlet Current portlet's ID.
- * @param {String} target The submit's target.
- */
-UIMaster.trigger2PhaseSubmit = function(destUrl,pageName,outName,framePrefix,portlet,target){
-    //UIMaster.ui.mask.openA(UIMaster.i18nmsg(
-    //    "Common||AJAX_PROCESSING"));
-
-    try {
-        syncAll();
-        var o = new Object();
-        o._pagename = pageName;
-        o._outname = outName;
-        o._framePrefix = framePrefix;
-        o._sync = UIMaster.ui.sync();
-        o._ajaxSubmit="true";
-        // set targetId
-        if (target!="_self")
-            if (target=="_parent")
-                o._frameTarget = window.parent.document.forms[0].getAttribute('_framePrefix') || '';
-            else
-                o._frameTarget = target;
-        
-
-        // set portletId
-        if (portlet)
-            o._portletId = portlet.value;
-
-        $.ajax({
-            async: true,
-            type: "POST",
-            url: destUrl,
-            data: o,
-            beforeSend: UIMaster.ui.mask.open(),
-            success: UIMaster.cmdHandler
-        });
-    } catch (e) {
-        new UIMaster.ui.dialog({
-            message:'An error happens when invoke \nmethod "trigger2PhaseSubmit"',
-            messageType:0,
-            title:'Javascript Execute Error',
-            error:true,
-            height:150,
-            width:300
-        }).open();
-        UIMaster.ui.mask.close();
     }
 };
 /**
@@ -1464,14 +1415,19 @@ UIMaster.getValue = function(widget){
  */
 UIMaster.parseCurrency = function(locale, format, text){
     var r;
-    $.ajax({
+	var opts = {
         async:false,
         url:AJAX_SERVICE_URL,
         data:{serviceName:'CurrencyFormatService',_locale:locale,_format:format,_text:text},
         success:function(data){
             r=data;
         }
-    });
+    };
+	if (MobileAppMode) {
+        _mobContext.ajax(JSON.stringify(opts));
+	} else {
+	    $.ajax(opts);
+	}
     return Number(r);
 };
 /**
@@ -1483,14 +1439,19 @@ UIMaster.parseCurrency = function(locale, format, text){
  */
 UIMaster.formatCurrency = function(locale, format, number){
     var r;
-    $.ajax({
+	var opts = {
         async:false,
         url:AJAX_SERVICE_URL,
         data:{serviceName:'CurrencyFormatService',_locale:locale,_format:format,_number:number},
         success:function(data){
             r=data;
         }
-    });
+    };
+	if (MobileAppMode) {
+        _mobContext.ajax(JSON.stringify(opts));
+	} else {
+		$.ajax(opts);
+	}
     return r;
 };
 /**
@@ -1863,6 +1824,7 @@ bmiasia_UIMaster_appbase_AjaxClient.prototype = {
      *  <br> 4-COMPLETED??
      */
     requestData:function(){
+	    if (MobileAppMode) {return;}
         if ( this._xHttp.readyState != 0){
             bmiasia_UIMaster_appbase_StatusBar.showInfo("Request Waiting...");//$NOI18N.
             window.setTimeout("bmiasia_UIMaster_appbase_StatusBar.setStatusShow(false)",2000);	
@@ -2100,13 +2062,18 @@ UIMaster.pageInitFunctions.push(function() {//handle back button event and reloa
 		}
 		var frameprefix = f.attr("_frameprefix");
 		if (frameprefix == undefined) {//only for main page.
-		$.ajax({async:true,url:AJAX_SERVICE_URL,
-			data:{serviceName:'pagestatesync',r:Math.random(),_chunkname:path,_nodename:node,_frameprefix:frameprefix},
-			success:function(data){
-			    if(data == '0')
-			       window.location.reload();
+		    var opts = {async:true,url:AJAX_SERVICE_URL,
+				data:{serviceName:'pagestatesync',r:Math.random(),_chunkname:path,_nodename:node,_frameprefix:frameprefix},
+				success:function(data){
+					if(data == '0')
+					   window.location.reload();
+				}
+			};
+			if (MobileAppMode) {
+			  _mobContext.ajax(JSON.stringify(opts));
+			} else {
+			  $.ajax(opts);
 			}
-		});
 		}
 	}
 });

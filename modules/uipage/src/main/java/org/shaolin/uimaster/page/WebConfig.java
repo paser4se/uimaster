@@ -29,10 +29,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.shaolin.bmdp.runtime.Registry;
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
 
 public class WebConfig {
 
+	private static final String UIMASTER = "/uimaster";
 	public static final String DEFAULT_LOGIN_PATH = "/login.do";
 	public static final String DEFAULT_ACTION_PATH = "/webflow.do";
 	public static final String DEFAULT_INDEX_PAGE = "/jsp/index.jsp";
@@ -44,6 +46,8 @@ public class WebConfig {
 	
 	public static final String KEY_REQUEST_UIENTITY = "_UIEntity";
 	
+	private static String serverAddress = null;
+	
 	private static String servletContextPath = "";
 	
 	private static final String commonCompressedJS = "/common.js";
@@ -51,13 +55,14 @@ public class WebConfig {
 	private static final String commonCompressedMobJS = "/common-mob.js";
 	private static final String commonCompressedMobCss = "/common-mob.css";
 	
-	public static final String WebContextRoot = "${webcontext}";
-	public static final String ResourceContextRoot = "${resourceContext}";
+	public static final String WebContextRoot = UIMASTER;
+	public static final String ResourceContextRoot = UIMASTER;
 	
 	private static String uploadFileRoot = "";
 	
 	public static class WebConfigFastCache {
 		final String runningMode;
+		final boolean isHTTPs;
 		final boolean customizedMode;
 		final int jsVersion;
 		final String hiddenValueMask;
@@ -92,6 +97,8 @@ public class WebConfig {
 			jsVersion = (int)(Math.random() * 100);
 			Registry instance = Registry.getInstance();
 			runningMode = instance.getValue("/System/runningMode");
+			isHTTPs = Boolean.valueOf(instance.getValue(
+					"/System/webConstant/isHTTPs"));
 			customizedMode = Boolean.valueOf(instance.getValue(
 					"/System/webConstant/customizedMode"));
 			hiddenValueMask = instance.getValue(
@@ -280,11 +287,11 @@ public class WebConfig {
 	}
 	
 	public static String getUploadFileRoot() {
-		return uploadFileRoot + "/uimaster";
+		return uploadFileRoot + UIMASTER;
 	}
 	
 	public static String getWebRoot() {
-		return "/uimaster";
+		return UIMASTER;
 	}
 	
 	public static String getWebContextRoot() {
@@ -297,15 +304,31 @@ public class WebConfig {
 	 * @return
 	 */
 	public static String getAppContextRoot() {
-		return "file:///android_asset" + getWebRoot();
+		return "file:///android_asset/uimaster";
 	}
 	
 	public static String getResourceContextRoot() {
-		return "/uimaster";
+		return UIMASTER;
 	}
 	
 	public static String getAppResourceContextRoot() {
 		return "file:///android_asset/uimaster";
+	}
+
+	public static String getAppImageContextRoot(HttpServletRequest request) {
+		if (serverAddress == null) {
+			String address = request.getLocalAddr() + ":" + request.getLocalPort();
+	        if (WebConfig.isHttps()) {
+	        	address = "https://" + address;
+	        } else {
+	        	address = "http://" + address;
+	        }
+	        serverAddress = address;
+		}
+		if (UserContext.isAppClient()) {
+			return serverAddress;
+		}
+		return getResourceContextRoot();
 	}
 	
 	private static String resourcePath = null;
@@ -327,6 +350,9 @@ public class WebConfig {
 	}
 	
 	public static String getAjaxServiceURI() {
+		if (UserContext.isAppClient()) {
+			return getCacheObject().ajaxServiceURL + "?_appclient=" + UserContext.getAppClientType();
+		}
 		return getCacheObject().ajaxServiceURL;
 	}
 
@@ -378,11 +404,18 @@ public class WebConfig {
 		return "true".equals(getCacheObject().hasAjaxErrorHandler);
 	}
 
-	public static boolean getIsJAAS() {
+	public static boolean isHttps() {
+		return getCacheObject().isHTTPs;
+	}
+	
+	public static boolean isJAAS() {
 		return getCacheObject().isJAAS;
 	}
 	
 	public static String isSyncLoadingJs(String url) {
+		if (UserContext.isAppClient()) {
+			return "";
+		}
 		String[] list = getCacheObject().syncLoadJs;
 		for (String js : list) {
 			if (url.indexOf(js) != -1) {
@@ -420,48 +453,30 @@ public class WebConfig {
 		return ResourceContextRoot + "/js/" + name + ".js";
 	}
 
-	public static String replaceAppCssWebContext(String str) {
-		if (str.indexOf(ResourceContextRoot) != -1) {
-			str = str.replace(ResourceContextRoot, WebConfig.getAppResourceContextRoot());
-		}
-		if (str.indexOf(WebContextRoot) != -1) {
-			return str.replace(WebContextRoot, WebConfig.getAppContextRoot());
+	public static String replaceAppCssWebContext(final String str) {
+		if (!str.startsWith(WebConfig.getAppResourceContextRoot()) && str.indexOf(ResourceContextRoot) != -1) {
+			return str.replace(ResourceContextRoot + "/", WebConfig.getAppResourceContextRoot() + "/");
 		}
 		return str;
 	}
 	
-	public static String replaceAppJsWebContext(String str) {
-		if (str.indexOf(ResourceContextRoot) != -1) {
-			return str.replace(ResourceContextRoot, WebConfig.getAppResourceContextRoot());
-		}
-		if (str.indexOf(WebContextRoot) != -1) {
-			return str.replace(WebContextRoot, WebConfig.getAppContextRoot());
+	public static String replaceAppJsWebContext(final String str) {
+		if (!str.startsWith(WebConfig.getAppResourceContextRoot()) && str.indexOf(ResourceContextRoot) != -1) {
+			return str.replace(ResourceContextRoot + "/", WebConfig.getAppResourceContextRoot() + "/");
 		}
 		return str;
 	}
 	
 	public static String replaceCssWebContext(String str) {
-		if (str.indexOf(ResourceContextRoot) != -1) {
-			str = str.replace(ResourceContextRoot, WebConfig.getResourceContextRoot());
-		}
-		if (str.indexOf(WebContextRoot) != -1) {
-			return str.replace(WebContextRoot, WebConfig.getWebContextRoot());
-		}
 		return str;
 	}
 	
 	public static String replaceJsWebContext(String str) {
-		if (str.indexOf(ResourceContextRoot) != -1) {
-			return str.replace(ResourceContextRoot, WebConfig.getResourceContextRoot());
-		}
-		if (str.indexOf(WebContextRoot) != -1) {
-			return str.replace(WebContextRoot, WebConfig.getWebContextRoot());
-		}
 		return str;
 	}
 	
 	public static String replaceWebContext(String str) {
-		return str.replace(WebContextRoot, WebConfig.getWebContextRoot());
+		return str;
 	}
 
 	public static int getJsVersion() {

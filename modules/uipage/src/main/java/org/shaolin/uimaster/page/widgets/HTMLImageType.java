@@ -3,6 +3,8 @@ package org.shaolin.uimaster.page.widgets;
 import java.io.File;
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
@@ -46,16 +48,14 @@ public class HTMLImageType extends HTMLTextWidgetType
     {
         try
         {
+        	String root = UserContext.isAppClient() ? WebConfig.getAppContextRoot() : WebConfig.getResourceContextRoot();
+        	String imageRoot = WebConfig.getAppImageContextRoot(context.getRequest());
         	if (this.getAttribute("captureScreen") != null) {
-        		String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
-            			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
         		HTMLUtil.generateTab(context, depth);
                 context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/html2canvas.js\"></script>");
             }
             generateWidget(context);
             if (this.getAttribute("isGallery") != null) {
-	            String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
-	        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
 	        			
 //	        	Because JGallary has a bug on importing these files in multiple time.
 //	            Please refer to org_shaolin_vogerp_productmodel runconfig.registry.
@@ -83,7 +83,7 @@ public class HTMLImageType extends HTMLTextWidgetType
 		            if (path.indexOf(";") != -1) {
 		            	String[] images = path.split(";");
 		            	for (String i : images) {
-		            		String item = root + "/" +  i;
+		            		String item = imageRoot + "/" +  i;
 		            		context.generateHTML("<a href=\"" + item + "\"><img src=\"" + item + "\"/></a>");
 		            	}
 		            } else {
@@ -106,7 +106,7 @@ public class HTMLImageType extends HTMLTextWidgetType
 			            	for (String i : images) {
 			            		File f = new File(directory, i);
 			            		if (f.isFile()) {
-				            		String item = root + path + "/" +  i;
+				            		String item = imageRoot + path + "/" +  i;
 				            		context.generateHTML("<a href=\""+ item +"\"><img src=\""+ item +"\" alt=\""+i+"\"/></a>");
 			            		}
 			            	}
@@ -116,11 +116,11 @@ public class HTMLImageType extends HTMLTextWidgetType
 			            	for (String i : images) {
 			            		File f = new File(directory, i);
 			            		if (f.isDirectory()) {
-			            			genarateAblum(root + path + "/" + i, context, f);
+			            			genarateAblum(imageRoot + path + "/" + i, context, f);
 			            		}
 			            	}
 			            } else {
-			            	context.generateHTML("<a href=\"" + root + path + "\"><img src=\"" + root + path + "\"/></a>");
+			            	context.generateHTML("<a href=\"" + imageRoot + path + "\"><img src=\"" + imageRoot + path + "\"/></a>");
 			            }
 		            }
 	            }
@@ -149,13 +149,13 @@ public class HTMLImageType extends HTMLTextWidgetType
         }
     }
     
-    private void genarateAblum(String root, HTMLSnapshotContext context, File directory) {
+    private void genarateAblum(String imageRoot, HTMLSnapshotContext context, File directory) {
     	String[] images = directory.list();
     	context.generateHTML("<div class=\"album\" data-jgallery-album-title=\""+directory.getName()+"\">");
     	for (String i : images) {
     		File f = new File(directory, i);
     		if (f.isFile()) {
-        		String item = root + "/" +  i;
+        		String item = imageRoot + "/" +  i;
         		context.generateHTML("<a href=\""+ item +"\"><img src=\""+ item +"\" alt=\""+i+"\"/></a>");
     		}
     	}
@@ -210,11 +210,12 @@ public class HTMLImageType extends HTMLTextWidgetType
 		return image;
 	}
 	
-	public static String generateSimple(String srcs, int width, int height) {
+	public static String generateSimple(HttpServletRequest request, String srcs, int width, int height) {
 		if (srcs == null || srcs.trim().length() == 0) {
 			return "";
 		}
 		
+		String imageRoot = WebConfig.getAppImageContextRoot(request);
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div>");
 		String[] list = srcs.split(",");
@@ -225,15 +226,15 @@ public class HTMLImageType extends HTMLTextWidgetType
 				for (File f : files) {
             		if (f.isFile()) {
 	            		String realPath = image + "/" +  f.getName();
-	            		sb.append("<img src=\"").append(WebConfig.getWebContextRoot()).append(realPath);
+	            		sb.append("<img src=\"").append(imageRoot).append(realPath);
 	    				sb.append("\" style=\"width:").append(width).append("px;height:").append(height).append("px;\">");
             		}
             	}
 			} else {
-				if (image.startsWith(WebConfig.getWebContextRoot())) {
+				if (image.startsWith("http") || image.startsWith("https")) {
 					sb.append("<img src=\"").append(image);
 				} else {
-					sb.append("<img src=\"").append(WebConfig.getWebContextRoot()).append(image);
+					sb.append("<img src=\"").append(imageRoot).append(image);
 				}
 				sb.append("\" style=\"width:").append(width).append("px;height:").append(height).append("px;\">");
 			}

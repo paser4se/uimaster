@@ -332,8 +332,8 @@ public class PageDispatcher {
             context.generateHTML(String.valueOf(currentDate.getTimeZone().getOffset(currentDate.getTimeInMillis())));
             context.generateHTML(";\nvar IS_MOBILEVIEW=");
             context.generateHTML(String.valueOf(UserContext.isMobileRequest()));
-            context.generateHTML(";\nvar MOBILE_APP_TYEP=\"");
-            context.generateHTML(String.valueOf(UserContext.isAppClient()));
+            context.generateHTML(";\nvar MOBILE_APP_TYPE=\"");
+            context.generateHTML(UserContext.getAppClientType());
             context.generateHTML("\";\nvar WEB_CONTEXTPATH=\"");
             context.generateHTML(WebConfig.getWebContextRoot());
             context.generateHTML("\";\nvar RESOURCE_CONTEXTPATH=\"");
@@ -345,6 +345,15 @@ public class PageDispatcher {
             context.generateHTML("\";\nvar FRAMEWRAP=\"");
             context.generateHTML(WebConfig.replaceWebContext(WebConfig.getFrameWrap()));
             context.generateHTML("\";\nvar IS_SERVLETMODE=true;\nvar AJAX_SERVICE_URL=\"");
+            if (UserContext.isAppClient()) {
+	            String address = context.getRequest().getLocalAddr() + ":" + context.getRequest().getLocalPort();
+	            if (WebConfig.isHttps()) {
+	            	address = "https://" + address;
+	            } else {
+	            	address = "http://" + address;
+	            }
+	            context.generateHTML(address);
+            }
 	        context.generateHTML(WebConfig.replaceWebContext(WebConfig.getAjaxServiceURI()));
 	        context.generateHTML("\";\n</script>\n");
             context.generateHTML("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=");

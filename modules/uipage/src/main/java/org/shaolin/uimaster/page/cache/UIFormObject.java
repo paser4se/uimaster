@@ -2049,11 +2049,7 @@ public class UIFormObject implements java.io.Serializable
 				if (jsFileName.startsWith("http") || jsFileName.startsWith("https")) {
 					needTimestamp = false;
 				} else if (UserContext.isMobileRequest() && UserContext.isAppClient()) {
-					jsFileName = jsFileName.replace(WebConfig.WebContextRoot, WebConfig.getAppContextRoot());
-					jsFileName = jsFileName.replace(WebConfig.ResourceContextRoot, WebConfig.getAppResourceContextRoot());
-				} else {
-					jsFileName = jsFileName.replace(WebConfig.WebContextRoot, WebConfig.getWebContextRoot());
-					jsFileName = jsFileName.replace(WebConfig.ResourceContextRoot, WebConfig.getResourceContextRoot());
+					jsFileName = WebConfig.replaceAppJsWebContext(jsFileName);
 				}
 				sb.append("<script type=\"text/javascript\" src=\"").append(jsFileName);
 				if (needTimestamp) {

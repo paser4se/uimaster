@@ -496,7 +496,7 @@ public class HTMLTableType extends HTMLContainerType {
 						if (value == null) {
 							value = "";
 						}
-						context.generateHTML(HTMLImageType.generateSimple(value.toString(), 100, 100));
+						context.generateHTML(HTMLImageType.generateSimple(context.getRequest(), value.toString(), 100, 100));
 						context.generateHTML("</td>");
 					} else if ("HTML".equals(col.getUiType().getType())
 							|| "HTMLItem".equals(col.getUiType().getType())) {
@@ -544,7 +544,7 @@ public class HTMLTableType extends HTMLContainerType {
 					}
 					context.generateHTML("\">");
 					if ("Image".equals(col.getUiType().getType())) {
-						context.generateHTML(HTMLImageType.generateSimple(value.toString(), 60, 60));
+						context.generateHTML(HTMLImageType.generateSimple(context.getRequest(), value.toString(), 60, 60));
 					} else {
 						context.generateHTML(value.toString());
 					}

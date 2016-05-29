@@ -365,7 +365,7 @@ public class WebFlowServlet extends HttpServlet
 					ProcessHelper.processDirectForward(permissionDenyPage, request, response);
 					return;
 				}
-				if (WebConfig.getIsJAAS()) {
+				if (WebConfig.isJAAS()) {
 					if (request.getParameter("_login") == null) {
 						HttpSession session = request.getSession(false);
 						if ((session == null) || (session.getAttribute("indexPageVisited") == null)) {

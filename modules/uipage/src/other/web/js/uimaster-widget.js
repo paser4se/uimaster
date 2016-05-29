@@ -467,8 +467,13 @@ UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 			$(this).parent().append(btn);
 			btn.click(function(){
 			   var data = CKEDITOR.instances[o.name+"_ckeditor"].getData();
-			   $.ajax({url:AJAX_SERVICE_URL,async:false,type:'POST',
-			   data:{_ajaxUserEvent:"htmleditor",_uiid:o.name,_valueName:"save",_value:data,_framePrefix:UIMaster.getFramePrefix(o)}});
+			   var opts = {url:AJAX_SERVICE_URL,async:false,type:'POST',
+			   data:{_ajaxUserEvent:"htmleditor",_uiid:o.name,_valueName:"save",_value:data,_framePrefix:UIMaster.getFramePrefix(o)}};
+			   if (MobileAppMode) {
+				  _mobContext.ajax(JSON.stringify(opts));
+			   } else {
+				  $.ajax(opts);
+			   }
 			});
 		}
 		var opts = null;
@@ -2925,6 +2930,10 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
         }
     },
     close:function(){
+	    if (MobileAppMode) {
+		   _mobContext.close();
+		   return;
+		}
 	    if(event){ event.preventDefault()};
     	if (elementList[this.uiid+".Form"]) 
     		elementList[this.uiid+".Form"].parentEntity.releaseFormObject();
@@ -2972,7 +2981,7 @@ function showMobileFrame(link, name) {
 		beforeClose: function() {
 		  fc.attr("src","about:blank");
 		},
-		close: function() {
+		close: function() {//no need app ajax support.
 		  $.ajax({url:AJAX_SERVICE_URL,async:true,data:{_ajaxUserEvent:"tabpane",_uiid:"Form",_valueName:"remveTabId",_value:frameId,    _framePrefix:UIMaster.getFramePrefix()}});
 		}
 		//buttons: [{text:"\u5173\u95ED", open:function(){$(this).addClass('uimaster_button');}, click:function(){d.dialog("close");}}]
@@ -3114,7 +3123,12 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
 		var c = $(selectedBody).children();
 		if (c.length > 0 && c[0].tagName.toLowerCase() == "iframe") { 
 			var obj = othis.ui;
-			$.ajax({url:AJAX_SERVICE_URL,async:true,data:{_ajaxUserEvent:"tabpane",_uiid:othis.id,_valueName:"remveTabId",_value:$(c[0]).attr("name"),_framePrefix:UIMaster.getFramePrefix()}});
+			var opts = {url:AJAX_SERVICE_URL,async:true,data:{_ajaxUserEvent:"tabpane",_uiid:othis.id,_valueName:"remveTabId",_value:$(c[0]).attr("name"),_framePrefix:UIMaster.getFramePrefix()}};
+			if (MobileAppMode) {
+				_mobContext.ajax(JSON.stringify(opts));
+			} else {
+			    $.ajax(opts);
+			}
 		}
 		$(selectedBody).remove();
 		for(var i=0;i<othis.links.length;i++){
@@ -3173,15 +3187,25 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 			if(!othis.validate0()) return;
 			if(!othis.setTab("prev")) return;
 		    UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedIndex",_value:othis.selectedIndex,_framePrefix:UIMaster.getFramePrefix(this)});
-			$.ajax({url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
-			{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"prevbtn",_framePrefix:UIMaster.getFramePrefix(),_sync:UIMaster.ui.sync()}});
+			var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
+			{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"prevbtn",_framePrefix:UIMaster.getFramePrefix(),_sync:UIMaster.ui.sync()}};
+			if (MobileAppMode) {
+				_mobContext.ajax(JSON.stringify(opts));
+			} else {
+			    $.ajax(opts);
+			}
 		});
 		$(btns[1]).click(function(){
 		    if(!othis.validate0()) return;
 		    if(!othis.setTab("next")) return;			
 		    UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedIndex",_value:othis.selectedIndex,_framePrefix:UIMaster.getFramePrefix(this)});
-			$.ajax({url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
-			{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"nextbtn",_framePrefix:UIMaster.getFramePrefix(),_sync:UIMaster.ui.sync()}});
+			var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
+			{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"nextbtn",_framePrefix:UIMaster.getFramePrefix(),_sync:UIMaster.ui.sync()}};
+			if (MobileAppMode) {
+				_mobContext.ajax(JSON.stringify(opts));
+			} else {
+			    $.ajax(opts);
+			}
 		});
 		if (this.subComponents != null){
 		    for (var i=0;i<this.subComponents.length;i++) {
@@ -3241,8 +3265,13 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 		if (currTitle.attr("ajaxload") != null && currTitle.attr("ajaxload") == "true"){
         	currTitle.attr("ajaxload", null);
         } 
-		$.ajax({url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
-		{_ajaxUserEvent:"prenextpanel",_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix()}});
+		var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
+		{_ajaxUserEvent:"prenextpanel",_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix()}};
+		if (MobileAppMode) {
+		  _mobContext.ajax(JSON.stringify(opts));
+	    } else {
+		  $.ajax(opts);
+		}
     },
     setTabAt:function(html, index){
         var bodies = $("#bodies-container-" + this.id).children();

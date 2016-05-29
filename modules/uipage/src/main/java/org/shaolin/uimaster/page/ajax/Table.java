@@ -539,7 +539,8 @@ public class Table extends Widget implements Serializable {
 			        		if (value == null) {
 								value = "";
 							}
-			        		value = StringUtil.escapeHtmlTags(HTMLImageType.generateSimple(value.toString(), 100, 100));
+			        		value = StringUtil.escapeHtmlTags(HTMLImageType.generateSimple(
+			        				AjaxActionHelper.getAjaxContext().getRequest(), value.toString(), 100, 100));
 			        		imageSB.append(value);
 			        		imageSB.append("\",");
 	        			} else if ("HTML".equalsIgnoreCase(col.getUiType().getType())) {
@@ -576,7 +577,8 @@ public class Table extends Widget implements Serializable {
 						}
 		        		sb.append("\"");
 		        		if ("Image".equalsIgnoreCase(col.getUiType().getType())) {
-        					sb.append(StringUtil.escapeHtmlTags(HTMLImageType.generateSimple(value.toString(), 60, 60)));
+        					sb.append(StringUtil.escapeHtmlTags(HTMLImageType.generateSimple(
+        							AjaxActionHelper.getAjaxContext().getRequest(), value.toString(), 60, 60)));
 		        		} else {
 		        			sb.append(StringUtil.escapeHtmlTags(value.toString()));
 		        		}
