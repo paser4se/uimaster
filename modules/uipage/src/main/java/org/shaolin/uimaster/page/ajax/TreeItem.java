@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.shaolin.bmdp.datamodel.bediagram.MemberType;
+import org.shaolin.bmdp.runtime.be.BEExtensionInfo;
 import org.shaolin.bmdp.runtime.be.IBusinessEntity;
 
 public class TreeItem implements IBusinessEntity, Serializable {
@@ -170,5 +171,10 @@ public class TreeItem implements IBusinessEntity, Serializable {
 			this.selected = selected;
 		}
 		
+	}
+
+	@Override
+	public BEExtensionInfo get_extField() {
+		return null;
 	}
 }

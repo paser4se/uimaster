@@ -30,6 +30,7 @@ import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.UITableColumnType;
 import org.shaolin.bmdp.datamodel.page.UITableSelectModeType;
 import org.shaolin.bmdp.datamodel.page.UITableStatsType;
+import org.shaolin.bmdp.runtime.be.IBusinessEntity;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.utils.StringUtil;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
@@ -502,11 +503,22 @@ public class Table extends Widget implements Serializable {
 			ooeeContext.setDefaultEvaluationContext(evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
 			
+			long totalCount = 0;
+			if (rows != null && rows.size() > 0) {
+				Object firstItem = rows.get(0);
+				if (firstItem instanceof IBusinessEntity) {
+					Object v = ((IBusinessEntity)firstItem).get_extField().get("count");
+					totalCount = (v == null? 0 : (long)v);
+				} else {
+					totalCount = rows.size();
+				}
+			} 
+			
 			StringBuilder sb = new StringBuilder();
 	        sb.append("{\"recordsFiltered\":");
-	        sb.append(rows.size());
+	        sb.append(totalCount);
 	        sb.append(",\"recordsTotal\":");
-	        sb.append(rows.size());
+	        sb.append(totalCount);
 	        sb.append(",\"selectedIndex\":");
 	        sb.append(this.getSelectedIndex());
 	        sb.append(",\"pageIndex\":");

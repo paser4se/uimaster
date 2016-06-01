@@ -22,4 +22,6 @@ public interface IBusinessEntity extends Serializable {
 	
 	public IBusinessEntity createEntity();
 	
+	public BEExtensionInfo get_extField();
+	
 }

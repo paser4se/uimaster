@@ -675,14 +675,23 @@ public class HTMLTableType extends HTMLContainerType {
 			}
 			ExpressionType initQueryExpr = (ExpressionType)this.removeAttribute("initQueryExpr");
 			ExpressionType queryExpr = (ExpressionType)this.removeAttribute("queryExpr");
-			Object result;
+			List result;
 			if (initQueryExpr != null) {
-				result = ee.evaluateExpression(initQueryExpr);
+				result = (List)ee.evaluateExpression(initQueryExpr);
 			} else {
-				result = ee.evaluateExpression(queryExpr);
+				result = (List)ee.evaluateExpression(queryExpr);
 			}
 			this.addAttribute("query", result);
-			this.addAttribute("totalCount", result == null ? 0 : ((List) result).size());
+			if (result != null && result.size() > 0) {
+				Object firstItem = result.get(0);
+				if (firstItem instanceof IBusinessEntity) {
+					this.addAttribute("totalCount", ((IBusinessEntity)firstItem).get_extField().get("count"));
+				} else {
+					this.addAttribute("totalCount", result.size());
+				}
+			} else {
+				this.addAttribute("totalCount", 0);
+			}
 
 			t.setListData((List)result);
 			t.setConditions((TableConditions)expressionContext.getVariableValue("tableCondition"));

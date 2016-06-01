@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.shaolin.bmdp.persistence.query.operator.Operator;
+import org.shaolin.bmdp.runtime.be.IBusinessEntity;
 import org.shaolin.bmdp.runtime.be.IPersistentEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -466,15 +468,39 @@ public class BEEntityDaoObject {
 				criteria.setFirstResult(offset);
 				criteria.setMaxResults(count);
 			}
-			return criteria.list();
-		} finally {
+			List<T> result = criteria.list();
+			if (result != null && result.size() > 0) {
+				if (result.get(0) instanceof IBusinessEntity) {
+					IBusinessEntity be = (IBusinessEntity)result.get(0);
+					criteria.setFirstResult(0);
+					criteria.setMaxResults(1);
+					be.get_extField().put("count", _count(criteria, result.size()));
+				}
+			}
 			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+			return result;
+		} catch (Exception e) {
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
+			logger.warn(criteria.toString() + " " + e.getMessage(), e);
+			return Collections.emptyList();
+		} 
+	}
+	
+	private long _count(Criteria criteria, long rowSize) {
+		criteria.setProjection(Projections.rowCount());
+		@SuppressWarnings("unchecked")
+		// return criteria.uniqueResult();
+		List<Long> r = criteria.list();
+		for (Long v : r) {
+			if (v >= rowSize) {
+				return v;
+			}
 		}
+		return 0;
 	}
 
 	/**
 	 * Does count query. internal only.
-	 * 
 	 * 
 	 * @param criteria
 	 * @param criterions
@@ -482,11 +508,17 @@ public class BEEntityDaoObject {
 	 */
 	protected long _count(Criteria criteria) {
 		criteria.setProjection(Projections.rowCount());
-		Object result = criteria.uniqueResult();
-		if (result == null) {
-			return 0;
+//		try {
+//			result = criteria.uniqueResult();
+//		} catch (NonUniqueResultException e) {
+		@SuppressWarnings("unchecked")
+		List<Long> r = criteria.list();
+		for (Long v : r) {
+			if (v > 0) {
+				return v;
+			}
 		}
-		return (Long) result;
+		return 0;
 	}
 
 	public long count(Class<?> persistentClass) {

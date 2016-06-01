@@ -24,7 +24,7 @@ public class BEExtensionInfo implements Serializable {
 	public BEExtensionInfo() {
 	}
 	
-	public void put(String key, String value) {
+	public void put(String key, Object value) {
 		if (items == null) {
 			items = new HashMap<String, Object>();
 		}

@@ -1973,8 +1973,10 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		try {
 		var table = $(this).dataTable({
 			"paging": !this.editable,"ordering":!this.editable,"info":!this.editable,
-			"pageLength": 10,
-			"filter": false,
+			"pageLength": 10,"searching": false,"pageIndex":0,
+			"scrollY":(!this.editable?'55vh':false),
+            "scrollCollapse": (!this.editable?true:false),
+			"filter": true,
 			"recordsFiltered": $(this).attr("recordsFiltered"),
 			"recordsTotal": $(this).attr("recordsTotal"),
 			"columnDefs": columnDefs, 
@@ -1989,14 +1991,6 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		});
 		} catch(e) {console.log(e); return;}//for unknown case.
 		this.dtable = table;
-		var screenHeight = $(document.body).height();
-		if (MobileAppMode && screenHeight == 0) {
-		   screenHeight= window.screen.height;
-		}
-		if ($(this).height() > screenHeight) {
-		   $(this).parent().height(screenHeight - 150);
-		   $(this).parent().css("overflow-y","scroll");
-		}
 		// enable ajax process after initialization.
         this.dtable.fnSettings().ajax = {
 			async: false,
@@ -2140,11 +2134,14 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		var tagName = IS_MOBILEVIEW?$(wd).children()[0].tagName.toUpperCase():wd.tagName.toUpperCase();
 		if(tagName == "INPUT") {
 		    if (IS_MOBILEVIEW) { 
+			    setTimeout(function(){$($(wd).find("input")[0]).focus();},200);
 				wd.value = $(wd).find("input")[0].value;
 			} else {
+			    setTimeout(function(){$(wd).focus();},200);
 			    wd.value = value;
 			}
 		} else if(tagName == "SELECT"){
+		    setTimeout(function(){$(wd).focus();},200);
 			$(wd).children().each(function(){
 				if($(this).text() == value) {
 					$(this).attr("selected",true);
