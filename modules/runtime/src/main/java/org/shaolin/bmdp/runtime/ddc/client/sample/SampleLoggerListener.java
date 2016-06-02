@@ -14,19 +14,27 @@ public class SampleLoggerListener implements DataListener {
 
 
     public void onNodeUpdate(ZData data){
-        logger.info("znode ["+data.getPath()+"] has data ["+new String(data.getData())+"]");
+    	if (logger.isDebugEnabled()) {
+    		logger.debug("znode ["+data.getPath()+"] has data ["+new String(data.getData())+"]");
+    	}
     }
 
     public void onNodeDelete(ZData data){
-        logger.info("znode ["+data.getPath()+"] has data ["+new String((data.getData()== null || data.getData().length == 0 ? new byte[] {1}: data.getData()))+"] was deleted");
+    	if (logger.isDebugEnabled()) {
+    		logger.debug("znode ["+data.getPath()+"] has data ["+new String((data.getData()== null || data.getData().length == 0 ? new byte[] {1}: data.getData()))+"] was deleted");
+    	}
     }
 
     public void onNodeCreated(ZData data){
-        logger.info("znode ["+data.getPath()+"] has data ["+new String(data.getData())+"] was created");
+    	if (logger.isDebugEnabled()) {
+    		logger.debug("znode ["+data.getPath()+"] has data ["+new String(data.getData())+"] was created");
+    	}
     }
 
     public void onChildChanged(ZData data){
-        logger.info("znode ["+data.getPath()+"] has child changed ["+new String(data.getData())+"] was created");
+    	if (logger.isDebugEnabled()) {
+    		logger.debug("znode ["+data.getPath()+"] has child changed ["+new String(data.getData())+"] was created");
+    	}
     }
 
 }

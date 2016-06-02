@@ -243,4 +243,18 @@ public class HTMLImageType extends HTMLTextWidgetType
 		return sb.toString();
 	}
 
+	public static String getFirst(String path) {
+		String imageRoot = WebConfig.getResourceContextRoot();
+		if (path.indexOf(";") != -1) {
+        	String[] images = path.split(";");
+    		return imageRoot + "/" +  images[0];
+        } else {
+            File directory = new File(WebConfig.getResourcePath() + path);
+            if (directory.exists()) {
+            	return imageRoot + "/" +  path + "/" + directory.list()[0];
+            } else {
+            	return imageRoot + "/" +  path;
+            }
+        }
+	}
 }

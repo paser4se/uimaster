@@ -90,6 +90,10 @@ public class HTMLTableType extends HTMLContainerType {
 			int defaultRowSize = (Integer)this.removeAttribute("defaultRowSize");
 			String totalCount = String.valueOf(this.removeAttribute("totalCount"));
 			Boolean isShowActionBar = (Boolean)this.removeAttribute("isShowActionBar");
+			Boolean editable = (Boolean)this.removeAttribute("editable");
+			if (editable == null) {
+				editable = Boolean.TRUE;
+			}
 			Boolean isEditableCell = (Boolean)this.removeAttribute("isEditableCell");
 			if (isEditableCell == null) {
 				isEditableCell = Boolean.FALSE;
@@ -113,6 +117,11 @@ public class HTMLTableType extends HTMLContainerType {
 			context.generateHTML("<div id='" + htmlId + "ActionBar' class=\"ui-widget-header ui-corner-all\"");
 			if (isEditableCell == Boolean.TRUE) {
 				context.generateHTML(" editablecell=\"true\"");
+			}
+			if (editable == Boolean.TRUE) {
+				context.generateHTML(" editable=\"true\"");
+			} else {
+				context.generateHTML(" editable=\"false\" style=\"display:none;\"");
 			}
 			context.generateHTML(">");
 			List<UITableActionType> defaultActions = (List<UITableActionType>)this.removeAttribute("defaultActionGroup");
@@ -317,8 +326,15 @@ public class HTMLTableType extends HTMLContainerType {
 							optionValues = values[0];
 							optionDisplayValues = values[1];
 						} else {
-							Class clazz = ComponentMappingHelper.getComponentPathClass(col.getBeFieldId(), pContext);
-							List<IConstantEntity> items = CEUtil.getConstantEntities(clazz.getName());
+							List<IConstantEntity> items = null;
+							if (col.getUiType().getCetype() != null && col.getUiType().getCetype().length() > 0) {
+								items = CEUtil.getConstantEntities(col.getUiType().getCetype());
+							} else {
+								Class clazz = ComponentMappingHelper.getComponentPathClass(col.getBeFieldId(), pContext);
+								if (IConstantEntity.class.isAssignableFrom(clazz)) {
+									items = CEUtil.getConstantEntities(clazz.getName());
+								}
+							}
 							for (IConstantEntity item: items) {
 								optionValues.add(item.getIntValue() + "");
 							}
@@ -327,26 +343,39 @@ public class HTMLTableType extends HTMLContainerType {
 							}
 						}
 						HTMLComboBoxType combox = new  HTMLComboBoxType(context, col.getBeFieldId());
+						combox.setPrefix(this.getPrefix());
+						combox.setFrameInfo(this.getFrameInfo());
 						combox.setOptionValues(optionValues);
 	 					combox.setOptionDisplayValues(optionDisplayValues);
 						combox.addStyle("width", "100%");
+						if (col.getUiType().getEvent() != null) {
+							combox.addEventListener("onchange", col.getUiType().getEvent());
+						}
 						combox.generateBeginHTML(context, ownerEntity, depth+1);
 						combox.generateEndHTML(context, ownerEntity, depth+1);
 					} else if ("CheckBox".equalsIgnoreCase(col.getUiType().getType())) {
 						HTMLCheckBoxType checkBox = new HTMLCheckBoxType(context, col.getBeFieldId());
+						checkBox.setPrefix(this.getPrefix());
+						checkBox.setFrameInfo(this.getFrameInfo());
 						checkBox.addAttribute("title", UIVariableUtil.getI18NProperty(col.getTitle()));
 						checkBox.addAttribute("label", "");
 						checkBox.generateBeginHTML(context, ownerEntity, depth+1);
 						checkBox.generateEndHTML(context, ownerEntity, depth+1);
 					} else if ("Date".equalsIgnoreCase(col.getUiType().getType())) {
 						HTMLDateType date = new HTMLDateType(context, col.getBeFieldId());
+						date.setPrefix(this.getPrefix());
+						date.setFrameInfo(this.getFrameInfo());
 						date.generateBeginHTML(context, ownerEntity, depth+1);
 						date.generateEndHTML(context, ownerEntity, depth+1);
 					} else if ("DateRange".equalsIgnoreCase(col.getUiType().getType())) {
 						HTMLDateType start = new HTMLDateType(context, col.getUiType().getStartCondition());
+						start.setPrefix(this.getPrefix());
+						start.setFrameInfo(this.getFrameInfo());
 						start.setRange(true);
 						start.addStyle("width", "100px");
 						HTMLDateType end = new HTMLDateType(context, col.getUiType().getEndCondition());
+						end.setPrefix(this.getPrefix());
+						end.setFrameInfo(this.getFrameInfo());
 						end.setRange(true);
 						end.addStyle("width", "100px");
 						start.generateBeginHTML(context, ownerEntity, depth+1);

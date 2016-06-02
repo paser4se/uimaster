@@ -517,7 +517,7 @@ public class HTMLSnapshotContext implements Serializable
         if(url == null) {
         	url = "";
         }
-        if (!(url.startsWith("http") || url.startsWith("https"))) {
+        if (!(url.startsWith("http") || url.startsWith("https") || url.startsWith(WebConfig.getResourceContextRoot()))) {
 	        String imgRoot = WebConfig.getAppImageContextRoot(AjaxActionHelper.getAjaxContext().getRequest()) + "/images";
 	        sb.append(imgRoot);
         }
