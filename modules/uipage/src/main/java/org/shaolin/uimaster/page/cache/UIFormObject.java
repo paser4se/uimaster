@@ -1296,9 +1296,9 @@ public class UIFormObject implements java.io.Serializable
         }
         else if (propertyValue instanceof ResourceBundlePropertyType)
         {
-            addAttribute(i18nMap, name, ((ResourceBundlePropertyType)propertyValue).getBundle(),
+            addAttribute(i18nMap, name, ((ResourceBundlePropertyType)propertyValue).getBundle().trim(),
                     defaultValue);
-            addAttribute(propMap, name, ((ResourceBundlePropertyType)propertyValue).getKey(),
+            addAttribute(propMap, name, ((ResourceBundlePropertyType)propertyValue).getKey().trim(),
                     defaultValue);
         }
         else if (propertyValue instanceof NumericPropertyType)

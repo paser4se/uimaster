@@ -23,6 +23,9 @@ import java.util.Map;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.ajax.Calendar;
+import org.shaolin.uimaster.page.ajax.Label;
+import org.shaolin.uimaster.page.ajax.TextWidget;
+import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.od.IODMappingConverter;
 import org.shaolin.uimaster.page.od.formats.FormatUtil;
@@ -227,9 +230,18 @@ public class UITextWithDate implements IODMappingConverter {
 
 	public void pullDataFromWidget(HTMLSnapshotContext htmlContext) throws UIConvertException {
 		try {
-			Calendar calendar = (Calendar) AjaxActionHelper
+			Widget calendar = AjaxActionHelper
 					.getCachedAjaxWidget(this.uiid, htmlContext);
-			String value = calendar.getValue();
+			String value = null;
+			if (calendar instanceof Calendar) {
+				value = ((Calendar)calendar).getValue();
+			} else if (calendar instanceof Label) {
+				return;//no need UI to Data operation.
+			} else if (calendar instanceof TextWidget) {
+				value = ((TextWidget)calendar).getValue();
+			} else {
+				throw new UnsupportedOperationException("unsupported ui widget for date type mapping: " + calendar);
+			}
 			this.stringData = value != null ? value.trim() : "";
 			if ("".equals(stringData)) {
 				this.date = null;
@@ -251,8 +263,13 @@ public class UITextWithDate implements IODMappingConverter {
 			if (t instanceof UIConvertException) {
 				throw ((UIConvertException) t);
 			}
-			throw new UIConvertException("EBOS_ODMAPPER_073", t,
-					new Object[] { getUIHTML().getUIID() });
+			if (getUIHTML() != null) {
+				throw new UIConvertException("EBOS_ODMAPPER_073", t,
+						new Object[] { getUIHTML().getUIID() });
+			} else {
+				throw new UIConvertException("EBOS_ODMAPPER_073", t,
+						new Object[] { "" });
+			}
 		}
 	}
 
