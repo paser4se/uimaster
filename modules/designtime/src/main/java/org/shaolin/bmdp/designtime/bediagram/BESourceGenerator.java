@@ -1329,12 +1329,13 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 						.getTargetEntity();
 				if (be != null) {
 					//due to hibernate engine needs the concrete class mapping.
-					//the interface won't work for that mapping.
-					if (isPersistent) {
-						typeClass = getBEImplementClassName(be.getEntityName());
-					} else {
-						typeClass = getBEInterfaceClassName(be.getEntityName());
-					}
+					//the interface won't work for that mapping. so, we decide 
+					//always return the implementation class.
+//					if (isPersistent) {
+					typeClass = getBEImplementClassName(be.getEntityName());
+//					} else {
+//						typeClass = getBEInterfaceClassName(be.getEntityName());
+//					}
 				}
 			} else if (dataType instanceof CEObjRefType) {
 				TargetEntityType ce = ((CEObjRefType) dataType)
