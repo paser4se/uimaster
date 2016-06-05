@@ -164,7 +164,9 @@ public class Table extends Widget implements Serializable {
 					}
 					Object rowObject = this.listData.get(i);
 					for (UITableColumnType col : columns) {
-						this.updateCell(col, col.getBeFieldId(), item.getString(col.getBeFieldId()).trim(), rowObject);
+						if (item.has(col.getBeFieldId())) {
+							this.updateCell(col, col.getBeFieldId(), item.getString(col.getBeFieldId()).trim(), rowObject);
+						}
 					}
 					if (this.addItems == null || !isNewAdded(rowObject)) {
 						if (this.updateItems == null) {

@@ -567,7 +567,10 @@ public class Panel extends Container implements Serializable
     	sb.append("[");
     	for (HTMLDynamicUIItem item : items) {
     		String uiid = this.getId() + "dynamicUI" + i++;
-    		sb.append(item.retriveData(uiid)).append(",");
+    		String value = item.retriveData(uiid);
+    		if (value.length() > 0) {
+    			sb.append(value).append(",");
+    		}
     	}
     	sb.deleteCharAt(sb.length() - 1);
     	sb.append("]");

@@ -123,9 +123,13 @@ public class UIText implements IODMappingConverter {
 			if (t instanceof UIConvertException) {
 				throw ((UIConvertException) t);
 			}
-
-			throw new UIConvertException("EBOS_ODMAPPER_070", t,
+			if (getUIHTML() != null) {
+				throw new UIConvertException("EBOS_ODMAPPER_070", t,
 					new Object[] { getUIHTML().getUIID() });
+			} else {
+				throw new UIConvertException("EBOS_ODMAPPER_070", t,
+						new Object[] { "" });
+			}
 		}
 	}
 

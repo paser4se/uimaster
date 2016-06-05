@@ -447,6 +447,7 @@ UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 	persistable:true,
 	initialized:false,
 	ckeditor:null,
+	saveBtn:null,
 	init:function() {
 	    if (this.initialized)
 		    return;
@@ -463,9 +464,9 @@ UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 	initHtmlContent:function() {
 	    var o = this;
 		if (this.persistable) {
-			var btn = $("<button>\u4FDD\u5B58</button>");
-			$(this).parent().append(btn);
-			btn.click(function(){
+			this.saveBtn = $("<button>\u4FDD\u5B58HTML\u5185\u5BB9</button>");
+			$(this).parent().append(this.saveBtn);
+			this.saveBtn.click(function(){
 			   var data = CKEDITOR.instances[o.name+"_ckeditor"].getData();
 			   var opts = {url:AJAX_SERVICE_URL,async:false,type:'POST',
 			   data:{_ajaxUserEvent:"htmleditor",_uiid:o.name,_valueName:"save",_value:data,_framePrefix:UIMaster.getFramePrefix(o)}};
@@ -1969,16 +1970,18 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			}
 		});
 		this.tfoot = $($(this).find('tfoot')[0]);
-		this.editable = (typeof($(this).prev().attr('editablecell'))!="undefined");
+		this.editable = ($(this).prev().attr('editable')=="true");
+		this.editablecell = ($(this).prev().attr('editablecell')=="true");
+		var recordsTotal = parseInt($(this).attr("recordsTotal"));
 		try {
 		var table = $(this).dataTable({
-			"paging": !this.editable,"ordering":!this.editable,"info":!this.editable,
+			"paginate": this.editable,"ordering":this.editable,"info":this.editable,
 			"pageLength": 10,"searching": false,"pageIndex":0,
-			"scrollY":(!this.editable?'55vh':false),
-            "scrollCollapse": (!this.editable?true:false),
+			"scrollY":(!this.editablecell?'55vh':false),
+            "scrollCollapse": (!this.editablecell?true:false),
 			"filter": true,
 			"recordsFiltered": $(this).attr("recordsFiltered"),
-			"recordsTotal": $(this).attr("recordsTotal"),
+			"recordsTotal": recordsTotal,
 			"columnDefs": columnDefs, 
 			"processing": false,
 			"serverSide": true,
@@ -1989,6 +1992,11 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				othis.refreshBodyEvents(othis.tbody, true);
 			}
 		});
+		if (!this.editablecell) {
+			table.fnSettings()._iRecordsTotal=recordsTotal;
+			table.fnSettings()._iRecordsDisplay=(recordsTotal>10?(recordsTotal/10):recordsTotal);
+			table._fnUpdateInfo(table.fnSettings());
+		}
 		} catch(e) {console.log(e); return;}//for unknown case.
 		this.dtable = table;
 		// enable ajax process after initialization.
@@ -2005,7 +2013,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		};
 		var columnIds = new Array();
 		var coli = 0;
-		$(elementList[this.id]).find('thead th').each(function(){
+		//dataTables_scrollBody --> dataTables_scrollHead
+		$(elementList[this.id]).parent().prev().find('thead th').each(function(){
 			columnIds[coli++] = $(this).attr('id');
 		});
 		this.columnIds = columnIds;
@@ -2036,8 +2045,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			return;
 		}
 		this.tfoot = $(this.tfoot[0]);
-		if(this.editable) {
-			this.editablecell = true;
+		if(this.editable && this.editablecell) {
 			this.syncCellEvent(body);
 		} 
 		this.refreshFoot();
@@ -2060,7 +2068,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				if(c[i].tagName.toLowerCase() == "input") {
 					$(c[i]).keydown(function(e){
 						if(e.keyCode == 13) {
-						    if (othis.editable) {
+						    if (othis.editablecell) {
 							   othis.hideEditorOnCell(othis.getTDIndex(othis.preCell),othis.preCell);
 							   othis.preCell = null;
 							   othis.refreshFoot();
@@ -2072,7 +2080,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 					});
 				} else if(c[i].tagName.toLowerCase() == "select") {
 					$(c[i]).change(function(){
-					    if (othis.editable) {
+					    if (othis.editablecell) {
 							othis.hideEditorOnCell(othis.getTDIndex(othis.preCell),othis.preCell);
 							othis.preCell = null;
 							othis.refreshFoot();
@@ -2176,6 +2184,14 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		}
 	},
 	syncButtonGroup:function(isselected){
+	    if (!this.editable) {
+		   $('#'+id+"_newItem").button({disabled:true});
+		   $('#'+id+"_openItem").button({disabled:true});
+		   $('#'+id+"_disableItem").button({disabled:true});
+		   $('#'+id+"_enableItem").button({disabled:true});
+		   $('#'+id+"_deleteItem").button({disabled:true});
+		   return;
+		}
 		var id = this.id.replace(/\./g,"_");
 		if (this.rowEmpty()) {
 			isselected = false;
@@ -2204,7 +2220,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		if (this.isMultipleSelection) {
 		    UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"selectedIndexs",_value:this.selectedIndexs.join(","),_framePrefix:UIMaster.getFramePrefix(obj)});
 		}
-		if (this.editable) {
+		if (this.editablecell) {
 			return;//the editable cell and the filters are mutual exclusive.
 		}
         var filters = $(elementList[this.id]).find('tfoot th');
@@ -2222,7 +2238,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"conditions",_value:JSON.stringify(conditions),_framePrefix:UIMaster.getFramePrefix(obj)});
 	},
 	syncBodyDataToServer:function(){
-		if (this.editable) {
+		if (this.editablecell) {
 			var o = this;
 			var bodydata = new Array();
 		    //convert body cells to json.
@@ -2245,13 +2261,13 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	refreshBodyEvents:function(body, selectedByDefault) {
 	    this.initRefreshBody = true;
 		var othis = this;
-		if (othis.editable) {
+		if (othis.editablecell) {
 			othis.syncCellEvent(body);
 		}
 		body.children().each(function(){
 		 $(this).bind('click', function(){
 			var tr = $(this);
-			if (othis.editable) {
+			if (othis.editablecell) {
 				othis.selectedIndex = tr[0]._DT_RowIndex;
 				return true;
 			}
@@ -2320,9 +2336,10 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				    $($(tr).children()[0]).children()[0].checked=true;
 				othis.syncButtonGroup(isselected);
 			}
+			return false;//prevent the event pop.
 		  });
 		});
-		if (othis.editable || (selectedByDefault == undefined || !selectedByDefault)
+		if (othis.editablecell || (selectedByDefault == undefined || !selectedByDefault)
 		    || (!othis.isSingleSelection && !othis.isMultipleSelection)) {
 			return;
 		}

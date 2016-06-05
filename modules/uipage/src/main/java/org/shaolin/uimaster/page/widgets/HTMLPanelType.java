@@ -125,7 +125,7 @@ public class HTMLPanelType extends HTMLContainerType
 					
 					String uiid = this.getId() + "-dynamicUI" + i++;
 					HTMLUtil.generateTab(context, depth);
-					context.generateHTML("<div id=\"div-"+uiid+"-left-cell\" class=\"uimaster_widget_cell w1 h1 uimaster_leftform_cell\" >");
+					context.generateHTML("<div id=\"div-"+uiid+"-left-cell\" class=\"uimaster_widget_cell w1 h1 uimaster_dynamicitem_leftform_cell\" >");
 					HTMLUtil.generateTab(context, depth + 1);
 					HTMLLabelType lable = new HTMLLabelType(context, uiid + "Lable");
 					lable.addAttribute("UIStyle", "uimaster_label uimaster_leftform_widget");
@@ -139,7 +139,7 @@ public class HTMLPanelType extends HTMLContainerType
 					HTMLUtil.generateTab(context, depth + 1);
 					context.generateHTML("</div>");
 					HTMLUtil.generateTab(context, depth);
-					context.generateHTML("<div id=\"div-"+uiid+"-right-cell\" class=\"uimaster_widget_cell w1 h1 uimaster_rightform_cell\" >");
+					context.generateHTML("<div id=\"div-"+uiid+"-right-cell\" class=\"uimaster_widget_cell w1 h1 uimaster_dynamicitem_rightform_cell\" >");
 					HTMLUtil.generateTab(context, depth + 1);
 					
 					item.generate(jsonValue, uiid, this.getHTMLLayout(), this.ee, context, ownerEntity, depth);

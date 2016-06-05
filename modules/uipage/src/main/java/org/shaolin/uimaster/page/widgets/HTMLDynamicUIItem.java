@@ -174,13 +174,14 @@ public class HTMLDynamicUIItem {
 			list.setFrameInfo(context.getFrameInfo());
 			list.addAttribute("UIStyle", "uimaster_rightform_widget");
 			
-			list.setValue(value == null || value.size() == 0? "":value.get(0).getIntValue()+"");
+			list.setValue((value == null || value.size() == 0)? "":value.get(0).getIntValue()+"");
 			list.setOptionValues(new ArrayList(avps.keySet()));
 			list.setOptionDisplayValues(new ArrayList(avps.values()));
 			
 			Widget newWidget = list.createAjaxWidget(ee);
 			if (newWidget != null) {
 	        	context.addAjaxWidget(newWidget.getId(), newWidget);
+	        	newWidget.removeAttribute("value");//remove the default selected.
 	        }
 			
 			list.generateBeginHTML(context, ownerEntity, depth);
@@ -198,13 +199,14 @@ public class HTMLDynamicUIItem {
 			list.setFrameInfo(context.getFrameInfo());
 			list.addAttribute("horizontalLayout", "true");
 			
-			list.setValue(value == null || value.size() == 0? "":value.get(0).getIntValue()+"");
+			list.setValue((value == null || value.size() == 0)? "":value.get(0).getIntValue()+"");
 			list.setOptionValues(new ArrayList(avps.keySet()));
 			list.setOptionDisplayValues(new ArrayList(avps.values()));
 			
 			Widget newWidget = list.createAjaxWidget(ee);
 			if (newWidget != null) {
 	        	context.addAjaxWidget(newWidget.getId(), newWidget);
+	        	newWidget.removeAttribute("value");//remove the default selected.
 	        }
 			
 			list.generateBeginHTML(context, ownerEntity, depth);
@@ -252,20 +254,20 @@ public class HTMLDynamicUIItem {
 		context.generateHTML("</script>");
 	}
 	
-	public Object retriveData(String uiid) {
+	public String retriveData(String uiid) {
 		String jsvar = uiid;
 		if (this.getCeSelectMode() == HTMLDynamicUIItem.LIST) {
 			ComboBox box = AjaxActionHelper.getAjaxContext().getComboBox(jsvar);
 			String v = box.getValue();
-			if (v.length() == 0) {
-				v = "-1";
+			if (v.length() == 0 || "null".equals(v)) {
+				return "";
 			}
 			return "{\"name\":\""+this.getCeName()+"\",\"value\":\""+v+"\"}"; 
 		} else if (this.getCeSelectMode() == HTMLDynamicUIItem.RADIOBUTTONGROUP) {
 			RadioButtonGroup group = AjaxActionHelper.getAjaxContext().getRadioBtnGroup(jsvar);
 			String v = group.getValue();
-			if (v.length() == 0) {
-				v = "-1";
+			if (v.length() == 0 || "null".equals(v)) {
+				return "";
 			}
 			return "{\"name\":\""+this.getCeName()+"\",\"value\":\""+v+"\"}"; 
 		} else if (this.getCeSelectMode() == HTMLDynamicUIItem.CHECKBOXGROUP) {
@@ -279,7 +281,7 @@ public class HTMLDynamicUIItem {
 				sb.deleteCharAt(sb.length() - 1);
 			}
 			if (sb.length() == 0) {
-				sb.append("-1");
+				return "";
 			}
 			return "{\"name\":\""+this.getCeName()+"\",\"value\":\""+sb.toString()+"\"}"; 
 		}

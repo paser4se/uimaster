@@ -31,6 +31,12 @@
     cursor: pointer;
 }
 
+.uimaster_dynamicitem_leftform_cell {
+}
+.uimaster_dynamicitem_rightform_cell {
+    width: 200px;
+}
+
 .width_full {
     width: 100%
 }
@@ -176,7 +182,7 @@ label {
 }
 
 .uimaster_prenext_title {
- margin-right:30px;
+ margin-right:8px;
 }
 
 .uimaster_prenext_buttons {

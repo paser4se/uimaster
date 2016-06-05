@@ -297,6 +297,13 @@ html {
     font-size: 16px;
 	text-align: center;
 }
+.uimaster_dynamicitem_leftform_cell {
+    width: 130px;
+    min-width: 130px;
+}
+.uimaster_dynamicitem_rightform_cell {
+    width: 350px;
+}
 
 /**
  * 
