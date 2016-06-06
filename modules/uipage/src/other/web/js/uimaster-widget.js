@@ -3189,8 +3189,22 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
         
 		this.titleContainer = $($(s).children()[0]);
 		this.bodyContainer = $($(s).children()[1]);
-		var bodies = this.bodyContainer.children();
-        bodies.each(function(){
+		this.titleContainer.children().each(function(){
+		    $(this).click(function(){
+			   if(!othis.validate0()) return;
+			   if(!othis.setTab(parseInt($(this).attr("index")))) return;
+			   othis.selectedIndex = parseInt($(this).attr("index"));
+			   UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedIndex",_value:othis.selectedIndex,_framePrefix:UIMaster.getFramePrefix(this)});
+			   var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
+				{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"nextbtn",_framePrefix:UIMaster.getFramePrefix(),_sync:UIMaster.ui.sync()}};
+			   if (MobileAppMode) {
+				  _mobContext.ajax(JSON.stringify(opts));
+			   } else {
+				  $.ajax(opts);
+			   }
+			});
+		});
+		this.bodyContainer.children().each(function(){
 			if(typeof($(this).attr("uipanelid"))!="undefined"){
         		$(this).append($(elementList[$(this).attr("uipanelid")]).parent());
 			}
@@ -3256,7 +3270,7 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 				   return true;
 				}
 			}
-		} else {
+		} else if (action == "next") {
 		    if ((this.selectedIndex+1)==titles.length) return false;
 		    for (var i=0;i<titles.length;i++){
 			    if (i==this.selectedIndex){
@@ -3265,6 +3279,10 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 				   return true;
 				}
 			}
+		} else {
+			var id=titles[action].getAttribute("id");
+		    this._setTab(id);
+			return true;
 		}
 		return false;
     },
