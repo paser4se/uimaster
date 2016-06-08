@@ -65,7 +65,8 @@ public class HTMLFileType extends HTMLTextWidgetType
             generateAttributes(context);
             generateEventListeners(context);
             context.generateHTML(" value=\"\" ");
-            if (this.getAttribute("isMultiple") != null && "true".equals(this.getAttribute("isMultiple"))) {
+            if (this.getAttribute("isMultiple") != null && 
+            		("true".equals(this.getAttribute("isMultiple")) || Boolean.TRUE == this.getAttribute("isMultiple"))) {
             	context.generateHTML("multiple=\"multiple\" ");
             }
         	context.generateHTML("suffix=\"");

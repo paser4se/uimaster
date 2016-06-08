@@ -143,8 +143,12 @@ public class UploadFileServlet extends HttpServlet {
 			ServletFileUpload upload = new ServletFileUpload(factory);
 			try {
 				// Parse the request
+				int index = 0;
 				List<FileItem> multiparts = upload.parseRequest(request);
 				for (FileItem item : multiparts) {
+					if (file.getAllowedNumbers() <= (index++)) {
+						break;
+					}
 					// TODO: security check
 					// item.getContentType(); file.getSuffix(); image/jpg
 					if (item.getSize() > 5120000) {

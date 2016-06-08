@@ -323,7 +323,7 @@ public class WebConfig {
 	        } else {
 	        	address = "http://" + address;
 	        }
-	        serverAddress = address;
+	        serverAddress = address + "/uimaster";
 		}
 		if (UserContext.isAppClient()) {
 			return serverAddress;

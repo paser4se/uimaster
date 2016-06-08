@@ -1837,7 +1837,7 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 		var c = $(progressbox).children();
 		var progressbar = c[0];
 		var percent = c[1];
-
+        var tempItems="";
 		var options = {
 			beforeSend : function() {
 				$(progressbox).show();
@@ -1887,11 +1887,12 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 				alert("Wrong file widget with the empty suffix!");
 				return;
 			}
-			if (fileUI.value == "") {
+			if (fileUI.value=="" || tempItems==fileUI.value) {
 				alert("\u8BF7\u9009\u62E9\u4E00\u4E2A\u6587\u4EF6!");
 				return;
 			}
 			var fileName = fileUI.value;
+			tempItems = fileName;
 			var ldot = fileName.lastIndexOf(".");
 			if (ldot == -1) {
 				alert("Please choose a file with this suffix: "+suffix);
@@ -1977,7 +1978,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		var table = $(this).dataTable({
 			"paginate": this.editable,"ordering":this.editable,"info":this.editable,
 			"pageLength": 10,"searching": false,"pageIndex":0,
-			"scrollY":(!this.editablecell?'55vh':false),
+			"scrollY":(!this.editablecell?(MobileAppMode?'300px':'60vh'):false),
             "scrollCollapse": (!this.editablecell?true:false),
 			"filter": true,
 			"recordsFiltered": $(this).attr("recordsFiltered"),
