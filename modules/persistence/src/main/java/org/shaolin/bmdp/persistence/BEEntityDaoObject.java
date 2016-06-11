@@ -336,6 +336,16 @@ public class BEEntityDaoObject {
 		}
 	}
 
+	public <T> T get(long id, Class<T> persistentClass) {
+		Criteria inFlowCriteria = this._createCriteria(persistentClass, "a");
+		inFlowCriteria.add(createCriterion(Operator.EQUALS, "a.id", id));
+		List result = this._list(0, 1, inFlowCriteria);
+		if (result != null && result.size() > 0){
+			return (T)result.get(0);
+		}
+		return null;
+	}
+	
 	/**
 	 * Query for the normal tables.
 	 * 

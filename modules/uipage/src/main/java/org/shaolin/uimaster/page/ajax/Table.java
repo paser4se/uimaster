@@ -447,7 +447,7 @@ public class Table extends Widget implements Serializable {
 	 * 
 	 * @param rows
 	 */
-	private void refresh(List rows) {
+	public void refresh(List rows) {
 		IDataItem dataItem = AjaxActionHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);

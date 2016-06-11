@@ -61,7 +61,7 @@ public class ModalWindow extends Container implements Serializable
 
     private int width;
 
-    private int height;
+	private int height;
 
     private String frameInfo;
     
@@ -147,6 +147,14 @@ public class ModalWindow extends Container implements Serializable
         ajaxContext.removeElement(getId(), frameInfo);
         ajaxContext.addDataItem( createCloseData(ajaxContext) );
     }
+
+    public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
 
 	public String getIcon() {
         return icon;

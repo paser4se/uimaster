@@ -115,10 +115,10 @@ public class HTMLTableType extends HTMLContainerType {
 			String htmlId = this.getPrefix().replace('.', '_') + this.getUIID();
 			HTMLUtil.generateTab(context, depth + 1);
 			context.generateHTML("<div id='" + htmlId + "ActionBar' class=\"ui-widget-header ui-corner-all\"");
-			if (isEditableCell == Boolean.TRUE) {
+			if (isEditableCell.booleanValue()) {
 				context.generateHTML(" editablecell=\"true\"");
 			}
-			if (editable == Boolean.TRUE) {
+			if (editable.booleanValue()) {
 				context.generateHTML(" editable=\"true\"");
 			} else {
 				context.generateHTML(" editable=\"false\" style=\"display:none;\"");
@@ -271,7 +271,7 @@ public class HTMLTableType extends HTMLContainerType {
 			// org.hibernate.collection.internal.PersistentList
 			// org.hibernate.AssertionFailure: collection owner not associated with session:
 			if (!listData.isEmpty()) {
-				if (!UserContext.isMobileRequest() && isShowBigItem==Boolean.TRUE) {
+				if (!UserContext.isMobileRequest() && isShowBigItem.booleanValue()) {
 					generateBigItemBody(context, depth, columns, listData);
 				} else {
 					generateNormalBody(isEditableCell, depth, selectMode, listData, columns);
@@ -282,9 +282,9 @@ public class HTMLTableType extends HTMLContainerType {
 			HTMLUtil.generateTab(context, depth + 2);
 			
 			Boolean showFilter = (Boolean)this.removeAttribute("isShowFilter");
-			if (!UserContext.isMobileRequest() || isEditableCell == Boolean.TRUE) {
+			if (!UserContext.isMobileRequest() || isEditableCell.booleanValue()) {
 				context.generateHTML("<tfoot");
-				if (isEditableCell == Boolean.TRUE || showFilter == Boolean.FALSE) {
+				if (isEditableCell.booleanValue() || showFilter == Boolean.FALSE) {
 					context.generateHTML(" style=\"display:none;\"");
 				}
 				context.generateHTML(">");
@@ -429,7 +429,7 @@ public class HTMLTableType extends HTMLContainerType {
 		}
 		context.generateHTML("</th>");
 		
-		if (UserContext.isMobileRequest() && isEditableCell == Boolean.FALSE) {
+		if (UserContext.isMobileRequest() && !isEditableCell.booleanValue()) {
 			HTMLUtil.generateTab(context, depth + 3);
 			for (UITableColumnType col : columns) {
 				// find image column.
@@ -512,7 +512,7 @@ public class HTMLTableType extends HTMLContainerType {
 				context.generateHTML("<td style=\"display:none;\"></td>");
 			}
 			
-			if (UserContext.isMobileRequest() && isEditableCell == Boolean.FALSE) {
+			if (UserContext.isMobileRequest() && !isEditableCell.booleanValue()) {
 				StringBuilder attrsSB = new StringBuilder();
 				StringBuilder htmlAttrsSB = new StringBuilder();
 				

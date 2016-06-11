@@ -201,6 +201,11 @@ public class RefForm extends Container implements Serializable
 		return inputParams != null ? inputParams.get(key) : null;
 	}
 
+	public void refresh() {
+		this.closeIfinWindows(true);
+		this.openInWindows(this.window.getTitle(), this.callBack, this.window.getWidth(), this.window.getHeight());
+	}
+	
     public Map ui2Data()
     {
     	return ui2Data(this.inputParams);
