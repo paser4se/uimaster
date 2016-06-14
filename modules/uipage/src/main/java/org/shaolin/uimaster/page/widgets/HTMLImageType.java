@@ -251,7 +251,16 @@ public class HTMLImageType extends HTMLTextWidgetType
         } else {
             File directory = new File(WebConfig.getResourcePath() + path);
             if (directory.exists()) {
-            	return imageRoot + "/" +  path + "/" + directory.list()[0];
+            	String[] list = directory.list();
+				if (list.length > 0) {
+            		File a = new File(directory, list[0]);
+            		if (a.isFile()) {
+            		    return imageRoot + "/" +  path + "/" + list[0];
+            		} else if (list.length > 1) {
+        				return imageRoot + "/" +  path + "/" + list[1];
+            		}
+            	}
+            	return imageRoot + "/" +  path;
             } else {
             	return imageRoot + "/" +  path;
             }

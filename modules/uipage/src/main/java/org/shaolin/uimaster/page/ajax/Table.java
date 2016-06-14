@@ -63,12 +63,6 @@ public class Table extends Widget implements Serializable {
 
 	private transient List<Object> listData;
 
-	private List<Object> addItems;
-	
-	private List<Object> deleteItems;
-	
-	private List<Object> updateItems;
-	
 	private boolean isAppendRowMode;
 	
 	private boolean isEditableCell;
@@ -168,14 +162,6 @@ public class Table extends Widget implements Serializable {
 							this.updateCell(col, col.getBeFieldId(), item.getString(col.getBeFieldId()).trim(), rowObject);
 						}
 					}
-					if (this.addItems == null || !isNewAdded(rowObject)) {
-						if (this.updateItems == null) {
-							this.updateItems = new ArrayList<Object>();
-						}
-						if (!this.updateItems.contains(rowObject)) {
-							this.updateItems.add(rowObject);
-						}
-					}
 				}
 			} catch (JSONException e) {
 				logger.error("error occurrs while synchronizing the value from the page.", e);
@@ -184,13 +170,6 @@ public class Table extends Widget implements Serializable {
 			super.addAttribute(name, value, update);
 		}
     }
-	
-	private boolean isNewAdded(Object rowObject) {
-		if (this.addItems != null) {
-			return this.addItems.contains(rowObject);
-		}
-		return false;
-	}
 	
 	public List<Object> getSelectedRows() {
 		if (conditions.getSelectedIndex() == null 
@@ -251,27 +230,6 @@ public class Table extends Widget implements Serializable {
 	
 	public boolean isEditableCell() {
 		return this.isEditableCell;
-	}
-	
-	public List<Object> getAddItems() {
-		if (addItems == null) {
-			addItems = new ArrayList<Object>();
-		}
-		return addItems;
-	}
-
-	public List<Object> getDeleteItems() {
-		if (deleteItems == null) {
-			deleteItems = new ArrayList<Object>();
-		}
-		return deleteItems;
-	}
-
-	public List<Object> getUpdateItems() {
-		if (updateItems == null) {
-			updateItems = new ArrayList<Object>();
-		}
-		return updateItems;
 	}
 	
 	public TableConditions getConditions() {
@@ -378,10 +336,6 @@ public class Table extends Widget implements Serializable {
 	
 	public void addRow(Object object) {
 		this.listData.add(object);
-		if (this.addItems == null) {
-			this.addItems = new ArrayList<Object>();
-		}
-		this.addItems.add(object);
 		
 		IDataItem dataItem = AjaxActionHelper.createDataItem();
 		dataItem.setUiid(this.getId());
@@ -398,16 +352,6 @@ public class Table extends Widget implements Serializable {
 			return null;
 		}
 		Object obj = this.listData.remove(index);
-		if (this.deleteItems == null) {
-			this.deleteItems = new ArrayList<Object>();
-		}
-		this.deleteItems.add(obj);
-		if (this.addItems != null) {
-			this.addItems.remove(obj);
-		}
-		if (this.updateItems != null) {
-			this.updateItems.remove(obj);
-		}
 		
 		IDataItem dataItem = AjaxActionHelper.createDataItem();
 		dataItem.setUiid(this.getId());
@@ -423,9 +367,6 @@ public class Table extends Widget implements Serializable {
 	
 	public void clear() {
 		this.listData.clear();
-		this.addItems.clear();
-		this.deleteItems.clear();
-		this.updateItems.clear();
 		
 		this.refresh(this.listData);
 	}
@@ -459,15 +400,6 @@ public class Table extends Widget implements Serializable {
 	public String refresh0() {
 		if (null != this.listData) {
 			this.listData.clear();
-		}
-		if (null != this.addItems) {
-			this.addItems.clear();
-		}
-		if (null != this.deleteItems) {
-			this.deleteItems.clear();
-		}
-		if (null != this.updateItems) {
-			this.updateItems.clear();
 		}
 		
 		try {

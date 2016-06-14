@@ -1843,6 +1843,7 @@ public class UIFormObject implements java.io.Serializable
     	Map prop = getComponentProperty(uiwidget);
     	if (prop == null) {
     		logger.warn("UI widget does not exist! {}", uiwidget);
+    		return;
     	}
     	
     	prop.put("dtargetInfo", targetInfo);
