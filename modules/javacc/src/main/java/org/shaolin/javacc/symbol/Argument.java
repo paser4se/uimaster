@@ -19,7 +19,7 @@ import org.shaolin.javacc.util.ExpressionUtil;
 /**
  * The class for argument expression node
  *
- * @author Xiao Yi
+ * @author shaolin
  */
 
 public class Argument extends ExpressionNode

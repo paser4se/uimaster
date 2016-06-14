@@ -13,7 +13,7 @@ import org.shaolin.javacc.exception.ParsingException;
 /**
  * an parsing context implementation to combine multiple parsing contexts together
  * 
- * @author Xiao Yi
+ * @author shaolin
  *
  */
 public class CompoundParsingContext implements ParsingContext

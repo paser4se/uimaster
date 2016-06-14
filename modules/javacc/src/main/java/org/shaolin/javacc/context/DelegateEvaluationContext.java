@@ -12,7 +12,7 @@ import org.shaolin.javacc.exception.EvaluationException;
 /**
  * The evaluation context for merge several evaluation context
  *
- * @author Xiao Yi
+ * @author shaolin
  */
 public class DelegateEvaluationContext implements EvaluationContext
 {

@@ -10,7 +10,7 @@ import org.shaolin.javacc.symbol.ExpressionNode;
 /**
  * The util class to regenerate an expression string from the parsed expression node
  * 
- * @author Xiao Yi
+ * @author shaolin
  *
  */
 public interface ExpressionStringBuffer

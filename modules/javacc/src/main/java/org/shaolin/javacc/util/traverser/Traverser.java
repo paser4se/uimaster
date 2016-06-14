@@ -6,7 +6,7 @@ import org.shaolin.javacc.symbol.ExpressionNode;
 /**
  * The util interface which performs traversing the syntax tree
  *
- * @author Xiao Yi
+ * @author shaolin
  */
 public interface Traverser
 {

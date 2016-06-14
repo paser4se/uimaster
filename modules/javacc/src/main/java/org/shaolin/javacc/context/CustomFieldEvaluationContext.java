@@ -5,7 +5,7 @@ import org.shaolin.javacc.exception.EvaluationException;
 /**
  * the plugin interface to provide an customer field evaluation function
  * 
- * @author  Xiao Yi
+ * @author  shaolin
  */
 public interface CustomFieldEvaluationContext {
 	/**

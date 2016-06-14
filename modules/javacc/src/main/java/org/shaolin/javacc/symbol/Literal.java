@@ -19,7 +19,7 @@ import org.shaolin.javacc.util.ExpressionStringBuffer;
 /**
  * The class for literal constant
  *
- * @author Xiao Yi
+ * @author shaolin
  */
 public class Literal extends ExpressionNode
 {

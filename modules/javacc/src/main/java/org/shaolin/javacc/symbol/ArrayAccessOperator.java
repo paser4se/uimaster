@@ -15,7 +15,7 @@ import org.shaolin.javacc.util.ExpressionStringBuffer;
 /**
  * The class for index operator
  *
- * @author Xiao Yi
+ * @author shaolin
  */
 public class ArrayAccessOperator extends ExpressionNode
 {

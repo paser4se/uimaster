@@ -13,7 +13,7 @@ import org.shaolin.javacc.exception.ParsingException;
 /**
  * The class for primitive type expression node
  *
- * @author Xiao Yi
+ * @author shaolin
  */
 
 public class PrimitiveType extends ExpressionNode

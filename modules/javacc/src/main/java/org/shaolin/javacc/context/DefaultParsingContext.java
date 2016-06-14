@@ -14,7 +14,7 @@ import org.shaolin.javacc.util.ExpressionUtil;
 /**
  * The default parsing context implementation
  * 
- * @author Xiao Yi
+ * @author shaolin
  */
  
 public class DefaultParsingContext implements ParsingContext, CustomFieldParsingContext, Cloneable

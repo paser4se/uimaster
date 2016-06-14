@@ -12,7 +12,7 @@ import org.shaolin.javacc.symbol.FieldName;
 /**
  * The util class to get all possible exceptions thrown by an expression
  *
- * @author Xiao Yi
+ * @author shaolin
  */
 public class FieldLister implements Traverser
 {

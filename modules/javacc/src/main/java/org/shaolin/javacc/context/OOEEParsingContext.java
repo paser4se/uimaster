@@ -12,7 +12,7 @@ import org.shaolin.javacc.exception.ParsingException;
 /**
  * The parsing context class for parsing
  * 
- * @author Xiao Yi
+ * @author shaolin
  */
 public class OOEEParsingContext implements ICacheableContext
 {

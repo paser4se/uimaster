@@ -14,7 +14,6 @@ import org.shaolin.javacc.util.ExpressionUtil;
 /**
  * The class for relation operator
  *
- * @author Xiao Yi
  */
 public class EqualityOperator extends Operator
 {
@@ -37,7 +36,7 @@ public class EqualityOperator extends Operator
 			operandType = NUMERIC_TYPE;
 		}
 		else
-		if(lClass == boolean.class && rClass == boolean.class)
+		if((lClass == boolean.class && rClass == boolean.class) || (lClass == Boolean.class && rClass == Boolean.class))
 		{
 			operandType = BOOLEAN_TYPE;
 		}

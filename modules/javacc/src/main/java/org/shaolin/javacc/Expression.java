@@ -21,7 +21,7 @@ import org.shaolin.javacc.util.traverser.ExceptionTraverser;
 /**
  * The class for ooee expression
  * 
- * @author Xiao Yi
+ * @author shaolin
  */
 
 public class Expression implements Serializable

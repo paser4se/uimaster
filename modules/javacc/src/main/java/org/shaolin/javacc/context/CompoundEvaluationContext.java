@@ -13,7 +13,7 @@ import org.shaolin.javacc.exception.ParsingException;
 /**
  * an evaluation context implementation to combine multiple evaluation contexts together
  * 
- * @author Xiao Yi
+ * @author shaolin
  *
  */
 public class CompoundEvaluationContext implements EvaluationContext

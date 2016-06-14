@@ -16,9 +16,7 @@ import org.shaolin.javacc.util.ExpressionUtil;
 /**
  * The class for conditional expression node
  *
- * @author Xiao Yi
  */
-
 public class ConditionalOperator extends Operator
 {
     public ConditionalOperator()

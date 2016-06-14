@@ -17,7 +17,7 @@ import org.shaolin.javacc.util.ExpressionStringBuffer;
 /**
  * The class for type expression node
  *
- * @author Xiao Yi
+ * @author shaolin
  */
 
 public class TypeExpression extends ExpressionNode

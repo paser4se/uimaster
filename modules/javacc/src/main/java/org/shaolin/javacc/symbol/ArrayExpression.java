@@ -16,7 +16,7 @@ import org.shaolin.javacc.util.ExpressionUtil;
 /**
  * The class for array expression node
  *
- * @author Xiao Yi
+ * @author shaolin
  */
 
 public class ArrayExpression extends ExpressionNode

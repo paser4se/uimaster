@@ -10,7 +10,7 @@ import org.shaolin.javacc.symbol.ExpressionNode;
 /**
  * The default implemention class for interface ExpressionStringBuffer
  * 
- * @author Xiao Yi
+ * @author shaolin
  *
  */
 public class DefaultExpressionStringBuffer implements ExpressionStringBuffer

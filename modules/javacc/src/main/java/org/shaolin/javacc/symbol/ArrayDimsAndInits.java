@@ -19,7 +19,7 @@ import org.shaolin.javacc.util.ExpressionStringBuffer;
 /**
  * The class for array dimensions and initializing expression node
  *
- * @author Xiao Yi
+ * @author shaolin
  */
 
 public class ArrayDimsAndInits extends ExpressionNode

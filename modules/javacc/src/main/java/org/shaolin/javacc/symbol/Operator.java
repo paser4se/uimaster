@@ -7,7 +7,7 @@ import org.shaolin.javacc.util.ExpressionStringBuffer;
 /**
  * The super class for all operators
  *
- * @author Xiao Yi
+ * @author shaolin
  */
 abstract class Operator extends ExpressionNode
 {

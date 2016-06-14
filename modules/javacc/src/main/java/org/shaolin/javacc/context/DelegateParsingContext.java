@@ -12,7 +12,7 @@ import org.shaolin.javacc.exception.ParsingException;
 /**
  * The parsing context for merge several parsing context
  * 
- * @author Xiao Yi
+ * @author shaolin
  */
 public class DelegateParsingContext implements ParsingContext
 {

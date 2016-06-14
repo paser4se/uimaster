@@ -13,8 +13,6 @@ import org.shaolin.javacc.util.ExpressionUtil;
 
 /**
  * The class for bit operator
- *
- * @author Xiao Yi
  */
 public class BitOperator extends Operator
 {

@@ -5,7 +5,7 @@ package org.shaolin.javacc.context;
 /**
  * The multiple evaluation context interface for evaluation
  *
- * @author Xiao Yi
+ * @author shaolin
  */
 public interface MultipleEvaluationContext extends EvaluationContext
 {

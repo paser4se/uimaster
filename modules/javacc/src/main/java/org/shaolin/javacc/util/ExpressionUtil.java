@@ -154,9 +154,11 @@ public class ExpressionUtil
      */
     public static boolean isNumeric(Class operandClass)
     {
+    	if (operandClass == boolean.class || operandClass == Boolean.class) {
+    		return false;
+    	}
         if (operandClass == null 
         		|| !operandClass.isPrimitive() 
-        		|| operandClass == boolean.class
                 || operandClass == void.class)
         {
         	if (primitiveLangClassMap.containsKey(operandClass)) {

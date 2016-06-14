@@ -11,7 +11,7 @@ import org.shaolin.javacc.exception.ParsingException;
 /**
  * The class for expression parser
  *
- * @author Xiao Yi
+ * @author shaolin
  */
 
 public class ExpressionParser

@@ -5,7 +5,7 @@ import java.util.Collection;
 /**
  * The multiple parsing context interface for parsing
  *
- * @author Xiao Yi
+ * @author shaolin
  */
 public interface MultipleParsingContext extends ParsingContext
 {

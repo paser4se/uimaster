@@ -17,7 +17,7 @@ import org.shaolin.javacc.util.ExpressionUtil;
 /**
  * The class for fieldname node
  * 
- * @author Xiao Yi
+ * @author shaolin
  */
 
 public class FieldName extends ExpressionNode {

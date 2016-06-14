@@ -16,7 +16,7 @@ import org.shaolin.javacc.util.ExpressionUtil;
 /**
  * The class for cast expression node
  *
- * @author Xiao Yi
+ * @author shaolin
  */
 
 public class CastExpression extends ExpressionNode

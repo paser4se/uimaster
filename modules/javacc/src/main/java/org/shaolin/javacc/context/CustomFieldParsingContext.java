@@ -5,7 +5,7 @@ import org.shaolin.javacc.exception.ParsingException;
 /**
  * the plugin interface to provide an customer field parse function 
  *
- * @author  Xiao Yi
+ * @author  shaolin
  */
 public interface CustomFieldParsingContext {
 	/**

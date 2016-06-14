@@ -14,10 +14,7 @@ import org.shaolin.javacc.util.ExpressionStringBuffer;
 
 /**
  * The class for .class expression node
- *
- * @author Xiao Yi
  */
-
 public class ClassExpression extends ExpressionNode
 {
     public ClassExpression()

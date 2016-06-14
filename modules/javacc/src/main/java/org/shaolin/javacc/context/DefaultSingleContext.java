@@ -15,7 +15,7 @@ import org.shaolin.javacc.util.ExpressionUtil;
  * The default single context implementation, merge parsingcontext, evaluation
  * context together
  * 
- * @author Xiao Yi
+ * @author shaolin
  */
 
 public class DefaultSingleContext implements ParsingContext, EvaluationContext,

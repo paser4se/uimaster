@@ -10,7 +10,7 @@ import org.shaolin.javacc.exception.EvaluationException;
 /**
  * The evaluation context class for evaluation
  *
- * @author Xiao Yi
+ * @author shaolin
  */
 public class OOEEEvaluationContext
 {

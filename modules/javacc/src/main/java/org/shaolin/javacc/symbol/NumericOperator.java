@@ -14,7 +14,7 @@ import org.shaolin.javacc.util.ExpressionUtil;
 /**
  * The class for numeric operator
  *
- * @author Xiao Yi
+ * @author shaolin
  */
 public class NumericOperator extends Operator
 {

@@ -15,7 +15,7 @@ import org.shaolin.javacc.util.ExpressionUtil;
 /**
  * The class for unary operator
  *
- * @author Xiao Yi
+ * @author shaolin
  */
 public class UnaryOperator extends Operator
 {
