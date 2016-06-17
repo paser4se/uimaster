@@ -1162,7 +1162,7 @@ UIMaster.ui.combobox = UIMaster.extend(UIMaster.ui.field, /** @lends UIMaster.ui
                 if (!UIMaster.arrayContain(this.selectValue, select))
                     result.push(this.selectValueText);
             }
-            if (this.validators.length != 0)
+            if (this.validators != null && this.validators.length != 0)
                 for (var i = 0; i < this.validators.length; i++)
                     this.validateCustConstraint(this.validators[i]) || result.push(this.validators[i].msg || '');
             if (result.length > 0)
@@ -1973,7 +1973,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		this.tfoot = $($(this).find('tfoot')[0]);
 		this.editable = ($(this).prev().attr('editable')=="true");
 		this.editablecell = ($(this).prev().attr('editablecell')=="true");
-		var recordsTotal = parseInt($(this).attr("recordsTotal"));
+		var recordsTotal = parseInt($(this).attr("recordstotal"));
 		try {
 		var table = $(this).dataTable({
 			"paginate": this.editable,"ordering":this.editable,"info":this.editable,
@@ -1981,7 +1981,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			"scrollY":(!this.editablecell?(MobileAppMode?'300px':'60vh'):false),
             "scrollCollapse": (!this.editablecell?true:false),
 			"filter": true,
-			"recordsFiltered": $(this).attr("recordsFiltered"),
+			"recordsFiltered": $(this).attr("recordsfiltered"),
 			"recordsTotal": recordsTotal,
 			"columnDefs": columnDefs, 
 			"processing": false,
@@ -1994,6 +1994,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			}
 		});
 		if (!this.editablecell) {
+		    $(this).css("width","100%");
 			table.fnSettings()._iRecordsTotal=recordsTotal;
 			table.fnSettings()._iRecordsDisplay=(recordsTotal>10?(recordsTotal/10):recordsTotal);
 			table._fnUpdateInfo(table.fnSettings());
@@ -2881,17 +2882,17 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
             	var p = this.content.find("div[id$='actionPanel']");
             	if(p.length > 0) {
             		$(p[p.length-1]).css("display", "none");//select the last one.
-            		var buttons = $(p[p.length-1]).find("input[type='button']");
+            		var actionButtons = $(p[p.length-1]).find("input[type='button']");
 					var count = 0;
-            		for (var i=0;i<buttons.length;i++) {
-            			var b = buttons[i];
+            		for (var i=0;i<actionButtons.length;i++) {
+            			var b = actionButtons[i];
 						if ($(b).attr("disabled") == null || $(b).attr("disabled") == "false") {
 							buttonset[count++] = { text:b.value, 
 							    open:function(){if(IS_MOBILEVIEW){$(this).addClass('uimaster_button');}},
             					click:function(e){
 								    var text=$(e.srcElement?e.srcElement:e.target).text();
-								    for (var i=0;i<buttons.length;i++){ 
-            						    if(text==buttons[i].value){$(buttons[i]).click();break;}
+								    for (var i=0;i<actionButtons.length;i++){ 
+            						    if(text==actionButtons[i].value){$(actionButtons[i]).click();break;}
 									} } };
 						}
             		}

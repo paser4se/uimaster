@@ -110,6 +110,7 @@ function dPageLinkOnPage(clickRemembered){
        $("#"+clickRemembered).trigger("click");
 	}
 }
+function showAndHide(o){if ($(o).css("display") == "none"){$(o).show(500);}else{$(o).hide(500);}}
 /**
  * @description Set the required indicator for a widget.
  * @param {String} id Widget's id.

@@ -1,7 +1,9 @@
 package org.shaolin.bmdp.runtime.ce;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * this interface is the base class of all ConstantEntity, every constant entity must
@@ -16,6 +18,9 @@ public interface IConstantEntity extends Serializable
      *
      */
     public final static String CONSTANT_DEFAULT_VALUE = "_NOT_SPECIFIED";
+    public final static String CONSTANT_DEFAULT_INT_VALUE = "-1";
+    
+    public static final IConstantEntity CONSTANT_DEFAULT = new DynamicConstant(-1, CONSTANT_DEFAULT_VALUE, -1, null, "\u672A\u6307\u5B9A");
     
     /**
      * Returns the constant entity name.

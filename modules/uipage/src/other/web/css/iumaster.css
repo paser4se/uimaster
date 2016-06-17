@@ -237,7 +237,7 @@ html {
 
 /*Skins*/
 .skin_titlepanel_table {}
-.skin_titlepanel_title {}
+.skin_titlepanel_title {cursor:pointer;}
 .skin_titlepanel_content {
  display:block;
  border:2px solid #8DB9DB;

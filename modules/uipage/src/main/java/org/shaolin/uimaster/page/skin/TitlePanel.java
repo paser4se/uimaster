@@ -38,8 +38,11 @@ public class TitlePanel extends BaseSkin implements IUISkin {
 				|| "false".equals(getParam("visible"))) {
 			context.generateHTML(" style=\"display:none;\"");
 		}
-		context.generateHTML(" ><div class=\"skin_titlepanel_title\" onclick=\"\" >");
-		context.generateHTML("<div>");
+		context.generateHTML(" ><div class=\"skin_titlepanel_title\" ");
+		if ("true".equals(getParam("collapsed"))) {
+			context.generateHTML("onclick=\"javascript:showAndHide($(this).next().children());\" ");
+		}
+		context.generateHTML("><div>");
 		context.generateHTML(getParam("text"));
 		context.generateHTML("</div></div>");
 		context.generateHTML("<div class=\"");

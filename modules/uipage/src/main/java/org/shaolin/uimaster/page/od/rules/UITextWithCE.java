@@ -177,6 +177,9 @@ public class UITextWithCE implements IODMappingConverter {
 					.getCachedAjaxWidget(this.uiid, htmlContext);
 			String value = textComp.getValue();
 			this.ceValue = CEUtil.getConstantEntity(value, this.ceType);
+			if (this.ceValue != null) {
+				this.ceType = this.ceValue.getEntityName();
+			}
 		} catch (Throwable t) {
 			if (t instanceof UIConvertException) {
 				throw ((UIConvertException) t);

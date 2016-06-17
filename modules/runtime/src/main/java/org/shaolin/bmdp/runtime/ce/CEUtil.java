@@ -152,7 +152,7 @@ public class CEUtil {
 			List<IConstantEntity> constantEntities) {
 		List<String> constantEntityValues = new ArrayList<String>();
 		for (IConstantEntity constantEntity : constantEntities) {
-			constantEntityValues.add(constantEntity.getValue());
+			constantEntityValues.add(String.valueOf(constantEntity.getIntValue()));
 		}
 
 		return constantEntityValues;
@@ -207,20 +207,34 @@ public class CEUtil {
 		if (ceValue != null) {
 			ceValue = ceValue.trim();
 		}
-
 		if (ceValue == null || "".equals(ceValue)) {
 			ceValue = IConstantEntity.CONSTANT_DEFAULT_VALUE;
 		}
+		
+		int complexValue = ceValue.indexOf(",");
+		if (complexValue != -1) {
+			IConstantEntity constant = IServerServiceManager.INSTANCE.getConstantService().getConstantEntity(ceValue.substring(0, complexValue));
+			return constant.getByIntValue(Integer.valueOf(ceValue.substring(complexValue+1)));
+		}
+		
+		boolean isIntValue = false;
+		int intValue = -1;
+		try {
+			intValue = Integer.parseInt(ceValue);
+			isIntValue = true;
+		} catch (Exception e){}
 
 		IConstantEntity ceEntity = IServerServiceManager.INSTANCE.getConstantService().getConstantEntity(ceType);
 
 		List<IConstantEntity> result = ceEntity.getConstantList();
 		for (IConstantEntity item : result) {
-			if (item.getValue().equals(ceValue)) {
+			if (isIntValue ? (item.getIntValue() == intValue) : item.getValue().equals(ceValue)) {
 				return item;
 			}
 		}
-
+		if (ceValue == IConstantEntity.CONSTANT_DEFAULT_VALUE) {
+			return IConstantEntity.CONSTANT_DEFAULT;
+		}
 		throw new IllegalArgumentException("CE value " + ceValue
 				+ " can't be matched from CE entity: " + ceType);
 	}
@@ -255,7 +269,7 @@ public class CEUtil {
 	
 	public static String getValue(String pattern) {
 		if (pattern == null) {
-			return "";
+			return IConstantEntity.CONSTANT_DEFAULT_INT_VALUE;
 		}
 		int i = pattern.indexOf(",") ;
 		if (i!= -1) {
@@ -266,11 +280,11 @@ public class CEUtil {
 	}
 	
 	public static IConstantEntity toCEValue(String pattern) {
-		if (pattern == null) {
-			return null;
+		if (pattern == null || pattern.equals(IConstantEntity.CONSTANT_DEFAULT_INT_VALUE)) {
+			return IConstantEntity.CONSTANT_DEFAULT;
 		}
 		int i = pattern.indexOf(",");
-		if (i!= -1) {
+		if (i != -1) {
 			IConstantEntity constant = IServerServiceManager.INSTANCE.getConstantService().getConstantEntity(pattern.substring(0, i));
 			return constant.getByIntValue(Integer.valueOf(pattern.substring(i+1)));
 		} else {

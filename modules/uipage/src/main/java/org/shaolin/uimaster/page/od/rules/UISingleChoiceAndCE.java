@@ -209,7 +209,7 @@ public class UISingleChoiceAndCE implements IODMappingConverter {
 	public void pushDataToWidget(HTMLSnapshotContext htmlContext) throws UIConvertException {
 		try {
 			if (this.ceValue != null) {
-				this.uisingleChoice.setValue(this.ceValue.getValue());
+				this.uisingleChoice.setValue(String.valueOf(this.ceValue.getIntValue()));
 			}
 
 			callChoiceOption(true, htmlContext);
@@ -228,6 +228,9 @@ public class UISingleChoiceAndCE implements IODMappingConverter {
 			SingleChoice singleChoice = (SingleChoice) AjaxActionHelper
 					.getCachedAjaxWidget(this.uiid, htmlContext);
 			this.ceValue = CEUtil.getConstantEntity(singleChoice.getValue(), this.ceType);
+			if (this.ceValue != null) {
+				this.ceType = this.ceValue.getEntityName();
+			}
 		} catch (Throwable t) {
 			if (t instanceof UIConvertException) {
 				throw ((UIConvertException) t);
