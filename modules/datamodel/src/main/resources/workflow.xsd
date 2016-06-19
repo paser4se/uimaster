@@ -466,10 +466,12 @@
 	</xs:complexType>
  <xs:complexType name="missionActionType">
     <xs:sequence>
-			    <!-- the action defines which page triggers this mission. -->
+       <!-- the action defines which page triggers this mission. -->
        <xs:element name="expression" type="Common:ExpressionType" minOccurs="0" />
-		  </xs:sequence>
-		  <xs:attribute name="actionPage" type="xs:string" />
+       <!-- whether enable this action or not.-->
+       <xs:element name="filter" type="Common:ExpressionType" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="actionPage" type="xs:string" />
     <xs:attribute name="actionName" type="xs:string" />
     <xs:attribute name="actionText" type="xs:string" />
     <xs:attribute name="beforeActionWidget" type="xs:string" />

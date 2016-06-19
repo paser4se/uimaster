@@ -1679,9 +1679,7 @@ public class UIFormObject implements java.io.Serializable
 	public void addWorkflowAction(String eventConsumer, MissionNodeType node, String nodeInfo) throws ParsingException {
 		if (workflowActions == null) {
 			workflowActions = new ArrayList();
-		} else {
-			clearWorkflowActions();
-		}
+		} 
 		for (MissionActionType action : node.getUiActions()) {
 			workflowActions.add(action.getActionName());
 		}
@@ -1694,16 +1692,28 @@ public class UIFormObject implements java.io.Serializable
 		List<UIComponentType> panelList = entity.getBody().getComponents();
 		for (UIComponentType panel : panelList) {
 			if ("actionPanel".equals(panel.getUIID())) {
+				boolean existWfActionPanel = false;
 				UIPanelType actionPanel = (UIPanelType) panel;
 				UIPanelType wfactionPanel = new UIPanelType();
 				wfactionPanel.setUIID("wfactions");
+				for (UIComponentType component : actionPanel.getComponents()) {
+					if (component.getUIID().equals("wfactions")) {
+						wfactionPanel = (UIPanelType)component;
+						existWfActionPanel = true;
+						break;
+					}
+				}
+				
 				for (MissionActionType action : node.getUiActions()) {
 					UIButtonType button = new UIButtonType();
 					button.setUIID(action.getActionName());
 					ExpressionPropertyType property = new ExpressionPropertyType();
 					ExpressionType expr = new ExpressionType();
 					expr.setExpressionString("import org.shaolin.bmdp.runtime.security.UserContext; "
-							+ "\n{ return UserContext.hasRole(\"" + node.getParticipant().getPartyType() + "\"); }");
+							+ "\n{ return UserContext.hasRole(\"" + node.getParticipant().getPartyType() + "\");}");
+					if (action.getFilter() != null && action.getFilter().getExpressionString() != null) {
+						expr = action.getFilter();
+					}
 					property.setExpression(expr);
 					button.setVisible(property);
 					ExpressionPropertyType property1 = new ExpressionPropertyType();
@@ -1762,21 +1772,22 @@ public class UIFormObject implements java.io.Serializable
 					function.getOps().add(op);
 					entity.getEventHandlers().add(function);
 				}
-				TableLayoutType tableLayout = (TableLayoutType)actionPanel.getLayout();
-				tableLayout.getColumnWidthWeights().add(0.0);
-				ComponentConstraintType wfconstraint = new ComponentConstraintType();
-				wfconstraint.setComponentId(wfactionPanel.getUIID());
-				TableLayoutConstraintType wfposition = new TableLayoutConstraintType();
-				wfposition.setX(0);
-				wfposition.setY(0);
-				wfconstraint.setConstraint(wfposition);
-				actionPanel.getComponents().add(0, wfactionPanel);
-				actionPanel.getLayoutConstraints().add(0, wfconstraint);
-				int count = 0; //reposition.
-				for (ComponentConstraintType c : actionPanel.getLayoutConstraints()) {
-					((TableLayoutConstraintType)c.getConstraint()).setX(count++);
+				if (!existWfActionPanel) {
+					TableLayoutType tableLayout = (TableLayoutType)actionPanel.getLayout();
+					tableLayout.getColumnWidthWeights().add(0.0);
+					ComponentConstraintType wfconstraint = new ComponentConstraintType();
+					wfconstraint.setComponentId(wfactionPanel.getUIID());
+					TableLayoutConstraintType wfposition = new TableLayoutConstraintType();
+					wfposition.setX(0);
+					wfposition.setY(0);
+					wfconstraint.setConstraint(wfposition);
+					actionPanel.getLayoutConstraints().add(0, wfconstraint);
+					int count = 0; //reposition.
+					actionPanel.getComponents().add(0, wfactionPanel);
+					for (ComponentConstraintType c : actionPanel.getLayoutConstraints()) {
+						((TableLayoutConstraintType)c.getConstraint()).setX(count++);
+					}
 				}
-				
 				// find ok button if has.
 				for (UIComponentType b : actionPanel.getComponents()) {
 					if ("okbtn".equals(b.getUIID())) {

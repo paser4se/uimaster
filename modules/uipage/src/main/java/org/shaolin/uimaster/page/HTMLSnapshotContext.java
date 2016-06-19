@@ -517,9 +517,17 @@ public class HTMLSnapshotContext implements Serializable
         if(url == null) {
         	url = "";
         }
-        if (!(url.startsWith("http") || url.startsWith("https") || url.startsWith(WebConfig.getResourceContextRoot()))) {
-	        String imgRoot = WebConfig.getAppImageContextRoot(AjaxActionHelper.getAjaxContext().getRequest()) + "/images";
-	        sb.append(imgRoot);
+        if (!(url.startsWith("http") || url.startsWith("https"))) {
+        	if (url.startsWith(WebConfig.getResourceContextRoot())) {
+        		if (UserContext.isAppClient()) {
+        			String imgRoot = WebConfig.getAppImageContextRoot(AjaxActionHelper.getAjaxContext().getRequest());
+    		        sb.append(imgRoot);
+    		        url = url.replaceFirst(WebConfig.getResourceContextRoot(), "");
+        		}
+        	} else {
+		        String imgRoot = WebConfig.getAppImageContextRoot(AjaxActionHelper.getAjaxContext().getRequest()) + "/images";
+		        sb.append(imgRoot);
+        	}
         }
         if (!url.startsWith("/")) {
             sb.append("/");
