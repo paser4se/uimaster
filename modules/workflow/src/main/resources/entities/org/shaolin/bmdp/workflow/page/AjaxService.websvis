@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:WebService xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ns2="http://bmdp.shaolin.org/datamodel/Page" xmlns="http://bmdp.shaolin.org/datamodel/Common"
+	xsi:schemaLocation="">
+	<entityName>org.shaolin.bmdp.workflow.page.AjaxService</entityName>
+	<systemVersion>0</systemVersion>
+	<ns2:service name="getUserNotifications">
+		<ns2:exp>
+			<expressionString><![CDATA[
+	    import java.lang.StringBuilder;
+        import java.util.Date;
+        import java.util.List;
+        import java.util.ArrayList;
+        import org.shaolin.bmdp.runtime.security.UserContext;
+        import org.shaolin.bmdp.runtime.AppContext;
+        import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
+        import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
+        import org.shaolin.bmdp.workflow.be.INotification;
+        {
+           if (UserContext.getUserContext() == null || UserContext.getUserContext().getUserId() > 0) {
+              return "";
+           }
+           Date queryDate = (Date)@request.getSession().getAttribute("lastQueryDate");
+           if (queryDate == null) {
+               queryDate = new Date();
+               @request.getSession().setAttribute("lastQueryDate", queryDate);
+           }
+           ICoordinatorService service = (ICoordinatorService)IServerServiceManager.INSTANCE.getService(ICoordinatorService.class);
+           StringBuilder sb = new StringBuilder();
+           List items = service.pullNotifications(UserContext.getUserContext().getUserId(), queryDate);
+           for (int i=0;i<items.size();i++) {
+               INotification item = (INotification)items.get(i);
+               sb.append("[").append(item.getCreateDate().toString()).append("] ").append(item.getSubject());
+               sb.append("\n");
+               sb.append(item.getDescription());
+           }
+           @request.getSession().setAttribute("lastQueryDate", new Date());
+           return sb.toString();
+        }
+        ]]></expressionString>
+		</ns2:exp>
+	</ns2:service>
+</ns2:WebService>

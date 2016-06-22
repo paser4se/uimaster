@@ -100,9 +100,12 @@ public class AjaxProcessor implements Serializable
         String framePrefix = request.getParameter(AjaxContext.AJAX_FRAME_PREFIX);
         if(framePrefix == null || framePrefix.equals("null"))
         {
-        	log.warn("The 'framePrefix' equals null, please noticed if the current uipage has one more frames!");
+        	if (!EVENT_WEBSERVICE.equals(eventType)) {
+        		log.warn("The 'framePrefix' equals null, please noticed if the current uipage has one more frames!");
+        	}
         }
         framePrefix = (framePrefix == null || framePrefix.equals("null")) ? "" : framePrefix;
+        
         if (EVENT_WEBSERVICE.equals(eventType)) {
         } else {
 	        String uiid = request.getParameter(AjaxContext.AJAX_UIID);

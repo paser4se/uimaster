@@ -758,8 +758,14 @@ public class ExpressionUtil
                 foundMethods.add(method);
             }
         }
-
-        if (foundMethods.size() != 1)
+        
+        if (foundMethods.size() == 0) {
+        	StringBuffer buffer = new StringBuffer();
+        	buffer.append("unable to match the given methods: ");
+        	buffer.append(methods).append("\n with parameters: ").append(argClasses);
+        	
+        	throw new ParsingException(buffer.toString());
+        } else if (foundMethods.size() > 1)
         {
             StringBuffer buffer = new StringBuffer();
 
@@ -773,7 +779,7 @@ public class ExpressionUtil
             }
 
             throw new ParsingException(buffer.toString());
-        }
+        } 
 
         return (Method) foundMethods.get(0);
     }
