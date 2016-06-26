@@ -15,9 +15,12 @@
 */
 package org.shaolin.uimaster.page.widgets;
 
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Widget;
+import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.slf4j.Logger;
@@ -61,6 +64,17 @@ public class HTMLMapType extends HTMLWidgetType
 //	                <item name="baidumap" value="http://api.map.baidu.com/api?v=2.0&amp;ak=kT8czcw0fydHdXiGPGBOckX1" />
 //	            </node>
 //	        </node>
+            if (context.getRequest().getAttribute("_hasWorldMap") == null) {
+				context.getRequest().setAttribute("_hasWorldMap", Boolean.TRUE);
+	            String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
+	        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
+	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/map/raphael-min.js\"></script>");
+	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/map/chinaMapConfig.js\"></script>");
+	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/map/map.js\"></script>");
+	        	
+            }
+            
+            JSONObject data = new JSONObject();
             
             context.generateHTML("<div class=\"uimaster_map\">");
             context.generateHTML("<div id=\"");

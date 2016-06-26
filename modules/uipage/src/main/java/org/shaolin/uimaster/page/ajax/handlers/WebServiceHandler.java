@@ -71,6 +71,8 @@ public class WebServiceHandler implements IAjaxHandler {
 				} else if ((value instanceof List)) {
 					JSONArray json = new JSONArray((List) value);
 					return json.toString();
+				} else if (value instanceof JSONArray) {
+					return ((JSONArray)value).toString();
 				} else if (value instanceof JSONObject) {
 					return ((JSONObject)value).toString();
 				} else {

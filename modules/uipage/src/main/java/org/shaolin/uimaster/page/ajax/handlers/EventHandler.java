@@ -29,6 +29,7 @@ import org.shaolin.bmdp.runtime.spi.EventProcessor;
 import org.shaolin.bmdp.runtime.spi.FlowEvent;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.ajax.json.JSONArray;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
@@ -46,11 +47,26 @@ public class EventHandler implements IAjaxHandler {
 			throw new AjaxHandlerException(
 					"The action name can not be empty!");
 		}
+	
 		return trigger0(context, actionName);
 	}
-
+	
 	public String trigger0(AjaxContext context, String actionName)
 			throws AjaxHandlerException {
+		Widget w = context.getElement(context.getRequestData().getUiid());
+		if (w == null) {
+			log.warn("Event source is not existed from current page.");
+			return "{'value': 'event source error.'}";
+		}
+		if (!w.isVisible()) {
+			log.warn("Event source does not have privilege from current page.");
+			return "{'value': 'event source does not have privilege.'}"; 
+		}
+		if (w.getAttribute("disabled") != null && "true".equals(w.getAttribute("disabled"))) {
+			log.warn("Event source does not have privilege from current page.");
+			return "{'value': 'event source does not have privilege.'}"; 
+		}
+		
 		if (log.isDebugEnabled()) {
 			log.debug("execute the function of ajax calling: " + actionName);
 		}
@@ -127,6 +143,10 @@ public class EventHandler implements IAjaxHandler {
 			} else if ((value instanceof List)) {
 				JSONArray json = new JSONArray((List) value);
 				return json.toString();
+			} else if (value instanceof JSONArray) {
+				return ((JSONArray)value).toString();
+			} else if (value instanceof JSONObject) {
+				return ((JSONObject)value).toString();
 			} else {
 				JSONObject json = new JSONObject(value);
 				return json.toString();

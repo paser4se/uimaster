@@ -453,7 +453,7 @@ public class PageDispatcher {
                 context.generateHTML(" _framePrefix=\"" + superPrefix + "\"");
             }
             if (UserContext.isAppClient()) {
-            	context.generateHTML(" style=\"height:" + context.getRequest().getParameter("app_height") + "px;overflow:hidden;\"");
+            	context.generateHTML(" style=\"height:" + context.getRequest().getParameter("app_height") + "px;overflow-y:auto;\"");
             }
             context.generateHTML(">\n");
             

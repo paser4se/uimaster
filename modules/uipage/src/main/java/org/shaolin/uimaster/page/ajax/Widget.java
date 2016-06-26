@@ -1040,7 +1040,7 @@ abstract public class Widget implements Serializable
         return FLSEnabled;
     }
 
-    protected boolean isVisible()
+    public boolean isVisible()
     {
         return visible;
     }

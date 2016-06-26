@@ -140,8 +140,8 @@ public class AnalyzerUtil {
 			session.doWork(new Work() {
 				public void execute(Connection connection)
 						throws SQLException {
-					PreparedStatement ps = connection.prepareStatement(insertSQL);
 					for (List<Object> row : totalResult) {
+						PreparedStatement ps = connection.prepareStatement(insertSQL);
 						ps.setDate(1, new Date(System.currentTimeMillis()));
 						ps.setInt(2, ((Number)row.get(0)).intValue());
 						for (int i=0; i<s; i++) {
