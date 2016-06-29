@@ -19,8 +19,9 @@ import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
+import org.shaolin.uimaster.page.ajax.Layout;
+import org.shaolin.uimaster.page.ajax.Map;
 import org.shaolin.uimaster.page.ajax.Widget;
-import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.slf4j.Logger;
@@ -68,24 +69,31 @@ public class HTMLMapType extends HTMLWidgetType
 				context.getRequest().setAttribute("_hasWorldMap", Boolean.TRUE);
 	            String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
 	        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
-	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/map/raphael-min.js\"></script>");
-	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/map/chinaMapConfig.js\"></script>");
-	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/map/map.js\"></script>");
-	        	
+	        	//context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/map/raphael-min.js\"></script>");
+	        	//context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/map/chinaMapConfig.js\"></script>");
+	        	//context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/map/map.js\"></script>");
             }
             
-            JSONObject data = new JSONObject();
-            
-            context.generateHTML("<div class=\"uimaster_map\">");
+            String data = (String)this.removeAttribute("value");
+            String event = this.removeEventListenter("onclick");
+            if (event != null && event.trim().length() > 0) {
+            	event = getReconfigurateFunction(event);
+            }
             context.generateHTML("<div id=\"");
             context.generateHTML(getName());
-            context.generateHTML("\" style=\"border: 1px solid gray; overflow:hidden;\"");
+            context.generateHTML("\" class=\"uimaster_map\" event=\""+event+"\"");
             generateAttributes(context);
-            context.generateHTML("></div>");
+            context.generateHTML("><div style=\"display:none;\">"+data+"</div><div id=\"");
+            context.generateHTML(getName());
+            context.generateHTML("List\" class=\"uimster_mapInfo\"><ul class=\"list1\"></ul><ul class=\"list2\"></ul><ul class=\"list3\"></ul></div>");
             context.generateHTML("<div id=\"");
             context.generateHTML(getName());
-            context.generateHTML("Result\"></div></div>");
+            context.generateHTML("Map\" class=\"uimster_map_map\"></div>");
+            context.generateHTML("<div id=\"");
+            context.generateHTML(getName());
+            context.generateHTML("Color\" class=\"uimster_map_color\"></div>");
             
+            context.generateHTML("</div>");
             generateEndWidget(context);
         }
         catch (Exception e)
@@ -93,11 +101,15 @@ public class HTMLMapType extends HTMLWidgetType
             logger.error("error. in entity: " + getUIEntityName(), e);
         }
     }
-
+    
     @Override
     public Widget createAjaxWidget(VariableEvaluator ee)
     {
-    	return null;
+    	Map matrix = new Map(getName(), Layout.NULL);
+    	matrix.setUIEntityName(getUIEntityName());
+    	matrix.setListened(true);
+    	matrix.setFrameInfo(getFrameInfo());
+		return matrix;
     }
 
 }

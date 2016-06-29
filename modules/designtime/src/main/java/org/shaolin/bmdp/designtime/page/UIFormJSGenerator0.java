@@ -21,6 +21,7 @@ import org.shaolin.bmdp.datamodel.page.ReconfigurablePropertyType;
 import org.shaolin.bmdp.datamodel.page.ReconfigurableType;
 import org.shaolin.bmdp.datamodel.page.ResourceBundlePropertyType;
 import org.shaolin.bmdp.datamodel.page.StringPropertyType;
+import org.shaolin.bmdp.datamodel.page.UIBaiduMapType;
 import org.shaolin.bmdp.datamodel.page.UIBaseType;
 import org.shaolin.bmdp.datamodel.page.UIButtonType;
 import org.shaolin.bmdp.datamodel.page.UIChartType;
@@ -616,6 +617,10 @@ public class UIFormJSGenerator0 {
 		} else if (component instanceof UIMapType) {
 			out.write(" = new ");
 			out.print(JSConstants.MAP);
+			out.write("\n");
+		} else if (component instanceof UIBaiduMapType) {
+			out.write(" = new ");
+			out.print(JSConstants.BAIDUMAP);
 			out.write("\n");
 		} else if (component instanceof UIChartType) {
 			out.write(" = new ");

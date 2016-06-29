@@ -55,6 +55,9 @@ public class HTMLCustWidgetType extends HTMLWidgetType
 			if (this.getAttribute("init") != null) {
 				custWidget.addAttribute("expr", this.getAttribute("init"));
 			}
+			if (this.getAttributeMap() != null) {
+				custWidget.addAttribute(this.getAttributeMap());
+			}
 			custWidget.generateBeginHTML(context, ownerEntity, depth);
 		} catch (Exception e) {
 			logger.error("error generating ui the customized widget. in entity: " + getUIEntityName() +"."+ type, e);

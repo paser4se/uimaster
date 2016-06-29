@@ -30,6 +30,8 @@ public class JSConstants
     
     public static final String MAP = "UIMaster.ui.map";
     
+    public static final String BAIDUMAP = "UIMaster.ui.baidumap";
+    
     public static final String CHART = "UIMaster.ui.chart";
     
     public static final String FLOW = "UIMaster.ui.flow";

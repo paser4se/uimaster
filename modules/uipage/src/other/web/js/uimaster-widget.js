@@ -2886,6 +2886,7 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
 					var count = 0;
             		for (var i=0;i<actionButtons.length;i++) {
             			var b = actionButtons[i];
+						if ($(b).css("display") == "none") {continue;}
 						if ($(b).attr("disabled") == null || $(b).attr("disabled") == "false") {
 							buttonset[count++] = { text:b.value, 
 							    open:function(){if(IS_MOBILEVIEW){$(this).addClass('uimaster_button');}},
@@ -3041,6 +3042,15 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
 			   $(this).css("height", (screenHeight - 50) + "px");
 			   $(this).css("overflow-y", "scroll");
 		    }
+		});
+		bodies.resize(function(){
+		    bodies.children().each(function(){
+			var screenHeight = MobileAppMode?_mobContext.getScreenHeight():$(window.top).height();
+            if ($(this).height() > screenHeight) {
+			   $(this).css("height", (screenHeight - 50) + "px");
+			   $(this).css("overflow-y", "scroll");
+		    }
+			});
 		});
 		if (this.subComponents != null) {
 		    for (var i=0;i<this.subComponents.length;i++) {
@@ -3229,6 +3239,15 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 				$(this).css("overflow-y", "scroll");
 			}
 		});
+		this.bodyContainer.resize(function(){
+		    othis.bodyContainer.children().each(function(){
+			var screenHeight = MobileAppMode?_mobContext.getScreenHeight():$(window.top).height();
+			if ($(this).height() > screenHeight) {
+				$(this).css("height", (screenHeight - 50) + "px");
+				$(this).css("overflow-y", "scroll");
+			}
+			});
+		});
 		
 		var btns = $($(s).children()[2]).children();
 		$(btns[0]).click(function(){
@@ -3396,7 +3415,7 @@ UIMaster.ui.matrix=UIMaster.extend(UIMaster.ui,{
 		});
     }
 });
-UIMaster.ui.map=UIMaster.extend(UIMaster.ui,{
+UIMaster.ui.baidumap=UIMaster.extend(UIMaster.ui,{
     map:null,
     init:function() {
 	    this.map = new BMap.Map(this.id);

@@ -567,6 +567,11 @@ in simple component mapping, the paramName is required</xs:documentation>
             <xs:extension base="Page:UIComponentType"/>
         </xs:complexContent>
     </xs:complexType>
+    <xs:complexType name="UIBaiduMapType">
+        <xs:complexContent>
+            <xs:extension base="Page:UIComponentType"/>
+        </xs:complexContent>
+    </xs:complexType>
     <xs:complexType name="UIWebMenuType">
         <xs:complexContent>
             <xs:extension base="Page:UIComponentType"/>

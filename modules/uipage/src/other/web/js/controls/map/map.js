@@ -319,3 +319,81 @@
 		return data.SVGMap;
 	};
 }(window, jQuery);
+UIMaster.ui.map=UIMaster.extend(UIMaster.ui,{
+    initialize:false,
+    data:null, 
+	clickevent:null,
+	stateColorList: ['003399', '0058B0', '0071E1', '1C8DFF', '51A8FF', '82C0FF', 'AAD5ee', 'AAD5FF'],
+    init:function() {
+	    if (this.initialize) {return;}
+		this.initialize=true;
+	    this.data = eval('(' +$($(this).children()[0]).text() + ')'); 
+		this.clickevent = $(this).attr("event");
+	    var mapControl = $(this).children()[1];
+	    var i = 1;
+		for(k in this.data){
+			if(i <= 12){
+				var _cls = i < 4 ? 'active' : ''; 
+				$($(mapControl).children()[0]).append('<li name="'+k+'"><div class="uimster_mapInfo"><i class="'+_cls+'">'+(i++)+'</i><span>'+chinaMapConfig.names[k]+'</span><b>('+this.data[k].value+')</b></div></li>');
+			}else if(i <= 24){
+				$($(mapControl).children()[1]).append('<li name="'+k+'"><div class="uimster_mapInfo"><i>'+(i++)+'</i><span>'+chinaMapConfig.names[k]+'</span><b>('+this.data[k].value+')</b></div></li>');
+			}else{
+				$($(mapControl).children()[2]).append('<li name="'+k+'"><div class="uimster_mapInfo"><i>'+(i++)+'</i><span>'+chinaMapConfig.names[k]+'</span><b>('+this.data[k].value+')</b></div></li>');
+			}
+		}
+
+		var mapObj_1 = {};
+		var othis = this;
+		$($(this).children()[2]).SVGMap({
+			external: mapObj_1,
+			mapName: 'china',
+			mapWidth: 600,
+			mapHeight: 500,
+			stateData: this.data,
+			// stateTipWidth: 118,
+			// stateTipHeight: 47,
+			// stateTipX: 2,
+			// stateTipY: 0,
+			stateTipHtml: function (mapData, obj) {
+			    if (mapData[obj.id] == undefined) {
+				   return;
+				}
+				var _value = mapData[obj.id].value;
+				var _idx = mapData[obj.id].index;
+				var active = '';
+				_idx < 4 ? active = 'active' : active = '';
+				var tipStr = '<div class="uimster_mapInfo"><i class="' + active + '">' + _idx + '</i><span>' + obj.name + '</span><b>(' + _value + ')</b></div>';
+				return tipStr;
+			},
+			clickCallback: function(mapData, obj) {
+			  UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(othis),_valueName:"selectedNode",
+								  _value:obj.id,_framePrefix:UIMaster.getFramePrefix(othis)});
+			  eval(othis.clickevent);
+			}
+		});
+		var stateTip = $('<div id="StateTip" class="uimaster_map_statetip"></div');
+		var lis = $(mapControl).find('li');
+		lis.hover(function () {
+			var thisName = $(this).attr('name');
+			var thisHtml = $(this).html();
+			$(lis).removeClass('select');
+			$(this).addClass('select');
+			$(document.body).append();
+			$(stateTip).css({
+				left: ($(mapObj_1[thisName].node).offset().left - 50),
+				top: ($(mapObj_1[thisName].node).offset().top - 40)
+			}).html(thisHtml).show();
+			mapObj_1[thisName].attr({fill: '#E99A4D'});
+		}, function () {
+			var thisName = $(this).attr('name');
+
+			$(stateTip).remove();
+			$(lis).removeClass('select');
+			mapObj_1[$(this).attr('name')].attr({
+				fill: "#" + othis.stateColorList[othis.data[$(this).attr('name')].stateInitColor]
+			});
+		});
+		
+		$($(this).children()[3]).show();
+    }
+});
