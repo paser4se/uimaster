@@ -996,6 +996,11 @@ in simple component mapping, the paramName is required</xs:documentation>
             <xs:extension base="Page:EventListenerType"/>
         </xs:complexContent>
     </xs:complexType>
+    <xs:complexType name="BlurListenerType">
+        <xs:complexContent>
+            <xs:extension base="Page:EventListenerType"/>
+        </xs:complexContent>
+    </xs:complexType>
     <xs:complexType name="CustomListenerType">
         <xs:complexContent>
             <xs:extension base="Page:EventListenerType">

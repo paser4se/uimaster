@@ -1519,6 +1519,10 @@ public class UIFormObject implements java.io.Serializable
         {
             eventName = "onchange";
         }
+        else if ("BlurListenerType".equals(event))
+        {
+            eventName = "onblur";
+        }
         else
         {
             eventName = event;
