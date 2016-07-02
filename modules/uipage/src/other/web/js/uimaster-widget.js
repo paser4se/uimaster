@@ -1749,18 +1749,26 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 		this.intialized = true;
 		if (this.tagName.toLowerCase() == "div") {
 		    var t = this;
-		    var opts;
-			if (this.mobheight == -1) {
-				opts = {mode: this.mode, hideThumbnailsOnInit: this.hideThumbnailsOnInit,
-                        afterLoadPhoto: function(image) {t.clickImage(image);}};
+			if(IS_MOBILEVIEW) {$(this).height(this.mobheight);};
+		    var opts = {nextButton: '.swiper-button-next',prevButton: '.swiper-button-prev',spaceBetween:10,
+			            pagination: '.swiper-pagination', paginationClickable: true, mousewheelControl: true,
+			            afterLoadPhoto: function(image) {t.clickImage(image);}};
+			if (this.thumbnails){
+			   var thum = $(this).clone().removeAttr("id").removeAttr("style").css("height","50px");
+			   thum.appendTo($(this).parent());
+			   thum.addClass("gallery-thumbs");
+			   $(this).addClass("gallery-top");
+			   this.galleryTop = new Swiper($(this), opts);
+			   this.galleryThumbs = new Swiper('.gallery-thumbs', {
+					spaceBetween: 10, centeredSlides: true,
+					slidesPerView: 'auto', touchRatio: 0.2,
+					slideToClickedSlide: true
+			   });
+			   this.galleryTop.params.control = this.galleryThumbs;
+			   this.galleryThumbs.params.control = this.galleryTop;
 			} else {
-				opts = {height:IS_MOBILEVIEW?this.mobheight:this.height,width:(IS_MOBILEVIEW?"100%":this.width),
-				        mode: this.mode, hideThumbnailsOnInit: this.hideThumbnailsOnInit, 
-						slideshow: this.slideshow, slideshowAutostart: this.slideshowAutostart,
-						afterLoadPhoto: function(image) {t.clickImage(image);}};
+			   this.galleryTop = new Swiper($(this), opts);
 			}
-			//performance issue solved by delay loading instead
-			setTimeout(function(){try {$(t).jGallery(opts);} catch (e){console.log(e);}},200);
 		}
 		if (this.captureScreen) {
 		    $($(this).next()).click(function(){
@@ -1812,7 +1820,6 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 	  }).open();
 	},
 	refresh:function(newContent){
-	   $(this).jGallery().destroy();
 	   $(this).children().each(function(){$(this).remove()});
 	   $(decodeHTML(newContent)).appendTo($(this));
 	   this.intialized = false;

@@ -62,68 +62,53 @@ public class HTMLImageType extends HTMLTextWidgetType
     			if (context.getRequest().getAttribute("_hasGallery") == null) {
     				context.getRequest().setAttribute("_hasGallery", Boolean.TRUE);
 		            HTMLUtil.generateTab(context, depth);
-		            context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/font-awesome.min.css\" type=\"text/css\">");
+		            context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/js/controls/swiper/swiper.css\" type=\"text/css\">");
 		            HTMLUtil.generateTab(context, depth);
-		            context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/css/jsgallery/jgallery.min.css?v=1.5.0\" type=\"text/css\">");
-		            HTMLUtil.generateTab(context, depth);
-		        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/jgallery.js\"></script>");
-		        	HTMLUtil.generateTab(context, depth);
-		        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/touchswipe.js\"></script>");
-		        	HTMLUtil.generateTab(context, depth);
-		        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsgallery/tinycolor-0.9.16.min.js\"></script>");
-		        	HTMLUtil.generateTab(context, depth);
+		            context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/swiper/swiper.jquery.js\"></script>");
     			}
 	        	context.generateHTML("<div id=\"");
 	        	context.generateHTML(getName());
-	            context.generateHTML("\" style=\"display:none;\">");
+	            context.generateHTML("\" class=\"swiper-container\">");
 	            
 	            HTMLUtil.generateTab(context, depth + 1);
+	            context.generateHTML("<div class=\"swiper-wrapper\">");
 	            String path = this.getValue();
 	            if (path != null && !path.trim().isEmpty()) {
 		            if (path.indexOf(";") != -1) {
+		            	HTMLUtil.generateTab(context, depth + 1);
 		            	String[] images = path.split(";");
 		            	for (String i : images) {
 		            		String item = imageRoot + "/" +  i;
-		            		context.generateHTML("<a href=\"" + item + "\"><img src=\"" + item + "\"/></a>");
+		            		context.generateHTML("<span class=\"swiper-slide\"><img src=\"" + item + "\" alt=\""+i+"\"/></span>");
+		            		HTMLUtil.generateTab(context, depth + 2);
 		            	}
 		            } else {
 			            File directory = new File(WebConfig.getResourcePath() + path);
-			            int dirCounter = 0;
 			            if (directory.exists()) {
 			            	String[] images = directory.list();
-			            	for (String i : images) {
-			            		File f = new File(directory, i);
-			            		if (f.isDirectory()) {
-			            			dirCounter ++;
-			            		}
-			            	}
-			            }
-			            if (directory.exists()) {
-			            	String[] images = directory.list();
-			            	if (dirCounter > 0) {
-			            		context.generateHTML("<div class=\"album\" data-jgallery-album-title=\""+directory.getName()+"\">");
-			            	}
 			            	for (String i : images) {
 			            		File f = new File(directory, i);
 			            		if (f.isFile()) {
 				            		String item = imageRoot + path + "/" +  i;
-				            		context.generateHTML("<a href=\""+ item +"\"><img src=\""+ item +"\" alt=\""+i+"\"/></a>");
+				            		context.generateHTML("<span class=\"swiper-slide\"><img src=\""+ item +"\" alt=\""+i+"\"/></span>");
+				            		HTMLUtil.generateTab(context, depth + 2);
 			            		}
 			            	}
-			            	if (dirCounter > 0) {
-			            		context.generateHTML("</div>");
-			            	}
-			            	for (String i : images) {
-			            		File f = new File(directory, i);
-			            		if (f.isDirectory()) {
-			            			genarateAblum(imageRoot + path + "/" + i, context, f);
-			            		}
-			            	}
+			            	// don't display sub folder.
+//			            	for (String i : images) {
+//			            		File f = new File(directory, i);
+//			            		if (f.isDirectory()) {
+//			            			genarateAblum(imageRoot + path + "/" + i, context, f);
+//			            		}
+//			            	}
 			            } else {
-			            	context.generateHTML("<a href=\"" + imageRoot + path + "\"><img src=\"" + imageRoot + path + "\"/></a>");
+			            	context.generateHTML("<span class=\"swiper-slide\"><img src=\"" + imageRoot + path + "\"/></span>");
+			            	HTMLUtil.generateTab(context, depth + 2);
 			            }
 		            }
 	            }
+	            HTMLUtil.generateTab(context, depth + 1);
+	            context.generateHTML("</div>");
 	            HTMLUtil.generateTab(context, depth);
 	            context.generateHTML("</div>");
         	} else {
