@@ -21,6 +21,8 @@ public class UserContext implements Serializable {
 	
 	String userLocale;
 	
+	String userLocation;
+	
 	String lastLoginDate;
 	
 	boolean isAdmin;
@@ -70,6 +72,14 @@ public class UserContext implements Serializable {
 		this.userAccount = userAccount;
 	}
 
+	public String getUserLocation() {
+		return userLocation;
+	}
+
+	public void setUserLocation(String userLocation) {
+		this.userLocation = userLocation;
+	}
+	
 	public String getLastLoginDate() {
 		return this.lastLoginDate;
 	}
