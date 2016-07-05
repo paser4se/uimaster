@@ -33,7 +33,7 @@ public class WorkflowValidator implements IEntityEventListener<Workflow, Diagram
 		ooeeContext.setDefaultParsingContext(pContext);
 		ooeeContext.setParsingContextObject(ODContext.LOCAL_TAG, pContext);
 		StringBuilder sb = new StringBuilder();
-		sb.append("import org.shaolin.bmdp.workflow.internal.cache.FlowObject;\n");
+		sb.append("\nimport org.shaolin.bmdp.workflow.internal.cache.FlowObject;\n");
 		sb.append("import org.shaolin.bmdp.workflow.internal.type.AppInfo;\n");
 		sb.append("import org.shaolin.bmdp.workflow.internal.FlowEngine;\n");
 		sb.append("import org.shaolin.bmdp.workflow.internal.FlowContainer;\n");

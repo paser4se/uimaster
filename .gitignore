@@ -13,5 +13,7 @@ hbm
 /modules/uipage/src/other/web/js/controls/jsplumb
 /modules/uipage/src/other/web/js/controls/bxslider
 /modules/uipage/src/other/web/js/controls/ckeditor
+/modules/workflow/src/main/java/org/shaolin/bmdp/workflow/ce
+/modules/workflow/src/main/java/org/shaolin/bmdp/workflow/be
 /modules/analyzer/src/main/java/org/shaolin/bmdp/analyzer/ce
 /modules/analyzer/src/main/java/org/shaolin/bmdp/analyzer/be

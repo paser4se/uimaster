@@ -83,7 +83,6 @@
 		</dependency>
 	</dependencies>
 
-    <!-- need manually compiling by enabling this plugin.
 	<build>
 		<plugins>
 			<plugin>
@@ -111,5 +110,5 @@
 			</plugin>
 		</plugins>
 	</build>
-	 -->
+	
 </project>
