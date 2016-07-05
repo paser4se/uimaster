@@ -17,13 +17,13 @@
                     import org.shaolin.bmdp.datamodel.flowdiagram.FlowChunk;
                     import java.lang.Math; 
                     {
-                    	Workflow wf = new Workflow();
-																					wf.setEntityName("NewWorkflow_" + (int)(Math.random() * 100));
-																					wf.setDescription(wf.getEntityName());
-																					ConfType conf = new ConfType();
-																					wf.setConf(conf);
+                   	Workflow wf = new Workflow();
+					wf.setEntityName("NewWorkflow_" + (int)(Math.random() * 100));
+					wf.setDescription(wf.getEntityName());
+					ConfType conf = new ConfType();
+					wf.setConf(conf);
 																					
-                    	HashMap input = new HashMap();
+                    HashMap input = new HashMap();
                      input.put("beObject", wf);
                      input.put("parentUiid", "flowDiagram");
                      input.put("editable", new Boolean(true));

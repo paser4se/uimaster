@@ -28,12 +28,17 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
         ui: elementList[prefix + "isAbcUI"]
     });
 
-    var sentPartyNameUI = new UIMaster.ui.textfield
+    var sessionIdUI = new UIMaster.ui.hidden
+    ({
+        ui: elementList[prefix + "sessionIdUI"]
+    });
+
+    var sentPartyNameUI = new UIMaster.ui.label
     ({
         ui: elementList[prefix + "sentPartyNameUI"]
     });
 
-    var receivedPartyNameUI = new UIMaster.ui.textfield
+    var receivedPartyNameUI = new UIMaster.ui.label
     ({
         ui: elementList[prefix + "receivedPartyNameUI"]
     });
@@ -41,6 +46,9 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
     var messageUI = new UIMaster.ui.textarea
     ({
         ui: elementList[prefix + "messageUI"]
+        ,rows: 20
+        ,cols: 90
+        ,height: "300px"
         ,hiddenToolbar: true
         ,persistable: false
     });
@@ -49,11 +57,17 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
     ({
         ui: elementList[prefix + "enterMessageUI"]
         ,persistable: false
+        ,height: "100px"
     });
 
     var okbtn = new UIMaster.ui.button
     ({
         ui: elementList[prefix + "okbtn"]
+    });
+
+    var clearbtn = new UIMaster.ui.button
+    ({
+        ui: elementList[prefix + "clearbtn"]
     });
 
     var cancelbtn = new UIMaster.ui.button
@@ -65,7 +79,7 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
     ({
         ui: elementList[prefix + "actionPanel"]
         ,items: []
-        ,subComponents: [prefix + "okbtn",prefix + "cancelbtn"]
+        ,subComponents: [prefix + "okbtn",prefix + "clearbtn",prefix + "cancelbtn"]
     });
 
     var topPanel = new UIMaster.ui.panel
@@ -85,7 +99,7 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
     var Form = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "Form"]
-        ,items: [taskIdUI,orgIdUI,sentPartyIdUI,receivedPartyIdUI,isAbcUI,sentPartyNameUI,receivedPartyNameUI,messageUI,enterMessageUI,okbtn,cancelbtn,fieldPanel,topPanel,actionPanel]
+        ,items: [taskIdUI,orgIdUI,sentPartyIdUI,receivedPartyIdUI,isAbcUI,sessionIdUI,sentPartyNameUI,receivedPartyNameUI,messageUI,enterMessageUI,okbtn,clearbtn,cancelbtn,fieldPanel,topPanel,actionPanel]
     });
 
     Form.taskIdUI=taskIdUI;
@@ -98,6 +112,8 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
 
     Form.isAbcUI=isAbcUI;
 
+    Form.sessionIdUI=sessionIdUI;
+
     Form.sentPartyNameUI=sentPartyNameUI;
 
     Form.receivedPartyNameUI=receivedPartyNameUI;
@@ -107,6 +123,8 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
     Form.enterMessageUI=enterMessageUI;
 
     Form.okbtn=okbtn;
+
+    Form.clearbtn=clearbtn;
 
     Form.cancelbtn=cancelbtn;
 
@@ -132,6 +150,8 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
 
     Form.okbtn=okbtn;
 
+    Form.clearbtn=clearbtn;
+
     Form.cancelbtn=cancelbtn;
 
     Form.user_constructor = function()
@@ -139,20 +159,28 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
         /* Construct_FIRST:org_shaolin_bmdp_workflow_form_ChatWindow */
 
         
+       var a
        var isAbc = this.isAbcUI.value;
+       var sessionId = this.sessionIdUI.value;
+       if (sessionId == null || sessionId == "null") {
+           sessionId = "";
+       }
        var partyId = this.sentPartyIdUI.value;
        var fromPartyId = this.sentPartyIdUI.value;
        var toPartyId = this.receivedPartyIdUI.value;
        var msgContainer = this.messageUI;
        this.chat = establishWebsocket("/wschart", 
          function(ws,e){
-            var msg = {action: "register", partyId: partyId, isAbc: isAbc};
+            var msg = {action: "register", partyId: partyId, isAbc: isAbc, sessionId: sessionId};
             ws.send(JSON.stringify(msg));
-            var msg = {action: "history", fromPartyId: fromPartyId, toPartyId: toPartyId};
+            var msg = {action: "history", fromPartyId: fromPartyId, toPartyId: toPartyId, sessionId: sessionId};
             ws.send(JSON.stringify(msg));
          },
          function(ws,e){
             if (e.data == "_register_confirmed") {
+               return;
+            } else if (e.data == "_register_failed") {
+               $(this.enterMessageUI).attr("disabled", "disabled");
                return;
             }
             msgContainer.appendHTMLText(e.data);
@@ -166,6 +194,8 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
     };
 
     Form.Send = org_shaolin_bmdp_workflow_form_ChatWindow_Send;
+
+    Form.ClearMessage = org_shaolin_bmdp_workflow_form_ChatWindow_ClearMessage;
 
     Form.Cancel = org_shaolin_bmdp_workflow_form_ChatWindow_Cancel;
 
@@ -187,15 +217,50 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
         var UIEntity = this;
 
         { 
+            var message = this.enterMessageUI.getHTMLText();
+            if (message.trim() == "") {
+                return;
+            }
+            var sessionId = this.sessionIdUI.value;
+            if (sessionId == null || sessionId == "null") {
+	           sessionId = "";
+	        }
             var partyId = this.sentPartyIdUI.value;
 	        var fromPartyId = this.sentPartyIdUI.value;
 	        var toPartyId = this.receivedPartyIdUI.value;
 	        var orgId = this.orgIdUI.value;
-            var msg = {action: "chating", taskId: 0, orgId: orgId, fromPartyId: fromPartyId, 
-                       toPartyId: toPartyId, content: this.enterMessageUI.getHTMLText()};
+            var msg = {action: "chating", taskId: 0, orgId: orgId, sessionId: sessionId, fromPartyId: fromPartyId, 
+                       toPartyId: toPartyId, content: this.sentPartyNameUI.value+" >>: "+message};
             this.chat.send(JSON.stringify(msg));
             this.enterMessageUI.clearHTMLText();
         }    }/* Gen_Last:org_shaolin_bmdp_workflow_form_ChatWindow_Send */
+
+
+    /* auto generated eventlistener function declaration */
+    function org_shaolin_bmdp_workflow_form_ChatWindow_ClearMessage(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_ChatWindow_ClearMessage */
+        var o = this;
+        var UIEntity = this;
+
+         if(true){
+          new UIMaster.ui.dialog({
+              dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,
+              message:'Are you sure remove all messages?',
+              messageType:UIMaster.ui.dialog.Warning,
+              optionType:UIMaster.ui.dialog.YES_NO_OPTION,
+              title:'\u5220\u9664\u8282\u70B9?',
+              height:150,
+              width:300,
+              handler: function() {
+                 UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"clearMessage-20160305-063830",UIMaster.getValue(eventsource),o.__entityName);
+              }
+          }).open();
+          return;
+         }
+         
+        // cal ajax function. 
+
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"clearMessage-20160305-063830",UIMaster.getValue(eventsource),o.__entityName);
+    }/* Gen_Last:org_shaolin_bmdp_workflow_form_ChatWindow_ClearMessage */
 
 
     /* auto generated eventlistener function declaration */
@@ -219,7 +284,7 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
         var o = this;
         var UIEntity = this;
 
-        new UIMaster.ui.dialog({dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,message:'Continue?',messageType:UIMaster.ui.dialog.Warning,optionType:UIMaster.ui.dialog.YES_NO_OPTION,title:'',height:150,width:300,handler: function() {
+        new UIMaster.ui.dialog({dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,message:'Are you sure continuing? ^_^',messageType:UIMaster.ui.dialog.Warning,optionType:UIMaster.ui.dialog.YES_NO_OPTION,title:'',height:150,width:300,handler: function() {
 
         // cal ajax function. 
 

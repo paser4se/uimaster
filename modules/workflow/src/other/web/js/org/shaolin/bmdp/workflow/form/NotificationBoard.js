@@ -61,7 +61,11 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
        var msgContainer = this.messagePanel;
        var countUIId = this.countUIId.value;
        this.msgCounter = 0;
-       this.realCounter = $("<span style='color:blue;font-weight:bold;margin-left:-25px;'></span>");
+       if (IS_MOBILEVIEW) {
+          this.realCounter = $("<span style='color:blue;font-weight:bold;margin-left:-25px;'></span>");
+       } else {
+          this.realCounter = $("<span style='color:blue;font-weight:bold;margin-left:-55px;'></span>");
+       }
        $("#"+countUIId).append(this.realCounter);
        var o = this;
        this.chat = establishWebsocket("/wsnotificator", 
@@ -135,7 +139,7 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
         var o = this;
         var UIEntity = this;
 
-        new UIMaster.ui.dialog({dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,message:'Continue?',messageType:UIMaster.ui.dialog.Warning,optionType:UIMaster.ui.dialog.YES_NO_OPTION,title:'',height:150,width:300,handler: function() {
+        new UIMaster.ui.dialog({dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,message:'Are you sure continuing? ^_^',messageType:UIMaster.ui.dialog.Warning,optionType:UIMaster.ui.dialog.YES_NO_OPTION,title:'',height:150,width:300,handler: function() {
 
         // cal ajax function. 
 

@@ -222,6 +222,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		return null;
 	}
 	
+	@Override
 	public String getSessionId(long taskId) {
 		if (taskId == 0) {
 			return "";
@@ -241,6 +242,20 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 			return list.get(0).getSessionId();
 		}
 		throw new IllegalArgumentException("Session Id can't be found by this task id: " + taskId);
+	}
+	
+	@Override
+	public boolean isSessionEnded(String sessionId) {
+		TaskHistoryImpl historyCriteria = new TaskHistoryImpl();
+		historyCriteria.setSessionId(sessionId);
+		List<ITaskHistory> list = CoordinatorModel.INSTANCE.searchTasksHistory(historyCriteria, null, 0, -1);
+		for (ITaskHistory item : list) {
+			if (ICoordinatorService.END_SESSION_NODE_NAME.equals(item.getExecutedNode()) 
+					&& item.getTaskId() == -1 && item.getStatus() == TaskStatusType.COMPLETED) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	@Override

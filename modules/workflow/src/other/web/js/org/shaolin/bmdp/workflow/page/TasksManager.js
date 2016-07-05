@@ -39,11 +39,15 @@ function org_shaolin_bmdp_workflow_page_TasksManager(json)
     var currentTasksPie = new UIMaster.ui.chart
     ({
         ui: elementList[prefix + "currentTasksPie"]
+        ,width: 250
+        ,height: 250
     });
 
     var historyTasksPie = new UIMaster.ui.chart
     ({
         ui: elementList[prefix + "historyTasksPie"]
+        ,width: 250
+        ,height: 250
     });
 
     var firstPanel = new UIMaster.ui.panel
@@ -55,6 +59,9 @@ function org_shaolin_bmdp_workflow_page_TasksManager(json)
     var historyTasksRadar = new UIMaster.ui.chart
     ({
         ui: elementList[prefix + "historyTasksRadar"]
+        ,width: 600
+        ,height: 400
+        ,dataType: "date"
     });
 
     var tasksAnalysisPanel = new UIMaster.ui.panel

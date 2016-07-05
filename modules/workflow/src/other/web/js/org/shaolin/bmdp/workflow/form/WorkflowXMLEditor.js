@@ -16,6 +16,8 @@ function org_shaolin_bmdp_workflow_form_WorkflowXMLEditor(json)
     var xmlContentUI = new UIMaster.ui.textarea
     ({
         ui: elementList[prefix + "xmlContentUI"]
+        ,rows: 20
+        ,cols: 90
     });
 
     var okbtn = new UIMaster.ui.button
@@ -121,7 +123,7 @@ function org_shaolin_bmdp_workflow_form_WorkflowXMLEditor(json)
         var o = this;
         var UIEntity = this;
 
-        new UIMaster.ui.dialog({dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,message:'Continue?',messageType:UIMaster.ui.dialog.Warning,optionType:UIMaster.ui.dialog.YES_NO_OPTION,title:'',height:150,width:300,handler: function() {
+        new UIMaster.ui.dialog({dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,message:'Are you sure continuing? ^_^',messageType:UIMaster.ui.dialog.Warning,optionType:UIMaster.ui.dialog.YES_NO_OPTION,title:'',height:150,width:300,handler: function() {
 
         // cal ajax function. 
 

@@ -233,6 +233,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
             if (scFlow.getCreateDate() != null) {
                 inFlowCriteria.add(createCriterion(Operator.GREATER_THAN_OR_EQUALS, "inFlow.createDate", scFlow.getCreateDate()));
             }
+            if (scFlow.getSessionId() != null && scFlow.getSessionId().length() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sessionId", scFlow.getSessionId()));
+            }
 
         inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
 
@@ -248,6 +251,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
             }
             if (scFlow.getCreateDate() != null) {
                 inFlowCriteria.add(createCriterion(Operator.GREATER_THAN_OR_EQUALS, "inFlow.createDate", scFlow.getCreateDate()));
+            }
+            if (scFlow.getSessionId() != null && scFlow.getSessionId().length() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sessionId", scFlow.getSessionId()));
             }
 
         inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
@@ -272,6 +278,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
             if (scFlow.getReceivedPartyId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.receivedPartyId", scFlow.getReceivedPartyId()));
             }
+            if (scFlow.getSessionId() != null && scFlow.getSessionId().length() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sessionId", scFlow.getSessionId()));
+            }
 
         inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
 
@@ -290,6 +299,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
             }
             if (scFlow.getReceivedPartyId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.receivedPartyId", scFlow.getReceivedPartyId()));
+            }
+            if (scFlow.getSessionId() != null && scFlow.getSessionId().length() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sessionId", scFlow.getSessionId()));
             }
 
         inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));

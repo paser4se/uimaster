@@ -34,6 +34,7 @@ import javax.websocket.server.ServerEndpoint;
 import org.hibernate.criterion.Order;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.be.IPersistentEntity;
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.workflow.be.ChatHistoryImpl;
 import org.shaolin.bmdp.workflow.be.IChatHistory;
@@ -93,22 +94,26 @@ public class ChatService {
 			String action = data.getString("action");
 			
 			if ("register".equals(action)) {
-				session.getUserProperties().put("partyId", data.getLong("partyId"));
-				if (data.has("isAbc") && data.getBoolean("isAbc") == Boolean.TRUE) {//is admin
-					session.getUserProperties().put("admin", data.getBoolean("isAbc"));
+				if (UserContext.isOnlineUser(data.getLong("partyId"))) {
+					session.getUserProperties().put("partyId", data.getLong("partyId"));
+					if (data.has("isAbc") && data.getBoolean("isAbc") == Boolean.TRUE) {//is admin
+						session.getUserProperties().put("admin", data.getBoolean("isAbc"));
+					}
+					session.getBasicRemote().sendText("_register_confirmed");
+					//query for leaving words.
+					ChatHistoryImpl condition = new ChatHistoryImpl();
+					condition.setReceivedPartyId(data.getLong("partyId"));
+					if (data.has("sessionId")) {
+						condition.setSessionId(data.getString("sessionId"));
+					}
+					List<IChatHistory> result = CoordinatorModel.INSTANCE.searchChatHistory(condition, null, 0, -1);
+					for (IChatHistory item : result) {
+						send(item, session);
+					}
+				} else {
+					session.getBasicRemote().sendText("_register_failed");
+					throw new IllegalStateException("User offline!");
 				}
-				session.getBasicRemote().sendText("_register_confirmed");
-				
-				//query for leaving words.
-				ChatHistoryImpl condition = new ChatHistoryImpl();
-				condition.setReceivedPartyId(data.getLong("partyId"));
-				List<IPersistentEntity> perItem = new ArrayList<IPersistentEntity>();
-				List<IChatHistory> result = CoordinatorModel.INSTANCE.searchChatHistory(condition, null, 0, -1);
-				for (IChatHistory item : result) {
-					send(item, session);
-					perItem.add(item);
-				}
-				CoordinatorModel.INSTANCE.batchDelete(perItem, true);
 			} else if ("chating".equals(action)) {
 				Long taskId = data.getLong("taskId");
 				Long orgId = data.getLong("orgId");
@@ -158,15 +163,23 @@ public class ChatService {
 					item.setReceivedPartyId(toId);
 					item.setMessage(message);
 					item.setRead(false);
+					String sessionId = "";
+					if (data.has("sessionId")) {
+						sessionId = data.getString("sessionId");
+						item.setSessionId(sessionId);
+					}
 					CoordinatorModel.INSTANCE.create(item, true);
 					
 					//send notification
 					NotificationImpl notifier = new NotificationImpl();
 					notifier.setSubject("\u60A8\u6709\u65B0\u7684\u6D88\u606F!");
-					notifier.setDescription("<span>"+message+"</span><button onclick=\"javascript:defaultname.showHelp(defaultname.helpIcon,'"+fromId+"');\">\u9A6C\u4E0A\u8054\u7CFB</button>");
+					notifier.setDescription("<div><span>"+message+"</span><button onclick=\"javascript:defaultname.showHelp(defaultname.helpIcon,'"+fromId+"','"+sessionId+"');\">\u9A6C\u4E0A\u8054\u7CFB</button></div>");
 					notifier.setPartyId(toId);
 					notifier.setRead(false);
+					notifier.setSessionId(sessionId);
 					CoordinatorModel.INSTANCE.create(notifier, true);
+				} else {
+					
 				}
 				
 			} else if ("history".equals(action)) {
@@ -175,8 +188,12 @@ public class ChatService {
 				
 				ChatHistoryImpl condition = new ChatHistoryImpl();
 				condition.setEnabled(true);
-				condition.setSentPartyId(fromId);
-				condition.setReceivedPartyId(toId);
+				condition.setSentPartyId(toId);
+				condition.setReceivedPartyId(fromId);
+				if (data.has("sessionId")) {
+					condition.setSessionId(data.getString("sessionId"));
+				}
+				
 				ArrayList<Order> orders = new ArrayList<Order>();
 				orders.add(Order.asc("createDate"));
 				List<IChatHistory> result = CoordinatorModel.INSTANCE.searchChatHistory(condition, orders, 0, -1);
@@ -189,6 +206,10 @@ public class ChatService {
 				ChatHistoryImpl condition = new ChatHistoryImpl();
 				condition.setEnabled(true);
 				condition.setSentPartyId(fromId);
+				if (data.has("sessionId")) {
+					condition.setSessionId(data.getString("sessionId"));
+				}
+				
 				ArrayList<Order> orders = new ArrayList<Order>();
 				orders.add(Order.asc("createDate"));
 				List<IChatHistory> result = CoordinatorModel.INSTANCE.searchChatHistory(condition, orders, 0, -1);
@@ -202,25 +223,58 @@ public class ChatService {
 	}
 
 	public void send(String message, Session s) throws IOException {
+		if (!checkSendPolicy(s)) {
+			return;
+		}
 		String date;
 		try {
 			date = FormatUtil.convertDataToUI(FormatUtil.DATE_TIME, (new Date()), null, null);
 		} catch (FormatException e) {
 			date = (new Date()).toString();
 		}
-		s.getBasicRemote().sendText("<div class=\"uimaster_chat_item_to\"><div class=\"uimaster_chat_time\">["
-				 + date + "]:</div><div class=\"uimaster_chat_message\">" + message + "</div><div>");
+		//ck format started from p tag.
+		s.getBasicRemote().sendText("<p class=\"uimaster_chat_item_to "+calculateBGStyle(s)+"\"><label class=\"uimaster_chat_time\">["
+				 + date + "]</label><label class=\"uimaster_chat_message\"> " + message + "</label><p>");
 	}
 	
 	public void send(IChatHistory item, Session s) throws IOException {
+		if (!checkSendPolicy(s)) {
+			return;
+		}
 		String date;
 		try {
 			date = FormatUtil.convertDataToUI(FormatUtil.DATE_TIME, (item.getCreateDate()), null, null);
 		} catch (FormatException e) {
 			date = (new Date()).toString();
 		}
-		s.getBasicRemote().sendText("<div class=\"uimaster_chat_item_to\"><div class=\"uimaster_chat_time\">["
-				 + date + "]:</div><div class=\"uimaster_chat_message\">" + item.getMessage() + "</div><div>");
+		//ck format started from p tag.
+		s.getBasicRemote().sendText("<p class=\"uimaster_chat_item_to "+calculateBGStyle(s)+"\"><label class=\"uimaster_chat_time\">["
+				 + date + "]</label><label class=\"uimaster_chat_message\"> " + item.getMessage() + "</label><p>");
+	}
+
+	public boolean checkSendPolicy(Session s) {
+		if (s.getUserProperties().containsKey("sendTime")) {
+			long lastTime = (Long)s.getUserProperties().get("sendTime");
+			long rate = (System.currentTimeMillis() - lastTime);
+			if (rate <= 500) {// 2 messages per second. too frequently.
+				s.getUserProperties().put("sendTime", System.currentTimeMillis());
+				return false; 
+			}
+		} 
+		s.getUserProperties().put("sendTime", System.currentTimeMillis());
+		return true;
+	}
+	
+	private String calculateBGStyle(Session s) {
+		String backgroundStyle;
+		if (s.getUserProperties().containsKey("isodd")) {
+			s.getUserProperties().remove("isodd");
+			backgroundStyle = "uimaster_chat_item_even";
+		} else {
+			backgroundStyle = "uimaster_chat_item_old";
+			s.getUserProperties().put("isodd",1);
+		}
+		return backgroundStyle;
 	}
 	
 }

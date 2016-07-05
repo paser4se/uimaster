@@ -285,5 +285,18 @@ public class UserContext implements Serializable {
 			andriodAppDevice.set(null);
 		}
 	}
+	
+	private static OnlineUserChecker checker;
+	
+	public static void setOnlineUserChecker(OnlineUserChecker checker0) {
+		checker = checker0;
+	}
+	
+	public static boolean isOnlineUser(long userId) {
+		return checker != null && checker.isOnline(userId);
+	}
 
+	public interface OnlineUserChecker {
+		boolean isOnline(long userId);
+	}
 }

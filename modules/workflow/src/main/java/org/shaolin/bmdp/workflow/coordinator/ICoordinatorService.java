@@ -58,6 +58,8 @@ public interface ICoordinatorService {
 	
 	String getSessionId(long taskId);
 	
+	boolean isSessionEnded(String sessionId);
+	
 	/**
 	 * How many tasks that the organization/company is running.
 	 * 

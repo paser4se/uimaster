@@ -6,15 +6,53 @@
     <ns2:ops xsi:type="ns2:OpExecuteScriptType" name="aaa">
         <expressionString><![CDATA[
         { 
+            var message = this.enterMessageUI.getHTMLText();
+            if (message.trim() == "") {
+                return;
+            }
+            var sessionId = this.sessionIdUI.value;
+            if (sessionId == null || sessionId == "null") {
+	           sessionId = "";
+	        }
             var partyId = this.sentPartyIdUI.value;
 	        var fromPartyId = this.sentPartyIdUI.value;
 	        var toPartyId = this.receivedPartyIdUI.value;
 	        var orgId = this.orgIdUI.value;
-            var msg = {action: "chating", taskId: 0, orgId: orgId, fromPartyId: fromPartyId, 
-                       toPartyId: toPartyId, content: this.enterMessageUI.getHTMLText()};
+            var msg = {action: "chating", taskId: 0, orgId: orgId, sessionId: sessionId, fromPartyId: fromPartyId, 
+                       toPartyId: toPartyId, content: this.sentPartyNameUI.value+" >>: "+message};
             this.chat.send(JSON.stringify(msg));
             this.enterMessageUI.clearHTMLText();
         }]]></expressionString>
+    </ns2:ops>
+  </ns2:eventHandler>
+  <ns2:eventHandler functionName="ClearMessage">
+    <ns2:ops xsi:type="ns2:OpExecuteScriptType">
+         <ns2:expressionString><![CDATA[
+         if(true){
+          new UIMaster.ui.dialog({
+              dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,
+              message:'Are you sure remove all messages?',
+              messageType:UIMaster.ui.dialog.Warning,
+              optionType:UIMaster.ui.dialog.YES_NO_OPTION,
+              title:'\u5220\u9664\u8282\u70B9?',
+              height:150,
+              width:300,
+              handler: function() {
+                 UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"clearMessage-20160305-063830",UIMaster.getValue(eventsource),o.__entityName);
+              }
+          }).open();
+          return;
+         }
+         ]]></ns2:expressionString>
+     </ns2:ops>
+    <ns2:ops xsi:type="ns2:OpCallAjaxType" name="clearMessage-20160305-063830">
+      <ns2:exp>
+        <expressionString><![CDATA[
+        import org.shaolin.uimaster.page.AjaxContext;
+        import org.shaolin.uimaster.page.ajax.*;
+        { 
+        }]]></expressionString>
+      </ns2:exp>
     </ns2:ops>
   </ns2:eventHandler>
   <ns2:eventHandler functionName="Cancel">
@@ -55,6 +93,8 @@
     </ns2:component>
     <ns2:component xsi:type="ns2:UIHiddenType" UIID="isAbcUI"><!-- is admin -->
     </ns2:component>
+    <ns2:component xsi:type="ns2:UIHiddenType" UIID="sessionIdUI"><!-- for orders tracking. -->
+    </ns2:component>
     <ns2:component xsi:type="ns2:UIPanelType" UIID="fieldPanel">
       <ns2:layout xsi:type="ns2:TableLayoutType">
         <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
@@ -68,12 +108,12 @@
 	        <ns2:columnWidthWeight>0.0</ns2:columnWidthWeight>
 	        <ns2:columnWidthWeight>0.0</ns2:columnWidthWeight>
 	      </ns2:layout>
-	      <ns2:component xsi:type="ns2:UITextFieldType" UIID="sentPartyNameUI">
+	      <ns2:component xsi:type="ns2:UILabelType" UIID="sentPartyNameUI">
 	        <ns2:widgetLabel xsi:type="ns2:StringPropertyType">
                 <ns2:value>发送者</ns2:value>
             </ns2:widgetLabel>
 	      </ns2:component>
-	      <ns2:component xsi:type="ns2:UITextFieldType" UIID="receivedPartyNameUI">
+	      <ns2:component xsi:type="ns2:UILabelType" UIID="receivedPartyNameUI">
 	        <ns2:widgetLabel xsi:type="ns2:StringPropertyType">
                 <ns2:value>接收者</ns2:value>
             </ns2:widgetLabel>
@@ -90,7 +130,7 @@
       <ns2:component xsi:type="ns2:UITextAreaType" UIID="messageUI">
         <ns2:UIStyle>uimaster_chat_area</ns2:UIStyle>
         <ns2:widgetLabel xsi:type="ns2:StringPropertyType">
-            <ns2:value>消息框</ns2:value>
+            <ns2:value>接收消息框：</ns2:value>
         </ns2:widgetLabel>
         <ns2:Property name="rows" >
             <ns2:value xsi:type="ns2:NumericPropertyType">
@@ -102,6 +142,11 @@
             <ns2:value xsi:type="ns2:NumericPropertyType">
 	            <type>int</type>
 	            <value>90</value>
+            </ns2:value>
+        </ns2:Property>
+        <ns2:Property name="height" >
+            <ns2:value xsi:type="ns2:StringPropertyType">
+                <value>300px</value>
             </ns2:value>
         </ns2:Property>
         <ns2:Property name="hiddenToolbar" >
@@ -121,7 +166,7 @@
       <ns2:component xsi:type="ns2:UITextAreaType" UIID="enterMessageUI">
         <ns2:UIStyle>uimaster_chat_area</ns2:UIStyle>
         <ns2:widgetLabel xsi:type="ns2:StringPropertyType">
-            <ns2:value>请输入消息</ns2:value>
+            <ns2:value>发送消息框：</ns2:value>
         </ns2:widgetLabel>
         <ns2:htmlSupport xsi:type="ns2:BooleanPropertyType">
             <value>true</value>
@@ -129,6 +174,11 @@
         <ns2:Property name="persistable" >
             <ns2:value xsi:type="ns2:BooleanPropertyType">
                 <value>false</value>
+            </ns2:value>
+        </ns2:Property>
+        <ns2:Property name="height" >
+            <ns2:value xsi:type="ns2:StringPropertyType">
+                <value>100px</value>
             </ns2:value>
         </ns2:Property>
       </ns2:component>
@@ -150,14 +200,28 @@
         <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
         <ns2:columnWidthWeight>0.0</ns2:columnWidthWeight>
         <ns2:columnWidthWeight>0.0</ns2:columnWidthWeight>
+        <ns2:columnWidthWeight>0.0</ns2:columnWidthWeight>
       </ns2:layout>
       <ns2:component xsi:type="ns2:UIButtonType" UIID="okbtn">
         <ns2:EventListener xsi:type="ns2:ClickListenerType">
           <ns2:handler functionName="Send"></ns2:handler>
         </ns2:EventListener>
+        <ns2:editable xsi:type="ns2:ExpressionPropertyType">
+          <ns2:expression>
+            <expressionString>{return $isEditable;}</expressionString>
+          </ns2:expression>
+        </ns2:editable>
         <ns2:text xsi:type="ns2:ResourceBundlePropertyType">
           <ns2:bundle>Common</ns2:bundle>
           <ns2:key>Sentbtn</ns2:key>
+        </ns2:text>
+      </ns2:component>
+      <ns2:component xsi:type="ns2:UIButtonType" UIID="clearbtn">
+        <ns2:EventListener xsi:type="ns2:ClickListenerType">
+          <ns2:handler functionName="ClearMessage"></ns2:handler>
+        </ns2:EventListener>
+        <ns2:text xsi:type="ns2:StringPropertyType">
+          <ns2:value>清空</ns2:value>
         </ns2:text>
       </ns2:component>
       <ns2:component xsi:type="ns2:UIButtonType" UIID="cancelbtn">
@@ -174,8 +238,12 @@
         <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="0" align="FULL"></ns2:constraint>
       </ns2:layoutConstraint>
       <ns2:layoutConstraint>
-        <ns2:componentId>cancelbtn</ns2:componentId>
+        <ns2:componentId>clearbtn</ns2:componentId>
         <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="1" y="0" align="FULL"></ns2:constraint>
+      </ns2:layoutConstraint>
+      <ns2:layoutConstraint>
+        <ns2:componentId>cancelbtn</ns2:componentId>
+        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="2" y="0" align="FULL"></ns2:constraint>
       </ns2:layoutConstraint>
     </ns2:component>
     <ns2:layoutConstraint>
@@ -187,20 +255,28 @@
       <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="1" align="FULL"></ns2:constraint>
     </ns2:layoutConstraint>
     <ns2:constructorCode><![CDATA[
+       var a
        var isAbc = this.isAbcUI.value;
+       var sessionId = this.sessionIdUI.value;
+       if (sessionId == null || sessionId == "null") {
+           sessionId = "";
+       }
        var partyId = this.sentPartyIdUI.value;
        var fromPartyId = this.sentPartyIdUI.value;
        var toPartyId = this.receivedPartyIdUI.value;
        var msgContainer = this.messageUI;
        this.chat = establishWebsocket("/wschart", 
          function(ws,e){
-            var msg = {action: "register", partyId: partyId, isAbc: isAbc};
+            var msg = {action: "register", partyId: partyId, isAbc: isAbc, sessionId: sessionId};
             ws.send(JSON.stringify(msg));
-            var msg = {action: "history", fromPartyId: fromPartyId, toPartyId: toPartyId};
+            var msg = {action: "history", fromPartyId: fromPartyId, toPartyId: toPartyId, sessionId: sessionId};
             ws.send(JSON.stringify(msg));
          },
          function(ws,e){
             if (e.data == "_register_confirmed") {
+               return;
+            } else if (e.data == "_register_failed") {
+               $(this.enterMessageUI).attr("disabled", "disabled");
                return;
             }
             msgContainer.appendHTMLText(e.data);
@@ -218,6 +294,9 @@
     </ns2:DataEntity>
     <ns2:DataEntity scope="InOut" name="sentPartyName" category="JavaPrimitive">
       <type entityName="java.lang.String"></type>
+    </ns2:DataEntity>
+    <ns2:DataEntity scope="InOut" name="isEditable" category="JavaPrimitive">
+      <type entityName="java.lang.Boolean"></type>
     </ns2:DataEntity>
     <ns2:DataEntity scope="Internal" name="isAdmin" category="JavaPrimitive">
       <type entityName="java.lang.Boolean"></type>
@@ -273,10 +352,19 @@
       <ns2:UIComponent componentPath="isAbcUI" paramName="UIWidgetType"></ns2:UIComponent>
       <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="isAdmin" paramName="StringData"></ns2:DataComponent>
     </ns2:ComponentMapping>
+    <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping8">
+      <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UIText"></ns2:mappingRule>
+      <ns2:UIComponent componentPath="sessionIdUI" paramName="UIWidgetType"></ns2:UIComponent>
+      <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.sessionId" paramName="StringData"></ns2:DataComponent>
+    </ns2:ComponentMapping>
     <ns2:DataToUIMappingOperation>
       <expressionString>
+      import org.shaolin.bmdp.runtime.AppContext;
       import org.shaolin.bmdp.runtime.security.UserContext;
+      import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
       {
+      ICoordinatorService coorService = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class);
+      $isEditable = !coorService.isSessionEnded($beObject.getSessionId());
       $isAdmin = UserContext.getUserContext().isAdmin();
 @odContext.executeAllMappings();
 }</expressionString>
