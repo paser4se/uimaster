@@ -108,9 +108,6 @@ public class AjaxContext extends OpExecuteContext implements Serializable
     private transient HttpServletRequest request;
     
     private transient HttpServletResponse response;
-
-    private Map uiMap;
-
     /**
      * what is this operation corresponds to the entity.
      */
@@ -129,6 +126,8 @@ public class AjaxContext extends OpExecuteContext implements Serializable
     
     private final List<IRequestData> ajaxContextParams;
 
+    private Map eventSourceUIMap;
+    
     /**
      * request parameters.
      */
@@ -141,7 +140,7 @@ public class AjaxContext extends OpExecuteContext implements Serializable
     
     public AjaxContext(Map<?, ?> uiMap, IRequestData requestData)
     {
-        this.uiMap = uiMap;
+        this.eventSourceUIMap = uiMap;
         this.dataItems = new ArrayList<JSONObject>();
         this.requestData = requestData;
         this.ajaxContextParams = new ArrayList<IRequestData>();
@@ -154,12 +153,21 @@ public class AjaxContext extends OpExecuteContext implements Serializable
 
     public Map<String, Widget> getAJAXComponentMap()
     {
-        return ajaxComponentMap;
+    	if (ajaxComponentMap != null) {
+    		return ajaxComponentMap;
+    	} else {
+    		return eventSourceUIMap;
+    	}
     }
 
     public void addAJAXComponent(String compID, Widget component)
     {
-        ajaxComponentMap.put(compID, component);
+    	if (ajaxComponentMap != null) {
+    		ajaxComponentMap.put(compID, component);
+    	} else if (eventSourceUIMap != null) {
+    		eventSourceUIMap.put(compID, component);
+    	}
+    	
     }
 
     public Widget getAJAXComponent(String compID)
@@ -285,7 +293,7 @@ public class AjaxContext extends OpExecuteContext implements Serializable
             this.entityPrefix = entityUiid + ".";
 
         DefaultEvaluationContext globalEContext = new DefaultEvaluationContext();
-        Map accessibleVars = (Map)uiMap
+        Map accessibleVars = (Map)eventSourceUIMap
                 .get(AjaxContext.CURRENT_ACCESS_VARIABLE + this.entityPrefix);
         if (accessibleVars != null && !accessibleVars.isEmpty())
         {
@@ -396,7 +404,7 @@ public class AjaxContext extends OpExecuteContext implements Serializable
      */
     public void synchVariables() throws EvaluationException
     {
-        Map accessibleVars = (Map)uiMap
+        Map accessibleVars = (Map)eventSourceUIMap
                 .get(AjaxContext.CURRENT_ACCESS_VARIABLE + this.entityPrefix);
         if (accessibleVars != null && !accessibleVars.isEmpty())
         {
@@ -434,7 +442,7 @@ public class AjaxContext extends OpExecuteContext implements Serializable
     public boolean existElement(String uiid)
     {
     	if (uiid.equals(this.getEntityUiid())) {
-    		return uiMap.containsKey(uiid);
+    		return eventSourceUIMap.containsKey(uiid);
     	}
     	String realUiid = uiid;
     	if (this.entityPrefix != null && !this.entityPrefix.isEmpty()) {
@@ -442,7 +450,7 @@ public class AjaxContext extends OpExecuteContext implements Serializable
     			realUiid = this.entityPrefix + uiid;
     		}
     	}
-        return uiMap.containsKey(realUiid);
+        return eventSourceUIMap.containsKey(realUiid);
     }
 
     /**
@@ -507,10 +515,10 @@ public class AjaxContext extends OpExecuteContext implements Serializable
     			}
     		}
     	}
-        Widget comp = (Widget)uiMap.get(realUiid);
+        Widget comp = (Widget)eventSourceUIMap.get(realUiid);
         if (comp == null) {
             logger.debug("The ui widget can not be found by this " + realUiid + " id. try to use the original id: "+uiid);
-            comp = (Widget)uiMap.get(uiid);
+            comp = (Widget)eventSourceUIMap.get(uiid);
             if (comp == null) {
             	logger.warn("The ui widget can not be found by either " + realUiid + " or "+ uiid);
             }
@@ -537,7 +545,7 @@ public class AjaxContext extends OpExecuteContext implements Serializable
     
     public Widget getElementByAbsoluteId(String absoluteUiid)
     {
-    	Widget comp = (Widget)uiMap.get(absoluteUiid);
+    	Widget comp = (Widget)eventSourceUIMap.get(absoluteUiid);
         if (comp == null) {
         	logger.warn("The ui widget can not be found by absolute id: " + absoluteUiid);
         }
@@ -555,7 +563,7 @@ public class AjaxContext extends OpExecuteContext implements Serializable
         if (frameName == null)
         {
             logger.debug("No frame name specified, use this context's default frame.");
-            return uiMap;
+            return eventSourceUIMap;
         }
         Map ajaxComponentMap = AjaxActionHelper.getAjaxWidgetMap(request.getSession(true));	
         if (frameName.equals(""))
@@ -602,7 +610,7 @@ public class AjaxContext extends OpExecuteContext implements Serializable
     public Widget removeElement(String uiid)
     {
     	if (uiid.equals(this.getEntityUiid())) {
-    		return (Widget)uiMap.remove(uiid);
+    		return (Widget)eventSourceUIMap.remove(uiid);
     	}
     	String realUiid = uiid;
     	if (this.entityPrefix != null && !this.entityPrefix.isEmpty()) {
@@ -610,7 +618,7 @@ public class AjaxContext extends OpExecuteContext implements Serializable
     			realUiid = this.entityPrefix + uiid;
     		}
     	}
-        return (Widget)uiMap.remove(realUiid);
+        return (Widget)eventSourceUIMap.remove(realUiid);
     }
 
     /**
@@ -752,7 +760,7 @@ public class AjaxContext extends OpExecuteContext implements Serializable
         {
             entityPrefix = "";
         }
-        return (Map)uiMap.get(AjaxContext.CURRENT_ACCESS_VARIABLE + entityPrefix);
+        return (Map)eventSourceUIMap.get(AjaxContext.CURRENT_ACCESS_VARIABLE + entityPrefix);
     }
 
     /**

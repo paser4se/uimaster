@@ -325,6 +325,7 @@ public class TabPane extends Container implements Serializable
         	String UIID = entityPrefix + itemRef.getUIID();
             String type = itemRef.getReferenceEntity().getEntityName();
 			RefForm form = new RefForm(UIID, type, odContext.getLocalVariableValues());
+			AjaxActionHelper.getAjaxContext().addAJAXComponent(form.getId(), form);
 			
 			IDataItem dataItem = AjaxActionHelper.createAppendItemToTab(this.getId(), UIID);
 			dataItem.setData(form.generateHTML());

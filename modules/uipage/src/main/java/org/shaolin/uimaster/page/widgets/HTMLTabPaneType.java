@@ -175,6 +175,9 @@ public class HTMLTabPaneType extends HTMLContainerType
 		                	String UIID = this.getPrefix() + itemRef.getUIID();
 			                String type = itemRef.getReferenceEntity().getEntityName();
 			                HTMLReferenceEntityType refEntity = new HTMLReferenceEntityType(context, UIID, type);
+			                
+			                Widget newWidget = refEntity.createAjaxWidget(ee);
+			                context.addAjaxWidget(newWidget.getId(), newWidget);
 			                //Generate the uiform of the body
 			                refEntity.generateBeginHTML(context, ownerEntity, depth+1);
 			                refEntity.generateEndHTML(context, ownerEntity, depth+1);
