@@ -15,10 +15,20 @@
 */
 package org.shaolin.bmdp.utils;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
 import java.util.regex.Pattern;
+
+import org.apache.commons.codec.binary.Base64;
 
 public class StringUtil
 {
@@ -365,6 +375,22 @@ public class StringUtil
         return buf.toString();
     }
 
+    public static String escapeHtmlToBytes(String input) {
+    	if ((input == null) || (input.length() == 0))
+        {
+            return input;
+        }
+        return new String(Base64.encodeBase64(input.getBytes()));
+    }
+    
+    public static String bytesStrToHtml(String input) {
+    	if ((input == null) || (input.length() == 0))
+        {
+            return input;
+        }
+        return new String(Base64.decodeBase64(input.getBytes()));
+    }
+    
     /**
      * Escape HTML tags which can display in browser.
      * @param input string to replace

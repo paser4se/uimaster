@@ -22,6 +22,6 @@ public class ImageUtilTest {
 
 	@Test
 	public void testSearchImageOnInternet() {
-		ImageUtil.searchImageOnInternet("", "·ÊÔí");
+		ImageUtil.searchImageOnInternet("·ÊÔí");
 	}
 }
