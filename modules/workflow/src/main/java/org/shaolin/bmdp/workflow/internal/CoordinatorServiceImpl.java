@@ -675,6 +675,8 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	public void addNotification(INotification message, boolean needRemoted) {
 		if (NotificationService.push(message, message.getPartyId())) {
 			message.setRead(true);
+		} else {
+			//TODO: notify all cluster nodes by zk.
 		}
 		CoordinatorModel.INSTANCE.create(message);
 		for (INotificationListener listener : listeners) {
