@@ -72,8 +72,6 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
          function(ws,e){
             var msg = {action: "register", partyId: partyId};
             ws.send(JSON.stringify(msg));
-            var msg = {action: "poll", partyId: partyId};
-            ws.send(JSON.stringify(msg));
          },
          function(ws,e){
             if (e.data == "_register_confirmed") {
@@ -85,17 +83,6 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
          function(ws,e){
              console.log("error occurred while receiving a message: " + e.data);
          });
-       var repeat = function() {
-          var msg = {action: "poll", partyId: partyId};
-          o.chat.send(JSON.stringify(msg));
-          
-          window.setTimeout(function(){
-             repeat();
-          }, 120 * 1000);
-       };  
-       window.setTimeout(function(){
-          repeat();
-       }, 120 * 1000);
     
     
             /* Construct_LAST:org_shaolin_bmdp_workflow_form_NotificationBoard */

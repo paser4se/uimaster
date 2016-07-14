@@ -17,8 +17,10 @@ package org.shaolin.bmdp.workflow.ws;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import javax.websocket.EndpointConfig;
 import javax.websocket.OnClose;
@@ -32,6 +34,7 @@ import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.workflow.be.INotification;
 import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
+import org.shaolin.bmdp.workflow.internal.CoordinatorServiceImpl;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,11 +54,18 @@ public class NotificationService {
 	}
 	
 	@OnOpen
-	public void onOpen(Session session, EndpointConfig config) {
+	public void onOpen(final Session session, EndpointConfig config) {
 		if (logger.isDebugEnabled()) { 
 			logger.debug("{0} Client connected.", session.getId());
 		}
 		sessoins.put(session.getId(), session);
+		
+		CoordinatorServiceImpl.getScheduler().schedule(new Runnable(){
+			public void run() {
+				push(session);
+			}
+		}, 2, TimeUnit.SECONDS);
+		
 	}
 
 	@OnClose
@@ -88,16 +98,16 @@ public class NotificationService {
 			if ("register".equals(action)) {
 				session.getUserProperties().put("partyId", data.getLong("partyId"));
 				session.getBasicRemote().sendText("_register_confirmed");
-			} else if ("poll".equals(action)) {
-				poll(session);
+			} else if ("push".equals(action) && data.get("userId") != null) {
+				push(findSession(data.getLong("userId")));
 			}
 		} catch (Exception e) {
 			logger.warn("Parsing client data error! session id: " + session, e);
 		}
 	}
 	
-	private void poll(final Session session) {
-		if (!session.getUserProperties().containsKey("partyId")) {
+	private void push(final Session session) {
+		if (session != null && !session.getUserProperties().containsKey("partyId")) {
 			return;
 		}
 		Long userId = (Long)session.getUserProperties().get("partyId");
@@ -122,5 +132,36 @@ public class NotificationService {
 				logger.warn("Error sending the notifications! session id: " + session, e);
 			}
 		}
+	}
+	
+	public static boolean push(INotification message, long userId) {
+		Session session = findSession(userId);
+		if (session == null) {
+			return false;
+		}
+		StringBuilder sb = new StringBuilder();
+		sb.append("<div class=\"uimaster_noti_item\"><div style=\"color:blue;\">");
+		sb.append("[").append(message.getCreateDate()).append("] ").append(message.getSubject());
+		sb.append("</div><div style=\"width:100%;\">");
+		sb.append(message.getDescription()).append("</div></div>");
+		try {
+			session.getBasicRemote().sendText(sb.toString());
+		} catch (IOException e) {
+			logger.warn("Error sending the notifications! session id: " + session, e);
+			return false;
+		}
+		return true;
+	}
+	
+	private static Session findSession(long userId) {
+		Enumeration<Session> elements = sessoins.elements();
+		while (elements.hasMoreElements()) {
+			Session session = elements.nextElement();
+			Object key = session.getUserProperties().containsKey("partyId");
+			if (key != null && (Long)key == userId) {
+				return session;
+			}
+		}
+		return null;
 	}
 }

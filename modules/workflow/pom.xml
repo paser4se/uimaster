@@ -40,13 +40,11 @@
             <artifactId>uipage</artifactId>
             <version>${uimaster.version}</version>
         </dependency>
-		<!-- 
 		<dependency>
 			<groupId>org.shaolin.bmdp</groupId>
 			<artifactId>designtime</artifactId>
 			<version>${uimaster.version}</version>
 		</dependency>
-		 -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

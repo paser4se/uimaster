@@ -38,7 +38,6 @@ import org.shaolin.bmdp.runtime.spi.IAppServiceManager;
 import org.shaolin.bmdp.runtime.spi.ILifeCycleProvider;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
-import org.shaolin.bmdp.utils.HttpSender;
 import org.shaolin.bmdp.workflow.be.INotification;
 import org.shaolin.bmdp.workflow.be.IServerNodeInfo;
 import org.shaolin.bmdp.workflow.be.ITask;
@@ -55,6 +54,7 @@ import org.shaolin.bmdp.workflow.coordinator.IResourceManager;
 import org.shaolin.bmdp.workflow.coordinator.ITaskListener;
 import org.shaolin.bmdp.workflow.dao.CoordinatorModel;
 import org.shaolin.bmdp.workflow.internal.FlowContainer.MissionListener;
+import org.shaolin.bmdp.workflow.ws.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +63,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	private static final Logger logger = LoggerFactory.getLogger(CoordinatorServiceImpl.class);
 	
 	// make this for whole system, not only for one application instance.
-	private ScheduledExecutorService pool;
+	private static ScheduledExecutorService scheduler;
 	
 	private final Map<ITask, ScheduledFuture<?>> futures = new HashMap<ITask, ScheduledFuture<?>>();
 	
@@ -383,7 +383,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 				//TODO: Bug on the accuracy
 				initialDelay = initialDelay + (30 * 12);
 			}
-			ScheduledFuture<?> f = pool.scheduleAtFixedRate(task.getPeriodicJob(), initialDelay, period, TimeUnit.HOURS);
+			ScheduledFuture<?> f = scheduler.scheduleAtFixedRate(task.getPeriodicJob(), initialDelay, period, TimeUnit.HOURS);
 			futures.put(task, f);
 			logger.debug("Scheduled a periodic job: " + task);
 			return;
@@ -395,7 +395,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 				expireTask(task);
 				return;
 			}
-			ScheduledFuture<?> future = pool.schedule(new Runnable() {
+			ScheduledFuture<?> future = scheduler.schedule(new Runnable() {
 				@Override
 				public void run() {
 					expireTask(task);
@@ -591,6 +591,10 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		return task;
 	}
 	
+	public static ScheduledExecutorService getScheduler() {
+		return scheduler;
+	}
+	
 	@Override
 	public void startService() {
 		this.workingTasks.clear();
@@ -602,7 +606,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		IServerServiceManager.INSTANCE.register(this);
 		
 		// make this shared
-		this.pool = IServerServiceManager.INSTANCE.getSchedulerService()
+		scheduler = IServerServiceManager.INSTANCE.getSchedulerService()
 				.createScheduler("system", "wf-coordinator", Runtime.getRuntime().availableProcessors() * 2);
 		
 		if (testCaseFlag) {
@@ -638,12 +642,9 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 
 	@Override
 	public void stopService() {
-		pool.shutdown();
+		scheduler.shutdown();
 		workingTasks.clear();
 		listeners.clear();
-		if (httpSender != null) {
-			httpSender.shutdown();
-		}
 		
 		Set<ITask> tasks = futures.keySet();
 		for (ITask task: tasks) {
@@ -661,52 +662,21 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 	
 	private void taskToNotification(ITask t) {
-		NotificationImpl notifier = new NotificationImpl();
-		if (t.getExpiredTime() != null) {
-			notifier.setSubject("[" + t.getExpiredTime().toString() 
-				+ "/" + t.getStatus().getDisplayName() + "] " + t.getSubject());
-		} else {
-			notifier.setSubject("[" + t.getStatus().getDisplayName() + "] " + t.getSubject());
-		}
-		notifier.setDescription(t.getDescription());
-		notifier.setPartyId(t.getPartyId());
-		notifier.setRead(false);
+//		NotificationImpl notifier = new NotificationImpl();
+//		notifier.setSubject("[" + t.getStatus().getDisplayName() + "] " + t.getSubject());
+//		notifier.setDescription(t.getDescription());
+//		notifier.setPartyId(t.getPartyId());
+//		notifier.setRead(false);
 		// no need since all tasks have already been tracking.
-		//addNotification(notifier, false);
+		// addNotification(notifier, false);
 	}
 	
 	@Override
 	public void addNotification(INotification message, boolean needRemoted) {
+		if (NotificationService.push(message, message.getPartyId())) {
+			message.setRead(true);
+		}
 		CoordinatorModel.INSTANCE.create(message);
-		
-		if (needRemoted) {
-//			// send to all nodes.
-//			byte[] raw = null;
-//			try {
-//				raw = SerializeUtil.serializeData(message);
-//			} catch (IOException e) {
-//				logger.warn(e.getMessage(), e);
-//				return;
-//			}
-//			IAppServiceManager serviceManager= IServerServiceManager.INSTANCE.getApplication(
-//					IServerServiceManager.INSTANCE.getMasterNodeName());
-//			ICoordinatorService coordinator = serviceManager.getService(ICoordinatorService.class);
-//			List<IServerNodeInfo> nodes = coordinator.getServerNodes();
-//			for (IServerNodeInfo serverNode : nodes) {
-//				if (!sendNotification(serverNode, raw)) {
-//					logger.warn("Failed to send the notification to {0}",
-//							toURL(serverNode));
-//				}
-//			}
-		} 
-//			else {
-//			long partyId = message.getPartyId();
-//			if (!allNotifications.containsKey(partyId)) {
-//				allNotifications.put(partyId, new ArrayList<INotification>());
-//			}
-//			allNotifications.get(partyId).add(message);
-//			
-//		}
 		for (INotificationListener listener : listeners) {
 			listener.received(message);
 		}
@@ -733,6 +703,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		NotificationImpl scFlow = new NotificationImpl();
 		scFlow.setPartyId(partyId);
 		scFlow.setCreateDate(queryDate);
+		scFlow.setRead(false);
 		return CoordinatorModel.INSTANCE.searchNotification(scFlow, null, 0, -1);
 	}
 	
@@ -748,25 +719,11 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		CoordinatorModel.INSTANCE.batchDelete(entities, true);
 	}
 	
-	
-	/**
-	 * the common notifications must be refreshed every hour.
-	 * @return
-	 */
 	public List<INotification> pullCommonNotifications() {
 		return Collections.emptyList();
 //		NotificationImpl scFlow = new NotificationImpl();
 //		scFlow.setPartyId(0);
 //		return CoordinatorModel.INSTANCE.searchNotification(scFlow, null, 0, -1);
-	}
-	
-	private HttpSender httpSender;
-	
-	private boolean sendNotification(IServerNodeInfo serverNode, byte[] rawMessage) {
-		if (httpSender == null) {
-			httpSender = new HttpSender();
-		}
-		return httpSender.post(toURL(serverNode), rawMessage);
 	}
 
 	public static String toURL(IServerNodeInfo serverNode) {

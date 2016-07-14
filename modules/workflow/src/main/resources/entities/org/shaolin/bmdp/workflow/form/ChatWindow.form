@@ -255,7 +255,6 @@
       <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="1" align="FULL"></ns2:constraint>
     </ns2:layoutConstraint>
     <ns2:constructorCode><![CDATA[
-       var a
        var isAbc = this.isAbcUI.value;
        var sessionId = this.sessionIdUI.value;
        if (sessionId == null || sessionId == "null") {
@@ -270,7 +269,7 @@
             var msg = {action: "register", partyId: partyId, isAbc: isAbc, sessionId: sessionId};
             ws.send(JSON.stringify(msg));
             var msg = {action: "history", fromPartyId: fromPartyId, toPartyId: toPartyId, sessionId: sessionId};
-            ws.send(JSON.stringify(msg));
+            setTimeout(function(){ ws.send(JSON.stringify(msg));}, 1000);
          },
          function(ws,e){
             if (e.data == "_register_confirmed") {

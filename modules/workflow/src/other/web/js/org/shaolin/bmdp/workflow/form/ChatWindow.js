@@ -159,7 +159,6 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
         /* Construct_FIRST:org_shaolin_bmdp_workflow_form_ChatWindow */
 
         
-       var a
        var isAbc = this.isAbcUI.value;
        var sessionId = this.sessionIdUI.value;
        if (sessionId == null || sessionId == "null") {
@@ -174,7 +173,7 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
             var msg = {action: "register", partyId: partyId, isAbc: isAbc, sessionId: sessionId};
             ws.send(JSON.stringify(msg));
             var msg = {action: "history", fromPartyId: fromPartyId, toPartyId: toPartyId, sessionId: sessionId};
-            ws.send(JSON.stringify(msg));
+            setTimeout(function(){ ws.send(JSON.stringify(msg));}, 1000);
          },
          function(ws,e){
             if (e.data == "_register_confirmed") {
