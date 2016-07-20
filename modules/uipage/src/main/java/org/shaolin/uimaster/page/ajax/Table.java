@@ -26,11 +26,13 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.UITableColumnType;
 import org.shaolin.bmdp.datamodel.page.UITableSelectModeType;
 import org.shaolin.bmdp.datamodel.page.UITableStatsType;
 import org.shaolin.bmdp.runtime.be.IBusinessEntity;
+import org.shaolin.bmdp.runtime.be.IPersistentEntity;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.utils.StringUtil;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
@@ -50,7 +52,6 @@ import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.report.ImportTableToExcel;
 import org.shaolin.uimaster.page.widgets.HTMLImageType;
-import org.apache.log4j.Logger;
 
 /**
  * 
@@ -340,7 +341,7 @@ public class Table extends Widget implements Serializable {
 		IDataItem dataItem = AjaxActionHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
-		dataItem.setData(this.refresh0(this.listData));
+		dataItem.setData(this.refreshTable0(this.listData));
 		dataItem.setFrameInfo(this.getFrameInfo());
 
 		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
@@ -356,7 +357,7 @@ public class Table extends Widget implements Serializable {
 		IDataItem dataItem = AjaxActionHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
-		dataItem.setData(this.refresh0(this.listData));
+		dataItem.setData(this.refreshTable0(this.listData));
 		dataItem.setFrameInfo(this.getFrameInfo());
 
 		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
@@ -375,6 +376,9 @@ public class Table extends Widget implements Serializable {
 	 * Refresh from the query expression.
 	 */
 	public void refresh() {
+		if (UserContext.isMobileRequest() && !isEditableCell()) {
+			conditions.setPullAction("new");
+		}
 		IDataItem dataItem = AjaxActionHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
@@ -392,14 +396,41 @@ public class Table extends Widget implements Serializable {
 		IDataItem dataItem = AjaxActionHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
-		dataItem.setData(this.refresh0(rows));
+		if (UserContext.isMobileRequest() && !isEditableCell()) {
+			dataItem.setData(this.refreshPull0(rows));
+		} else {
+			dataItem.setData(this.refreshTable0(rows));
+		}
 		dataItem.setFrameInfo(this.getFrameInfo());
         AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
 	}
 	
 	public String refresh0() {
-		if (null != this.listData) {
-			this.listData.clear();
+		boolean isMobPulling = false;
+		if (UserContext.isMobileRequest() && !isEditableCell()) {
+			long value = 0;
+			for (Object be : listData) {
+				if (be instanceof IPersistentEntity) {
+					long id = ((IPersistentEntity)be).getId();
+					if (value == 0) {
+						value = id;
+						continue;
+					}
+					if (conditions.getPullAction().equals("new") && (value < id)) {
+						value = id; //get the biggest id
+					} else if (conditions.getPullAction().equals("history") && (value > id)) {
+						value = id; //get the smallest id
+					}
+				}
+			}
+			isMobPulling = true;
+			conditions.setPullId(value);
+			UserContext.getUserContext().setPullAction(conditions.getPullAction());
+			UserContext.getUserContext().setPullId(value);
+		} else {
+			if (this.listData != null) {
+				this.listData.clear();
+			}
 		}
 		
 		try {
@@ -415,19 +446,127 @@ public class Table extends Widget implements Serializable {
 			if (rows == null) {
 				rows = Collections.emptyList();
 			}
-			this.listData = rows;
-			return refresh0(rows);
+			if (isMobPulling) {
+				//TODO:
+				String newRows = refreshPull0(listData);
+				if (UserContext.getUserContext().isPullNew()) {
+					rows.addAll(this.listData);
+					this.listData = rows;
+				} else {
+					this.listData.addAll(rows);
+				}
+				return newRows;
+			} else {
+				this.listData = rows;
+				return refreshTable0(rows);
+			}
 		} catch (EvaluationException e) {
 			logger.error("error occurrs while refreshing table: " + this.getId(), e);
 			return "";
+		} finally {
+			UserContext.getUserContext().setPullId(0);
+			UserContext.getUserContext().setPullAction(null);
 		}
+	}
+	
+	private String refreshPull0(List rows) {
+		try {
+			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+			evaContext.setVariableValue("tableCondition", conditions);
+			evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+			evaContext.setVariableValue("table", this);
+			ooeeContext.setDefaultEvaluationContext(evaContext);
+			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+			
+			long totalCount = 0;
+			if (rows != null && rows.size() > 0) {
+				Object firstItem = rows.get(0);
+				if (firstItem instanceof IBusinessEntity) {
+					Object v = ((IBusinessEntity)firstItem).get_extField().get("count");
+					totalCount = (v == null? 0 : (long)v);
+				} else {
+					totalCount = rows.size();
+				}
+			} 
+			
+			StringBuilder sb = new StringBuilder();
+	        sb.append("{\"totalCount\":");
+	        sb.append(totalCount);
+	        sb.append(",");
+	        sb.append("\"rows\":[");
+	        int count = 0;
+	        for (Object be : rows) {
+	        	evaContext.setVariableValue("rowBE", be);
+	        	evaContext.setVariableValue("index", count);
+        		StringBuilder imageSB = new StringBuilder();
+        		StringBuilder attrsSB = new StringBuilder();
+        		StringBuilder htmlAttrsSB = new StringBuilder();
+        		StringBuilder swiperSB = new StringBuilder();
+        		swiperSB.append("<div class='swiper-slide'>");
+        		for (UITableColumnType col : columns) {
+        			if ("Image".equalsIgnoreCase(col.getUiType().getType())) {
+        				imageSB.append("<div class='p'>");
+        				Object value = col.getRowExpression().getExpression().evaluate(
+								ooeeContext);
+		        		if (value == null) {
+							value = "";
+						}
+		        		value = HTMLImageType.generateSimple(
+		        				AjaxActionHelper.getAjaxContext().getRequest(), value.toString(), 100, 100);
+		        		imageSB.append(value);
+		        		imageSB.append("</div>");
+        			} else if ("HTML".equalsIgnoreCase(col.getUiType().getType())
+        					|| "HTMLItem".equals(col.getUiType().getType())) {
+        				htmlAttrsSB.append("<div class='d'>");
+        				Object value = col.getRowExpression().getExpression().evaluate(
+								ooeeContext);
+		        		if (value == null) {
+							value = "";
+						}
+		        		value = value.toString();
+		        		htmlAttrsSB.append(value);
+		        		htmlAttrsSB.append("</div>");
+        			} else {
+		        		Object value = col.getRowExpression().getExpression().evaluate(
+								ooeeContext);
+		        		if (value == null) {
+							value = "";
+						}
+		        		attrsSB.append("<div class='di'>");
+		        		attrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle())).append(":").append(value);
+		        		attrsSB.append("</div>");
+        			}
+	        	}
+        		swiperSB.append(imageSB.toString());
+        		if (attrsSB.length() > 0) {
+        			swiperSB.append("<div class=\"d\">");
+        			swiperSB.append(attrsSB.toString());
+        			swiperSB.append("</div>");
+    			}
+        		swiperSB.append(htmlAttrsSB.toString());
+        		swiperSB.append("</div>");
+        		sb.append("{\"value\":\"").append(StringUtil.escapeHtmlToBytes(swiperSB.toString())).append("\"},");
+	        	
+	        	count++;
+	        }
+	        if (rows.size() > 0) {
+	        	sb.deleteCharAt(sb.length()-1);
+	        }
+	        sb.append("]}");
+	        
+	        return sb.toString();
+		} catch (Exception e) {
+			logger.error("error occurrs while refreshing table: " + this.getId(), e);
+		}
+		return "";
 	}
 	
 	/**
 	 * After when called addRow,removeRow,removeAll,updateRow, we have to call
 	 * this method refreshing data set.
 	 */
-	private String refresh0(List rows) {
+	private String refreshTable0(List rows) {
 		try {
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
@@ -472,64 +611,20 @@ public class Table extends Widget implements Serializable {
 	        	} else {
 	        		sb.append("\"\",");
 	        	}
-	        	if (UserContext.isMobileRequest() && !isEditableCell) {
-	        		StringBuilder imageSB = new StringBuilder();
-	        		StringBuilder attrsSB = new StringBuilder();
-	        		attrsSB.append("\"");
-	        		StringBuilder htmlAttrsSB = new StringBuilder();
-	        		for (UITableColumnType col : columns) {
-	        			if ("Image".equalsIgnoreCase(col.getUiType().getType())) {
-	        				imageSB.append("\"");
-	        				Object value = col.getRowExpression().getExpression().evaluate(
-									ooeeContext);
-			        		if (value == null) {
-								value = "";
-							}
-			        		value = StringUtil.escapeHtmlTags(HTMLImageType.generateSimple(
-			        				AjaxActionHelper.getAjaxContext().getRequest(), value.toString(), 100, 100));
-			        		imageSB.append(value);
-			        		imageSB.append("\",");
-	        			} else if ("HTML".equalsIgnoreCase(col.getUiType().getType())) {
-	        				htmlAttrsSB.append("\"");
-	        				Object value = col.getRowExpression().getExpression().evaluate(
-									ooeeContext);
-			        		if (value == null) {
-								value = "";
-							}
-			        		value = StringUtil.escapeHtmlTags(value.toString());
-			        		htmlAttrsSB.append(value);
-			        		htmlAttrsSB.append("\",");
-	        			} else {
-			        		Object value = col.getRowExpression().getExpression().evaluate(
-									ooeeContext);
-			        		if (value == null) {
-								value = "";
-							}
-			        		attrsSB.append("<div>");
-			        		attrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle())).append(":").append(value);
-			        		attrsSB.append("</div>");
-	        			}
-		        	}
-	        		attrsSB.append("\",");
-	        		sb.append(imageSB.toString());
-	        		sb.append(attrsSB.toString());
-	        		sb.append(htmlAttrsSB.toString());
-	        	} else {
-		        	for (UITableColumnType col : columns) {
-		        		Object value = col.getRowExpression().getExpression().evaluate(
-								ooeeContext);
-		        		if (value == null) {
-							value = "";
-						}
-		        		sb.append("\"");
-		        		if ("Image".equalsIgnoreCase(col.getUiType().getType())) {
-        					sb.append(StringUtil.escapeHtmlTags(HTMLImageType.generateSimple(
-        							AjaxActionHelper.getAjaxContext().getRequest(), value.toString(), 60, 60)));
-		        		} else {
-		        			sb.append(StringUtil.escapeHtmlTags(value.toString()));
-		        		}
-		        		sb.append("\",");
-		        	}
+	        	for (UITableColumnType col : columns) {
+	        		Object value = col.getRowExpression().getExpression().evaluate(
+							ooeeContext);
+	        		if (value == null) {
+						value = "";
+					}
+	        		sb.append("\"");
+	        		if ("Image".equalsIgnoreCase(col.getUiType().getType())) {
+    					sb.append(StringUtil.escapeHtmlToBytes(HTMLImageType.generateSimple(
+    							AjaxActionHelper.getAjaxContext().getRequest(), value.toString(), 60, 60)));
+	        		} else {
+	        			sb.append(StringUtil.escapeHtmlToBytes(value.toString()));
+	        		}
+	        		sb.append("\",");
 	        	}
 	        	sb.deleteCharAt(sb.length()-1);
 	        	sb.append("],");

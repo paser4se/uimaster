@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-import org.apache.commons.codec.binary.Base64;
-
 public class StringUtil
 {
 	private StringUtil()
@@ -380,7 +378,8 @@ public class StringUtil
         {
             return input;
         }
-        return new String(Base64.encodeBase64(input.getBytes()));
+    	//for Chinese characters issue we need using this solution.
+        return UserDefinedBase64.encode(input);
     }
     
     public static String bytesStrToHtml(String input) {
@@ -388,7 +387,7 @@ public class StringUtil
         {
             return input;
         }
-        return new String(Base64.decodeBase64(input.getBytes()));
+        return UserDefinedBase64.decode(input);
     }
     
     /**
@@ -452,20 +451,7 @@ public class StringUtil
         for (int i = 0; i < input.length(); i++)
         {
             ch = input.charAt(i);
-
-            if (ch == '<')
-            {
-                buf.append("&lt;");
-            }
-            else if (ch == '>')
-            {
-                buf.append("&gt;");
-            }
-            else if (ch == '&')
-            {
-                buf.append("&amp;");
-            }
-            else if (ch == '\\') 
+            if (ch == '\\') 
             {        
             	buf.append("\\\\");
             }
@@ -1384,6 +1370,12 @@ public class StringUtil
         return result;
     }
 
+    /**
+     * for Chinese characters are quite useful.
+     * 
+     * @param string
+     * @return
+     */
 	public static String string2Unicode(String string) {
 		StringBuilder unicode = new StringBuilder();
 		for (int i = 0; i < string.length(); i++) {

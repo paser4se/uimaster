@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -167,7 +168,8 @@ public class UploadFileServlet extends HttpServlet {
 						} else {
 							name = new File(item.getName()).getName();
 						}
-						name = URLDecoder.decode(name, "UTF-8");  
+						String suffix = name.substring(name.lastIndexOf('.'));
+						name = Base64.encodeBase64String(name.substring(0, name.lastIndexOf('.')).getBytes()) + suffix;  
 						logger.info("Received the uploading file: " + name + ", saving path: " + root);
 						File finalPicture = new File(root, name);
 						item.write(finalPicture);

@@ -1,6 +1,7 @@
 package org.shaolin.bmdp.runtime.security;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +37,9 @@ public class UserContext implements Serializable {
 	String orgType;
 	
 	String orgName;
+	
+	private String pullAction = "new";//mobile pull. we have new or history actions.
+	private long pullId;
 	
 	public UserContext() {
 	}
@@ -298,5 +302,21 @@ public class UserContext implements Serializable {
 
 	public interface OnlineUserChecker {
 		boolean isOnline(long userId);
+	}
+	
+	public boolean isPullNew() {
+		return pullAction != null && "new".equals(pullAction);
+	}
+
+	public void setPullAction(String pullAction) {
+		this.pullAction = pullAction;
+	}
+	
+	public long getPullId() {
+		return pullId;
+	}
+
+	public void setPullId(long pullId) {
+		this.pullId = pullId;
 	}
 }

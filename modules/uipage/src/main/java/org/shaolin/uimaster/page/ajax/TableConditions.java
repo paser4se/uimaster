@@ -17,6 +17,7 @@ package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.criterion.Order;
@@ -32,6 +33,8 @@ public class TableConditions implements Serializable {
 	private List<Order> orders;
 	private int offset;
 	private int count = 10;//10 records per query by default.
+	private String pullAction = "new";//mobile pull. we have new or history actions.
+	private long pullId;
 	
 	private int currentSelectedIndex = -1;
 	
@@ -130,6 +133,22 @@ public class TableConditions implements Serializable {
 
 	public void setSelectedIndex(Integer[] selectedIndex) {
 		this.selectedIndexs = selectedIndex;
+	}
+
+	public String getPullAction() {
+		return pullAction;
+	}
+
+	public void setPullAction(String pullAction) {
+		this.pullAction = pullAction;
+	}
+	
+	public long getPullId() {
+		return pullId;
+	}
+
+	public void setPullId(long pullId) {
+		this.pullId = pullId;
 	}
 
 }

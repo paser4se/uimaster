@@ -56,16 +56,6 @@ public class HTMLImageType extends HTMLTextWidgetType
             }
             generateWidget(context);
             if (this.getAttribute("isGallery") != null) {
-	        			
-//	        	Because JGallary has a bug on importing these files in multiple time.
-//	            Please refer to org_shaolin_vogerp_productmodel runconfig.registry.
-    			if (context.getRequest().getAttribute("_hasGallery") == null) {
-    				context.getRequest().setAttribute("_hasGallery", Boolean.TRUE);
-		            HTMLUtil.generateTab(context, depth);
-		            context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/js/controls/swiper/swiper.css\" type=\"text/css\">");
-		            HTMLUtil.generateTab(context, depth);
-		            context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/swiper/swiper.jquery.js\"></script>");
-    			}
 	        	context.generateHTML("<div id=\"");
 	        	context.generateHTML(getName());
 	            context.generateHTML("\" class=\"swiper-container\">");

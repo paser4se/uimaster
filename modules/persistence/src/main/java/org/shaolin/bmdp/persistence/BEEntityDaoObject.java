@@ -21,6 +21,7 @@ import org.hibernate.criterion.Restrictions;
 import org.shaolin.bmdp.persistence.query.operator.Operator;
 import org.shaolin.bmdp.runtime.be.IBusinessEntity;
 import org.shaolin.bmdp.runtime.be.IPersistentEntity;
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -474,9 +475,22 @@ public class BEEntityDaoObject {
 	@SuppressWarnings("unchecked")
 	protected <T> List<T> _list(int offset, int count, Criteria criteria) {
 		try {
-			if (count > 0) {
-				criteria.setFirstResult(offset);
-				criteria.setMaxResults(count);
+			// mobile pulling data supported.
+			if (UserContext.isMobileRequest() && UserContext.getUserContext() != null 
+					&& UserContext.getUserContext().getPullId() > 0) {
+				if (UserContext.getUserContext().isPullNew()) {
+					criteria.add(createCriterion(Operator.GREATER_THAN, criteria.getAlias() + ".id", UserContext.getUserContext().getPullId()));
+				} else {
+					criteria.add(createCriterion(Operator.LESS_THAN, criteria.getAlias() + ".id", UserContext.getUserContext().getPullId()));
+				}
+				if (count > 0) {
+					criteria.setMaxResults(count);
+				}
+			} else {
+				if (count > 0) {
+					criteria.setFirstResult(offset);
+					criteria.setMaxResults(count);
+				}
 			}
 			List<T> result = criteria.list();
 			if (result != null && result.size() > 0) {

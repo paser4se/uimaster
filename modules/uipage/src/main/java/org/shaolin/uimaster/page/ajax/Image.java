@@ -280,7 +280,7 @@ public class Image extends TextWidget implements Serializable
         IDataItem dataItem = AjaxActionHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.GALLERY_REFRESH);
-		dataItem.setData(StringUtil.escapeHtmlTags(sb.toString()));
+		dataItem.setData(StringUtil.escapeHtmlToBytes(sb.toString()));
 		dataItem.setFrameInfo(this.getFrameInfo());
         AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
     }

@@ -40,29 +40,34 @@ public class TableEventHandler implements IAjaxHandler {
 			throw new AjaxHandlerException(uiid + " Table does not exist!");
 		}
 		if (actionName.endsWith("pull")) {
-			int offset = Integer
-					.parseInt(context.getRequest().getParameter("start"));
-			int count = Integer
-					.parseInt(context.getRequest().getParameter("length"));
-			if (context.getRequest().getParameter("order[0][column]") == null) {
-				return "";
-			}
-			int columnIndex = Integer.parseInt(context.getRequest().getParameter(
-					"order[0][column]"));
-			String v = context.getRequest().getParameter("order[0][dir]");// :desc/asc
-			boolean isAscending = "asc".equals(v);
-			
+			String pullAction = context.getRequest().getParameter("_value");
 			TableConditions conditions = comp.getConditions();
-			conditions.setCount(count);
-			conditions.setOffset(offset);
-			
-			// TODO: only one order support temporory.
-			String colId = comp.getColumnId(columnIndex-1);
-			if (colId != null) {
-				conditions.clearOrder();
-				conditions.addOrder(isAscending ? Order.asc(colId) : Order
-						.desc(colId));
+			if (pullAction != null && pullAction.length() > 0) {
+				conditions.setPullAction(pullAction);
+			} else {
+				int offset = Integer
+						.parseInt(context.getRequest().getParameter("start"));
+				int count = Integer
+						.parseInt(context.getRequest().getParameter("length"));
+				if (context.getRequest().getParameter("order[0][column]") == null) {
+					return "";
+				}
+				int columnIndex = Integer.parseInt(context.getRequest().getParameter(
+						"order[0][column]"));
+				String v = context.getRequest().getParameter("order[0][dir]");// :desc/asc
+				boolean isAscending = "asc".equals(v);
+				
+				conditions.setCount(count);
+				conditions.setOffset(offset);
+				// TODO: only one order support temporary.
+				String colId = comp.getColumnId(columnIndex-1);
+				if (colId != null) {
+					conditions.clearOrder();
+					conditions.addOrder(isAscending ? Order.asc(colId) : Order
+							.desc(colId));
+				}
 			}
+			
 			return comp.refresh0();
 		} else if (actionName.endsWith("chart")) {
 			comp.showStatistic();
