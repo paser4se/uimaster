@@ -26,6 +26,8 @@ import org.shaolin.bmdp.datamodel.page.UITableActionType;
 import org.shaolin.bmdp.datamodel.page.UITableColumnType;
 import org.shaolin.bmdp.datamodel.page.UITableSelectModeType;
 import org.shaolin.bmdp.datamodel.page.UITableStatsType;
+import org.shaolin.bmdp.i18n.LocaleContext;
+import org.shaolin.bmdp.i18n.ResourceUtil;
 import org.shaolin.bmdp.runtime.be.BEUtil;
 import org.shaolin.bmdp.runtime.be.IBusinessEntity;
 import org.shaolin.bmdp.runtime.ce.CEUtil;
@@ -176,7 +178,14 @@ public class HTMLTableType extends HTMLContainerType {
 						context.generateHTML(i18nProperty);
 						context.generateHTML("</a>");
 					}
-					context.generateHTML("</div>");
+					
+					context.generateHTML("<a id=\""+ htmlPrefix + "Filter\" ");
+					context.generateHTML("href=\"javascript:defaultname.");
+					context.generateHTML(this.getPrefix() + this.getUIID() + ".showMobFilter");
+					context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\"");
+					context.generateHTML(" class=\"ui-btn ui-corner-all\">");
+					context.generateHTML(ResourceUtil.getResource(LocaleContext.getUserLocale(), "Common", "FilterItem"));
+					context.generateHTML("</a></div>");
 				} else {
 					context.generateHTML("<span id=\""+defaultBtnSet+"\" style=\"display:none;\">");
 					for (UITableActionType action: defaultActions) {
@@ -268,6 +277,20 @@ public class HTMLTableType extends HTMLContainerType {
 			
 			if (UserContext.isMobileRequest() && !isEditableCell.booleanValue()) {
 				generateMobileListBody(isEditableCell, depth, selectMode, listData, columns);
+				HTMLUtil.generateTab(context, depth + 1);
+				context.generateHTML("<div class=\"uimaster_table_mob_filter\" style=\"display:none;\">");
+				generateFilter(context, ownerEntity, depth, columns, "div");
+				HTMLUtil.generateTab(context, depth + 1);
+				context.generateHTML("<div class=\"colfilter\">");
+				context.generateHTML("<button type=\"button\" class=\"uimaster_button\" onclick=\"javascript:defaultname.");
+				context.generateHTML(this.getPrefix() + this.getUIID() + ".saveMobFilter");
+				context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\">Ok</button></div>");
+				context.generateHTML("<div class=\"colfilter\">");
+				context.generateHTML("<button type=\"button\" class=\"uimaster_button\" onclick=\"javascript:defaultname.");
+				context.generateHTML(this.getPrefix() + this.getUIID() + ".clearMobFilter");
+				context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\">Clear</button></div>");
+				
+				context.generateHTML("</div>");
 			} else {
 				// generate thead.
 				generateTableHead(totalCount, selectMode, isEditableCell, context, depth, columns);
@@ -363,100 +386,8 @@ public class HTMLTableType extends HTMLContainerType {
 			HTMLUtil.generateTab(context, depth + 3);
 			context.generateHTML("<th></th>");
 			
-			String beElement = (String)this.removeAttribute("beElememt");
-			DefaultParsingContext pContext = new DefaultParsingContext();
-			Class beClass = null;
-			try {
-				beClass = BEUtil.getBEImplementClass(beElement);
-			} catch (ClassNotFoundException e) {
-				beClass = Class.forName(beElement);
-			}
-			pContext.setVariableClass("rowBE", beClass);
+			generateFilter(context, ownerEntity, depth, columns, "th");
 			
-			for (UITableColumnType col : columns) {
-				HTMLUtil.generateTab(context, depth + 3);
-				context.generateHTML("<th>");
-				if ("Text".equalsIgnoreCase(col.getUiType().getType())) {
-					HTMLTextFieldType textField = new HTMLTextFieldType(context, col.getBeFieldId());
-					textField.addAttribute("placeholder", "Search " + UIVariableUtil.getI18NProperty(col.getTitle()));
-					textField.addAttribute("title", UIVariableUtil.getI18NProperty(col.getTitle()));
-					textField.addStyle("width", "100%");
-					textField.generateBeginHTML(context, ownerEntity, depth+1);
-					textField.generateEndHTML(context, ownerEntity, depth+1);
-				} else if ("ComBox".equalsIgnoreCase(col.getUiType().getType())) {
-					List<String> optionValues = new ArrayList<String>();
-					List<String> optionDisplayValues = new ArrayList<String>();
-					if (col.getComboxExpression() != null) {
-						List[] values = (List[])col.getComboxExpression().getExpression().evaluate(
-								this.ee.getExpressionContext());
-						if (values == null) {
-							values = new List[] {Collections.emptyList(), Collections.emptyList()};
-						}
-						optionValues = values[0];
-						optionDisplayValues = values[1];
-					} else {
-						List<IConstantEntity> items = null;
-						if (col.getUiType().getCetype() != null && col.getUiType().getCetype().length() > 0) {
-							items = CEUtil.getConstantEntities(col.getUiType().getCetype());
-						} else {
-							Class clazz = ComponentMappingHelper.getComponentPathClass(col.getBeFieldId(), pContext);
-							if (IConstantEntity.class.isAssignableFrom(clazz)) {
-								items = CEUtil.getConstantEntities(clazz.getName());
-							}
-						}
-						for (IConstantEntity item: items) {
-							optionValues.add(item.getIntValue() + "");
-						}
-						for (IConstantEntity item: items) {
-							optionDisplayValues.add(item.getDisplayName());
-						}
-					}
-					HTMLComboBoxType combox = new  HTMLComboBoxType(context, col.getBeFieldId());
-					combox.setPrefix(this.getPrefix());
-					combox.setFrameInfo(this.getFrameInfo());
-					combox.setOptionValues(optionValues);
-					combox.setOptionDisplayValues(optionDisplayValues);
-					combox.addStyle("width", "100%");
-					if (col.getUiType().getEvent() != null) {
-						combox.addEventListener("onchange", col.getUiType().getEvent());
-					}
-					combox.generateBeginHTML(context, ownerEntity, depth+1);
-					combox.generateEndHTML(context, ownerEntity, depth+1);
-				} else if ("CheckBox".equalsIgnoreCase(col.getUiType().getType())) {
-					HTMLCheckBoxType checkBox = new HTMLCheckBoxType(context, col.getBeFieldId());
-					checkBox.setPrefix(this.getPrefix());
-					checkBox.setFrameInfo(this.getFrameInfo());
-					checkBox.addAttribute("title", UIVariableUtil.getI18NProperty(col.getTitle()));
-					checkBox.addAttribute("label", "");
-					checkBox.generateBeginHTML(context, ownerEntity, depth+1);
-					checkBox.generateEndHTML(context, ownerEntity, depth+1);
-				} else if ("Date".equalsIgnoreCase(col.getUiType().getType())) {
-					HTMLDateType date = new HTMLDateType(context, col.getBeFieldId());
-					date.setPrefix(this.getPrefix());
-					date.setFrameInfo(this.getFrameInfo());
-					date.generateBeginHTML(context, ownerEntity, depth+1);
-					date.generateEndHTML(context, ownerEntity, depth+1);
-				} else if ("DateRange".equalsIgnoreCase(col.getUiType().getType())) {
-					HTMLDateType start = new HTMLDateType(context, col.getUiType().getStartCondition());
-					start.setPrefix(this.getPrefix());
-					start.setFrameInfo(this.getFrameInfo());
-					start.setRange(true);
-					start.addStyle("width", "100px");
-					HTMLDateType end = new HTMLDateType(context, col.getUiType().getEndCondition());
-					end.setPrefix(this.getPrefix());
-					end.setFrameInfo(this.getFrameInfo());
-					end.setRange(true);
-					end.addStyle("width", "100px");
-					start.generateBeginHTML(context, ownerEntity, depth+1);
-					start.generateEndHTML(context, ownerEntity, depth+1);
-					context.generateHTML("&nbsp;&nbsp;");
-					end.generateBeginHTML(context, ownerEntity, depth+1);
-					end.generateEndHTML(context, ownerEntity, depth+1);
-				} else if ("Label".equalsIgnoreCase(col.getUiType().getType())) {
-					//Label column does not need to look for search.
-				} 
-				context.generateHTML("</th>");
-			}
 			HTMLUtil.generateTab(context, depth + 3);
 			context.generateHTML("</tr>");
 			HTMLUtil.generateTab(context, depth + 2);
@@ -520,6 +451,123 @@ public class HTMLTableType extends HTMLContainerType {
 			context.generateHTML("</tr>");
 			
 			count++;
+		}
+	}
+
+	private void generateFilter(HTMLSnapshotContext context,
+			UIFormObject ownerEntity, int depth, List<UITableColumnType> columns, String tag)
+			throws ClassNotFoundException, EvaluationException {
+		String beElement = (String)this.removeAttribute("beElememt");
+		DefaultParsingContext pContext = new DefaultParsingContext();
+		Class beClass = null;
+		try {
+			beClass = BEUtil.getBEImplementClass(beElement);
+		} catch (ClassNotFoundException e) {
+			beClass = Class.forName(beElement);
+		}
+		pContext.setVariableClass("rowBE", beClass);
+		
+		for (UITableColumnType col : columns) {
+			HTMLUtil.generateTab(context, depth + 3);
+			context.generateHTML("<"+tag+" class=\"colfilter\">");
+			if ("Text".equalsIgnoreCase(col.getUiType().getType())) {
+				HTMLTextFieldType textField = new HTMLTextFieldType(context, col.getBeFieldId());
+				textField.addAttribute("placeholder", "Search " + UIVariableUtil.getI18NProperty(col.getTitle()));
+				textField.addAttribute("title", UIVariableUtil.getI18NProperty(col.getTitle()));
+				if (tag.equals("div")) {
+					textField.addAttribute("widgetLabel", textField.getAttribute("title"));
+				}
+				textField.addStyle("width", "100%");
+				textField.generateBeginHTML(context, ownerEntity, depth+1);
+				textField.generateEndHTML(context, ownerEntity, depth+1);
+			} else if ("ComBox".equalsIgnoreCase(col.getUiType().getType())) {
+				List<String> optionValues = new ArrayList<String>();
+				List<String> optionDisplayValues = new ArrayList<String>();
+				if (col.getComboxExpression() != null) {
+					List[] values = (List[])col.getComboxExpression().getExpression().evaluate(
+							this.ee.getExpressionContext());
+					if (values == null) {
+						values = new List[] {Collections.emptyList(), Collections.emptyList()};
+					}
+					optionValues = values[0];
+					optionDisplayValues = values[1];
+				} else {
+					List<IConstantEntity> items = null;
+					if (col.getUiType().getCetype() != null && col.getUiType().getCetype().length() > 0) {
+						items = CEUtil.getConstantEntities(col.getUiType().getCetype());
+					} else {
+						Class clazz = ComponentMappingHelper.getComponentPathClass(col.getBeFieldId(), pContext);
+						if (IConstantEntity.class.isAssignableFrom(clazz)) {
+							items = CEUtil.getConstantEntities(clazz.getName());
+						}
+					}
+					for (IConstantEntity item: items) {
+						optionValues.add(item.getIntValue() + "");
+					}
+					for (IConstantEntity item: items) {
+						optionDisplayValues.add(item.getDisplayName());
+					}
+				}
+				HTMLComboBoxType combox = new  HTMLComboBoxType(context, col.getBeFieldId());
+				combox.setPrefix(this.getPrefix());
+				combox.setFrameInfo(this.getFrameInfo());
+				combox.setOptionValues(optionValues);
+				combox.setOptionDisplayValues(optionDisplayValues);
+				combox.addStyle("width", "100%");
+				if (tag.equals("div")) {
+					combox.addAttribute("widgetLabel", UIVariableUtil.getI18NProperty(col.getTitle()));
+				}
+				if (col.getUiType().getEvent() != null) {
+					combox.addEventListener("onchange", col.getUiType().getEvent());
+				}
+				combox.generateBeginHTML(context, ownerEntity, depth+1);
+				combox.generateEndHTML(context, ownerEntity, depth+1);
+			} else if ("CheckBox".equalsIgnoreCase(col.getUiType().getType())) {
+				HTMLCheckBoxType checkBox = new HTMLCheckBoxType(context, col.getBeFieldId());
+				checkBox.setPrefix(this.getPrefix());
+				checkBox.setFrameInfo(this.getFrameInfo());
+				checkBox.addAttribute("title", UIVariableUtil.getI18NProperty(col.getTitle()));
+				checkBox.addAttribute("label", "");
+				if (tag.equals("div")) {
+					checkBox.addAttribute("widgetLabel", checkBox.getAttribute("title"));
+				}
+				checkBox.generateBeginHTML(context, ownerEntity, depth+1);
+				checkBox.generateEndHTML(context, ownerEntity, depth+1);
+			} else if ("Date".equalsIgnoreCase(col.getUiType().getType())) {
+				HTMLDateType date = new HTMLDateType(context, col.getBeFieldId());
+				date.setPrefix(this.getPrefix());
+				date.setFrameInfo(this.getFrameInfo());
+				if (tag.equals("div")) {
+					date.addAttribute("widgetLabel", UIVariableUtil.getI18NProperty(col.getTitle()));
+				}
+				date.generateBeginHTML(context, ownerEntity, depth+1);
+				date.generateEndHTML(context, ownerEntity, depth+1);
+			} else if ("DateRange".equalsIgnoreCase(col.getUiType().getType())) {
+				HTMLDateType start = new HTMLDateType(context, col.getUiType().getStartCondition());
+				start.setPrefix(this.getPrefix());
+				start.setFrameInfo(this.getFrameInfo());
+				start.setRange(true);
+				start.addStyle("width", "100px");
+				if (tag.equals("div")) {
+					start.addAttribute("widgetLabel", UIVariableUtil.getI18NProperty(col.getTitle()));
+				}
+				HTMLDateType end = new HTMLDateType(context, col.getUiType().getEndCondition());
+				end.setPrefix(this.getPrefix());
+				end.setFrameInfo(this.getFrameInfo());
+				end.setRange(true);
+				end.addStyle("width", "100px");
+				if (tag.equals("div")) {
+					end.addAttribute("widgetLabel", UIVariableUtil.getI18NProperty(col.getTitle()));
+				}
+				start.generateBeginHTML(context, ownerEntity, depth+1);
+				start.generateEndHTML(context, ownerEntity, depth+1);
+				context.generateHTML("&nbsp;&nbsp;");
+				end.generateBeginHTML(context, ownerEntity, depth+1);
+				end.generateEndHTML(context, ownerEntity, depth+1);
+			} else if ("Label".equalsIgnoreCase(col.getUiType().getType())) {
+				//Label column does not need to look for search.
+			} 
+			context.generateHTML("</"+tag+">");
 		}
 	}
 

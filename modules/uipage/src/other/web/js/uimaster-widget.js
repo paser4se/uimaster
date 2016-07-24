@@ -448,6 +448,7 @@ UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 	initialized:false,
 	ckeditor:null,
 	saveBtn:null,
+	height:null,
 	init:function() {
 	    if (this.initialized)
 		    return;
@@ -466,6 +467,7 @@ UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 		if (this.persistable) {
 			this.saveBtn = $("<button>\u4FDD\u5B58HTML\u5185\u5BB9</button>");
 			$(this).parent().append(this.saveBtn);
+			$(this).parent().append($("<div>\u60A8\u53EF\u4EE5\u590D\u5236\u7C98\u8D34\u4EFB\u4F55\u7F51\u9875\u5185\u5BB9\u5230\u4E0A\u9762\u8F93\u5165\u6846\u91CC\u3002</div>"));
 			this.saveBtn.click(function(){
 			   var data = CKEDITOR.instances[o.name+"_ckeditor"].getData();
 			   var opts = {url:AJAX_SERVICE_URL,async:false,type:'POST',
@@ -479,9 +481,9 @@ UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 		}
 		var opts = null;
 		if (this.hiddenToolbar)
-		  opts = {uiColor:'#0078AE', toolbar:[]};
+		  opts = {uiColor:'#0078AE', toolbar:[], height: this.height};
 		else 
-		  opts = {uiColor:'#0078AE'};
+		  opts = {uiColor:'#0078AE', height: this.height};
 	    setTimeout(function(){
 		  CKEDITOR.replace(o.name+"_ckeditor", opts);
 		  o.ckeditor = CKEDITOR.instances[o.name+"_ckeditor"];
@@ -1749,17 +1751,29 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 		this.intialized = true;
 		if (this.tagName.toLowerCase() == "div") {
 		    var t = this;
+			$(this).find(".swiper-slide").each(function() {
+			  $(this).unbind("click").bind("click",function() {t.clickImage($(this).children()[0]);});
+			  if (IS_MOBILEVIEW && t.mobheight != -1){
+			     $(this).css("height",t.mobheight);
+			  } else if (t.height != -1){
+			     $(this).css("height",t.height);
+			  }
+			});
+			$("<div class='swiper-pagination'></div><div class='swiper-button-next'></div><div class='swiper-button-prev'></div>").appendTo($(this));
 			if(IS_MOBILEVIEW) {$(this).height(this.mobheight);};
 		    var opts = {nextButton: '.swiper-button-next',prevButton: '.swiper-button-prev',spaceBetween:10,
 			            pagination: '.swiper-pagination', paginationClickable: true, mousewheelControl: true,
-			            afterLoadPhoto: function(image) {t.clickImage(image);}};
+						paginationType: 'fraction', paginationType: 'progress',keyboardControl: true};
 			if (this.thumbnails){
 			   var thum = $(this).clone().removeAttr("id").removeAttr("style").css("height","50px");
+			   thum.find(".swiper-pagination").remove();
+			   thum.find(".swiper-button-next").remove();
+			   thum.find(".swiper-button-prev").remove();
 			   thum.appendTo($(this).parent());
 			   thum.addClass("gallery-thumbs");
 			   $(this).addClass("gallery-top");
 			   this.galleryTop = new Swiper($(this), opts);
-			   this.galleryThumbs = new Swiper('.gallery-thumbs', {
+			   this.galleryThumbs = new Swiper(thum, {
 					spaceBetween: 10, centeredSlides: true,
 					slidesPerView: 'auto', touchRatio: 0.2,
 					slideToClickedSlide: true
@@ -1821,6 +1835,10 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 	},
 	refresh:function(newContent){
 	   $(this).children().each(function(){$(this).remove()});
+	   if (this.thumbnails){
+	      $(this).next().children().each(function(){$(this).remove()});
+		  $(this).next().remove();
+	   }
 	   $(decodeHTML(newContent)).appendTo($(this));
 	   this.intialized = false;
 	   this.init();
@@ -1921,9 +1939,12 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 		});
 	}
 });
-function decodeHTML(input){
-   var arrEntities={'lt':'<','gt':'>','nbsp':' ','amp':'&','quot':'"'};
-   return input.replace(/&(lt|gt|nbsp|amp|quot);/ig,function(all,t){return arrEntities[t];});
+var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:function(input){var output="";var chr1,chr2,chr3,enc1,enc2,enc3,enc4;var i=0;input=Base64._utf8_encode(input);while(i<input.length){chr1=input.charCodeAt(i++);chr2=input.charCodeAt(i++);chr3=input.charCodeAt(i++);enc1=chr1>>2;enc2=((chr1&3)<<4)|(chr2>>4);enc3=((chr2&15)<<2)|(chr3>>6);enc4=chr3&63;if(isNaN(chr2)){enc3=enc4=64}else if(isNaN(chr3)){enc4=64}output=output+this._keyStr.charAt(enc1)+this._keyStr.charAt(enc2)+this._keyStr.charAt(enc3)+this._keyStr.charAt(enc4)}return output},decode:function(input){var output="";var chr1,chr2,chr3;var enc1,enc2,enc3,enc4;var i=0;input=input.replace(/[^A-Za-z0-9\+\/\=]/g,"");while(i<input.length){enc1=this._keyStr.indexOf(input.charAt(i++));enc2=this._keyStr.indexOf(input.charAt(i++));enc3=this._keyStr.indexOf(input.charAt(i++));enc4=this._keyStr.indexOf(input.charAt(i++));chr1=(enc1<<2)|(enc2>>4);chr2=((enc2&15)<<4)|(enc3>>2);chr3=((enc3&3)<<6)|enc4;output=output+String.fromCharCode(chr1);if(enc3!=64){output=output+String.fromCharCode(chr2)}if(enc4!=64){output=output+String.fromCharCode(chr3)}}output=Base64._utf8_decode(output);return output},_utf8_encode:function(string){string=string.replace(/\r\n/g,"\n");var utftext="";for(var n=0;n<string.length;n++){var c=string.charCodeAt(n);if(c<128){utftext+=String.fromCharCode(c)}else if((c>127)&&(c<2048)){utftext+=String.fromCharCode((c>>6)|192);utftext+=String.fromCharCode((c&63)|128)}else{utftext+=String.fromCharCode((c>>12)|224);utftext+=String.fromCharCode(((c>>6)&63)|128);utftext+=String.fromCharCode((c&63)|128)}}return utftext},_utf8_decode:function(utftext){var string="";var i=0;var c=c1=c2=c3=0;while(i<utftext.length){c=utftext.charCodeAt(i);if(c<128){string+=String.fromCharCode(c);i++}else if((c>191)&&(c<224)){c2=utftext.charCodeAt(i+1);string+=String.fromCharCode(((c&31)<<6)|(c2&63));i+=2}else{c2=utftext.charCodeAt(i+1);c3=utftext.charCodeAt(i+2);string+=String.fromCharCode(((c&15)<<12)|((c2&63)<<6)|(c3&63));i+=3}}return string}}
+function decodeHTML(encodedString){
+   return Base64.decode(encodedString);
+}
+function encodeHTML(html){
+   return Base64.encode(html);
 }
 UIMaster.ui.objectlist = function(conf){
 	UIMaster.apply(this, conf);
@@ -1931,6 +1952,8 @@ UIMaster.ui.objectlist = function(conf){
 UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	initialized:false,
 	initRefreshBody:false,
+	loader:null,
+	filterPanel:null,
 	dtable:null,
 	isSingleSelection:false,
 	isMultipleSelection:true,
@@ -1943,11 +1966,191 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	refreshInterval:0,
 	tbody:null,
 	tfoot:null,
+	initMobileView:function(){
+	  var i=0;
+	  var othis = this;
+	  othis.selectedIndex = 0;
+	  this.refreshMobList();
+	  this.filterPanel = $(this).next();
+	  if ($(this).find(".swiper-scrollbar").length == 0) {
+	     $("<div class=\"swiper-scrollbar\"></div>").appendTo($(this));
+	  }
+	  var holdPosition = 0;
+	  var mySwiper = new Swiper($(this),{
+		scrollbar: '.swiper-scrollbar',
+        scrollbarHide: true,
+        paginationClickable: true,
+        direction: 'vertical',
+		slidesPerView:'auto',
+		lazyLoading : true,
+		watchActiveIndex: true,
+		iOSEdgeSwipeDetection:true,
+		iOSEdgeSwipeThreshold:true,
+		onTouchStart: function(s) {
+		  holdPosition = 0;
+		},
+		onTouchMove: function(s, e){
+		  holdPosition = mySwiper.touches.currentY;
+		},
+		onTouchEnd: function(s){
+		  //console.log(holdPosition);
+		  if (mySwiper.touches.startY < holdPosition) {
+			  if (holdPosition > 360) {
+			    mySwiper.setWrapperTranslate(100);
+				mySwiper.params.onlyExternal=true;
+				var obj = UIMaster.getObject(othis);
+				UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"pull",_value:"new",_framePrefix:UIMaster.getFramePrefix(obj)});
+				othis.showLoader(true);
+				othis.loadNewSlides("new");
+			  }
+		  } else {
+		      if ((holdPosition != 0 && holdPosition <= holdPosition) && mySwiper.slides.length >= 4 
+			      && (mySwiper.slides.length - parseInt($(mySwiper.clickedSlide).attr("_rowindex")) <= 4)) {
+			    mySwiper.setWrapperTranslate(-100);
+				mySwiper.params.onlyExternal=true;
+				var obj = UIMaster.getObject(othis);
+				UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"pull",_value:"history",_framePrefix:UIMaster.getFramePrefix(obj)});
+				othis.showLoader(false);
+				othis.loadNewSlides("history");
+			  }
+		  }
+		}
+	  });
+	  this.mySwiper = mySwiper;
+	  mySwiper.clickedSlide = $(this).find(".swiper-slide")[0];
+	  var p = $(this).parent();
+	  while(p && p[0].tagName.toLowerCase() != "body") {
+	     if (!$(p).attr("style") || $(p).attr("style").indexOf("height")==-1) {
+			$(p).css("height", "100%");//FIXED: swiper bug on default element height.
+		 }
+	     p = $(p).parent();
+	  }
+	  var loader = $("<div class='swiper-preloader' style='opacity:0;'>Loading ...</div>");
+	  loader.appendTo($(this));
+	  this.loader = loader;
+	},
+	showLoader: function(isNew){
+	 if (isNew) {
+	   this.loader.css("top","0px");this.loader.css("left",$(this).position().left + "px");
+	 } else {
+	   this.loader.css("top",($(this).height() - 200) + "px");this.loader.css("left",$(this).position().left + "px");
+	 }
+	 this.loader.css("opacity", "1");
+	},
+	hideLoader:function(){this.loader.css("opacity", "0");},
+	loadNewSlides: function(pullaction){
+	    var othis = this;
+	    var opts = {url:AJAX_SERVICE_URL,async:false,
+			data:{_ajaxUserEvent:"table",_uiid:othis.id,_actionName:"pull",_value:pullaction,_framePrefix:UIMaster.getFramePrefix(),_sync: UIMaster.ui.sync()},
+			success: function(data){
+			 if (data.rows && data.rows.length > 0) {
+			     if (pullaction == "filter") {
+				    othis.mySwiper.removeAllSlides();
+				 }
+			     for(var i=0;i<data.rows.length;i++){
+					 var row = decodeHTML(data.rows[i].value);
+					  //Prepend new slide
+					  if (pullaction == "new") {
+					    othis.mySwiper.prependSlide(row);
+					  } else {
+					    othis.mySwiper.appendSlide(row);
+					  }
+				 }
+				 othis.mySwiper.setWrapperTranslate(0,0,0);
+				 othis.mySwiper.params.onlyExternal=false;
+				 if (pullaction != "new") {
+				   var endSlide = ($(othis).find(".swiper-slide").length - 1);
+				   setTimeout(function(){othis.mySwiper.slideTo(endSlide, 1000, false)},1000);
+				 }
+				 othis.refreshMobList();
+		     } else {
+			   othis.mySwiper.setWrapperTranslate(0,0,0);
+			   othis.mySwiper.params.onlyExternal=false;
+			 }
+			 othis.hideLoader();
+		  },
+		  error: function(XMLHttpRequest, textStatus, errorThrown) {
+		      console.log(errorThrown);
+			  othis.hideLoader();
+		      othis.mySwiper.setWrapperTranslate(0,0,0);
+			  othis.mySwiper.params.onlyExternal=false;
+		  }};
+		if (MobileAppMode) {
+			_mobContext.ajax(JSON.stringify(opts));
+		} else {
+			$.ajax(opts);
+		}
+	},
+	refreshMobList:function(){
+	  var othis = this;
+	  var i=0;
+	  $(this).find(".swiper-slide").each(function() {
+		 $(this).attr("_rowindex",i++);
+		 $(this).unbind("click").bind("click",function() {
+			var selectedRow = $(this).parent().find('.swiper-slide-active');
+			if (selectedRow.length > 0) {
+				if ($(selectedRow).attr('_rowindex') == $(this).attr('_rowindex')) {
+				   var obj = UIMaster.getObject(othis);
+				   UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"selectedIndex",_value:othis.selectedIndex,_framePrefix:UIMaster.getFramePrefix(obj)});
+				   var id = othis.id.replace(/\./g,"_");
+				   if (IS_MOBILEVIEW) { eval($('#'+id+"_openItem")[0].href);}
+				   else {$('#'+id+"_openItem").trigger('click');}
+				   return;
+				} else {
+				   $(selectedRow).removeClass('swiper-slide-active');
+				}
+			}
+			$(this).addClass('swiper-slide-active');
+			othis.selectedIndex = $(this).attr("_rowindex");
+		 });
+	  });
+	},
+	showMobFilter: function(){
+	   $(this.filterPanel).dialog({
+	     open: function(event, ui) {
+			$(".ui-dialog-titlebar-close", ui.dialog | ui).hide();
+			$(this).enhanceWithin();
+	   }});
+	},
+	saveMobFilter: function(){
+	    var obj = UIMaster.getObject(this);
+        if (obj._selectedIndex != this.selectedIndex) {
+            UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"selectedIndex",_value:this.selectedIndex,_framePrefix:UIMaster.getFramePrefix(obj)});
+			obj._selectedIndex = this.selectedIndex;
+        }
+		var conditions = new Array();
+		$(this.filterPanel).find("input,select").each(function(){
+			if(this.tagName.toLowerCase() == "input" && this.value != "") {
+				conditions.push({name:this.name, value:this.value});
+			} else if(this.tagName.toLowerCase() == "select" && this.value != "-1") {
+				conditions.push({name:this.name, value:this.value});
+			}
+		});
+		if (conditions.length > 0) {
+		   UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"conditions",_value:JSON.stringify(conditions),_framePrefix:UIMaster.getFramePrefix(obj)});
+		   this.loadNewSlides("filter");
+		}
+		this.filterPanel.dialog("close");
+	},
+	clearMobFilter: function(){
+	   $(this.filterPanel).find("input,select").each(function(){
+		if(this.tagName.toLowerCase() == "input" && this.value != "") {
+			this.value = "";
+		} else if(this.tagName.toLowerCase() == "select" && this.value != "-1") {
+		    this.value = "-1";
+		}
+		});
+	},
+	/**table object*/
 	init:function(){
 		if (this.initialized)
 			return;
 		this.initialized = true;
-		if (!IS_MOBILEVIEW) {
+		var othis = this;
+		if (IS_MOBILEVIEW) {
+		   this.initMobileView();
+		   return;
+		}
 		$(this).prev().children().each(function() { //#'+this.id+'ActionBar'
 			$(this).buttonset();
 			$(this).removeAttr("style");
@@ -1957,7 +2160,6 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				}
 			});
 		});
-		}
 		var selectMode = $(this).attr("selectMode");
 		if (selectMode == "Multiple") {
 		   this.isMultipleSelection = true;
@@ -1970,12 +2172,9 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		    this.isMultipleSelection = false;
 		}
 		var othis = this;
-		var columnDefs = [{"targets":0,"orderable":false,"render":this.renderSelection}];
+		var columnDefs = [{"targets":0,"orderable":false,"mRender":this.renderSelection}];
 		$($(this).find('thead').children()[0]).children().each(function(index){
-		    if ($(this).attr('htmltype') == "HTML" || $(this).attr('htmltype') == "html"
-			    || $(this).attr('htmltype') == "Image" || $(this).attr('htmltype') == "image") {
-		       columnDefs.push({"targets":index,"orderable":false,"render":othis.renderSelection});
-			}
+		    columnDefs.push({"targets":index,"orderable":true,"mRender":othis.renderSelection});
 		});
 		this.tfoot = $($(this).find('tfoot')[0]);
 		this.editable = ($(this).prev().attr('editable')=="true");
@@ -1985,8 +2184,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		var table = $(this).dataTable({
 			"paginate": this.editable,"ordering":this.editable,"info":this.editable,
 			"pageLength": 10,"searching": false,"pageIndex":0,
-			"scrollY":(!this.editablecell?(MobileAppMode?'300px':'60vh'):false),
-            "scrollCollapse": (!this.editablecell?true:false),
+			"scrollY":((!this.editablecell && !MobileAppMode)?'60vh':"auto"),
+            "scrollCollapse": ((!this.editablecell && !MobileAppMode)?true:false),
 			"filter": true,
 			"recordsFiltered": $(this).attr("recordsfiltered"),
 			"recordsTotal": recordsTotal,
@@ -2064,9 +2263,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			return "<input type=\"radio\" name=\"selectRadio\" index=\""+data.substring(data.indexOf("radio")+6)+"\" />";
 		if (data.indexOf("checkbox,") == 0) 
 			return "<input type=\"checkbox\" name=\"\" index=\""+data.substring(data.indexOf("checkbox")+9)+"\"/>";
-		if (data.indexOf("&lt;div") != -1 || data.indexOf("&lt;span") != -1) //html content
-		    return decodeHTML(data);
-		return data;
+		return decodeHTML(data);//html content
 	},
 	refreshFoot:function(){
 	    var othis = this;
@@ -3045,7 +3242,7 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
         		$(this).append($(elementList[$(this).attr("uipanelid")]).parent());
 			}
 			var screenHeight = MobileAppMode?_mobContext.getScreenHeight():$(window.top).height();
-            if ($(this).height() > screenHeight) {
+            if (!IS_MOBILEVIEW && $(this).height() > screenHeight) {
 			   $(this).css("height", (screenHeight - 50) + "px");
 			   $(this).css("overflow-y", "scroll");
 		    }
@@ -3053,7 +3250,7 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
 		bodies.resize(function(){
 		    bodies.children().each(function(){
 			var screenHeight = MobileAppMode?_mobContext.getScreenHeight():$(window.top).height();
-            if ($(this).height() > screenHeight) {
+            if (!IS_MOBILEVIEW && $(this).height() > screenHeight) {
 			   $(this).css("height", (screenHeight - 50) + "px");
 			   $(this).css("overflow-y", "scroll");
 		    }
@@ -3082,7 +3279,7 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
         var currBody = $("#"+currTitle.attr("id").replace("titles","body"));
 		currBody.removeClass("tab-unselected-body").addClass("tab-selected-body");
 		var screenHeight = MobileAppMode?_mobContext.getScreenHeight():$(window.top).height();
-		if (currBody.height() > screenHeight)
+		if (!IS_MOBILEVIEW && currBody.height() > screenHeight)
 			currBody.css("height", (screenHeight - 50) + "px").css("overflow-y", "scroll");
         titleContainer.attr("selectedIndex",currTitle.attr("index"));
 		this.selectedIndex = currTitle.attr("index");
@@ -3141,7 +3338,7 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
 				updateContent = $(this);
 				if (IS_MOBILEVIEW) {$(this).trigger('create');}
 				var screenHeight = MobileAppMode?_mobContext.getScreenHeight():$(window.top).height();
-				if ($(this).height() > screenHeight) {
+				if (!IS_MOBILEVIEW && $(this).height() > screenHeight) {
 					$(this).css("height", (screenHeight - 50) + "px");
 					$(this).css("overflow-y", "scroll");
 				}

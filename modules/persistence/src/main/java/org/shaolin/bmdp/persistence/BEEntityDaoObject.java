@@ -480,7 +480,7 @@ public class BEEntityDaoObject {
 					&& UserContext.getUserContext().getPullId() > 0) {
 				if (UserContext.getUserContext().isPullNew()) {
 					criteria.add(createCriterion(Operator.GREATER_THAN, criteria.getAlias() + ".id", UserContext.getUserContext().getPullId()));
-				} else {
+				} else if (UserContext.getUserContext().isPullHistory()) {
 					criteria.add(createCriterion(Operator.LESS_THAN, criteria.getAlias() + ".id", UserContext.getUserContext().getPullId()));
 				}
 				if (count > 0) {

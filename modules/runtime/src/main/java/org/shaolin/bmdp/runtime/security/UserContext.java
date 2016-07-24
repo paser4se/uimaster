@@ -1,7 +1,6 @@
 package org.shaolin.bmdp.runtime.security;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -308,6 +307,10 @@ public class UserContext implements Serializable {
 		return pullAction != null && "new".equals(pullAction);
 	}
 
+	public boolean isPullHistory() {
+		return pullAction != null && "history".equals(pullAction);
+	}
+	
 	public void setPullAction(String pullAction) {
 		this.pullAction = pullAction;
 	}

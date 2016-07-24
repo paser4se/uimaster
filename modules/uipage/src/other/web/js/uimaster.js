@@ -2103,7 +2103,8 @@ function establishWebsocket(eventType, onOpen, onMessage, onError) {
     if (MobileAppMode) {
 	    webSocket = _mobContext.getWebSocket();
 	} else {
-        webSocket = new WebSocket("ws://"+window.location.host+WEB_CONTEXTPATH+eventType);
+	    var phead = ('https:' == window.location.protocol) ? "wss://" : "ws://"; 
+        webSocket = new WebSocket(phead+window.location.host+WEB_CONTEXTPATH+eventType);
 	}
     webSocket.onerror = function(event) {
       onError(webSocket, event);

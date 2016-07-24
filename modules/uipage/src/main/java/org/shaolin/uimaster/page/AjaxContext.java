@@ -372,7 +372,10 @@ public class AjaxContext extends OpExecuteContext implements Serializable
     
     public void executeJavaScript(String script)
     {
-        executeJavaScript(script, requestData.getFrameId());
+    	if (script != null && script.length() > 0) 
+    	{
+    		executeJavaScript(script, requestData.getFrameId());
+    	}
     }
 
     public void executeJavaScript(String script, String frameInfo)

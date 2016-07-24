@@ -248,8 +248,9 @@ display:none; float:left; width:30px; height:180px; margin:80px 0 0 10px; displa
     margin: 5px;
 }
 
-html { 
+html, body{ 
     overflow: auto;
+	height: 100%
 }
 
 /* TwoSelectionList Style*/
@@ -578,3 +579,28 @@ html {
 .gallery-thumbs {height: 20%;box-sizing: border-box;padding: 10px 0;}
 .gallery-thumbs .swiper-slide {width: 25%;height: 100%;opacity: 0.4;}
 .gallery-thumbs .swiper-slide-active {opacity: 1;}
+.uimaster_table_mob .swiper-container {height:100px;}
+.uimaster_table_mob .swiper-slide {height:100px; display:-webkit-box;display:-moz-box;display:box;border-bottom:1px solid #8DB9DB;padding:5px 0 5px 0;opacity: 1;}
+.uimaster_table_mob .swiper-slide .p {width: 100px;height: 100px;margin-right: 10px;margin-left: 8px;}
+.uimaster_table_mob .swiper-slide .d {text-align: left;}
+.uimaster_table_mob .swiper-slide-active {background-color: #a9b7d1;}
+.uimaster_table_mob .swiper-slide-visible {opacity: 1;}
+.swiper-preloader {
+  position: absolute;
+  z-index: 0;
+  color: #fff;
+  text-align: center;
+  line-height: 100px;
+  height: 100px;
+  width: 100%;
+  font-size: 25px;
+  -webkit-transition: 300ms;
+  -moz-transition: 300ms;
+  -ms-transition: 300ms;
+  -o-transition: 300ms;
+  transition: 300ms;
+  background: rgba(31, 94, 210, 0.5);
+}
+.uimaster_table_mob_filter {
+  position: absolute;
+}

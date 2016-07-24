@@ -768,6 +768,17 @@ abstract public class Widget implements Serializable
         }
     }
     
+    public void click() {
+    	if(!this.checkAcessible())
+        {
+            return;
+        }
+    	AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        if (ajaxContext == null)
+            return;
+        ajaxContext.executeJavaScript("$('"+this.getId()+"').trigger('click');");
+    }
+    
     /**
      * ajax update is unnecessary!
      * 

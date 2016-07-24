@@ -377,7 +377,7 @@ public class Table extends Widget implements Serializable {
 	 */
 	public void refresh() {
 		if (UserContext.isMobileRequest() && !isEditableCell()) {
-			conditions.setPullAction("new");
+			conditions.setPullAction("filter");
 		}
 		IDataItem dataItem = AjaxActionHelper.createDataItem();
 		dataItem.setUiid(this.getId());
@@ -448,7 +448,7 @@ public class Table extends Widget implements Serializable {
 			}
 			if (isMobPulling) {
 				//TODO:
-				String newRows = refreshPull0(listData);
+				String newRows = refreshPull0(rows);
 				if (UserContext.getUserContext().isPullNew()) {
 					rows.addAll(this.listData);
 					this.listData = rows;
