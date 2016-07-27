@@ -374,25 +374,23 @@ public class HTMLTableType extends HTMLContainerType {
 		HTMLUtil.generateTab(context, depth + 2);
 		
 		Boolean showFilter = (Boolean)this.removeAttribute("isShowFilter");
-		if (isEditableCell.booleanValue()) {
-			context.generateHTML("<tfoot");
-			if (isEditableCell.booleanValue() || showFilter == Boolean.FALSE) {
-				context.generateHTML(" style=\"display:none;\"");
-			}
-			context.generateHTML(">");
-			HTMLUtil.generateTab(context, depth + 3);
-			context.generateHTML("<tr>");
-			//if (selectMode != UITableSelectModeType.NORMAL) {
-			HTMLUtil.generateTab(context, depth + 3);
-			context.generateHTML("<th></th>");
-			
-			generateFilter(context, ownerEntity, depth, columns, "th");
-			
-			HTMLUtil.generateTab(context, depth + 3);
-			context.generateHTML("</tr>");
-			HTMLUtil.generateTab(context, depth + 2);
-			context.generateHTML("</tfoot>");
+		context.generateHTML("<tfoot");
+		if (isEditableCell.booleanValue() || showFilter == Boolean.FALSE) {
+			context.generateHTML(" style=\"display:none;\"");
 		}
+		context.generateHTML(">");
+		HTMLUtil.generateTab(context, depth + 3);
+		context.generateHTML("<tr>");
+		//if (selectMode != UITableSelectModeType.NORMAL) {
+		HTMLUtil.generateTab(context, depth + 3);
+		context.generateHTML("<th></th>");
+		
+		generateFilter(context, ownerEntity, depth, columns, "th");
+		
+		HTMLUtil.generateTab(context, depth + 3);
+		context.generateHTML("</tr>");
+		HTMLUtil.generateTab(context, depth + 2);
+		context.generateHTML("</tfoot>");
 		
 		HTMLUtil.generateTab(context, depth + 1);
 		context.generateHTML("</table>");
@@ -483,30 +481,34 @@ public class HTMLTableType extends HTMLContainerType {
 			} else if ("ComBox".equalsIgnoreCase(col.getUiType().getType())) {
 				List<String> optionValues = new ArrayList<String>();
 				List<String> optionDisplayValues = new ArrayList<String>();
-				if (col.getComboxExpression() != null) {
-					List[] values = (List[])col.getComboxExpression().getExpression().evaluate(
-							this.ee.getExpressionContext());
-					if (values == null) {
-						values = new List[] {Collections.emptyList(), Collections.emptyList()};
-					}
-					optionValues = values[0];
-					optionDisplayValues = values[1];
-				} else {
-					List<IConstantEntity> items = null;
-					if (col.getUiType().getCetype() != null && col.getUiType().getCetype().length() > 0) {
-						items = CEUtil.getConstantEntities(col.getUiType().getCetype());
+				try {
+					if (col.getComboxExpression() != null) {
+						List[] values = (List[])col.getComboxExpression().getExpression().evaluate(
+								this.ee.getExpressionContext());
+						if (values == null) {
+							values = new List[] {Collections.emptyList(), Collections.emptyList()};
+						}
+						optionValues = values[0];
+						optionDisplayValues = values[1];
 					} else {
-						Class clazz = ComponentMappingHelper.getComponentPathClass(col.getBeFieldId(), pContext);
-						if (IConstantEntity.class.isAssignableFrom(clazz)) {
-							items = CEUtil.getConstantEntities(clazz.getName());
+						List<IConstantEntity> items = null;
+						if (col.getUiType().getCetype() != null && col.getUiType().getCetype().length() > 0) {
+							items = CEUtil.getConstantEntities(col.getUiType().getCetype());
+						} else {
+							Class clazz = ComponentMappingHelper.getComponentPathClass(col.getBeFieldId(), pContext);
+							if (IConstantEntity.class.isAssignableFrom(clazz)) {
+								items = CEUtil.getConstantEntities(clazz.getName());
+							}
+						}
+						for (IConstantEntity item: items) {
+							optionValues.add(item.getIntValue() + "");
+						}
+						for (IConstantEntity item: items) {
+							optionDisplayValues.add(item.getDisplayName());
 						}
 					}
-					for (IConstantEntity item: items) {
-						optionValues.add(item.getIntValue() + "");
-					}
-					for (IConstantEntity item: items) {
-						optionDisplayValues.add(item.getDisplayName());
-					}
+				} catch (Exception e) {
+					logger.warn("Error to generate the table filter: " + e.getMessage(), e);
 				}
 				HTMLComboBoxType combox = new  HTMLComboBoxType(context, col.getBeFieldId());
 				combox.setPrefix(this.getPrefix());
