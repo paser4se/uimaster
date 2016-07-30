@@ -42,6 +42,8 @@ public interface IPermissionService {
 
 	public static final int HIDDEN = 5;
 
+	public void reloadRolePermissions(IConstantEntity partyType);
+	
 	/**
 	 * 
 	 * @param chunkName

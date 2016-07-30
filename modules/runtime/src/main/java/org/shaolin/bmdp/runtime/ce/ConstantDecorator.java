@@ -26,7 +26,7 @@ public class ConstantDecorator implements Serializable {
 	}
 	
 	public String getI18nValue() {
-		if (i18nInfo.indexOf("||") != -1) {
+		if (i18nInfo != null && i18nInfo.indexOf("||") != -1) {
 			String[] v = i18nInfo.split("||");
 			String displayName = ResourceUtil.getResource(null, v[0], v[1]);
 			if (displayName != null) {

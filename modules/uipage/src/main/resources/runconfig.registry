@@ -57,6 +57,7 @@
             <item name="syncLoadJs" value="jquery.js;uimaster.js;api.map.baidu.com/api;coupon-common.js" />
             <node name="commoncss">
             	<item name="jquery-swiper" value="/js/controls/swiper/swiper.css" />
+            	<item name="jquery-dataTable" value="/css/jquery-dataTable.css" />
             	<item name="jquery-jstree" value="/css/jquery-jstree.css" />
             	<item name="jquery-ui" value="/css/jquery-ui.css" />
             	<!-- 
@@ -91,6 +92,7 @@
             	<item name="jquery" value="/js/jquery.js" />
             	<item name="jquery-ui" value="/js/jquery-ui.js" />
             	<item name="jquery-swiper" value="/js/controls/swiper/swiper.jquery.js" />
+            	<item name="jquery-dataTable" value="/js/jquery-dataTable.js" />
             	<item name="jquery-jstree" value="/js/jquery-jstree.js" />
             	<item name="uimaster" value="/js/uimaster.js" />
             	<item name="uimaster-widget" value="/js/uimaster-widget.js" />

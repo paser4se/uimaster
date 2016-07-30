@@ -110,8 +110,7 @@ public class HTMLTableType extends HTMLContainerType {
 				return;
 			}
 			
-			if (context.getRequest().getAttribute("_hasTable") == null
-					|| !UserContext.isMobileRequest() || isEditableCell.booleanValue()) {
+			if (UserContext.isMobileRequest() && isEditableCell.booleanValue()) {
 				context.getRequest().setAttribute("_hasTable", Boolean.TRUE);
 	            HTMLUtil.generateTab(context, depth);
 	            String root = UserContext.isAppClient() ? WebConfig.getAppContextRoot() : WebConfig.getResourceContextRoot();
