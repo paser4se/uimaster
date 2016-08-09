@@ -13,7 +13,10 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -984,5 +987,24 @@ public class ImageUtil {
 			logger.error("Could not parse html!!!", e);
 		}
 	}
+	
+	public static void downloadImage(String urlString, File sf, String fileName) throws Exception {
+		URL url = new URL(urlString);
+		URLConnection con = url.openConnection();
+		con.setConnectTimeout(5 * 1000);
+		InputStream is = con.getInputStream();
+
+		byte[] bs = new byte[1024];
+		int len;
+		if (!sf.exists()) {
+			sf.mkdirs();
+		}
+		OutputStream os = new FileOutputStream(sf.getPath()+"/"+fileName);
+		while ((len = is.read(bs)) != -1) {
+			os.write(bs, 0, len);
+		}
+		os.close();
+		is.close();
+	}  
 	
 }

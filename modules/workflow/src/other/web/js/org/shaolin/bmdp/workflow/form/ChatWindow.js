@@ -43,14 +43,12 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
         ui: elementList[prefix + "receivedPartyNameUI"]
     });
 
-    var messageUI = new UIMaster.ui.textarea
+    var messageUI = new UIMaster.ui.objectlist
     ({
         ui: elementList[prefix + "messageUI"]
-        ,rows: 20
-        ,cols: 90
-        ,height: "300px"
-        ,hiddenToolbar: true
-        ,persistable: false
+        ,utype: "swiper"
+        ,height: "220px"
+        ,appendRowMode: true
     });
 
     var enterMessageUI = new UIMaster.ui.textarea
@@ -182,7 +180,7 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
                $(this.enterMessageUI).attr("disabled", "disabled");
                return;
             }
-            msgContainer.appendHTMLText(e.data);
+            msgContainer.appendSlide(e.data);
          },
          function(ws,e){
              console.log("error occurred while receiving a message: " + e.data);

@@ -299,6 +299,21 @@ public class AjaxActionHelper {
 		dataItem.setJsHandler(IJSHandlerCollections.HTML_UPDATE_CONST);
 		return dataItem;
 	}
+	
+	public static IDataItem showConstraint(String uiid, String message) {
+		IDataItem dataItem = new DataItem();
+		dataItem.setUiid(uiid);
+		dataItem.setData(message);
+		dataItem.setJsHandler(IJSHandlerCollections.SHOW_CONSTRAINT);
+		return dataItem;
+	}
+	
+	public static IDataItem removeConstraint(String uiid) {
+		IDataItem dataItem = new DataItem();
+		dataItem.setUiid(uiid);
+		dataItem.setJsHandler(IJSHandlerCollections.REMOVE_CONSTRAINT);
+		return dataItem;
+	}
 
 	public static IDataItem removeAttrItem(String uiid, String data) {
 		IDataItem dataItem = new DataItem();

@@ -1149,6 +1149,20 @@ UIMaster.registerHandler("fadeOut", function(data,win){
 	}
 	var attribute = win.eval("("+data.data+")");
 	win.$('#'+data.uiid).validators=attribute.validators;
+}).registerHandler("show_constraint",function(data,win){
+    var e,i;
+    for (i in win.elementList)
+        if (i.indexOf(data.uiid) == 0)
+        	e = win.elementList[i];
+    if(!e) return;
+	constraint(data.uiid, data.data);
+}).registerHandler("remove_constraint",function(data,win){
+    var e,i;
+    for (i in win.elementList)
+        if (i.indexOf(data.uiid) == 0)
+        	e = win.elementList[i];
+    if(!e) return;
+	clearConstraint(data.uiid);
 }).registerHandler("update_readonly",function(data,win){
 	var attribute = win.eval("("+data.data+")");
 	UIMaster.handler["remove"](data, win);

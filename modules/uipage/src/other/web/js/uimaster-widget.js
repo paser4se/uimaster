@@ -1951,6 +1951,7 @@ UIMaster.ui.objectlist = function(conf){
 };
 UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	initialized:false,
+	utype: null,
 	initRefreshBody:false,
 	loader:null,
 	filterPanel:null,
@@ -2081,6 +2082,9 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			$.ajax(opts);
 		}
 	},
+	appendSlide:function(data){
+		this.mySwiper.appendSlide($(data));
+	},
 	refreshMobList:function(){
 	  var othis = this;
 	  var i=0;
@@ -2147,7 +2151,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			return;
 		this.initialized = true;
 		var othis = this;
-		if (IS_MOBILEVIEW) {
+		if (IS_MOBILEVIEW || this.utype == "swiper") {
 		   this.initMobileView();
 		   return;
 		}
@@ -2182,11 +2186,11 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		var recordsTotal = parseInt($(this).attr("recordstotal"));
 		try {
 		var table = $(this).dataTable({
-			"paginate": this.editable,"ordering":this.editable,"info":this.editable,
-			"pageLength": 10,"searching": false,"pageIndex":0,
+		    "lengthMenu": [10, 25, 50, 100],"pageLength": 10,"paginate": this.editable,"paging":this.editable,
+			"ordering":this.editable,"info":this.editable,
+			"searching": false,"pageIndex":0,"filter": true,
 			"scrollY":((!this.editablecell && !MobileAppMode)?'60vh':"auto"),
-            "scrollCollapse": ((!this.editablecell && !MobileAppMode)?true:false),
-			"filter": true,
+			"scrollCollapse": false,
 			"recordsFiltered": $(this).attr("recordsfiltered"),
 			"recordsTotal": recordsTotal,
 			"columnDefs": columnDefs, 

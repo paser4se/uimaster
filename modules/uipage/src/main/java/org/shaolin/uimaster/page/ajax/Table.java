@@ -68,6 +68,8 @@ public class Table extends Widget implements Serializable {
 	
 	private boolean isEditableCell;
 	
+	private boolean isSliderMode;
+	
 	public static final ExpressionType statsExpr = new ExpressionType();
 	static{
 		statsExpr.setExpressionString("import org.shaolin.bmdp.analyzer.dao.AanlysisModelCust; {\n"
@@ -192,6 +194,14 @@ public class Table extends Widget implements Serializable {
 		return listData.get(conditions.getCurrentSelectedIndex());
 	}
 
+	public boolean isSliderMode() {
+		return this.isSliderMode || (UserContext.isMobileRequest() && !isEditableCell());
+	}
+	
+	public void markSliderMode() {
+		this.isSliderMode = true;
+	}
+	
 	public int getSelectedIndex() {
 		return conditions.getCurrentSelectedIndex();
 	}
@@ -376,7 +386,7 @@ public class Table extends Widget implements Serializable {
 	 * Refresh from the query expression.
 	 */
 	public void refresh() {
-		if (UserContext.isMobileRequest() && !isEditableCell()) {
+		if (this.isSliderMode()) {
 			conditions.setPullAction("filter");
 		}
 		IDataItem dataItem = AjaxActionHelper.createDataItem();
@@ -396,7 +406,7 @@ public class Table extends Widget implements Serializable {
 		IDataItem dataItem = AjaxActionHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
-		if (UserContext.isMobileRequest() && !isEditableCell()) {
+		if (this.isSliderMode()) {
 			dataItem.setData(this.refreshPull0(rows));
 		} else {
 			dataItem.setData(this.refreshTable0(rows));
@@ -407,7 +417,7 @@ public class Table extends Widget implements Serializable {
 	
 	public String refresh0() {
 		boolean isMobPulling = false;
-		if (UserContext.isMobileRequest() && !isEditableCell()) {
+		if (this.isSliderMode()) {
 			long value = 0;
 			for (Object be : listData) {
 				if (be instanceof IPersistentEntity) {

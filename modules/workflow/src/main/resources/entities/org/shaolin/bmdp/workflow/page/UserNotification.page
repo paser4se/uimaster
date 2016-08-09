@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:UIPage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ns2="http://bmdp.shaolin.org/datamodel/Page" xmlns="http://bmdp.shaolin.org/datamodel/Common"
+	xsi:schemaLocation="">
+	<entityName>org.shaolin.bmdp.workflow.page.UserNotification</entityName>
+	<systemVersion>0</systemVersion>
+	<description>消息通知</description>
+	<ns2:UIEntity xsi:type="ns2:UIEntityType">
+		<ns2:body UIID="Form" xsi:type="ns2:UIPanelType">
+		    <ns2:UISkin xsi:type="ns2:UISkinType">
+                <ns2:skinName>org.shaolin.uimaster.page.skin.TitlePanel</ns2:skinName>
+                <ns2:param name="text">
+                    <ns2:value xsi:type="ns2:StringPropertyType">
+                        <ns2:value></ns2:value>
+                    </ns2:value>
+                </ns2:param>
+            </ns2:UISkin>
+			<ns2:layout xsi:type="ns2:TableLayoutType">
+				<ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
+				<ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
+			</ns2:layout>
+			<ns2:component xsi:type="ns2:UIReferenceEntityType" UIID="notificationRef">
+                <ns2:referenceEntity entityName="org.shaolin.bmdp.workflow.form.NotificationBoard"></ns2:referenceEntity>
+            </ns2:component>
+            <ns2:layoutConstraint>
+                <ns2:componentId>notificationRef</ns2:componentId>
+                <ns2:constraint xsi:type="ns2:TableLayoutConstraintType"
+                    x="0" y="0" align="FULL"></ns2:constraint>
+            </ns2:layoutConstraint>
+		</ns2:body>
+	</ns2:UIEntity>
+	<ns2:ODMapping>
+	    <ns2:DataEntity scope="InOut" name="notificator" category="BusinessEntity">
+            <type entityName="org.shaolin.bmdp.workflow.be.Notification"></type>
+        </ns2:DataEntity>
+	    <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping0">
+          <ns2:mappingRule entityName="org.shaolin.bmdp.workflow.form.NotificationBoard"></ns2:mappingRule>
+          <ns2:UIComponent componentPath="notificationRef" paramName="UIWidgetType"></ns2:UIComponent>
+          <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="notificator" paramName="beObject"></ns2:DataComponent>
+          <ns2:DataComponent xsi:type="ns2:ExpressionParamType" paramName="countUIId">
+              <ns2:expression>
+                   <expressionString>""</expressionString><!-- indicates the notificationIcon parent.-->
+               </ns2:expression>
+          </ns2:DataComponent>
+        </ns2:ComponentMapping>
+	</ns2:ODMapping>
+	<ns2:in>
+		<ns2:serverOperation xsi:type="ns2:ExpressionType">
+			<ns2:expressionString><![CDATA[
+			import org.shaolin.bmdp.runtime.AppContext;
+            import org.shaolin.vogerp.commonmodel.IUserService;
+            import org.shaolin.vogerp.commonmodel.be.PersonalAccountImpl;
+            import org.shaolin.uimaster.page.flow.WebflowConstants;
+            import org.shaolin.bmdp.runtime.security.UserContext;
+            import org.shaolin.bmdp.workflow.be.NotificationImpl;
+            {
+              UserContext userAccount = (UserContext)@odContext.getRequest().getSession().getAttribute(WebflowConstants.USER_SESSION_KEY);
+              $notificator = new NotificationImpl();
+              $notificator.setPartyId(userAccount.getUserId());
+              @odContext.executeAllMappings();
+            }]]></ns2:expressionString>
+		</ns2:serverOperation>
+	</ns2:in>
+</ns2:UIPage>

@@ -87,7 +87,8 @@ public class HTMLTableType extends HTMLContainerType {
 			if (selectMode == null) {
 				selectMode = UITableSelectModeType.SINGLE;
 			}
-			if (UserContext.isMobileRequest() && selectMode == UITableSelectModeType.SINGLE) {
+			boolean isSliderMode = UserContext.isMobileRequest() || (this.getAttribute("utype") != null && "swiper".equals(this.getAttribute("utype")));
+			if (isSliderMode && selectMode == UITableSelectModeType.SINGLE) {
 				selectMode = UITableSelectModeType.NORMAL;
 			}
 			int defaultRowSize = (Integer)this.removeAttribute("defaultRowSize");
@@ -105,12 +106,16 @@ public class HTMLTableType extends HTMLContainerType {
 				selectMode = UITableSelectModeType.NORMAL;
 				isEditableCell = Boolean.FALSE;
 			}
+			if (isEditableCell.booleanValue()) {
+				isSliderMode = false;
+			}
+			
 			List<UITableColumnType> columns = (List<UITableColumnType>)this.removeAttribute("columns");
 			if (columns == null || columns.size() == 0) {
 				return;
 			}
 			
-			if (UserContext.isMobileRequest() && isEditableCell.booleanValue()) {
+			if (!isSliderMode) {
 				context.getRequest().setAttribute("_hasTable", Boolean.TRUE);
 	            HTMLUtil.generateTab(context, depth);
 	            String root = UserContext.isAppClient() ? WebConfig.getAppContextRoot() : WebConfig.getResourceContextRoot();
@@ -133,7 +138,7 @@ public class HTMLTableType extends HTMLContainerType {
 			}
 			context.generateHTML(">");
 			List<UITableActionType> defaultActions = (List<UITableActionType>)this.removeAttribute("defaultActionGroup");
-			if (UserContext.isMobileRequest()) {
+			if (isSliderMode) {
 				if (defaultActions == null) {
 					defaultActions = new ArrayList();
 				} else {
@@ -151,7 +156,7 @@ public class HTMLTableType extends HTMLContainerType {
 			if (defaultActions != null && this.isEditable()) {
 				HTMLUtil.generateTab(context, depth + 2);
 				String defaultBtnSet = "defaultBtnSet_" + htmlId;
-				if (UserContext.isMobileRequest()) {
+				if (isSliderMode) {
 					context.generateHTML("<div id=\""+defaultBtnSet+"\" data-role=\"controlgroup\" data-type=\"horizontal\">");
 					for (UITableActionType action: defaultActions) {
 						HTMLUtil.generateTab(context, depth + 3);
@@ -222,7 +227,7 @@ public class HTMLTableType extends HTMLContainerType {
 				for (UITableActionGroupType a : actionGroups) {
 					HTMLUtil.generateTab(context, depth + 2);
 					String btnSetName = "btnSet_" + htmlId + (count++);
-					if (UserContext.isMobileRequest()) {
+					if (isSliderMode) {
 						context.generateHTML("<fieldset id=\""+btnSetName+"\" data-role=\"controlgroup\" data-type=\"horizontal\">");
 					} else {
 						context.generateHTML("<span id=\""+btnSetName+"\" style=\"display:none;\">");
@@ -257,7 +262,7 @@ public class HTMLTableType extends HTMLContainerType {
 						}
 					}
 					HTMLUtil.generateTab(context, depth + 2);
-					if (UserContext.isMobileRequest()) {
+					if (isSliderMode) {
 						context.generateHTML("</fieldset>");
 					} else {
 						context.generateHTML("</span>");
@@ -274,7 +279,7 @@ public class HTMLTableType extends HTMLContainerType {
 			// org.hibernate.collection.internal.PersistentList
 			// org.hibernate.AssertionFailure: collection owner not associated with session
 			
-			if (UserContext.isMobileRequest() && !isEditableCell.booleanValue()) {
+			if (isSliderMode) {
 				generateMobileListBody(isEditableCell, depth, selectMode, listData, columns);
 				HTMLUtil.generateTab(context, depth + 1);
 				context.generateHTML("<div class=\"uimaster_table_mob_filter\" style=\"display:none;\">");
@@ -687,6 +692,9 @@ public class HTMLTableType extends HTMLContainerType {
 		Boolean isEditableCell = (Boolean)this.getAttribute("isEditableCell");
 		if (isEditableCell == null) {
 			isEditableCell = Boolean.FALSE;
+		}
+		if (this.getAttribute("utype") != null && "swiper".equals(this.getAttribute("utype"))) {
+			t.markSliderMode();
 		}
 		t.setEditableCell(isEditableCell);
 		this.removeAttribute("refreshInterval");

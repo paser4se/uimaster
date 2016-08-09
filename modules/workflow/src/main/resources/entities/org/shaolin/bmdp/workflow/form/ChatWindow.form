@@ -127,41 +127,41 @@
 	        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="1" y="0" align="FULL" cellUIClass="uimaster_rightform_cell"></ns2:constraint>
 	      </ns2:layoutConstraint>
       </ns2:component>
-      <ns2:component xsi:type="ns2:UITextAreaType" UIID="messageUI">
-        <ns2:UIStyle>uimaster_chat_area</ns2:UIStyle>
-        <ns2:widgetLabel xsi:type="ns2:StringPropertyType">
-            <ns2:value>接收消息框：</ns2:value>
-        </ns2:widgetLabel>
-        <ns2:Property name="rows" >
-            <ns2:value xsi:type="ns2:NumericPropertyType">
-	            <type>int</type>
-	            <value>20</value>
-            </ns2:value>
-        </ns2:Property>
-        <ns2:Property name="cols" >
-            <ns2:value xsi:type="ns2:NumericPropertyType">
-	            <type>int</type>
-	            <value>90</value>
-            </ns2:value>
-        </ns2:Property>
-        <ns2:Property name="height" >
+      <ns2:component xsi:type="ns2:UITableType" UIID="messageUI">
+          <ns2:beElement>org.shaolin.bmdp.workflow.be.IChatHistory</ns2:beElement>
+          <ns2:selectMode xsi:type="ns2:UITableSelectModeType">Single</ns2:selectMode>
+          <ns2:defaultRowSize>20</ns2:defaultRowSize>
+          <ns2:showActionBar>false</ns2:showActionBar>
+          <ns2:appendRowMode>true</ns2:appendRowMode>
+          <ns2:showFilter>false</ns2:showFilter>
+          <ns2:Property name="utype" >
             <ns2:value xsi:type="ns2:StringPropertyType">
-                <value>300px</value>
+                <value>swiper</value>
             </ns2:value>
-        </ns2:Property>
-        <ns2:Property name="hiddenToolbar" >
-            <ns2:value xsi:type="ns2:BooleanPropertyType">
-                <value>true</value>
+          </ns2:Property>
+          <ns2:Property name="height" >
+            <ns2:value xsi:type="ns2:StringPropertyType">
+                <value>220px</value>
             </ns2:value>
-        </ns2:Property>
-        <ns2:Property name="persistable" >
-            <ns2:value xsi:type="ns2:BooleanPropertyType">
-                <value>false</value>
-            </ns2:value>
-        </ns2:Property>
-        <ns2:htmlSupport xsi:type="ns2:BooleanPropertyType">
-            <value>true</value>
-        </ns2:htmlSupport>
+          </ns2:Property>
+          <ns2:query xsi:type="ns2:ExpressionPropertyType">
+              <ns2:expression xsi:type="ns2:ExpressionType">
+                  <ns2:expressionString><![CDATA[
+                  import java.util.Collections;
+                  import org.shaolin.uimaster.page.ajax.TableConditions;
+                  import org.shaolin.bmdp.runtime.security.UserContext;
+                  {
+                        return Collections.emptyList();
+                  }]]></ns2:expressionString>
+              </ns2:expression>
+          </ns2:query>
+          <ns2:column xsi:type="ns2:UITableColumnType">
+              <ns2:title xsi:type="ns2:StringPropertyType">
+                  <ns2:value>对话消息记录</ns2:value>
+              </ns2:title>
+              <ns2:beFieldId>rowBE.id</ns2:beFieldId>
+              <ns2:uiType xsi:type="ns2:UITableColHTMLType"><ns2:type>Label</ns2:type></ns2:uiType>
+          </ns2:column>
       </ns2:component>
       <ns2:component xsi:type="ns2:UITextAreaType" UIID="enterMessageUI">
         <ns2:UIStyle>uimaster_chat_area</ns2:UIStyle>
@@ -278,7 +278,7 @@
                $(this.enterMessageUI).attr("disabled", "disabled");
                return;
             }
-            msgContainer.appendHTMLText(e.data);
+            msgContainer.appendSlide(e.data);
          },
          function(ws,e){
              console.log("error occurred while receiving a message: " + e.data);
@@ -340,11 +340,6 @@
           <expressionString>$recievedPartyName</expressionString>
         </ns2:expression>
       </ns2:DataComponent>
-    </ns2:ComponentMapping>
-    <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping6">
-      <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UIText"></ns2:mappingRule>
-      <ns2:UIComponent componentPath="messageUI" paramName="UIWidgetType"></ns2:UIComponent>
-      <ns2:DataComponent xsi:type="ns2:ComponentParamType" componentPath="beObject.message" paramName="StringData"></ns2:DataComponent>
     </ns2:ComponentMapping>
     <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping7">
       <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UIText"></ns2:mappingRule>

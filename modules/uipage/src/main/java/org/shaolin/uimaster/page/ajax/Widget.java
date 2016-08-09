@@ -1706,6 +1706,18 @@ abstract public class Widget implements Serializable
         AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
     }
     
+    public void showConstraint(String message) {
+    	IDataItem dataItem = AjaxActionHelper.showConstraint(id, message);
+        dataItem.setFrameInfo(getFrameInfo());
+        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+    }
+    
+    public void removeConstraint() {
+    	IDataItem dataItem = AjaxActionHelper.removeConstraint(id);
+        dataItem.setFrameInfo(getFrameInfo());
+        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+    }
+    
     /**
      * update the changed event/new event for an exiting widget.
      * 

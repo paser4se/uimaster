@@ -454,6 +454,16 @@ html {
 .messagedialog_angle {
     position: absolute;
 }
+.uimaster_chat_item_to {}
+.uimaster_chat_item_old {
+    text-align: left;
+    height: 30px;
+    background-color: aliceblue;
+}
+.uimaster_chat_item_even {
+   text-align: left;
+   height: 30px;
+}
 
 #ui-mask {
     position:absolute;

@@ -128,6 +128,17 @@ public interface IJSHandlerCollections {
     public static final String HTML_UPDATE_CONST = "update_const";
     
     /**
+     * html constraint updated.
+     */
+    public static final String SHOW_CONSTRAINT = "show_constraint";
+    
+    /**
+     * html constraint updated.
+     */
+    public static final String REMOVE_CONSTRAINT = "remove_constraint";
+    
+    
+    /**
      * tab append item.
      */
     public static final String TAB_APPEND = "tab_append";
