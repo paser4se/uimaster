@@ -582,7 +582,18 @@ public class HTMLTableType extends HTMLContainerType {
 			throws Exception {
 		context.generateHTML("<div id=\"");
     	context.generateHTML(getName());
-        context.generateHTML("\" class=\"uimaster_table_mob swiper-container\">");
+        context.generateHTML("\" ");
+        if (this.getAttribute("height") != null) {
+        	context.generateHTML("height=\"");
+        	context.generateHTML(this.getAttribute("height").toString());
+            context.generateHTML("\" ");
+        }
+        if (this.getAttribute("style") != null) {
+        	context.generateHTML("style=\"");
+        	context.generateHTML(this.getAttribute("style").toString());
+            context.generateHTML("\" ");
+        }
+        context.generateHTML("class=\"uimaster_table_mob swiper-container\">");
         
         HTMLUtil.generateTab(context, depth + 1);
         context.generateHTML("<div class=\"swiper-wrapper\">");

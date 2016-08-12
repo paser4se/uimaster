@@ -191,7 +191,10 @@ public class Table extends Widget implements Serializable {
 				|| conditions.getCurrentSelectedIndex() > listData.size()) {
 			return null;
 		}
-		return listData.get(conditions.getCurrentSelectedIndex());
+		if (!listData.isEmpty()) {
+			return listData.get(conditions.getCurrentSelectedIndex());
+		} 
+		return null;
 	}
 
 	public boolean isSliderMode() {

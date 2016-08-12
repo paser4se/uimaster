@@ -35,7 +35,6 @@ import org.hibernate.criterion.Order;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
-import org.shaolin.bmdp.utils.StringUtil;
 import org.shaolin.bmdp.workflow.be.ChatHistoryImpl;
 import org.shaolin.bmdp.workflow.be.IChatHistory;
 import org.shaolin.bmdp.workflow.be.NotificationImpl;
@@ -53,6 +52,8 @@ import org.slf4j.LoggerFactory;
  */
 @ServerEndpoint("/wschart")
 public class ChatService {
+
+	private static final String TALK_PREFIX = " : ";
 
 	private static final Logger logger = LoggerFactory.getLogger(ChatService.class);
 
@@ -114,6 +115,10 @@ public class ChatService {
 				if (data.has("toAdmin")) {
 					toAdmin = data.getBoolean("toAdmin");
 				}
+				if (!data.has("sessionId") || data.getString("sessionId").trim().length() == 0) {
+					logger.warn("Chat session id must be specified!");
+					return;
+				}
 				boolean sentTo = false;
 				boolean sentFrom = false;
 				Session sentFromSession = null;
@@ -136,7 +141,6 @@ public class ChatService {
 								sentFrom = true;
 								send(message, s);
 							}
-							
 						}
 						if (sentTo && sentFrom) {
 							break;
@@ -154,10 +158,8 @@ public class ChatService {
 					item.setMessage(message);
 					item.setRead(false);
 					String sessionId = "";
-					if (data.has("sessionId")) {
-						sessionId = data.getString("sessionId");
-						item.setSessionId(sessionId);
-					}
+					sessionId = data.getString("sessionId");
+					item.setSessionId(sessionId);
 					CoordinatorModel.INSTANCE.create(item, true);
 					
 					//send notification
@@ -173,36 +175,36 @@ public class ChatService {
 				}
 				
 			} else if ("history".equals(action)) {
-				
 				ChatHistoryImpl condition = new ChatHistoryImpl();
 				condition.setEnabled(true);
 				if (data.has("sessionId")) {
-					condition.setSessionId(data.getString("sessionId"));
+					condition.setSessionId(data.getString("sessionId").trim());
 				}
-				
-				ArrayList<Order> orders = new ArrayList<Order>();
-				orders.add(Order.asc("createDate"));
-				List<IChatHistory> result = CoordinatorModel.INSTANCE.searchChatHistory(condition, orders, 0, -1);
-				for (IChatHistory item: result) {
-					send(item, session);
+				if (condition.getSessionId() != null && condition.getSessionId().length() > 0) {
+					ArrayList<Order> orders = new ArrayList<Order>();
+					orders.add(Order.asc("createDate"));
+					List<IChatHistory> result = CoordinatorModel.INSTANCE.searchChatHistory(condition, orders, 0, -1);
+					for (IChatHistory item: result) {
+						send(item, session);
+					}
 				}
 			} else if ("allhistory".equals(action)) {
 				//TODO:
-				Long fromId = data.getLong("fromPartyId");
-				
-				ChatHistoryImpl condition = new ChatHistoryImpl();
-				condition.setEnabled(true);
-				condition.setSentPartyId(fromId);
-				if (data.has("sessionId")) {
-					condition.setSessionId(data.getString("sessionId"));
-				}
-				
-				ArrayList<Order> orders = new ArrayList<Order>();
-				orders.add(Order.asc("createDate"));
-				List<IChatHistory> result = CoordinatorModel.INSTANCE.searchChatHistory(condition, orders, 0, -1);
-				for (IChatHistory item: result) {
-					send(item, session);
-				}
+//				Long fromId = data.getLong("fromPartyId");
+//				
+//				ChatHistoryImpl condition = new ChatHistoryImpl();
+//				condition.setEnabled(true);
+//				condition.setSentPartyId(fromId);
+//				if (data.has("sessionId")) {
+//					condition.setSessionId(data.getString("sessionId"));
+//				}
+//				
+//				ArrayList<Order> orders = new ArrayList<Order>();
+//				orders.add(Order.asc("createDate"));
+//				List<IChatHistory> result = CoordinatorModel.INSTANCE.searchChatHistory(condition, orders, 0, -1);
+//				for (IChatHistory item: result) {
+//					send(item, session);
+//				}
 			}
 		} catch (JSONException e) {
 			logger.warn("Parsing client data error! session id: " + session, e);
@@ -219,8 +221,13 @@ public class ChatService {
 		} catch (FormatException e) {
 			date = (new Date()).toString();
 		}
-		s.getBasicRemote().sendText("<div class=\"swiper-slide uimaster_chat_item_to "+calculateBGStyle(s)+"\"><label class=\"uimaster_chat_time\">["
-				 + date + "]</label><label class=\"uimaster_chat_message\"> " + message + "</label><div>");
+		int prefix = message.indexOf(TALK_PREFIX);
+		if (prefix != -1) {
+			date = "[" + date + "] " + message.substring(0, prefix + TALK_PREFIX.length());
+			message = message.substring(prefix + TALK_PREFIX.length());
+		}
+		s.getBasicRemote().sendText("<div class=\"swiper-slide uimaster_chat_item_to "+calculateBGStyle(s)+"\"><div><div class=\"uimaster_chat_time\">"
+				 + date + "</div><div class=\"uimaster_chat_message\"> " + message + "</div></div></div>");
 	}
 	
 	public void send(IChatHistory item, Session s) throws IOException {
@@ -230,8 +237,14 @@ public class ChatService {
 		} catch (FormatException e) {
 			date = (new Date()).toString();
 		}
-		s.getBasicRemote().sendText("<div class=\"swiper-slide uimaster_chat_item_to "+calculateBGStyle(s)+"\"><label class=\"uimaster_chat_time\">["
-				 + date + "]</label><label class=\"uimaster_chat_message\"> " + item.getMessage() + "</label><div>");
+		String message = item.getMessage();
+		int prefix = message.indexOf(TALK_PREFIX);
+		if (prefix != -1) {
+			date = "[" + date + "] " + message.substring(0, prefix + TALK_PREFIX.length());
+			message = message.substring(prefix + TALK_PREFIX.length());
+		}
+		s.getBasicRemote().sendText("<div class=\"swiper-slide uimaster_chat_item_to "+calculateBGStyle(s)+"\"><div><div class=\"uimaster_chat_time\">"
+				 + date + "</div><div class=\"uimaster_chat_message\"> " + message + "</div></div></div>");
 	}
 
 	public boolean checkSendPolicy(Session s) {

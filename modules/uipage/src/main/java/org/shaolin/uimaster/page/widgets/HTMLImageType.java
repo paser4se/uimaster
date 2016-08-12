@@ -195,21 +195,25 @@ public class HTMLImageType extends HTMLTextWidgetType
 		sb.append("<div>");
 		String[] list = srcs.split(",");
 		for (String image : list) {
-			File directory = new File(WebConfig.getResourcePath() + image);
+			String realImage = image;
+			if (image.startsWith(WebConfig.getResourceContextRoot())) {
+				realImage = realImage.replaceFirst(WebConfig.getResourceContextRoot(), "");
+			}
+			File directory = new File(WebConfig.getResourcePath() + realImage);
 			if (directory.isDirectory()) {
 				File[] files = directory.listFiles();
 				for (File f : files) {
             		if (f.isFile()) {
-	            		String realPath = image + "/" +  f.getName();
+	            		String realPath = realImage + "/" +  f.getName();
 	            		sb.append("<img src=\"").append(imageRoot).append(realPath);
 	    				sb.append("\" style=\"width:").append(width).append("px;height:").append(height).append("px;\">");
             		}
             	}
 			} else {
-				if (image.startsWith("http") || image.startsWith("https")) {
-					sb.append("<img src=\"").append(image);
+				if (realImage.startsWith("http") || realImage.startsWith("https")) {
+					sb.append("<img src=\"").append(realImage);
 				} else {
-					sb.append("<img src=\"").append(imageRoot).append(image);
+					sb.append("<img src=\"").append(imageRoot).append(realImage);
 				}
 				sb.append("\" style=\"width:").append(width).append("px;height:").append(height).append("px;\">");
 			}

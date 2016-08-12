@@ -47,15 +47,14 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
     ({
         ui: elementList[prefix + "messageUI"]
         ,utype: "swiper"
-        ,height: "220px"
+        ,style: "height:220px"
         ,appendRowMode: true
     });
 
     var enterMessageUI = new UIMaster.ui.textarea
     ({
         ui: elementList[prefix + "enterMessageUI"]
-        ,persistable: false
-        ,height: "100px"
+        ,style: "width:100%;height:60px;"
     });
 
     var okbtn = new UIMaster.ui.button
@@ -165,6 +164,7 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
        var partyId = this.sentPartyIdUI.value;
        var fromPartyId = this.sentPartyIdUI.value;
        var toPartyId = this.receivedPartyIdUI.value;
+       $(this.messageUI).focus();
        var msgContainer = this.messageUI;
        this.chat = establishWebsocket("/wschart", 
          function(ws,e){
@@ -214,7 +214,7 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
         var UIEntity = this;
 
         { 
-            var message = this.enterMessageUI.getHTMLText();
+            var message = this.enterMessageUI.value;
             if (message.trim() == "") {
                 return;
             }
@@ -227,9 +227,9 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
 	        var toPartyId = this.receivedPartyIdUI.value;
 	        var orgId = this.orgIdUI.value;
             var msg = {action: "chating", taskId: 0, orgId: orgId, sessionId: sessionId, fromPartyId: fromPartyId, 
-                       toPartyId: toPartyId, content: this.sentPartyNameUI.value+" >>: "+message};
+                       toPartyId: toPartyId, content: this.sentPartyNameUI.value+" : "+message};
             this.chat.send(JSON.stringify(msg));
-            this.enterMessageUI.clearHTMLText();
+            this.enterMessageUI.value="";
         }    }/* Gen_Last:org_shaolin_bmdp_workflow_form_ChatWindow_Send */
 
 
