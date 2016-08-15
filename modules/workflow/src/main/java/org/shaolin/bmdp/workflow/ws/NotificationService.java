@@ -157,7 +157,7 @@ public class NotificationService {
 		Enumeration<Session> elements = sessoins.elements();
 		while (elements.hasMoreElements()) {
 			Session session = elements.nextElement();
-			Object key = session.getUserProperties().containsKey("partyId");
+			Object key = session.getUserProperties().get("partyId");
 			if (key != null && (Long)key == userId) {
 				return session;
 			}

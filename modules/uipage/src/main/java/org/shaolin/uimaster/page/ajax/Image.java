@@ -119,7 +119,7 @@ public class Image extends TextWidget implements Serializable
     	html.append("<div class=\"swiper-wrapper\">");
         
     	for (String item : links) {
-    		html.append("<span class=\"swiper-slide\"><img src=\"" + item + "\"/></span>");
+    		html.append("<span class=\"swiper-slide\" style=\"background-image:url(" + item + ")\"/></span>");
     	}
         html.append("</div>");
         
@@ -170,7 +170,7 @@ public class Image extends TextWidget implements Serializable
             	String[] images = directory.list();
             	for (String i : images) {
             		String item = root + path + "/" +  i;
-            		html.append("<span class=\"swiper-slide\"><img src=\"" + item + "\"/></span>");
+            		html.append("<span class=\"swiper-slide\" style=\"background-image:url(" + item + ")\"/></span>");
             	}
             }
             html.append("</div>");
@@ -271,7 +271,7 @@ public class Image extends TextWidget implements Serializable
             		if (UserContext.isAppClient()) {
             			WebConfig.getAppImageContextRoot(AjaxActionHelper.getAjaxContext().getRequest());
             		}
-            		sb.append("<span class=\"swiper-slide\"><img src=\""+ item +"\" alt=\""+i+"\"/></span>");
+            		sb.append("<span class=\"swiper-slide\" style=\"background-image:url("+ item +")\" alt=\""+i+"\"/></span>");
         		}
         	}
         	sb.append("</div>");

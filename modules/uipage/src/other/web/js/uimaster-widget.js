@@ -1751,6 +1751,7 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 		this.intialized = true;
 		if (this.tagName.toLowerCase() == "div") {
 		    var t = this;
+			$(t).css("width",$($(t).parent()).width() + "px");//ensure the root width of swiper widget for bug fix.
 			$(this).find(".swiper-slide").each(function() {
 			  $(this).unbind("click").bind("click",function() {t.clickImage($(this).children()[0]);});
 			  if (IS_MOBILEVIEW && t.mobheight != -1){
@@ -1765,7 +1766,7 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 			            pagination: '.swiper-pagination', paginationClickable: true, mousewheelControl: true,
 						paginationType: 'fraction', paginationType: 'progress',keyboardControl: true};
 			if (this.thumbnails){
-			   var thum = $(this).clone().removeAttr("id").removeAttr("style").css("height","50px");
+			   var thum = $(this).clone().removeAttr("id").removeAttr("style").css("height","50px").css("width","120px").css("scroll","auto");
 			   thum.find(".swiper-pagination").remove();
 			   thum.find(".swiper-button-next").remove();
 			   thum.find(".swiper-button-prev").remove();
@@ -1774,7 +1775,7 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 			   $(this).addClass("gallery-top");
 			   this.galleryTop = new Swiper($(this), opts);
 			   this.galleryThumbs = new Swiper(thum, {
-					spaceBetween: 10, centeredSlides: true,
+					spaceBetween: 1, centeredSlides: true,
 					slidesPerView: 'auto', touchRatio: 0.2,
 					slideToClickedSlide: true
 			   });
@@ -2021,7 +2022,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	  mySwiper.clickedSlide = $(this).find(".swiper-slide")[0];
 	  var p = $(this).parent();
 	  while(p && p[0].tagName.toLowerCase() != "body") {
-	     if (!$(p).attr("style") || $(p).attr("style").indexOf("height")==-1) {
+	     if (!$(p).attr("style") || $(p).attr("style").indexOf("height")==-1 || $(p).attr("height") == null) {
 			$(p).css("height", "100%");//FIXED: swiper bug on default element height.
 		 }
 	     p = $(p).parent();
@@ -2084,6 +2085,9 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	},
 	appendSlide:function(data){
 		this.mySwiper.appendSlide($(data));
+		var endSlide = ($(this).find(".swiper-slide").length - 1);
+		var othis = this;
+	    setTimeout(function(){othis.mySwiper.slideTo(endSlide, 1000, false)},1000);
 	},
 	refreshMobList:function(){
 	  var othis = this;
@@ -3424,9 +3428,12 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 		this.bodyContainer = $($(s).children()[1]);
 		this.titleContainer.children().each(function(){
 		    $(this).click(function(){
+			   var action = "prevbtn";
+			   if (othis.selectedIndex <= parseInt($(this).attr("index"))) {
+			       action = "nextbtn";
+			   }
 			   if(!othis.validate0()) return;
 			   if(!othis.setTab(parseInt($(this).attr("index")))) return;
-			   othis.selectedIndex = parseInt($(this).attr("index"));
 			   UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedIndex",_value:othis.selectedIndex,_framePrefix:UIMaster.getFramePrefix(this)});
 			   var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
 				{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"nextbtn",_framePrefix:UIMaster.getFramePrefix(),_sync:UIMaster.ui.sync()}};
@@ -3457,6 +3464,7 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 			});
 		});
 		
+		if($($(s).children()[2])){$($(s).children()[2]).css("display","none");}
 		var btns = $($(s).children()[2]).children();
 		$(btns[0]).click(function(){
 			if(!othis.validate0()) return;

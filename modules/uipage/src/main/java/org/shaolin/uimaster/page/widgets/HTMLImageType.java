@@ -69,7 +69,7 @@ public class HTMLImageType extends HTMLTextWidgetType
 		            	String[] images = path.split(";");
 		            	for (String i : images) {
 		            		String item = imageRoot + "/" +  i;
-		            		context.generateHTML("<span class=\"swiper-slide\"><img src=\"" + item + "\" alt=\""+i+"\"/></span>");
+		            		context.generateHTML("<span class=\"swiper-slide\" style=\"background-image:url(" + item + ")\" alt=\""+i+"\"/></span>");
 		            		HTMLUtil.generateTab(context, depth + 2);
 		            	}
 		            } else {
@@ -80,7 +80,7 @@ public class HTMLImageType extends HTMLTextWidgetType
 			            		File f = new File(directory, i);
 			            		if (f.isFile()) {
 				            		String item = imageRoot + path + "/" +  i;
-				            		context.generateHTML("<span class=\"swiper-slide\"><img src=\""+ item +"\" alt=\""+i+"\"/></span>");
+				            		context.generateHTML("<span class=\"swiper-slide\" style=\"background-image:url("+ item +")\" alt=\""+i+"\"/></span>");
 				            		HTMLUtil.generateTab(context, depth + 2);
 			            		}
 			            	}
@@ -92,7 +92,7 @@ public class HTMLImageType extends HTMLTextWidgetType
 //			            		}
 //			            	}
 			            } else {
-			            	context.generateHTML("<span class=\"swiper-slide\"><img src=\"" + imageRoot + path + "\"/></span>");
+			            	context.generateHTML("<span class=\"swiper-slide\" style=\"background-image:url(" + imageRoot + path + ")\"/></span>");
 			            	HTMLUtil.generateTab(context, depth + 2);
 			            }
 		            }

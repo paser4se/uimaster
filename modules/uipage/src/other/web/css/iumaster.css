@@ -454,17 +454,21 @@ html {
 .messagedialog_angle {
     position: absolute;
 }
+
 .uimaster_chat_item_to {}
 .uimaster_chat_item_old {
     text-align: left;
-    height: 30px;
+    height: 40px !important;
     background-color: aliceblue;
 }
 .uimaster_chat_item_even {
    text-align: left;
-   height: 30px;
+   height: 40px !important;
 }
-
+.uimaster_chat_message{
+    word-wrap: break-word;
+    word-break: break-all;
+}
 #ui-mask {
     position:absolute;
     top:0;
@@ -579,7 +583,7 @@ html {
 .progress-step-wraper {}
 
 .dataTables_length{display: none;}
-.gallery-top {height: 80%;width: 100%;}
+.gallery-top .swiper-slide {background-size: cover;background-position: center;}
 .gallery-thumbs {height: 20%;box-sizing: border-box;padding: 10px 0;}
-.gallery-thumbs .swiper-slide {width: 25%;height: 100%;opacity: 0.4;}
+.gallery-thumbs .swiper-slide {width: 25%;height: 100%;opacity: 0.4; background-size: contain;background-position: center;}
 .gallery-thumbs .swiper-slide-active {opacity: 1;}

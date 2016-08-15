@@ -214,14 +214,17 @@ display:none; float:left; width:30px; height:180px; margin:80px 0 0 10px; displa
 .uimaster_chat_item_to {}
 .uimaster_chat_item_old {
     text-align: left;
-    height: 30px;
+    height: 40px !important;
     background-color: aliceblue;
 }
 .uimaster_chat_item_even {
    text-align: left;
-   height: 30px;
+   height: 40px !important;
 }
-
+.uimaster_chat_message{
+    word-wrap: break-word;
+    word-break: break-all;
+}
 .no_margin {
     margin: 0px;
 }
@@ -586,13 +589,14 @@ html, body{
 
 .dataTables_length{display: none;}
 .gallery-top {height: 80%;width: 100%;}
+.gallery-top .swiper-slide {background-size: cover;background-position: center;}
 .gallery-thumbs {height: 20%;box-sizing: border-box;padding: 10px 0;}
-.gallery-thumbs .swiper-slide {width: 25%;height: 100%;opacity: 0.4;}
+.gallery-thumbs .swiper-slide {width: 25%;height: 100%;opacity: 0.4;background-size: contain;background-position: center;}
 .gallery-thumbs .swiper-slide-active {opacity: 1;}
 .uimaster_table_mob .swiper-container {height:100px;}
 .uimaster_table_mob .swiper-slide {height:100px; display:-webkit-box;display:-moz-box;display:box;border-bottom:1px solid #8DB9DB;padding:5px 0 5px 0;opacity: 1;}
 .uimaster_table_mob .swiper-slide .p {width: 100px;height: 100px;margin-right: 10px;margin-left: 8px;}
-.uimaster_table_mob .swiper-slide .d {text-align: left;}
+.uimaster_table_mob .swiper-slide .d {text-align: left; width:100%;}
 .uimaster_table_mob .swiper-slide-active {background-color: #a9b7d1;}
 .uimaster_table_mob .swiper-slide-visible {opacity: 1;}
 .swiper-preloader {
