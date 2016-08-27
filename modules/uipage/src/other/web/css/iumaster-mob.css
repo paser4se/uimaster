@@ -170,6 +170,16 @@ label {
  margin-right: 5px;
 }
 
+.uimaster_workflow_panel {
+ position: fixed;
+ bottom: 0;
+ left: 0;
+ background-color: white;
+ border-top: 1px solid #a6c9e2;
+ display: -webkit-flex;
+ z-index: 999;
+}
+
 .uimaster_workflow_action {
  text-decoration: underline;
  min-width: 100px;
@@ -599,6 +609,13 @@ html, body{
 .uimaster_table_mob .swiper-slide .d {text-align: left; width:100%;}
 .uimaster_table_mob .swiper-slide-active {background-color: #a9b7d1;}
 .uimaster_table_mob .swiper-slide-visible {opacity: 1;}
+.uimaster_table_mob_pageinfo {
+	display: block;
+	position: fixed;
+    bottom: 0;
+    z-index: 900;
+    right: 0;
+}
 .swiper-preloader {
   position: absolute;
   z-index: 0;

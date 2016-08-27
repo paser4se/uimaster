@@ -504,8 +504,8 @@ public class WebFlowServlet extends HttpServlet
             
             // Identify the path component
             String path = ProcessHelper.processPath(request);
-            if(logger.isInfoEnabled())
-                logger.info("Processing a " + request.getMethod() + " for " + path);
+            if(logger.isDebugEnabled())
+                logger.debug("Processing a " + request.getMethod() + " for " + path);
 
             if (logger.isDebugEnabled())
             {
@@ -635,7 +635,7 @@ public class WebFlowServlet extends HttpServlet
             
             ProcessHelper.convertParameter2Attribute(request, destNode.getType());
             if(logger.isInfoEnabled()) {
-                logger.info("destination node " + destNode.toString());
+                logger.info("Process destination node " + destNode.toString());
             }
             
             try

@@ -600,7 +600,7 @@ UIMaster.require = function(_jsName, _nocheck){
     if (MobileAppMode) {
         _mobContext.addResource(_jsName);
     } else if (!UIMaster.funclist[_jsName]){
-        var head = document.getElementsByTagName("head")[0] || document.documentElement, script = document.createElement("script"), data = new bmiasia_UIMaster_appbase_AjaxClient(_jsName + (_nocheck ? "" : ("?_timestamp=" + new Date().getTime()))).submitAsString();
+        var head = document.getElementsByTagName("head")[0] || document.documentElement, script = document.createElement("script"), data = new UIMaster_appbase_AjaxClient(_jsName + (_nocheck ? "" : ("?_timestamp=" + new Date().getTime()))).submitAsString();
         script.type = "text/javascript";
         UIMaster.browser.msie ? (script.text = data) : script.appendChild( document.createTextNode( data ) );
         head.insertBefore( script, head.firstChild );
@@ -1294,6 +1294,10 @@ UIMaster.cmdHandler = function(json,status,result){
     } else {
         cmds = json;
     }
+	if (cmds.length == 0) {
+	    UIMaster.ui.mask.close();
+	    return;
+	}
     for (i=0;i<cmds.length;i++){
         win = getW(cmds[i].frameInfo);
         if (win.UIMaster.handler[cmds[i].jsHandler]) {
@@ -1511,256 +1515,18 @@ UIMaster.apply(Array.prototype, {
 function g(t,v){
     return UIMaster.browser.mozilla?t.getAttribute(v):$(t).attr(v);
 }
-UIMaster.ajaxDefaultSettings = {
-    async: false,
-    type: "POST",
-    url: AJAX_SERVICE_URL,
-    success: UIMaster.cmdHandler
-};
-/**
- * @description UIMaster ajax method. Usually used to send value to 
- *              server side.
- * @param       {url}       the server url
- *              {data}      the data need to pass to server
- *              {callback}  callback function when ajax executed successfully
- *              {type}      the format of response text
- * @return                   none
- *
- */ 
-UIMaster.ajaxSend = function(url, data, callback, type) {
-    callback = callback || null;
-    var args = jQuery.extend({}, UIMaster.ajaxDefaultSettings, {
-                    url: url, 
-                    data: data,
-                    success: callback,
-                    dataType: type
-                });
-    jQuery.ajax( args );
-};
-/**
- * @description UIMaster ajax method. Usually used to get a value from
- *              server side.
- * @param       {url}       the server url
- *              {data}      the data need to pass to server
- *              {type}      the format of repsonse text
- * @return                  none.
- *
- */ 
-UIMaster.ajaxReceive = function(url, data, type) {
-    var args = jQuery.extend({}, UIMaster.ajaxDefaultSettings, {
-                    url: url, 
-                    data: data,
-                    success: function(msg){
-                        res = msg;
-                    },
-                    dataType: type
-                }), res = null;
-    jQuery.ajax( args );
-    return res;
-};
-/**
- * @description Set UIMaster Ajax synchronization mode to true.
- *
- * @param       {target}    the object will be used to
- *                          hold the sync value.
- *
- */
-UIMaster.asyncAjax = function(target) {
-    if (target) {
-        target["asyncAttr"] = true;
-    }
-    return target;
-};
-/**
- * @description Set UIMaster Ajax "complete" callback handler,
- *              this function will be called after "success" handler.
- *              
- * @param       {target}    the object will be used to
- *                          hold the "complete" function.
- *              {fn}        the "complete" function body.
- *
- */
-UIMaster.ajaxCompleteHandler = function(target, fn) {
-    if (target) {
-        target["completeHandler"] = fn;
-    }
-    return target;
-};
+//end;
 })();
 
-var bmiasia_UIMaster_appbase_Util = {
-    checkBrowser: function(){return UIMaster.browser.msie?'IE':(UIMaster.browser.opera?'Opera':(UIMaster.browser.mozilla?'Mozilla':'Unknown'));},
-    elmPosition: function(elm){return UIMaster.El(elm).getPosition();},
-    findParent: function(elm, tag){
-        while (elm && elm.tagName && elm.tagName.toLowerCase() != tag.toLowerCase())
-            elm = elm.parentNode;
-        return elm;
-    },
-    getEventElement: function(e){return UIMaster.getObject(e);}
-};
-
-var UIMaster_dialog_container = {
-    CONTEXT_DIV_ID : "UIMaster_dialog_container",
-    isExistContainer: function( containerType ){
-        return document.getElementById(UIMaster_dialog_container.CONTEXT_DIV_ID) && document.getElementById(containerType);
-    },
-    getDefaultContainer: function( containerType, pnode ){
-        function findParent(pnode){
-            var node = pnode.parentNode;
-            if (node != document)
-                while (node.getAttribute("type") != "frame")
-                    if (node != document.body)
-                        node = node.parentNode;
-                    else
-                        break;
-            return node;
-        }
-        var container = document.getElementById(UIMaster_dialog_container.CONTEXT_DIV_ID);
-        if(container == null){
-            container = document.createElement("DIV");
-            container.setAttribute("id", UIMaster_dialog_container.CONTEXT_DIV_ID );
-            if (pnode){
-                var node = findParent(pnode);
-                if (node == document.body || node == document)
-                    document.getElementsByTagName("body")[0].appendChild( container );
-                else
-                    node.appendChild( container );
-            } else
-                document.getElementsByTagName("body")[0].appendChild( container );
-        } else {
-            if (pnode){
-                var node = findParent(pnode);
-                if (!(node == document.body || node == document)){
-                    if(node.childNodes.length > 1)
-                        container = node.childNodes[1];
-                    else{
-                        $(container).remove();
-                        container = document.createElement("DIV");
-                        container.setAttribute("id", UIMaster_dialog_container.CONTEXT_DIV_ID );
-                        node.appendChild( container );
-                    }
-                }
-            }
-        }
-        var subContainer = document.getElementById(containerType);
-        if(subContainer == null){
-            subContainer = document.createElement("DIV");
-            subContainer.childIndex = 0;
-            subContainer.setAttribute("id", containerType );
-            container.appendChild( subContainer );
-        }
-        return subContainer;
-    }
-};
-
-function bmiasia_UIMaster_appbase_getDomDocumentPrefix(){
-    if (bmiasia_UIMaster_appbase_getDomDocumentPrefix.prefix)
-        return bmiasia_UIMaster_appbase_getDomDocumentPrefix.prefix;
-
-    var prefixes = ["MSXML2", "Microsoft", "MSXML", "MSXML3"],o,i;
-    for (i = 0; i < prefixes.length; i++)
-        try {
-            o = new ActiveXObject(prefixes[i] + ".DomDocument");
-            return bmiasia_UIMaster_appbase_getDomDocumentPrefix.prefix = prefixes[i];
-        }
-        catch (ex){}
-    throw new Error("Could not find an installed XML parser");
-}
-
-function bmiasia_UIMaster_appbase_getXmlHttpPrefix(){
-    if (bmiasia_UIMaster_appbase_getXmlHttpPrefix.prefix)
-        return bmiasia_UIMaster_appbase_getXmlHttpPrefix.prefix;
-
-    var prefixes = ["MSXML2", "Microsoft", "MSXML", "MSXML3"],o,i;
-    for (i = 0; i < prefixes.length; i++)
-        try {
-            o = new ActiveXObject(prefixes[i] + ".XmlHttp");
-            return bmiasia_UIMaster_appbase_getXmlHttpPrefix.prefix = prefixes[i];
-        }
-        catch (ex) {};
-    throw new Error("Could not find an installed XMLHttp object");
-}
-
-function bmiasia_UIMaster_appbase_XmlHttp() {}
-
-bmiasia_UIMaster_appbase_XmlHttp.create = function () {
-    try {
-        // NS & MOZ
-        if (window.XMLHttpRequest) {
-            var req = new XMLHttpRequest();
-
-            // some versions of Moz do not support the readyState property
-            // and the onreadystate event so we patch it!
-            if (req.readyState == null) {
-                req.readyState = 1;
-                req.addEventListener("load", function () {
-                    req.readyState = 4;
-                    if (typeof req.onreadystatechange == "function")
-                        req.onreadystatechange();
-                }, false);
-            }
-
-            return req;
-        }
-        if (window.ActiveXObject)
-            return new ActiveXObject(bmiasia_UIMaster_appbase_getXmlHttpPrefix() + ".XmlHttp");
-    }
-    catch (ex) {}
-    throw new Error("Your browser does not support XmlHttp objects");
-};
-
-
-function bmiasia_UIMaster_appbase_XmlDocument() {}
-
-bmiasia_UIMaster_appbase_XmlDocument.create = function (){
-    try{
-        if (document.implementation && document.implementation.createDocument){
-            var doc = document.implementation.createDocument("", "", null);
-            if (doc.readyState == null){
-                doc.readyState = 1;
-                doc.addEventListener("load", function(){
-                    doc.readyState = 4;
-                    if (typeof doc.onreadystatechange == "function")
-                        doc.onreadystatechange();
-                }, false);
-            }
-            return doc;
-        }
-        if (window.ActiveXObject)
-            return new ActiveXObject(bmiasia_UIMaster_appbase_getDomDocumentPrefix() + ".DomDocument");
-    }
-    catch (ex){}
-    throw new Error("Your browser does not support XmlDocument objects");
-};
-
-if (window.DOMParser &&
-    window.XMLSerializer &&
-    window.Node && Node.prototype && Node.prototype.__defineGetter__) {
-
-    Document.prototype.loadXML = function(s){		
-        var doc2 = (new DOMParser()).parseFromString(s, "text/xml");
-
-        while (this.hasChildNodes())
-            this.removeChild(this.lastChild);
-        for (var i = 0; i < doc2.childNodes.length; i++)
-            this.appendChild(this.importNode(doc2.childNodes[i], true));
-    };
-
-    Document.prototype.__defineGetter__("xml", function (){
-        return (new XMLSerializer()).serializeToString(this);
-    });
-}
-
-function bmiasia_UIMaster_appbase_AjaxClient(url, method, aysn, callBack, contentType){
+function UIMaster_appbase_AjaxClient(url, method, aysn, callBack, contentType){
     this._url = url || "";
     this._param = "";
     this._method = method || "GET";
     this._aysn = (aysn == null) ? false : aysn;
     this.callBack = callBack;
     this.contentType = contentType || this.CONTENT_TYPE;
-    this._xHttp = bmiasia_UIMaster_appbase_XmlHttp.create();
 }
-bmiasia_UIMaster_appbase_AjaxClient.prototype = {
+UIMaster_appbase_AjaxClient.prototype = {
     CONTENT_TYPE: "application/x-www-form-urlencoded",
 
     setUrl : function(url) {
@@ -1811,140 +1577,16 @@ bmiasia_UIMaster_appbase_AjaxClient.prototype = {
     },
     submit:function(){
         this.requestData();
-        if( !this._aysn )
-            return this.xmlParse(this._xHttp.responseText);
     },
     submitAsString:function(){
         this.requestData();
-        if( !this._aysn )
-            return this._xHttp.responseText;
     },
     xmlParse:function(str){
-        var xmlDoc = bmiasia_UIMaster_appbase_XmlDocument.create();
-        xmlDoc.async = false;
-        xmlDoc.loadXML(str);
-        if ( xmlDoc.parseError && xmlDoc.parseError.errorCode != 0 ){
-            var myErr = xmlDoc.parseError;
-            throw myErr;
-        }
-        else if (xmlDoc.documentElement == null)
-            throw "Parse error";
-        else
-            return xmlDoc.documentElement;
     },
-    /**
-     *  readyState:
-     *  <br> 0-UNINITIALIZED??
-     *  <br> 1-LOADING??
-     *  <br> 2-LOADED??
-     *  <br> 3-INTERACTIVE??
-     *  <br> 4-COMPLETED??
-     */
     requestData:function(){
 	    if (MobileAppMode) {return;}
-        if ( this._xHttp.readyState != 0){
-            bmiasia_UIMaster_appbase_StatusBar.showInfo("Request Waiting...");//$NOI18N.
-            window.setTimeout("bmiasia_UIMaster_appbase_StatusBar.setStatusShow(false)",2000);	
-            return;
-        }
-
-        if( this._aysn ){
-            // regist call-back event, standby call-back.
-            var aysnObjHttp = this._xHttp;
-            var callBackFuc = this.callBack;
-            var xmlParseFuc = this.xmlParse;
-            aysnObjHttp.onreadystatechange = function(){
-                if ( aysnObjHttp.readyState == 4 ){
-                    if ( aysnObjHttp.status == 200 ){
-                        if (callBackFuc != null){
-                            var cmds = null; var resultText = aysnObjHttp.responseText;
-                            try{cmds = eval("("+resultText+")");}catch(e){}
-                            if (cmds && cmds.length > 0 && UIMaster.handler[cmds[0].jsHandler])
-                                UIMaster.cmdHandler(resultText);
-                            else if (callBackFuc instanceof bmiasia_UIMaster_appbase_CallBack)
-                                resultText.indexOf("[ajax_error]") == 0 ? callBackFuc.callExceptionMethod(resultText.substring("[ajax_error]".length, resultText.length)) : callBackFuc.isXML ? callBackFuc.callMethod(xmlParseFuc(resultText)) : callBackFuc.callMethod(resultText);
-                            else if (typeof(callBackFuc) == "function")
-                                callBackFuc(resultText);
-                        }
-                    }
-                    else{
-                        bmiasia_UIMaster_appbase_StatusBar.showInfo("aysnObjHttp.status: "+aysnObjHttp.status
-                                    +" "+UIMaster_getI18NInfo("Common||AJAX_EXCEPTION_INTERNAL"));
-                        window.setTimeout("bmiasia_UIMaster_appbase_StatusBar.setStatusShow(false)",2000);	
-                    }
-                }
-            };
-        }
-        else
-            this._xHttp.onreadystatechange = function(){};
-
-        if( this._method.toUpperCase() == "POST" ){
-            this._xHttp.open("POST",this._url,this._aysn);
-            this._xHttp.setRequestHeader("content-length",this._param.length);
-            this._xHttp.setRequestHeader("content-type",this.contentType);
-            this._xHttp.send(this._param);
-        }
-        else{
-            var data = this._url+(this._url.indexOf('?') > 0 ? '&' : '?')+"SIGNATURE=AjaxClient"+ this._param;
-            this._xHttp.open("GET",data,this._aysn);
-            this._xHttp.send(null);
-        }
-    }
-};
-
-function bmiasia_UIMaster_appbase_CallBack(method, exceptionMethod, arguments, isXML){
-    this.method = method;
-    this.exceptionMethod = exceptionMethod;
-    this.arguments = (arguments == null) ? new Array(): arguments;
-    this.isXML = ((isXML == null) ? false : isXML);
-    this.exceptionMsg = "";
-}
-bmiasia_UIMaster_appbase_CallBack.prototype = {
-    /**
-     * optional.
-     * call-back method
-     * @param {Object} method
-     */
-    method : null,
-    /**
-     * optional.
-     * if call-back( status != 200 ) exception, call exceptionMethod.
-     */
-    exceptionMethod: null,
-    /**
-     * call-back method parameters
-     */
-    arguments : null,
-    /**
-     * whether responseText convert to xml object or not.
-     * @param {Object} method
-     */
-    isXML: false,
-    isXMLType:function(bool){
-        this.isXML = bool;
-    },
-    setMethod:function(method){
-        this.method = method;
-    },
-    setExceptionMethod:function(exceptionMethod){
-        this.exceptionMethod = exceptionMethod;
-    },
-    setArgument:function(arguments){
-        this.arguments = arguments || [];
-    },
-    getArgument:function(){
-        return this.arguments;
-    },
-    callMethod:function(responseObj){
-        if( this.method != null && typeof(this.method) == "function" ){
-            this.arguments.push(responseObj);	
-            this.method.call( this );
-        }
-    },
-    callExceptionMethod:function(msg){
-        this.exceptionMsg = msg;
-        if( this.exceptionMethod != null && typeof(this.exceptionMethod) == "function" )
-            this.exceptionMethod( this );
+		var data = this._url+(this._url.indexOf('?') > 0 ? '&' : '?')+"SIGNATURE=AjaxClient"+ this._param;
+        $.ajax({url:data,async:this._aysn,success: UIMaster.cmdHandler});
     }
 };
 
@@ -1952,7 +1594,7 @@ function UIMaster_getI18NInfo(keyInfo, param, languageType){
     var v = UIMaster_getI18NInfo.get(keyInfo);
     if (param == undefined && v)
         return v;
-    var object = new bmiasia_UIMaster_appbase_AjaxClient(AJAX_SERVICE_URL);
+    var object = new UIMaster_appbase_AjaxClient(AJAX_SERVICE_URL);
     object.append('serviceName','I18NService').append('KEYINFO',keyInfo);
     if(param != null && param != "")
         if( param.length > 0 ){
@@ -1964,14 +1606,7 @@ function UIMaster_getI18NInfo(keyInfo, param, languageType){
         }
     languageType && object.append('LANGUAGE',languageType);
 
-    var m = object.submitAsString().replace(/^\s+|\s+$/g,"");
-
-    try {
-        var c = eval("("+m+")");
-        if (c.length==1) UIMaster.cmdHandler(m);
-    } catch(e) {
-        return UIMaster_getI18NInfo.put(keyInfo, m);
-    }
+    object.submitAsString();
 };
 UIMaster_getI18NInfo.cache=[];
 UIMaster_getI18NInfo.get=function(key){
@@ -1983,60 +1618,20 @@ UIMaster_getI18NInfo.put=function(key,value){
 };
 
 function UIMaster_getFormattedDate(format, datetype, date, datestring){
-    var object = new bmiasia_UIMaster_appbase_AjaxClient(AJAX_SERVICE_URL);
+    var object = new UIMaster_appbase_AjaxClient(AJAX_SERVICE_URL);
     object.append('serviceName','DateFormatService');
     if (date && date instanceof Date) object.append('DATE',date.getTime());
     return object.append('FORMAT',format).append('DATETYPE',datetype).append('DATESTRING',datestring).append('OFFSET', date?date.getTimezoneOffset():new Date().getTimezoneOffset()).submitAsString().replace(/^\s+|\s+$/g,"");
 }
 
 function bmiasia_UIMaster_appbase_setTimezoneOffset(){
-    new bmiasia_UIMaster_appbase_AjaxClient(AJAX_SERVICE_URL).append('serviceName','SetTimezoneOffset').append('OFFSET',new Date().getTimezoneOffset()).submitAsString();
+    new UIMaster_appbase_AjaxClient(AJAX_SERVICE_URL).append('serviceName','SetTimezoneOffset').append('OFFSET',new Date().getTimezoneOffset()).submitAsString();
 }
-
-var bmiasia_UIMaster_appbase_StatusBar = new function(){
-    this.statusDiv = null;
-    this.isOff = false;
-
-    this.init = function(){
-        if (this.statusDiv !== null)
-            return;
-        var body = document.getElementsByTagName("body")[0];
-        $('<div></div>').css({'position':'absolute','top':'0','left':'0','cursor':'wait'}).width('100%').height('100%').attr('id','bmiasia_UIMaster_appbase_div_status').append($('<div></div>').css({'position':'absolute','top':'50%','left':'40%','cursor':'wait','backgroundColor':'#e4e7ef','margin':'-50px 0 0 -100px','padding':'15px','border':'1px solid #0a246a','color':'#2b2e36','fontSize':'14px','textAlign':'center'}).width(280).attr('id','bmiasia_UIMaster_appbase_div_statustext')).hide().appendTo(body);
-        this.statusDiv = document.getElementById("bmiasia_UIMaster_appbase_div_status");
-        this.statusDiv.statusText = document.getElementById("bmiasia_UIMaster_appbase_div_statustext");
-    };
-    this.turnOn = function(){this.isOff = false;};
-    this.turnOff = function(){this.isOff = true;};
-    this.showInfo = function(_message){
-        if (this.isOff)
-            return;
-
-        if (this.statusDiv === null)
-            this.init();
-        this.setStatusShow(true);
-        this.statusDiv.statusText.innerHTML = _message;
-    };
-
-    this.setStatusShow = function(_show){
-        if (this.isOff)
-            return;
-
-        if (this.statusDiv === null)
-            this.init();
-        if (_show)
-            this.statusDiv.style.display = "";
-        else{
-            this.statusDiv.statusText.innerHTML = "";
-            this.statusDiv.style.display = "none";
-            this.statusDiv.style.cursor  = "pointer";
-        }
-    };
-};
 
 var DATA_FORMAT_SERVICE_URL = "/jsp/common/DataFormatService.jsp";
 
 function bmiasia_UIMaster_appbase_getDataFormat(dataType, localeConfig, formatName){
-    var ajaxClient = new bmiasia_UIMaster_appbase_AjaxClient(WEB_CONTEXTPATH + DATA_FORMAT_SERVICE_URL);
+    var ajaxClient = new UIMaster_appbase_AjaxClient(WEB_CONTEXTPATH + DATA_FORMAT_SERVICE_URL);
     ajaxClient.append("datatype", dataType);
     localeConfig && ajaxClient.append("localeconfig", localeConfig);
     formatName && ajaxClient.append("formatname", formatName);

@@ -97,6 +97,9 @@ public class BEEntityDaoObject {
 			logger.debug("Update an entity: {}", entity);
 		}
 
+		if (entity.getCreateDate() == null) {
+			entity.setCreateDate(new Date());
+		}
 		try {
 			Session session = HibernateUtil.getSession();
 			session.update(entity);

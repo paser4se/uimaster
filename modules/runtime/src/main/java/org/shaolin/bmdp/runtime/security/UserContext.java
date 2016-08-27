@@ -37,6 +37,8 @@ public class UserContext implements Serializable {
 	
 	String orgName;
 	
+	boolean verified;
+	
 	private String pullAction = "new";//mobile pull. we have new or history actions.
 	private long pullId;
 	
@@ -139,6 +141,14 @@ public class UserContext implements Serializable {
 		return this.userRoles;
 	}
 
+	public boolean isVerified() {
+		return verified;
+	}
+
+	public void setVerified(boolean verified) {
+		this.verified = verified;
+	}
+	
 	public static final String CURRENT_USER_ORGID = "CurrentUserOrgId";
 	
 	public static final String CURRENT_USER_ORGNAME = "CurrentUserOrgName";
@@ -248,12 +258,15 @@ public class UserContext implements Serializable {
 	}
 	
 	public static boolean hasRole(String role) {
-		if (userRolesCache.get() == null) {
+		if (userRolesCache.get() == null || role == null) {
 			return false;
 		}
-		for (IConstantEntity exist : userRolesCache.get()) {
-			if (role.equals(CEUtil.getValue(exist))) {
-				return true;
+		String[] ceList = role.split(";");
+		for (String ce: ceList) {
+			for (IConstantEntity exist : userRolesCache.get()) {
+				if (ce.equals(CEUtil.getValue(exist))) {
+					return true;
+				}
 			}
 		}
 		return false;

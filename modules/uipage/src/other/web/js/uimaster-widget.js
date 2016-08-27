@@ -1594,6 +1594,21 @@ UIMaster.ui.panel = function(conf){
                 else if("FoldingPanel" == this.uiskin)
                     this.parentDiv=this.parentDiv.parentNode.parentNode.parentNode.parentNode.parentNode;
                 parseInitPageJs.apply(this);
+				if (IS_MOBILEVIEW && this.id && this.id.lastIndexOf(".actionPanel") != -1) {
+					var p = $(this);
+					if(MobileAppMode){$("<div style='height:"+80 +"px;'></div>").prependTo(p.parent());}
+					var screenWidth = $(window).width();
+					p.children().each(function(){$(this).css("float","left").css("min-width","20px");});
+					p.find("input[type=button]").each(function(){if($(this).attr("disabled") == "true" || $(this).attr("disabled") == "disabled"){$(this).parent().css("display","none");}});
+					p.find("div[id$=wfactions]").each(function(){$(this).children().each(function(){$(this).css("float","left").css("min-width","20px");});});
+					p.addClass("uimaster_workflow_panel").css("width",screenWidth+"px").css("display","block");
+					var parent0 = p.parent();
+					while(parent0.attr("id") != null && parent0.attr("id").lastIndexOf(".Form") == -1) {
+						parent0 = parent0.parent();
+					}
+					parent0 = parent0.parent();
+					p.insertAfter(parent0);
+				}
             },
 			sync:function(){
 				if (this.subComponents.length > 0) {
@@ -1972,65 +1987,40 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	  var i=0;
 	  var othis = this;
 	  othis.selectedIndex = 0;
-	  this.refreshMobList();
+	  $($($(this).prev()).children()[0]).css("display","block");
 	  this.filterPanel = $(this).next();
-	  if ($(this).find(".swiper-scrollbar").length == 0) {
-	     $("<div class=\"swiper-scrollbar\"></div>").appendTo($(this));
-	  }
-	  var holdPosition = 0;
-	  var mySwiper = new Swiper($(this),{
-		scrollbar: '.swiper-scrollbar',
-        scrollbarHide: true,
-        paginationClickable: true,
-        direction: 'vertical',
-		slidesPerView:'auto',
-		lazyLoading : true,
-		watchActiveIndex: true,
-		iOSEdgeSwipeDetection:true,
-		iOSEdgeSwipeThreshold:true,
-		onTouchStart: function(s) {
-		  holdPosition = 0;
-		},
-		onTouchMove: function(s, e){
-		  holdPosition = mySwiper.touches.currentY;
-		},
-		onTouchEnd: function(s){
-		  //console.log(holdPosition);
-		  if (mySwiper.touches.startY < holdPosition) {
-			  if (holdPosition > 360) {
-			    mySwiper.setWrapperTranslate(100);
-				mySwiper.params.onlyExternal=true;
-				var obj = UIMaster.getObject(othis);
-				UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"pull",_value:"new",_framePrefix:UIMaster.getFramePrefix(obj)});
-				othis.showLoader(true);
-				othis.loadNewSlides("new");
-			  }
-		  } else {
-		      if ((holdPosition != 0 && holdPosition <= holdPosition) && mySwiper.slides.length >= 4 
-			      && (mySwiper.slides.length - parseInt($(mySwiper.clickedSlide).attr("_rowindex")) <= 4)) {
-			    mySwiper.setWrapperTranslate(-100);
-				mySwiper.params.onlyExternal=true;
-				var obj = UIMaster.getObject(othis);
-				UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"pull",_value:"history",_framePrefix:UIMaster.getFramePrefix(obj)});
-				othis.showLoader(false);
-				othis.loadNewSlides("history");
-			  }
-		  }
-		}
-	  });
-	  this.mySwiper = mySwiper;
-	  mySwiper.clickedSlide = $(this).find(".swiper-slide")[0];
-	  var p = $(this).parent();
-	  while(p && p[0].tagName.toLowerCase() != "body") {
-	     if (!$(p).attr("style") || $(p).attr("style").indexOf("height")==-1 || $(p).attr("height") == null) {
-			$(p).css("height", "100%");//FIXED: swiper bug on default element height.
-		 }
-	     p = $(p).parent();
-	  }
+	  this.pageInfoPanel = $(this.filterPanel).next();
+	  this.refreshMobList();
 	  var loader = $("<div class='swiper-preloader' style='opacity:0;'>Loading ...</div>");
 	  loader.appendTo($(this));
 	  this.loader = loader;
+	  $(window).scroll(function(){
+		  if ($(this).scrollTop() == 0) {
+			  //console.log("to the top");
+		  } else if ($(this).scrollTop()>=($(document).height()-$(window).height())) {
+			  //console.log("to the bottom");
+			  othis.pullHistory();
+		  }
+	  });
 	},
+	pullRefresh:function() {
+	  var obj = UIMaster.getObject(this);
+	  UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"pull",_value:"filter",_framePrefix:UIMaster.getFramePrefix(obj)});
+	  this.showLoader(true);
+	  this.loadNewSlides("filter");
+    },
+	pullNew:function() {
+	  var obj = UIMaster.getObject(this);
+	  UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"pull",_value:"new",_framePrefix:UIMaster.getFramePrefix(obj)});
+	  this.showLoader(true);
+	  this.loadNewSlides("new");
+    },
+	pullHistory:function() {
+	  var obj = UIMaster.getObject(this);
+	  UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"pull",_value:"history",_framePrefix:UIMaster.getFramePrefix(obj)});
+	  this.showLoader(false);
+	  this.loadNewSlides("history");
+    },
 	showLoader: function(isNew){
 	 if (isNew) {
 	   this.loader.css("top","0px");this.loader.css("left",$(this).position().left + "px");
@@ -2045,37 +2035,29 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	    var opts = {url:AJAX_SERVICE_URL,async:false,
 			data:{_ajaxUserEvent:"table",_uiid:othis.id,_actionName:"pull",_value:pullaction,_framePrefix:UIMaster.getFramePrefix(),_sync: UIMaster.ui.sync()},
 			success: function(data){
+		     //$($(othis.pageInfoPanel).children()[0]).text("1/"+data.totalCount);
 			 if (data.rows && data.rows.length > 0) {
 			     if (pullaction == "filter") {
-				    othis.mySwiper.removeAllSlides();
+				    $(othis).find(".swiper-slide").each(function() {
+						$(this).remove();
+					});
 				 }
 			     for(var i=0;i<data.rows.length;i++){
 					 var row = decodeHTML(data.rows[i].value);
 					  //Prepend new slide
 					  if (pullaction == "new") {
-					    othis.mySwiper.prependSlide(row);
+					    othis.prependSlide(row);
 					  } else {
-					    othis.mySwiper.appendSlide(row);
+					    othis.appendSlide(row);
 					  }
 				 }
-				 othis.mySwiper.setWrapperTranslate(0,0,0);
-				 othis.mySwiper.params.onlyExternal=false;
-				 if (pullaction != "new") {
-				   var endSlide = ($(othis).find(".swiper-slide").length - 1);
-				   setTimeout(function(){othis.mySwiper.slideTo(endSlide, 1000, false)},1000);
-				 }
 				 othis.refreshMobList();
-		     } else {
-			   othis.mySwiper.setWrapperTranslate(0,0,0);
-			   othis.mySwiper.params.onlyExternal=false;
-			 }
+		     }
 			 othis.hideLoader();
 		  },
 		  error: function(XMLHttpRequest, textStatus, errorThrown) {
 		      console.log(errorThrown);
 			  othis.hideLoader();
-		      othis.mySwiper.setWrapperTranslate(0,0,0);
-			  othis.mySwiper.params.onlyExternal=false;
 		  }};
 		if (MobileAppMode) {
 			_mobContext.ajax(JSON.stringify(opts));
@@ -2084,10 +2066,10 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		}
 	},
 	appendSlide:function(data){
-		this.mySwiper.appendSlide($(data));
-		var endSlide = ($(this).find(".swiper-slide").length - 1);
-		var othis = this;
-	    setTimeout(function(){othis.mySwiper.slideTo(endSlide, 1000, false)},1000);
+		$(data).appendTo($($(this).children()[0]));
+	},
+	prependSlide:function(data){
+		$(data).prependTo($($(this).children()[0]));
 	},
 	refreshMobList:function(){
 	  var othis = this;
@@ -2120,6 +2102,9 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			$(this).enhanceWithin();
 	   }});
 	},
+	toTop:function(){
+	   $(window).scrollTop(0);
+	},
 	saveMobFilter: function(){
 	    var obj = UIMaster.getObject(this);
         if (obj._selectedIndex != this.selectedIndex) {
@@ -2148,6 +2133,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		    this.value = "-1";
 		}
 		});
+		this.filterPanel.dialog("close");
 	},
 	/**table object*/
 	init:function(){
@@ -2597,6 +2583,10 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		}
 	},
 	refresh:function(pageNumber){
+		if (IS_MOBILEVIEW || this.utype == "swiper") {
+		   this.pullRefresh();
+		   return;
+		}
 	    pageNumber = parseInt(pageNumber);
 		if (isNaN(pageNumber))
 			pageNumber = 1;
@@ -3092,7 +3082,7 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
             	buttonset = [{text:"\u5173\u95ED", click:function(){thisObj.content.dialog("close");}}];
             } else {
             	var p = this.content.find("div[id$='actionPanel']");
-            	if(p.length > 0) {
+            	if(!IS_MOBILEVIEW && p.length > 0) {
             		$(p[p.length-1]).css("display", "none");//select the last one.
             		var actionButtons = $(p[p.length-1]).find("input[type='button']");
 					var count = 0;
@@ -3101,7 +3091,7 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
 						if ($(b).css("display") == "none") {continue;}
 						if ($(b).attr("disabled") == null || $(b).attr("disabled") == "false") {
 							buttonset[count++] = { text:b.value, 
-							    open:function(){if(IS_MOBILEVIEW){$(this).addClass('uimaster_button');}},
+							    open:function(){},
             					click:function(e){
 								    var text=$(e.srcElement?e.srcElement:e.target).text();
 								    for (var i=0;i<actionButtons.length;i++){ 
@@ -3139,7 +3129,7 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
 			if (IS_MOBILEVIEW) {$(this.content).enhanceWithin();}
             this.isOpen = true;
 			var p = this.content.find("div[id$='actionPanel']");
-            if(p.length > 0) {
+            if(!IS_MOBILEVIEW && p.length > 0) {
 			    var dbuttons = $($(this.content.parent()).find("div[class*='ui-dialog-buttonpane']")[0]).find("button[type='button']");
 				var buttons = $(p[0]).find("input[type='button']");
 				var count = 0;
@@ -3249,20 +3239,21 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
 			if(typeof($(this).attr("uipanelid"))!="undefined"){
         		$(this).append($(elementList[$(this).attr("uipanelid")]).parent());
 			}
+			/**
 			var screenHeight = MobileAppMode?_mobContext.getScreenHeight():$(window.top).height();
             if (!IS_MOBILEVIEW && $(this).height() > screenHeight) {
 			   $(this).css("height", (screenHeight - 50) + "px");
 			   $(this).css("overflow-y", "scroll");
-		    }
+		    }*/
 		});
 		bodies.resize(function(){
-		    bodies.children().each(function(){
+		    /**bodies.children().each(function(){
 			var screenHeight = MobileAppMode?_mobContext.getScreenHeight():$(window.top).height();
             if (!IS_MOBILEVIEW && $(this).height() > screenHeight) {
 			   $(this).css("height", (screenHeight - 50) + "px");
 			   $(this).css("overflow-y", "scroll");
 		    }
-			});
+			});*/
 		});
 		if (this.subComponents != null) {
 		    for (var i=0;i<this.subComponents.length;i++) {
@@ -3286,9 +3277,10 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
         currTitle.addClass("ui-tabs-active").addClass("ui-state-active").attr("style","border-bottom: 1px solid white;");
         var currBody = $("#"+currTitle.attr("id").replace("titles","body"));
 		currBody.removeClass("tab-unselected-body").addClass("tab-selected-body");
-		var screenHeight = MobileAppMode?_mobContext.getScreenHeight():$(window.top).height();
+		/**var screenHeight = MobileAppMode?_mobContext.getScreenHeight():$(window.top).height();
 		if (!IS_MOBILEVIEW && currBody.height() > screenHeight)
 			currBody.css("height", (screenHeight - 50) + "px").css("overflow-y", "scroll");
+		*/
         titleContainer.attr("selectedIndex",currTitle.attr("index"));
 		this.selectedIndex = currTitle.attr("index");
 		if (currTitle.attr("ajaxload") != null && currTitle.attr("ajaxload") == "true") {
@@ -3345,11 +3337,11 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
 				$(html).appendTo($(this));
 				updateContent = $(this);
 				if (IS_MOBILEVIEW) {$(this).trigger('create');}
-				var screenHeight = MobileAppMode?_mobContext.getScreenHeight():$(window.top).height();
+				/**var screenHeight = MobileAppMode?_mobContext.getScreenHeight():$(window.top).height();
 				if (!IS_MOBILEVIEW && $(this).height() > screenHeight) {
 					$(this).css("height", (screenHeight - 50) + "px");
 					$(this).css("overflow-y", "scroll");
-				}
+				}*/
         		return false;
 			}
 		});
@@ -3448,20 +3440,20 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 			if(typeof($(this).attr("uipanelid"))!="undefined"){
         		$(this).append($(elementList[$(this).attr("uipanelid")]).parent());
 			}
-			var screenHeight = MobileAppMode?_mobContext.getScreenHeight():$(window.top).height();
-			if ($(this).height() > screenHeight) {
+			/**var screenHeight = MobileAppMode?_mobContext.getScreenHeight():$(window.top).height();
+			if (!IS_MOBILEVIEW && $(this).height() > screenHeight) {
 				$(this).css("height", (screenHeight - 50) + "px");
 				$(this).css("overflow-y", "scroll");
-			}
+			}*/
 		});
 		this.bodyContainer.resize(function(){
-		    othis.bodyContainer.children().each(function(){
+		    /**othis.bodyContainer.children().each(function(){
 			var screenHeight = MobileAppMode?_mobContext.getScreenHeight():$(window.top).height();
-			if ($(this).height() > screenHeight) {
+			if (!IS_MOBILEVIEW && $(this).height() > screenHeight) {
 				$(this).css("height", (screenHeight - 50) + "px");
 				$(this).css("overflow-y", "scroll");
 			}
-			});
+			});*/
 		});
 		
 		if($($(s).children()[2])){$($(s).children()[2]).css("display","none");}

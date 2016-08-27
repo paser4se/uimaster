@@ -157,7 +157,7 @@ public class HTMLTableType extends HTMLContainerType {
 				HTMLUtil.generateTab(context, depth + 2);
 				String defaultBtnSet = "defaultBtnSet_" + htmlId;
 				if (isSliderMode) {
-					context.generateHTML("<div id=\""+defaultBtnSet+"\" data-role=\"controlgroup\" data-type=\"horizontal\">");
+					context.generateHTML("<div id=\""+defaultBtnSet+"\" data-role=\"controlgroup\" data-type=\"horizontal\" style=\"display:none;\">");
 					for (UITableActionType action: defaultActions) {
 						HTMLUtil.generateTab(context, depth + 3);
 						String btnId = htmlPrefix + action.getUiid();
@@ -182,14 +182,7 @@ public class HTMLTableType extends HTMLContainerType {
 						context.generateHTML(i18nProperty);
 						context.generateHTML("</a>");
 					}
-					
-					context.generateHTML("<a id=\""+ htmlPrefix + "Filter\" ");
-					context.generateHTML("href=\"javascript:defaultname.");
-					context.generateHTML(this.getPrefix() + this.getUIID() + ".showMobFilter");
-					context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\"");
-					context.generateHTML(" class=\"ui-btn ui-corner-all\">");
-					context.generateHTML(ResourceUtil.getResource(LocaleContext.getUserLocale(), "Common", "FilterItem"));
-					context.generateHTML("</a></div>");
+					context.generateHTML("</div>");
 				} else {
 					context.generateHTML("<span id=\""+defaultBtnSet+"\" style=\"display:none;\">");
 					for (UITableActionType action: defaultActions) {
@@ -292,8 +285,35 @@ public class HTMLTableType extends HTMLContainerType {
 				context.generateHTML("<div class=\"colfilter\">");
 				context.generateHTML("<button type=\"button\" class=\"uimaster_button\" onclick=\"javascript:defaultname.");
 				context.generateHTML(this.getPrefix() + this.getUIID() + ".clearMobFilter");
-				context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\">Clear</button></div>");
+				context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\">Clear</button>");
 				
+				context.generateHTML("</div></div>");
+				
+				context.generateHTML("<div class=\"uimaster_table_mob_pageinfo\">");
+				context.generateHTML("<a id=\""+ htmlPrefix + "PageInfo\" class=\"ui-btn ui-corner-all pageinfo\">");
+				context.generateHTML(totalCount);
+				context.generateHTML("</a>");
+				context.generateHTML("<a id=\""+ htmlPrefix + "Filter\" ");
+				context.generateHTML("href=\"javascript:defaultname.");
+				context.generateHTML(this.getPrefix() + this.getUIID() + ".showMobFilter");
+				context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\"");
+				context.generateHTML(" class=\"ui-btn ui-corner-all\">");
+				context.generateHTML(ResourceUtil.getResource(LocaleContext.getUserLocale(), "Common", "FilterItem"));
+				context.generateHTML("</a>");
+				context.generateHTML("<a id=\""+ htmlPrefix + "Refresh\" ");
+				context.generateHTML("href=\"javascript:defaultname.");
+				context.generateHTML(this.getPrefix() + this.getUIID() + ".refresh");
+				context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\"");
+				context.generateHTML(" class=\"ui-btn ui-corner-all\">");
+				context.generateHTML(ResourceUtil.getResource(LocaleContext.getUserLocale(), "Common", "RefreshItem"));
+				context.generateHTML("</a>");
+				context.generateHTML("<a id=\""+ htmlPrefix + "ToTop\" ");
+				context.generateHTML("href=\"javascript:defaultname.");
+				context.generateHTML(this.getPrefix() + this.getUIID() + ".toTop");
+				context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\"");
+				context.generateHTML(" class=\"ui-btn ui-corner-all\">");
+				context.generateHTML(ResourceUtil.getResource(LocaleContext.getUserLocale(), "Common", "ToTopItem"));
+				context.generateHTML("</a>");
 				context.generateHTML("</div>");
 			} else {
 				// generate thead.
@@ -593,10 +613,10 @@ public class HTMLTableType extends HTMLContainerType {
         	context.generateHTML(this.getAttribute("style").toString());
             context.generateHTML("\" ");
         }
-        context.generateHTML("class=\"uimaster_table_mob swiper-container\">");
+        context.generateHTML("class=\"uimaster_table_mob\">");
         
         HTMLUtil.generateTab(context, depth + 1);
-        context.generateHTML("<div class=\"swiper-wrapper\">");
+        context.generateHTML("<div class=\"swiper-wrapper0\">");
 		int count = 0;
 		for (Object be : listData) {
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
