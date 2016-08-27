@@ -206,7 +206,7 @@ public class HTMLImageType extends HTMLTextWidgetType
             		if (f.isFile()) {
 	            		String realPath = realImage + "/" +  f.getName();
 	            		sb.append("<div style=\"background-image:url(").append(imageRoot).append(realPath);
-	    				sb.append(");width:").append(width).append("px;height:").append(height).append("px;\" />");
+	    				sb.append(");width:").append(width).append("px;height:").append(height).append("px;background-size:contain;\" ></div>");
             		}
             	}
 			} else {
@@ -215,7 +215,7 @@ public class HTMLImageType extends HTMLTextWidgetType
 				} else {
 					sb.append("<div style=\"background-image:url(").append(imageRoot).append(realImage);
 				}
-				sb.append(");width:").append(width).append("px;height:").append(height).append("px;\" />");
+				sb.append(");width:").append(width).append("px;height:").append(height).append("px;background-size:contain;\" ></div>");
 			}
 		}
 		sb.append("</div>");
