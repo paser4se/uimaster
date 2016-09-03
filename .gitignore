@@ -17,3 +17,8 @@ hbm
 /modules/workflow/src/main/java/org/shaolin/bmdp/workflow/be
 /modules/analyzer/src/main/java/org/shaolin/bmdp/analyzer/ce
 /modules/analyzer/src/main/java/org/shaolin/bmdp/analyzer/be
+
+.idea
+*.iml
+*/target/*
+
