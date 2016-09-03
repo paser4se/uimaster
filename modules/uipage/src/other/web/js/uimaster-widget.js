@@ -1393,7 +1393,9 @@ UIMaster.ui.panel = function(conf){
                 postInit();
                 //comment && UIMaster.cmdHandler(comment);
                 oIPJS.call(this);
-                focusFirstTextField();
+				if (!IS_MOBILEVIEW) {
+                   focusFirstTextField();
+				}
             }
             UIMaster.ui.mask.close();
 			if (this.parentDiv && $(this.parentDiv).length > 0) {
@@ -1608,6 +1610,7 @@ UIMaster.ui.panel = function(conf){
 					}
 					parent0 = parent0.parent();
 					p.insertAfter(parent0);
+					p.enhanceWithin();
 				}
             },
 			sync:function(){
@@ -1761,12 +1764,17 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 	intialized:false,
 	enableSelectSync:true,
 	init:function(){
+		var t = this;
+		UIMaster.pageInitFunctions.push(function(){t.init0();});//must be delayed for initialing.
+	},
+	init0:function(){
 	    if (this.intialized)
 		    return;
 		this.intialized = true;
 		if (this.tagName.toLowerCase() == "div") {
 		    var t = this;
-			$(t).css("width",$($(t).parent()).width() + "px");//ensure the root width of swiper widget for bug fix.
+			var w = $($(t).parent()).width();
+			if (w > 0) {$(t).css("width",w + "px");}//ensure the root width of swiper widget for bug fix.
 			$(this).find(".swiper-slide").each(function() {
 			  $(this).unbind("click").bind("click",function() {t.clickImage($(this).children()[0]);});
 			  if (IS_MOBILEVIEW && t.mobheight != -1){
@@ -1983,6 +1991,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	refreshInterval:0,
 	tbody:null,
 	tfoot:null,
+	disableScrollY:false,
 	initMobileView:function(){
 	  var i=0;
 	  var othis = this;
@@ -2179,7 +2188,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		    "lengthMenu": [10, 25, 50, 100],"pageLength": 10,"paginate": this.editable,"paging":this.editable,
 			"ordering":this.editable,"info":this.editable,
 			"searching": false,"pageIndex":0,"filter": true,
-			"scrollY":((!this.editablecell && !MobileAppMode)?'60vh':"auto"),
+			"scrollY":((this.editablecell || this.disableScrollY)?"auto": '60vh'),
 			"scrollCollapse": false,
 			"recordsFiltered": $(this).attr("recordsfiltered"),
 			"recordsTotal": recordsTotal,
@@ -2796,8 +2805,8 @@ UIMaster.ui.dialog= function(conf){
     conf = conf || {};
     UIMaster.apply(this, conf);
     UIMaster.groupAssign(this, options);
-    this.title = this.title || UIMaster.i18nmsg("Common||DIALOG_TITLE");
-    this.message = this.message || UIMaster.i18nmsg("Common||DIALOG_TITLE_MESSAGE");
+    this.title = this.title || "\u6807\u9898";
+    this.message = this.message || "\u6D88\u606F";
     return this;
 };
 UIMaster.ui.dialog=UIMaster.extend(UIMaster.ui.dialog, /** @lends UIMaster.ui.dialog*/{
@@ -2913,10 +2922,7 @@ UIMaster.ui.dialog=UIMaster.extend(UIMaster.ui.dialog, /** @lends UIMaster.ui.di
                         .click(this.error ? closeBtn : eventHandler)
                         .get(0);
         }
-        var msgIconText = [UIMaster.i18nmsg("Common||DIALOG_TYPE_ERROR"),
-                           UIMaster.i18nmsg("Common||DIALOG_TYPE_INFORMATION"),
-                           UIMaster.i18nmsg("Common||DIALOG_TYPE_WARNING"),
-                           UIMaster.i18nmsg("Common||DIALOG_TYPE_QUESTION")];
+        var msgIconText = ["\u9519\u8BEF", "\u4FE1\u606F", "\u8B66\u544A", "\u7591\u95EE"];
         var msgIcon = ["Error","Information","Warning","Question"];
         var diaObj = this;
         var dialog = $("<div><div>"); 
@@ -2934,11 +2940,11 @@ UIMaster.ui.dialog=UIMaster.extend(UIMaster.ui.dialog, /** @lends UIMaster.ui.di
             var msg = document.createElement("td");
             if (this.error) {
                 $(msg).append('<pre class="dialog-error-msg">'+this.parent+'</pre>');
-                if (this.message != UIMaster.i18nmsg("Common||DIALOG_TITLE_MESSAGE")) {
+                if (this.message != "\u6D88\u606F") {
                     $('<div id="tracebutton" />').addClass('dialog-trace-button-hide').toggle(
                         function(){$('#trace').show();$('#tracebutton').addClass('dialog-trace-button-show');$('#tracetext').text('Hide Detail');$(dialog).height(250);},
                         function(){$('#trace').hide();$('#tracebutton').removeClass('dialog-trace-button-show');$('#tracetext').text('Show Detail');$(dialog).height(100);}).appendTo(msg);
-					$(msg).append('<div id="tracetext">'+UIMaster.i18nmsg("Common||DIALOG_ERROR_SHOWDETAIL")+'</div>').append('<pre id="trace" style="display:none; padding-left:10px">'+this.message+'</pre>');
+					$(msg).append('<div id="tracetext">\u9519\u8BEF\u8BE6\u60C5</div>').append('<pre id="trace" style="display:none; padding-left:10px">'+this.message+'</pre>');
 					$(content).append($(msg));
                 }
             } else {
@@ -2964,13 +2970,13 @@ UIMaster.ui.dialog=UIMaster.extend(UIMaster.ui.dialog, /** @lends UIMaster.ui.di
         var optionDiv = document.createElement("div");
         $(optionDiv).addClass("dialog-option");
         if (this.optionType==this.YES_NO_OPTION || this.optionType==this.YES_NO_CANCEL_OPTION)
-            $(optionDiv).append(createBtn.call(this,UIMaster.i18nmsg("Common||DIALOG_BTN_YES"),this.YES_OPTION,'yes')).append(createBtn.call(this,UIMaster.i18nmsg("Common||DIALOG_BTN_NO"),this.NO_OPTION,'no'));
+            $(optionDiv).append(createBtn.call(this,"Ok",this.YES_OPTION,'yes')).append(createBtn.call(this,"No",this.NO_OPTION,'no'));
         else if (this.optionType==this.CLOSE_OPTION)
-            optionDiv.appendChild(createBtn.call(this,UIMaster.i18nmsg("Common||DIALOG_BTN_CLOSE"),this.CLOSE_OPTION,'close'));
+            optionDiv.appendChild(createBtn.call(this,"Close",this.CLOSE_OPTION,'close'));
         else
-            optionDiv.appendChild(createBtn.call(this,UIMaster.i18nmsg("Common||DIALOG_BTN_OK"),this.OK_OPTION,'ok'));
+            optionDiv.appendChild(createBtn.call(this,"Ok",this.OK_OPTION,'ok'));
         if (this.optionType==this.YES_NO_CANCEL_OPTION||this.optionType==this.OK_CANCEL_OPTION)
-            optionDiv.appendChild(createBtn.call(this,UIMaster.i18nmsg("Common||DIALOG_BTN_CANCEL"),this.CANCEL_OPTION,'cancel'));
+            optionDiv.appendChild(createBtn.call(this,"No",this.CANCEL_OPTION,'cancel'));
         //adjust the space between buttons
         $(optionDiv).find(":button").css("margin-left", "50px").eq(0).css("margin-left", "10px");
 		
@@ -3071,10 +3077,15 @@ UIMaster.ui.mask={
  */
 UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
     hidePFrame:false,
+	autoResize:false,
     open:function(){
         if(!this.isOpen){
         	var w = this.width == 0 ? 500: this.width;
         	var h = this.height == 0 ? 300: this.height;
+			if (this.autoResize) {
+				w = "70%";
+				h = $(document.body).height();
+			}
         	var thisObj = this;
             this.content = $("<div><div>").html(this.data).attr("id", this.id).css("-webkit-transform","translateZ(0)");
             var buttonset = [];
@@ -3119,6 +3130,7 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
 				},
                 buttons: buttonset
             });
+			
             $($("#"+this.id).children().get(0)).attr("_framePrefix",this.frameInfo);
 			if (this.js) {
 				getElementListSingle(this.content,true);
@@ -3411,13 +3423,16 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 	isInitialized:false,
 	titleContainer:null,
 	bodyContainer:null,
+	vertical:false,
     init:function(){
 	    if (this.isInitialized) return;
 		this.isInitialized=true;
         var othis = this, s = this.childNodes[0].nodeType == 1 ? this.childNodes[0] : this.childNodes[1], n = s.childNodes[0].nodeType == 1 ? s.childNodes[0] : s.childNodes[1];
-        
 		this.titleContainer = $($(s).children()[0]);
 		this.bodyContainer = $($(s).children()[1]);
+		if (this.vertical) {
+			$(this.titleContainer).css("display", "none");
+		}
 		this.titleContainer.children().each(function(){
 		    $(this).click(function(){
 			   var action = "prevbtn";
@@ -3436,52 +3451,19 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 			   }
 			});
 		});
-		this.bodyContainer.children().each(function(){
+		this.bodyContainer.children().each(function(i){
 			if(typeof($(this).attr("uipanelid"))!="undefined"){
         		$(this).append($(elementList[$(this).attr("uipanelid")]).parent());
 			}
-			/**var screenHeight = MobileAppMode?_mobContext.getScreenHeight():$(window.top).height();
-			if (!IS_MOBILEVIEW && $(this).height() > screenHeight) {
-				$(this).css("height", (screenHeight - 50) + "px");
-				$(this).css("overflow-y", "scroll");
-			}*/
-		});
-		this.bodyContainer.resize(function(){
-		    /**othis.bodyContainer.children().each(function(){
-			var screenHeight = MobileAppMode?_mobContext.getScreenHeight():$(window.top).height();
-			if (!IS_MOBILEVIEW && $(this).height() > screenHeight) {
-				$(this).css("height", (screenHeight - 50) + "px");
-				$(this).css("overflow-y", "scroll");
+			if (othis.vertical) {
+				var wrap = $("<div class='tab-titles ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all'></div>");
+			   $(othis.titleContainer.children()[0]).appendTo(wrap);
+			   wrap.prependTo($(this));
+			   $(this).css("display", "block");
 			}
-			});*/
 		});
 		
 		if($($(s).children()[2])){$($(s).children()[2]).css("display","none");}
-		var btns = $($(s).children()[2]).children();
-		$(btns[0]).click(function(){
-			if(!othis.validate0()) return;
-			if(!othis.setTab("prev")) return;
-		    UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedIndex",_value:othis.selectedIndex,_framePrefix:UIMaster.getFramePrefix(this)});
-			var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
-			{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"prevbtn",_framePrefix:UIMaster.getFramePrefix(),_sync:UIMaster.ui.sync()}};
-			if (MobileAppMode) {
-				_mobContext.ajax(JSON.stringify(opts));
-			} else {
-			    $.ajax(opts);
-			}
-		});
-		$(btns[1]).click(function(){
-		    if(!othis.validate0()) return;
-		    if(!othis.setTab("next")) return;			
-		    UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedIndex",_value:othis.selectedIndex,_framePrefix:UIMaster.getFramePrefix(this)});
-			var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
-			{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"nextbtn",_framePrefix:UIMaster.getFramePrefix(),_sync:UIMaster.ui.sync()}};
-			if (MobileAppMode) {
-				_mobContext.ajax(JSON.stringify(opts));
-			} else {
-			    $.ajax(opts);
-			}
-		});
 		if (this.subComponents != null){
 		    for (var i=0;i<this.subComponents.length;i++) {
 				var comp = elementList[this.subComponents[i]];

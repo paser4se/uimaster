@@ -1579,7 +1579,7 @@ UIMaster_appbase_AjaxClient.prototype = {
         this.requestData();
     },
     submitAsString:function(){
-        this.requestData();
+        return this.requestData();
     },
     xmlParse:function(str){
     },
@@ -1606,7 +1606,7 @@ function UIMaster_getI18NInfo(keyInfo, param, languageType){
         }
     languageType && object.append('LANGUAGE',languageType);
 
-    object.submitAsString();
+    return object.submitAsString();
 };
 UIMaster_getI18NInfo.cache=[];
 UIMaster_getI18NInfo.get=function(key){

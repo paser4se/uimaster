@@ -274,6 +274,16 @@ public class ConstantServiceImpl implements Serializable, IConstantService, IEnt
 	}
 	
 	@Override
+	public IConstantEntity getParent(IConstantEntity item) {
+		return accesor.getParent(hierarchy, item.getEntityName());
+	}
+	
+	@Override
+	public int getParentsIntValue(IConstantEntity item) {
+		return accesor.getParentsIntValue(hierarchy, item.getEntityName());
+	}
+	
+	@Override
 	public IConstantEntity getChildren(IConstantEntity item) {
 		return accesor.getChild(hierarchy, item.getEntityName(), item.getIntValue());
 	}

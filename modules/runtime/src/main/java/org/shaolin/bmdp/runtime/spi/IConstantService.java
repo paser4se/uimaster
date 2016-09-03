@@ -123,12 +123,19 @@ public interface IConstantService {
 	 * @param intValue
 	 * @return
 	 */
+	public IConstantEntity getParent(IConstantEntity item);
+	
+	public int getParentsIntValue(IConstantEntity item);
+	
 	public IConstantEntity getChildren(IConstantEntity item);
 	
 	public IConstantEntity getChildren(String ceName, int intValue);
 	
 	public interface HierarchyAccessor {
 		IConstantEntity getChild(List hierarchy, String ceName, int intValue);
+		public IConstantEntity getParent(List hierarchy, String ceName);
+		public int getParentsIntValue(List hierarchy, String ceName);
 		public boolean hasParent(List hierarchy, String ceName);
+		public boolean hasChild(List hierarchy, String ceName, int intValue);
 	}
 }

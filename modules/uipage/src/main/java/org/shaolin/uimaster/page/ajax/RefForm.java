@@ -395,14 +395,23 @@ public class RefForm extends Container implements Serializable
     	openInWindows(title, callBack, -1, -1, false);
     }
     
+    public void openInWindows(String title, CallBack callBack, boolean autoResize) {
+    	openInWindows(title, callBack, 0, 0, false, autoResize);
+    }
+    
     public void openInWindows(String title, CallBack callBack, int width, int height) {
     	openInWindows(title, callBack, width, height, false);
     }
     
     public void openInWindows(String title, CallBack callBack, int width, int height, boolean showCloseBtn) {
+    	openInWindows(title, callBack, width, height, showCloseBtn, false);
+    }
+    
+    public void openInWindows(String title, CallBack callBack, int width, int height, boolean showCloseBtn, boolean autoResize) {
     	window = new ModalWindow(this.getUiid() + "-Dialog", title, this);
         window.setFixable(true);
         window.setShowCloseBtn(showCloseBtn);
+        window.setAutoResize(autoResize);
         if (width > 0) {
         	window.setBounds(-1, -1, width, height);
         }

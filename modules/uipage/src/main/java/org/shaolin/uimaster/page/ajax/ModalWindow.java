@@ -63,7 +63,9 @@ public class ModalWindow extends Container implements Serializable
 
 	private int height;
 
-    private String frameInfo;
+	private boolean autoResize = false;
+	
+	private String frameInfo;
     
 	public ModalWindow(String uiid, RefForm refEntity) {
 		this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, "",
@@ -223,6 +225,14 @@ public class ModalWindow extends Container implements Serializable
         this.isMin = isMin;
     }
 
+    public boolean isAutoResize() {
+		return autoResize;
+	}
+
+	public void setAutoResize(boolean autoResize) {
+		this.autoResize = autoResize;
+	}
+    
     private IDataItem createOpenData(AjaxContext ajaxContext)
     {
         IDataItem dataItem = AjaxActionHelper.createDataItem();
@@ -245,6 +255,7 @@ public class ModalWindow extends Container implements Serializable
         map.put("y", String.valueOf(this.y));
         map.put("width", String.valueOf(this.width));
         map.put("height", String.valueOf(this.height));
+        map.put("autoResize", this.autoResize);
         map.put("draggable", String.valueOf(this.draggable));
         map.put("fixable", String.valueOf(this.fixable));
         map.put("isMin", String.valueOf(this.isMin));

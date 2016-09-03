@@ -93,6 +93,10 @@ public class HTMLTableType extends HTMLContainerType {
 			}
 			int defaultRowSize = (Integer)this.removeAttribute("defaultRowSize");
 			String totalCount = String.valueOf(this.removeAttribute("totalCount"));
+			if (totalCount == null || totalCount.trim().length() == 0
+					|| "null".equals(totalCount)) {
+				totalCount = "0";
+			}
 			Boolean isShowActionBar = (Boolean)this.removeAttribute("isShowActionBar");
 			Boolean editable = (Boolean)this.removeAttribute("editable");
 			if (editable == null) {

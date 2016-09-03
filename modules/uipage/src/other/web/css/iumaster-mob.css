@@ -34,7 +34,6 @@
 .uimaster_dynamicitem_leftform_cell {
 }
 .uimaster_dynamicitem_rightform_cell {
-    width: 200px;
 }
 
 .uimaster_checkout_text_gap {
@@ -509,7 +508,7 @@ html, body{
 }
 
 .tab { width : 100%;}
-.tab-titles { width : 100%;  border-bottom: 0px;}
+.tab-titles { border-bottom: 0px;}
 .tab-titles div { display : block ; float : left ; padding : 8px; text-align : center ; cursor : pointer ; }
 .tab-bodies { width : 100% ; clear : both ;}
 .tab-bodies .tab-unselected-body { display : none ; }
@@ -599,7 +598,7 @@ html, body{
 
 .dataTables_length{display: none;}
 .gallery-top {height: 80%;width: 100%;}
-.gallery-top .swiper-slide {background-size: cover;background-position: center;}
+.gallery-top .swiper-slide {background-size: contain;background-position: center; background-repeat: no-repeat;}
 .gallery-thumbs {height: 20%;box-sizing: border-box;padding: 10px 0;}
 .gallery-thumbs .swiper-slide {width: 25%;height: 100%;opacity: 0.4;background-size: contain;background-position: center;}
 .gallery-thumbs .swiper-slide-active {opacity: 1;}
@@ -613,7 +612,6 @@ html, body{
 	display: block;
 	position: fixed;
     bottom: 0;
-    z-index: 900;
     right: 0;
 }
 .swiper-preloader {

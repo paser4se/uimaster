@@ -1685,7 +1685,7 @@ button.ui-btn-icon-notext,
 	width: 1.75em;
 }
 /* Form labels */
-.ui-mobile,
+.ui-mobile label,
 .ui-controlgroup-label {
 	display: block;
 	margin: 0 0 .4em;
@@ -4705,4 +4705,5 @@ html .ui-popup .ui-field-contain > label + .ui-flipswitch {
 }
 .ui-tabs {
 	position: relative;/* position: relative prevents IE scroll bug (element with position: relative inside container with overflow: auto appear as "fixed") */
+	padding: .2em;
 }
