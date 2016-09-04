@@ -438,6 +438,16 @@ public class StringUtil
         return buf.toString();
     }
     
+    public static String unescapeHtmlTags(String str) throws IOException
+    {
+    	if (str == null) {
+            return null;
+        }
+        StringWriter writer = new StringWriter ((int)(str.length() * 1.5));
+        Entities.HTML40.unescape(writer, str);
+        return writer.toString();
+    }
+    
     public static String escapeJSONTags(String input)
     {
         if ((input == null) || (input.length() == 0))
