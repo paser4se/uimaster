@@ -3078,7 +3078,7 @@ UIMaster.ui.mask={
 UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
     hidePFrame:false,
 	autoResize:false,
-    open:function(){
+    open:function(win){
         if(!this.isOpen){
         	var w = this.width == 0 ? 500: this.width;
         	var h = this.height == 0 ? 300: this.height;
@@ -3134,8 +3134,8 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
             $($("#"+this.id).children().get(0)).attr("_framePrefix",this.frameInfo);
 			if (this.js) {
 				getElementListSingle(this.content,true);
-				eval(this.js);
-				defaultname.addComponent(eval(D+this.uiid),true);
+				win.eval(this.js);
+				defaultname.addComponent(win.eval(D+this.uiid),true);
 			}
             UIMaster.ui.window.addWindow(this.id,this);
 			if (IS_MOBILEVIEW) {$(this.content).enhanceWithin();}
@@ -3160,7 +3160,7 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
 			}
         }
     },
-    close:function(){
+    close:function(win){
 	    if (MobileAppMode) {
 		   _mobContext.close();
 		   return;
@@ -3171,7 +3171,7 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
     	
 		this.content.dialog("close");
     	this.content.parent().remove();
-    	defaultname.removeComponent(eval(D+this.uiid));
+    	defaultname.removeComponent(win.eval(D+this.uiid));
         UIMaster.ui.window.removeWindow(this.id,this);
     }
 });

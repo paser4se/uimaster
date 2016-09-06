@@ -1073,6 +1073,12 @@ UIMaster.registerHandler("fadeOut", function(data,win){
 	    node.parentDiv = node.parentEntity = null;
 	    delete node;
     }
+}).registerHandler("load_js",function(data,win){
+	if ($(data.data).length > 0) {
+	   var src = $($(data.data)[0]).attr("src");
+	   if ($(win.document).find("script[src='"+src+"']").length == 0)
+	      $(data.data).appendTo($($(win.document).find("form:first")));
+	}
 }).registerHandler("openwindow",function(data,win){
     var config = win.eval('('+data.sibling+')');
     win.UIMaster.apply(config,{
@@ -1081,9 +1087,11 @@ UIMaster.registerHandler("fadeOut", function(data,win){
         uiid:data.uiid,
         parent:data.parent,
         frameInfo:data.frameInfo});
-    new win.UIMaster.ui.window(config).open();
+	window.setTimeout(function(){//delay for js loading.
+       new win.UIMaster.ui.window(config).open(win);
+	}, 500);
 }).registerHandler("closewindow",function(data,win){
-    win.UIMaster.ui.window.getWindow(data.uiid).close();
+    win.UIMaster.ui.window.getWindow(data.uiid).close(win);
 }).registerHandler("opendialog",function(data,win){
     new win.UIMaster.ui.dialog(eval('('+data.data+')')).open();
 }).registerHandler("update_attr",function(data,win){

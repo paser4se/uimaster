@@ -342,6 +342,8 @@ public class PageDispatcher {
             } else {
             	context.generateHTML(WebConfig.getResourceContextRoot());
             }
+            context.generateHTML("\";\nvar UPLOAD_CONTEXTPATH=\"");
+            context.generateHTML(WebConfig.getUploadFileRoot());
             context.generateHTML("\";\nvar FRAMEWRAP=\"");
             context.generateHTML(WebConfig.replaceWebContext(WebConfig.getFrameWrap()));
             context.generateHTML("\";\nvar IS_SERVLETMODE=true;\nvar AJAX_SERVICE_URL=\"");
@@ -758,12 +760,12 @@ public class PageDispatcher {
     {
         Map refEntityMap = context.getRefEntityMap();
         UIFormObject tEntityObj = (UIFormObject)refEntityMap.remove(pageObject.getRuntimeEntityName());
-        tEntityObj.importSelfJS(context, depth);
+        tEntityObj.importSelfJS(context, depth, false);
         Iterator entityIterator = refEntityMap.values().iterator();
         while ( entityIterator.hasNext() )
         {
             UIFormObject entityObj = (UIFormObject)entityIterator.next();
-            entityObj.importSelfJS(context, depth);
+            entityObj.importSelfJS(context, depth, false);
         }
         refEntityMap.put(pageObject.getRuntimeEntityName(), tEntityObj);
     }

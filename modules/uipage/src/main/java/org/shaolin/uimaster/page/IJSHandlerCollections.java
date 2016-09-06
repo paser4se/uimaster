@@ -137,6 +137,11 @@ public interface IJSHandlerCollections {
      */
     public static final String REMOVE_CONSTRAINT = "remove_constraint";
     
+    /**
+     * html attribute updated.
+     */
+    public static final String LOAD_JS = "load_js";
+    
     
     /**
      * tab append item.

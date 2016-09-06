@@ -1965,7 +1965,7 @@ public class UIFormObject implements java.io.Serializable
 		return bodyLayout;
 	}
 
-	public void importSelfJS(HTMLSnapshotContext context, int depth) throws JspException
+	public void importSelfJS(HTMLSnapshotContext context, int depth, boolean syncLoadJs) throws JspException
     {
     	Iterator jsFileNameIterator = null;
     	if (UserContext.isMobileRequest()) {
@@ -2000,11 +2000,11 @@ public class UIFormObject implements java.io.Serializable
             	}
             	if (jsFileName.startsWith("http") || jsFileName.startsWith("https")) {
             		context.generateJS("<script type=\"text/javascript\" src=\"" + jsFileName + "\" ");
-            		context.generateJS(WebConfig.isSyncLoadingJs(jsFileName));
+            		context.generateJS(syncLoadJs ? "" : WebConfig.isSyncLoadingJs(jsFileName));
             		context.generateJS("></script>");
             	} else {
             		context.generateJS(importJSCode + timestamp + "\" ");
-            		context.generateJS(WebConfig.isSyncLoadingJs(jsFileName));
+            		context.generateJS(syncLoadJs ? "" : WebConfig.isSyncLoadingJs(jsFileName));
             		context.generateJS("></script>");
             	}
                 HTMLUtil.generateTab(context, depth);
@@ -2012,7 +2012,7 @@ public class UIFormObject implements java.io.Serializable
         }
     }
 
-    public String importSelfJs(HTMLSnapshotContext context, UIFormObject tEntityObj)
+    public String importSelfJs(HTMLSnapshotContext context, UIFormObject tEntityObj, boolean syncLoadJs)
     {
         StringBuffer sb = new StringBuffer();
         Iterator jsFileNameIterator = null;
@@ -2033,13 +2033,13 @@ public class UIFormObject implements java.io.Serializable
 				if (jsFileName.startsWith("http") || jsFileName.startsWith("https")) {
 					sb.append("<script type=\"text/javascript\" src=\"");
 	                sb.append(jsFileName).append("\" ");
-	                sb.append(WebConfig.isSyncLoadingJs(jsFileName));
+	                sb.append(syncLoadJs ? "" : WebConfig.isSyncLoadingJs(jsFileName));
 	                sb.append("></script>");
 				} else {
 	                sb.append("<script type=\"text/javascript\" src=\"").append(HTMLUtil.getWebRoot());
 	                sb.append(jsFileName).append("?_timestamp=").append(WebConfig.getTimeStamp())
 	                        .append("\" ");
-	                sb.append(WebConfig.isSyncLoadingJs(jsFileName));
+	                sb.append(syncLoadJs ? "" : WebConfig.isSyncLoadingJs(jsFileName));
 	                sb.append("></script>");
 				}
             }
@@ -2047,7 +2047,7 @@ public class UIFormObject implements java.io.Serializable
         return sb.toString();
     }
 
-	public String importSelfJs(HTMLSnapshotContext context) {
+	public String importSelfJs(HTMLSnapshotContext context, boolean syncLoadJs) {
 		StringBuffer sb = new StringBuffer();
 		Iterator jsFileNameIterator = this.jsIncludeList.iterator();
 		if (UserContext.isMobileRequest()) {
@@ -2072,7 +2072,7 @@ public class UIFormObject implements java.io.Serializable
 					sb.append("?_timestamp=").append(WebConfig.getTimeStamp());
 				}
 				sb.append("\"").append(" ");
-				sb.append(WebConfig.isSyncLoadingJs(jsFileName));
+				sb.append(syncLoadJs ? "" : WebConfig.isSyncLoadingJs(jsFileName));
 				sb.append("></script>");
 			}
 		}
@@ -2081,10 +2081,14 @@ public class UIFormObject implements java.io.Serializable
 	}
 	
 	public void getJSPathSet(HTMLSnapshotContext context, Map entityMap) {
+		getJSPathSet(context, entityMap, false);
+	}
+	
+	public void getJSPathSet(HTMLSnapshotContext context, Map entityMap, boolean syncLoadJs) {
 		if (entityMap == null) {
 			entityMap = new HashMap();
 		}
-		context.generateJS(importSelfJs(context));
+		context.generateJS(importSelfJs(context, syncLoadJs));
 
 		Iterator iterator = this.refereneEntityList.iterator();
 		while (iterator.hasNext()) {
@@ -2092,7 +2096,7 @@ public class UIFormObject implements java.io.Serializable
 			if (!entityMap.containsKey(entityName)) {
 				UIFormObject formObject = PageCacheManager
 						.getUIFormObject(entityName);
-				formObject.getJSPathSet(context, entityMap);
+				formObject.getJSPathSet(context, entityMap, syncLoadJs);
 			}
 		}
 	}

@@ -360,8 +360,14 @@ public class RefForm extends Container implements Serializable
             htmlContext.getRequest().setAttribute("_framePagePrefix",oldFrameInfo);
             
             // append the dynamic js files.
+            StringWriter jswriter = new StringWriter();
+            HTMLSnapshotContext jsContext = new HTMLSnapshotContext(ajaxContext.getRequest(), jswriter);
         	UIFormObject formObject = PageCacheManager.getUIFormObject(this.getUIEntityName());
-        	formObject.getJSPathSet(htmlContext, Collections.emptyMap());
+        	formObject.getJSPathSet(jsContext, Collections.emptyMap(), true);
+        	String data = jswriter.getBuffer().toString();
+        	IDataItem dataItem = AjaxActionHelper.createLoadJS(getId(), data);
+            dataItem.setFrameInfo(getFrameInfo());
+            ajaxContext.addDataItem(dataItem);
             
             return writer.getBuffer().toString();
         }

@@ -46,8 +46,6 @@ public class WebConfig {
 	
 	public static final String KEY_REQUEST_UIENTITY = "_UIEntity";
 	
-	private static String serverAddress = null;
-	
 	private static String servletContextPath = "";
 	
 	private static final String commonCompressedJS = "/common.js";
@@ -56,9 +54,8 @@ public class WebConfig {
 	private static final String commonCompressedMobCss = "/common-mob.css";
 	
 	public static final String WebContextRoot = UIMASTER;
-	public static final String ResourceContextRoot = UIMASTER;
-	
-	private static String uploadFileRoot = "";
+	public static String resourceContextRoot;
+	private static String uploadFileContextRoot;
 	
 	public static class WebConfigFastCache {
 		final String runningMode;
@@ -96,15 +93,19 @@ public class WebConfig {
 		public WebConfigFastCache() {
 			jsVersion = (int)(Math.random() * 100);
 			Registry instance = Registry.getInstance();
-			runningMode = instance.getValue("/System/runningMode");
+			runningMode = instance.getValue("/System/resourceServer");
+			resourceContextRoot = instance.getValue(
+					"/System/webConstant/resourceServer");
+			uploadFileContextRoot = instance.getValue(
+					"/System/webConstant/uploadServer");
 			isHTTPs = Boolean.valueOf(instance.getValue(
 					"/System/webConstant/isHTTPs"));
 			customizedMode = Boolean.valueOf(instance.getValue(
 					"/System/webConstant/customizedMode"));
 			hiddenValueMask = instance.getValue(
 					"/System/webConstant/hiddenValueMask");
-			cssRootPath = ResourceContextRoot + "/css";
-			jsRootPath = ResourceContextRoot + "/js";
+			cssRootPath = resourceContextRoot + "/css";
+			jsRootPath = resourceContextRoot + "/js";
 			ajaxServiceURL = WebContextRoot + instance.getValue(
 					"/System/webConstant/ajaxServiceURL");
 			frameWrap = WebContextRoot + instance.getValue(
@@ -144,7 +145,7 @@ public class WebConfig {
 			for (int i=0; i<commoncss.length; i++) {
 				if (!commoncss[i].startsWith("http")
 						&& !commoncss[i].startsWith("https")) {
-					commoncss[i] = ResourceContextRoot + commoncss[i];
+					commoncss[i] = resourceContextRoot + commoncss[i];
 				}
 			}
 			values = instance.getNodeItems("/System/webConstant/commonjs").values();
@@ -152,7 +153,7 @@ public class WebConfig {
 			for (int i=0; i<commonjs.length; i++) {
 				if (!commonjs[i].startsWith("http")
 						&& !commonjs[i].startsWith("https")) {
-					commonjs[i] = ResourceContextRoot + commonjs[i];
+					commonjs[i] = resourceContextRoot + commonjs[i];
 				}
 			}
 			
@@ -161,7 +162,7 @@ public class WebConfig {
 			commonMobcss = values.toArray(new String[values.size()]);
 			for (int i=0; i<commonMobcss.length; i++) {
 				if (!commonMobcss[i].startsWith("http")) {
-					commonMobcss[i] = ResourceContextRoot + commonMobcss[i];
+					commonMobcss[i] = resourceContextRoot + commonMobcss[i];
 				}
 			}
 			values = instance.getNodeItems("/System/webConstant/commonjs-mob").values();
@@ -169,7 +170,7 @@ public class WebConfig {
 			for (int i=0; i<commonMobjs.length; i++) {
 				if (!commonMobjs[i].startsWith("http")
 						&& !commonMobjs[i].startsWith("https")) {
-					commonMobjs[i] = ResourceContextRoot + commonMobjs[i];
+					commonMobjs[i] = resourceContextRoot + commonMobjs[i];
 				}
 			}
 			
@@ -187,7 +188,7 @@ public class WebConfig {
 							items[i] = "/uimaster/js/emtpy.js";
 						} else if (!items[i].startsWith("http")
 								&& !items[i].startsWith("https")) {
-							items[i] = ResourceContextRoot + items[i];
+							items[i] = resourceContextRoot + items[i];
 						}
 					}
 					singleCommonCss.put(child, items);
@@ -209,7 +210,7 @@ public class WebConfig {
 						} else if (!items[i].startsWith("http")
 								&& !items[i].startsWith("https")) {
 							//skip http, https, www, 
-							items[i] = ResourceContextRoot + items[i];
+							items[i] = resourceContextRoot + items[i];
 						}
 					}
 					singleCommonJs.put(child, items);
@@ -282,12 +283,8 @@ public class WebConfig {
 		return WebConfig.getResourcePath() + relativePath;
 	}
 	
-	public static void setUploadFileRoot(String path) {
-		uploadFileRoot = path;
-	}
-	
 	public static String getUploadFileRoot() {
-		return uploadFileRoot + UIMASTER;
+		return uploadFileContextRoot;
 	}
 	
 	public static String getWebRoot() {
@@ -308,7 +305,7 @@ public class WebConfig {
 	}
 	
 	public static String getResourceContextRoot() {
-		return UIMASTER;
+		return resourceContextRoot;
 	}
 	
 	public static String getAppResourceContextRoot() {
@@ -316,17 +313,8 @@ public class WebConfig {
 	}
 
 	public static String getAppImageContextRoot(HttpServletRequest request) {
-		if (serverAddress == null) {
-			String address = request.getLocalAddr() + ":" + request.getLocalPort();
-	        if (WebConfig.isHttps()) {
-	        	address = "https://" + address;
-	        } else {
-	        	address = "http://" + address;
-	        }
-	        serverAddress = address + "/uimaster";
-		}
 		if (UserContext.isAppClient()) {
-			return serverAddress;
+			return resourceContextRoot;
 		}
 		return getResourceContextRoot();
 	}
@@ -440,7 +428,7 @@ public class WebConfig {
 	 */
 	public static String getImportCSS(String entityName) {
 		String name = entityName.replace('.', '/');//firefox only support '/'
-		return ResourceContextRoot + "/css/" + name + ".css";
+		return resourceContextRoot + "/css/" + name + ".css";
 	}
 	
 	/**
@@ -450,20 +438,20 @@ public class WebConfig {
 	 */
 	public static String getImportJS(String entityName) {
 		String name = entityName.replace('.', '/');//firefox only support '/'
-		return ResourceContextRoot + "/js/" + name + ".js";
+		return resourceContextRoot + "/js/" + name + ".js";
 	}
 
 	public static String replaceAppCssWebContext(final String str) {
-		if (!str.startsWith(WebConfig.getAppResourceContextRoot()) && str.indexOf(ResourceContextRoot) != -1) {
-			return str.replace(ResourceContextRoot + "/", WebConfig.getAppResourceContextRoot() + "/");
-		}
+//		if (!str.startsWith(WebConfig.getAppResourceContextRoot()) && str.indexOf(ResourceContextRoot) != -1) {
+//			return str.replace(ResourceContextRoot + "/", WebConfig.getAppResourceContextRoot() + "/");
+//		}
 		return str;
 	}
 	
 	public static String replaceAppJsWebContext(final String str) {
-		if (!str.startsWith(WebConfig.getAppResourceContextRoot()) && str.indexOf(ResourceContextRoot) != -1) {
-			return str.replace(ResourceContextRoot + "/", WebConfig.getAppResourceContextRoot() + "/");
-		}
+//		if (!str.startsWith(WebConfig.getAppResourceContextRoot()) && str.indexOf(ResourceContextRoot) != -1) {
+//			return str.replace(ResourceContextRoot + "/", WebConfig.getAppResourceContextRoot() + "/");
+//		}
 		return str;
 	}
 	

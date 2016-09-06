@@ -355,6 +355,14 @@ public class AjaxActionHelper {
 		return dataItem;
 	}
 	
+	public static IDataItem createLoadJS(String uiid, String data) {
+		IDataItem dataItem = new DataItem();
+		dataItem.setJsHandler(IJSHandlerCollections.LOAD_JS);
+		dataItem.setUiid(uiid);
+		dataItem.setData(data);
+		return dataItem;
+	}
+	
 	public static IDataItem createSessionTimeOut(String msg) {
 		IDataItem dataItem = new DataItem();
 		dataItem.setJsHandler(IJSHandlerCollections.SESSION_TIME_OUT);
