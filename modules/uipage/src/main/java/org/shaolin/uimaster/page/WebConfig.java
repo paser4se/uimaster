@@ -54,8 +54,9 @@ public class WebConfig {
 	private static final String commonCompressedMobCss = "/common-mob.css";
 	
 	public static final String WebContextRoot = UIMASTER;
-	public static String resourceContextRoot;
+	private static String resourceContextRoot;
 	private static String uploadFileContextRoot;
+	private static String resourcePath;
 	
 	public static class WebConfigFastCache {
 		final String runningMode;
@@ -98,6 +99,11 @@ public class WebConfig {
 					"/System/webConstant/resourceServer");
 			uploadFileContextRoot = instance.getValue(
 					"/System/webConstant/uploadServer");
+			String resourcePath0 = instance.getValue(
+					"/System/webConstant/resourcePath");
+			if (resourcePath0 != null && resourcePath0.trim().length() > 0) {
+				resourcePath = resourcePath0;
+			}
 			isHTTPs = Boolean.valueOf(instance.getValue(
 					"/System/webConstant/isHTTPs"));
 			customizedMode = Boolean.valueOf(instance.getValue(
@@ -319,14 +325,18 @@ public class WebConfig {
 		return getResourceContextRoot();
 	}
 	
-	private static String resourcePath = null;
-
 	public static String getResourcePath() {
 		return resourcePath;
 	}
 	
-	public static void setResourcePath(String path) throws Exception {
-		resourcePath = path;
+	public static String getTempResourcePath() {
+		return resourcePath + "/temp";
+	}
+	
+	public static void setResourcePath(String path) {
+		if (resourcePath == null || resourcePath.trim().length() == 0) {
+			resourcePath = path;
+		}
 	}
 	
 	public static String getCssRootPath() {
