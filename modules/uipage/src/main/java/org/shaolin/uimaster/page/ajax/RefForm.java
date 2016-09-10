@@ -279,7 +279,7 @@ public class RefForm extends Container implements Serializable
 
     public String generateHTML()
     {
-       return buildUpRefEntity();
+        return buildUpRefEntity();
     }
 
     String buildUpRefEntity()

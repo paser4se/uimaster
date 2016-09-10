@@ -1328,14 +1328,6 @@ abstract public class Widget implements Serializable
             comp.setEditable(false, false);
             comp.setReadOnly(Boolean.TRUE, false);
         }
-        
-        if (success)
-        {
-            if (comp instanceof RefForm)
-            {
-                ((RefForm)comp).buildUpRefEntity();
-            }
-        }
         return success;
     }
     

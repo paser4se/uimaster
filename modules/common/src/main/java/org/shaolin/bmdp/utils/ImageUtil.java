@@ -794,7 +794,7 @@ public class ImageUtil {
 		// first get the width and the height of the image
 		int originWidth = inputImage.getWidth();
 		int originHeight = inputImage.getHeight();
-		String suffix = image.getName().substring(image.getName().indexOf(".") + 1);
+		String suffix = image.getName().substring(image.getName().lastIndexOf(".") + 1);
 		// let us check if we have to scale the image
 		if (originWidth <= newWidth && originHeight <= newHeight) {
 			// we don't have to scale the image, just return the origin
@@ -896,7 +896,7 @@ public class ImageUtil {
 		}
 		// Make sure the aspect ratio is maintained, so the image is not skewed
 		BufferedImage thumbImage = Scalr.crop(image, newWidth, newHeight);
-		String suffix = i.getName().substring(i.getName().indexOf(".") + 1);
+		String suffix = i.getName().substring(i.getName().lastIndexOf(".") + 1);
 		ImageIO.write(thumbImage, suffix, i);
 	}
  
@@ -918,7 +918,12 @@ public class ImageUtil {
 	            thumbnail = Scalr.crop(thumbnail, 0, thumbnail.getWidth() / 2 - size / 2, size, size);
 	        }
 	    }
-	    String suffix = image.getName().substring(image.getName().indexOf(".") + 1);
+	    String suffix;
+	    if (image.getName().lastIndexOf(".") != -1) {
+	    	suffix = image.getName().substring(image.getName().lastIndexOf(".") + 1);
+	    } else {
+	    	suffix = "png";//by default.
+	    }
         ImageIO.write(thumbnail, suffix, dest);
 	}
 	
