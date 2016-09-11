@@ -723,6 +723,16 @@ public class HTMLTableType extends HTMLContainerType {
 		if (isAppendRowMode == null) {
 			isAppendRowMode = Boolean.FALSE;
 		}
+		Object disableRefreshClear = this.removeAttribute("disableRefreshClear");
+		if (disableRefreshClear != null) {
+			if (disableRefreshClear instanceof Boolean && ((Boolean)disableRefreshClear).booleanValue()) {
+				t.disableRefreshClear();
+			}
+			if (disableRefreshClear instanceof String && "true".equals(disableRefreshClear)) {
+				t.disableRefreshClear();
+			}
+		}
+		
 		t.setAppendRowMode(isAppendRowMode);
 		Boolean isEditableCell = (Boolean)this.getAttribute("isEditableCell");
 		if (isEditableCell == null) {

@@ -70,6 +70,8 @@ public class Table extends Widget implements Serializable {
 	
 	private boolean isSliderMode;
 	
+	private boolean disableRefreshClear;
+	
 	public static final ExpressionType statsExpr = new ExpressionType();
 	static{
 		statsExpr.setExpressionString("import org.shaolin.bmdp.analyzer.dao.AanlysisModelCust; {\n"
@@ -197,6 +199,10 @@ public class Table extends Widget implements Serializable {
 		return null;
 	}
 
+	public int getSelectedIndex() {
+		return conditions.getCurrentSelectedIndex();
+	}
+
 	public boolean isSliderMode() {
 		return this.isSliderMode || (UserContext.isMobileRequest() && !isEditableCell());
 	}
@@ -205,8 +211,8 @@ public class Table extends Widget implements Serializable {
 		this.isSliderMode = true;
 	}
 	
-	public int getSelectedIndex() {
-		return conditions.getCurrentSelectedIndex();
+	public void disableRefreshClear() {
+		this.disableRefreshClear = true;
 	}
 	
 	public List<Object> getListData() {
@@ -348,6 +354,10 @@ public class Table extends Widget implements Serializable {
 		}
 	}
 	
+	public void setRow(int index, Object object) {
+		this.listData.set(index, object);
+	}
+	
 	public void addRow(Object object) {
 		this.listData.add(object);
 		
@@ -441,7 +451,7 @@ public class Table extends Widget implements Serializable {
 			UserContext.getUserContext().setPullAction(conditions.getPullAction());
 			UserContext.getUserContext().setPullId(value);
 		} else {
-			if (this.listData != null) {
+			if (!this.disableRefreshClear && this.listData != null) {
 				this.listData.clear();
 			}
 		}
