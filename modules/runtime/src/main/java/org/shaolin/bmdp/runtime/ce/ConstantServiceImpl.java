@@ -34,7 +34,7 @@ public class ConstantServiceImpl implements Serializable, IConstantService, IEnt
 	
 	private final ICache<String, IConstantEntity> serverConstantMap;
 	
-	private final List<?> hierarchy = new ArrayList<Object>();
+	private final List<Object> hierarchy = new ArrayList<Object>();
 	
 	private HierarchyAccessor accesor;
 	
@@ -75,6 +75,10 @@ public class ConstantServiceImpl implements Serializable, IConstantService, IEnt
 	public void reloadHierarchy(List hierarchy) {
 		this.hierarchy.clear();
 		this.hierarchy.addAll(hierarchy);
+	}
+	
+	public void addHierarchy(Object hierarchy) {
+		this.hierarchy.add(hierarchy);
 	}
 	
 	public List<IConstantEntity> getAppConstants(IConstantEntity condition, int offset, int count) {
