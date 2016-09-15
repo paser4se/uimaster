@@ -260,6 +260,21 @@ public class ConstantServiceImpl implements Serializable, IConstantService, IEnt
 		addConstantItem(item);
 		this.reloadData(child);
 	}
+	
+	public void removeConstantItem(String name, int intValue) {
+		IConstantEntity ce = this.getConstantEntity(name);
+		if (ce == null) {
+			throw new IllegalArgumentException(name + " is not existed!");
+		}
+		
+		List<IConstantEntity> items = ce.getConstantList();
+		for (int i=0; i<items.size(); i ++) {
+			if (items.get(i).getIntValue() == intValue) {
+				items.remove(i);
+				break;
+			}
+		}
+	}
 
 	@Override
 	public void removeConstantItem(IConstantEntity item) {

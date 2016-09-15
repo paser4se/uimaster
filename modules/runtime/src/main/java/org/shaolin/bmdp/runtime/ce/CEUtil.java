@@ -207,7 +207,7 @@ public class CEUtil {
 		if (ceValue != null) {
 			ceValue = ceValue.trim();
 		}
-		if (ceValue == null || "".equals(ceValue)) {
+		if (ceValue == null || "".equals(ceValue) || "null".equals(ceValue)) {
 			ceValue = IConstantEntity.CONSTANT_DEFAULT_VALUE;
 		}
 		
@@ -268,7 +268,7 @@ public class CEUtil {
 	}
 	
 	public static String getValue(String pattern) {
-		if (pattern == null) {
+		if (pattern == null || "null".equals(pattern)) {
 			return IConstantEntity.CONSTANT_DEFAULT_INT_VALUE;
 		}
 		int i = pattern.indexOf(",") ;
@@ -280,7 +280,7 @@ public class CEUtil {
 	}
 	
 	public static IConstantEntity toCEValue(String pattern) {
-		if (pattern == null || pattern.equals(IConstantEntity.CONSTANT_DEFAULT_INT_VALUE)) {
+		if (pattern == null || pattern.equals(IConstantEntity.CONSTANT_DEFAULT_INT_VALUE) || "null".equals(pattern)) {
 			return IConstantEntity.CONSTANT_DEFAULT;
 		}
 		int i = pattern.indexOf(",");

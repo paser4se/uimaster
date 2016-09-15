@@ -97,6 +97,7 @@ public interface IConstantService {
 	 * @param item
 	 */
 	public void removeConstantItem(IConstantEntity item);
+	public void removeConstantItem(String name, int intValue);
 	
 	/**
 	 * Query for all constants by condition.

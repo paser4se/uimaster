@@ -1,26 +1,22 @@
 package org.shaolin.bmdp.runtime.perf;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
- * This class is used for product PerfLog Object 
+ * This class is used for product's performance log. 
  */
 public class PerfLogFactory 
 {
-    public static final String SUCCESS = "SUCCESS";
+
+	private static final Logger logger = LoggerFactory.getLogger(PerfLogFactory.class);
+	
+    public void log(LogMessage message) {
+    	logger.warn(message.toString());
+    }
     
-    public static final String FAIL = "FAIL";
-
-    // category types
-    public static final int ACTIONSERVLET_CALLED = 3;
-
-    public static final int ACTTONSERVLET_CALLING = 4;
-
-    public static final int WEBSERVICE_CALLED = 5;
-
-    public static final int WEBSERVICE_CALLING = 6;
-
-    public static final int AUTHENTICATION_CALLED = 7;
-
-    public static final int EXTENSION_CALLING = 8;
-    
+    public void logException(LogMessage message, Exception e) {
+    	logger.warn(message.toString(), e);
+    }
 }
