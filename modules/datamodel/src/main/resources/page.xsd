@@ -692,7 +692,7 @@ in simple component mapping, the paramName is required</xs:documentation>
             <xs:element name="title" type="Page:PropertyValueType"/>
             <!-- three types are provided for the tab panel.-->
             <xs:element name="refEntity" type="Page:UIReferenceEntityType"/>
-            <xs:element name="frame" type="Page:UIFrameType"/>
+            <xs:element name="frame" type="Page:UIFrameType" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element name="panel" type="Page:UIPanelType"/>
         </xs:sequence>
         <!-- one more type provided for current page panel. -->
@@ -703,6 +703,7 @@ in simple component mapping, the paramName is required</xs:documentation>
             <xs:extension base="Page:UIComponentType">
 		    	<xs:attribute name="chunkName" type="xs:string"/>
 		    	<xs:attribute name="nodeName" type="xs:string"/>
+		    	<xs:attribute name="role" type="xs:string"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

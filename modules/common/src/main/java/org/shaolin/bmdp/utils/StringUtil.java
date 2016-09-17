@@ -1410,5 +1410,19 @@ public class StringUtil
 		}
 		return sb.toString();
 	} 
+	
+	private static final String CHATS = "abcdefghijklmnopqrstuvwxyz";
+	
+	public static String genRandomStr() {
+		return genRandomAlphaBits(5) + "" + System.nanoTime();
+	}
+
+	public static String genRandomAlphaBits(int i) {
+		StringBuffer sb = new StringBuffer();
+		while (i-- > 0) {
+			sb.append(CHATS.charAt((int)(Math.random() * 26)));
+		}
+		return sb.toString();
+	}
 
 }

@@ -23,10 +23,12 @@ import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.ResourceBundlePropertyType;
 import org.shaolin.bmdp.datamodel.page.StringPropertyType;
 import org.shaolin.bmdp.datamodel.page.TableLayoutConstraintType;
+import org.shaolin.bmdp.datamodel.page.UIFrameType;
 import org.shaolin.bmdp.datamodel.page.UIReferenceEntityType;
 import org.shaolin.bmdp.datamodel.page.UITabPaneItemType;
 import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.i18n.ResourceUtil;
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.uimaster.html.layout.HTMLPanelLayout;
@@ -174,10 +176,28 @@ public class HTMLPreNextPanelType extends HTMLContainerType
                 	} finally {
                 		context.setHTMLPrefix(prefix);
                 	}
-                } else if (tab.getFrame() != null) {
+                } else if (tab.getFrames() != null && tab.getFrames().size() > 0) {
+                	UIFrameType definedFrame = null;
+                	for (UIFrameType f : tab.getFrames()) {
+                		if (f.getRole() != null && UserContext.hasRole(f.getRole())) {
+                			definedFrame = f;
+                			break;
+                		}
+                	}
+                	if (definedFrame == null) {
+                		for (UIFrameType f : tab.getFrames()) {
+	                		if (f.getRole() == null) {
+	                			definedFrame = f;
+	                			break;
+	                		}
+	                	}
+                		if (definedFrame == null) {
+                			throw new IllegalStateException("Please configure a default role of frames for current user!");
+                		}
+                	}
                 	//page support
-                	this.context.getRequest().setAttribute("_chunkname", tab.getFrame().getChunkName());
-                	this.context.getRequest().setAttribute("_nodename", tab.getFrame().getNodeName());
+                	this.context.getRequest().setAttribute("_chunkname", definedFrame.getChunkName());
+                	this.context.getRequest().setAttribute("_nodename", definedFrame.getNodeName());
                 	this.context.getRequest().setAttribute("_framePagePrefix", this.context.getFrameInfo());
                 	this.context.getRequest().setAttribute("_tabcontent", "true");
                 	HTMLFrameType frame = new HTMLFrameType(this.context, tab.getUiid());

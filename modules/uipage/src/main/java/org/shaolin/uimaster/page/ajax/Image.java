@@ -105,9 +105,6 @@ public class Image extends TextWidget implements Serializable
     	else
     	{
     		this.src = src;
-    		if (!this.src.startsWith(WebConfig.getWebContextRoot())) {
-    			this.src = WebConfig.getWebContextRoot() + this.src;
-    		}
     	}
         addAttribute("src",this.src);
     }
@@ -247,6 +244,12 @@ public class Image extends TextWidget implements Serializable
 	
     public void refresh() {
     	if (!this.isgallery) {
+    		IDataItem dataItem = AjaxActionHelper.createDataItem();
+    		dataItem.setUiid(this.getId());
+    		dataItem.setJsHandler(IJSHandlerCollections.GALLERY_REFRESH);
+    		dataItem.setData(StringUtil.escapeHtmlToBytes(this.src));
+    		dataItem.setFrameInfo(this.getFrameInfo());
+            AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
     		return;
     	}
     	

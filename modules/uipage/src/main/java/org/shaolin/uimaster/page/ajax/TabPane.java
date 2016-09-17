@@ -28,9 +28,11 @@ import javax.servlet.jsp.JspException;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.TableLayoutConstraintType;
+import org.shaolin.bmdp.datamodel.page.UIFrameType;
 import org.shaolin.bmdp.datamodel.page.UIReferenceEntityType;
 import org.shaolin.bmdp.datamodel.page.UITabPaneItemType;
 import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.ParsingContext;
@@ -332,11 +334,29 @@ public class TabPane extends Container implements Serializable
 			dataItem.setJs(form.generateJS());
 			dataItem.setFrameInfo(this.getFrameInfo());
 			AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
-        } else if (tab.getFrame() != null) {
+        } else if (tab.getFrames() != null && tab.getFrames().size() > 0) {
         	//page support
+        	UIFrameType definedFrame = null;
+        	for (UIFrameType f : tab.getFrames()) {
+        		if (f.getRole() != null && UserContext.hasRole(f.getRole())) {
+        			definedFrame = f;
+        			break;
+        		}
+        	}
+        	if (definedFrame == null) {
+        		for (UIFrameType f : tab.getFrames()) {
+            		if (f.getRole() == null) {
+            			definedFrame = f;
+            			break;
+            		}
+            	}
+        		if (definedFrame == null) {
+        			throw new IllegalStateException("Please configure a default role of frames for current user!");
+        		}
+        	}
 			HttpServletRequest request = ajaxContext.getRequest();
-        	request.setAttribute("_chunkname", tab.getFrame().getChunkName());
-        	request.setAttribute("_nodename", tab.getFrame().getNodeName());
+        	request.setAttribute("_chunkname", definedFrame.getChunkName());
+        	request.setAttribute("_nodename", definedFrame.getNodeName());
         	request.setAttribute("_framePagePrefix", ajaxContext.getFrameId());
         	request.setAttribute("_tabcontent", "true");
         	HTMLFrameType frame = new HTMLFrameType(htmlContext, tab.getUiid());

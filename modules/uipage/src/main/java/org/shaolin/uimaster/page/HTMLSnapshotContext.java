@@ -519,6 +519,9 @@ public class HTMLSnapshotContext implements Serializable
         	return url;
         }
     	if (!url.startsWith(WebConfig.getResourceContextRoot())) {
+    		if (url.startsWith("/images")) {
+    			return WebConfig.getResourceContextRoot() + url;
+    		}
     		return url = WebConfig.getResourceContextRoot() +"/images"+ url;
     	} 
         return url;

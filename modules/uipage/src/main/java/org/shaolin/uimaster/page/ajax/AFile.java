@@ -64,6 +64,9 @@ public class AFile extends TextWidget implements Serializable
     
     public void setStoredPath(String storedPath) {
     	this.storedPath = storedPath;
+    	if (this.allowedNumbers <= 1) {
+    		return;
+    	}
     	// check whether the given path is a file or directory.
 		if (this.storedPath.lastIndexOf('/') != -1) {
 			String tempPath = this.storedPath.substring(this.storedPath.lastIndexOf('/') + 1);

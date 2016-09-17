@@ -55,7 +55,7 @@ public class HTMLImageType extends HTMLTextWidgetType
                 context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/html2canvas.js\"></script>");
             }
             generateWidget(context);
-            if (this.getAttribute("isGallery") != null) {
+            if (this.getAttribute("isGallery") != null && ("true".equals(String.valueOf(this.getAttribute("isGallery"))))) {
 	        	context.generateHTML("<div id=\"");
 	        	context.generateHTML(getName());
 	            context.generateHTML("\" class=\"swiper-container\">");
@@ -173,7 +173,7 @@ public class HTMLImageType extends HTMLTextWidgetType
 		} else {
 			image.setSrc((String) getAllAttribute("src"));
 		}
-		image.setIsGallery(this.getAttribute("isGallery") != null);
+		image.setIsGallery(this.getAttribute("isGallery") != null && ("true".equals(String.valueOf(this.getAttribute("isGallery")))));
 		image.setListened(true);
 		image.setFrameInfo(getFrameInfo());
 

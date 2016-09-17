@@ -17,7 +17,6 @@ package org.shaolin.uimaster.page;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.util.List;
 import java.util.Map;
 
@@ -121,9 +120,6 @@ public class UploadFileServlet extends HttpServlet {
 		if (file.getStoredPath().startsWith(WebConfig.getResourcePath())) {
 			root = new File(file.getStoredPath());
 		} 
-		if (!root.exists()) {
-			root.mkdirs();
-		}
 		if (root.isDirectory() && file.getAllowedNumbers() > 0 
 				&& root.list().length >= file.getAllowedNumbers()) {
 			// exceeded.
@@ -132,6 +128,9 @@ public class UploadFileServlet extends HttpServlet {
 			array.put(new JSONObject(dataItem));
 			response.getWriter().print(array.toString());
 			return;
+		}
+		if (root.isDirectory() && !root.exists()) {
+			root.mkdirs();
 		}
 		
 		boolean isMultipart = ServletFileUpload.isMultipartContent(request);
@@ -162,25 +161,35 @@ public class UploadFileServlet extends HttpServlet {
 						return;
 					}
 					if (!item.isFormField()) {
-						String name;
-						if ((new File(root, item.getName())).exists()) {
-							name = ((int)(Math.random()*1000)) + item.getName();
+						if (root.isDirectory()) {
+							//gallery support.
+							String name;
+							if ((new File(root, item.getName())).exists()) {
+								name = ((int)(Math.random()*1000)) + item.getName();
+							} else {
+								name = new File(item.getName()).getName();
+							}
+							String suffix = name.substring(name.lastIndexOf('.'));
+							name = Base64.encodeBase64String(name.substring(0, name.lastIndexOf('.')).getBytes()) + suffix;  
+							logger.info("Received the uploading file: " + name + ", saving path: " + root);
+							File finalPicture = new File(root, name);
+							item.write(finalPicture);
+							
+							if (file.getWidth() > 0 && file.getHeight() > 0) {
+								ImageUtil.resizeImage(finalPicture, file.getWidth(), file.getHeight(), finalPicture);
+							}
 						} else {
-							name = new File(item.getName()).getName();
+							//single file.
+							item.write(root);
+							logger.info("Received the uploading file: " + item.getName() + ", saving path: " + root);
+							if (file.getWidth() > 0 && file.getHeight() > 0) {
+								ImageUtil.resizeImage(root, file.getWidth(), file.getHeight(), root);
+							}
 						}
-						String suffix = name.substring(name.lastIndexOf('.'));
-						name = Base64.encodeBase64String(name.substring(0, name.lastIndexOf('.')).getBytes()) + suffix;  
-						logger.info("Received the uploading file: " + name + ", saving path: " + root);
-						File finalPicture = new File(root, name);
-						item.write(finalPicture);
-						
-						if (file.getWidth() > 0 && file.getHeight() > 0) {
-							ImageUtil.resizeImage(finalPicture, file.getWidth(), file.getHeight(), finalPicture);
-						}
-						file.refresh();
 					}
+					//TODO: move the upload files to our resource server by scheduler!
 				}
-				
+				file.refresh();
 			} catch (Exception e) {
 				logger.warn("Failed to receive the uploading file: " + e.getMessage(), e);
 				IDataItem dataItem = AjaxActionHelper.createErrorDataItem("Failed to receive the uploading file: " + e.getMessage());
