@@ -16,13 +16,17 @@
 package org.shaolin.uimaster.page.ajax;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 
 import org.shaolin.bmdp.utils.FileUtil;
+import org.shaolin.bmdp.utils.StringUtil;
 import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
+import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,6 +105,56 @@ public class TextArea extends TextWidget implements Serializable
         this.setValue("");
     }
     
+    public void setValue(String value)
+    {
+        if(this._isReadOnly())
+        {
+            return;
+        }
+        // disable it by default due to the server side update.
+        addAttribute("value", value, false);
+        
+        if(!this.isListened())
+        {
+            return;
+        }
+        
+        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        if (ajaxContext == null || !ajaxContext.existElement(this))
+        {
+            return;
+        }
+        
+        StringBuilder sb = new  StringBuilder();
+        sb.append("{'name':'value','value':'");
+        sb.append(StringUtil.escapeHtmlToBytes(String.valueOf(value)));
+        sb.append("'}");
+        IDataItem dataItem = AjaxActionHelper.updateAttrItem(this.getId(), sb.toString());
+        dataItem.setFrameInfo(getFrameInfo());
+        ajaxContext.addDataItem(dataItem);
+        
+        if (!this.isHtmlSupport()) {
+    		return;
+    	}
+        File file = new File(WebConfig.getResourcePath() + getValue());
+        if (file.isDirectory()) {
+        	logger.warn("The html content cannot be found in a directory: " + file.getAbsolutePath());
+        	return;
+        }
+		
+        sb = new  StringBuilder();
+        sb.append("{'name':'value','ishtmlcontent':true,'value':'");
+        try {
+        	sb.append(StringUtil.escapeHtmlToBytes(FileUtil.readFile(new FileInputStream(file))));
+        	sb.append("'}");
+        	IDataItem dataItem1 = AjaxActionHelper.updateAttrItem(this.getId(), sb.toString());
+        	dataItem1.setFrameInfo(getFrameInfo());
+        	ajaxContext.addDataItem(dataItem1);
+        } catch (IOException e) {
+        	e.printStackTrace();
+        }
+    }
+    
     public void setHTMLContent(String htmlContent) {
     	if (!this.isHtmlSupport()) {
     		return;
@@ -108,7 +162,7 @@ public class TextArea extends TextWidget implements Serializable
 		try {
 			File file = new File(WebConfig.getResourcePath() + getValue());
 			if (file.isDirectory()) {
-				logger.error("The html content cannot be stored in a directory: " + file.getAbsolutePath());
+				logger.warn("The html content cannot be stored in a directory: " + file.getAbsolutePath());
 				return;
 			}
 			FileUtil.write(file.getAbsolutePath(), htmlContent);

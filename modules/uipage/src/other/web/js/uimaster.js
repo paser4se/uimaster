@@ -963,6 +963,7 @@ UIMaster.util.forwardToPage = function(link){
  * @param {Function} handler Function handler. <br/> There will be two parameters passed to the handler. First one is the data passed from the server, the second one is the window object of that operation.
  * @returns {UIMaster} UIMaster object.
  */
+var scriptCaches_ = new Array(); 
 UIMaster.registerHandler = function(name,handler){
     UIMaster.handler[name]=handler;
     return UIMaster;
@@ -1073,11 +1074,25 @@ UIMaster.registerHandler("fadeOut", function(data,win){
 	    node.parentDiv = node.parentEntity = null;
 	    delete node;
     }
-}).registerHandler("load_js",function(data,win){
+}).registerHandler("load_js",function(data,win,callback){
 	if ($(data.data).length > 0) {
-	   var src = $($(data.data)[0]).attr("src");
-	   if ($(win.document).find("script[src='"+src+"']").length == 0)
-	      $(data.data).appendTo($($(win.document).find("form:first")));
+	   var scripts = $(data.data);
+	   var src = $(scripts[0]).attr("src");
+	   for (var s in scriptCaches_) { 
+	       if (scriptCaches_[s]==src) { 
+		       if(callback) {callback()};
+		       return;
+		   }
+	   }
+	   var count=scripts.length;
+	   for (var i=0;i<scripts.length;i++) {
+		  var url = $(scripts[i]).attr("src");
+		  $.ajax({url: url,dataType: "script",async:true, success: function(){
+			  if((--count == 0) && callback){callback();}
+		  }});
+		  scriptCaches_.push(url);
+	   }
+	   //$(data.data).appendTo($($(win.document).find("form:first")));
 	}
 }).registerHandler("openwindow",function(data,win){
     var config = win.eval('('+data.sibling+')');
@@ -1087,9 +1102,7 @@ UIMaster.registerHandler("fadeOut", function(data,win){
         uiid:data.uiid,
         parent:data.parent,
         frameInfo:data.frameInfo});
-	window.setTimeout(function(){//delay for js loading.
-       new win.UIMaster.ui.window(config).open(win);
-	}, 500);
+    new win.UIMaster.ui.window(config).open(win);
 }).registerHandler("closewindow",function(data,win){
     win.UIMaster.ui.window.getWindow(data.uiid).close(win);
 }).registerHandler("opendialog",function(data,win){
@@ -1097,7 +1110,7 @@ UIMaster.registerHandler("fadeOut", function(data,win){
 }).registerHandler("update_attr",function(data,win){
     var e,i;
     for (i in win.elementList)
-        if (i.indexOf(data.uiid) == 0)
+        if (i == data.uiid)
         	e = win.elementList[i];
     if(!e)
     	 return;
@@ -1106,7 +1119,7 @@ UIMaster.registerHandler("fadeOut", function(data,win){
 }).registerHandler("remove_attr",function(data,win){
     var e,i;
     for (i in win.elementList)
-        if (i.indexOf(data.uiid) == 0)
+        if (i == data.uiid)
         	e = win.elementList[i];
     if(!e) return;
     if (data.name == undefined) {
@@ -1117,7 +1130,7 @@ UIMaster.registerHandler("fadeOut", function(data,win){
 }).registerHandler("update_event",function(data,win){
     var e,i;
     for (i in win.elementList)
-        if (i.indexOf(data.uiid) == 0)
+        if (i == data.uiid)
         	e = win.elementList[i];
     if(!e) return;
 	var attribute = win.eval("("+data.data+")");
@@ -1125,14 +1138,14 @@ UIMaster.registerHandler("fadeOut", function(data,win){
 }).registerHandler("remove_event",function(data,win){
     var e,i;
     for (i in win.elementList)
-        if (i.indexOf(data.uiid) == 0)
+        if (i == data.uiid)
         	e = win.elementList[i];
     if(!e) return;
 	e.unbind(data.name);
 }).registerHandler("update_style",function(data,win){
     var e,i;
     for (i in win.elementList)
-        if (i.indexOf(data.uiid) == 0)
+        if (i == data.uiid)
         	e = win.elementList[i];
     if(!e) return;
 	var attribute = win.eval("("+data.data+")");
@@ -1140,7 +1153,7 @@ UIMaster.registerHandler("fadeOut", function(data,win){
 }).registerHandler("remove_style",function(data,win){
     var e,i;
     for (i in win.elementList)
-        if (i.indexOf(data.uiid) == 0)
+        if (i == data.uiid)
         	e = win.elementList[i];
     if(!e) return;
 	$(e).css(data.name, "none");
@@ -1160,14 +1173,14 @@ UIMaster.registerHandler("fadeOut", function(data,win){
 }).registerHandler("show_constraint",function(data,win){
     var e,i;
     for (i in win.elementList)
-        if (i.indexOf(data.uiid) == 0)
+        if (i == data.uiid)
         	e = win.elementList[i];
     if(!e) return;
 	constraint(data.uiid, data.data);
 }).registerHandler("remove_constraint",function(data,win){
     var e,i;
     for (i in win.elementList)
-        if (i.indexOf(data.uiid) == 0)
+        if (i == data.uiid)
         	e = win.elementList[i];
     if(!e) return;
 	clearConstraint(data.uiid);
@@ -1188,7 +1201,7 @@ UIMaster.registerHandler("fadeOut", function(data,win){
 }).registerHandler("table_update",function(data,win){
 	var tdata = win.eval("("+data.data+")"),id = data.uiid,uitable,i;
     for (i in win.elementList)
-        if (i.indexOf(id) == 0)
+        if (i == id)
         	uitable = win.elementList[i];
     if(!uitable)
     	 return;
@@ -1196,7 +1209,7 @@ UIMaster.registerHandler("fadeOut", function(data,win){
 }).registerHandler("tabPaneHandler",function(data,win){
     var tabdata = win.eval("("+data.data+")"),id = data.uiid,uitab,i;
     for (i in win.elementList)
-        if (i.indexOf(id) == 0)
+        if (i == id)
             uitab = win.elementList[i];
     if(!uitab)
         return;
@@ -1221,7 +1234,7 @@ UIMaster.registerHandler("fadeOut", function(data,win){
 }).registerHandler("tab_append",function(data,win){
 	var id = data.parent,uitab,i;
     for (i in win.elementList)
-        if (i.indexOf(id) == 0)
+        if (i == id)
             uitab = win.elementList[i];
     if(!uitab)
         return;
@@ -1231,7 +1244,7 @@ UIMaster.registerHandler("fadeOut", function(data,win){
 }).registerHandler("uiflowhandler",function(data,win){
     var flowdata = win.eval("("+data.data+")"),id = data.uiid,uiflow,i;
     for (i in win.elementList)
-        if (i.indexOf(id) == 0)
+        if (i == id)
             uiflow = win.elementList[i];
     if(!uiflow)
         return;
@@ -1255,7 +1268,7 @@ UIMaster.registerHandler("fadeOut", function(data,win){
 }).registerHandler("tree_refresh",function(data,win){
     var children = win.eval("("+data.data+")"),id = data.uiid,tree,i;
     for (i in win.elementList)
-        if (i.indexOf(id) == 0)
+        if (i == id)
             tree = win.elementList[i];
     if(!tree)
         return;
@@ -1263,7 +1276,7 @@ UIMaster.registerHandler("fadeOut", function(data,win){
 }).registerHandler("gallery_refresh",function(data,win){
     var children = data.data,id = data.uiid,image,i;
     for (i in win.elementList)
-        if (i.indexOf(id) == 0)
+        if (i == id)
             image = win.elementList[i];
     if(!image)
         return;
@@ -1306,17 +1319,35 @@ UIMaster.cmdHandler = function(json,status,result){
 	    UIMaster.ui.mask.close();
 	    return;
 	}
-    for (i=0;i<cmds.length;i++){
-        win = getW(cmds[i].frameInfo);
-        if (win.UIMaster.handler[cmds[i].jsHandler]) {
-            try {win.UIMaster.handler[cmds[i].jsHandler](cmds[i],win);}catch(e){console.log(e);}
+	var hasPostInit = arguments.callee.caller.toString().indexOf('postInit');
+	function executeCmd0(i, cmds) {
+		var isLoadJsBreak = false;
+		while (i<cmds.length){
+			if (cmds[i] == null) {continue;}
+			win = getW(cmds[i].frameInfo);
+			if (win.UIMaster.handler[cmds[i].jsHandler]) {
+				try {
+					if(cmds[i].jsHandler == "load_js") {
+						var callback = function(){
+							executeCmd0(i+1, cmds);	
+						};
+						win.UIMaster.handler[cmds[i].jsHandler](cmds[i],win, callback);
+						if((i+1)<cmds.length){isLoadJsBreak = true;}
+						break;
+					} else {
+						win.UIMaster.handler[cmds[i].jsHandler](cmds[i],win);
+					}
+				} catch(e){console.log(e);}
+			}
+			i++;
 		}
-    }
-    if (!MobileAppMode) {
-        if (cmds.length && (cmds.length<=0||cmds[cmds.length-1].jsHandler!="appendError") && arguments.callee.caller.toString().indexOf('postInit')==-1) {
-            UIMaster.ui.mask.close();
-        }
-    }
+		if (!isLoadJsBreak && !MobileAppMode) {
+			if (cmds.length && (cmds.length<=0||cmds[cmds.length-1].jsHandler!="appendError") && hasPostInit==-1) {
+				UIMaster.ui.mask.close();
+			}
+		}
+	}
+	executeCmd0(0, cmds);
 };
 /**
  * @description Append error messages to the panel.

@@ -154,6 +154,7 @@ function postInit(){
         var func = UIMaster.pageInitFunctions.shift();
 		func();
 	}
+	$(window).scrollTop(0);
 };
 /**
  * @description UI Field class.
@@ -459,8 +460,23 @@ UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 		}
 	},
 	addAttr: function(a){
-		$(this).attr(a.name, a.value);
-		$(this).text(a.value);
+		var v = Base64.decode(a.value);
+		if (a.ishtmlcontent) {
+		    var opts = null;
+			if (this.hiddenToolbar)
+			  opts = {uiColor:'#0078AE', toolbar:[], height: this.height};
+			else 
+			  opts = {uiColor:'#0078AE', height: this.height};
+
+			CKEDITOR.remove(CKEDITOR.instances[this.name+"_ckeditor"]);
+			$($(this).next().children()[0]).html(v);
+			$($(this).next().children()[1]).remove();
+			CKEDITOR.replace(this.name+"_ckeditor", opts);
+		    this.ckeditor = CKEDITOR.instances[this.name+"_ckeditor"];
+		} else {
+			$(this).attr(a.name, v);
+		    $(this).text(v);
+		}
 	},
 	initHtmlContent:function() {
 	    var o = this;
@@ -1763,15 +1779,20 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 	slideshowAutostart:false,
 	intialized:false,
 	enableSelectSync:true,
-	init:function(){
+	isGallery:true,
+	init:function(skip){
 		var t = this;
-		UIMaster.pageInitFunctions.push(function(){t.init0();});//must be delayed for initialing.
+		if (skip) {
+		  t.init0();
+		} else {
+		  UIMaster.pageInitFunctions.push(function(){t.init0();});//must be delayed for initialing.
+		}
 	},
 	init0:function(){
 	    if (this.intialized)
 		    return;
 		this.intialized = true;
-		if (this.tagName.toLowerCase() == "div") {
+		if (this.isGallery || this.tagName.toLowerCase() == "div") {
 		    var t = this;
 			var w = $($(t).parent()).width();
 			if (w > 0) {$(t).css("width",w + "px");}//ensure the root width of swiper widget for bug fix.
@@ -1858,17 +1879,22 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 	  }).open();
 	},
 	refresh:function(newContent){
-	   $(this).children().each(function(){$(this).remove()});
-	   if (this.thumbnails){
-	      $(this).next().children().each(function(){$(this).remove()});
-		  $(this).next().remove();
+	   if (this.isGallery) {
+		   $(this).children().each(function(){$(this).remove()});
+		   if (this.thumbnails){
+			  $(this).next().children().each(function(){$(this).remove()});
+			  $(this).next().remove();
+		   }
+		   $(decodeHTML(newContent)).appendTo($(this));
+		   this.intialized = false;
+		   this.init(true);
+	   } else {
+		   $(this).next().attr("src", RESOURCE_CONTEXTPATH + decodeHTML(newContent) + "?t="+Math.random());
 	   }
-	   $(decodeHTML(newContent)).appendTo($(this));
-	   this.intialized = false;
-	   this.init();
 	}
 });
 UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
+	disableSearch:false,
     initialized: false,
     callback:null,
 	cleanAll:null,
@@ -1877,10 +1903,15 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 			return;
 		this.initialized = true;
 		var fileUI = this;
+		if ($(fileUI).attr("disabled") == "true" || $(fileUI).attr("disabled") == "disabled") {
+			$(fileUI).parent().css("display", "none");
+			return;
+		}
 		var actionBtns = this.nextElementSibling.nextElementSibling;
 		var uploadBtn = $(actionBtns).children()[0];
 		var cleanBtn = $(actionBtns).children()[1];
 		var searchBtn = $(actionBtns).children()[2];
+		if(this.disableSearch) {$(cleanBtn).css("display","none");$(searchBtn).css("display","none");}
 		var progressbox = this.nextElementSibling.nextElementSibling.nextElementSibling;
 		var messagebox = progressbox.nextElementSibling;
 		var c = $(progressbox).children();
@@ -1954,7 +1985,7 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 			}
 			
 			var _framePrefix=UIMaster.getFramePrefix(UIMaster.El(fileUI).get(0));
-			var form = $('<form action='+WEB_CONTEXTPATH+'/uploadFile?_uiid='+fileUI.name+'&_framePrefix='+_framePrefix+' method=post enctype=multipart/form-data></form>');
+			var form = $('<form action='+UPLOAD_CONTEXTPATH+'?_uiid='+fileUI.name+'&_framePrefix='+_framePrefix+' method=post enctype=multipart/form-data></form>');
 			//encodeURI(fileUI.uploadName || fileUI.name)
 			if (IS_MOBILEVIEW){$(form).append($(fileUI).parent());}
 			else {$(form).append($(fileUI));}
@@ -2159,7 +2190,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			$(this).removeAttr("style");
 			$(this).children().each(function(){
 				if ($(this).attr("icon") != undefined && $(this).attr("icon") != null) {
-					$(this).button({text:false,icons:{primary:$(this).attr("icon")}});
+					$(this).button({text:true,icons:{primary:$(this).attr("icon")}});
 				}
 			});
 		});
@@ -2183,12 +2214,12 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		this.editable = ($(this).prev().attr('editable')=="true");
 		this.editablecell = ($(this).prev().attr('editablecell')=="true");
 		var recordsTotal = parseInt($(this).attr("recordstotal"));
-		try {
+		try { //scrollY=table body height.
 		var table = $(this).dataTable({
 		    "lengthMenu": [10, 25, 50, 100],"pageLength": 10,"paginate": this.editable,"paging":this.editable,
 			"ordering":this.editable,"info":this.editable,
 			"searching": false,"pageIndex":0,"filter": true,
-			"scrollY":((this.editablecell || this.disableScrollY)?"auto": '60vh'),
+			"scrollY":((this.editablecell || this.disableScrollY)?"auto": "auto"),
 			"scrollCollapse": false,
 			"recordsFiltered": $(this).attr("recordsfiltered"),
 			"recordsTotal": recordsTotal,
@@ -2576,6 +2607,16 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		}
 	},
 	refreshFromServer:function(json){
+		if (IS_MOBILEVIEW || this.utype == "swiper") {
+			$(this).find(".swiper-slide").each(function() {
+				$(this).remove();
+			});
+			for(var i=0;i<json.rows.length;i++){
+				this.appendSlide(decodeHTML(json.rows[i].value));
+			}
+			this.refreshMobList();
+			return;
+		}
 		var trs = $(elementList[this.id]).find('tbody tr');		
 		trs.each(function(){
 			$(this).unbind('click');
@@ -2586,7 +2627,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		});
 		if (this.appendRowMode) {
 		    for (var i=0;i<json.length;i++) 
-		       this.dtable.row.add(json[i]).draw();
+		       this.dtable.row.add(decodeHTML(json[i])).draw();
 		} else {
 			this.dtable._fnAjaxUpdateDraw(json);
 		}
@@ -2638,7 +2679,6 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 });
 UIMaster.ui.webtree = function(conf){
 	UIMaster.apply(this, conf);
-	
 };
 UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
     initialized: false,
@@ -2672,11 +2712,8 @@ UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
 		var clickEvent = config.attr("clickevent");
 		var dblclickEvent = config.attr("dblclickevent");
 		this._addnodeevent = config.attr("addnodeevent");
-		this._addnodeevent0 = config.attr("addnodeevent0");
 		this._deletenodeevent = config.attr("deletenodeevent");
-		this._deletenodeevent0 = config.attr("deletenodeevent0");
 		this._refreshnodeevent = config.attr("refreshnodeevent");
-		this._refreshnodeevent0 = config.attr("refreshnodeevent0");
 		
 		var _treeObj = $(this).jstree({ 
 			"core":{"data": d, "check_callback" : true}, 
@@ -3084,7 +3121,7 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
         	var h = this.height == 0 ? 300: this.height;
 			if (this.autoResize) {
 				w = "70%";
-				h = $(document.body).height();
+				h = $(window).height() - 50;
 			}
         	var thisObj = this;
             this.content = $("<div><div>").html(this.data).attr("id", this.id).css("-webkit-transform","translateZ(0)");
@@ -3456,9 +3493,18 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
         		$(this).append($(elementList[$(this).attr("uipanelid")]).parent());
 			}
 			if (othis.vertical) {
-				var wrap = $("<div class='tab-titles ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all'></div>");
+			   var wrap = $("<div class='tab-titles ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all'></div>");
 			   $(othis.titleContainer.children()[0]).appendTo(wrap);
 			   wrap.prependTo($(this));
+			   var collpaseAction = $("<div>\u6536\u8D77</div>"); collpaseAction.appendTo(wrap);
+			   collpaseAction.bind("click", function(){
+				   var body = $(this).parent().next();
+				   if(body.css("display")=="block") {
+					   body.css("display", "none");$(this).text("\u653E\u5F00");
+				   } else {
+					   body.css("display", "block");$(this).text("\u6536\u8D77");
+				   }
+			   });
 			   $(this).css("display", "block");
 			}
 		});
@@ -3487,6 +3533,11 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 		  eval(id) != null && eval(id).sync != null && eval(id).sync();
 	   }
     },
+	collapseTab:function(index){
+		if (index >= 0 && index < this.bodyContainer.children().length) {
+		   $($(this.bodyContainer.children()[index]).children()[1]).css("display","none");
+		}
+	},
     setTab:function(action){
 	    var id = null;
 	    var titles = this.titleContainer.children();
