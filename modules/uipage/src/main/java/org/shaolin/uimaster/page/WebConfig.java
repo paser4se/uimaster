@@ -15,6 +15,7 @@
 */
 package org.shaolin.uimaster.page;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -438,6 +439,15 @@ public class WebConfig {
 	 */
 	public static String getImportCSS(String entityName) {
 		String name = entityName.replace('.', '/');//firefox only support '/'
+		return resourceContextRoot + "/css/" + name + ".css";
+	}
+	
+	public static String getImportMobCSS(String entityName) {
+		String name = entityName.replace('.', '/');//firefox only support '/'
+		File f = new File(WebConfig.getRealPath("/css/" + name + "_mob.css"));
+		if (f.exists()) {
+			return resourceContextRoot + "/css/" + name + "_mob.css";
+		}
 		return resourceContextRoot + "/css/" + name + ".css";
 	}
 	

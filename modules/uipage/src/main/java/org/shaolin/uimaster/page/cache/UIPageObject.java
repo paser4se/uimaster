@@ -155,7 +155,10 @@ public class UIPageObject implements java.io.Serializable {
 			String code = iterator.next();
 			mobPageCSS.append(code);
 		}
-		mobPageCSS.append((String) cssCodeMap.get(DEFAULT_LOCALE));
+		String importCSS = WebConfig.getImportMobCSS(entityName);
+		String cssCode = "<link rel=\"stylesheet\" href=\"" + importCSS
+				+ "\" type=\"text/css\">\n";
+		mobPageCSS.append(cssCode);
 	}
 
 	public UIFormObject getUIForm() {
