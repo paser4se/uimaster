@@ -65,9 +65,23 @@ public class HTMLWebTreeType extends HTMLWidgetType {
 	public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
 		try {
 			String selectedNodeEvent = (String)this.getAttribute("selectedNode");
+			String overrided = getEventListener("onclick");
+			if ((overrided != null) && (overrided.length() > 0))
+				selectedNodeEvent = getReconfigurateFunction(overrided);
+			else {
+				selectedNodeEvent = "defaultname." + getPrefix() + selectedNodeEvent + "(tree, e)";
+			}
 			String dblselectedNodeEvent = (String)this.getAttribute("dblselectedNode");
 			String deleteNodeEvent = (String)this.getAttribute("deleteNode");
 			String addNodeEvent = (String)this.getAttribute("addNode");
+			if ((addNodeEvent != null) && (addNodeEvent.length() > 0)) {
+				overrided = getEventListener(addNodeEvent);
+				if ((overrided != null) && (overrided.length() > 0))
+					addNodeEvent = getReconfigurateFunction(overrided);
+				else {
+					addNodeEvent = "defaultname." + getPrefix() + addNodeEvent + "(tree, e)";
+				}
+			}
 			String refreshNodeEvent = (String)this.getAttribute("refreshNode");
 			List<UITableActionType> actions = (List<UITableActionType>)this.getAttribute("actions");
 			String nodeIcon = (String)this.getAttribute("nodeIcon");
@@ -124,22 +138,16 @@ public class HTMLWebTreeType extends HTMLWidgetType {
 			List<TreeItem> result = (List<TreeItem>)this.removeAttribute("initValue");
 			JSONArray jsonArray = new JSONArray(result);
 			
-			context.generateHTML("<div style='display:none;' clickevent=\"defaultname.");
-			context.generateHTML(this.getPrefix() + selectedNodeEvent);
-			context.generateHTML("(tree, e)\" clickevent0=\"");
+			context.generateHTML("<div style='display:none;' clickevent=\"");
 			context.generateHTML(selectedNodeEvent);
 			context.generateHTML("\" dblclickevent=\"defaultname.");
 			context.generateHTML(this.getPrefix() + dblselectedNodeEvent);
-			context.generateHTML("(tree, e)\" clickevent0=\"");
-			context.generateHTML(selectedNodeEvent);
-			context.generateHTML("\"");
+			context.generateHTML("(tree, e)\" ");
 			if (addNodeEvent != null) {
-				context.generateHTML(" addnodeevent0=\"");
-				context.generateHTML(addNodeEvent);
-				context.generateHTML("\" addnodeevent=\"defaultname.");
-				context.generateHTML(this.getPrefix() + addNodeEvent);
-				context.generateHTML("(tree, e)\"");
-			}
+		        context.generateHTML(" addnodeevent=\"");
+		        context.generateHTML(addNodeEvent);
+		        context.generateHTML("\"");
+		    }
 			if (deleteNodeEvent != null) {
 				context.generateHTML(" deletenodeevent0=\"");
 				context.generateHTML(deleteNodeEvent);
