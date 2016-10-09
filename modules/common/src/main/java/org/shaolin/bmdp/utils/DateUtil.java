@@ -55,4 +55,12 @@ public class DateUtil {
 		d.setTime(d.getTime() + (1000 * 60 * 60 * 12));
 	}
 	
+	public static void increaseMonths(Date d, int months) {
+		d.setTime(d.getTime() + (1000 * 60 * 60 * (months * 30)));//FIXME
+	}
+	
+	public static void increaseYears(Date d, int years) {
+		d.setTime(d.getTime() + (1000 * 60 * 60 * (years * 12 * 30)));//FIXME
+	}
+	
 }

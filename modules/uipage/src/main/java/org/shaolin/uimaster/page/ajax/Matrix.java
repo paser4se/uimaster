@@ -17,6 +17,8 @@ package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
 
+import org.shaolin.bmdp.runtime.ce.IConstantEntity;
+
 /**
  * @author Shaolin Wu
  */
@@ -26,6 +28,8 @@ public class Matrix extends Widget implements Serializable {
 	
 	private String selectedNode;
 
+	private String selectedNodeId;
+	
 	private int selectedX = 0;
 	
 	private int selectedY = 0;
@@ -38,11 +42,21 @@ public class Matrix extends Widget implements Serializable {
 	public void addAttribute(String name, Object value, boolean update) {
 		if ("selectedNode".equals(name)) {
 			this.selectedNode = value.toString();
+		} else if ("selectedNodeId".equals(name)) {
+			this.selectedNodeId = value.toString();
 		} else if ("selectedX".equals(name)) {
 			this.selectedX = Integer.parseInt(value.toString());
 		} else if ("selectedY".equals(name)) {
 			this.selectedY = Integer.parseInt(value.toString());
 		} 
+	}
+	
+	public void setCEType(String ceType) {
+		//TODO:
+	}
+	
+	public IConstantEntity getSelectedCEItem() {
+		return null;
 	}
 	
 	public int getSelectedX() {
@@ -57,4 +71,8 @@ public class Matrix extends Widget implements Serializable {
 		return selectedNode;
 	}
 
+	public String getSelectedNodeId() {
+		return selectedNodeId;
+	}
+	
 }

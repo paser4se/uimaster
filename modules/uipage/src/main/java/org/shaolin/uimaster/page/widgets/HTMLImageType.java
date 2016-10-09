@@ -139,6 +139,17 @@ public class HTMLImageType extends HTMLTextWidgetType
 
     private String getSrc(HTMLSnapshotContext context)
     {
+    	if (this.getAttribute("custDirectory") != null && "true".equals(String.valueOf(this.getAttribute("custDirectory")))) {
+    		String url = (String)getAllAttribute("src");
+            if(url == null) {
+            	return "";
+            }
+            if (url.startsWith("http") || url.startsWith("https")) {
+            	return url;
+            }
+    		return WebConfig.getResourceContextRoot() + url;
+    	}
+    	
         return context.getImageUrl(getUIEntityName(), (String) getAllAttribute("src"));
     }
 

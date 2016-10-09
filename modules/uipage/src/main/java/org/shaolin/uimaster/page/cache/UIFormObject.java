@@ -74,7 +74,6 @@ import org.shaolin.bmdp.datamodel.page.UIFlowDefaultActionType;
 import org.shaolin.bmdp.datamodel.page.UIFlowDiagramType;
 import org.shaolin.bmdp.datamodel.page.UIFrameType;
 import org.shaolin.bmdp.datamodel.page.UIImageType;
-import org.shaolin.bmdp.datamodel.page.UILayoutConstraintType;
 import org.shaolin.bmdp.datamodel.page.UILayoutType;
 import org.shaolin.bmdp.datamodel.page.UILinkType;
 import org.shaolin.bmdp.datamodel.page.UIListType;
@@ -1004,8 +1003,10 @@ public class UIFormObject implements java.io.Serializable
 							}
 						}
 	            	}
-	            	matrix.getInit().getExpression().parse(parsingContext);
-	            	propMap.put("initExpr", matrix.getInit().getExpression());
+	            	if (matrix.getInit() != null) {
+		            	matrix.getInit().getExpression().parse(parsingContext);
+		            	propMap.put("initExpr", matrix.getInit().getExpression());
+	            	}
             	} catch (ParsingException e) {
 					logger.error("Exception occured when pass the matrix expression: "
                                     + component.getUIID() + " in form: " + this.name, e);

@@ -41,6 +41,7 @@ import org.shaolin.uimaster.page.ajax.Hidden;
 import org.shaolin.uimaster.page.ajax.Image;
 import org.shaolin.uimaster.page.ajax.Label;
 import org.shaolin.uimaster.page.ajax.Link;
+import org.shaolin.uimaster.page.ajax.Matrix;
 import org.shaolin.uimaster.page.ajax.Panel;
 import org.shaolin.uimaster.page.ajax.PasswordField;
 import org.shaolin.uimaster.page.ajax.RadioButton;
@@ -731,6 +732,11 @@ public class AjaxContext extends OpExecuteContext implements Serializable
     public AList getList(String uiid)
     {
         return (AList)this.getElement(uiid);
+    }
+    
+    public Matrix getMatrix(String uiid)
+    {
+        return (Matrix)this.getElement(uiid);
     }
     
     public CheckBoxGroup getCheckBoxGroup(String uiid)

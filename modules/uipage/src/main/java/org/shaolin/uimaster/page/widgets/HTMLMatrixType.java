@@ -15,9 +15,12 @@
 */
 package org.shaolin.uimaster.page.widgets;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
+import org.shaolin.bmdp.runtime.ce.CEUtil;
+import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.ajax.Layout;
@@ -105,6 +108,12 @@ public class HTMLMatrixType extends HTMLTextWidgetType
         		iconClick = this.getReconfigurateFunction(iconClick, false);
         	}
         	List<List> blocks = (List<List>)this.removeAttribute("init");
+        	if (this.getAttribute("ceType") != null && blocks == null) {
+        		blocks = HTMLMatrixType.getModulesInMatrix(this.getAttribute("ceType").toString());
+        	}
+        	if (blocks == null) {
+        		throw new IllegalStateException("No initial data defined in UI widget: " + this.getId() + "!");
+        	}
             generateWidget(context);
             context.generateHTML("<div class=\"uimaster_matrix\" type=\"\" id=\"");
             context.generateHTML(getName());
@@ -116,17 +125,22 @@ public class HTMLMatrixType extends HTMLTextWidgetType
 				context.generateHTML("<div class=\"uimaster_matrix_row\" i='"+i+"'>");
 				List<Object> row = blocks.get(i);
 				for (int j=0; j < row.size(); j++) {
-					context.generateHTML("<div j='"+j+"' class=\"uimaster_matrix_col\"><span>");
+					context.generateHTML("<div j='"+j+"' class=\"uimaster_matrix_col\">");
 					Object v = row.get(j);
 					if (v instanceof DataMode) {
 						DataMode mode = (DataMode)v;
-						context.generateHTML("<div onclick=\"" + iconClick + "('"+escapeTNR(mode.link)+"','"+mode.name+"');\" class=\""+mode.css+"\">");
+						context.generateHTML("<div onclick=\"" + iconClick + "('"+escapeTNR(mode.link)+"','"+mode.name+"','"+mode.id+"');\" class=\""+mode.css+"\" alt='"+mode.name+"' nodeid='"+mode.id+"'>");
 						context.generateHTML(mode.name);
+						context.generateHTML("<div class=\"uimaster_matrix_desc\">");
+						context.generateHTML(mode.description);
+						context.generateHTML("</div>");
 						context.generateHTML("</div>");
 					} else {
+						context.generateHTML("<span>");
 						context.generateHTML(v.toString());
+						context.generateHTML("</span>");
 					}
-					context.generateHTML("</span></div>");
+					context.generateHTML("</div>");
 				}
 				context.generateHTML("</div>");
 			}
@@ -171,14 +185,16 @@ public class HTMLMatrixType extends HTMLTextWidgetType
     
     public Widget createAjaxWidget(VariableEvaluator ee)
     {
-    	try {
-			ExpressionType initQueryExpr = (ExpressionType)this.removeAttribute("initExpr");
-			Object initResult = ee.evaluateExpression(initQueryExpr);
-			
-			this.addAttribute("init", initResult);
-    	} catch (EvaluationException e) {
-			throw new IllegalStateException(e);
-		}
+    	if (this.containsAttribute("initExpr")) {
+	    	try {
+				ExpressionType initQueryExpr = (ExpressionType)this.removeAttribute("initExpr");
+				Object initResult = ee.evaluateExpression(initQueryExpr);
+				
+				this.addAttribute("init", initResult);
+	    	} catch (EvaluationException e) {
+				throw new IllegalStateException(e);
+			}
+    	}
     	
     	Matrix matrix = new Matrix(getName(), Layout.NULL);
     	matrix.setUIEntityName(getUIEntityName());
@@ -188,9 +204,29 @@ public class HTMLMatrixType extends HTMLTextWidgetType
     }
 
     public static class DataMode {
+    	public String id;
     	public String name;
+    	public String description;
     	public String image;
     	public String css;
     	public String link;
     }
+    
+    public static List<List> getModulesInMatrix(String ceType) {
+		List<IConstantEntity> items = CEUtil.getConstantEntities(ceType, false, null);
+		ArrayList<DataMode> row = new ArrayList<DataMode>(items.size());
+		for (IConstantEntity i : items) {
+			DataMode item = new DataMode();
+			item.id = i.getIntValue() + "";
+			item.name = i.getDisplayName();
+			item.description = i.getDisplayName().equals(i.getDescription()) ? "":i.getDescription();
+			item.css = "";
+			item.image = i.getConstantDecorator() != null ? i.getConstantDecorator().getIcon(): "";
+			item.link = "";
+			row.add(item);
+		}
+		List<List> result = new ArrayList<List>();
+		result.add(row);
+		return result;
+	}
 }
