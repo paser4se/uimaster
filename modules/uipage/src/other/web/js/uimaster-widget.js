@@ -3641,7 +3641,7 @@ UIMaster.ui.matrix=UIMaster.extend(UIMaster.ui,{
 	   if (this.isInitialized) return;
        this.isInitialized=true;
 	   var othis = this;
-	   var columns = $(this).find("span[class='uimaster_matrix_col']");
+	   var columns = $(this).find("div[class='uimaster_matrix_col']");
 	   columns.each(function(){
 		   $(this).hover(function(){
 		   }).click(function(){
@@ -3649,9 +3649,10 @@ UIMaster.ui.matrix=UIMaster.extend(UIMaster.ui,{
 				 $(this).removeClass("ui-state-hover");
 			  });
 			  $(this).addClass("ui-state-hover");
-			  UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedNode",_value:$(this).text(),_framePrefix:UIMaster.getFramePrefix(othis)});
-			  UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedX",_value:$($(this).parent()).attr("j"),_framePrefix:UIMaster.getFramePrefix(othis)});
-			  UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedY",_value:$($(this).parent().parent()).attr("i"),_framePrefix:UIMaster.getFramePrefix(othis)});
+			  UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedNodeId",_value:$(this).children().attr("nodeid"),_framePrefix:UIMaster.getFramePrefix(othis)});
+			  UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedNode",_value:$(this).children().attr("alt"),_framePrefix:UIMaster.getFramePrefix(othis)});
+			  UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedX",_value:$(this).attr("j"),_framePrefix:UIMaster.getFramePrefix(othis)});
+			  UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedY",_value:$($(this).parent()).attr("i"),_framePrefix:UIMaster.getFramePrefix(othis)});
 		   });
 		});
     }
