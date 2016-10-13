@@ -709,6 +709,16 @@ public abstract class HTMLWidgetType implements Serializable
         }
     }
 
+    public void addHints(HTMLSnapshotContext context) {
+    	if (this.getAttribute("hints") != null) {
+    		String desc = (String)this.getAttribute("hintsDesc");
+    		if (desc == null) {
+    			desc = "";
+    		}
+        	context.generateHTML("<i class=\"ui-icon ui-icon-lightbulb uimaster-hints-icon\" alt=\""+desc+"\" onclick=\"javascript:UIMaster.getHints(this, '"+this.getAttribute("hints")+"');\"></i>");
+        }
+    }
+    
     public void generateWidget(HTMLSnapshotContext context)
     {
         Object visibleValue = getAllAttribute("visible");
@@ -780,6 +790,7 @@ public abstract class HTMLWidgetType implements Serializable
 
     public void generateEndWidget(HTMLSnapshotContext context)
     {
+    	addHints(context);
     	String dlinkInfo = (String)getAllAttribute("dtargetInfo");
         if (dlinkInfo != null)
         {

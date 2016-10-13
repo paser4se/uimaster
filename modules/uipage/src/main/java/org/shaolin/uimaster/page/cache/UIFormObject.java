@@ -1855,6 +1855,17 @@ public class UIFormObject implements java.io.Serializable
 		
 	}
     
+    public void addDynamicHints(String uiPanel, String uiwidget, String desc, String url) {
+    	Map prop = getComponentProperty(uiwidget);
+    	if (prop == null) {
+    		logger.warn("UI widget does not exist! {}", uiwidget);
+    		return;
+    	}
+    	
+    	prop.put("hints", url);
+    	prop.put("hintsDesc", desc);
+    }
+    
     public void addDynamicLink(String uiPanel, String uiwidget, String linkInfo, String targetInfo) {
     	Map prop = getComponentProperty(uiwidget);
     	if (prop == null) {

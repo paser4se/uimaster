@@ -1369,6 +1369,14 @@ UIMaster.appendPanelErr = function(sid,res) {
     // move focus on the first failed textfield
     $(".err-field-warn:first").siblings("input[type=text],input[type=checkbox],input[type=radio],textarea,select").eq(0).focus();
 };
+UIMaster.getHints = function(obj, link){
+	if (link == "") {
+		var dialog = $("<div class=\"uimaster_bubble_content\" style=\"display: block; width: 250px; overflow-x: auto; overflow-y: hidden;\"><div id=\"poi_info_window\" class=\"poi_info_window\">"+$(obj).attr("alt")+"</div></div>");
+		dialog.dialog();
+	} else {
+		//TODO:
+	}
+}
 /**
  * @description Clear page error message.
  * @ignore

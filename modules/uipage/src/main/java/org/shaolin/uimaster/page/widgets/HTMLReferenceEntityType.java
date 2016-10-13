@@ -143,6 +143,8 @@ public class HTMLReferenceEntityType extends HTMLWidgetType implements Serializa
             context.setFormName(curUIEntityName);
             context.setHTMLPrefix(getPrefix());
             context.setDIVPrefix(divPrefix);
+            
+            generateEndWidget(context);
         }
         catch (Exception e)
         {
