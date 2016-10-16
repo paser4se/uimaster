@@ -1370,13 +1370,34 @@ UIMaster.appendPanelErr = function(sid,res) {
     $(".err-field-warn:first").siblings("input[type=text],input[type=checkbox],input[type=radio],textarea,select").eq(0).focus();
 };
 UIMaster.getHints = function(obj, link){
-	if (link == "") {
-		var dialog = $("<div class=\"uimaster_bubble_content\" style=\"display: block; width: 250px; overflow-x: auto; overflow-y: hidden;\"><div id=\"poi_info_window\" class=\"poi_info_window\">"+$(obj).attr("alt")+"</div></div>");
-		dialog.dialog();
+	var p = $(obj).position();
+	var top = p.top + 15;
+	var left = p.left;
+	if (link != "" && link != "null") {
+		if($(obj).children().length==0) {
+		   $.ajax({url:RESOURCE_CONTEXTPATH + link,async:false,
+		         success: function(data){
+					var c = $("<div class=\"uimaster_bubble_content\"><div>"+data+"</div><div class=\"uimaster_bubble_close\" onclick=\"UIMaster.closeHints(this);\" style=\"\">Close</div></div>");
+					c.appendTo(obj);
+		         },error: function(request, textStatus, errorThrown) {
+					$("<div class=\"uimaster_bubble_content\">Empty</div>").appendTo(obj);
+				 }
+			});
+		}
+		$(obj).children().css("top",top+"px").css("left",left+"px").css("width", "50%").css("display","block");
 	} else {
-		//TODO:
+		if($(obj).children().length==0) {
+		   var c = $("<div class=\"uimaster_bubble_content\"><div>"+$(obj).attr("alt")+"</div><div class=\"uimaster_bubble_close\" onclick=\"UIMaster.closeHints(this);\">Close</div></div>");
+		   c.appendTo(obj);
+		}
+		$(obj).children().css("top",top+"px").css("left",left+"px").css("display","block");
 	}
-}
+};
+UIMaster.closeHints = function(e){
+	$($(e).parent()).css("display","none");
+	event.stopPropagation();
+	return false; 
+};
 /**
  * @description Clear page error message.
  * @ignore

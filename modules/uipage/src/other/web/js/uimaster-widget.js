@@ -1907,13 +1907,13 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 			$(fileUI).parent().css("display", "none");
 			return;
 		}
-		var actionBtns = this.nextElementSibling.nextElementSibling;
+		var actionBtns = IS_MOBILEVIEW? $(this).parent().next().next(): this.nextElementSibling.nextElementSibling;
 		var uploadBtn = $(actionBtns).children()[0];
 		var cleanBtn = $(actionBtns).children()[1];
 		var searchBtn = $(actionBtns).children()[2];
 		if(this.disableSearch) {$(cleanBtn).css("display","none");$(searchBtn).css("display","none");}
-		var progressbox = this.nextElementSibling.nextElementSibling.nextElementSibling;
-		var messagebox = progressbox.nextElementSibling;
+		var progressbox = IS_MOBILEVIEW? $(actionBtns).next(): this.nextElementSibling.nextElementSibling.nextElementSibling;
+		var messagebox = IS_MOBILEVIEW? $(progressbox).next(): progressbox.nextElementSibling;
 		var c = $(progressbox).children();
 		var progressbar = c[0];
 		var percent = c[1];

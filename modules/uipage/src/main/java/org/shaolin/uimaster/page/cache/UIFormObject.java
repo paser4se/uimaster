@@ -1861,7 +1861,9 @@ public class UIFormObject implements java.io.Serializable
     		logger.warn("UI widget does not exist! {}", uiwidget);
     		return;
     	}
-    	
+    	if (logger.isDebugEnabled()) {
+    		logger.debug("Add dynamic hints into UIEntity: {}, uiwidget: {}", new Object[]{this.name, uiwidget});
+    	}
     	prop.put("hints", url);
     	prop.put("hintsDesc", desc);
     }
@@ -1872,7 +1874,9 @@ public class UIFormObject implements java.io.Serializable
     		logger.warn("UI widget does not exist! {}", uiwidget);
     		return;
     	}
-    	
+    	if (logger.isDebugEnabled()) {
+    		logger.debug("Add dynamic link into UIEntity: {}, uiwidget: {}", new Object[]{this.name, uiwidget});
+    	}
     	prop.put("dtargetInfo", targetInfo);
     	prop.put("dlinkInfo", linkInfo);
     }

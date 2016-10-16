@@ -710,7 +710,7 @@ public abstract class HTMLWidgetType implements Serializable
     }
 
     public void addHints(HTMLSnapshotContext context) {
-    	if (this.getAttribute("hints") != null) {
+    	if (this.getAttribute("hints") != null || this.getAttribute("hintsDesc") != null) {
     		String desc = (String)this.getAttribute("hintsDesc");
     		if (desc == null) {
     			desc = "";
