@@ -23,6 +23,8 @@ public class UserContext implements Serializable {
 	
 	String userLocation;
 	
+	String cityId;
+	
 	String lastLoginDate;
 	
 	boolean isAdmin;
@@ -81,8 +83,28 @@ public class UserContext implements Serializable {
 		return userLocation;
 	}
 
+	/**
+	 * {
+	 *  "code":0,"data":
+	 *   {
+	 *    "country":"\\u4e2d\\u56fd","country_id":"CN","area":"\\u534e\\u4e1c","area_id":"300000",
+	 *    "region":"\\u4e0a\\u6d77\\u5e02","region_id":"310000","city":"\\u4e0a\\u6d77\\u5e02","city_id":"310100",
+	 *    "county":"","county_id":"-1","isp":"\\u9e4f\\u535a\\u58eb","isp_id":"1000143","ip":"49.221.251.198"
+	 *   }
+	 * }
+	 * 
+	 * @param userLocation
+	 */
 	public void setUserLocation(String userLocation) {
 		this.userLocation = userLocation;
+	}
+	
+	public void setCity(String cityId) {
+		this.cityId = cityId;
+	}
+	
+	public String getCity() {
+		return cityId;
 	}
 	
 	public String getLastLoginDate() {

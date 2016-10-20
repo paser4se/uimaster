@@ -10,6 +10,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.TransactionException;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.exception.JDBCConnectionException;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.internal.AppServiceManagerImpl;
 import org.slf4j.Logger;
@@ -88,7 +89,13 @@ public class HibernateUtil {
 			// break transaction before rebuild.
 			session = HibernateUtil.getSessionFactory().getCurrentSession();
 			session.beginTransaction();
+		} catch (JDBCConnectionException e1) {
+			// unable to resolve the re-connect DB problem. rebuild session here!
+			((AppServiceManagerImpl)AppContext.get()).setHibernateSessionFactory(buildSessionFactory());
+			sessionFactoryTL.set(null);
+			throw e1;
 		}
+		
 		sessionFactoryTL.set(session);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Start Hibernate Transaction: collections-{},entities-{}", 
@@ -117,7 +124,17 @@ public class HibernateUtil {
 		if (isCommit) {
 			session.getTransaction().commit();
 		} else {
-			session.getTransaction().rollback();
+			try {
+				session.getTransaction().rollback();
+			} catch (TransactionException e) {
+				if ("rollback failed".equals(e.getMessage())) {
+					if (e.getCause() != null && "unable to rollback against JDBC connection".equals(e.getCause().getMessage())) {
+						// unable to resolve the re-connect DB problem. rebuild session here!
+						((AppServiceManagerImpl)AppContext.get()).setHibernateSessionFactory(buildSessionFactory());
+						sessionFactoryTL.set(null);
+					}
+				}
+			}
 		}
 		// no need close session manually. it close automatically.
 	}
