@@ -271,12 +271,19 @@ public class CEUtil {
 		if (pattern == null || "null".equals(pattern)) {
 			return IConstantEntity.CONSTANT_DEFAULT_INT_VALUE;
 		}
-		int i = pattern.indexOf(",") ;
-		if (i!= -1) {
-			IConstantEntity constant = IServerServiceManager.INSTANCE.getConstantService().getConstantEntity(pattern.substring(0, i));
-			return constant.getByIntValue(Integer.valueOf(pattern.substring(i+1))).getDisplayName();
+		String[] items = pattern.split(";");
+		ArrayList<String> names = new ArrayList<String>(items.length);
+		for(String item: items) {
+			int i = item.indexOf(",") ;
+			if (i != -1) {
+				IConstantEntity constant = IServerServiceManager.INSTANCE.getConstantService().getConstantEntity(item.substring(0, i));
+				names.add(constant.getByIntValue(Integer.valueOf(item.substring(i+1))).getDisplayName());
+			}
 		}
-		return pattern;
+		if (names.size() == 1) {
+			return names.get(0);
+		}
+		return names.toString();
 	}
 	
 	public static IConstantEntity toCEValue(String pattern) {
@@ -290,6 +297,19 @@ public class CEUtil {
 		} else {
 			return IServerServiceManager.INSTANCE.getConstantService().getConstantEntity(pattern);
 		}
+	}
+	
+	public static List<IConstantEntity> toCEValues(String pattern) {
+		if (pattern == null || pattern.equals(IConstantEntity.CONSTANT_DEFAULT_INT_VALUE) || "null".equals(pattern)) {
+			return Collections.emptyList();
+		}
+		String[] items = pattern.split(";");
+		ArrayList<IConstantEntity> names = new ArrayList<IConstantEntity>(items.length);
+		for(String item: items) {
+			names.add(toCEValue(item));
+		}
+		
+		return names;
 	}
 	
 	public static String getValue(IConstantEntity item) {

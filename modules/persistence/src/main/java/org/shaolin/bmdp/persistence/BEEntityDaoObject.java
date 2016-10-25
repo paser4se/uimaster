@@ -727,6 +727,12 @@ public class BEEntityDaoObject {
 		} else if (Operator.LESS_THAN_OR_EQUALS == operator) {
 			return Restrictions.le(propertyName, value[0]);
 		} else if (Operator.IN == operator) {
+			if (value[0] instanceof List) {
+				List list = (List)value[0];
+				String[] v = new String[list.size()];
+				list.toArray(v);
+				return Restrictions.in(propertyName, v);
+			}
 			return Restrictions.in(propertyName, value);
 		} else if (Operator.BETWEEN == operator) {
 			if (value.length < 2) {
