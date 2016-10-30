@@ -105,7 +105,7 @@ UIMaster.ui.flow = UIMaster.extend(UIMaster.ui, {
 			$(this).buttonset();
 			$(this).children().each(function(){
 				if ($(this).attr("icon") != undefined && $(this).attr("icon") != null) {
-					$(this).button({text:false,icons:{primary:$(this).attr("icon")}});
+					$(this).button({text:true,icons:{primary:$(this).attr("icon")}});
 				}
 			});
 		});

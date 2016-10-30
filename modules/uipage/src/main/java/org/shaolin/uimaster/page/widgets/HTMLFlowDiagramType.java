@@ -79,7 +79,7 @@ public class HTMLFlowDiagramType extends HTMLWidgetType
 	    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/endpoint.js\"></script>\n");
 	    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/anchors.js\"></script>\n");
 	    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/overlays-guidelines.js\"></script>\n");
-	    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/uimaster-flow.js\"></script>\n");
+	    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/uimaster-flow.js\" async></script>\n");
     	}
     	
     	List<UITableActionType> defaultActions = (List<UITableActionType>)this.removeAttribute("defaultActionGroup");

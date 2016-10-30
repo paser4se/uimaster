@@ -33,6 +33,16 @@ public interface IRegistry {
 
 	public String getValue(String path);
 
+	public String getValue(String path, String defaultValue);
+	
+	public int getValue(String path, int defaultValue);
+	
+	public long getValue(String path, long defaultValue);
+	
+	public float getValue(String path, float defaultValue);
+	
+	public boolean getValue(String path, boolean defaultValue);
+	
 	public Map<String, String> getNodeItems(String path);
 
 	public List<String> getNodeChildren(String path);

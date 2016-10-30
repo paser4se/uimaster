@@ -300,7 +300,32 @@ public final class Registry implements IRegistry, Serializable {
 	public String getValue(String path) {
 		return itemsMap.get(path);
 	}
+	
+	public String getValue(String path, String defaultValue) {
+		String v = itemsMap.get(path);
+		return v != null? v : defaultValue;
+	}
+	
+	public int getValue(String path, int defaultValue) {
+		String v = itemsMap.get(path);
+		return v != null? Integer.valueOf(v) : defaultValue;
+	}
 
+	public long getValue(String path, long defaultValue) {
+		String v = itemsMap.get(path);
+		return v != null? Long.valueOf(v) : defaultValue;
+	}
+	
+	public boolean getValue(String path, boolean defaultValue) {
+		String v = itemsMap.get(path);
+		return v != null? Boolean.valueOf(v) : defaultValue;
+	}
+	
+	public float getValue(String path, float defaultValue) {
+		String v = itemsMap.get(path);
+		return v != null? Float.valueOf(v) : defaultValue;
+	}
+	
 	public String getExpression(String path) {
 		return expressionMap.get(path);
 	}
