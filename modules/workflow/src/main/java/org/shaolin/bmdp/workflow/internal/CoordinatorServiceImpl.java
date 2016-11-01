@@ -119,21 +119,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		return workingTasks.size();
 	}
 	
-	public List<Long> getAllTaskOnwers() {
-		long orgId = 0;
-		if (UserContext.getCurrentUserContext() != null) {
-			orgId = (Long)UserContext.getUserData(UserContext.CURRENT_USER_ORGID);
-		}
-		List<Long> onwers = new ArrayList<Long>();
-		Collection<ITask> tasks= workingTasks.values();
-		for (ITask t : tasks) {
-			if (t.getOrgId() == orgId) {
-				onwers.add(t.getPartyId());
-			}
-		}
-		return onwers;
-	}
-	
 	@Override
 	public List<ITaskHistory> getHistoryTasks(TaskStatusType status) {
 		TaskHistoryImpl condition = new TaskHistoryImpl();
@@ -272,7 +257,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		List<ITask> partyTasks = new ArrayList<ITask>();
 		Collection<ITask> tasks = workingTasks.values();
 		for (ITask t : tasks) {
-			if (t.getOrgId() == orgId && t.getPartyId() == partyId) {
+			if (t.getOrgId() == orgId) {
 				partyTasks.add(t);
 			}
 		}
@@ -362,7 +347,8 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 			workingTasks.remove(task.getId());
 			throw new IllegalArgumentException("Task must be not in started state: " + task.getStatus());
 		}
-		AppContext.get().getService(IResourceManager.class).assignOnwer(task);
+		//No need at here.
+		//AppContext.get().getService(IResourceManager.class).assignOnwer(task);
 		
 		if (task.getPeriodicJob() != null) {
 			long initialDelay;

@@ -227,13 +227,23 @@ public class UIFormObject implements java.io.Serializable
     private void load()
     {
     	UIEntity entity = IServerServiceManager.INSTANCE.getEntityManager()
-    			.getEntity(name, UIEntity.class);
+    			.getEntity(this.name, UIEntity.class);
         OOEEContext parsingContext = parseVariable(entity);
         parseUI(parsingContext, entity, null);
         HTMLUtil.includeJsFiles(name, jsIncludeMap, jsIncludeList, false);
         HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, false);
     }
-
+    
+    private void loadForPage()
+    {
+    	UIEntity entity = (UIEntity)IServerServiceManager.INSTANCE.getEntityManager()
+    			.getEntity(this.name, UIPage.class).getUIEntity();
+        OOEEContext parsingContext = parseVariable(entity);
+        parseUI(parsingContext, entity, null);
+        HTMLUtil.includeJsFiles(name, jsIncludeMap, jsIncludeList, !WebConfig.skipCommonJs(name));
+        HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, !WebConfig.skipCommonJs(name));
+    }
+    
     private void parseUI(OOEEContext parsingContext, UIEntity entity, Map extraInfo)
     {
     	this.clear();
@@ -1690,8 +1700,14 @@ public class UIFormObject implements java.io.Serializable
 		}
 
 		// internal refresh.
-		UIEntity entity = IServerServiceManager.INSTANCE.getEntityManager()
-    			.getEntity(this.name, UIEntity.class);
+		UIEntity entity = null;
+		if (PageCacheManager.isUIPage(this.name)) {
+			entity = (UIEntity)IServerServiceManager.INSTANCE.getEntityManager()
+    			.getEntity(this.name, UIPage.class).getUIEntity();
+		} else {
+			entity = IServerServiceManager.INSTANCE.getEntityManager()
+	    			.getEntity(this.name, UIEntity.class);
+		}
 		
 		boolean hasActionPanel = false;
 		List<UIComponentType> panelList = entity.getBody().getComponents();
@@ -1762,8 +1778,22 @@ public class UIFormObject implements java.io.Serializable
 					position.setX(wfactionPanel.getLayoutConstraints().size());
 					position.setY(0);
 					constraint.setConstraint(position);
-					wfactionPanel.getComponents().add(button);
-					wfactionPanel.getLayoutConstraints().add(constraint);
+					//check duplication.
+					int index = -1;
+					List<UIComponentType> uiList = wfactionPanel.getComponents();
+					for (int i=0; i <uiList.size(); i++) {
+						if (uiList.get(i).getUIID().endsWith(action.getActionName())) {
+							index = i;
+							break;
+						}
+					}
+					if (index == -1) {
+						wfactionPanel.getComponents().add(button);
+						wfactionPanel.getLayoutConstraints().add(constraint);
+					} else {
+						wfactionPanel.getComponents().set(index, button);
+						wfactionPanel.getLayoutConstraints().set(index, constraint);
+					}
 					
 					FunctionType function = new FunctionType();
 					function.setNeedAlert(Boolean.TRUE);
@@ -1775,7 +1805,21 @@ public class UIFormObject implements java.io.Serializable
 					op.setOperationId(action.getActionName());
 					op.setAdhocNodeName(node.getName());
 					function.getOps().add(op);
-					entity.getEventHandlers().add(function);
+					
+					//check duplication.
+					index = -1;
+					List<FunctionType> funcList = entity.getEventHandlers();
+					for (int i=0; i <funcList.size(); i++) {
+						if (funcList.get(i).getFunctionName().endsWith(action.getActionName())) {
+							index = i;
+							break;
+						}
+					}
+					if (index == -1) {
+						entity.getEventHandlers().add(function);
+					} else {
+						entity.getEventHandlers().set(index, function);
+					}
 				}
 				if (!existWfActionPanel) {
 					TableLayoutType tableLayout = (TableLayoutType)actionPanel.getLayout();
@@ -1815,11 +1859,41 @@ public class UIFormObject implements java.io.Serializable
 			}
 		}
 		if (!hasActionPanel) {
-			throw new IllegalStateException("Workflow action has to be added on ActionPanel, this panel is not defined!");
+			logger.info("Workflow action should to be added on Action Panel in general, a dynamic event added!");
+			for (MissionActionType action : node.getUiActions()) {
+				FunctionType function = new FunctionType();
+				function.setNeedAlert(Boolean.TRUE);
+				function.setFunctionName(action.getActionName());
+				OpInvokeWorkflowType op = new OpInvokeWorkflowType();
+				op.setEventConsumer(eventConsumer);
+				op.setExpression(action.getExpression());
+				op.setPartyType(node.getParticipant().getPartyType());
+				op.setOperationId(action.getActionName());
+				op.setAdhocNodeName(node.getName());
+				function.getOps().add(op);
+				
+				int index = -1;
+				List<FunctionType> funcList = entity.getEventHandlers();
+				for (int i=0; i <funcList.size(); i++) {
+					if (funcList.get(i).getFunctionName().endsWith(action.getActionName())) {
+						index = i;
+						break;
+					}
+				}
+				if (index == -1) {
+					entity.getEventHandlers().add(function);
+				} else {
+					entity.getEventHandlers().set(index, function);
+				}
+			}
 		}
 		
 		logger.info("reload form {} due to workflow customization", this.name);
-		load();
+		if (PageCacheManager.isUIPage(this.name)) {
+			loadForPage();
+		} else {
+			load();
+		}
 	}
     
     public void clearWorkflowActions() {

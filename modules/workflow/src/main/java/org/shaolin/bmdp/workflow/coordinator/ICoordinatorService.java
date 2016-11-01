@@ -36,13 +36,6 @@ public interface ICoordinatorService {
 	int getTaskSize();
 	
 	/**
-	 * monitor all onwers of current tasks.
-	 * 
-	 * @return
-	 */
-	List<Long> getAllTaskOnwers();
-	
-	/**
 	 * 
 	 * @return
 	 */

@@ -406,7 +406,7 @@ public class FlowObject implements java.io.Serializable {
             		continue;
             	}
             	String actionPage = m.getUiActions().get(0).getActionPage();
-				if (actionPage == null) {
+				if (actionPage == null || actionPage.trim().length() == 0) {
             		continue;
             	}
             	if (logger.isDebugEnabled()) {

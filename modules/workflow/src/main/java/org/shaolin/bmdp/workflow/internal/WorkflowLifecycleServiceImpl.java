@@ -69,6 +69,38 @@ public class WorkflowLifecycleServiceImpl implements ILifeCycleProvider, IServic
 		}
 		
 		final List<Workflow> allFlows = new ArrayList<Workflow>();
+		// for workflow component update.
+		entityManager.addEventListener(new IEntityEventListener<Workflow, DiagramType>() {
+			@Override
+			public void setEntityManager(EntityManager entityManager) {
+			}
+
+			@Override
+			public void notify(EntityAddedEvent<Workflow, DiagramType> event) {
+				allFlows.add(event.getEntity());
+			}
+
+			@Override
+			public void notify(EntityUpdatedEvent<Workflow, DiagramType> event) {
+				allFlows.add(event.getNewEntity());
+			}
+
+			@Override
+			public void notifyLoadFinish(DiagramType diagram) {
+			}
+
+			@Override
+			public void notifyAllLoadFinish() {
+				flowContainer.updateService(allFlows);
+				allFlows.clear();
+			}
+
+			@Override
+			public Class<Workflow> getEventType() {
+				return Workflow.class;
+			}
+		});
+		// scan all workflow component due to launch sequence.
 		entityManager.executeListener(new IEntityEventListener<Workflow, DiagramType>() {
 			@Override
 			public void setEntityManager(EntityManager entityManager) {
@@ -100,6 +132,7 @@ public class WorkflowLifecycleServiceImpl implements ILifeCycleProvider, IServic
 		AppContext.get().register(this);
 		
 		flowContainer.startService(allFlows);
+		allFlows.clear();
 	}
 
 	@Override

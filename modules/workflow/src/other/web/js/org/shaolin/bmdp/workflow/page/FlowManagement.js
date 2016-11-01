@@ -3,6 +3,12 @@
 function org_shaolin_bmdp_workflow_page_FlowManagement(json)
 {
     var prefix = (typeof(json) == "string") ? json : json.prefix; 
+    var functionsTab = new UIMaster.ui.tab
+    ({
+        ui: elementList[prefix + "functionsTab"]
+        ,items: []
+        ,subComponents: [prefix + "topPanel"]
+    });
     var flowDiagram = new UIMaster.ui.flow
     ({
         ui: elementList[prefix + "flowDiagram"]
@@ -19,7 +25,6 @@ function org_shaolin_bmdp_workflow_page_FlowManagement(json)
         ,items: []
         ,subComponents: [prefix + "functionTree"]
     });
-
     var topPanel = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "topPanel"]
@@ -30,20 +35,14 @@ function org_shaolin_bmdp_workflow_page_FlowManagement(json)
     var Form = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "Form"]
-        ,items: [flowDiagram,functionTree,topPanel,propertiesPanel]
+        ,items: [functionsTab]
     });
 
-    Form.flowDiagram=flowDiagram;
-
-    Form.functionTree=functionTree;
+    Form.functionsTab=functionsTab;
 
     Form.topPanel=topPanel;
 
     Form.flowDiagram=flowDiagram;
-
-    Form.propertiesPanel=propertiesPanel;
-
-    Form.functionTree=functionTree;
 
     Form.propertiesPanel=propertiesPanel;
 

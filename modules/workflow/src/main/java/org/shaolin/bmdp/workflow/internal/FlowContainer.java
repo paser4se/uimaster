@@ -117,6 +117,28 @@ public class FlowContainer {
         startFlowEngines(engineMap);
     }
     
+    void updateService(List<Workflow> appInfos) {
+        Map<String, FlowEngine> engineMap = new HashMap<String, FlowEngine>();
+        List<FlowObject> activeFlows = new ArrayList<FlowObject>();
+        for (Workflow flow : appInfos) {
+        	FlowObject flowInfo = new FlowObject(new AppInfo(flow));
+        	// add to cache, but not initialized.
+        	appflowCache.put(flow.getEntityName(), flowInfo);
+            
+            if (flow.getConf().isBootable() != null && flow.getConf().isBootable()) {
+            	activeFlows.add(flowInfo);
+            }
+        }
+        
+        for (FlowObject flowInfo: activeFlows) {
+        	logger.info("Update workflow engine: {}",  flowInfo.getAppInfo().getName());
+        	FlowEngine engine = initFlowEngine(flowInfo, false);
+        	engineMap.put(flowInfo.getAppInfo().getName(), engine);
+        }
+
+        startFlowEngines(engineMap);
+    }
+    
     void stopService() {
     	allEngines.clear();
     	appflowCache.clear();
