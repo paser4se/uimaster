@@ -40,7 +40,7 @@
       <ns2:fieldMapping beFieldName="description" columnName="DESCRIPTION"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="comments" columnName="COMMENTS"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="expiredTime" columnName="EXPIREDTIME"></ns2:fieldMapping>
-      <ns2:fieldMapping beFieldName="createTime" columnName="CREATETIME"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="createDate" columnName="CREATETIME"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="sendSMS" columnName="SENDSMS"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="sendEmail" columnName="SENDEMAIL"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="status" columnName="STATUS"></ns2:fieldMapping>
@@ -88,7 +88,7 @@
       <ns2:fieldMapping beFieldName="description" columnName="DESCRIPTION"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="comments" columnName="COMMENTS"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="expiredTime" columnName="EXPIREDTIME"></ns2:fieldMapping>
-      <ns2:fieldMapping beFieldName="createTime" columnName="CREATETIME"></ns2:fieldMapping>
+      <ns2:fieldMapping beFieldName="createDate" columnName="CREATETIME"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="sendSMS" columnName="SENDSMS"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="sendEmail" columnName="SENDEMAIL"></ns2:fieldMapping>
       <ns2:fieldMapping beFieldName="status" columnName="STATUS"></ns2:fieldMapping>
@@ -206,6 +206,34 @@
                 </ns2:value>
                 <ns2:condition>
                     <expressionString><![CDATA[scFlow.getId() > 0]]></expressionString>
+                </ns2:condition>
+            </ns2:conditionValue>
+        </ns2:fieldMapping>
+        <ns2:fieldMapping>
+            <ns2:toDataFieldPath>inFlow.partyId</ns2:toDataFieldPath>
+            <ns2:conditionValue>
+                <ns2:operator isReverse="false" xsi:type="ns2:LogicOperatorType">
+                    <ns2:type>=</ns2:type>
+                </ns2:operator>
+                <ns2:value xsi:type="ns2:SimpleFieldValueType">
+                    <ns2:valueFieldPath>scFlow.partyId</ns2:valueFieldPath>
+                </ns2:value>
+                <ns2:condition>
+                    <expressionString><![CDATA[scFlow.getPartyId() > 0]]></expressionString>
+                </ns2:condition>
+            </ns2:conditionValue>
+        </ns2:fieldMapping>
+        <ns2:fieldMapping>
+            <ns2:toDataFieldPath>inFlow.sessionId</ns2:toDataFieldPath>
+            <ns2:conditionValue>
+                <ns2:operator isReverse="false" xsi:type="ns2:LogicOperatorType">
+                    <ns2:type>=</ns2:type>
+                </ns2:operator>
+                <ns2:value xsi:type="ns2:SimpleFieldValueType">
+                    <ns2:valueFieldPath>scFlow.sessionId</ns2:valueFieldPath>
+                </ns2:value>
+                <ns2:condition>
+                    <expressionString><![CDATA[scFlow.getSessionId() != null && scFlow.getSessionId().trim().length() > 0]]></expressionString>
                 </ns2:condition>
             </ns2:conditionValue>
         </ns2:fieldMapping>
@@ -330,6 +358,20 @@
             </ns2:conditionValue>
         </ns2:fieldMapping>
         <ns2:fieldMapping>
+            <ns2:toDataFieldPath>inFlow.partyId</ns2:toDataFieldPath>
+            <ns2:conditionValue>
+                <ns2:operator isReverse="false" xsi:type="ns2:LogicOperatorType">
+                    <ns2:type>=</ns2:type>
+                </ns2:operator>
+                <ns2:value xsi:type="ns2:SimpleFieldValueType">
+                    <ns2:valueFieldPath>scFlow.partyId</ns2:valueFieldPath>
+                </ns2:value>
+                <ns2:condition>
+                    <expressionString><![CDATA[scFlow.getPartyId() > 0]]></expressionString>
+                </ns2:condition>
+            </ns2:conditionValue>
+        </ns2:fieldMapping>
+        <ns2:fieldMapping>
             <ns2:toDataFieldPath>inFlow.sessionId</ns2:toDataFieldPath>
             <ns2:conditionValue>
                 <ns2:operator isReverse="false" xsi:type="ns2:LogicOperatorType">
@@ -420,6 +462,20 @@
                 </ns2:value>
                 <ns2:condition>
                     <expressionString><![CDATA[scFlow.getOrgId() > 0]]></expressionString>
+                </ns2:condition>
+            </ns2:conditionValue>
+        </ns2:fieldMapping>
+        <ns2:fieldMapping>
+            <ns2:toDataFieldPath>inFlow.partyId</ns2:toDataFieldPath>
+            <ns2:conditionValue>
+                <ns2:operator isReverse="false" xsi:type="ns2:LogicOperatorType">
+                    <ns2:type>=</ns2:type>
+                </ns2:operator>
+                <ns2:value xsi:type="ns2:SimpleFieldValueType">
+                    <ns2:valueFieldPath>scFlow.partyId</ns2:valueFieldPath>
+                </ns2:value>
+                <ns2:condition>
+                    <expressionString><![CDATA[scFlow.getPartyId() > 0]]></expressionString>
                 </ns2:condition>
             </ns2:conditionValue>
         </ns2:fieldMapping>

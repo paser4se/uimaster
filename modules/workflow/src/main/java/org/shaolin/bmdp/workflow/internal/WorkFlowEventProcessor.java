@@ -58,15 +58,19 @@ public final class WorkFlowEventProcessor implements EventProcessor, IServicePro
     
     public WorkFlowEventProcessor(Map<String, EventConsumer> allConsumers) {
         this.allConsumers = allConsumers;
-        // make this shared for all application instances.
-//        this.pool = IServerServiceManager.INSTANCE.getSchedulerService()
-//    			.createExecutorService("system", "wf-processor", Runtime.getRuntime().availableProcessors() * 2);
     }
     
     Map<String, EventConsumer> getConsumers() {
     	return allConsumers;
     }
     
+    /**
+     * for update.
+     * @param tempProcessors
+     */
+    void addConsumers(Map<String, EventConsumer> tempProcessors) {
+    	allConsumers.putAll(tempProcessors);
+    }
     
     @Override
 	public void process(final Event event) {

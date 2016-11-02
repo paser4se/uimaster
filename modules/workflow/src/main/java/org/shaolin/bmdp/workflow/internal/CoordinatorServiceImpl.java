@@ -17,14 +17,12 @@ package org.shaolin.bmdp.workflow.internal;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -50,10 +48,8 @@ import org.shaolin.bmdp.workflow.ce.PeriodicType;
 import org.shaolin.bmdp.workflow.ce.TaskStatusType;
 import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
 import org.shaolin.bmdp.workflow.coordinator.INotificationListener;
-import org.shaolin.bmdp.workflow.coordinator.IResourceManager;
 import org.shaolin.bmdp.workflow.coordinator.ITaskListener;
 import org.shaolin.bmdp.workflow.dao.CoordinatorModel;
-import org.shaolin.bmdp.workflow.internal.FlowContainer.MissionListener;
 import org.shaolin.bmdp.workflow.ws.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,8 +62,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	private static ScheduledExecutorService scheduler;
 	
 	private final Map<ITask, ScheduledFuture<?>> futures = new HashMap<ITask, ScheduledFuture<?>>();
-	
-	private final ConcurrentHashMap<Long, ITask> workingTasks = new ConcurrentHashMap<Long, ITask>();
 	
 	private final List<INotificationListener> listeners = new ArrayList<INotificationListener>();
 	
@@ -92,38 +86,35 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	
 	@Override
 	public void reload() {
-		if (AppContext.isMasterNode()) {
-			ServerNodeInfoImpl sc = new ServerNodeInfoImpl();
-			this.serverNodes = CoordinatorModel.INSTANCE.searchServerNodes(sc, null, 0, -1);
-		}
+		ServerNodeInfoImpl sc = new ServerNodeInfoImpl();
+		this.serverNodes = CoordinatorModel.INSTANCE.searchServerNodes(sc, null, 0, -1);
 	}
 	
 	@Override
 	public List<ITask> getAllTasks() {
-		long orgId = 0;
-		if (UserContext.getCurrentUserContext() != null) {
-			orgId = (Long)UserContext.getUserData(UserContext.CURRENT_USER_ORGID);
+		TaskImpl condition = new TaskImpl();
+		if (UserContext.getUserContext() != null && !UserContext.getUserContext().isAdmin()) {
+			condition.setOrgId(UserContext.getUserContext().getOrgId());
 		}
-		List<ITask> allTasks = new ArrayList<ITask>();
-		Collection<ITask> tasks= workingTasks.values();
-		for (ITask t : tasks) {
-			if (t.getOrgId() == orgId) {
-				allTasks.add(t);
-			}
-		}
-		return allTasks;
+		condition.setEnabled(true);
+		return CoordinatorModel.INSTANCE.searchTasks(condition, null, 0, -1);
 	}
 	
 	@Override
-	public int getTaskSize() {
-		return workingTasks.size();
+	public long getTaskSize() {
+		TaskImpl condition = new TaskImpl();
+		if (UserContext.getUserContext() != null && !UserContext.getUserContext().isAdmin()) {
+			condition.setOrgId(UserContext.getUserContext().getOrgId());
+		}
+		condition.setEnabled(true);
+		return CoordinatorModel.INSTANCE.searchTasksCount(condition);
 	}
 	
 	@Override
 	public List<ITaskHistory> getHistoryTasks(TaskStatusType status) {
 		TaskHistoryImpl condition = new TaskHistoryImpl();
-		if (UserContext.getCurrentUserContext() != null) {
-			condition.setOrgId((Long)UserContext.getUserData(UserContext.CURRENT_USER_ORGID));
+		if (UserContext.getUserContext() != null && !UserContext.getUserContext().isAdmin()) {
+			condition.setOrgId(UserContext.getUserContext().getOrgId());
 		}
 		condition.setStatus(TaskStatusType.EXPIRED);
 		return CoordinatorModel.INSTANCE.searchTasksHistory(condition, null, 0, -1);
@@ -145,26 +136,12 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	
 	@Override
 	public List<ITask> getTasks(TaskStatusType status) {
-		if (status == TaskStatusType.EXPIRED) {
-			TaskImpl condition = new TaskImpl();
-			if (UserContext.getCurrentUserContext() != null) {
-				condition.setOrgId((Long)UserContext.getUserData(UserContext.CURRENT_USER_ORGID));
-    		}
-			condition.setStatus(TaskStatusType.EXPIRED);
-			return CoordinatorModel.INSTANCE.searchTasks(condition, null, 0, -1);
+		TaskImpl condition = new TaskImpl();
+		if (UserContext.getUserContext() != null && !UserContext.getUserContext().isAdmin()) {
+			condition.setOrgId(UserContext.getUserContext().getOrgId());
 		}
-		long orgId = 0;
-		if (UserContext.getCurrentUserContext() != null) {
-			orgId = (Long)UserContext.getUserData(UserContext.CURRENT_USER_ORGID);
-		}
-		List<ITask> partyTasks = new ArrayList<ITask>();
-		Collection<ITask> tasks= workingTasks.values();
-		for (ITask t : tasks) {
-			if (t.getStatus() == status && t.getOrgId() == orgId) {
-				partyTasks.add(t);
-			}
-		}
-		return partyTasks;
+		condition.setStatus(status);
+		return CoordinatorModel.INSTANCE.searchTasks(condition, null, 0, -1);
 	}
 	
 	@Override
@@ -173,23 +150,21 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 			return Collections.emptyList();
 		}
 		
-		List<ITask> sessionTasks = new ArrayList<ITask>();
-		Collection<ITask> tasks= workingTasks.values();
-		for (ITask t : tasks) {
-			if (t.getSessionId().equals(sessionId)) {
-				sessionTasks.add(t);
-			}
-		}
+		TaskImpl condition = new TaskImpl();
+		condition.setSessionId(sessionId);
+		condition.setEnabled(true);
+		List<ITask> sessionTasks = CoordinatorModel.INSTANCE.searchTasks(condition, null, 0, -1);
+		List<ITask> allTasks = new ArrayList<ITask>(sessionTasks);
 		
 		TaskHistoryImpl historyCriteria = new TaskHistoryImpl();
 		historyCriteria.setSessionId(sessionId);
 		List<ITaskHistory> list = CoordinatorModel.INSTANCE.searchTasksHistory(historyCriteria, null, 0, -1);
 		if (list != null) {
 			for (ITaskHistory h: list) {
-				sessionTasks.add(moveToTask(h));
+				allTasks.add(moveToTask(h));
 			}
 		}
-		return sessionTasks;
+		return allTasks;
 	}
 	
 	public List<ITaskHistory> getHistoryTasksBySessionId(String sessionId) {
@@ -213,16 +188,14 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 			return "";
 		}
 		
-		Collection<ITask> tasks= workingTasks.values();
-		for (ITask t : tasks) {
-			if (t.getId() == taskId) {
-				return t.getSessionId();
-			}
+		TaskImpl task = CoordinatorModel.INSTANCE.get(taskId, TaskImpl.class);
+		if (task != null) {
+			return task.getSessionId();
 		}
 		
 		TaskHistoryImpl historyCriteria = new TaskHistoryImpl();
 		historyCriteria.setTaskId(taskId);
-		List<ITaskHistory> list = CoordinatorModel.INSTANCE.searchTasksHistory(historyCriteria, null, 0, -1);
+		List<ITaskHistory> list = CoordinatorModel.INSTANCE.searchTasksHistory(historyCriteria, null, 0, 1);
 		if (list != null && list.size() > 0) {
 			return list.get(0).getSessionId();
 		}
@@ -250,17 +223,10 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	
 	@Override
 	public List<ITask> getPartyTasks(long partyId) {
-		long orgId = 0;
-		if (UserContext.getCurrentUserContext() != null) {
-			orgId = (Long)UserContext.getUserData(UserContext.CURRENT_USER_ORGID);
-		}
-		List<ITask> partyTasks = new ArrayList<ITask>();
-		Collection<ITask> tasks = workingTasks.values();
-		for (ITask t : tasks) {
-			if (t.getOrgId() == orgId) {
-				partyTasks.add(t);
-			}
-		}
+		TaskImpl condition = new TaskImpl();
+		condition.setPartyId(partyId);
+		condition.setEnabled(true);
+		List<ITask> partyTasks = CoordinatorModel.INSTANCE.searchTasks(condition, null, 0, -1);
 		return partyTasks;
 	}
 	
@@ -269,15 +235,10 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		if (taskId == 0) {
 			return null;
 		}
-		Collection<ITask> tasks= workingTasks.values();
-		for (ITask t : tasks) {
-			if (t.getId() == taskId) {
-				return t;
-			}
-		}
-		return null;
+		return CoordinatorModel.INSTANCE.get(taskId, TaskImpl.class);
 	}
 	
+	//TODO: too heavy!
 	@Override
 	public boolean isTaskExecutedOnNode(long taskId, String flowNode) {
 		if (taskId == 0) {
@@ -332,9 +293,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 				CoordinatorModel.INSTANCE.create(task);
 			}
 		}
-		if (workingTasks.putIfAbsent(task.getId(), task) == null) {
-			schedule(task);
-		}
+		schedule(task);
 		if (!testCaseFlag) {
 			CoordinatorModel.INSTANCE.update(task);
 			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
@@ -344,7 +303,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	private void schedule(final ITask task) {
 		if (task.getStatus() == TaskStatusType.COMPLETED
 				|| task.getStatus() == TaskStatusType.CANCELLED) {
-			workingTasks.remove(task.getId());
 			throw new IllegalArgumentException("Task must be not in started state: " + task.getStatus());
 		}
 		//No need at here.
@@ -416,9 +374,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		if (future != null && !future.isDone()) {
 			future.cancel(true);
 		}
-		if (!workingTasks.containsKey(task.getId())) {
-			workingTasks.put(task.getId(), task);
-		}
 		
 		if (task.getStatus() == TaskStatusType.NOTSTARTED) {
 			schedule(task);
@@ -442,7 +397,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		if (future != null && !future.isDone()) {
 			future.cancel(true);
 		}
-		workingTasks.remove(task.getId());
 		
 		task.setStatus(TaskStatusType.EXPIRED);
 		task.setCompleteRate(0);
@@ -476,7 +430,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		if (future != null && !future.isDone()) {
 			future.cancel(true);
 		}
-		workingTasks.remove(task.getId());
 		
 		task.setStatus(TaskStatusType.COMPLETED);
 		task.setCompleteRate(100);
@@ -505,7 +458,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		if (future != null && !future.isDone()) {
 			future.cancel(true);
 			
-			workingTasks.remove(task.getId());
 			task.setStatus(TaskStatusType.CANCELLED);
 			if (!testCaseFlag) {
 				moveToHistory(task, HibernateUtil.getSession());
@@ -550,7 +502,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		history.setStatus(task.getStatus());
 		history.setSubject(task.getSubject());
 		history.setComments(task.getComments());
-		history.setCreateTime(task.getCreateTime());
+		history.setCreateDate(task.getCreateDate());
 		
 		session.save(history);
 		session.delete(task);
@@ -573,7 +525,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		task.setSubject(hTask.getSubject());
 		task.setComments(hTask.getComments());
 		task.setSessionId(hTask.getSessionId());
-		task.setCreateTime(hTask.getCreateTime());
+		task.setCreateDate(hTask.getCreateDate());
 		return task;
 	}
 	
@@ -583,7 +535,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	
 	@Override
 	public void startService() {
-		this.workingTasks.clear();
 		this.futures.clear();
 		
 		String masterNode = IServerServiceManager.INSTANCE.getMasterNodeName();
@@ -598,7 +549,9 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		if (testCaseFlag) {
 			return;
 		}
+		// TODO: must be optimized by nodejs.
 		// load all pending tasks when system up.
+		/**
 		TaskImpl condition = new TaskImpl();
 		List<ITask> tasks = CoordinatorModel.INSTANCE.searchTasks(condition, null, 0, -1);
 		for (ITask t : tasks) {
@@ -614,11 +567,9 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 				}
 			}
 		}
-		
-		if (AppContext.isMasterNode()) {
-			ServerNodeInfoImpl sc = new ServerNodeInfoImpl();
-			this.serverNodes = CoordinatorModel.INSTANCE.searchServerNodes(sc, null, 0, -1);
-		}
+		*/
+		ServerNodeInfoImpl sc = new ServerNodeInfoImpl();
+		this.serverNodes = CoordinatorModel.INSTANCE.searchServerNodes(sc, null, 0, -1);
 	}
 
 	@Override
@@ -629,7 +580,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	@Override
 	public void stopService() {
 		scheduler.shutdown();
-		workingTasks.clear();
 		listeners.clear();
 		
 		Set<ITask> tasks = futures.keySet();

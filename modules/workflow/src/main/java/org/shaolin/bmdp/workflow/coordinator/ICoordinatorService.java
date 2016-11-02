@@ -33,7 +33,7 @@ public interface ICoordinatorService {
 	 * 
 	 * @return
 	 */
-	int getTaskSize();
+	long getTaskSize();
 	
 	/**
 	 * 

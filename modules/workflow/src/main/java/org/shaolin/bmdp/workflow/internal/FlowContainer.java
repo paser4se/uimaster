@@ -96,7 +96,6 @@ public class FlowContainer {
     void startService(List<Workflow> appInfos) {
     	allEngines.clear();
     	
-        Map<String, FlowEngine> engineMap = new HashMap<String, FlowEngine>();
         List<FlowObject> activeFlows = new ArrayList<FlowObject>();
         for (Workflow flow : appInfos) {
         	FlowObject flowInfo = new FlowObject(new AppInfo(flow));
@@ -108,6 +107,7 @@ public class FlowContainer {
             }
         }
         
+        Map<String, FlowEngine> engineMap = new HashMap<String, FlowEngine>();
         for (FlowObject flowInfo: activeFlows) {
         	logger.info("Create workflow engine: {}",  flowInfo.getAppInfo().getName());
         	FlowEngine engine = initFlowEngine(flowInfo, false);
@@ -118,7 +118,9 @@ public class FlowContainer {
     }
     
     void updateService(List<Workflow> appInfos) {
-        Map<String, FlowEngine> engineMap = new HashMap<String, FlowEngine>();
+    	if (appInfos == null || appInfos.size() == 0) {
+    		return;
+    	}
         List<FlowObject> activeFlows = new ArrayList<FlowObject>();
         for (Workflow flow : appInfos) {
         	FlowObject flowInfo = new FlowObject(new AppInfo(flow));
@@ -130,6 +132,7 @@ public class FlowContainer {
             }
         }
         
+        Map<String, FlowEngine> engineMap = new HashMap<String, FlowEngine>();
         for (FlowObject flowInfo: activeFlows) {
         	logger.info("Update workflow engine: {}",  flowInfo.getAppInfo().getName());
         	FlowEngine engine = initFlowEngine(flowInfo, false);
@@ -160,8 +163,13 @@ public class FlowContainer {
             allEngines.put(engine.getEngineName(), engine);
         }
 
-        WorkFlowEventProcessor eventProcessor = new WorkFlowEventProcessor(tempProcessors);
-        AppContext.get().register(eventProcessor);
+        WorkFlowEventProcessor processor = AppContext.get().getService(WorkFlowEventProcessor.class);
+        if (processor != null) {
+	        processor.addConsumers(tempProcessors);
+        } else {
+        	WorkFlowEventProcessor eventProcessor = new WorkFlowEventProcessor(tempProcessors);
+        	AppContext.get().register(eventProcessor);
+        }
     }
 
     public void runTask(final WorkFlowEventProcessor timeoutEventProcessor, final TimeoutEvent event) {
@@ -213,7 +221,7 @@ public class FlowContainer {
         task.setSubject("Task: " + ICoordinatorService.END_SESSION_NODE_NAME);
         task.setDescription("Flow is finished!");
         task.setEnabled(true);
-        task.setCreateTime(new Date());
+        task.setCreateDate(new Date());
         task.setStatus(TaskStatusType.COMPLETED);
         task.setCompleteRate(100);
         CoordinatorModel.INSTANCE.create(task);
@@ -243,7 +251,7 @@ public class FlowContainer {
         task.setExpiredTime(timeout);
         task.setEnabled(true);
         task.setListener(new MissionListener(task));
-        task.setCreateTime(new Date());
+        task.setCreateDate(new Date());
         
     	CoordinatorModel.INSTANCE.create(task);
         

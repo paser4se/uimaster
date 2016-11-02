@@ -85,7 +85,7 @@
                <ns2:title xsi:type="ns2:StringPropertyType">
                    <ns2:value>建立时间</ns2:value>
                </ns2:title>
-               <ns2:beFieldId>rowBE.createTime</ns2:beFieldId>
+               <ns2:beFieldId>rowBE.createDate</ns2:beFieldId>
                <ns2:uiType xsi:type="ns2:UITableColHTMLType">
                  <ns2:type>Label</ns2:type>
                </ns2:uiType>

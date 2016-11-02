@@ -38,6 +38,12 @@ public class CoordinatorModel extends BEEntityDaoObject {
             if (scFlow.getId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.id", scFlow.getId()));
             }
+            if (scFlow.getPartyId() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.partyId", scFlow.getPartyId()));
+            }
+            if (scFlow.getSessionId() != null && scFlow.getSessionId().trim().length() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sessionId", scFlow.getSessionId()));
+            }
             if (scFlow.getSubject() != null && scFlow.getSubject().length() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.START_WITH_RIGHT, "inFlow.subject", scFlow.getSubject()));
             }
@@ -65,6 +71,12 @@ public class CoordinatorModel extends BEEntityDaoObject {
 
             if (scFlow.getId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.id", scFlow.getId()));
+            }
+            if (scFlow.getPartyId() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.partyId", scFlow.getPartyId()));
+            }
+            if (scFlow.getSessionId() != null && scFlow.getSessionId().trim().length() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sessionId", scFlow.getSessionId()));
             }
             if (scFlow.getSubject() != null && scFlow.getSubject().length() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.START_WITH_RIGHT, "inFlow.subject", scFlow.getSubject()));
@@ -101,6 +113,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
             if (scFlow.getOrgId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.orgId", scFlow.getOrgId()));
             }
+            if (scFlow.getPartyId() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.partyId", scFlow.getPartyId()));
+            }
             if (scFlow.getSessionId() != null && scFlow.getSessionId().length() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sessionId", scFlow.getSessionId()));
             }
@@ -125,6 +140,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
             }
             if (scFlow.getOrgId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.orgId", scFlow.getOrgId()));
+            }
+            if (scFlow.getPartyId() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.partyId", scFlow.getPartyId()));
             }
             if (scFlow.getSessionId() != null && scFlow.getSessionId().length() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sessionId", scFlow.getSessionId()));
@@ -154,6 +172,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
             }
             if (scFlow.getOrgId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.orgId", scFlow.getOrgId()));
+            }
+            if (scFlow.getPartyId() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.partyId", scFlow.getPartyId()));
             }
             if (scFlow.getTaskId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.taskId", scFlow.getTaskId()));
@@ -191,6 +212,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
             }
             if (scFlow.getOrgId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.orgId", scFlow.getOrgId()));
+            }
+            if (scFlow.getPartyId() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.partyId", scFlow.getPartyId()));
             }
             if (scFlow.getTaskId() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.taskId", scFlow.getTaskId()));
