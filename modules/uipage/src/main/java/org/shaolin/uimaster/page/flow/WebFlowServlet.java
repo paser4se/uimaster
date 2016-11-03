@@ -314,7 +314,7 @@ public class WebFlowServlet extends HttpServlet
         AppContext.register(IServerServiceManager.INSTANCE.getApplication(orgCode));
     	IPermissionService permiService = AppContext.get().getService(IPermissionService.class);
     	List<IConstantEntity> roleIds = (List<IConstantEntity>)request.getSession().getAttribute(WebflowConstants.USER_ROLE_KEY);
-    	int decision = permiService.checkModule(attrAccessor.chunkName, attrAccessor.nodeName, roleIds);
+    	int decision = permiService.checkModule(orgCode, attrAccessor.chunkName, attrAccessor.nodeName, roleIds);
     	return IPermissionService.ACCEPTABLE == decision || IPermissionService.NOT_SPECIFIED == decision;
     }
     

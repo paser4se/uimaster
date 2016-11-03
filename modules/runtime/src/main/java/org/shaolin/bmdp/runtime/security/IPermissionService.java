@@ -46,16 +46,17 @@ public interface IPermissionService {
 	
 	/**
 	 * 
-	 * @param chunkName
-	 * @param nodeName
+	 * @param moduleId
 	 * @param role login user role
 	 * @return
 	 */
-	int checkModule(String chunkName, String nodeName, IConstantEntity role);
+	int checkModule(long moduleId, IConstantEntity role);
 	
-	int checkModule(String chunkName, String nodeName, List<IConstantEntity> roles);
+	int checkModule(long moduleId, List<IConstantEntity> roles);
 
-	int checkModule(String chunkName, String nodeName, String orgId, List<IConstantEntity> roles);
+	int checkModule(long moduleId, String orgId, List<IConstantEntity> roles);
+	
+	int checkModule(String orgCode, String chunkName, String nodeName, List<IConstantEntity> roles);
 	
 	/**
 	 * 
