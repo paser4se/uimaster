@@ -36,6 +36,7 @@
         <node name="webConstant">
             <item name="resourceServer" value="http://127.0.0.1:8080/uimaster" />
             <item name="uploadServer" value="http://127.0.0.1:8080/uimaster/uploadFile" />
+            <item name="websocketServer" value="http://127.0.0.1:8090" />
             <item name="resourcePath" value="" /><!-- the resource path in server -->
             <item name="isHTTPs" value="false" />
             <item name="isJAAS" value="false" />

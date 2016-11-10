@@ -31,7 +31,9 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
 import org.shaolin.bmdp.runtime.AppContext;
+import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
+import org.shaolin.bmdp.utils.HttpSender;
 import org.shaolin.bmdp.workflow.be.INotification;
 import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
 import org.shaolin.bmdp.workflow.internal.CoordinatorServiceImpl;
@@ -40,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * We used Node.js for better performance.
  * 
  * @author wushaol
  */
@@ -134,20 +137,47 @@ public class NotificationService {
 		}
 	}
 	
-	public static boolean push(INotification message, long userId) {
-		Session session = findSession(userId);
-		if (session == null) {
-			return false;
-		}
+	private static HttpSender sender = new HttpSender();
+	
+	/**
+	 * push for node.js
+	 * 
+	 * @param message
+	 * @param partyId
+	 * @return
+	 */
+	public static boolean push(INotification message, long partyId) {
+//		Original solution.
+//		Session session = findSession(userId);
+//		if (session == null) {
+//			return false;
+//		}
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div class=\"uimaster_noti_item\"><div style=\"color:blue;\">");
 		sb.append("[").append(message.getCreateDate()).append("] ").append(message.getSubject());
 		sb.append("</div><div style=\"width:100%;\">");
 		sb.append(message.getDescription()).append("</div></div>");
 		try {
-			session.getBasicRemote().sendText(sb.toString());
-		} catch (IOException e) {
-			logger.warn("Error sending the notifications! session id: " + session, e);
+			JSONObject json = new JSONObject();
+			if (message.getPartyId() == 0 && message.getOrgId() == 0) {
+				json.put("toAll", true);
+			} else {
+				json.put("partyId", message.getPartyId());
+			}
+			json.put("message", sb.toString());
+			
+			Registry instance = Registry.getInstance();
+			String websocketServer = instance.getValue("/System/webConstant/websocketServer");
+			
+			if (websocketServer.startsWith("https")) {
+				sender.doPostSSLWithJson(websocketServer + "/uimaster/notify", json.toString(), "utf-8");
+			} else {
+				sender.postJson(websocketServer + "/uimaster/notify", json.toString());
+			}
+//			Original solution.
+//			session.getBasicRemote().sendText(sb.toString());
+		} catch (Exception e) {
+			logger.warn("Error sending the notifications!", e);
 			return false;
 		}
 		return true;

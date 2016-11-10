@@ -273,6 +273,23 @@ public class HttpSender {
         return post0(httppost);
 	}
 	
+	public boolean postJson(String url, String content)
+			throws IOException, ClientProtocolException {
+        HttpPost httppost = new HttpPost(url);
+        // Request configuration can be overridden at the request level.
+        // They will take precedence over the one set at the client level.
+        RequestConfig requestConfig = RequestConfig.copy(defaultRequestConfig)
+            .setSocketTimeout(5000)
+            .setConnectTimeout(5000)
+            .setConnectionRequestTimeout(5000)
+            .build();
+        httppost.setConfig(requestConfig);
+        httppost.setEntity(new StringEntity(content,
+                ContentType.create("application/json", Consts.UTF_8)));
+        
+        return post0(httppost);
+	}
+	
 	public boolean post(String url, Map<String, String> pairs)
 			throws IOException, ClientProtocolException {
         HttpPost httppost = new HttpPost(url);
@@ -479,12 +496,31 @@ public class HttpSender {
 	 * send HTTPS request by json params
 	 * 
 	 * @param url
-	 * @param json
+	 * @param text
 	 * @param charset
 	 * @return
 	 * @throws Exception
 	 */
-	public String doPostSSL(String url, String json, String charset)
+	public String doPostSSL(String url, String text, String charset)
+			throws Exception {
+		CloseableHttpClient httpClient = getHttpsClient();
+		HttpPost httpPost = new HttpPost(url);
+		CloseableHttpResponse response = null;
+		try {
+			StringEntity entity = new StringEntity(text, charset);
+			entity.setContentEncoding(charset);
+			entity.setContentType("text/plain");
+			httpPost.setEntity(entity);
+			response = httpClient.execute(httpPost);
+			return getResult(response, charset);
+		} finally {
+			if (response != null) {
+				EntityUtils.consume(response.getEntity());
+			}
+		}
+	}
+	
+	public String doPostSSLWithJson(String url, String json, String charset)
 			throws Exception {
 		CloseableHttpClient httpClient = getHttpsClient();
 		HttpPost httpPost = new HttpPost(url);

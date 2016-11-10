@@ -1,13 +1,8 @@
 /* null */
 /* auto generated constructor */
-function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
+function org_shaolin_bmdp_workflow_form_NotificationBoard2(json)
 {
     var prefix = (typeof(json) == "string") ? json : json.prefix; 
-    var serverURLUI = new UIMaster.ui.hidden
-    ({
-        ui: elementList[prefix + "serverURLUI"]
-    });
-
     var sentPartyIdUI = new UIMaster.ui.hidden
     ({
         ui: elementList[prefix + "sentPartyIdUI"]
@@ -40,10 +35,8 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
     var Form = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "Form"]
-        ,items: [serverURLUI,sentPartyIdUI,countUIId,cleanupBtn,fieldPanel,messagePanel]
+        ,items: [sentPartyIdUI,countUIId,cleanupBtn,fieldPanel,messagePanel]
     });
-
-    Form.serverURLUI=serverURLUI;
 
     Form.sentPartyIdUI=sentPartyIdUI;
 
@@ -61,7 +54,7 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
 
     Form.user_constructor = function()
     {
-        /* Construct_FIRST:org_shaolin_bmdp_workflow_form_NotificationBoard */
+        /* Construct_FIRST:org_shaolin_bmdp_workflow_form_NotificationBoard2 */
 
         
        var partyId = this.sentPartyIdUI.value;
@@ -75,52 +68,42 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
        }
        $("#"+countUIId).append(this.realCounter);
        var o = this;
-       window.setTimeout(function(){
-	       UIMaster.require("/js/socket.io.js");
-	       o.nodesocket = io.connect(o.serverURLUI.value);
-	       o.nodesocket.on('connect', function(e) {
-	            var msg = {partyId: partyId};
-	            o.nodesocket.emit('register', msg);
-	       });
-	       o.nodesocket.on('loginSuccess', function(e) {
-	            var msg = {partyId: partyId};
-	            o.nodesocket.emit('nofityhistory', msg);
-	       });
-	       o.nodesocket.on('alreadyLogined', function(e) {
-	            var msg = {partyId: partyId};
-	            o.nodesocket.emit('nofityhistory', msg);
-	       });
-	       o.nodesocket.on('nofityFrom', function(e) {
-	            o.msgCounter = o.msgCounter + e.length;
-	            o.realCounter.text("("+o.msgCounter+")");
-	            for (var i=0;i<e.length;i++) {
-		            var row = "<div class=\"uimaster_noti_item "+((i%2==0)?"uimaster_chat_item_even":"uimaster_chat_item_old")+"\"><div><div class=\"uimaster_chat_time\">"
-						 + e[i].CREATEDATE + "</div><div class=\"uimaster_chat_message\"> " + e[i].DESCRIPTION + "</div></div></div>"
-		            $(row).appendTo(msgContainer);
-	            }
-	       });
-       }, 1000);
+       this.chat = establishWebsocket("/wsnotificator", 
+         function(ws,e){
+            var msg = {action: "register", partyId: partyId};
+            ws.send(JSON.stringify(msg));
+         },
+         function(ws,e){
+            if (e.data == "_register_confirmed") {
+               return;
+            }
+            o.realCounter.text("("+(++o.msgCounter)+")");
+            $(msgContainer).append(e.data);
+         },
+         function(ws,e){
+             console.log("error occurred while receiving a message: " + e.data);
+         });
     
     
-            /* Construct_LAST:org_shaolin_bmdp_workflow_form_NotificationBoard */
+            /* Construct_LAST:org_shaolin_bmdp_workflow_form_NotificationBoard2 */
     };
 
-    Form.cleanup = org_shaolin_bmdp_workflow_form_NotificationBoard_cleanup;
+    Form.cleanup = org_shaolin_bmdp_workflow_form_NotificationBoard2_cleanup;
 
-    Form.invokeDynamicFunction = org_shaolin_bmdp_workflow_form_NotificationBoard_invokeDynamicFunction;
+    Form.invokeDynamicFunction = org_shaolin_bmdp_workflow_form_NotificationBoard2_invokeDynamicFunction;
 
-    Form.__entityName="org.shaolin.bmdp.workflow.form.NotificationBoard";
+    Form.__entityName="org.shaolin.bmdp.workflow.form.NotificationBoard2";
 
     Form.init();
     return Form;
 };
 
     /* EventHandler Functions */
-/* Other_Func_FIRST:org_shaolin_bmdp_workflow_form_NotificationBoard */
-/* Other_Func_LAST:org_shaolin_bmdp_workflow_form_NotificationBoard */
+/* Other_Func_FIRST:org_shaolin_bmdp_workflow_form_NotificationBoard2 */
+/* Other_Func_LAST:org_shaolin_bmdp_workflow_form_NotificationBoard2 */
 
     /* auto generated eventlistener function declaration */
-    function org_shaolin_bmdp_workflow_form_NotificationBoard_cleanup(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_NotificationBoard_cleanup */
+    function org_shaolin_bmdp_workflow_form_NotificationBoard2_cleanup(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_NotificationBoard2_cleanup */
         var o = this;
         var UIEntity = this;
 
@@ -135,11 +118,11 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
         // cal ajax function. 
 
         UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"cleanup-201506102211",UIMaster.getValue(eventsource),o.__entityName);
-    }/* Gen_Last:org_shaolin_bmdp_workflow_form_NotificationBoard_cleanup */
+    }/* Gen_Last:org_shaolin_bmdp_workflow_form_NotificationBoard2_cleanup */
 
 
     /* auto generated eventlistener function declaration */
-    function org_shaolin_bmdp_workflow_form_NotificationBoard_invokeDynamicFunction(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_NotificationBoard_invokeDynamicFunction */
+    function org_shaolin_bmdp_workflow_form_NotificationBoard2_invokeDynamicFunction(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_NotificationBoard2_invokeDynamicFunction */
         var o = this;
         var UIEntity = this;
 
@@ -152,7 +135,7 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
         
         }
         }).open();
-    }/* Gen_Last:org_shaolin_bmdp_workflow_form_NotificationBoard_invokeDynamicFunction */
+    }/* Gen_Last:org_shaolin_bmdp_workflow_form_NotificationBoard2_invokeDynamicFunction */
 
 
 

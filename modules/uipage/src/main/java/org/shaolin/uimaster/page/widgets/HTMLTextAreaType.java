@@ -75,7 +75,14 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
 	        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
 	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/ckeditor/ckeditor.js\"></script>");
             }
-            
+            boolean emojiSupport = this.getAttribute("emojiSupport") != null 
+            		&& "true".equals(this.getAttribute("emojiSupport").toString());
+            if (emojiSupport && context.getRequest().getAttribute("_emojiSupport") == null) {
+            	context.getRequest().setAttribute("_emojiSupport", Boolean.TRUE);
+	            String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
+	        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
+            	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/emoji/jquery.emoji.js\"></script>");
+            }
             context.generateHTML("<textarea name=\"");
             context.generateHTML(getName());
             context.generateHTML("\"");

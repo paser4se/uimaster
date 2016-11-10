@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <ns2:UIEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns5="http://bmdp.shaolin.org/datamodel/PageDiagram" xmlns:ns4="http://bmdp.shaolin.org/datamodel/RDBDiagram" xmlns:ns3="http://bmdp.shaolin.org/datamodel/BEDiagram" xmlns:ns2="http://bmdp.shaolin.org/datamodel/Page" xmlns="http://bmdp.shaolin.org/datamodel/Common" xsi:schemaLocation="">
-  <entityName>org.shaolin.bmdp.workflow.form.ChatWindow</entityName>
+  <entityName>org.shaolin.bmdp.workflow.form.ChatWindow2</entityName>
   <systemVersion>0</systemVersion>
   <ns2:eventHandler functionName="Send">
     <ns2:ops xsi:type="ns2:OpExecuteScriptType" name="aaa">
@@ -18,9 +18,9 @@
 	        var fromPartyId = this.sentPartyIdUI.value;
 	        var toPartyId = this.receivedPartyIdUI.value;
 	        var orgId = this.orgIdUI.value;
-            var msg = {taskId: 0, orgId: orgId, sessionId: sessionId, fromPartyId: fromPartyId, 
+            var msg = {action: "chating", taskId: 0, orgId: orgId, sessionId: sessionId, fromPartyId: fromPartyId, 
                        toPartyId: toPartyId, content: this.sentPartyNameUI.value+" : "+message};
-            this.nodesocket.emit('chatTo', msg);
+            this.chat.send(JSON.stringify(msg));
             this.enterMessageUI.value="";
         }]]></expressionString>
     </ns2:ops>
@@ -59,7 +59,9 @@
     <ns2:ops xsi:type="ns2:OpExecuteScriptType" name="bbb">
         <expressionString><![CDATA[
         { 
-            this.nodesocket.disconnect();
+            //var msg = {action: "close", partyId: fromPartyId};
+            //this.chat.send(JSON.stringify(msg));
+            this.chat.close();
         }]]></expressionString>
     </ns2:ops>
     <ns2:ops xsi:type="ns2:OpCallAjaxType" name="cancelDetail-20160305-063830">
@@ -81,20 +83,6 @@
       <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
       <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
     </ns2:layout>
-    <ns2:component xsi:type="ns2:UIHiddenType" UIID="serverURLUI">
-       <ns2:Property name="value">
-           <ns2:value xsi:type="ns2:ExpressionPropertyType">
-	         <ns2:expression>
-	           <expressionString><![CDATA[
-	           import org.shaolin.bmdp.runtime.Registry;
-	           { 
-	               Registry instance = Registry.getInstance();
-	               return instance.getValue("/System/webConstant/websocketServer"); 
-	           }]]></expressionString>
-	         </ns2:expression>
-           </ns2:value>
-        </ns2:Property>
-    </ns2:component>
     <ns2:component xsi:type="ns2:UIHiddenType" UIID="taskIdUI">
     </ns2:component>
     <ns2:component xsi:type="ns2:UIHiddenType" UIID="orgIdUI">
@@ -180,11 +168,6 @@
         <ns2:widgetLabel xsi:type="ns2:StringPropertyType">
             <ns2:value>发送消息框：</ns2:value>
         </ns2:widgetLabel>
-        <ns2:Property name="emojiSupport">
-            <ns2:value xsi:type="ns2:BooleanPropertyType">
-                <value>true</value>
-            </ns2:value>
-        </ns2:Property>
         <ns2:Property name="style">
             <ns2:value xsi:type="ns2:StringPropertyType">
                 <value>width:100%;height:60px;</value>
@@ -276,47 +259,30 @@
        if (sessionId == null || sessionId == "null") {
            sessionId = "";
        }
-       if (this.serverURLUI.value == "" || this.serverURLUI.value == "null") {
-          alert("Error: server url does not specify.");
-          return;
-       }
        var partyId = this.sentPartyIdUI.value;
        var fromPartyId = this.sentPartyIdUI.value;
        var toPartyId = this.receivedPartyIdUI.value;
        $(this.messageUI).focus();
        var msgContainer = this.messageUI;
-       var o = this;
-       UIMaster.require("/js/socket.io.js");
-       this.nodesocket = io.connect(this.serverURLUI.value);
-       this.nodesocket.on('connect', function(e) {
-            var msg = {partyId: partyId, isAbc: isAbc, sessionId: sessionId};
-            o.nodesocket.emit('register', msg)
-       });
-       this.nodesocket.on('loginSuccess', function(e) {
-            var msg = {fromPartyId: fromPartyId, toPartyId: toPartyId, sessionId: sessionId};
-            o.nodesocket.emit('history', msg);
-       });
-       this.nodesocket.on('alreadyLogined', function(e) {
-            var msg = {fromPartyId: fromPartyId, toPartyId: toPartyId, sessionId: sessionId};
-            o.nodesocket.emit('history', msg);
-       });
-       this.nodesocket.on('loginFail', function(e) {
-            $(this.enterMessageUI).attr("disabled", "disabled");
-       });
-       this.nodesocket.on('history', function(e) {
-            for (var i=0;i<e.length;i++) {
-                var color = ((i%2==0)?"uimaster_chat_item_even":"uimaster_chat_item_old");
-	            var row = "<div class=\"swiper-slide uimaster_chat_item_to "+color+"\"><div><div class=\"uimaster_chat_time\">"
-					 + e[i].CREATEDATE + "</div><div class=\"uimaster_chat_message\"> " + e[i].MESSAGE + "</div></div></div>"
-	            msgContainer.appendSlide($(row));
+       this.chat = establishWebsocket("/wschart", 
+         function(ws,e){
+            var msg = {action: "register", partyId: partyId, isAbc: isAbc, sessionId: sessionId};
+            ws.send(JSON.stringify(msg));
+            var msg = {action: "history", fromPartyId: fromPartyId, toPartyId: toPartyId, sessionId: sessionId};
+            setTimeout(function(){ ws.send(JSON.stringify(msg));}, 1000);
+         },
+         function(ws,e){
+            if (e.data == "_register_confirmed") {
+               return;
+            } else if (e.data == "_register_failed") {
+               $(this.enterMessageUI).attr("disabled", "disabled");
+               return;
             }
-       });
-       this.nodesocket.on('chatTo', function(e) {
-            var color = ((msgContainer.slides.length%2==0)?"uimaster_chat_item_even":"uimaster_chat_item_old");
-            var row = "<div class=\"swiper-slide uimaster_chat_item_to "+color+"\"><div><div class=\"uimaster_chat_time\">"
-				 + new Date() + "</div><div class=\"uimaster_chat_message\"> " + e.content + "</div></div></div>"
-            msgContainer.appendSlide($(row));
-       });
+            msgContainer.appendSlide(e.data);
+         },
+         function(ws,e){
+             console.log("error occurred while receiving a message: " + e.data);
+         });
     ]]>
     </ns2:constructorCode>
   </ns2:body>
@@ -391,14 +357,15 @@
       import org.shaolin.bmdp.runtime.security.UserContext;
       import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
       {
-      if ($beObject.getSessionId() == null || $beObject.getSessionId().length() == 0) {
-         throw new java.lang.IllegalArgumentException("Chat session id must be specified!");
+	      if ($beObject.getSessionId() == null || $beObject.getSessionId().length() == 0) {
+	         throw new java.lang.IllegalArgumentException("Chat session id must be specified!");
+	      }
+	      ICoordinatorService coorService = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class);
+	      $isEditable = !coorService.isSessionEnded($beObject.getSessionId());
+	      $isAdmin = UserContext.getUserContext().isAdmin();
+	      @odContext.executeAllMappings();
       }
-      ICoordinatorService coorService = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class);
-      $isEditable = !coorService.isSessionEnded($beObject.getSessionId());
-      $isAdmin = UserContext.getUserContext().isAdmin();
-@odContext.executeAllMappings();
-}</expressionString>
+      </expressionString>
     </ns2:DataToUIMappingOperation>
     <ns2:UIToDataMappingOperation>
       <expressionString>{

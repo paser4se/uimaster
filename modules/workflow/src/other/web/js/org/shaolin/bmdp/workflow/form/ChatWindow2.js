@@ -1,13 +1,8 @@
 /* null */
 /* auto generated constructor */
-function org_shaolin_bmdp_workflow_form_ChatWindow(json)
+function org_shaolin_bmdp_workflow_form_ChatWindow2(json)
 {
     var prefix = (typeof(json) == "string") ? json : json.prefix; 
-    var serverURLUI = new UIMaster.ui.hidden
-    ({
-        ui: elementList[prefix + "serverURLUI"]
-    });
-
     var taskIdUI = new UIMaster.ui.hidden
     ({
         ui: elementList[prefix + "taskIdUI"]
@@ -59,7 +54,6 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
     var enterMessageUI = new UIMaster.ui.textarea
     ({
         ui: elementList[prefix + "enterMessageUI"]
-        ,emojiSupport: true
         ,style: "width:100%;height:60px;"
     });
 
@@ -102,10 +96,8 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
     var Form = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "Form"]
-        ,items: [serverURLUI,taskIdUI,orgIdUI,sentPartyIdUI,receivedPartyIdUI,isAbcUI,sessionIdUI,sentPartyNameUI,receivedPartyNameUI,messageUI,enterMessageUI,okbtn,clearbtn,cancelbtn,fieldPanel,topPanel,actionPanel]
+        ,items: [taskIdUI,orgIdUI,sentPartyIdUI,receivedPartyIdUI,isAbcUI,sessionIdUI,sentPartyNameUI,receivedPartyNameUI,messageUI,enterMessageUI,okbtn,clearbtn,cancelbtn,fieldPanel,topPanel,actionPanel]
     });
-
-    Form.serverURLUI=serverURLUI;
 
     Form.taskIdUI=taskIdUI;
 
@@ -161,7 +153,7 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
 
     Form.user_constructor = function()
     {
-        /* Construct_FIRST:org_shaolin_bmdp_workflow_form_ChatWindow */
+        /* Construct_FIRST:org_shaolin_bmdp_workflow_form_ChatWindow2 */
 
         
        var isAbc = this.isAbcUI.value;
@@ -169,72 +161,55 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
        if (sessionId == null || sessionId == "null") {
            sessionId = "";
        }
-       if (this.serverURLUI.value == "" || this.serverURLUI.value == "null") {
-          alert("Error: server url does not specify.");
-          return;
-       }
        var partyId = this.sentPartyIdUI.value;
        var fromPartyId = this.sentPartyIdUI.value;
        var toPartyId = this.receivedPartyIdUI.value;
        $(this.messageUI).focus();
        var msgContainer = this.messageUI;
-       var o = this;
-       UIMaster.require("/js/socket.io.js");
-       this.nodesocket = io.connect(this.serverURLUI.value);
-       this.nodesocket.on('connect', function(e) {
-            var msg = {partyId: partyId, isAbc: isAbc, sessionId: sessionId};
-            o.nodesocket.emit('register', msg)
-       });
-       this.nodesocket.on('loginSuccess', function(e) {
-            var msg = {fromPartyId: fromPartyId, toPartyId: toPartyId, sessionId: sessionId};
-            o.nodesocket.emit('history', msg);
-       });
-       this.nodesocket.on('alreadyLogined', function(e) {
-            var msg = {fromPartyId: fromPartyId, toPartyId: toPartyId, sessionId: sessionId};
-            o.nodesocket.emit('history', msg);
-       });
-       this.nodesocket.on('loginFail', function(e) {
-            $(this.enterMessageUI).attr("disabled", "disabled");
-       });
-       this.nodesocket.on('history', function(e) {
-            for (var i=0;i<e.length;i++) {
-                var color = ((i%2==0)?"uimaster_chat_item_even":"uimaster_chat_item_old");
-	            var row = "<div class=\"swiper-slide uimaster_chat_item_to "+color+"\"><div><div class=\"uimaster_chat_time\">"
-					 + e[i].CREATEDATE + "</div><div class=\"uimaster_chat_message\"> " + e[i].MESSAGE + "</div></div></div>"
-	            msgContainer.appendSlide($(row));
+       this.chat = establishWebsocket("/wschart", 
+         function(ws,e){
+            var msg = {action: "register", partyId: partyId, isAbc: isAbc, sessionId: sessionId};
+            ws.send(JSON.stringify(msg));
+            var msg = {action: "history", fromPartyId: fromPartyId, toPartyId: toPartyId, sessionId: sessionId};
+            setTimeout(function(){ ws.send(JSON.stringify(msg));}, 1000);
+         },
+         function(ws,e){
+            if (e.data == "_register_confirmed") {
+               return;
+            } else if (e.data == "_register_failed") {
+               $(this.enterMessageUI).attr("disabled", "disabled");
+               return;
             }
-       });
-       this.nodesocket.on('chatTo', function(e) {
-            var color = ((msgContainer.slides.length%2==0)?"uimaster_chat_item_even":"uimaster_chat_item_old");
-            var row = "<div class=\"swiper-slide uimaster_chat_item_to "+color+"\"><div><div class=\"uimaster_chat_time\">"
-				 + new Date() + "</div><div class=\"uimaster_chat_message\"> " + e.content + "</div></div></div>"
-            msgContainer.appendSlide($(row));
-       });
+            msgContainer.appendSlide(e.data);
+         },
+         function(ws,e){
+             console.log("error occurred while receiving a message: " + e.data);
+         });
     
     
-            /* Construct_LAST:org_shaolin_bmdp_workflow_form_ChatWindow */
+            /* Construct_LAST:org_shaolin_bmdp_workflow_form_ChatWindow2 */
     };
 
-    Form.Send = org_shaolin_bmdp_workflow_form_ChatWindow_Send;
+    Form.Send = org_shaolin_bmdp_workflow_form_ChatWindow2_Send;
 
-    Form.ClearMessage = org_shaolin_bmdp_workflow_form_ChatWindow_ClearMessage;
+    Form.ClearMessage = org_shaolin_bmdp_workflow_form_ChatWindow2_ClearMessage;
 
-    Form.Cancel = org_shaolin_bmdp_workflow_form_ChatWindow_Cancel;
+    Form.Cancel = org_shaolin_bmdp_workflow_form_ChatWindow2_Cancel;
 
-    Form.invokeDynamicFunction = org_shaolin_bmdp_workflow_form_ChatWindow_invokeDynamicFunction;
+    Form.invokeDynamicFunction = org_shaolin_bmdp_workflow_form_ChatWindow2_invokeDynamicFunction;
 
-    Form.__entityName="org.shaolin.bmdp.workflow.form.ChatWindow";
+    Form.__entityName="org.shaolin.bmdp.workflow.form.ChatWindow2";
 
     Form.init();
     return Form;
 };
 
     /* EventHandler Functions */
-/* Other_Func_FIRST:org_shaolin_bmdp_workflow_form_ChatWindow */
-/* Other_Func_LAST:org_shaolin_bmdp_workflow_form_ChatWindow */
+/* Other_Func_FIRST:org_shaolin_bmdp_workflow_form_ChatWindow2 */
+/* Other_Func_LAST:org_shaolin_bmdp_workflow_form_ChatWindow2 */
 
     /* auto generated eventlistener function declaration */
-    function org_shaolin_bmdp_workflow_form_ChatWindow_Send(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_ChatWindow_Send */
+    function org_shaolin_bmdp_workflow_form_ChatWindow2_Send(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_ChatWindow2_Send */
         var o = this;
         var UIEntity = this;
 
@@ -251,15 +226,15 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
 	        var fromPartyId = this.sentPartyIdUI.value;
 	        var toPartyId = this.receivedPartyIdUI.value;
 	        var orgId = this.orgIdUI.value;
-            var msg = {taskId: 0, orgId: orgId, sessionId: sessionId, fromPartyId: fromPartyId, 
+            var msg = {action: "chating", taskId: 0, orgId: orgId, sessionId: sessionId, fromPartyId: fromPartyId, 
                        toPartyId: toPartyId, content: this.sentPartyNameUI.value+" : "+message};
-            this.nodesocket.emit('chatTo', msg);
+            this.chat.send(JSON.stringify(msg));
             this.enterMessageUI.value="";
-        }    }/* Gen_Last:org_shaolin_bmdp_workflow_form_ChatWindow_Send */
+        }    }/* Gen_Last:org_shaolin_bmdp_workflow_form_ChatWindow2_Send */
 
 
     /* auto generated eventlistener function declaration */
-    function org_shaolin_bmdp_workflow_form_ChatWindow_ClearMessage(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_ChatWindow_ClearMessage */
+    function org_shaolin_bmdp_workflow_form_ChatWindow2_ClearMessage(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_ChatWindow2_ClearMessage */
         var o = this;
         var UIEntity = this;
 
@@ -282,25 +257,27 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
         // cal ajax function. 
 
         UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"clearMessage-20160305-063830",UIMaster.getValue(eventsource),o.__entityName);
-    }/* Gen_Last:org_shaolin_bmdp_workflow_form_ChatWindow_ClearMessage */
+    }/* Gen_Last:org_shaolin_bmdp_workflow_form_ChatWindow2_ClearMessage */
 
 
     /* auto generated eventlistener function declaration */
-    function org_shaolin_bmdp_workflow_form_ChatWindow_Cancel(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_ChatWindow_Cancel */
+    function org_shaolin_bmdp_workflow_form_ChatWindow2_Cancel(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_ChatWindow2_Cancel */
         var o = this;
         var UIEntity = this;
 
         { 
-            this.nodesocket.disconnect();
+            //var msg = {action: "close", partyId: fromPartyId};
+            //this.chat.send(JSON.stringify(msg));
+            this.chat.close();
         }
         // cal ajax function. 
 
         UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"cancelDetail-20160305-063830",UIMaster.getValue(eventsource),o.__entityName);
-    }/* Gen_Last:org_shaolin_bmdp_workflow_form_ChatWindow_Cancel */
+    }/* Gen_Last:org_shaolin_bmdp_workflow_form_ChatWindow2_Cancel */
 
 
     /* auto generated eventlistener function declaration */
-    function org_shaolin_bmdp_workflow_form_ChatWindow_invokeDynamicFunction(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_ChatWindow_invokeDynamicFunction */
+    function org_shaolin_bmdp_workflow_form_ChatWindow2_invokeDynamicFunction(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_ChatWindow2_invokeDynamicFunction */
         var o = this;
         var UIEntity = this;
 
@@ -313,7 +290,7 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
         
         }
         }).open();
-    }/* Gen_Last:org_shaolin_bmdp_workflow_form_ChatWindow_invokeDynamicFunction */
+    }/* Gen_Last:org_shaolin_bmdp_workflow_form_ChatWindow2_invokeDynamicFunction */
 
 
 

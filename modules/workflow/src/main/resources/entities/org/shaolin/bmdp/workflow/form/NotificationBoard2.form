@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <ns2:UIEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns5="http://bmdp.shaolin.org/datamodel/PageDiagram" xmlns:ns4="http://bmdp.shaolin.org/datamodel/RDBDiagram" xmlns:ns3="http://bmdp.shaolin.org/datamodel/BEDiagram" xmlns:ns2="http://bmdp.shaolin.org/datamodel/Page" xmlns="http://bmdp.shaolin.org/datamodel/Common" xsi:schemaLocation="">
-  <entityName>org.shaolin.bmdp.workflow.form.NotificationBoard</entityName>
+  <entityName>org.shaolin.bmdp.workflow.form.NotificationBoard2</entityName>
   <systemVersion>0</systemVersion>
   <ns2:eventHandler functionName="cleanup">
     <ns2:ops xsi:type="ns2:OpExecuteScriptType">
@@ -38,20 +38,6 @@
       <ns2:rowHeightWeight>0.0</ns2:rowHeightWeight>
       <ns2:columnWidthWeight>1.0</ns2:columnWidthWeight>
     </ns2:layout>
-    <ns2:component xsi:type="ns2:UIHiddenType" UIID="serverURLUI">
-       <ns2:Property name="value">
-           <ns2:value xsi:type="ns2:ExpressionPropertyType">
-	         <ns2:expression>
-	           <expressionString><![CDATA[
-	           import org.shaolin.bmdp.runtime.Registry;
-	           { 
-	               Registry instance = Registry.getInstance();
-	               return instance.getValue("/System/webConstant/websocketServer"); 
-	           }]]></expressionString>
-	         </ns2:expression>
-           </ns2:value>
-        </ns2:Property>
-    </ns2:component>
     <ns2:component xsi:type="ns2:UIHiddenType" UIID="sentPartyIdUI">
     </ns2:component>
     <ns2:component xsi:type="ns2:UIHiddenType" UIID="countUIId">
@@ -101,31 +87,21 @@
        }
        $("#"+countUIId).append(this.realCounter);
        var o = this;
-       window.setTimeout(function(){
-	       UIMaster.require("/js/socket.io.js");
-	       o.nodesocket = io.connect(o.serverURLUI.value);
-	       o.nodesocket.on('connect', function(e) {
-	            var msg = {partyId: partyId};
-	            o.nodesocket.emit('register', msg);
-	       });
-	       o.nodesocket.on('loginSuccess', function(e) {
-	            var msg = {partyId: partyId};
-	            o.nodesocket.emit('nofityhistory', msg);
-	       });
-	       o.nodesocket.on('alreadyLogined', function(e) {
-	            var msg = {partyId: partyId};
-	            o.nodesocket.emit('nofityhistory', msg);
-	       });
-	       o.nodesocket.on('nofityFrom', function(e) {
-	            o.msgCounter = o.msgCounter + e.length;
-	            o.realCounter.text("("+o.msgCounter+")");
-	            for (var i=0;i<e.length;i++) {
-		            var row = "<div class=\"uimaster_noti_item "+((i%2==0)?"uimaster_chat_item_even":"uimaster_chat_item_old")+"\"><div><div class=\"uimaster_chat_time\">"
-						 + e[i].CREATEDATE + "</div><div class=\"uimaster_chat_message\"> " + e[i].DESCRIPTION + "</div></div></div>"
-		            $(row).appendTo(msgContainer);
-	            }
-	       });
-       }, 1000);
+       this.chat = establishWebsocket("/wsnotificator", 
+         function(ws,e){
+            var msg = {action: "register", partyId: partyId};
+            ws.send(JSON.stringify(msg));
+         },
+         function(ws,e){
+            if (e.data == "_register_confirmed") {
+               return;
+            }
+            o.realCounter.text("("+(++o.msgCounter)+")");
+            $(msgContainer).append(e.data);
+         },
+         function(ws,e){
+             console.log("error occurred while receiving a message: " + e.data);
+         });
     ]]>
     </ns2:constructorCode>
   </ns2:body>
