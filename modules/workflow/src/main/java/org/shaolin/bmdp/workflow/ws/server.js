@@ -65,19 +65,14 @@ io.on('connection', function(socket){
     socket.on('register', function(obj){ 
         try {
 	        socket.partyId = obj.partyId; 
-	        if(!onlineUsers.hasOwnProperty(obj.partyId)) { 
-	            onlineUsers[obj.partyId] = {"obj": obj, "socket": socket};
-	            
-				socket.emit('loginSuccess'); 
-				// notify all online users.
-			    // io.emit('login', {onlineUsers:onlineUsers, user:obj}); 
-			    if (DEBUG) {
-				  console.log(obj.partyId + " joined!");
-				}
-	        } else {
-				// already in.
-				socket.emit('alreadyLogined'); 
-			} 
+	        // simply replace the existing cache.
+	        //if(!onlineUsers.hasOwnProperty(obj.partyId)) { 
+            onlineUsers[obj.partyId] = {"obj": obj, "socket": socket};
+            
+			socket.emit('loginSuccess', obj); 
+		    if (DEBUG) {
+			  console.log(obj.partyId + " joined!");
+			}
 		} catch (e) {
 		   console.error("registering error: " + e.stack || e);
 		}
@@ -86,7 +81,6 @@ io.on('connection', function(socket){
     socket.on('unregister', function(){ 
         try {
 	        if(onlineUsers.hasOwnProperty(socket.partyId)) { 
-	            var obj = {userid:socket.partyId, userId:onlineUsers[socket.partyId]}; 
 	            delete onlineUsers[socket.partyId]; 
 	            if (DEBUG) {
 	              console.log(obj.partyId+' exit!'); 
@@ -122,7 +116,7 @@ io.on('connection', function(socket){
 		     return;
 		  }
 		  
-		  pool.query('SELECT * FROM WF_CHATHISTORY WHERE SESSIONID=? ORDER BY createdate ASC', [obj.sessionId], function(err, results, fields) {
+		  pool.query('SELECT * FROM WF_CHATHISTORY WHERE SESSIONID=? and SENTPARTYID=? and RECEIVEDPARTYID=? ORDER BY createdate ASC', [obj.sessionId, obj.fromPartyId, obj.toPartyId], function(err, results, fields) {
 				if (err) {
 					if (err.code === 'PROTOCOL_CONNECTION_LOST') {
 					  connectDB()
@@ -187,32 +181,44 @@ io.on('connection', function(socket){
 					} else {
 					  console.error(err.stack || err);
 					}
-				}
-				if (DEBUG) {
-				  console.log("WF_NOTIFICATION inserted: " + result);
+				} else {
+					if (DEBUG) {
+					  console.log("WF_NOTIFICATION inserted: " + result);
+					}
 				}
 			   });
 	           var msg = {"taskid":obj.taskId, "sentpartyid":obj.fromPartyId, "receivedpartyid":obj.toPartyId,
-						"message":obj.content, "read":false, "sessionid": obj.sessionId};
+						"message":obj.content, "sessionid": obj.sessionId};
 			   pool.query('INSERT INTO WF_CHATHISTORY SET ?', msg, function(err, result) {
-				  if (DEBUG) {
-					console.log("WF_CHATHISTORY inserted: " + result);
+			      if (err) {
+		            console.error(err.stack || err);
+		          } else {
+					  if (DEBUG) {
+						console.log("WF_CHATHISTORY inserted: " + result);
+					  }
 				  }
 			   });
 			   socket.emit('user_offline', obj); 
 			   return;
 			}
 			var msg = {"taskid":obj.taskId, "sentpartyid":obj.fromPartyId, "receivedpartyid":obj.toPartyId,
-						"message":obj.content, "read":false, "sessionid": obj.sessionId};
+						"message":obj.content, "sessionid": obj.sessionId};
 		    pool.query('INSERT INTO WF_CHATHISTORY SET ?', msg, function(err, result) {
-			  if (DEBUG) {
-				console.log("WF_CHATHISTORY inserted: " + result);
-			  }
+		       if (err) {
+		          console.error(err.stack || err);
+		       } else {
+				   if (DEBUG) {
+					  console.log("WF_CHATHISTORY inserted: " + result);
+				   }
+			   }
 		    });
 			
-		    onlineUsers[obj.toPartyId].socket.emit('chatTo', obj); 
+		    onlineUsers[obj.fromPartyId].socket.emit('chatTo', obj); 
+		    if (obj.fromPartyId != obj.toPartyId) {
+		        onlineUsers[obj.toPartyId].socket.emit('chatTo', obj); 
+		    }
 	        if (DEBUG) {
-	           console.log(obj.toPartyId +' says: '+obj.content); 
+	           console.log(obj.fromPartyId +' says: '+obj.content); 
 	        }
         } catch(e){
             console.error("chatTo error: " + e.stack || e);

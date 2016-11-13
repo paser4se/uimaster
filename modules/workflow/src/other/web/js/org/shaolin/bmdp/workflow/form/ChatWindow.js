@@ -52,7 +52,7 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
     ({
         ui: elementList[prefix + "messageUI"]
         ,utype: "swiper"
-        ,style: "height:220px"
+        ,style: "height:220px;overflow-y: scroll;overflow-x: hidden;"
         ,appendRowMode: true
     });
 
@@ -68,11 +68,6 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
         ui: elementList[prefix + "okbtn"]
     });
 
-    var clearbtn = new UIMaster.ui.button
-    ({
-        ui: elementList[prefix + "clearbtn"]
-    });
-
     var cancelbtn = new UIMaster.ui.button
     ({
         ui: elementList[prefix + "cancelbtn"]
@@ -82,7 +77,7 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
     ({
         ui: elementList[prefix + "actionPanel"]
         ,items: []
-        ,subComponents: [prefix + "okbtn",prefix + "clearbtn",prefix + "cancelbtn"]
+        ,subComponents: [prefix + "okbtn",prefix + "cancelbtn"]
     });
 
     var topPanel = new UIMaster.ui.panel
@@ -102,7 +97,7 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
     var Form = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "Form"]
-        ,items: [serverURLUI,taskIdUI,orgIdUI,sentPartyIdUI,receivedPartyIdUI,isAbcUI,sessionIdUI,sentPartyNameUI,receivedPartyNameUI,messageUI,enterMessageUI,okbtn,clearbtn,cancelbtn,fieldPanel,topPanel,actionPanel]
+        ,items: [serverURLUI,taskIdUI,orgIdUI,sentPartyIdUI,receivedPartyIdUI,isAbcUI,sessionIdUI,sentPartyNameUI,receivedPartyNameUI,messageUI,enterMessageUI,okbtn,cancelbtn,fieldPanel,topPanel,actionPanel]
     });
 
     Form.serverURLUI=serverURLUI;
@@ -129,8 +124,6 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
 
     Form.okbtn=okbtn;
 
-    Form.clearbtn=clearbtn;
-
     Form.cancelbtn=cancelbtn;
 
     Form.fieldPanel=fieldPanel;
@@ -154,8 +147,6 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
     Form.actionPanel=actionPanel;
 
     Form.okbtn=okbtn;
-
-    Form.clearbtn=clearbtn;
 
     Form.cancelbtn=cancelbtn;
 
@@ -205,7 +196,7 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
             }
        });
        this.nodesocket.on('chatTo', function(e) {
-            var color = ((msgContainer.slides.length%2==0)?"uimaster_chat_item_even":"uimaster_chat_item_old");
+            var color = ((msgContainer.children[0].childElementCount%2==0)?"uimaster_chat_item_even":"uimaster_chat_item_old");
             var row = "<div class=\"swiper-slide uimaster_chat_item_to "+color+"\"><div><div class=\"uimaster_chat_time\">"
 				 + new Date() + "</div><div class=\"uimaster_chat_message\"> " + e.content + "</div></div></div>"
             msgContainer.appendSlide($(row));
@@ -291,6 +282,9 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
         var UIEntity = this;
 
         { 
+            //var partyId = this.sentPartyIdUI.value;
+            //this.nodesocket.emit('unregister', {partyId: partyId});
+            //only for user logout.
             this.nodesocket.disconnect();
         }
         // cal ajax function. 

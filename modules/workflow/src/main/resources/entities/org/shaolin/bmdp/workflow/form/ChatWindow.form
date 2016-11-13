@@ -59,6 +59,9 @@
     <ns2:ops xsi:type="ns2:OpExecuteScriptType" name="bbb">
         <expressionString><![CDATA[
         { 
+            //var partyId = this.sentPartyIdUI.value;
+            //this.nodesocket.emit('unregister', {partyId: partyId});
+            //only for user logout.
             this.nodesocket.disconnect();
         }]]></expressionString>
     </ns2:ops>
@@ -153,7 +156,7 @@
           </ns2:Property>
           <ns2:Property name="style" >
             <ns2:value xsi:type="ns2:StringPropertyType">
-                <value>height:220px</value>
+                <value>height:220px;overflow-y: scroll;overflow-x: hidden;</value>
             </ns2:value>
           </ns2:Property>
           <ns2:query xsi:type="ns2:ExpressionPropertyType">
@@ -232,6 +235,7 @@
           <ns2:key>Sentbtn</ns2:key>
         </ns2:text>
       </ns2:component>
+      <!-- 
       <ns2:component xsi:type="ns2:UIButtonType" UIID="clearbtn">
         <ns2:EventListener xsi:type="ns2:ClickListenerType">
           <ns2:handler functionName="ClearMessage"></ns2:handler>
@@ -240,6 +244,7 @@
           <ns2:value>清空</ns2:value>
         </ns2:text>
       </ns2:component>
+       -->
       <ns2:component xsi:type="ns2:UIButtonType" UIID="cancelbtn">
         <ns2:EventListener xsi:type="ns2:ClickListenerType">
           <ns2:handler functionName="Cancel"></ns2:handler>
@@ -253,13 +258,15 @@
         <ns2:componentId>okbtn</ns2:componentId>
         <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="0" y="0" align="FULL"></ns2:constraint>
       </ns2:layoutConstraint>
+      <!-- 
       <ns2:layoutConstraint>
         <ns2:componentId>clearbtn</ns2:componentId>
         <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="1" y="0" align="FULL"></ns2:constraint>
       </ns2:layoutConstraint>
+       -->
       <ns2:layoutConstraint>
         <ns2:componentId>cancelbtn</ns2:componentId>
-        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="2" y="0" align="FULL"></ns2:constraint>
+        <ns2:constraint xsi:type="ns2:TableLayoutConstraintType" x="1" y="0" align="FULL"></ns2:constraint>
       </ns2:layoutConstraint>
     </ns2:component>
     <ns2:layoutConstraint>
@@ -312,7 +319,7 @@
             }
        });
        this.nodesocket.on('chatTo', function(e) {
-            var color = ((msgContainer.slides.length%2==0)?"uimaster_chat_item_even":"uimaster_chat_item_old");
+            var color = ((msgContainer.children[0].childElementCount%2==0)?"uimaster_chat_item_even":"uimaster_chat_item_old");
             var row = "<div class=\"swiper-slide uimaster_chat_item_to "+color+"\"><div><div class=\"uimaster_chat_time\">"
 				 + new Date() + "</div><div class=\"uimaster_chat_message\"> " + e.content + "</div></div></div>"
             msgContainer.appendSlide($(row));
