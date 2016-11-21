@@ -739,7 +739,7 @@ public abstract class HTMLWidgetType implements Serializable
 
             context.generateHTML("<label");
             context.generateHTML(" id=\"" + getName() + "_widgetLabel\"");
-            context.generateHTML(" style=\"display:block;");
+            context.generateHTML(" style=\"");
             if ( widgetLabelColor != null )
             {
                 context.generateHTML("color:");

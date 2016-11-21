@@ -1292,7 +1292,6 @@ button[disabled],
 /* Some unsets */
 .ui-mobile,
 .ui-mobile body {
-   height: 100%;
 }
 .ui-mobile fieldset,
 .ui-page {
@@ -1688,7 +1687,6 @@ button.ui-btn-icon-notext,
 .ui-mobile,
 .ui-controlgroup-label {
 	display: block;
-	margin: 0 0 .4em;
 }
 /* Accessible content hiding */
 /* ui-hide-label deprecated in 1.4. TODO: Remove in 1.5 */

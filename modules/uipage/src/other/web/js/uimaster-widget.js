@@ -860,17 +860,21 @@ UIMaster.ui.checkboxgroup = UIMaster.extend(UIMaster.ui.field, /** @lends UIMast
      * @param {Boolean} v Value to set.
      */
     setEnabled: function(v){
-        if (this.length)
-            for (var i = 0; i < this.length; i++)
-                v ? this[i].disabled = false : this[i].disabled = true;
+        if (this.ui.length)
+            for (var i = 0; i < this.ui.length; i++)
+                v ? this.ui[i].disabled = false : this.ui[i].disabled = true;
     },
 	addAttr: function(a){
 	    if (a.item) {
 		   var id = $(this.p).attr("name");
 		   var item = $("<input type=\"checkbox\" id=\""+a.value+"\" name=\""+id+"\" value=\""+a.value
 		          +"\" class=\"uimaster_checkboxGroup\"/><label class=\"uimaster_checkout_text_gap\" for=\""+a.value+"\">"+a.name+"</label>");
-		   $(this.p).append(item);  
-		   this.push(item[0]);
+		   $(this.p).append(item);
+		   if (this.ui.length == undefined) {
+			   this.ui = [this.ui,item[0]];
+		   } else {
+		       this.ui.push(item[0]);
+		   }
 		} else if (a.finish) {
 		   this.initialized = false;
 		   this.init();
@@ -880,8 +884,8 @@ UIMaster.ui.checkboxgroup = UIMaster.extend(UIMaster.ui.field, /** @lends UIMast
 	   this.clearOptions();
 	},
 	clearOptions: function(){
-	   while(this.length > 0){
-	      this.splice(0, 1);
+	   while(this.ui.length > 0){
+	      this.ui.splice(0, 1);
 	   }
 	   $(this.p).children().each(function(){
 	      $(this).remove();
@@ -894,15 +898,15 @@ UIMaster.ui.checkboxgroup = UIMaster.extend(UIMaster.ui.field, /** @lends UIMast
      */
     setValue: function(c){
         var arr = c || [];
-        if (this.length){
+        if (this.ui.length){
             for (var i = 0; i < arr.length; i++) {
-                for (var j = 0; j < this.length; j++)
-                    if (this[j].value == arr[i]) {
-                        this[j].checked = true;
+                for (var j = 0; j < this.ui.length; j++)
+                    if (this.ui[j].value == arr[i]) {
+                        this.ui[j].checked = true;
                         break;
                     }
                     else
-                        this[j].checked = false;
+                        this.ui[j].checked = false;
             }
         }
         else
@@ -915,10 +919,10 @@ UIMaster.ui.checkboxgroup = UIMaster.extend(UIMaster.ui.field, /** @lends UIMast
      */
     getValue: function(){
         var arr = [];
-        if (this.length)
-            for (var i = 0; i < this.length; i++)
-                if (this[i].checked)
-                    arr.push(this[i].value);
+        if (this.ui.length)
+            for (var i = 0; i < this.ui.length; i++)
+                if (this.ui[i].checked)
+                    arr.push(this.ui[i].value);
         else
             if(this.checked)
                 arr.push(this.value);
@@ -938,9 +942,9 @@ UIMaster.ui.checkboxgroup = UIMaster.extend(UIMaster.ui.field, /** @lends UIMast
     },
     validate: function(init){
         var result = [];
-        if (this.length && this.flag != null) {
+        if (this.ui.length && this.flag != null) {
             if (!this.oldInvalidF)
-                clearConstraint(this.nodeType ? this.name : this[0].name);
+                clearConstraint(this.nodeType ? this.name : this.ui[0].name);
             if (this.mustCheck)
                 if (!UIMaster.arrayContain(this.mustCheck, this.getValue()))
                     result.push(this.mustCheckText);
@@ -948,7 +952,7 @@ UIMaster.ui.checkboxgroup = UIMaster.extend(UIMaster.ui.field, /** @lends UIMast
                 for (var i = 0; i < this.validators.length; i++)
                     this.validateCustConstraint(this.validators[i]) || result.push(this.validators[i].msg || '');
             if (result.length > 0)
-                constraint(this.nodeType ? this.name : this[0].name, result.join(" * "));
+                constraint(this.nodeType ? this.name : this.ui[0].name, result.join(" * "));
         }
         return result.length > 0 ? result : null;
     },
@@ -957,33 +961,33 @@ UIMaster.ui.checkboxgroup = UIMaster.extend(UIMaster.ui.field, /** @lends UIMast
     },
     getDefaultValue: function(){
         var arr=[];
-        if(this.length)
-            for(var i=0;i<this.length;i++)
-                if(this[i].defaultSelected)
-                    arr.push(this[i].value);
+        if(this.ui.length)
+            for(var i=0;i<this.ui.length;i++)
+                if(this.ui[i].defaultSelected)
+                    arr.push(this.ui[i].value);
         else
             if(this.defaultSelected)
                 arr.push(this.value);
         return arr;
     },
     setLabelText: function(text){
-        var n = this.nodeType?this:this[0];
+        var n = this.nodeType?this:this.ui[0];
         n.previousSibling ? n.previousSibling.childNodes[0].nodeValue = text : $(n).before($('<label></label>').attr({'id':n.name+'_widgetLabel','for':n.name}).addClass("uimaster_widgetLabel").css('display','block').text(text));
     },
     removeIndicator: function(){
-        $('#' + (this.nodeType ? this.name : this[0].name) + 'div').remove();
+        $('#' + (this.nodeType ? this.name : this.ui[0].name) + 'div').remove();
     },
     addListener: function(E, fn){
-        if (this.length)
-            for (var i = 0; i < this.length; i++)
-                $(this[i]).bind(E,fn);
+        if (this.ui.length)
+            for (var i = 0; i < this.ui.length; i++)
+                $(this.ui[i]).bind(E,fn);
         else
             $(this).bind(E,fn)
     },
     removeListener: function(E, fn, u){
-        if (this.length)
-            for (var i = 0; i < this.length; i++)
-                $(this[i]).unbind(E,fn);
+        if (this.ui.length)
+            for (var i = 0; i < this.ui.length; i++)
+                $(this.ui[i]).unbind(E,fn);
         else
             $(this).unbind(E,fn);
     },
@@ -993,17 +997,17 @@ UIMaster.ui.checkboxgroup = UIMaster.extend(UIMaster.ui.field, /** @lends UIMast
     init: function(){
 	    if (this.initialized) { return;}
 		this.initialized = true;
-		this.p = $(this).parent();
-        this.parentDiv = this.nodeType?this.parentNode.parentNode:this[0].parentNode.parentNode;
+		if(this.p == undefined)this.p = $(this).parent();
+        this.parentDiv = this.p.parent()[0];
         this.initV();
         this.validators = [];
         if (this.validator)
             this.validators.push(this.validator);
-        if (this.length)
-            for (var i = 0; i < this.length; i++) {
-                this[i].parentEntity = this.parentEntity;
-                this[i].arrayIndex = i;
-                this[i].setVisible = UIMaster.ui.checkboxgroup.superclass.setVisible;
+        if (this.ui.length)
+            for (var i = 0; i < this.ui.length; i++) {
+                this.ui[i].parentEntity = this.parentEntity;
+                this.ui[i].arrayIndex = i;
+                this.ui[i].setVisible = UIMaster.ui.checkboxgroup.superclass.setVisible;
             }
         this.addListener('click', this.notifyChange, false);
         this.addListener('blur', this.validateEvent, false);
@@ -1013,12 +1017,12 @@ UIMaster.ui.checkboxgroup = UIMaster.extend(UIMaster.ui.field, /** @lends UIMast
             f && $(this).bind('click',f);
         }else{
 		    if (this.onchangeEvent == null) this.onchangeEvent = this[0].onchange;
-            for(var i=0;i<this.length;i++){
-                var f = this[i].onclick;
-				var fc = this[i].onchange;
-                this[i].onclick = null;
-                f && $(this[i]).bind('click',f);
-				if(fc==null)$(this[i]).bind('change',this.onchangeEvent);
+            for(var i=0;i<this.ui.length;i++){
+                var f = this.ui[i].onclick;
+				var fc = this.ui[i].onchange;
+                this.ui[i].onclick = null;
+                f && $(this.ui[i]).bind('click',f);
+				if(fc==null)$(this.ui[i]).bind('change',this.onchangeEvent);
             }
         }
 
@@ -1042,8 +1046,12 @@ UIMaster.ui.radiobuttongroup = UIMaster.extend(UIMaster.ui.checkboxgroup, /** @l
 		   var id = $(this.p).attr("name");
 		   var item = $("<input type=\"radio\" id=\""+a.value+"\" name=\""+id+"\" value=\""+a.value
 		          +"\" class=\"uimaster_radioButtonGroup\"/><label class=\"uimaster_radio_text_gap\" for=\""+a.value+"\">"+a.name+"</label>");
-		   $(this.p).append(item);  
-		   this.push(item[0]);
+		   $(this.p).append(item);
+           if (this.ui.length == undefined) {
+			   this.ui = [this.ui,item[0]];
+		   } else {
+		       this.ui.push(item[0]);
+		   }
 		} else if (a.finish) {
 		   this.initialized = false;
 		   this.init();
@@ -1054,28 +1062,28 @@ UIMaster.ui.radiobuttongroup = UIMaster.extend(UIMaster.ui.checkboxgroup, /** @l
      * @param {String} c Value to set.
      */
     setValue: function(c){
-        if (this.length)
-            for (var i = 0; i < this.length; i++)
-                this[i].checked = (this[i].value == c ? true : false);
+        if (this.ui.length)
+            for (var i = 0; i < this.ui.length; i++)
+                this.ui[i].checked = (this.ui[i].value == c ? true : false);
         else
             this.checked = (this.value == c ? true : false);
-        this.notifyChange(this.nodeType?this:this[0]);
+        this.notifyChange(this.nodeType?this:this.ui[0]);
     },
     /**
      * @description Get the radiobuttongroup's value.
      * @returns {String} Radiobuttongroup's value.
      */
     getValue: function(){
-        if (this.length)
-            for (var i = 0; i < this.length; i++)
-                if (this[i].checked)
-                    return arguments.callee.caller == this.validate ? [this[i].value] : this[i].value;
+        if (this.ui.length)
+            for (var i = 0; i < this.ui.length; i++)
+                if (this.ui[i].checked)
+                    return arguments.callee.caller == this.validate ? [this.ui[i].value] : this.ui[i].value;
     },
     getDefaultValue: function(){
-        if (this.length)
-            for (var i = 0; i < this.length; i++)
-                if (!!this[i].defaultChecked)
-                    return this[i].value;
+        if (this.ui.length)
+            for (var i = 0; i < this.ui.length; i++)
+                if (!!this.ui[i].defaultChecked)
+                    return this.ui[i].value;
     },
     notifyChange: function(e){
         var rBtn = UIMaster.getObject(e), obj = eval(D + rBtn.name);
@@ -1406,6 +1414,11 @@ UIMaster.ui.panel = function(conf){
             var oIPJS = this.initPageJs, comment, nodes=this.sync?$(this.Form):$(this);
             this.initPageJs = function(){
                 if (!jQuery.isReady) jQuery.ready();
+				if (IS_MOBILEVIEW && UIMaster.browser.safari) {
+					//TODO:
+					//alert("disabled touchmove");
+					//$(document.body).bind('touchmove', function(e) {e.preventDefault();}, false);
+				}
                 postInit();
                 //comment && UIMaster.cmdHandler(comment);
                 oIPJS.call(this);
@@ -3160,10 +3173,13 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
 				open: function(event, ui) {
 				    $(".ui-dialog-titlebar-close", ui.dialog | ui).hide();
 					if(IS_MOBILEVIEW){//fix mobile css style bug in mobile view.
-						$(this).parent().parent().appendTo($("form:first"));
+					    var pDiv = $(this).parent().parent();
+						pDiv.appendTo($("form:first"));
+						$(pDiv).prev().css("display", "none");//hide parent content for good css feel.
 					}
 				},
                 beforeClose: function() {
+					$(this).parent().prev().css("display", "block");//show parent content.
 				},
                 buttons: buttonset
             });
@@ -3225,7 +3241,7 @@ function showMobileFrame(link, name) {
    if (link == "#") return;
    var frameId = link.substring(link.indexOf("_framename=") + "_framename=".length);
    frameId = frameId.substring(0, frameId.indexOf("&"));
-   var fc = $("<iframe id=\""+frameId+"\" name=\""+frameId+"\" src=\"about:blank\" needsrc=\"true\" frameborder=\"0\" style=\"min-width:100%;min-height:100%;-webkit-transform: translateZ(0);\"></iframe>");
+   var fc = $("<iframe id=\""+frameId+"\" name=\""+frameId+"\" src=\"about:blank\" needsrc=\"true\" frameborder=\"0\" style=\"min-width:100%;min-height:99%;-webkit-transform: translateZ(0);\"></iframe>");
    var d = $("<div><div style=\"position: absolute;top:150px;left:100px;\"><img style=\"width:150px\" src=\"/uimaster/images/qd-logo.png\"></div></div>");
    d.append(fc);
    d.dialog({
@@ -3242,12 +3258,16 @@ function showMobileFrame(link, name) {
 		hide: {effect: "slide",duration: 500},
 		open: function(event, ui) {//jquery effect dialog with iframe loading is so weird!
 		    $(".ui-dialog-titlebar-close", ui.dialog | ui).addClass("ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-dialog-titlebar-close");
-
+			if (UIMaster.browser.safari) {
+               fc.parent().css("-webkit-overflow-scrolling","touch").css("overflow","auto");
+			}
+			$(document.forms[0]).css("display", "none");//hide parent.
 		    window.setTimeout(function(){fc.attr("src",link);},200);
-			window.setTimeout(function(){$(d.children()[0]).css("display","none");},8000);//hide it.
+			window.setTimeout(function(){$(d.children()[0]).css("display","none");},6000);//hide it.
 		},
 		beforeClose: function() {
-		  fc.attr("src","about:blank");
+		    $(document.forms[0]).css("display", "block");//show parent.
+		    fc.attr("src","about:blank");
 		},
 		close: function() {//no need app ajax support.
 		  $.ajax({url:AJAX_SERVICE_URL,async:true,data:{_ajaxUserEvent:"tabpane",_uiid:"Form",_valueName:"remveTabId",_value:frameId,    _framePrefix:UIMaster.getFramePrefix()}});
@@ -3365,7 +3385,9 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
         if (isUrl != undefined) {
         	var frameId = html.substring(html.indexOf("_framename=") + "_framename=".length);
         	frameId = frameId.substring(0, frameId.indexOf("&"));
-        	bodyHtml = $("<div id=\"" + newBodyId + "\" class=\"tab-unselected-body\" index=\""+ index +"\"><iframe id=\""+frameId+"\" name=\""+frameId+"\" src=\""+html+"\" needsrc=\"true\" frameborder=\"0\" style=\"min-width:100%;min-height:100%;\"></iframe></div>");
+			var iosbug0="";
+			if (IS_MOBILEVIEW && UIMaster.browser.safari) {iosbug0="-webkit-overflow-scrolling:touch;overflow:auto";}
+        	bodyHtml = $("<div id=\"" + newBodyId + "\" class=\"tab-unselected-body\" index=\""+ index +"\"  style=\""+iosbug0+"\"><iframe id=\""+frameId+"\" name=\""+frameId+"\" src=\""+html+"\" needsrc=\"true\" frameborder=\"0\" style=\"min-width:100%;min-height:100%;\"></iframe></div>");
 			var t = this,f=bodyHtml.children()[0];
         } else {
         	bodyHtml = $("<div id=\"" + newBodyId + "\" class=\"tab-unselected-body\" index=\""+ index +"\">" + html + "</div>");

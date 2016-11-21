@@ -475,6 +475,11 @@ public class AjaxContext extends OpExecuteContext implements Serializable
         return map != null && map.containsKey(comp.getId()) && comp == map.get(comp.getId());
     }
 
+    public boolean existElmByAbstId(String absoluteUiid)
+    {
+        return existElmByAbsoluteId(absoluteUiid, this.getFrameId());
+    }
+    
     public boolean existElmByAbstId(String absoluteUiid, String frameName)
     {
         return existElmByAbsoluteId(absoluteUiid, frameName);

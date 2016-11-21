@@ -10,14 +10,8 @@ if (MobileAppMode) {
 	  $.mobile.page.prototype.options.keepNative = "select,input.foo";
 	});
 }
-function isWeiXinBrowser(){
-    var ua = window.navigator.userAgent.toLowerCase();
-    if(ua.match(/MicroMessenger/i) == 'micromessenger'){
-        return true;
-    }else{
-        return false;
-    }
-}
+function isWeiXinBrowser(){var ua = window.navigator.userAgent.toLowerCase(); return ua.indexOf('MicroMessenger') != -1;}
+function isSafariBrowser(){return UIMaster.browser.safari;}
 /**
  * @description Background color of the combobox.
  */
@@ -433,93 +427,6 @@ function sideBar(parentPanel, leftPanel, rightPanel) {
 	$("#"+leftPanel).css("min-height", height);
 	$("#"+rightPanel).css("min-height", height);
 };
-/**
- * @description Parsing the string to one number.
- * @function
- * @param {String} str String to parse.
- * @returns {Number} Parsed number.
- * @example
- * 00,900.099e+2 -> 90009.9
- */
-function parseNumber(str)
-{
-    var int_part, float_part, e_part, e_part_full, e_isExist, result, reg_result, is_positive_int, is_positive_e, regexp_str = "([-|+]?)([0-9,]*)([\.]?)([0-9,]*)(([e|E])([-|+]?)(([0]*)([1-9]?[0-9]*)))?", regexp = new RegExp(regexp_str);;
-    /*
-     * Parsing the string to three parts:
-     * 1. int_part: contains 0-9 and ","
-     * 2. float_part: after the "." and contains 0-9
-     * 3. e_part: after the "e" or "E" and contains 0-9
-     */
-    reg_result = regexp.exec(str);
-    if(reg_result == null)
-        return null;
-    if(reg_result[0].length != str.length )
-        return null;
-    int_part = reg_result[2];
-    float_part = reg_result[4];
-    e_isExist = reg_result[6];
-    e_part_full = reg_result[8];
-    e_part = reg_result[10];
-    //Detecting the positive or negtive of the int part and e part
-    if(reg_result[1] == "-")
-        is_positive_int = 0;
-    else
-        is_positive_int = 1;
-    if(reg_result[7] == "-")
-        is_positive_e = 0;
-    else
-        is_positive_e = 1;
-    /*
-     * Parsing the int_part
-     * 1. Get all 0-9 and remove ","
-     * 2. Remove the top "0"s
-     * 3. Using parseInt parsing it
-     */
-    int_part = int_part.replace(/,/g, "");
-    var regexp_int = new RegExp("([0]*)([0-9]*)"), reg_result_int = regexp_int.exec(int_part);
-    if(reg_result_int[1].length == 0 && reg_result_int[2].length == 0)
-        return null;
-    else if(reg_result_int[2].length == 0)
-        int_part = 0;
-    else
-        int_part = parseInt(reg_result_int[2]);
-    /*
-     * Parsing the float_part
-     * Get all numbers
-     * 1. Remove ","
-     * Notice: If no float_part and exist ".", the float_part is 0. i.e. 123.e2 -> 12300
-     */
-    float_part = reg_result[4].replace(/,/g, "");
-
-    /*e_isExist.length == 0 ||
-     * Parsing the e_part
-     * 1. Remove the top "0"s
-     * Notice: If only exist "0", the e_part is 0. i.e. 123e0 ->123
-     *         If exist "e" and no other number after it, Illegal input. 123e+ -> null
-     */
-    if(e_isExist == null)
-        e_part = 0;
-    else if(e_isExist.length == 0)
-        e_part = 0;
-    else if(e_part_full.length == e_part.length && e_part.length == 0)
-        return null;
-    else if(e_part.length == 0 )
-        e_part = 0;
-    /*
-     * Get the final result
-     */
-    result = "" + int_part + "." + float_part;
-    result = parseFloat(result);
-    if(isNaN(result))
-        return null;
-    if(is_positive_e == 0)
-        e_part *= -1;
-    result = accMul(result, Math.pow(10, e_part));
-    if(is_positive_int == 0)
-        result *= -1;
-
-    return result;
-}
 (function(){
 /**
  * @description UIMaster core utilities and functions.
@@ -545,37 +452,17 @@ if (window.UIMaster == undefined) {
 } else
     return;
 undefined;
-
-/**
- * @description Provides some browser related constants to current page.
- * @namespace Defines some browser features.
- */
 UIMaster.browser = {
-    /**
-     * @description Describe the version of current browser.
-     * @type String
-     */
     version: (userAgent.match(/.*?(?:rv|it|ra|ie)[\/: ]([\d.]+)/) || [])[1],
-    /**
-     * @description True if this is a Webkit based browser.
-     * @type Boolean
-     */
-    safari: /webkit/.test(userAgent),
-    /**
-     * @description True if this is a Opera browser.
-     * @type Boolean
-     */
+    chrome: (/chrome\/([\d.]+)/).test(userAgent),
+	safari: (/version\/([\d.]+).*safari/).test(userAgent),
     opera: /opera/.test(userAgent),
-    /**
-     * @description True if this is a Trident(IE) based browser.
-     * @type Boolean
-     */
     msie: /msie/.test(userAgent) && !/opera/.test(userAgent),
-    /**
-     * @description True if this is a Gecko based browser.
-     * @type Boolean
-     */
-    mozilla: /mozilla/.test(userAgent) && !/(compatible|webkit)/.test(userAgent)
+    mozilla: /mozilla/.test(userAgent) && !/(compatible|webkit)/.test(userAgent),
+	mobile: !!userAgent.match(/AppleWebKit.*Mobile.*/) || !!userAgent.match(/AppleWebKit/),
+    ios: !!userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/),
+	android: (userAgent.indexOf('Android') > -1 || userAgent.indexOf('Linux') > -1),
+	iPad: (userAgent.indexOf('iPad') > -1)
 };
 /**
  * @description Initialize some variables and functions in the system.
