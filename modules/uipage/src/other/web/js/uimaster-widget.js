@@ -143,12 +143,17 @@ UIMaster.ui.sync = function(){
 UIMaster.ui.sync.set = function(data){
     UIMaster.syncList.push(data);
 };
+UIMaster.workflowActionPanel = null;
 function postInit(){
     while(UIMaster.initList.length > 0) {
         var root = UIMaster.initList.shift();
 		var items = root.Form.items;
 		for (var i = 0; i < items.length; i++) {if (items[i]) {items[i].postInit && items[i].postInit();}}
 		root.user_constructor();
+	}
+	if (UIMaster.workflowActionPanel != null) {
+		UIMaster.workflowActionPanel();
+		UIMaster.workflowActionPanel = null;
 	}
 	while(UIMaster.pageInitFunctions.length > 0) {
         var func = UIMaster.pageInitFunctions.shift();
@@ -1414,10 +1419,9 @@ UIMaster.ui.panel = function(conf){
             var oIPJS = this.initPageJs, comment, nodes=this.sync?$(this.Form):$(this);
             this.initPageJs = function(){
                 if (!jQuery.isReady) jQuery.ready();
-				if (IS_MOBILEVIEW && UIMaster.browser.safari) {
-					//TODO:
-					//alert("disabled touchmove");
-					//$(document.body).bind('touchmove', function(e) {e.preventDefault();}, false);
+				if (IS_MOBILEVIEW && UIMaster.browser.ios) {
+					alert("disabled touchmove");
+					$(document.body).bind('touchmove', function(e) {e.preventDefault();}, false);
 				}
                 postInit();
                 //comment && UIMaster.cmdHandler(comment);
@@ -1625,23 +1629,21 @@ UIMaster.ui.panel = function(conf){
                 else if("FoldingPanel" == this.uiskin)
                     this.parentDiv=this.parentDiv.parentNode.parentNode.parentNode.parentNode.parentNode;
                 parseInitPageJs.apply(this);
-				if (IS_MOBILEVIEW && this.id && this.id.lastIndexOf(".actionPanel") != -1) {
-					var p = $(this);
-					if(MobileAppMode){$("<div style='height:"+80 +"px;'></div>").prependTo(p.parent());}
-					var screenWidth = $(window).width();
-					p.children().each(function(){$(this).css("float","left").css("min-width","20px");});
-					p.find("input[type=button]").each(function(){if($(this).attr("disabled") == "true" || $(this).attr("disabled") == "disabled"){$(this).parent().css("display","none");}});
-					p.find("div[id$=wfactions]").each(function(){$(this).children().each(function(){$(this).css("float","left").css("min-width","20px");});});
-					p.addClass("uimaster_workflow_panel").css("width",screenWidth+"px").css("display","block");
-					var parent0 = p.parent();
-					while(parent0.attr("id") != null && parent0.attr("id").lastIndexOf(".Form") == -1) {
-						parent0 = parent0.parent();
-					}
-					parent0 = parent0.parent();
-					p.insertAfter(parent0);
-					p.enhanceWithin();
+				var o = this;
+				if (IS_MOBILEVIEW && this.id && this.id.lastIndexOf(".actionPanel") != -1) {//workflow action panel.
+				   UIMaster.workflowActionPanel = function(){o.buildActionPanel();};//only the outside will be executed.
 				}
             },
+			buildActionPanel:function(){
+				var p = $(this);
+				if(MobileAppMode){$("<div style='height:"+75 +"px;'>a</div>").prependTo(p.parent());}
+				p.children().each(function(){$(this).css("float","left");});
+				p.find("input[type=button]").each(function(){if($(this).attr("disabled") == "true" || $(this).attr("disabled") == "disabled" || $(this).css("display") == "none"){$(this).remove();}});
+				p.find("div[id$=wfactions]").each(function(){$(this).children().each(function(){$(this).css("float","left")});});
+				p.addClass("uimaster_workflow_panel").css("display","block");
+				p.enhanceWithin();
+				//TODO: listen the scroll event and move action panel.
+			},
 			sync:function(){
 				if (this.subComponents.length > 0) {
 					for (var i = 0; i < this.subComponents.length; i++) {
@@ -2194,7 +2196,9 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			return;
 		this.initialized = true;
 		var othis = this;
-		if (IS_MOBILEVIEW || this.utype == "swiper") {
+		this.editable = ($(this).prev().attr('editable')=="true");
+		this.editablecell = ($(this).prev().attr('editablecell')=="true");
+		if ((IS_MOBILEVIEW || this.utype == "swiper") && !this.editablecell) {
 		   this.initMobileView();
 		   return;
 		}
@@ -3164,8 +3168,8 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
             }
             this.content.dialog({
             	title: thisObj.title,
-            	height: IS_MOBILEVIEW?($(window.top).height() - 50):h,
-                width: IS_MOBILEVIEW?"100%":w,
+            	height: IS_MOBILEVIEW?($(window.top).height() - 25):h,
+                width: IS_MOBILEVIEW? "100%":w,
                 modal: true,
 				closeOnEscape: false,
                 show: {effect: IS_MOBILEVIEW?"slide":"blind", duration: 500},
@@ -3191,7 +3195,8 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
 				defaultname.addComponent(win.eval(D+this.uiid),true);
 			}
             UIMaster.ui.window.addWindow(this.id,this);
-			if (IS_MOBILEVIEW) {$(this.content).enhanceWithin();}
+			window.setTimeout(function(){$(thisObj.content).enhanceWithin();}, 800);//mobile style applied.
+			
             this.isOpen = true;
 			var p = this.content.find("div[id$='actionPanel']");
             if(!IS_MOBILEVIEW && p.length > 0) {
@@ -3200,7 +3205,7 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
 				var count = 0;
 				for (var i=0;i<buttons.length;i++) {
 				    var b = buttons[i];
-					if ($(b).attr("disabled") != null && $(b).attr("disabled") == "true") {
+					if ($(b).attr("disabled") != null && $(b).attr("disabled") == "true" || $(b).css("display") == "none") {
 					   continue;
 					}
 				    var btnClass = $(b).attr('class');
@@ -3263,7 +3268,7 @@ function showMobileFrame(link, name) {
 			}
 			$(document.forms[0]).css("display", "none");//hide parent.
 		    window.setTimeout(function(){fc.attr("src",link);},200);
-			window.setTimeout(function(){$(d.children()[0]).css("display","none");},6000);//hide it.
+			window.setTimeout(function(){$(d.children()[0]).css("display","none");},3000);//hide it.
 		},
 		beforeClose: function() {
 		    $(document.forms[0]).css("display", "block");//show parent.

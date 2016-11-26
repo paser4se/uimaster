@@ -30,6 +30,7 @@ public class TreeItem implements IBusinessEntity, Serializable {
 	private String id;// required
 	private String text; // node text
 	private String icon; // string for custom
+	private int displayIndex;
 	private State state = new State(); // opened : boolean is the node open
 							// disabled :boolean is the node disabled
 							// selected : boolean s the node selecte
@@ -68,6 +69,14 @@ public class TreeItem implements IBusinessEntity, Serializable {
 
 	public void setState(State state) {
 		this.state = state;
+	}
+	
+	public int getDisplayIndex() {
+		return displayIndex;
+	}
+
+	public void setDisplayIndex(int displayIndex) {
+		this.displayIndex = displayIndex;
 	}
 
 	public LiAttribute getLi_attr() {

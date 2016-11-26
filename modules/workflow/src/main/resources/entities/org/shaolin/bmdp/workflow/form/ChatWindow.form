@@ -25,36 +25,6 @@
         }]]></expressionString>
     </ns2:ops>
   </ns2:eventHandler>
-  <ns2:eventHandler functionName="ClearMessage">
-    <ns2:ops xsi:type="ns2:OpExecuteScriptType">
-         <ns2:expressionString><![CDATA[
-         if(true){
-          new UIMaster.ui.dialog({
-              dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,
-              message:'Are you sure remove all messages?',
-              messageType:UIMaster.ui.dialog.Warning,
-              optionType:UIMaster.ui.dialog.YES_NO_OPTION,
-              title:'\u5220\u9664\u8282\u70B9?',
-              height:150,
-              width:300,
-              handler: function() {
-                 UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"clearMessage-20160305-063830",UIMaster.getValue(eventsource),o.__entityName);
-              }
-          }).open();
-          return;
-         }
-         ]]></ns2:expressionString>
-     </ns2:ops>
-    <ns2:ops xsi:type="ns2:OpCallAjaxType" name="clearMessage-20160305-063830">
-      <ns2:exp>
-        <expressionString><![CDATA[
-        import org.shaolin.uimaster.page.AjaxContext;
-        import org.shaolin.uimaster.page.ajax.*;
-        { 
-        }]]></expressionString>
-      </ns2:exp>
-    </ns2:ops>
-  </ns2:eventHandler>
   <ns2:eventHandler functionName="Cancel">
     <ns2:ops xsi:type="ns2:OpExecuteScriptType" name="bbb">
         <expressionString><![CDATA[
@@ -335,14 +305,14 @@
     <ns2:DataEntity scope="InOut" name="sentPartyName" category="JavaPrimitive">
       <type entityName="java.lang.String"></type>
     </ns2:DataEntity>
+    <ns2:DataEntity scope="InOut" name="recievedPartyName" category="JavaPrimitive">
+      <type entityName="java.lang.String"></type>
+    </ns2:DataEntity>
     <ns2:DataEntity scope="InOut" name="isEditable" category="JavaPrimitive">
       <type entityName="java.lang.Boolean"></type>
     </ns2:DataEntity>
     <ns2:DataEntity scope="Internal" name="isAdmin" category="JavaPrimitive">
       <type entityName="java.lang.Boolean"></type>
-    </ns2:DataEntity>
-    <ns2:DataEntity scope="InOut" name="recievedPartyName" category="JavaPrimitive">
-      <type entityName="java.lang.String"></type>
     </ns2:DataEntity>
     <ns2:ComponentMapping xsi:type="ns2:SimpleComponentMappingType" name="simpleMapping0">
       <ns2:mappingRule entityName="org.shaolin.uimaster.page.od.rules.UITextWithNumber"></ns2:mappingRule>

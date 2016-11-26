@@ -98,6 +98,9 @@ public class HTMLTableType extends HTMLContainerType {
 				totalCount = "0";
 			}
 			Boolean isShowActionBar = (Boolean)this.removeAttribute("isShowActionBar");
+			if (isShowActionBar == null) {
+				isShowActionBar = Boolean.TRUE;
+			}
 			Boolean editable = (Boolean)this.removeAttribute("editable");
 			if (editable == null) {
 				editable = Boolean.TRUE;
@@ -294,30 +297,32 @@ public class HTMLTableType extends HTMLContainerType {
 				context.generateHTML("</div></div>");
 				
 				context.generateHTML("<div class=\"uimaster_table_mob_pageinfo\">");
-				context.generateHTML("<a id=\""+ htmlPrefix + "PageInfo\" class=\"ui-btn ui-corner-all pageinfo\">");
-				context.generateHTML(totalCount);
-				context.generateHTML("</a>");
-				context.generateHTML("<a id=\""+ htmlPrefix + "Filter\" ");
-				context.generateHTML("href=\"javascript:defaultname.");
-				context.generateHTML(this.getPrefix() + this.getUIID() + ".showMobFilter");
-				context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\"");
-				context.generateHTML(" class=\"ui-btn ui-corner-all\">");
-				context.generateHTML(ResourceUtil.getResource(LocaleContext.getUserLocale(), "Common", "FilterItem"));
-				context.generateHTML("</a>");
-				context.generateHTML("<a id=\""+ htmlPrefix + "Refresh\" ");
-				context.generateHTML("href=\"javascript:defaultname.");
-				context.generateHTML(this.getPrefix() + this.getUIID() + ".refresh");
-				context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\"");
-				context.generateHTML(" class=\"ui-btn ui-corner-all\">");
-				context.generateHTML(ResourceUtil.getResource(LocaleContext.getUserLocale(), "Common", "RefreshItem"));
-				context.generateHTML("</a>");
-				context.generateHTML("<a id=\""+ htmlPrefix + "ToTop\" ");
-				context.generateHTML("href=\"javascript:defaultname.");
-				context.generateHTML(this.getPrefix() + this.getUIID() + ".toTop");
-				context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\"");
-				context.generateHTML(" class=\"ui-btn ui-corner-all\">");
-				context.generateHTML(ResourceUtil.getResource(LocaleContext.getUserLocale(), "Common", "ToTopItem"));
-				context.generateHTML("</a>");
+				if (isShowActionBar != null && isShowActionBar == Boolean.TRUE) {
+					context.generateHTML("<a id=\""+ htmlPrefix + "PageInfo\" class=\"ui-btn ui-corner-all pageinfo\">");
+					context.generateHTML(totalCount);
+					context.generateHTML("</a>");
+					context.generateHTML("<a id=\""+ htmlPrefix + "Filter\" ");
+					context.generateHTML("href=\"javascript:defaultname.");
+					context.generateHTML(this.getPrefix() + this.getUIID() + ".showMobFilter");
+					context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\"");
+					context.generateHTML(" class=\"ui-btn ui-corner-all\">");
+					context.generateHTML(ResourceUtil.getResource(LocaleContext.getUserLocale(), "Common", "FilterItem"));
+					context.generateHTML("</a>");
+					context.generateHTML("<a id=\""+ htmlPrefix + "Refresh\" ");
+					context.generateHTML("href=\"javascript:defaultname.");
+					context.generateHTML(this.getPrefix() + this.getUIID() + ".refresh");
+					context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\"");
+					context.generateHTML(" class=\"ui-btn ui-corner-all\">");
+					context.generateHTML(ResourceUtil.getResource(LocaleContext.getUserLocale(), "Common", "RefreshItem"));
+					context.generateHTML("</a>");
+	//				context.generateHTML("<a id=\""+ htmlPrefix + "ToTop\" ");
+	//				context.generateHTML("href=\"javascript:defaultname.");
+	//				context.generateHTML(this.getPrefix() + this.getUIID() + ".toTop");
+	//				context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\"");
+	//				context.generateHTML(" class=\"ui-btn ui-corner-all\">");
+	//				context.generateHTML(ResourceUtil.getResource(LocaleContext.getUserLocale(), "Common", "ToTopItem"));
+	//				context.generateHTML("</a>");
+				}
 				context.generateHTML("</div>");
 			} else {
 				// generate thead.

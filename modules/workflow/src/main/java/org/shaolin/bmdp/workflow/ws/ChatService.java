@@ -247,6 +247,20 @@ public class ChatService {
 				 + date + "</div><div class=\"uimaster_chat_message\"> " + message + "</div></div></div>");
 	}
 
+	public static void sendOffLine(String message, long from, long to, String sessionId) {
+		ChatHistoryImpl item = new ChatHistoryImpl();
+		item.setCreateDate(new Date());
+		item.setMessage(message);
+		item.setSentPartyId(from);
+		item.setReceivedPartyId(to);
+		item.setSessionId(sessionId);
+		CoordinatorModel.INSTANCE.create(item);
+	}
+	
+	public static void sendOffLine(IChatHistory item) {
+		CoordinatorModel.INSTANCE.create(item);
+	}
+	
 	public boolean checkSendPolicy(Session s) {
 		if (s.getUserProperties().containsKey("sendTime")) {
 			long lastTime = (Long)s.getUserProperties().get("sendTime");

@@ -208,8 +208,6 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
 
     Form.Send = org_shaolin_bmdp_workflow_form_ChatWindow_Send;
 
-    Form.ClearMessage = org_shaolin_bmdp_workflow_form_ChatWindow_ClearMessage;
-
     Form.Cancel = org_shaolin_bmdp_workflow_form_ChatWindow_Cancel;
 
     Form.invokeDynamicFunction = org_shaolin_bmdp_workflow_form_ChatWindow_invokeDynamicFunction;
@@ -247,33 +245,6 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
             this.nodesocket.emit('chatTo', msg);
             this.enterMessageUI.value="";
         }    }/* Gen_Last:org_shaolin_bmdp_workflow_form_ChatWindow_Send */
-
-
-    /* auto generated eventlistener function declaration */
-    function org_shaolin_bmdp_workflow_form_ChatWindow_ClearMessage(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_form_ChatWindow_ClearMessage */
-        var o = this;
-        var UIEntity = this;
-
-         if(true){
-          new UIMaster.ui.dialog({
-              dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,
-              message:'Are you sure remove all messages?',
-              messageType:UIMaster.ui.dialog.Warning,
-              optionType:UIMaster.ui.dialog.YES_NO_OPTION,
-              title:'\u5220\u9664\u8282\u70B9?',
-              height:150,
-              width:300,
-              handler: function() {
-                 UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"clearMessage-20160305-063830",UIMaster.getValue(eventsource),o.__entityName);
-              }
-          }).open();
-          return;
-         }
-         
-        // cal ajax function. 
-
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"clearMessage-20160305-063830",UIMaster.getValue(eventsource),o.__entityName);
-    }/* Gen_Last:org_shaolin_bmdp_workflow_form_ChatWindow_ClearMessage */
 
 
     /* auto generated eventlistener function declaration */

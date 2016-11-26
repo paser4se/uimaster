@@ -177,7 +177,7 @@ public class NotificationService {
 //			Original solution.
 //			session.getBasicRemote().sendText(sb.toString());
 		} catch (Exception e) {
-			logger.warn("Error sending the notifications!", e);
+			logger.warn("Error occurred while sending the notification!", e);
 			return false;
 		}
 		return true;

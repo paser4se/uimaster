@@ -61,26 +61,27 @@ public class HTMLLabelType extends HTMLTextWidgetType
     		HTMLUtil.generateTab(context, depth);
             context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/html2canvas.js\"></script>");
         }
+    	String htmlValue = (String)this.removeAttribute("htmlValue");
     	
         generateWidget(context);
         String currencySymbol = getCurrencySymbol();
         if ( currencySymbol == null || currencySymbol.equals("") )
         {
             context.generateHTML("<div>");
-            generateContent(context);
+            generateContent(context, htmlValue);
             context.generateHTML("</div>");
         }
         else if ( getIsSymbolLeft() )
         {
             context.generateHTML("<div>");
             generateCurrencySymbol(context, currencySymbol);
-            generateContent(context);
+            generateContent(context, htmlValue);
             context.generateHTML("</div>");
         }
         else
         {
             context.generateHTML("<div>");
-            generateContent(context);
+            generateContent(context, htmlValue);
             generateCurrencySymbol(context, currencySymbol);
             context.generateHTML("</div>");
         }
@@ -95,7 +96,7 @@ public class HTMLLabelType extends HTMLTextWidgetType
         context.generateHTML("</span>");
     }
     
-    private void generateContent(HTMLSnapshotContext context)
+    private void generateContent(HTMLSnapshotContext context, String htmlValue)
     {
         try
         {
@@ -106,12 +107,12 @@ public class HTMLLabelType extends HTMLTextWidgetType
             context.generateHTML("_Label\"");
             generateAttributes(context);
             generateEventListeners(context);
-            if (this.getAttribute("captureScreen") != null) {
-            	
-            }
-            
             context.generateHTML(">");
-            context.generateHTML(HTMLUtil.htmlEncode(getDisplayValue()));
+            if (htmlValue != null) {
+            	context.generateHTML(htmlValue);
+            } else {
+            	context.generateHTML(HTMLUtil.htmlEncode(getDisplayValue()));
+            }
             context.generateHTML("<input type=hidden name=\"");
             context.generateHTML(getName());
             context.generateHTML("\"");

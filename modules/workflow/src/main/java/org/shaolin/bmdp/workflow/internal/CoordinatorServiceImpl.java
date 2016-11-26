@@ -611,10 +611,10 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	public void addNotification(INotification message, boolean needRemoted) {
 		if (NotificationService.push(message, message.getPartyId())) {
 			message.setRead(true);
-			CoordinatorModel.INSTANCE.create(message);
-			for (INotificationListener listener : listeners) {
-				listener.received(message);
-			}
+		}
+		CoordinatorModel.INSTANCE.create(message);
+		for (INotificationListener listener : listeners) {
+			listener.received(message);
 		}
 	}
 	
