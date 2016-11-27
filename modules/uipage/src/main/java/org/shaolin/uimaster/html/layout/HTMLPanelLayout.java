@@ -54,16 +54,12 @@ public class HTMLPanelLayout extends HTMLComponentLayout
         tempMap = HTMLUtil.merge(tempMap, (Map)appendMap.get(UIID));
         String selfReadOnly = (String)propMap.get("readOnly");
         Boolean realReadOnly;
-        if (selfReadOnly == null || selfReadOnly.equals("parent"))
-        {
+        if (selfReadOnly == null || selfReadOnly.equals("parent")){
             realReadOnly = readOnly;
-        }
-        else
-        {
+        } else {
             realReadOnly = Boolean.valueOf(ee.evaluateReadOnly(selfReadOnly));
         }
-        if (logger.isDebugEnabled())
-        {
+        if (logger.isDebugEnabled()) {
             logger.debug("<---HTMLPanelLayout.generateComponentHTML--->The readOnly value for component: "
                     + UIID
                     + " in the uientity: "

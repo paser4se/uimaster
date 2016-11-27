@@ -274,6 +274,7 @@ public class TabPane extends Container implements Serializable
 				try {
 					String pageName = ownerEntity.getName();
 					HTMLReferenceEntityType uiEntity = new HTMLReferenceEntityType(htmlContext, entityPrefix, pageName);
+					uiEntity.setReadOnly(Boolean.FALSE);
 					htmlContext.getODMapperData().put("UIWidgetType", uiEntity);
 					try {
 						pContext = PageCacheManager.getUIFormObject(pageName).getVariablePContext();
@@ -295,7 +296,6 @@ public class TabPane extends Container implements Serializable
 			if (pContext == null || ee == null) {
 				throw new IllegalStateException("Failed to initialize the OD context for UIPage tab.");
 			}
-			
         	//ui panel support
         	String id = entityPrefix + tab.getPanel().getUIID();
         	HTMLPanelLayout panelLayout = new HTMLPanelLayout(tab.getPanel().getUIID(), ownerEntity);
@@ -304,7 +304,7 @@ public class TabPane extends Container implements Serializable
             panelLayout.setBody(tab.getPanel(), pContext);
         	
             HTMLCellLayoutType layout = new HTMLCellLayoutType(htmlContext, id);
-            panelLayout.generateComponentHTML(htmlContext, 0, true, Collections.emptyMap(), ee, layout);
+            panelLayout.generateComponentHTML(htmlContext, 0, false, Collections.emptyMap(), ee, layout);
             
             IJsGenerator jsGenerator = IServerServiceManager.INSTANCE.getService(IJsGenerator.class);
             StringBuilder js = new StringBuilder();
