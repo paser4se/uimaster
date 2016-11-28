@@ -32,6 +32,9 @@ app.locals.title = 'Vogerp Online Service';
 app.locals.email = '';
 var https = require('https');
 var fs = require('fs');
+var bodyParser = require('body-parser');
+var multer = require('multer'); // v1.0.5
+var upload = multer(); // for parsing multipart/form-data
 
 var caOptions = {
     key: fs.readFileSync('/opt/uimaster/chat/ca/2_www.vogerp.com.key'),
@@ -275,11 +278,20 @@ io.on('connection', function(socket){
 }); 
 
 app.use('/', express.static(__dirname + '/www'));
+app.use(function(req, res, next){
+  delete req.headers['content-encoding'];
+  next();
+});
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 var notifyHandler = function(req, res){ 
     try {
-	    var d = req.parameter;
-	    if (d.toAll) {
+	    var d = req.body;
+	    if (DEBUG) {
+	      console.log("received request: " + d);
+	    }
+	    if (d.hasOwnProperty("toAll")) {
 			io.emit('nofityFrom', d); 
 			res.send('sent'); 
 			return;
@@ -289,7 +301,7 @@ var notifyHandler = function(req, res){
 		   res.send('service_nopermission'); 
 		   return;
 		}
-		onlineUsers[d.partyId].socket.emit('nofityFrom', d); 
+		onlineUsers[d.partyId].socket.emit('nofityFrom', [d]); 
 	    res.send('sent'); 
     } catch(e){
         console.error("notifyHandler error: " + e.stack || e);

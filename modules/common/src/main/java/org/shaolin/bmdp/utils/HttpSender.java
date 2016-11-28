@@ -507,7 +507,7 @@ public class HttpSender {
 		HttpPost httpPost = new HttpPost(url);
 		CloseableHttpResponse response = null;
 		try {
-			StringEntity entity = new StringEntity(text, charset);
+			StringEntity entity = new StringEntity(text, Consts.UTF_8);
 			entity.setContentEncoding(charset);
 			entity.setContentType("text/plain");
 			httpPost.setEntity(entity);
@@ -526,7 +526,7 @@ public class HttpSender {
 		HttpPost httpPost = new HttpPost(url);
 		CloseableHttpResponse response = null;
 		try {
-			StringEntity entity = new StringEntity(json, charset);
+			StringEntity entity = new StringEntity(json, Consts.UTF_8);
 			entity.setContentEncoding(charset);
 			entity.setContentType("application/json");
 			httpPost.setEntity(entity);

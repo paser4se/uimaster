@@ -38,6 +38,7 @@ import org.shaolin.bmdp.workflow.be.INotification;
 import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
 import org.shaolin.bmdp.workflow.internal.CoordinatorServiceImpl;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
+import org.shaolin.uimaster.page.od.formats.FormatUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,11 +153,6 @@ public class NotificationService {
 //		if (session == null) {
 //			return false;
 //		}
-		StringBuilder sb = new StringBuilder();
-		sb.append("<div class=\"uimaster_noti_item\"><div style=\"color:blue;\">");
-		sb.append("[").append(message.getCreateDate()).append("] ").append(message.getSubject());
-		sb.append("</div><div style=\"width:100%;\">");
-		sb.append(message.getDescription()).append("</div></div>");
 		try {
 			JSONObject json = new JSONObject();
 			if (message.getPartyId() == 0 && message.getOrgId() == 0) {
@@ -164,7 +160,9 @@ public class NotificationService {
 			} else {
 				json.put("partyId", message.getPartyId());
 			}
-			json.put("message", sb.toString());
+			json.put("DESCRIPTION", message.getDescription());
+			json.put("CREATEDATE", FormatUtil.convertDataToUI(FormatUtil.DATE_TIME, message.getCreateDate(), null, null));
+			
 			
 			Registry instance = Registry.getInstance();
 			String websocketServer = instance.getValue("/System/webConstant/websocketServer");
