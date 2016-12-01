@@ -76,7 +76,7 @@ public class Image extends TextWidget implements Serializable
     		return;
     	}
     	
-		if ("selectedImage".equals(name)) {
+		if ("selectedImage".equals(name) && value != null) {
 			this.selectedImage = value.toString();
 			
 			if (this.selectedImageExpr != null) {
@@ -116,7 +116,7 @@ public class Image extends TextWidget implements Serializable
     	html.append("<div class=\"swiper-wrapper\">");
         
     	for (String item : links) {
-    		html.append("<span class=\"swiper-slide\" style=\"background-image:url(" + item + ")\"/></span>");
+    		html.append("<span class=\"swiper-slide\" style=\"background-image:url(" + item + ")\" img=\""+item+"\"/></span>");
     	}
         html.append("</div>");
         
@@ -167,7 +167,7 @@ public class Image extends TextWidget implements Serializable
             	String[] images = directory.list();
             	for (String i : images) {
             		String item = root + path + "/" +  i;
-            		html.append("<span class=\"swiper-slide\" style=\"background-image:url(" + item + ")\"/></span>");
+            		html.append("<span class=\"swiper-slide\" style=\"background-image:url(" + item + ")\" img=\""+item+"\"/></span>");
             	}
             }
             html.append("</div>");
@@ -264,7 +264,7 @@ public class Image extends TextWidget implements Serializable
 			path = path.substring(WebConfig.getWebRoot().length());
 		}
     	File directory = new File(WebConfig.getResourcePath() + File.separator + path);
-        if (directory.exists()) {
+        if (directory.exists() && directory.list() != null) {
         	String[] images = directory.list();
         	sb.append("<div class=\"swiper-wrapper\">");
         	for (String i : images) {
@@ -274,7 +274,7 @@ public class Image extends TextWidget implements Serializable
             		if (UserContext.isAppClient()) {
             			WebConfig.getAppImageContextRoot(AjaxActionHelper.getAjaxContext().getRequest());
             		}
-            		sb.append("<span class=\"swiper-slide\" style=\"background-image:url("+ item +")\" alt=\""+i+"\"/></span>");
+            		sb.append("<span class=\"swiper-slide\" style=\"background-image:url("+ item +")\" alt=\""+i+"\" img=\""+item+"\"/></span>");
         		}
         	}
         	sb.append("</div>");

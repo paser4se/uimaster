@@ -129,7 +129,8 @@ public class UploadFileServlet extends HttpServlet {
 			response.getWriter().print(array.toString());
 			return;
 		}
-		if (root.isDirectory() && !root.exists()) {
+		if (!root.exists() && path.lastIndexOf(".") == -1) {
+			//make sure it's a folder.
 			root.mkdirs();
 		}
 		

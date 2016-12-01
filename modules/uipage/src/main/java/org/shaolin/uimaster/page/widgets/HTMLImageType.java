@@ -69,7 +69,7 @@ public class HTMLImageType extends HTMLTextWidgetType
 		            	String[] images = path.split(";");
 		            	for (String i : images) {
 		            		String item = imageRoot + "/" +  i;
-		            		context.generateHTML("<span class=\"swiper-slide\" style=\"background-image:url(" + item + ")\" alt=\""+i+"\"/></span>");
+		            		context.generateHTML("<span class=\"swiper-slide\" style=\"background-image:url(" + item + ")\" alt=\""+i+"\" img=\""+item+"\"/></span>");
 		            		HTMLUtil.generateTab(context, depth + 2);
 		            	}
 		            } else {
@@ -80,7 +80,7 @@ public class HTMLImageType extends HTMLTextWidgetType
 			            		File f = new File(directory, i);
 			            		if (f.isFile()) {
 				            		String item = imageRoot + path + "/" +  i;
-				            		context.generateHTML("<span class=\"swiper-slide\" style=\"background-image:url("+ item +")\" alt=\""+i+"\"/></span>");
+				            		context.generateHTML("<span class=\"swiper-slide\" style=\"background-image:url("+ item +")\" alt=\""+i+"\" img=\""+item+"\"/></span>");
 				            		HTMLUtil.generateTab(context, depth + 2);
 			            		}
 			            	}
@@ -92,7 +92,8 @@ public class HTMLImageType extends HTMLTextWidgetType
 //			            		}
 //			            	}
 			            } else {
-			            	context.generateHTML("<span class=\"swiper-slide\" style=\"background-image:url(" + imageRoot + path + ")\"/></span>");
+			            	String v = imageRoot + path;
+			            	context.generateHTML("<span class=\"swiper-slide\" style=\"background-image:url(" + v + ")\" img=\""+ v +"\"/></span>");
 			            	HTMLUtil.generateTab(context, depth + 2);
 			            }
 		            }
@@ -216,15 +217,15 @@ public class HTMLImageType extends HTMLTextWidgetType
 				for (File f : files) {
             		if (f.isFile()) {
 	            		String realPath = realImage + "/" +  f.getName();
-	            		sb.append("<div style=\"background-image:url(").append(imageRoot).append(realPath);
+	            		sb.append("<div img=\"").append(imageRoot).append(realImage).append("\" style=\"background-image:url(").append(imageRoot).append(realPath);
 	    				sb.append(");width:").append(width).append("px;height:").append(height).append("px;background-size:contain;\" ></div>");
             		}
             	}
 			} else {
 				if (realImage.startsWith("http") || realImage.startsWith("https")) {
-					sb.append("<div style=\"background-image:url(").append(realImage);
+					sb.append("<div img=\"").append(realImage).append("\" style=\"background-image:url(").append(realImage);
 				} else {
-					sb.append("<div style=\"background-image:url(").append(imageRoot).append(realImage);
+					sb.append("<div img=\"").append(imageRoot).append(realImage).append("\" style=\"background-image:url(").append(imageRoot).append(realImage);
 				}
 				sb.append(");width:").append(width).append("px;height:").append(height).append("px;background-size:contain;\" ></div>");
 			}
@@ -242,7 +243,7 @@ public class HTMLImageType extends HTMLTextWidgetType
             File directory = new File(WebConfig.getResourcePath() + path);
             if (directory.exists()) {
             	String[] list = directory.list();
-				if (list.length > 0) {
+				if (list != null && list.length > 0) {
             		File a = new File(directory, list[0]);
             		if (a.isFile()) {
             		    return imageRoot + "/" +  path + "/" + list[0];

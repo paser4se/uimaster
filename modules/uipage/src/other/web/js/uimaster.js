@@ -974,8 +974,12 @@ UIMaster.registerHandler("fadeOut", function(data,win){
 	   var count=scripts.length;
 	   for (var i=0;i<scripts.length;i++) {
 		  var url = $(scripts[i]).attr("src");
-		  $.ajax({url: url,dataType: "script",async:true, success: function(){
-			  if((--count == 0) && callback){callback();}
+		  $.ajax({url: url,dataType: "script",async:true, 
+		  success: function(){
+			if((--count == 0) && callback){callback();}
+		  }, 
+		  error: function(xhr,state,e){
+			console.error("Exception thrown", e.stack);
 		  }});
 		  scriptCaches_.push(url);
 	   }
@@ -1714,17 +1718,8 @@ function getElementListSingle(obj,ajaxLoad){//div[id!=''],
                 else
                     t[t.length] = e;
             }
-			if(false && IS_MOBILEVIEW && ajaxLoad) {
-				if (e.tagName.toLowerCase() == "input") {
-				   if(e.type.toLowerCase() == "text")
-				      $(e).textinput();
-				} else if(e.tagName.toLowerCase() == "textarea") {
-				   $(e).textinput();
-				} else if(e.tagName.toLowerCase() == "button") {
-				   $(e).button();
-				} else if(e.tagName.toLowerCase() == "select") {
-				   $(e).selectmenu('refresh');
-				} 
+			if(IS_MOBILEVIEW && ajaxLoad) {
+				//do something.
 			}
 		}
     }
