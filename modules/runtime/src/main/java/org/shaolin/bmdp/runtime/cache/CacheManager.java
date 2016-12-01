@@ -48,11 +48,27 @@ public class CacheManager
 		return instance;
 	}
     
+	/**
+	 * 
+	 * @param cacheName
+	 * @param keyType
+	 * @param valueType
+	 * @return
+	 */
     public <K, V> ICache<K, V> getCache(String cacheName, Class<K> keyType, Class<V> valueType)
     {
         return getCache(cacheName, -1, false, keyType, valueType);
     }
 
+    /**
+     * 
+     * @param cacheName
+     * @param maxSize
+     * @param needSynchronize
+     * @param keyType
+     * @param valueType
+     * @return
+     */
 	public <K, V> ICache<K, V> getCache(String cacheName, int maxSize, boolean needSynchronize, 
     		Class<K> keyType, Class<V> valueType)
     {
@@ -192,7 +208,7 @@ public class CacheManager
     	return cacheMap.size();
     }
     
-    public List<CacheInfoImpl> getCacheBes() {
+    public List<CacheInfoImpl> getCaches() {
     	List<CacheInfoImpl> beList = new ArrayList<CacheInfoImpl>();
     	List<String> names = getCacheNames();
     	for (String n : names) {
