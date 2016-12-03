@@ -8,7 +8,7 @@ public class CacheInfoImpl implements ICacheInfo, Serializable
     private static final long serialVersionUID = -180301880240998620L;
 
     private final String name;
-    private final int maxSize;
+    private int maxSize;
     private final boolean needSynchronize;
     private final boolean needStatistics;
     private final int size;
@@ -50,6 +50,11 @@ public class CacheInfoImpl implements ICacheInfo, Serializable
     {
         return maxSize;
     }
+    
+    @Override
+	public void updateMaxSize(int maxSize) {
+		this.maxSize = maxSize;
+	}
     
     public boolean needSynchronize()
     {
@@ -121,4 +126,5 @@ public class CacheInfoImpl implements ICacheInfo, Serializable
 	public boolean isEnabled() {
 		return true;
 	}
+
 }

@@ -7,6 +7,8 @@ public interface ICacheInfo {
 	String getName();
 
 	int getMaxSize();
+	
+	void updateMaxSize(int maxSize);
 
 	int getSize();
 

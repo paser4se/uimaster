@@ -455,6 +455,7 @@ UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 	ckeditor:null,
 	saveBtn:null,
 	height:null,
+	maxHeight:false,
 	init:function() {
 	    if (this.initialized)
 		    return;
@@ -501,6 +502,10 @@ UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 			});
 		}
 		var opts = null;
+		if (this.maxHeight) {
+			this.height = $(document.body).height() - 200;
+			if (this.height <=0) {this.height=$(document.body).height();}
+		}
 		if (this.hiddenToolbar)
 		  opts = {uiColor:'#0078AE', toolbar:[], height: this.height};
 		else 
@@ -1630,19 +1635,19 @@ UIMaster.ui.panel = function(conf){
                     this.parentDiv=this.parentDiv.parentNode.parentNode.parentNode.parentNode.parentNode;
                 parseInitPageJs.apply(this);
 				var o = this;
-				if (IS_MOBILEVIEW && this.id && this.id.lastIndexOf(".actionPanel") != -1) {//workflow action panel.
+				if (this.id && this.id.lastIndexOf(".actionPanel") != -1) {//workflow action panel.
 				   UIMaster.workflowActionPanel = function(){o.buildActionPanel();};//only the outside will be executed.
 				}
             },
 			buildActionPanel:function(){
 				var p = $(this);
-				if(MobileAppMode){$("<div style='height:"+75 +"px;'>a</div>").prependTo(p.parent());}
 				p.children().each(function(){$(this).css("float","left");});
 				p.find("input[type=button]").each(function(){if($(this).attr("disabled") == "true" || $(this).attr("disabled") == "disabled" || $(this).css("display") == "none"){$(this).remove();}});
 				p.find("div[id$=wfactions]").each(function(){$(this).children().each(function(){$(this).css("float","left")});});
-				p.addClass("uimaster_workflow_panel").css("display","block");
-				p.enhanceWithin();
-				//TODO: listen the scroll event and move action panel.
+				p.addClass("uimaster_workflow_panel");
+				//if(MobileAppMode){$("<div style='height:"+75 +"px;'>a</div>").prependTo(p.parent());}
+				//p.enhanceWithin();
+				//TODO: postpone to next release! listen the scroll event and move action panel.
 			},
 			sync:function(){
 				if (this.subComponents.length > 0) {
@@ -1918,14 +1923,20 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 			return;
 		this.initialized = true;
 		var fileUI = this;
-		if ($(fileUI).attr("disabled") == "true" || $(fileUI).attr("disabled") == "disabled") {
-			$(fileUI).parent().css("display", "none");
-			return;
-		}
 		var actionBtns = IS_MOBILEVIEW? $(this).parent().next().next(): this.nextElementSibling.nextElementSibling;
 		var uploadBtn = $(actionBtns).children()[0];
 		var cleanBtn = $(actionBtns).children()[1];
-		var searchBtn = $(actionBtns).children()[2];
+		var searchBtn = $(actionBtns).children()[2]; 
+		if (IS_MOBILEVIEW) {
+			$(uploadBtn).addClass("ui-btn-inline");
+			$(cleanBtn).addClass("ui-btn-inline");
+			$(searchBtn).addClass("ui-btn-inline");	
+		}
+		if ($(fileUI).attr("disabled") == "true" || $(fileUI).attr("disabled") == "disabled") {
+			$(fileUI).parent().css("display", "none");
+			$(actionBtns).css("display", "none");
+			return;
+		}
 		if(this.disableSearch) {$(cleanBtn).css("display","none");$(searchBtn).css("display","none");}
 		var progressbox = IS_MOBILEVIEW? $(actionBtns).next(): this.nextElementSibling.nextElementSibling.nextElementSibling;
 		var messagebox = IS_MOBILEVIEW? $(progressbox).next(): progressbox.nextElementSibling;
@@ -3166,27 +3177,47 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
             		}
             	}
             }
-            this.content.dialog({
-            	title: thisObj.title,
-            	height: IS_MOBILEVIEW?($(window.top).height() - 25):h,
-                width: IS_MOBILEVIEW? "100%":w,
-                modal: true,
-				closeOnEscape: false,
-                show: {effect: IS_MOBILEVIEW?"slide":"blind", duration: 500},
-				hide: {effect: IS_MOBILEVIEW?"slide":"blind", duration: 500},
-				open: function(event, ui) {
-				    $(".ui-dialog-titlebar-close", ui.dialog | ui).hide();
-					if(IS_MOBILEVIEW){//fix mobile css style bug in mobile view.
-					    var pDiv = $(this).parent().parent();
-						pDiv.appendTo($("form:first"));
+			if (IS_MOBILEVIEW) {
+				var dopts = {
+					title: thisObj.title,
+					height: ($(window.top).height() - 25),
+					width: "100%",
+					modal: true,
+					closeOnEscape: false,
+					//issue: JQuery dialog with effect has too many impact to Mobile style!
+					//show: {effect: "slide", duration: 500}, 
+					//hide: {effect: "slide", duration: 500},
+					open: function(event, ui) {
+						$(".ui-dialog-titlebar-close", ui.dialog | ui).hide();
+						//fix mobile css style bug in mobile view.
+						var pDiv = $(this).parent();//.parent(); if effect enabled.
+						pDiv.appendTo($("form:first")).enhanceWithin();//mobile style applied.
 						$(pDiv).prev().css("display", "none");//hide parent content for good css feel.
-					}
-				},
-                beforeClose: function() {
-					$(this).parent().prev().css("display", "block");//show parent content.
-				},
-                buttons: buttonset
-            });
+					},
+					beforeClose: function() {
+						$(this).parent().prev().css("display", "block");//show parent content.
+					},
+					buttons: buttonset
+				}
+				this.content.dialog(dopts);
+			} else {
+				var dopts = {
+					title: thisObj.title,
+					height: h,
+					width: w,
+					modal: true,
+					closeOnEscape: false,
+					show: {effect: "blind", duration: 500},
+					hide: {effect: "blind", duration: 500},
+					open: function(event, ui) {
+						$(".ui-dialog-titlebar-close", ui.dialog | ui).hide();
+					},
+					beforeClose: function() {
+					},
+					buttons: buttonset
+				}
+				this.content.dialog(dopts);
+			}
 			
             $($("#"+this.id).children().get(0)).attr("_framePrefix",this.frameInfo);
 			if (this.js) {
@@ -3195,7 +3226,6 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
 				defaultname.addComponent(win.eval(D+this.uiid),true);
 			}
             UIMaster.ui.window.addWindow(this.id,this);
-			window.setTimeout(function(){$(thisObj.content).enhanceWithin();}, 800);//mobile style applied.
 			
             this.isOpen = true;
 			var p = this.content.find("div[id$='actionPanel']");
@@ -3488,6 +3518,7 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 	titleContainer:null,
 	bodyContainer:null,
 	vertical:false,
+	closeOthersByDefault:true,
     init:function(){
 	    if (this.isInitialized) return;
 		this.isInitialized=true;
@@ -3523,16 +3554,19 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 			   var wrap = $("<div class='tab-titles ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all'></div>");
 			   $(othis.titleContainer.children()[0]).appendTo(wrap);
 			   wrap.prependTo($(this));
-			   var collpaseAction = $("<div>\u6536\u8D77</div>"); collpaseAction.appendTo(wrap);
+			   var collpaseAction = $("<div class='collpaseAction'>\u6536\u8D77</div>"); collpaseAction.appendTo(wrap);
 			   collpaseAction.bind("click", function(){
 				   var body = $(this).parent().next();
 				   if(body.css("display")=="block") {
-					   body.css("display", "none");$(this).text("\u653E\u5F00");
+					   body.css("display", "none");$(this).text("\u5C55\u5F00");
 				   } else {
 					   body.css("display", "block");$(this).text("\u6536\u8D77");
 				   }
 			   });
 			   $(this).css("display", "block");
+			   if (i > 0 && othis.closeOthersByDefault) {
+				   $(this).find(".collpaseAction").click();
+			   }
 			}
 		});
 		
