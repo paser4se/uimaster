@@ -119,22 +119,26 @@ io.on('connection', function(socket){
 		     return;
 		  }
 		  
-		  pool.query('SELECT * FROM WF_CHATHISTORY WHERE SESSIONID=? and SENTPARTYID=? and RECEIVEDPARTYID=? ORDER BY createdate ASC', [obj.sessionId, obj.fromPartyId, obj.toPartyId], function(err, results, fields) {
-				if (err) {
-					if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-					  connectDB()
-					} else {
-					  console.error(err.stack || err);
+		  pool.getConnection(function(err, connection) {
+			  connection.query('SELECT * FROM WF_CHATHISTORY WHERE SESSIONID=? and SENTPARTYID=? and RECEIVEDPARTYID=? ORDER BY createdate ASC', [obj.sessionId, obj.fromPartyId, obj.toPartyId], function(err, results, fields) {
+					connection.release();
+					if (err) {
+						if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+						  connectDB()
+						} else {
+						  console.error(err.stack || err);
+						}
 					}
-				}
-				if (DEBUG) {
-				  console.log(results);
-				}
-				//for(var i=0;i<results.length; i++) { 
-					//var row = results[i]; 
-				//} 
-			    socket.emit('history', results); 
+					if (DEBUG) {
+					  console.log(results);
+					}
+					//for(var i=0;i<results.length; i++) { 
+						//var row = results[i]; 
+					//} 
+				    socket.emit('history', results); 
+			   });
 		   });
+		   
         } catch(e){
            console.error("query history error: " + e.stack || e);
         }
@@ -146,19 +150,23 @@ io.on('connection', function(socket){
 		   return;
 		}
 	    try {
-		  pool.query('SELECT * FROM wf_notification WHERE partyid=? ORDER BY createdate ASC', [parseInt(obj.partyId)], function(err, results, fields) {
-				if (err) {
-					if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-					  connectDB()
-					} else {
-					  console.error(err.stack || err);
+	      pool.getConnection(function(err, connection) {
+			  connection.query('SELECT * FROM wf_notification WHERE partyid=? ORDER BY createdate ASC', [parseInt(obj.partyId)], function(err, results, fields) {
+					connection.release();
+					if (err) {
+						if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+						  connectDB()
+						} else {
+						  console.error(err.stack || err);
+						}
 					}
-				}
-				if (DEBUG) {
-				  console.log(results);
-				}
-			    socket.emit('nofityFrom', results); 
-		   });
+					if (DEBUG) {
+					  console.log(results);
+					}
+				    socket.emit('nofityFrom', results); 
+			   });
+		  });
+		   
         } catch(e){
            console.error("query history error: " + e.stack || e);
         }
@@ -177,44 +185,55 @@ io.on('connection', function(socket){
 			   // leave a word.
 	           var desc = "<div><span>"+obj.content+"</span><button onclick=\"javascript:defaultname.showHelp(defaultname.helpIcon,'"+obj.fromPartyId+"','"+obj.sessionId+"');\">\u9A6C\u4E0A\u8054\u7CFB</button></div>";
 	           var msg = {"subject": "\u60A8\u6709\u65B0\u7684\u6D88\u606F!", "description": desc, "partyId": obj.toPartyId, "sessionid": obj.sessionId};
-	           pool.query('INSERT INTO WF_NOTIFICATION SET ?', msg, function(err, result) {
-				if (err) {
-					if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-					  connectDB()
+	           pool.getConnection(function(err, connection) {
+		           connection.query('INSERT INTO WF_NOTIFICATION SET ?', msg, function(err, result) {
+		            connection.release();
+					if (err) {
+						if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+						  connectDB()
+						} else {
+						  console.error(err.stack || err);
+						}
 					} else {
-					  console.error(err.stack || err);
+						if (DEBUG) {
+						  console.log("WF_NOTIFICATION inserted: " + result);
+						}
 					}
-				} else {
-					if (DEBUG) {
-					  console.log("WF_NOTIFICATION inserted: " + result);
-					}
-				}
+				   });
 			   });
+			   
 	           var msg = {"taskid":obj.taskId, "sentpartyid":obj.fromPartyId, "receivedpartyid":obj.toPartyId,
 						"message":obj.content, "sessionid": obj.sessionId};
-			   pool.query('INSERT INTO WF_CHATHISTORY SET ?', msg, function(err, result) {
-			      if (err) {
-		            console.error(err.stack || err);
-		          } else {
-					  if (DEBUG) {
-						console.log("WF_CHATHISTORY inserted: " + result);
+			   pool.getConnection(function(err, connection) {
+				   connection.query('INSERT INTO WF_CHATHISTORY SET ?', msg, function(err, result) {
+				      connection.release();
+				      if (err) {
+			            console.error(err.stack || err);
+			          } else {
+						  if (DEBUG) {
+							console.log("WF_CHATHISTORY inserted: " + result);
+						  }
 					  }
-				  }
+				   });
 			   });
+			   
 			   socket.emit('user_offline', obj); 
 			   return;
 			}
 			var msg = {"taskid":obj.taskId, "sentpartyid":obj.fromPartyId, "receivedpartyid":obj.toPartyId,
 						"message":obj.content, "sessionid": obj.sessionId};
-		    pool.query('INSERT INTO WF_CHATHISTORY SET ?', msg, function(err, result) {
-		       if (err) {
-		          console.error(err.stack || err);
-		       } else {
-				   if (DEBUG) {
-					  console.log("WF_CHATHISTORY inserted: " + result);
+			pool.getConnection(function(err, connection) {
+			    connection.query('INSERT INTO WF_CHATHISTORY SET ?', msg, function(err, result) {
+		           connection.release();
+			       if (err) {
+			          console.error(err.stack || err);
+			       } else {
+					   if (DEBUG) {
+						  console.log("WF_CHATHISTORY inserted: " + result);
+					   }
 				   }
-			   }
-		    });
+			    });
+			});
 			
 		    onlineUsers[obj.fromPartyId].socket.emit('chatTo', obj); 
 		    if (obj.fromPartyId != obj.toPartyId) {
@@ -234,19 +253,20 @@ io.on('connection', function(socket){
 		   return;
 		}
 		try {
-			pool.query('INSERT INTO WF_comment SET (?,?,?)', {A: 'test', B: 'test', }, function(err, result) {
-			  // connected! (unless `err` is set)
-				if (err) {
-					if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-					  connectDB()
-					} else {
-					  console.error(err.stack || err);
+		    pool.getConnection(function(err, connection) {
+				connection.query('INSERT INTO WF_comment SET (?,?,?)', {A: 'test', B: 'test', }, function(err, result) {
+					connection.release();
+					if (err) {
+						if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+						  connectDB()
+						} else {
+						  console.error(err.stack || err);
+						}
 					}
-				}
-				//todo:
-				if (DEBUG) {
-				  console.log(result);
-				}
+					if (DEBUG) {
+					  console.log(result);
+					}
+				});
 			});
         } catch(e){
             console.error("comment error: " + e.stack || e);
@@ -258,17 +278,19 @@ io.on('connection', function(socket){
 		   return;
 		}
 		try {
-			pool.query('UPDATE FROM WF_comment SET (?,?,?)', {A: 'test', B: 'test', }, function(err, result) {
-			  // connected! (unless `err` is set)
-				if (err) {
-					if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-					  connectDB()
-					} else {
-					  console.error(err.stack || err);
+		    pool.getConnection(function(err, connection) {
+				connection.query('UPDATE FROM WF_comment SET (?,?,?)', {A: 'test', B: 'test', }, function(err, result) {
+				    connection.release();
+					if (err) {
+						if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+						  connectDB()
+						} else {
+						  console.error(err.stack || err);
+						}
 					}
-				}
-				//todo:
-				console.log(result);
+					//todo:
+					console.log(result);
+				});
 			});
         } catch(e){
             console.error("hit_comment error: " + e.stack || e);

@@ -1,5 +1,6 @@
 package org.shaolin.bmdp.persistence.hbm;
 
+import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -45,6 +46,16 @@ public class SQLCETypeDescriptor implements SqlTypeDescriptor {
 			protected X doExtract(ResultSet rs, String name,
 					WrapperOptions options) throws SQLException {
 				return javaTypeDescriptor.wrap(rs.getInt(name), options);
+			}
+
+			@Override
+			protected X doExtract(CallableStatement arg0, int arg1, WrapperOptions arg2) throws SQLException {
+				return javaTypeDescriptor.wrap(arg0.getInt(arg1), arg2);
+			}
+
+			@Override
+			protected X doExtract(CallableStatement arg0, String arg1, WrapperOptions arg2) throws SQLException {
+				return javaTypeDescriptor.wrap(arg0.getInt(arg1), arg2);
 			}
 		};
 	}
