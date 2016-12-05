@@ -111,7 +111,14 @@ public class HTMLLabelType extends HTMLTextWidgetType
             if (htmlValue != null) {
             	context.generateHTML(htmlValue);
             } else {
-            	context.generateHTML(HTMLUtil.htmlEncode(getDisplayValue()));
+            	String text = getDisplayValue();
+            	if (this.getAttribute("showMaxLength") != null) {
+            		int mlength = Integer.parseInt(this.getAttribute("showMaxLength").toString());
+            		if (text.length() > mlength) {
+            			text = text.substring(0, mlength - 1) + "...";
+            		} 
+            	}
+            	context.generateHTML(HTMLUtil.htmlEncode(text));
             }
             context.generateHTML("<input type=hidden name=\"");
             context.generateHTML(getName());
