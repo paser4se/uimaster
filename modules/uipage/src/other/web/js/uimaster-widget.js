@@ -3180,7 +3180,7 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
 			if (IS_MOBILEVIEW) {
 				var dopts = {
 					title: thisObj.title,
-					height: ($(window.top).height() - 25),
+					height: ($(window.top).height()),
 					width: "100%",
 					modal: true,
 					closeOnEscape: false,
@@ -3272,6 +3272,7 @@ UIMaster.apply(UIMaster.ui.window,{
 function iframeAutoFitHeight(parent, iframe) {
 	iframe.height = $("#"+parent).height() + "px"; 
 }
+/**DON'T recommand this since many issues occurred! Please refresh your "page to page" instead.*/
 function showMobileFrame(link, name) {
    if (link == "#") return;
    var frameId = link.substring(link.indexOf("_framename=") + "_framename=".length);
@@ -3305,7 +3306,7 @@ function showMobileFrame(link, name) {
 		    fc.attr("src","about:blank");
 		},
 		close: function() {//no need app ajax support.
-		  $.ajax({url:AJAX_SERVICE_URL,async:true,data:{_ajaxUserEvent:"tabpane",_uiid:"Form",_valueName:"remveTabId",_value:frameId,    _framePrefix:UIMaster.getFramePrefix()}});
+		  $.ajax({url:AJAX_SERVICE_URL,async:true,data:{_ajaxUserEvent:"tabpane",_uiid:"Form",_valueName:"removePage",_value:frameId,    _framePrefix:UIMaster.getFramePrefix()}});
 		}
 		//buttons: [{text:"\u5173\u95ED", open:function(){$(this).addClass('uimaster_button');}, click:function(){d.dialog("close");}}]
 		});

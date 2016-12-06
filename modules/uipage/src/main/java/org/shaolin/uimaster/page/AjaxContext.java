@@ -81,6 +81,8 @@ public class AjaxContext extends OpExecuteContext implements Serializable
 
     public static final String GLOBAL_PAGE = "#GLOBAL#";
     
+    public static final String ALL_CACHED_PAGES = "_allpages";
+    
     /**
      * request action data set.
      */
@@ -653,6 +655,7 @@ public class AjaxContext extends OpExecuteContext implements Serializable
     	logger.info("Close the frame page: " + frameId);
     	Map ajaxComponentMap = AjaxActionHelper.getAjaxWidgetMap(request.getSession());
     	ajaxComponentMap.remove(frameId);
+    	AjaxActionHelper.removeCachedPage(request.getSession(), frameId);
     }
     
     public RefForm removeForm(String uiid) {

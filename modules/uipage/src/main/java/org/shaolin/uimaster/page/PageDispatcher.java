@@ -492,10 +492,12 @@ public class PageDispatcher {
                 session.setAttribute(AjaxContext.AJAX_COMP_MAP, ajaxWidgetMap);
                 if (superPrefix == null)
                 {
+                	AjaxActionHelper.addCachePage(session, AjaxContext.GLOBAL_PAGE);
                     ajaxWidgetMap.put(AjaxContext.GLOBAL_PAGE, pageComponentMap);
                 }
                 else
                 {
+                	AjaxActionHelper.addCachePage(session, superPrefix);
                     ajaxWidgetMap.put(superPrefix, pageComponentMap);
                 }
                 context.setAjaxWidgetMap(pageComponentMap);
@@ -512,16 +514,20 @@ public class PageDispatcher {
                     if(logger.isDebugEnabled())
                         logger.debug("Remove all components in cache of ui map.");
                     ajaxWidgetMap.clear();
-                    ajaxWidgetMap.put("#GLOBAL#", pageComponentMap);
+                    
+                    ajaxWidgetMap.put(AjaxContext.GLOBAL_PAGE, pageComponentMap);
                     context.setAjaxWidgetMap(pageComponentMap);
+                    AjaxActionHelper.removeAllCachedPages(session);
+                    AjaxActionHelper.addCachePage(session, AjaxContext.GLOBAL_PAGE);
                 }
                 else
                 {
+                	AjaxActionHelper.addCachePage(session, frameTarget);
                 	ajaxWidgetMap.put(frameTarget, pageComponentMap);
                 	context.setAjaxWidgetMap(pageComponentMap);
                 }
             }
-
+            
             if (superPrefix != null)
             {
                 context.getRequest().setAttribute("_framePagePrefix", superPrefix);

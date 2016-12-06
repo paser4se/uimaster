@@ -15,13 +15,14 @@
 */
 package org.shaolin.uimaster.page;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.ajax.json.DataItem;
@@ -83,6 +84,42 @@ public class AjaxActionHelper {
 		}
         return context;
 	}
+	
+	public static List<String> getAllCachedPages(HttpSession session) {
+		return (List<String>)session.getAttribute(AjaxContext.ALL_CACHED_PAGES);
+	}
+	
+	public static void addCachePage(HttpSession session, String name) {
+		if (session.getAttribute(AjaxContext.ALL_CACHED_PAGES) == null) {
+			ArrayList<String> list = new ArrayList<String>();
+			list.add(name);
+			session.setAttribute(AjaxContext.ALL_CACHED_PAGES, list);
+		} else {
+			List<String> list = getAllCachedPages(session);
+			if (!list.contains(name)) {
+				list.add(name);
+			}
+		}
+	}
+	
+	public static void removeAllCachedPages(HttpSession session) {
+		session.removeAttribute(AjaxContext.ALL_CACHED_PAGES);
+	}
+	
+	public static void removeCachedPage(HttpSession session, String name) {
+		List<String> list = getAllCachedPages(session);
+		if (list != null) {
+			list.remove(name);
+		}
+	}
+	
+	public static void removeAllExcludedPages(HttpSession session, String name) {
+		List<String> list = getAllCachedPages(session);
+		if (list != null) {
+			list.remove(name);
+		}
+	}
+	
 	
 	/**
 	 * get frame map which is decide to the '_framePrefix' parameter.

@@ -15,6 +15,9 @@
 */
 package org.shaolin.uimaster.page.ajax.handlers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
@@ -37,8 +40,24 @@ public class TabPaneEventHandler implements IAjaxHandler {
 			String propertyName = context.getRequest().getParameter(
 					"_valueName");
 			String index = context.getRequest().getParameter("_value");
-			if ("remveTabId".equals(propertyName)) {
+			if ("removePage".equals(propertyName)) {
 				AjaxActionHelper.getAjaxContext().removeFramePage(index);
+				return "";
+			} else if ("removeExcludedPage".equals(propertyName)) {
+				boolean isRoot = index.equals(AjaxContext.GLOBAL_PAGE);
+				List<String> list = AjaxActionHelper.getAllCachedPages(context.getRequest().getSession());
+				if (list == null) {
+					return "";
+				}
+				list = new ArrayList<String>(list);
+				for (String page: list) {
+					if (!isRoot && page.equals(AjaxContext.GLOBAL_PAGE)) {
+						continue;
+					}
+					if (!page.equals(index)) {
+						AjaxActionHelper.getAjaxContext().removeFramePage(page);
+					}
+				}
 				return "";
 			} 
 			

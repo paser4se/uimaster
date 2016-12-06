@@ -87,7 +87,7 @@ public class SessionObjectServlet extends HttpServlet {
 			sb.append("</ul>");
 		} else {
 			sb.append("<li>");
-			sb.append(attrName).append("(").append(obj.getClass().getCanonicalName()).append("): ");
+			sb.append(attrName).append("(").append((obj != null)? obj.getClass().getCanonicalName(): null).append("): ");
 			sb.append(obj);
 			sb.append("</li>");
 		}
