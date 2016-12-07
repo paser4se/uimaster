@@ -163,6 +163,10 @@ public class PageDispatcher {
             } else {
             	htmlComponent = context.getHtmlWidget(uiEntity.getBodyName());
             }
+            if (UserContext.isMobileRequest()) {
+            	//propMap.put("data-role", "page");//jquery mobile page supported.
+            }
+            
             htmlComponent.addAttribute(propMap);
             htmlComponent.addAttribute(tempMap);
             htmlComponent.addEventListener(eventMap);
@@ -318,6 +322,15 @@ public class PageDispatcher {
             context.generateHTML("</title>\n");
             context.generateHTML("<link rel=\"shortcut icon\" href=\"favicon.ico\" type=\"image/x-icon\" />\n");
             context.generateHTML("<link rel=\"apple-touch-icon\" href=\"favicon.ico\">\n");
+            context.generateHTML("<!--[if lt ie 9]>");
+            context.generateHTML("<script src=\"");
+            if (UserContext.isMobileRequest() && UserContext.isAppClient()) {
+            	context.generateHTML(WebConfig.getAppResourceContextRoot());
+            } else {
+            	context.generateHTML(WebConfig.getResourceContextRoot());
+            }
+            context.generateHTML("/js/html5support.js\"></script>\n");
+        	context.generateHTML("<![endif]-->\n");
             context.generateHTML("<script type=\"text/javascript\">\nvar defaultname;\nvar USER_CONSTRAINT_IMG=\"");
             context.generateHTML((String)constraintStyleMap.get("constraintSymbol"));
             context.generateHTML("\";\nvar USER_CONSTRAINT_LEFT=");

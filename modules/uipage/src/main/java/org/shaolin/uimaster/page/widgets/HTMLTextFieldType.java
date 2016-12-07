@@ -90,7 +90,14 @@ public class HTMLTextFieldType extends HTMLTextWidgetType
                 addAttribute("allowBlank", "true");
                 addAttribute("readOnly", "true");
             }
-            context.generateHTML("<input type=\"text\" name=\"");
+            
+            if (this.getAttribute("isNumber") != null) {
+            	context.generateHTML("<input type=\"number\" name=\"");
+            } else if (this.getAttribute("isEmail") != null) {
+            	context.generateHTML("<input type=\"email\" name=\"");
+            } else {
+            	context.generateHTML("<input type=\"text\" name=\"");
+            }
             context.generateHTML(getName());
             context.generateHTML("\"");
             generateAttributes(context);

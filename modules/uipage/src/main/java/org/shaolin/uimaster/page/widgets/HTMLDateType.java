@@ -17,10 +17,8 @@ package org.shaolin.uimaster.page.widgets;
 
 import java.io.IOException;
 
-import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
-import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Calendar;
 import org.shaolin.uimaster.page.ajax.Layout;
 import org.shaolin.uimaster.page.ajax.Widget;
@@ -91,7 +89,13 @@ public class HTMLDateType extends HTMLTextWidgetType
 				addAttribute("allowBlank", "true");
 				addAttribute("readOnly", "true");
 			}
-            context.generateHTML("<input type=\"text\" name=\"");
+			if (isReadOnly || !isEditable()) {
+				context.generateHTML("<input type=\"input\" name=\"");
+			} else if (this.getAttribute("isDataOnly") != null && "true".equals(this.getAttribute("isDataOnly").toString())) {
+				context.generateHTML("<input type=\"date\" name=\"");
+			} else {
+				context.generateHTML("<input type=\"datetime-local\" name=\"");
+			}
             context.generateHTML(getName());
             context.generateHTML("\"");
             generateAttributes(context);
@@ -100,6 +104,7 @@ public class HTMLDateType extends HTMLTextWidgetType
             context.generateHTML(HTMLUtil.formatHtmlValue(getValue()));
             context.generateHTML("\" />");
             
+            /** use html5 instead.
             if (!isReadOnly && isEditable()) {
 	            String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
 	        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
@@ -115,6 +120,7 @@ public class HTMLDateType extends HTMLTextWidgetType
 					context.generateHTML(".open();'/>");
 	            }
             }
+            */
         }
         catch (Exception e)
         {

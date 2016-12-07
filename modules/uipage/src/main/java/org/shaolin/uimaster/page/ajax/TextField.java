@@ -157,7 +157,13 @@ public class TextField extends TextWidget implements java.io.Serializable
     }
     private void generateContent(StringBuilder sb)
     {
-        sb.append("<input type=\"text\" name=\"");
+    	if (this.getAttribute("isNumber") != null) {
+        	sb.append("<input type=\"number\" name=\"");
+        } else if (this.getAttribute("isEmail") != null) {
+        	sb.append("<input type=\"email\" name=\"");
+        } else {
+        	sb.append("<input type=\"text\" name=\"");
+        }
         sb.append(getId());
         sb.append("\" class=\"");
         if (isReadOnly())
