@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 
@@ -85,8 +86,8 @@ public class AList extends MultiChoice implements Serializable
 
     public String generateHTML()
     {
-    	StringBuilder html = new StringBuilder();
-
+    	StringBuilder html = DisposableBfString.getBuffer();
+    	try {
         generateWidget(html);
         html.append("<select name=\"");
         html.append(getId());
@@ -145,6 +146,9 @@ public class AList extends MultiChoice implements Serializable
         html.append("</select>");
 
         return html.toString();
+    	} finally {
+    		DisposableBfString.release(html);
+    	}
     }
 
 }

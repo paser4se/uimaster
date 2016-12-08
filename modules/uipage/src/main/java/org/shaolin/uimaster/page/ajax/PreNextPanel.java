@@ -28,6 +28,7 @@ import org.shaolin.bmdp.datamodel.page.UITabPaneItemType;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.slf4j.Logger;
@@ -122,32 +123,36 @@ public class PreNextPanel extends Container implements Serializable
     
     public String generateHTML()
     {
-    	StringBuilder html = new StringBuilder();
-        generateWidget(html);
-
-        //Generate the tab
-        html.append("<div id=\"");
-        html.append(uiid);
-        html.append("\" class=\"tab\">");
-        html.append("<div class=\"uimaster_tabPane\">");
-        
-        //Generate the titles' container
-        html.append("<div class =\"tab-titles\" id=\"titles-container-");
-        html.append(uiid);
-        html.append("\" selectedIndex=\"");
-        html.append(getSelectedIndex());
-        html.append("\">");
-        html.append("</div>");
-        
-        //Generate the bodies of the tabpane
-        html.append("<div class=\"tab-bodies\" id=\"bodies-container-");
-        html.append(uiid);
-        html.append("\">");
-        html.append("</div>");
-        
-        html.append("</div>");
-        html.append("</div>");
-        return html.toString();
+    	StringBuilder html = DisposableBfString.getBuffer();
+    	try {
+	        generateWidget(html);
+	
+	        //Generate the tab
+	        html.append("<div id=\"");
+	        html.append(uiid);
+	        html.append("\" class=\"tab\">");
+	        html.append("<div class=\"uimaster_tabPane\">");
+	        
+	        //Generate the titles' container
+	        html.append("<div class =\"tab-titles\" id=\"titles-container-");
+	        html.append(uiid);
+	        html.append("\" selectedIndex=\"");
+	        html.append(getSelectedIndex());
+	        html.append("\">");
+	        html.append("</div>");
+	        
+	        //Generate the bodies of the tabpane
+	        html.append("<div class=\"tab-bodies\" id=\"bodies-container-");
+	        html.append(uiid);
+	        html.append("\">");
+	        html.append("</div>");
+	        
+	        html.append("</div>");
+	        html.append("</div>");
+	        return html.toString();
+    	} finally {
+			DisposableBfString.release(html);
+		}
     }
     public String generateJS()
     {

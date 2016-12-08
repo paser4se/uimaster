@@ -18,6 +18,7 @@ package org.shaolin.uimaster.page.ajax;
 import java.io.Serializable;
 
 import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 
@@ -84,27 +85,30 @@ public class Button extends TextWidget implements Serializable
     
     public String generateHTML()
     {
-    	StringBuilder html = new StringBuilder();
-        
-        generateWidget(html);
-        html.append("<input type=\"");
-        html.append(buttonType);
-        html.append("\" name=\"");
-        html.append(getId());
-        html.append("\"");
-        generateAttributes(html);
-        generateEventListeners(html);
-        html.append(" value=\"");
-        String value = HTMLUtil.formatHtmlValue(getValue());
-        html.append(this.isValueMask() ? WebConfig.getHiddenValueMask() : value);
-        html.append("\"");
-        if ( isReadOnly() )
-        {
-            html.append(" disabled=\"true\"");
-        }
-        html.append(" />");
-        
-        return html.toString();
+    	StringBuilder html = DisposableBfString.getBuffer();
+        try {
+	        generateWidget(html);
+	        html.append("<input type=\"");
+	        html.append(buttonType);
+	        html.append("\" name=\"");
+	        html.append(getId());
+	        html.append("\"");
+	        generateAttributes(html);
+	        generateEventListeners(html);
+	        html.append(" value=\"");
+	        String value = HTMLUtil.formatHtmlValue(getValue());
+	        html.append(this.isValueMask() ? WebConfig.getHiddenValueMask() : value);
+	        html.append("\"");
+	        if ( isReadOnly() )
+	        {
+	            html.append(" disabled=\"true\"");
+	        }
+	        html.append(" />");
+	        
+	        return html.toString();
+	    } finally {
+			DisposableBfString.release(html);
+		}
     }
 
 }

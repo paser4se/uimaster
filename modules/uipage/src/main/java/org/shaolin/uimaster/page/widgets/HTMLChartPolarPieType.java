@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.shaolin.bmdp.datamodel.page.UITableColumnType;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 
@@ -47,25 +48,30 @@ public class HTMLChartPolarPieType extends HTMLChartSuper {
 		}
 		Map<String, Integer> listData = (Map<String, Integer>)this.removeAttribute("query");
 		if (listData != null && !listData.isEmpty()) {
-			StringBuilder sb = new StringBuilder("datasets: [{ data: [");
-			Set<String> keys = listData.keySet();
-			for (String key : keys) {
-				sb.append(listData.get(key)).append(",");
-			}
-			sb.deleteCharAt(sb.length()-1);
-			sb.append("], backgroundColor: [");
-			for (String key : keys) {
-				String css = cssStyles.get(key);
-				if (css != null) {
-					sb.append(css).append(",");
-				} else {
-					//get default
-					sb.append(cssStyles.get(0)).append(",");
+			StringBuilder sb = DisposableBfString.getBuffer();
+			try {
+				sb.append("datasets: [{ data: [");
+				Set<String> keys = listData.keySet();
+				for (String key : keys) {
+					sb.append(listData.get(key)).append(",");
 				}
+				sb.deleteCharAt(sb.length()-1);
+				sb.append("], backgroundColor: [");
+				for (String key : keys) {
+					String css = cssStyles.get(key);
+					if (css != null) {
+						sb.append(css).append(",");
+					} else {
+						//get default
+						sb.append(cssStyles.get(0)).append(",");
+					}
+				}
+				sb.deleteCharAt(sb.length()-1);
+				sb.append("]}]");
+				context.generateHTML(sb.toString());
+			} finally {
+				DisposableBfString.release(sb);
 			}
-			sb.deleteCharAt(sb.length()-1);
-			sb.append("]}]");
-			context.generateHTML(sb.toString());
 		}
 	}
 

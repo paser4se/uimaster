@@ -16,6 +16,7 @@
 package org.shaolin.uimaster.page.ajax;
 
 import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 
@@ -98,25 +99,29 @@ public class TextField extends TextWidget implements java.io.Serializable
 
     public String generateHTML()
     {
-    	StringBuilder html = new StringBuilder();
-        generateWidget(html);
-        String currencySymbol = getCurrencySymbol();
-        if (currencySymbol == null || currencySymbol.equals(""))
-        {
-            generateContent(html);
-        }
-        else if (isSymbolLeft())
-        {
-            generateCurrencySymbol(html);
-            generateContent(html);
-        }
-        else
-        {
-            generateContent(html);
-            generateCurrencySymbol(html);
-        }
-
-        return html.toString();
+    	StringBuilder html = DisposableBfString.getBuffer();
+    	try {
+	        generateWidget(html);
+	        String currencySymbol = getCurrencySymbol();
+	        if (currencySymbol == null || currencySymbol.equals(""))
+	        {
+	            generateContent(html);
+	        }
+	        else if (isSymbolLeft())
+	        {
+	            generateCurrencySymbol(html);
+	            generateContent(html);
+	        }
+	        else
+	        {
+	            generateContent(html);
+	            generateCurrencySymbol(html);
+	        }
+	
+	        return html.toString();
+    	} finally {
+			DisposableBfString.release(html);
+		}
     }
 
     protected void generateAttribute(String name, Object value, StringBuilder sb)

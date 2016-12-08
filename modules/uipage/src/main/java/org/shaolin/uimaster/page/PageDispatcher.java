@@ -311,11 +311,13 @@ public class PageDispatcher {
             context.generateHTML("<!DOCTYPE html>\n");
             context.generateHTML("<html>\n<head>\n<title>");
             UIFormObject uiForm = pageObject.getUIForm();
+            String title = uiForm.getDescription();
 			if (uiForm.getDescriptionExpr() != null) {
-            	Object title = uiForm.getDescriptionExpr().evaluate(evaContext);
-				context.generateHTML(title != null ? title.toString() : "");
+            	Object t1 = uiForm.getDescriptionExpr().evaluate(evaContext);
+            	title = (t1 != null ? title.toString() : "");
+				context.generateHTML(title);
             } else {
-				context.generateHTML(uiForm.getDescription());
+				context.generateHTML(title);
             }
             //is the title need i18n? -- the name should not be i18n, but the <title> should be i18n
             //currently all uipages are embedded in frame, so the title can't be seen by user
@@ -433,7 +435,7 @@ public class PageDispatcher {
                 context.generateHTML("</script>\n</head>\n");
                 context.generateHTML("<body");
                 if (UserContext.isMobileRequest()) {
-                	context.generateHTML(">\n");
+                	context.generateHTML(" data-role=\"page\">\n");
                 } else {
                 	context.generateHTML(" onload=\"checkUIMasterReady0()\" onunload=\"finalizePage()\">\n");
                 }
@@ -481,6 +483,10 @@ public class PageDispatcher {
 			} else {
 				context.generateHTML("false\"/>\n");
 			}
+			
+//			if (UserContext.isMobileRequest() && !UserContext.isAppClient()) {
+//				context.generateHTML("<div data-role=\"header\"><a href=\"UIMaster.goBack();\" data-role=\"button\" data-rel=\"back\" class=\"ui-btn ui-icon-back ui-btn-icon-left ui-btn-icon-top\">\u8FD4\u56DE</a>"+title+"</div>");
+//			}
 
 			// ajax handler.
             HttpSession session = context.getRequest().getSession();
@@ -721,16 +727,20 @@ public class PageDispatcher {
 
     private String genLoaderMask()
     {
-    	StringBuilder maskHtml = new StringBuilder();
-        maskHtml.append("<div id=\"ui-mask-shadow\" class=\"ui-overlay\" style=\"display:block;\">\n");
-        maskHtml.append("<div class=\"ui-widget-overlay\"></div>\n");
-        maskHtml.append("<div id=\"uimaster_mask_content\" class=\"outer\">\n");
-        maskHtml.append("<div class=\"inner\"><p class=\"ui-info-msg\"><span></span>");
-        maskHtml.append("\u62FC\u6B7B\u73A9\u547D\u52A0\u8F7D\u4E2D\u3002\u3002\u3002</p></div>\n");
-        maskHtml.append("</div>\n");
-        maskHtml.append("</div>\n");
-        
-        return maskHtml.toString();
+    	StringBuilder sb = DisposableBfString.getBuffer();
+    	try {
+	    	sb.append("<div id=\"ui-mask-shadow\" class=\"ui-overlay\" style=\"display:block;\">\n");
+	    	sb.append("<div class=\"ui-widget-overlay\"></div>\n");
+	    	sb.append("<div id=\"uimaster_mask_content\" class=\"outer\">\n");
+	    	sb.append("<div class=\"inner\"><p class=\"ui-info-msg\"><span></span>");
+	    	sb.append("\u62FC\u6B7B\u73A9\u547D\u52A0\u8F7D\u4E2D\u3002\u3002\u3002</p></div>\n");
+	    	sb.append("</div>\n");
+	    	sb.append("</div>\n");
+	        
+	        return sb.toString();
+    	} finally {
+    		DisposableBfString.release(sb);
+    	}
     }
 
     public void setReconfigurablePropertyValue(HTMLSnapshotContext context, Map tempMap)

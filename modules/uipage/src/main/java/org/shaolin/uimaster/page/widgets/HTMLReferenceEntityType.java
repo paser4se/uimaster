@@ -342,16 +342,10 @@ public class HTMLReferenceEntityType extends HTMLWidgetType implements Serializa
     
     public String getDIVPrefix()
     {
-    	StringBuilder prefixBuffer = new StringBuilder();
-        if (divPrefix != null && divPrefix.length() > 0)
-        {
-            prefixBuffer.append(divPrefix);
+        if (divPrefix != null && divPrefix.length() > 0) {
+            return divPrefix + getId();
         }
-
-        String id = getId();
-        prefixBuffer.append(id);
-
-        return new String(prefixBuffer);
+        return getId();
     }
     
     public Widget createAjaxWidget(VariableEvaluator ee)

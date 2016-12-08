@@ -18,6 +18,7 @@ package org.shaolin.uimaster.page.ajax;
 import java.io.Serializable;
 
 import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 
@@ -78,8 +79,8 @@ public class RadioButton extends SelectWidget implements Serializable
 
     public String generateHTML()
     {
-    	StringBuilder html = new StringBuilder();
-
+    	StringBuilder html = DisposableBfString.getBuffer();
+    	try {
         generateWidget(html);
         html.append("<input type=\"radio\" name=\"");
         html.append(getId());
@@ -116,6 +117,9 @@ public class RadioButton extends SelectWidget implements Serializable
             html.append("</span>");
         }
         return html.toString();
+    	} finally {
+			DisposableBfString.release(html);
+		}
     }
 
 }

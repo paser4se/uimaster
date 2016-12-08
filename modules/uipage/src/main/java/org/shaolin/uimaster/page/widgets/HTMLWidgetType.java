@@ -122,13 +122,11 @@ public abstract class HTMLWidgetType implements Serializable
         {
             return name;
         }
-        StringBuilder nameBuffer = new StringBuilder();
+        name = id;
         if (prefix != null && prefix.length() > 0)
         {
-            nameBuffer.append(prefix);
+        	name = prefix + id;
         }
-        nameBuffer.append(id);
-        name = new String(nameBuffer);
         return name;
     }
 

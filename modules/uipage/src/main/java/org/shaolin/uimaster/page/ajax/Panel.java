@@ -23,6 +23,7 @@ import java.util.List;
 import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.i18n.ResourceUtil;
 import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
@@ -249,8 +250,8 @@ public class Panel extends Container implements Serializable
     
     public String generateHTML()
     {
-    	StringBuilder html = new StringBuilder();
-
+    	StringBuilder html = DisposableBfString.getBuffer();
+    	try { 
         generateWidget(html);
         if ( title != null )
         {
@@ -313,6 +314,9 @@ public class Panel extends Container implements Serializable
         }
 
         return html.toString();
+    	} finally {
+			DisposableBfString.release(html);
+		}
     }
     
     protected void generateAttribute(String name, Object value, StringBuilder sb)
@@ -563,18 +567,22 @@ public class Panel extends Container implements Serializable
     		return "";
     	}
     	int i = 0;
-    	StringBuilder sb = new StringBuilder();
-    	sb.append("[");
-    	for (HTMLDynamicUIItem item : items) {
-    		String uiid = this.getId() + "dynamicUI" + i++;
-    		String value = item.retriveData(uiid);
-    		if (value.length() > 0) {
-    			sb.append(value).append(",");
-    		}
-    	}
-    	sb.deleteCharAt(sb.length() - 1);
-    	sb.append("]");
-    	return sb.toString();
+    	StringBuilder sb = DisposableBfString.getBuffer();
+	    	try {
+	    	sb.append("[");
+	    	for (HTMLDynamicUIItem item : items) {
+	    		String uiid = this.getId() + "dynamicUI" + i++;
+	    		String value = item.retriveData(uiid);
+	    		if (value.length() > 0) {
+	    			sb.append(value).append(",");
+	    		}
+	    	}
+	    	sb.deleteCharAt(sb.length() - 1);
+	    	sb.append("]");
+	    	return sb.toString();
+    	} finally {
+			DisposableBfString.release(sb);
+		}
     }
     
 }

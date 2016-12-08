@@ -22,6 +22,7 @@ import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.od.ODContext;
@@ -103,33 +104,40 @@ public class AFile extends TextWidget implements Serializable
     
     public String generateJS()
     {
-        StringBuilder js = new StringBuilder();
-        js.append("defaultname.");
-        js.append(getId());
-        js.append("=new UIMaster.ui.file({");
-        js.append("ui:elementList[\"");
-        js.append(getId());
-        js.append("\"]});");
-        return js.toString();
+        StringBuilder js = DisposableBfString.getBuffer();
+        try {
+	        js.append("defaultname.");
+	        js.append(getId());
+	        js.append("=new UIMaster.ui.file({");
+	        js.append("ui:elementList[\"");
+	        js.append(getId());
+	        js.append("\"]});");
+	        return js.toString();
+        } finally {
+        	DisposableBfString.release(js);
+        }
     }    
     
     public String generateHTML()
     {
-    	StringBuilder html = new StringBuilder();
-
-        generateWidget(html);
-        html.append("<script language=\"javascript\">document.forms[0].encoding=\"multipart/form-data\";</script>");
-        html.append("<input type=\"file\" name=\"");
-        html.append(getId());
-        html.append("\"");
-        generateAttributes(html);
-        generateEventListeners(html);
-        html.append(" value=\"");
-        String value = HTMLUtil.formatHtmlValue(getValue());
-        html.append(this.isValueMask() ? WebConfig.getHiddenValueMask() : value);
-        html.append("\" />");  
-        
-        return html.toString();
+    	StringBuilder html = DisposableBfString.getBuffer();
+    	try {
+	        generateWidget(html);
+	        html.append("<script language=\"javascript\">document.forms[0].encoding=\"multipart/form-data\";</script>");
+	        html.append("<input type=\"file\" name=\"");
+	        html.append(getId());
+	        html.append("\"");
+	        generateAttributes(html);
+	        generateEventListeners(html);
+	        html.append(" value=\"");
+	        String value = HTMLUtil.formatHtmlValue(getValue());
+	        html.append(this.isValueMask() ? WebConfig.getHiddenValueMask() : value);
+	        html.append("\" />");  
+	        
+	        return html.toString();
+    	} finally {
+        	DisposableBfString.release(html);
+        }
     }
     
     public int getWidth() {

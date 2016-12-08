@@ -43,6 +43,7 @@ import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.JSONArray;
@@ -513,7 +514,8 @@ public class Table extends Widget implements Serializable {
 				}
 			} 
 			
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = DisposableBfString.getBuffer();
+			try {
 	        sb.append("{\"totalCount\":");
 	        sb.append(totalCount);
 	        sb.append(",");
@@ -579,6 +581,9 @@ public class Table extends Widget implements Serializable {
 	        sb.append("]}");
 	        
 	        return sb.toString();
+			} finally {
+				DisposableBfString.release(sb);
+			}
 		} catch (Exception e) {
 			logger.error("error occurrs while refreshing table: " + this.getId(), e);
 		}
@@ -610,7 +615,8 @@ public class Table extends Widget implements Serializable {
 				}
 			} 
 			
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = DisposableBfString.getBuffer();
+			try {
 	        sb.append("{\"recordsFiltered\":");
 	        sb.append(totalCount);
 	        sb.append(",\"recordsTotal\":");
@@ -660,6 +666,9 @@ public class Table extends Widget implements Serializable {
 	        sb.append("]}");
 	        
 	        return sb.toString();
+			} finally {
+				DisposableBfString.release(sb);
+			}
 		} catch (Exception e) {
 			logger.error("error occurrs while refreshing table: " + this.getId(), e);
 		}

@@ -25,6 +25,7 @@ import org.shaolin.javacc.context.EvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.javacc.exception.EvaluationException;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.ajax.Chart;
 import org.shaolin.uimaster.page.ajax.Layout;
@@ -72,34 +73,39 @@ public abstract class HTMLChartSuper extends HTMLWidgetType
 				context.generateHTML(this.getAttribute("labels").toString());
 				context.generateHTML(",");
 			} else {
-				StringBuilder sb = new StringBuilder("[");
-				Object data = this.getAttribute("query");
-				OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
-				DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
-				if (data != null && data instanceof List && ((List)data).size() > 0) {
-					List<Object> listData = (List<Object>)data;
-					evaContext.setVariableValue("rowBE", listData.get(0));
-				}
-				ooeeContext.setDefaultEvaluationContext(evaContext);
-				ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
-				for (UITableColumnType col : columns) {
-					ExpressionPropertyType isVisibleExpr = col.getIsVisible();
-					if (isVisibleExpr != null) {
-						// it does require the data from the first row.
-						Boolean isVisible = (Boolean)isVisibleExpr.getExpression().evaluate(ooeeContext);
-						if (!isVisible.booleanValue()) {
-							continue;
-						}
+				StringBuilder sb = DisposableBfString.getBuffer();
+				try {
+					sb.append("[");
+					Object data = this.getAttribute("query");
+					OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+					DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+					if (data != null && data instanceof List && ((List)data).size() > 0) {
+						List<Object> listData = (List<Object>)data;
+						evaContext.setVariableValue("rowBE", listData.get(0));
 					}
-					sb.append("'");
-					sb.append(UIVariableUtil.getI18NProperty(col.getTitle()));
-					sb.append("',");
+					ooeeContext.setDefaultEvaluationContext(evaContext);
+					ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+					for (UITableColumnType col : columns) {
+						ExpressionPropertyType isVisibleExpr = col.getIsVisible();
+						if (isVisibleExpr != null) {
+							// it does require the data from the first row.
+							Boolean isVisible = (Boolean)isVisibleExpr.getExpression().evaluate(ooeeContext);
+							if (!isVisible.booleanValue()) {
+								continue;
+							}
+						}
+						sb.append("'");
+						sb.append(UIVariableUtil.getI18NProperty(col.getTitle()));
+						sb.append("',");
+					}
+					if (sb.length() > 0) {
+						sb.deleteCharAt(sb.length()-1);
+					}
+					sb.append("],");
+					context.generateHTML(sb.toString());
+				} finally {
+					DisposableBfString.release(sb);
 				}
-				if (sb.length() > 0) {
-					sb.deleteCharAt(sb.length()-1);
-				}
-				sb.append("],");
-				context.generateHTML(sb.toString());
 			}
 			
 			generateData(columns, context, depth + 2);

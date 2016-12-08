@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.runtime.security.UserContext;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
@@ -203,35 +204,39 @@ public class HTMLImageType extends HTMLTextWidgetType
 		}
 		
 		String imageRoot = WebConfig.getAppImageContextRoot(request);
-		StringBuilder sb = new StringBuilder();
-		sb.append("<div>");
-		String[] list = srcs.split(",");
-		for (String image : list) {
-			String realImage = image;
-			if (image.startsWith(WebConfig.getResourceContextRoot())) {
-				realImage = realImage.replaceFirst(WebConfig.getResourceContextRoot(), "");
-			}
-			File directory = new File(WebConfig.getResourcePath() + realImage);
-			if (directory.isDirectory()) {
-				File[] files = directory.listFiles();
-				for (File f : files) {
-            		if (f.isFile()) {
-	            		String realPath = realImage + "/" +  f.getName();
-	            		sb.append("<div img=\"").append(imageRoot).append(realImage).append("\" style=\"background-image:url(").append(imageRoot).append(realPath);
-	    				sb.append(");width:").append(width).append("px;height:").append(height).append("px;background-size:contain;\" ></div>");
-            		}
-            	}
-			} else {
-				if (realImage.startsWith("http") || realImage.startsWith("https")) {
-					sb.append("<div img=\"").append(realImage).append("\" style=\"background-image:url(").append(realImage);
-				} else {
-					sb.append("<div img=\"").append(imageRoot).append(realImage).append("\" style=\"background-image:url(").append(imageRoot).append(realImage);
+		StringBuilder sb = DisposableBfString.getBuffer();
+		try {
+			sb.append("<div>");
+			String[] list = srcs.split(",");
+			for (String image : list) {
+				String realImage = image;
+				if (image.startsWith(WebConfig.getResourceContextRoot())) {
+					realImage = realImage.replaceFirst(WebConfig.getResourceContextRoot(), "");
 				}
-				sb.append(");width:").append(width).append("px;height:").append(height).append("px;background-size:contain;\" ></div>");
+				File directory = new File(WebConfig.getResourcePath() + realImage);
+				if (directory.isDirectory()) {
+					File[] files = directory.listFiles();
+					for (File f : files) {
+	            		if (f.isFile()) {
+		            		String realPath = realImage + "/" +  f.getName();
+		            		sb.append("<div img=\"").append(imageRoot).append(realImage).append("\" style=\"background-image:url(").append(imageRoot).append(realPath);
+		            		sb.append(");width:").append(width).append("px;height:").append(height).append("px;background-size:contain;\" ></div>");
+	            		}
+	            	}
+				} else {
+					if (realImage.startsWith("http") || realImage.startsWith("https")) {
+						sb.append("<div img=\"").append(realImage).append("\" style=\"background-image:url(").append(realImage);
+					} else {
+						sb.append("<div img=\"").append(imageRoot).append(realImage).append("\" style=\"background-image:url(").append(imageRoot).append(realImage);
+					}
+					sb.append(");width:").append(width).append("px;height:").append(height).append("px;background-size:contain;\" ></div>");
+				}
 			}
+			sb.append("</div>");
+			return sb.toString();
+		} finally {
+			DisposableBfString.release(sb);
 		}
-		sb.append("</div>");
-		return sb.toString();
 	}
 
 	public static String getFirst(String path) {

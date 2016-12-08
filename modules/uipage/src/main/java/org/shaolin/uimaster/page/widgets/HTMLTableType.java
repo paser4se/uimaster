@@ -39,6 +39,7 @@ import org.shaolin.javacc.context.EvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.javacc.exception.EvaluationException;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
@@ -645,9 +646,9 @@ public class HTMLTableType extends HTMLContainerType {
 			context.generateHTML("<div class=\"swiper-slide\">");
 			HTMLUtil.generateTab(context, depth + 3);
 			
-			StringBuilder attrsSB = new StringBuilder();
-			StringBuilder htmlAttrsSB = new StringBuilder();
-			
+			StringBuilder attrsSB = DisposableBfString.getBuffer();
+			StringBuilder htmlAttrsSB = DisposableBfString.getBuffer();
+			try {
 			for (UITableColumnType col : columns) {
 				// find image column at the second column.
 				if ("Image".equals(col.getUiType().getType())) {
@@ -688,6 +689,10 @@ public class HTMLTableType extends HTMLContainerType {
 				context.generateHTML("</div>");
 			}
 			context.generateHTML(htmlAttrsSB.toString());
+			} finally {
+				DisposableBfString.release(attrsSB);
+				DisposableBfString.release(htmlAttrsSB);
+			}
 			HTMLUtil.generateTab(context, depth + 3);
 			context.generateHTML("</div>");
 			count++;

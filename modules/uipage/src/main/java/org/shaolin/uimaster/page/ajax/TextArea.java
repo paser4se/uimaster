@@ -24,6 +24,7 @@ import org.shaolin.bmdp.utils.FileUtil;
 import org.shaolin.bmdp.utils.StringUtil;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
@@ -221,8 +222,8 @@ public class TextArea extends TextWidget implements Serializable
     
     public String generateHTML()
     {
-    	StringBuilder html = new StringBuilder();
-
+    	StringBuilder html = DisposableBfString.getBuffer();
+    	try {
         generateWidget(html);
         html.append("<textarea name=\"");
         html.append(getId());
@@ -263,6 +264,9 @@ public class TextArea extends TextWidget implements Serializable
         html.append("</textarea>");
 
         return html.toString();
+    	} finally {
+			DisposableBfString.release(html);
+		}
     }
 
 }

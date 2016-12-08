@@ -26,6 +26,7 @@ import org.shaolin.bmdp.runtime.ce.CEUtil;
 import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 import org.shaolin.bmdp.runtime.spi.IConstantService;
 import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.ajax.CheckBoxGroup;
 import org.shaolin.uimaster.page.ajax.ComboBox;
@@ -162,7 +163,8 @@ public class HTMLDynamicUIItem {
 		}
 		Map<Integer, String> avps = constant.getAllConstants(false);
 		String filterUIID = uiid.replace("-", "").replace("_", "");
-		StringBuilder jssb = new StringBuilder();
+		StringBuilder jssb = DisposableBfString.getBuffer();
+		try {
 //		if (context.getHTMLPrefix().length() > 0) {
 //			String realid = "defaultname." + context.getHTMLPrefix().substring(0, context.getHTMLPrefix().length() - 1);
 //			jssb.append("if (!").append(realid).append(") {").append(realid).append(" = new Object();} \n");
@@ -252,6 +254,9 @@ public class HTMLDynamicUIItem {
 		context.generateHTML(jssb.toString());
 		context.generateHTML("});\n");
 		context.generateHTML("</script>");
+		} finally {
+			DisposableBfString.release(jssb);
+		}
 	}
 	
 	public String retriveData(String uiid) {

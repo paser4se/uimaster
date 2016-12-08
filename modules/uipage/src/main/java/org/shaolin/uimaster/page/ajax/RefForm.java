@@ -29,6 +29,7 @@ import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.PageDispatcher;
@@ -264,12 +265,16 @@ public class RefForm extends Container implements Serializable
 
     public String generateJS()
     {
-    	StringBuilder sb = new StringBuilder();
-        sb.append("defaultname.").append(this.getId());
-        sb.append(" = new ").append(getJsName()).append("('");
-        sb.append(this.getId()).append(".');\n");
-        sb.append("postInit();\n");
-        return sb.toString();
+    	StringBuilder sb = DisposableBfString.getBuffer();
+    	try {
+	        sb.append("defaultname.").append(this.getId());
+	        sb.append(" = new ").append(getJsName()).append("('");
+	        sb.append(this.getId()).append(".');\n");
+	        sb.append("postInit();\n");
+	        return sb.toString();
+    	} finally {
+			DisposableBfString.release(sb);
+		}
     }
 
     private String getJsName()

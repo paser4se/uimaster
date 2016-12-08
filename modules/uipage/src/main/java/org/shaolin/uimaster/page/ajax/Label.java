@@ -18,6 +18,7 @@ package org.shaolin.uimaster.page.ajax;
 import java.io.Serializable;
 
 import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 
@@ -69,32 +70,35 @@ public class Label extends TextWidget implements Serializable
     
     public String generateHTML()
     {
-    	StringBuilder html = new StringBuilder();
-
-        generateWidget(html);
-        String currencySymbol = getCurrencySymbol();
-        if ( currencySymbol == null || currencySymbol.equals("") )
-        {
-            html.append("<div>");
-            generateContent(html);
-            html.append("</div>");
-        }
-        else if ( isSymbolLeft() )
-        {
-            html.append("<div>");
-            generateCurrencySymbol(html);
-            generateContent(html);
-            html.append("</div>");
-        }
-        else
-        {
-            html.append("<div>");
-            generateContent(html);
-            generateCurrencySymbol(html);
-            html.append("</div>");
-        }
-
-        return html.toString();
+    	StringBuilder html = DisposableBfString.getBuffer();
+    	try {
+	        generateWidget(html);
+	        String currencySymbol = getCurrencySymbol();
+	        if ( currencySymbol == null || currencySymbol.equals("") )
+	        {
+	            html.append("<div>");
+	            generateContent(html);
+	            html.append("</div>");
+	        }
+	        else if ( isSymbolLeft() )
+	        {
+	            html.append("<div>");
+	            generateCurrencySymbol(html);
+	            generateContent(html);
+	            html.append("</div>");
+	        }
+	        else
+	        {
+	            html.append("<div>");
+	            generateContent(html);
+	            generateCurrencySymbol(html);
+	            html.append("</div>");
+	        }
+	
+	        return html.toString();
+    	} finally {
+			DisposableBfString.release(html);
+		}
     }
     
     private void generateContent(StringBuilder sb)

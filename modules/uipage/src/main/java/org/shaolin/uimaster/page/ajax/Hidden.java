@@ -18,6 +18,7 @@ package org.shaolin.uimaster.page.ajax;
 import java.io.Serializable;
 
 import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 
 public class Hidden extends TextWidget implements Serializable
@@ -68,18 +69,21 @@ public class Hidden extends TextWidget implements Serializable
     
     public String generateHTML()
     {
-    	StringBuilder html = new StringBuilder();
-
-        html.append("<input type=\"hidden\" name=\"");
-        html.append(getId());
-        html.append("\"");
-        generateAttributes(html);
-        generateEventListeners(html);
-        html.append(" value=\"");
-        html.append(HTMLUtil.formatHtmlValue(getValue()));
-        html.append("\" />");
-        
-        return html.toString();
+    	StringBuilder html = DisposableBfString.getBuffer();
+    	try {
+	        html.append("<input type=\"hidden\" name=\"");
+	        html.append(getId());
+	        html.append("\"");
+	        generateAttributes(html);
+	        generateEventListeners(html);
+	        html.append(" value=\"");
+	        html.append(HTMLUtil.formatHtmlValue(getValue()));
+	        html.append("\" />");
+	        
+	        return html.toString();
+	    } finally {
+			DisposableBfString.release(html);
+		}
     }
 
     /**

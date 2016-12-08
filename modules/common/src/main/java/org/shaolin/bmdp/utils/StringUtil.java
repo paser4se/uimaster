@@ -21,6 +21,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -1425,4 +1427,75 @@ public class StringUtil
 		return sb.toString();
 	}
 
+	public static String encode(boolean b)
+    {
+        return encode(String.valueOf(b));
+    }
+
+    public static String encode(char c)
+    {
+        return encode(String.valueOf(c));
+    }
+
+    public static String encode(double d)
+    {
+        return encode(String.valueOf(d));
+    }
+
+    public static String encode(float f)
+    {
+        return encode(String.valueOf(f));
+    }
+
+    public static String encode(int i)
+    {
+        return encode(String.valueOf(i));
+    }
+
+    public static String encode(long l)
+    {
+        return encode(String.valueOf(l));
+    }
+
+    public static String encode(Object o)
+    {
+        return encode(String.valueOf(o));
+    }
+    
+	public static String encode(String s) {
+		if (s == null) {
+			return "";
+		}
+
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0, n = s.length(); i < n; i++) {
+			char c = s.charAt(i);
+			if (c == '%') {
+				sb.append("%25");
+			} else if (c == '&') {
+				sb.append("%26");
+			} else if (c == '=') {
+				sb.append("%3D");
+			} else {
+				sb.append(c);
+			}
+		}
+		return sb.toString();
+	}
+
+	public static String decode(String s)
+    {
+        if (s == null)
+        {
+            return null;
+        }
+        try
+        {
+            s = URLDecoder.decode(s, "UTF-8");
+        }
+        catch (UnsupportedEncodingException e)
+        {
+        }
+        return s;
+    }
 }

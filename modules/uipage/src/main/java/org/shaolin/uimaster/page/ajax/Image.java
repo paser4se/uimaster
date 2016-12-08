@@ -28,6 +28,7 @@ import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.WebConfig;
@@ -112,20 +113,24 @@ public class Image extends TextWidget implements Serializable
     public void updateCustLinks(List<String> links) {
     	this.links = links;
     	
-    	StringBuilder html = new StringBuilder();
-    	html.append("<div class=\"swiper-wrapper\">");
-        
-    	for (String item : links) {
-    		html.append("<span class=\"swiper-slide\" style=\"background-image:url(" + item + ")\" img=\""+item+"\"/></span>");
+    	StringBuilder html = DisposableBfString.getBuffer();
+    	try {
+	    	html.append("<div class=\"swiper-wrapper\">");
+	        
+	    	for (String item : links) {
+	    		html.append("<span class=\"swiper-slide\" style=\"background-image:url(" + item + ")\" img=\""+item+"\"/></span>");
+	    	}
+	        html.append("</div>");
+	        
+	        IDataItem dataItem = AjaxActionHelper.createDataItem();
+			dataItem.setUiid(this.getId());
+			dataItem.setJsHandler(IJSHandlerCollections.GALLERY_REFRESH);
+			dataItem.setData(StringUtil.escapeHtmlToBytes(html.toString()));
+			dataItem.setFrameInfo(this.getFrameInfo());
+	        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+    	} finally {
+    		DisposableBfString.release(html);
     	}
-        html.append("</div>");
-        
-        IDataItem dataItem = AjaxActionHelper.createDataItem();
-		dataItem.setUiid(this.getId());
-		dataItem.setJsHandler(IJSHandlerCollections.GALLERY_REFRESH);
-		dataItem.setData(StringUtil.escapeHtmlToBytes(html.toString()));
-		dataItem.setFrameInfo(this.getFrameInfo());
-        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
     }
     
     public String getSrc()
@@ -147,8 +152,8 @@ public class Image extends TextWidget implements Serializable
     
     public String generateHTML()
     {
-    	StringBuilder html = new StringBuilder();
-
+    	StringBuilder html = DisposableBfString.getBuffer();
+    	try {
         generateWidget(html);
         
         if (isgallery) {
@@ -186,6 +191,9 @@ public class Image extends TextWidget implements Serializable
         }
         
         return html.toString();
+    	} finally {
+			DisposableBfString.release(html);
+		}
     }
     
     public void createAlbum(String name) {
@@ -258,34 +266,38 @@ public class Image extends TextWidget implements Serializable
     		return;
     	}
     	
-    	StringBuilder sb = new StringBuilder();
-    	String path = this.src;
-		if (path.startsWith(WebConfig.getWebRoot())) {
-			path = path.substring(WebConfig.getWebRoot().length());
+    	StringBuilder sb = DisposableBfString.getBuffer();
+    	try {
+	    	String path = this.src;
+			if (path.startsWith(WebConfig.getWebRoot())) {
+				path = path.substring(WebConfig.getWebRoot().length());
+			}
+	    	File directory = new File(WebConfig.getResourcePath() + File.separator + path);
+	        if (directory.exists() && directory.list() != null) {
+	        	String[] images = directory.list();
+	        	sb.append("<div class=\"swiper-wrapper\">");
+	        	for (String i : images) {
+	        		File f = new File(directory, i);
+	        		if (f.isFile()) {
+	            		String item = this.src + "/" +  i;
+	            		if (UserContext.isAppClient()) {
+	            			WebConfig.getAppImageContextRoot(AjaxActionHelper.getAjaxContext().getRequest());
+	            		}
+	            		sb.append("<span class=\"swiper-slide\" style=\"background-image:url("+ item +")\" alt=\""+i+"\" img=\""+item+"\"/></span>");
+	        		}
+	        	}
+	        	sb.append("</div>");
+	        }
+	        
+	        IDataItem dataItem = AjaxActionHelper.createDataItem();
+			dataItem.setUiid(this.getId());
+			dataItem.setJsHandler(IJSHandlerCollections.GALLERY_REFRESH);
+			dataItem.setData(StringUtil.escapeHtmlToBytes(sb.toString()));
+			dataItem.setFrameInfo(this.getFrameInfo());
+	        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+    	} finally {
+			DisposableBfString.release(sb);
 		}
-    	File directory = new File(WebConfig.getResourcePath() + File.separator + path);
-        if (directory.exists() && directory.list() != null) {
-        	String[] images = directory.list();
-        	sb.append("<div class=\"swiper-wrapper\">");
-        	for (String i : images) {
-        		File f = new File(directory, i);
-        		if (f.isFile()) {
-            		String item = this.src + "/" +  i;
-            		if (UserContext.isAppClient()) {
-            			WebConfig.getAppImageContextRoot(AjaxActionHelper.getAjaxContext().getRequest());
-            		}
-            		sb.append("<span class=\"swiper-slide\" style=\"background-image:url("+ item +")\" alt=\""+i+"\" img=\""+item+"\"/></span>");
-        		}
-        	}
-        	sb.append("</div>");
-        }
-        
-        IDataItem dataItem = AjaxActionHelper.createDataItem();
-		dataItem.setUiid(this.getId());
-		dataItem.setJsHandler(IJSHandlerCollections.GALLERY_REFRESH);
-		dataItem.setData(StringUtil.escapeHtmlToBytes(sb.toString()));
-		dataItem.setFrameInfo(this.getFrameInfo());
-        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
     }
 
     private void genarateAblum(String root, StringBuilder sb, File directory) {

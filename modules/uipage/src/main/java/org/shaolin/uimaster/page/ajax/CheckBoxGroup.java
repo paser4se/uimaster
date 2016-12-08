@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 
@@ -59,8 +60,8 @@ public class CheckBoxGroup extends MultiChoice implements Serializable
             displayOptions = options;
         }
 
-        StringBuilder html = new StringBuilder();
-
+        StringBuilder html = DisposableBfString.getBuffer();
+        try {
         if (isVisible())
         {
             html.append("<p name=\""+this.getId()+"\">");
@@ -157,6 +158,9 @@ public class CheckBoxGroup extends MultiChoice implements Serializable
         html.append("</p>");
 
         return html.toString();
+        } finally {
+			DisposableBfString.release(html);
+		}
     }
 
     public void addConstraint(String name, Object[] value, String message)

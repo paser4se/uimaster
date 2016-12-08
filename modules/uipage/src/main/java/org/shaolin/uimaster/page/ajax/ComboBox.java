@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 
@@ -113,8 +114,8 @@ public class ComboBox extends SingleChoice implements Serializable
             displayOptions = options;
         }
 
-        StringBuilder html = new StringBuilder();
-
+        StringBuilder html = DisposableBfString.getBuffer();
+        try {
         generateWidget(html);
         if (displayOptions != null && options != null)
         {
@@ -324,5 +325,8 @@ public class ComboBox extends SingleChoice implements Serializable
         }
 
         return html.toString();
+        } finally {
+			DisposableBfString.release(html);
+		}
     }
 }

@@ -40,6 +40,7 @@ import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.html.layout.HTMLPanelLayout;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.PageWidgetsContext;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
@@ -176,32 +177,36 @@ public class TabPane extends Container implements Serializable
     
     public String generateHTML()
     {
-    	StringBuilder html = new StringBuilder();
-        generateWidget(html);
-
-        //Generate the tab
-        html.append("<div id=\"");
-        html.append(uiid);
-        html.append("\" class=\"tab\">");
-        html.append("<div class=\"uimaster_tabPane\">");
-        
-        //Generate the titles' container
-        html.append("<div class =\"tab-titles\" id=\"titles-container-");
-        html.append(uiid);
-        html.append("\" selectedIndex=\"");
-        html.append(getSelectedIndex());
-        html.append("\">");
-        html.append("</div>");
-        
-        //Generate the bodies of the tabpane
-        html.append("<div class=\"tab-bodies\" id=\"bodies-container-");
-        html.append(uiid);
-        html.append("\">");
-        html.append("</div>");
-        
-        html.append("</div>");
-        html.append("</div>");
-        return html.toString();
+    	StringBuilder html = DisposableBfString.getBuffer();
+    	try {
+	        generateWidget(html);
+	
+	        //Generate the tab
+	        html.append("<div id=\"");
+	        html.append(uiid);
+	        html.append("\" class=\"tab\">");
+	        html.append("<div class=\"uimaster_tabPane\">");
+	        
+	        //Generate the titles' container
+	        html.append("<div class =\"tab-titles\" id=\"titles-container-");
+	        html.append(uiid);
+	        html.append("\" selectedIndex=\"");
+	        html.append(getSelectedIndex());
+	        html.append("\">");
+	        html.append("</div>");
+	        
+	        //Generate the bodies of the tabpane
+	        html.append("<div class=\"tab-bodies\" id=\"bodies-container-");
+	        html.append(uiid);
+	        html.append("\">");
+	        html.append("</div>");
+	        
+	        html.append("</div>");
+	        html.append("</div>");
+	        return html.toString();
+    	} finally {
+			DisposableBfString.release(html);
+		}
     }
     public String generateJS()
     {
@@ -307,19 +312,23 @@ public class TabPane extends Container implements Serializable
             panelLayout.generateComponentHTML(htmlContext, 0, false, Collections.emptyMap(), ee, layout);
             
             IJsGenerator jsGenerator = IServerServiceManager.INSTANCE.getService(IJsGenerator.class);
-            StringBuilder js = new StringBuilder();
-            js.append(jsGenerator.gen(this.getUIEntityName(), entityPrefix, tab.getPanel()));
-            js.append("\ndefaultname.");
-            if (entityPrefix != null && entityPrefix.length() > 0) {
-            	js.append(entityPrefix).append('.');
-            }
-            js.append("Form.items.push(elementList['").append(tab.getPanel().getUIID()).append("']);");
-            
-            IDataItem dataItem = AjaxActionHelper.createAppendItemToTab(this.getId(), id);
-            dataItem.setData(htmlContext.getHTMLString());
-            dataItem.setJs(js.toString());
-            dataItem.setFrameInfo(this.getFrameInfo());
-            AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+            StringBuilder js = DisposableBfString.getBuffer();
+            try {
+	            js.append(jsGenerator.gen(this.getUIEntityName(), entityPrefix, tab.getPanel()));
+	            js.append("\ndefaultname.");
+	            if (entityPrefix != null && entityPrefix.length() > 0) {
+	            	js.append(entityPrefix).append('.');
+	            }
+	            js.append("Form.items.push(elementList['").append(tab.getPanel().getUIID()).append("']);");
+	            
+	            IDataItem dataItem = AjaxActionHelper.createAppendItemToTab(this.getId(), id);
+	            dataItem.setData(htmlContext.getHtmlString());
+	            dataItem.setJs(js.toString());
+	            dataItem.setFrameInfo(this.getFrameInfo());
+	            AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+            } finally {
+    			DisposableBfString.release(js);
+    		}
 			
         } else if (tab.getRefEntity() != null) {
         	//form support
@@ -366,7 +375,7 @@ public class TabPane extends Container implements Serializable
         	
         	String UIID = entityPrefix + tab.getUiid();
         	IDataItem dataItem = AjaxActionHelper.createAppendItemToTab(this.getId(), UIID);
-            dataItem.setData(htmlContext.getHTMLString());
+            dataItem.setData(htmlContext.getHtmlString());
             dataItem.setFrameInfo(this.getFrameInfo());
             AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
         } 

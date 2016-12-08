@@ -18,6 +18,7 @@ package org.shaolin.uimaster.page.ajax;
 import java.io.Serializable;
 
 import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 
@@ -63,24 +64,27 @@ public class Link extends Label implements Serializable
     
     public String generateHTML()
     {
-    	StringBuilder html = new StringBuilder();
-
-        generateWidget(html);
-        html.append("<input type=\"hidden\" name=\"");
-        html.append(getId());
-        html.append("\" value=\"");
-        html.append(this.isValueMask() ? WebConfig.getHiddenValueMask() : HTMLUtil.formatHtmlValue(getValue()));
-        html.append("\" />");
-        html.append("<a href=\"");
-        html.append(href);
-        html.append("\"");
-        generateAttributes(html);
-        generateEventListeners(html);
-        html.append(">");
-        html.append(this.isValueMask() ? WebConfig.getHiddenValueMask() : HTMLUtil.formatHtmlValue(getDisplayValue()));
-        html.append("</a>");
-
-        return html.toString();
+    	StringBuilder html = DisposableBfString.getBuffer();
+    	try {
+	        generateWidget(html);
+	        html.append("<input type=\"hidden\" name=\"");
+	        html.append(getId());
+	        html.append("\" value=\"");
+	        html.append(this.isValueMask() ? WebConfig.getHiddenValueMask() : HTMLUtil.formatHtmlValue(getValue()));
+	        html.append("\" />");
+	        html.append("<a href=\"");
+	        html.append(href);
+	        html.append("\"");
+	        generateAttributes(html);
+	        generateEventListeners(html);
+	        html.append(">");
+	        html.append(this.isValueMask() ? WebConfig.getHiddenValueMask() : HTMLUtil.formatHtmlValue(getDisplayValue()));
+	        html.append("</a>");
+	
+	        return html.toString();
+    	} finally {
+			DisposableBfString.release(html);
+		}
     }
 
     /**

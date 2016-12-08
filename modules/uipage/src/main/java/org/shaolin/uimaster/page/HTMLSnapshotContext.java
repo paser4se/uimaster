@@ -17,9 +17,7 @@ package org.shaolin.uimaster.page;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.utils.CloseUtil;
+import org.shaolin.bmdp.utils.StringUtil;
 import org.shaolin.javacc.context.EvaluationContext;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
@@ -102,7 +101,8 @@ public class HTMLSnapshotContext implements Serializable
 
     private transient Map refEntityMap;
 
-    private StringBuilder htmlBuffer;
+    // for good performance
+    private static final ThreadLocal<StringBuilder> htmlBuffer = new ThreadLocal<StringBuilder>();
 
     private transient ArrayList pageJs;
 
@@ -580,13 +580,13 @@ public class HTMLSnapshotContext implements Serializable
         }
     }
 
-    public void appendHtmlBuffer(String value)
+    private void appendHtmlBuffer(String value)
     {
-        if (htmlBuffer == null)
+        if (htmlBuffer.get() == null)
         {
-            htmlBuffer = new StringBuilder(4096);
+            htmlBuffer.set(new StringBuilder(4096));
         }
-        htmlBuffer.append(value);
+        htmlBuffer.get().append(value);
     }
 
     public void generateHTML(String value)
@@ -624,11 +624,6 @@ public class HTMLSnapshotContext implements Serializable
         }
     }
 
-    public String getHTMLString()
-    {
-        return htmlBuffer.toString();
-    }
-    
     public String getJSString()
     {
     	if (pageJs != null) {
@@ -658,14 +653,17 @@ public class HTMLSnapshotContext implements Serializable
         return ajaxSubmit;
     }
 
+    /**
+     * Only get once from htmlBuffer.
+     * 
+     * @return
+     */
     public String getHtmlString()
     {
-        return htmlBuffer.toString();
-    }
-
-    public StringBuilder getHtmlBuffer()
-    {
-        return htmlBuffer;
+    	String s = htmlBuffer.get().toString();
+    	// good performance then setLength(0);
+    	htmlBuffer.get().delete(0, htmlBuffer.get().length());
+        return s;
     }
 
     public static boolean isInstance(String type, Object o)
@@ -679,79 +677,6 @@ public class HTMLSnapshotContext implements Serializable
 		} else {
 			return true;
 		}
-    }
-
-    public static String encode(boolean b)
-    {
-        return encode(String.valueOf(b));
-    }
-
-    public static String encode(char c)
-    {
-        return encode(String.valueOf(c));
-    }
-
-    public static String encode(double d)
-    {
-        return encode(String.valueOf(d));
-    }
-
-    public static String encode(float f)
-    {
-        return encode(String.valueOf(f));
-    }
-
-    public static String encode(int i)
-    {
-        return encode(String.valueOf(i));
-    }
-
-    public static String encode(long l)
-    {
-        return encode(String.valueOf(l));
-    }
-
-    public static String encode(Object o)
-    {
-        return encode(String.valueOf(o));
-    }
-    
-	public static String encode(String s) {
-		if (s == null) {
-			return "";
-		}
-
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0, n = s.length(); i < n; i++) {
-			char c = s.charAt(i);
-			if (c == '%') {
-				sb.append("%25");
-			} else if (c == '&') {
-				sb.append("%26");
-			} else if (c == '=') {
-				sb.append("%3D");
-			} else {
-				sb.append(c);
-			}
-		}
-		return sb.toString();
-	}
-
-    public static String decode(String s)
-    {
-        if (s == null)
-        {
-            return null;
-        }
-        try
-        {
-            s = URLDecoder.decode(s, "UTF-8");
-        }
-        catch (UnsupportedEncodingException e)
-        {
-            logger.error("Error occur when encode " + s, e);
-        }
-        return s;
     }
 
     public static Map parseAttribute(String attributeString)
@@ -776,11 +701,11 @@ public class HTMLSnapshotContext implements Serializable
                         valueList = new ArrayList();
                         rtMap.put(name, valueList);
                     }
-                    valueList.add(decode(value));
+                    valueList.add(StringUtil.decode(value));
                 }
                 else
                 {
-                    rtMap.put(name, decode(value));
+                    rtMap.put(name, StringUtil.decode(value));
                 }
             }
         }

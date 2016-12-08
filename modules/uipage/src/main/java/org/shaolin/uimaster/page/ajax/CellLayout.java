@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.uimaster.page.UIPermissionManager;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.security.ComponentPermission;
 
@@ -115,57 +116,60 @@ public class CellLayout extends Layout implements Serializable
      */
     public String generateHTML()
     {
-    	StringBuilder html = new StringBuilder();
-		
-        //hasviewpermission will be used to indicate whether the value of the component needs to be hidden
-        //by default without viewpermission configs, the hasviewpermission is true, which means,
-        //if no viewpermission configured, the value will never be hidden.
-        boolean hasViewPermission = true;
-        ComponentPermission cp = null;
-        if (isFLSEnabled())
-        {
-            cp = getContainedComponentPermission();
-            String[] viewPermission = HTMLUtil.getViewPermission(cp, getContainedComponentViewPermission());
-            if (viewPermission.length > 0)
-            {
-                hasViewPermission = HTMLUtil.checkViewPermission(viewPermission);
-                if (!hasViewPermission)
-                {
-                    setVisible(false, false);
-                }
-            }
-        }
-
-        html.append("<div id=\"");
-        html.append(getId());
-        html.append("\"");
-        generateAttributes(html);
-        String className = (String)this.getAttribute("class");
-        if(className == null)
-        {
-            generateAttribute("class", "uimaster_widget_cell w1 h1", html);
-        }
-        else if(className.indexOf("uimaster_container_cell") == -1 
-                && className.indexOf("uimaster_widget_cell") == -1 )
-        {
-            generateAttribute("class", className + "uimaster_widget_cell w1 h1", html);
-        }
-        html.append(">");
-
-        for (Iterator iterator = compList.iterator(); iterator.hasNext();)
-        {
-            Widget comp = (Widget)iterator.next();
-            if (isFLSEnabled())
-            {
-                comp.setValueMask(!hasViewPermission);
-                comp.addSecurityControls(cp);
-            }
-            html.append(comp.generateHTML());
-        }
-
-        html.append("</div>");
-
-        return html.toString();
+    	StringBuilder html = DisposableBfString.getBuffer();
+		try {
+	        //hasviewpermission will be used to indicate whether the value of the component needs to be hidden
+	        //by default without viewpermission configs, the hasviewpermission is true, which means,
+	        //if no viewpermission configured, the value will never be hidden.
+	        boolean hasViewPermission = true;
+	        ComponentPermission cp = null;
+	        if (isFLSEnabled())
+	        {
+	            cp = getContainedComponentPermission();
+	            String[] viewPermission = HTMLUtil.getViewPermission(cp, getContainedComponentViewPermission());
+	            if (viewPermission.length > 0)
+	            {
+	                hasViewPermission = HTMLUtil.checkViewPermission(viewPermission);
+	                if (!hasViewPermission)
+	                {
+	                    setVisible(false, false);
+	                }
+	            }
+	        }
+	
+	        html.append("<div id=\"");
+	        html.append(getId());
+	        html.append("\"");
+	        generateAttributes(html);
+	        String className = (String)this.getAttribute("class");
+	        if(className == null)
+	        {
+	            generateAttribute("class", "uimaster_widget_cell w1 h1", html);
+	        }
+	        else if(className.indexOf("uimaster_container_cell") == -1 
+	                && className.indexOf("uimaster_widget_cell") == -1 )
+	        {
+	            generateAttribute("class", className + "uimaster_widget_cell w1 h1", html);
+	        }
+	        html.append(">");
+	
+	        for (Iterator iterator = compList.iterator(); iterator.hasNext();)
+	        {
+	            Widget comp = (Widget)iterator.next();
+	            if (isFLSEnabled())
+	            {
+	                comp.setValueMask(!hasViewPermission);
+	                comp.addSecurityControls(cp);
+	            }
+	            html.append(comp.generateHTML());
+	        }
+	
+	        html.append("</div>");
+	
+	        return html.toString();
+		} finally {
+			DisposableBfString.release(html);
+		}
     }
 
     void append(CellLayout layout)

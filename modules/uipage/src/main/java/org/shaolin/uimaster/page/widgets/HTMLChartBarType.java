@@ -23,6 +23,7 @@ import org.shaolin.bmdp.datamodel.page.UITableColumnType;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.od.ODContext;
@@ -61,40 +62,44 @@ public class HTMLChartBarType extends HTMLChartSuper {
 			}
 			
 			context.generateHTML("datasets: [");
-			StringBuilder sb = new StringBuilder();
-			// vertical iterator.
-			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
-			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
-			ooeeContext.setDefaultEvaluationContext(evaContext);
-			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
-			for (int columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
-				ExpressionPropertyType isVisibleExpr = columns.get(columnIndex).getIsVisible();
-				if (isVisibleExpr != null) {
-					// it does require the data from the first row.
-					evaContext.setVariableValue("rowBE", listData.get(0));
-					Boolean isVisible = (Boolean)isVisibleExpr.getExpression().evaluate(ooeeContext);
-					if (!isVisible.booleanValue()) {
-						continue;
+			StringBuilder sb = DisposableBfString.getBuffer();
+			try {
+				// vertical iterator.
+				OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+				DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+				ooeeContext.setDefaultEvaluationContext(evaContext);
+				ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+				for (int columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
+					ExpressionPropertyType isVisibleExpr = columns.get(columnIndex).getIsVisible();
+					if (isVisibleExpr != null) {
+						// it does require the data from the first row.
+						evaContext.setVariableValue("rowBE", listData.get(0));
+						Boolean isVisible = (Boolean)isVisibleExpr.getExpression().evaluate(ooeeContext);
+						if (!isVisible.booleanValue()) {
+							continue;
+						}
 					}
-				}
-				sb.append("{");
-				String css = cssStyles.get(columnIndex);
-				if (css != null) {
-					sb.append(css).append(",");
-				}
-				sb.append(" data:[");
-				for (int i = 0; i < listData.size(); i++) {
-					evaContext.setVariableValue("rowBE", listData.get(i));
-					Object value = columns.get(columnIndex).getRowExpression().getExpression().evaluate(
-							ooeeContext);
-					sb.append(value).append(",");
+					sb.append("{");
+					String css = cssStyles.get(columnIndex);
+					if (css != null) {
+						sb.append(css).append(",");
+					}
+					sb.append(" data:[");
+					for (int i = 0; i < listData.size(); i++) {
+						evaContext.setVariableValue("rowBE", listData.get(i));
+						Object value = columns.get(columnIndex).getRowExpression().getExpression().evaluate(
+								ooeeContext);
+						sb.append(value!=null?value.toString():"").append(",");
+					}
+					sb.deleteCharAt(sb.length()-1);
+					sb.append("]},");
 				}
 				sb.deleteCharAt(sb.length()-1);
-				sb.append("]},");
+				context.generateHTML(sb.toString());
+				context.generateHTML("]");
+			} finally {
+				DisposableBfString.release(sb);
 			}
-			sb.deleteCharAt(sb.length()-1);
-			context.generateHTML(sb.toString());
-			context.generateHTML("]");
 		}
 	}
 

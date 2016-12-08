@@ -18,6 +18,7 @@ package org.shaolin.uimaster.page.ajax;
 import java.io.Serializable;
 
 import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 
@@ -54,8 +55,8 @@ public class PasswordField extends TextField implements Serializable
 
     public String generateHTML()
     {
-    	StringBuilder html = new StringBuilder();
-
+    	StringBuilder html = DisposableBfString.getBuffer();
+    	try {
         generateWidget(html);
         html.append("<input type=\"password\" name=\"");
         html.append(getId());
@@ -86,6 +87,9 @@ public class PasswordField extends TextField implements Serializable
         html.append("\" />");
 
         return html.toString();
+    	} finally {
+			DisposableBfString.release(html);
+		}
     }
 
 }

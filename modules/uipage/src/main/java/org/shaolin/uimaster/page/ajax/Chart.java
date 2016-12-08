@@ -27,6 +27,7 @@ import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.JSONArray;
@@ -146,7 +147,8 @@ public class Chart extends Widget implements Serializable {
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
 	
 			Object value = queryExpr.evaluate(ooeeContext);
-			StringBuilder all = new StringBuilder();
+			StringBuilder all = DisposableBfString.getBuffer();
+			try {
 			if (this.type == HTMLChartPieType.class 
 					|| this.type == HTMLChartDoughnutType.class
 					|| this.type == HTMLChartPolarPieType.class) {
@@ -167,28 +169,35 @@ public class Chart extends Widget implements Serializable {
 				List<Object> listData = (List<Object>)value;
 				if (!listData.isEmpty() && listData.size() > 0) {
 					all.append("datasets: [");
-					StringBuilder sb = new StringBuilder();
-					// vertical iterator.
-					for (int columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
-						sb.append("{");
-						sb.append(" data:[");
-						for (int i = 0; i < listData.size(); i++) {
-							evaContext.setVariableValue("rowBE", listData.get(i));
-							ooeeContext.setDefaultEvaluationContext(evaContext);
-							ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
-							Object aPoint = columns.get(columnIndex).getRowExpression().getExpression().evaluate(
-									ooeeContext);
-							sb.append(aPoint).append(",");
+					StringBuilder sb = DisposableBfString.getBuffer();
+					try {
+						// vertical iterator.
+						for (int columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
+							sb.append("{");
+							sb.append(" data:[");
+							for (int i = 0; i < listData.size(); i++) {
+								evaContext.setVariableValue("rowBE", listData.get(i));
+								ooeeContext.setDefaultEvaluationContext(evaContext);
+								ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+								Object aPoint = columns.get(columnIndex).getRowExpression().getExpression().evaluate(
+										ooeeContext);
+								sb.append(aPoint).append(",");
+							}
+							sb.deleteCharAt(sb.length()-1);
+							sb.append("]},");
 						}
 						sb.deleteCharAt(sb.length()-1);
-						sb.append("]},");
+						all.append(sb.toString());
+						all.append("]");
+					} finally {
+						DisposableBfString.release(sb);
 					}
-					sb.deleteCharAt(sb.length()-1);
-					all.append(sb.toString());
-					all.append("]");
 				}
 			}
 			return all.toString();
+			} finally {
+				DisposableBfString.release(all);
+			}
 		} catch (Exception e) {
 			logger.error("error occurrs while refreshing chart: " + this.getId(), e);
 		}
