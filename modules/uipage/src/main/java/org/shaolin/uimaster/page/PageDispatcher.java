@@ -75,13 +75,13 @@ public class PageDispatcher {
 	}
 	
 	/**
-	 * HTMLUIEntity.forward
+	 * only for page embeded form
 	 * 
 	 * @param context
 	 * @param depth
 	 * @throws JspException
 	 */
-	public void forwardForm(HTMLSnapshotContext context, int depth) throws JspException
+	void forwardForm(HTMLSnapshotContext context, int depth) throws JspException
     {
         forwardForm(context, depth, null, null);
     }
@@ -163,8 +163,10 @@ public class PageDispatcher {
             } else {
             	htmlComponent = context.getHtmlWidget(uiEntity.getBodyName());
             }
-            if (UserContext.isMobileRequest()) {
-            	//propMap.put("data-role", "page");//jquery mobile page supported.
+            if (UserContext.isMobileRequest() && parent == null) {
+            	// jquery mobile page supported.
+//            	propMap.put("data-role", "main");
+//            	propMap.put("class", "ui-content");
             }
             
             htmlComponent.addAttribute(propMap);
@@ -484,9 +486,10 @@ public class PageDispatcher {
 				context.generateHTML("false\"/>\n");
 			}
 			
-//			if (UserContext.isMobileRequest() && !UserContext.isAppClient()) {
-//				context.generateHTML("<div data-role=\"header\"><a href=\"UIMaster.goBack();\" data-role=\"button\" data-rel=\"back\" class=\"ui-btn ui-icon-back ui-btn-icon-left ui-btn-icon-top\">\u8FD4\u56DE</a>"+title+"</div>");
-//			}
+			if (UserContext.isMobileRequest() && !UserContext.isAppClient() && pageObject.needBackButton()) {
+				context.generateHTML("<div data-role=\"header\" class=\"ui-widget-header\"><a href=\"javascript:void(0);\" onclick=\"javascript:UIMaster.goBack(this);\" data-role=\"button\" data-rel=\"back\" class=\"ui-btn ui-icon-back ui-btn-icon-left\">\u8FD4\u56DE</a>");
+				context.generateHTML("<div class=\"uimaster_mob_title\">"+ title + "</div></div>");
+			}
 
 			// ajax handler.
             HttpSession session = context.getRequest().getSession();

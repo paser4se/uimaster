@@ -91,6 +91,7 @@ public class WebConfig {
 		final Map<String, String[]> singleCommonJs;
 		final List<String> singleCustJs = new ArrayList<String>();
 		final List<String> singleCustCss = new ArrayList<String>();
+		final List<String> skipBackButtonPages;
 		
 		public WebConfigFastCache() {
 			jsVersion = (int)(Math.random() * 100);
@@ -223,6 +224,8 @@ public class WebConfig {
 					singleCommonJs.put(child, items);
 				}
 			}
+			
+			skipBackButtonPages = new ArrayList<String>(instance.getNodeItems("/System/webConstant/skipBackButton").values());
 		}
 	}
 	
@@ -430,6 +433,10 @@ public class WebConfig {
 	
 	public static boolean enableHotDeploy() {
 		return getCacheObject().hotdeployeable;
+	}
+	
+	public static boolean skipBackButton(String pageName) {
+		return getCacheObject().skipBackButtonPages.contains(pageName);
 	}
 	
 	/**

@@ -160,6 +160,10 @@ public class UIPageObject implements java.io.Serializable {
 				+ "\" type=\"text/css\">\n";
 		mobPageCSS.append(cssCode);
 	}
+	
+	public boolean needBackButton() {
+		return !WebConfig.skipBackButton(this.entityName);
+	}
 
 	public UIFormObject getUIForm() {
 		if (UserContext.isMobileRequest() && hasMobilePage()) {
