@@ -438,6 +438,7 @@ public class HTMLTableType extends HTMLContainerType {
 			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
 			evaContext.setVariableValue("rowBE", be);
 			evaContext.setVariableValue("index", count);
+			evaContext.setVariableValue("formId", this.getPrefix());
 			ooeeContext.setDefaultEvaluationContext(evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
 			
@@ -633,6 +634,7 @@ public class HTMLTableType extends HTMLContainerType {
 			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
 			evaContext.setVariableValue("rowBE", be);
 			evaContext.setVariableValue("index", count);
+			evaContext.setVariableValue("formId", this.getPrefix());
 			ooeeContext.setDefaultEvaluationContext(evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
 			
@@ -662,7 +664,11 @@ public class HTMLTableType extends HTMLContainerType {
 					context.generateHTML("</div>");
 				} else if ("HTML".equals(col.getUiType().getType())
 						|| "HTMLItem".equals(col.getUiType().getType())) {
-					htmlAttrsSB.append("<div class=\"d\">");
+					if (col.getCssStype() != null && col.getCssStype().length() > 0) {
+						htmlAttrsSB.append("<div class=\"d ").append(col.getCssStype()).append("\">");
+					} else {
+						htmlAttrsSB.append("<div class=\"d\">");
+					}
 					Object value = col.getRowExpression().getExpression().evaluate(
 							ooeeContext);
 					if (value == null) {

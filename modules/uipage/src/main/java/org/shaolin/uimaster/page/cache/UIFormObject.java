@@ -896,6 +896,7 @@ public class UIFormObject implements java.io.Serializable
             		}
             		localP.setVariableClass("rowBE", beClass);
             		localP.setVariableClass("index", int.class);
+            		localP.setVariableClass("formId", String.class);
 					localP.setVariableClass("tableCondition",  TableConditions.class);
 					
 					// for condition update.

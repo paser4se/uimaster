@@ -181,6 +181,9 @@ public class UploadFileServlet extends HttpServlet {
 							}
 						} else {
 							//single file.
+							if (!root.exists() && !root.getParentFile().exists()) {
+								root.getParentFile().mkdirs();
+							}
 							item.write(root);
 							logger.info("Received the uploading file: " + item.getName() + ", saving path: " + root);
 							if (file.getWidth() > 0 && file.getHeight() > 0) {

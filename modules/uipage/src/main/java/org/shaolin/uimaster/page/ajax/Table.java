@@ -463,6 +463,7 @@ public class Table extends Widget implements Serializable {
 			evaContext.setVariableValue("tableCondition", conditions);
 			evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
 			evaContext.setVariableValue("table", this);
+			evaContext.setVariableValue("formId", AjaxActionHelper.getAjaxContext().getEntityPrefix());
 			ooeeContext.setDefaultEvaluationContext(evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
 			
@@ -500,6 +501,7 @@ public class Table extends Widget implements Serializable {
 			evaContext.setVariableValue("tableCondition", conditions);
 			evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
 			evaContext.setVariableValue("table", this);
+			evaContext.setVariableValue("formId", AjaxActionHelper.getAjaxContext().getEntityPrefix());
 			ooeeContext.setDefaultEvaluationContext(evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
 			
