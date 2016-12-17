@@ -170,6 +170,11 @@
             <type>int</type>
             <value>80</value>
         </ns2:maxLength>
+        <ns2:editable xsi:type="ns2:ExpressionPropertyType">
+          <ns2:expression>
+            <expressionString>{return $isEditable;}</expressionString>
+          </ns2:expression>
+        </ns2:editable>
       </ns2:component>
       <ns2:layoutConstraint>
         <ns2:componentId>topPanel</ns2:componentId>
@@ -372,7 +377,9 @@
          throw new java.lang.IllegalArgumentException("Chat session id must be specified!");
       }
       ICoordinatorService coorService = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class);
-      $isEditable = !coorService.isSessionEnded($beObject.getSessionId());
+      if ($isEditable == null) {
+          $isEditable = !coorService.isSessionEnded($beObject.getSessionId());
+      }
       $isAdmin = UserContext.getUserContext().isAdmin();
 @odContext.executeAllMappings();
 }</expressionString>

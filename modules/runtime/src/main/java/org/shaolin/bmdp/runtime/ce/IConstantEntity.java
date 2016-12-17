@@ -193,6 +193,8 @@ public interface IConstantEntity extends Serializable
 	 */
 	public Map<Integer, String> getAllConstants(boolean includedSpecific);
 
+	public Map<String, String> getAllStringConstants(boolean includedSpecific);
+	
 	/**
 	 * Get all the defined constants.
 	 * 

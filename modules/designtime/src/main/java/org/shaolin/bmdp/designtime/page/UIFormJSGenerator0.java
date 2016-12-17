@@ -274,10 +274,18 @@ public class UIFormJSGenerator0 {
             {
             	out.write("        var o = this;\n");
             	out.write("        var UIEntity = this;\n");
+
+            	if (fType.isNeedConstraint()) {
+            		out.write("\n");
+            		out.write("        var constraint_result = this.Form.validate();\n");
+    				out.write("        if (constraint_result != true && constraint_result != null) {\n");
+    				out.write("            return false;\n");
+    				out.write("        }\n");
+            	}
             	if (fType.isNeedAlert()) {
-            		out.write("\n        ");
-            		out.write("new UIMaster.ui.dialog({");
-    				out.write("dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,message:'Are you sure continuing? ^_^',");
+            		out.write("\n");
+            		out.write("        new UIMaster.ui.dialog({");
+    				out.write("dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,message:WORKFLOW_COMFORMATION_MSG,");
     				out.write("messageType:UIMaster.ui.dialog.Warning,optionType:UIMaster.ui.dialog.YES_NO_OPTION,title:'',height:150,width:300,handler: function() {\n");
             	}
             	

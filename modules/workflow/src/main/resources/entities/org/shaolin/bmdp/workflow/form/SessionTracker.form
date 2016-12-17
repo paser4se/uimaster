@@ -92,15 +92,6 @@
            </ns2:column>
            <ns2:column xsi:type="ns2:UITableColumnType">
                <ns2:title xsi:type="ns2:StringPropertyType">
-                   <ns2:value>超时时间</ns2:value>
-               </ns2:title>
-               <ns2:beFieldId>rowBE.expiredTime</ns2:beFieldId>
-               <ns2:uiType xsi:type="ns2:UITableColHTMLType">
-                 <ns2:type>Label</ns2:type>
-               </ns2:uiType>
-           </ns2:column>
-           <ns2:column xsi:type="ns2:UITableColumnType">
-               <ns2:title xsi:type="ns2:StringPropertyType">
                    <ns2:value>任务名</ns2:value>
                </ns2:title>
                <ns2:beFieldId>rowBE.subject</ns2:beFieldId>

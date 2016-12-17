@@ -46,6 +46,17 @@ public class DynamicConstant extends AbstractConstant {
 		}
 		return constants;
 	}
+	
+	public Map<String, String> getAllStringConstants(boolean includedSpecific) {
+		Map<String, String> constants = new HashMap<String, String>();
+		for (IConstantEntity item : dynamicItems) {
+			if (!includedSpecific && item.getIntValue() == -1) {
+				continue;
+			}
+			constants.put(item.getValue(), item.getDisplayName());
+		}
+		return constants;
+	}
 
 	public void addConstant(DynamicConstant item) {
 		dynamicItems.add(item);

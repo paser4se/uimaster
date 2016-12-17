@@ -410,6 +410,25 @@ public abstract class AbstractConstant implements IConstantEntity {
 		}
 		return constants;
 	}
+	
+	public Map<String, String> getAllStringConstants(boolean includedSpecific) {
+		Map<String, String> constants = new HashMap<String, String>();
+		for (IConstantEntity item : constantList) {
+			if (!includedSpecific && item.getIntValue() == -1) {
+				continue;
+			}
+			constants.put(item.getValue(), item.getDisplayName());
+		}
+		if (dynamicItems != null) {
+			for (IConstantEntity item : dynamicItems) {
+				if (!includedSpecific && item.getIntValue() == -1) {
+					continue;
+				}
+				constants.put(item.getValue(), item.getDisplayName());
+			}
+		}
+		return constants;
+	}
 
 	@Override
 	public List<IConstantEntity> getConstantList() {

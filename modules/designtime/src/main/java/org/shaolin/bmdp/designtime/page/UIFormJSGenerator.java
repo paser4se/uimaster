@@ -103,6 +103,7 @@ public final class UIFormJSGenerator extends UIFormJSGenerator0 implements IEnti
 			FunctionType function = new FunctionType();
 			function.setFunctionName("invokeDynamicFunction");
 			function.setNeedAlert(Boolean.TRUE);
+			function.setNeedConstraint(Boolean.TRUE);
 			OpInvokeWorkflowType op0 = new OpInvokeWorkflowType();
 			function.getOps().add(op0);
 			

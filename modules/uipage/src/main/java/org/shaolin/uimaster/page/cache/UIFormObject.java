@@ -1798,7 +1798,9 @@ public class UIFormObject implements java.io.Serializable
 					
 					FunctionType function = new FunctionType();
 					function.setNeedAlert(Boolean.TRUE);
+					function.setNeedConstraint(Boolean.TRUE);
 					function.setFunctionName(action.getActionName());
+					
 					OpInvokeWorkflowType op = new OpInvokeWorkflowType();
 					op.setEventConsumer(eventConsumer);
 					op.setExpression(action.getExpression());

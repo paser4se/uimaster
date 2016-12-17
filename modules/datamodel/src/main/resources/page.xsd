@@ -1203,6 +1203,7 @@ in simple component mapping, the paramName is required</xs:documentation>
         </xs:sequence>
         <xs:attribute name="functionName" type="xs:string" use="required"/>
         <xs:attribute name="needAlert" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="needConstraint" type="xs:boolean" use="optional" default="false"/>
     </xs:complexType>
     
     <!--Variable Component-->

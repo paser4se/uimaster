@@ -143,6 +143,7 @@ UIMaster.ui.sync = function(){
 UIMaster.ui.sync.set = function(data){
     UIMaster.syncList.push(data);
 };
+var WORKFLOW_COMFORMATION_MSG="\u7EE7\u7EED\u672C\u64CD\u4F5C\u5417\uFF1F";
 UIMaster.workflowActionPanel = null;
 function postInit(){
     while(UIMaster.initList.length > 0) {
@@ -456,6 +457,7 @@ UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 	saveBtn:null,
 	height:null,
 	maxHeight:false,
+	editable:true,
 	init:function() {
 	    if (this.initialized)
 		    return;
@@ -513,6 +515,13 @@ UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 	    setTimeout(function(){
 		  CKEDITOR.replace(o.name+"_ckeditor", opts);
 		  o.ckeditor = CKEDITOR.instances[o.name+"_ckeditor"];
+		  if (!o.editable) {
+			  o.ckeditor.setReadOnly(true);
+		  }
+		  o.ckeditor.on('blur', function(e){
+			o.saveBtn.trigger("click");
+		  });
+		  //http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.editor.html#event:blur
 		},500);
 	},
 	getHTMLText:function() {
@@ -2709,11 +2718,12 @@ UIMaster.ui.webtree = function(conf){
 	UIMaster.apply(this, conf);
 };
 UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
-    initialized: false,
+    initialized:false,
 	_selectedNodeId:null,
 	_selectedNodeName:null,
 	_selectedParentNodeId:null,
 	_treeObj:null,
+	editable:true,
 	init:function(){
 	    if (this.initialized) { return;}
 		this.initialized = true;
@@ -2742,10 +2752,13 @@ UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
 		this._addnodeevent = config.attr("addnodeevent");
 		this._deletenodeevent = config.attr("deletenodeevent");
 		this._refreshnodeevent = config.attr("refreshnodeevent");
-		
+		var plugins = ["contextmenu", "dnd"];
+		if (!this.editable) {
+			plugins = [];
+		} 
 		var _treeObj = $(this).jstree({ 
 			"core":{"data": d, "check_callback" : true}, 
-			"plugins":["contextmenu", "dnd"], 
+			"plugins":plugins, 
 			"contextmenu":{"items": this.createMenu},
 			"types": {"#": {"max_children": 1, "max_depth": 10, "valid_children": []}}
 		}).bind("loaded.jstree", function(node,tree_obj,e){
