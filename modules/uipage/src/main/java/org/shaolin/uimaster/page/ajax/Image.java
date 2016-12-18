@@ -272,6 +272,7 @@ public class Image extends TextWidget implements Serializable
 			if (path.startsWith(WebConfig.getWebRoot())) {
 				path = path.substring(WebConfig.getWebRoot().length());
 			}
+			String imageRoot = WebConfig.getAppImageContextRoot(AjaxActionHelper.getAjaxContext().getRequest());
 	    	File directory = new File(WebConfig.getResourcePath() + File.separator + path);
 	        if (directory.exists() && directory.list() != null) {
 	        	String[] images = directory.list();
@@ -279,10 +280,7 @@ public class Image extends TextWidget implements Serializable
 	        	for (String i : images) {
 	        		File f = new File(directory, i);
 	        		if (f.isFile()) {
-	            		String item = this.src + "/" +  i;
-	            		if (UserContext.isAppClient()) {
-	            			WebConfig.getAppImageContextRoot(AjaxActionHelper.getAjaxContext().getRequest());
-	            		}
+	            		String item = imageRoot + this.src + "/" +  i;
 	            		sb.append("<span class=\"swiper-slide\" style=\"background-image:url("+ item +")\" alt=\""+i+"\" img=\""+item+"\"/></span>");
 	        		}
 	        	}
@@ -303,13 +301,11 @@ public class Image extends TextWidget implements Serializable
     private void genarateAblum(String root, StringBuilder sb, File directory) {
     	String[] images = directory.list();
     	sb.append("<div class=\"album\" data-jgallery-album-title=\""+directory.getName()+"\">");
+    	String imageRoot = WebConfig.getAppImageContextRoot(AjaxActionHelper.getAjaxContext().getRequest());
     	for (String i : images) {
     		File f = new File(directory, i);
     		if (f.isFile()) {
-        		String item = root + "/" +  i;
-        		if (UserContext.isAppClient()) {
-        			WebConfig.getAppImageContextRoot(AjaxActionHelper.getAjaxContext().getRequest());
-        		}
+        		String item = imageRoot + root + "/" +  i;
         		sb.append("<a href=\""+ item +"\"><img src=\""+ item +"\" alt=\""+i+"\"/></a>");
     		}
     	}
