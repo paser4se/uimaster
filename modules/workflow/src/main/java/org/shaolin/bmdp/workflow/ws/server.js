@@ -144,7 +144,7 @@ io.on('connection', function(socket){
         }
     }); 
     
-    socket.on('nofityhistory', function(obj){ 
+    socket.on('notifihistory', function(obj){ 
 	    if(!onlineUsers.hasOwnProperty(socket.partyId)) { 
 		   socket.emit('service_nopermission', obj); 
 		   return;
@@ -163,7 +163,7 @@ io.on('connection', function(socket){
 					if (DEBUG) {
 					  console.log(results);
 					}
-				    socket.emit('nofityFrom', results); 
+				    socket.emit('notifyFrom', results); 
 			   });
 		  });
 		   
@@ -171,6 +171,33 @@ io.on('connection', function(socket){
            console.error("query history error: " + e.stack || e);
         }
     }); 
+    socket.on('notifyCountHistory', function(obj){ 
+	    if(!onlineUsers.hasOwnProperty(socket.partyId)) { 
+		   socket.emit('service_nopermission', obj); 
+		   return;
+		}
+		try {
+	      pool.getConnection(function(err, connection) {
+			  connection.query('SELECT count(*) as count FROM wf_notification WHERE partyid=?', [parseInt(obj.partyId)], function(err, results, fields) {
+					connection.release();
+					if (err) {
+						if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+						  connectDB()
+						} else {
+						  console.error(err.stack || err);
+						}
+					}
+					if (DEBUG) {
+					  console.log(results);
+					}
+				    socket.emit('notifyCount', results[0].count); 
+			   });
+		  });
+		   
+        } catch(e){
+           console.error("query history error: " + e.stack || e);
+        }
+    });
     
 	socket.on('chatTo', function(obj){ 
 	    if(!onlineUsers.hasOwnProperty(socket.partyId)) { 
@@ -315,6 +342,7 @@ var notifyHandler = function(req, res){
 	    }
 	    if (d.hasOwnProperty("toAll")) {
 			io.emit('nofityFrom', d); 
+			io.emit('notifyCount', {v: 1}); 
 			res.send('sent'); 
 			return;
 		} 
@@ -323,7 +351,7 @@ var notifyHandler = function(req, res){
 		   res.send('service_nopermission'); 
 		   return;
 		}
-		onlineUsers[d.partyId].socket.emit('nofityFrom', [d]); 
+		onlineUsers[d.partyId].socket.emit('notifyFrom', [d]); 
 	    res.send('sent'); 
     } catch(e){
         console.error("notifyHandler error: " + e.stack || e);

@@ -18,6 +18,11 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
         ui: elementList[prefix + "countUIId"]
     });
 
+    var skipLoadSIOjsUI = new UIMaster.ui.hidden
+    ({
+        ui: elementList[prefix + "skipLoadSIOjsUI"]
+    });
+
     var cleanupBtn = new UIMaster.ui.button
     ({
         ui: elementList[prefix + "cleanupBtn"]
@@ -40,7 +45,7 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
     var Form = new UIMaster.ui.panel
     ({
         ui: elementList[prefix + "Form"]
-        ,items: [serverURLUI,sentPartyIdUI,countUIId,cleanupBtn,fieldPanel,messagePanel]
+        ,items: [serverURLUI,sentPartyIdUI,countUIId,skipLoadSIOjsUI,cleanupBtn,fieldPanel,messagePanel]
     });
 
     Form.serverURLUI=serverURLUI;
@@ -48,6 +53,8 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
     Form.sentPartyIdUI=sentPartyIdUI;
 
     Form.countUIId=countUIId;
+
+    Form.skipLoadSIOjsUI=skipLoadSIOjsUI;
 
     Form.cleanupBtn=cleanupBtn;
 
@@ -75,31 +82,27 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
        }
        $("#"+countUIId).append(this.realCounter);
        var o = this;
-       window.setTimeout(function(){
-	       UIMaster.require("/js/socket.io.js");
-	       o.nodesocket = io.connect(o.serverURLUI.value);
-	       o.nodesocket.on('connect', function(e) {
-	            var msg = {partyId: partyId};
-	            o.nodesocket.emit('register', msg);
-	       });
-	       o.nodesocket.on('loginSuccess', function(e) {
-	            var msg = {partyId: partyId};
-	            o.nodesocket.emit('nofityhistory', msg);
-	       });
-	       o.nodesocket.on('alreadyLogined', function(e) {
-	            var msg = {partyId: partyId};
-	            o.nodesocket.emit('nofityhistory', msg);
-	       });
-	       o.nodesocket.on('nofityFrom', function(e) {
-	            o.msgCounter = o.msgCounter + e.length;
-	            o.realCounter.text("("+o.msgCounter+")");
-	            for (var i=0;i<e.length;i++) {
-		            var row = "<div class=\"uimaster_noti_item "+((i%2==0)?"uimaster_chat_item_even":"uimaster_chat_item_old")+"\"><div><div class=\"uimaster_chat_time\">"
-						 + e[i].CREATEDATE + "</div><div class=\"uimaster_chat_message\"> " + e[i].DESCRIPTION + "</div></div></div>"
-		            $(row).appendTo(msgContainer);
-	            }
-	       });
-       }, 1000);
+       if (this.skipLoadSIOjsUI.value != "true") {
+       	  UIMaster.require("/js/socket.io.js");
+       }
+       o.nodesocket = io.connect(o.serverURLUI.value);
+       o.nodesocket.on('connect', function(e) {
+            var msg = {partyId: partyId};
+            o.nodesocket.emit('register', msg);
+       });
+       o.nodesocket.on('loginSuccess', function(e) {
+            var msg = {partyId: partyId};
+            o.nodesocket.emit('notifihistory', msg);
+       });
+       o.nodesocket.on('notifyFrom', function(e) {
+            for (var i=0;i<e.length;i++) {
+	            var row = "<div class=\"uimaster_noti_item "+((i%2==0)?"uimaster_chat_item_even":"uimaster_chat_item_old")+"\"><div><div class=\"uimaster_chat_time\">"
+					 + e[i].CREATEDATE + "</div><div class=\"uimaster_chat_message\"> " + e[i].DESCRIPTION + "</div></div></div>"
+	            $(row).appendTo(msgContainer);
+            }
+            o.msgCounter = o.msgCounter + e.length;
+            o.realCounter.text("("+o.msgCounter+")");
+       });
     
     
             /* Construct_LAST:org_shaolin_bmdp_workflow_form_NotificationBoard */
@@ -143,7 +146,12 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
         var o = this;
         var UIEntity = this;
 
-        new UIMaster.ui.dialog({dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,message:'Are you sure continuing? ^_^',messageType:UIMaster.ui.dialog.Warning,optionType:UIMaster.ui.dialog.YES_NO_OPTION,title:'',height:150,width:300,handler: function() {
+        var constraint_result = this.Form.validate();
+        if (constraint_result != true && constraint_result != null) {
+            return false;
+        }
+
+        new UIMaster.ui.dialog({dialogType: UIMaster.ui.dialog.CONFIRM_DIALOG,message:WORKFLOW_COMFORMATION_MSG,messageType:UIMaster.ui.dialog.Warning,optionType:UIMaster.ui.dialog.YES_NO_OPTION,title:'',height:150,width:300,handler: function() {
 
         // cal ajax function. 
 

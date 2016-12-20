@@ -42,6 +42,11 @@
                    <expressionString>""</expressionString><!-- indicates the notificationIcon parent.-->
                </ns2:expression>
           </ns2:DataComponent>
+          <ns2:DataComponent xsi:type="ns2:ExpressionParamType" paramName="skipLoadSIOjs">
+              <ns2:expression>
+                   <expressionString>true</expressionString>
+               </ns2:expression>
+          </ns2:DataComponent>
         </ns2:ComponentMapping>
 	</ns2:ODMapping>
 	<ns2:in>

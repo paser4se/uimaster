@@ -26,6 +26,9 @@
                     <item name="zh-cn" value="/js/controls/fullcalendar/zh-cn.js" />
                     <item name="fullcalendar" value="/js/controls/fullcalendar/fullcalendar.js" />
                 </node>
+                <node name="org.shaolin.bmdp.workflow.page.UserNotification">
+                    <item name="socket.io" value="/js/socket.io.js" />
+                </node>
             </node>
             <node name="commoncss">
                 <node name="org.shaolin.bmdp.workflow.page.CalendarManagement">
