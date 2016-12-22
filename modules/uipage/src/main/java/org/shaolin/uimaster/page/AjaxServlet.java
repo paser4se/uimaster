@@ -29,6 +29,7 @@ import javax.servlet.http.HttpSession;
 import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.AppContext;
+import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.uimaster.page.ajax.Table;
@@ -104,6 +105,10 @@ public class AjaxServlet extends HttpServlet {
 		}
 		HttpSession session = request.getSession();
 		UserContext currentUserContext = (UserContext)session.getAttribute(WebflowConstants.USER_SESSION_KEY);
+		if (currentUserContext == null) {
+			currentUserContext = new UserContext();
+			currentUserContext.setOrgCode(Registry.getInstance().getValue("/System/webConstant/defaultOrgCode"));
+		}
 		String userLocale = WebConfig.getUserLocale(request);
 		List userRoles = (List)session.getAttribute(WebflowConstants.USER_ROLE_KEY);
 		String userAgent = request.getHeader("user-agent");
@@ -113,11 +118,8 @@ public class AjaxServlet extends HttpServlet {
         UserContext.setAppClient(request);
 		LocaleContext.createLocaleContext(userLocale);
 		
-		String orgCode = (String)UserContext.getUserData(UserContext.CURRENT_USER_ORGNAME);
-        if (orgCode == null) {
-        	orgCode = IServerServiceManager.INSTANCE.getMasterNodeName();
-        }
-        AppContext.register(IServerServiceManager.INSTANCE.getApplication(orgCode));
+        AppContext.register(IServerServiceManager.INSTANCE.getApplication(
+        		IServerServiceManager.INSTANCE.getMasterNodeName()));
 		
 		if (request.getParameter("_ajaxUserEvent") != null) 
 		{ // for new UI framework.

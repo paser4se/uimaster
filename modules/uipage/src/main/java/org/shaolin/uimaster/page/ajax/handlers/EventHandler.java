@@ -125,7 +125,7 @@ public class EventHandler implements IAjaxHandler {
 							}
 						}
 					} catch (EvaluationException ex) {
-						log.warn("This statement can not be evaluated: \n"+ wfOp.getExpression().getExpressionString());
+						log.warn("This statement can not be evaluated: \n"+ wfOp.getExpression().getExpressionString(), ex);
 						throw ex;
 					}
 				}

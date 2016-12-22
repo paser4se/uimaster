@@ -96,7 +96,7 @@ public class WebConfig {
 		public WebConfigFastCache() {
 			jsVersion = (int)(Math.random() * 100);
 			Registry instance = Registry.getInstance();
-			runningMode = instance.getValue("/System/resourceServer");
+			runningMode = instance.getValue("/System/webConstant/runningMode");
 			resourceContextRoot = instance.getValue(
 					"/System/webConstant/resourceServer");
 			uploadFileContextRoot = instance.getValue(

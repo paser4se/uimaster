@@ -47,6 +47,7 @@
             <item name="webport" value="8080" />
             <item name="hotdeployeable" value="true" />
             <item name="hiddenValueMask" value="***" />
+            <item name="defaultOrgCode" value="jounioruser" />
             <item name="actionPath" value="/webflow.do" />
             <item name="loginPath" value="/login.do" />
             <item name="frameWrap" value="" />

@@ -762,6 +762,10 @@ public class AjaxContext extends OpExecuteContext implements Serializable
         return (Tree)this.getElement(uiid);
     }
     
+    public void log(String message) {
+    	logger.info(message);
+    }
+    
     public boolean isLTR()
     {
         return isLTR;

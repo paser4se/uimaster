@@ -450,6 +450,8 @@ public class RefForm extends Container implements Serializable
 					caller.execute();
 				}
 			}
+			callBack = null;
+			callBackList = null;
 		}
 		
 		this.remove();
@@ -469,6 +471,8 @@ public class RefForm extends Container implements Serializable
 					}
 				}
 			}
+			callBack = null;
+			callBackList = null;
 		}
 		
 		this.remove();
