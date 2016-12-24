@@ -124,6 +124,11 @@
                 <value>swiper</value>
             </ns2:value>
           </ns2:Property>
+          <ns2:Property name="skipEmptyRawMessage" >
+            <ns2:value xsi:type="ns2:BooleanPropertyType">
+                <value>true</value>
+            </ns2:value>
+          </ns2:Property>
           <ns2:Property name="style" >
             <ns2:value xsi:type="ns2:StringPropertyType">
                 <value>height:220px;overflow-y: scroll;overflow-x: hidden;</value>

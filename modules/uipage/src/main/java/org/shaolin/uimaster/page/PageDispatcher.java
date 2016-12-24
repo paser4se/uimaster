@@ -391,12 +391,12 @@ public class PageDispatcher {
             	context.generateHTML("<meta name=\"apple-mobile-web-app-status-bar-style\" content=\"black-translucent\">\n");
             	context.generateHTML("<meta name=\"format-detection\" content=\"telephone=no\">\n");
             	if (UserContext.isAppClient()) {
-            		context.generateHTML(WebConfig.replaceAppCssWebContext(pageObject.getMobPageCSS().toString()));
+            		context.generateHTML(pageObject.getMobAppPageCSS().toString());
             	} else {
-            		context.generateHTML(WebConfig.replaceCssWebContext(pageObject.getMobPageCSS().toString()));
+            		context.generateHTML(pageObject.getMobPageCSS().toString());
             	}
             } else {
-        		context.generateHTML(WebConfig.replaceCssWebContext(pageObject.getPageCSS().toString()));
+        		context.generateHTML(pageObject.getPageCSS().toString());
             }
             
             if (logger.isDebugEnabled())

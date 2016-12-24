@@ -188,6 +188,10 @@ public class UIFormObject implements java.io.Serializable
     private Map jsMobIncludeMap = new HashMap();
 
     private List jsMobIncludeList = new ArrayList();
+
+    private Map jsMobAppIncludeMap = new HashMap();
+
+    private List jsMobAppIncludeList = new ArrayList();
     
 	public UIFormObject(String name)
     {
@@ -222,6 +226,7 @@ public class UIFormObject implements java.io.Serializable
         parseUI(parsingContext, uientity, null);
         HTMLUtil.includeJsFiles(name, jsIncludeMap, jsIncludeList, !WebConfig.skipCommonJs(name));
         HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, !WebConfig.skipCommonJs(name));
+        HTMLUtil.includeMobAppJsFiles(name, jsMobAppIncludeMap, jsMobAppIncludeList, !WebConfig.skipCommonJs(name));
     }
     
     private void load()
@@ -232,6 +237,7 @@ public class UIFormObject implements java.io.Serializable
         parseUI(parsingContext, entity, null);
         HTMLUtil.includeJsFiles(name, jsIncludeMap, jsIncludeList, false);
         HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, false);
+        HTMLUtil.includeMobAppJsFiles(name, jsMobAppIncludeMap, jsMobAppIncludeList, false);
     }
     
     private void loadForPage()
@@ -242,6 +248,7 @@ public class UIFormObject implements java.io.Serializable
         parseUI(parsingContext, entity, null);
         HTMLUtil.includeJsFiles(name, jsIncludeMap, jsIncludeList, !WebConfig.skipCommonJs(name));
         HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, !WebConfig.skipCommonJs(name));
+        HTMLUtil.includeMobJsFiles(name, jsMobAppIncludeMap, jsMobAppIncludeList, !WebConfig.skipCommonJs(name));
     }
     
     private void parseUI(OOEEContext parsingContext, UIEntity entity, Map extraInfo)
@@ -1560,6 +1567,8 @@ public class UIFormObject implements java.io.Serializable
         jsIncludeList.clear();
         jsMobIncludeMap.clear();
         jsMobIncludeList.clear();
+        jsMobAppIncludeMap.clear();
+        jsMobAppIncludeList.clear();
     }
 
     public IUISkin getUISkinObj(String UIID, VariableEvaluator ee, HTMLWidgetType htmlComponent)
@@ -2062,7 +2071,11 @@ public class UIFormObject implements java.io.Serializable
     {
     	Iterator jsFileNameIterator = null;
     	if (UserContext.isMobileRequest()) {
-    		jsFileNameIterator = this.jsMobIncludeList.iterator();
+    		if (UserContext.isAppClient()) {
+    			jsFileNameIterator = this.jsMobAppIncludeList.iterator();
+    		} else {
+    			jsFileNameIterator = this.jsMobIncludeList.iterator();
+    		}
     	} else {
     		jsFileNameIterator = this.jsIncludeList.iterator();
     	}
@@ -2082,14 +2095,13 @@ public class UIFormObject implements java.io.Serializable
             {
             	String importJSCode = null;
             	if (UserContext.isMobileRequest()) {
-            	    importJSCode = (String)this.jsMobIncludeMap.get(jsFileName);
+            		if (UserContext.isAppClient()) {
+            			importJSCode = (String)this.jsMobAppIncludeMap.get(jsFileName);
+            		} else {
+            			importJSCode = (String)this.jsMobIncludeMap.get(jsFileName);
+            		}
             	} else {
                     importJSCode = (String)this.jsIncludeMap.get(jsFileName);
-            	}
-            	if (UserContext.isMobileRequest() && UserContext.isAppClient()) {
-            		importJSCode = WebConfig.replaceAppJsWebContext(importJSCode);
-            	} else {
-            		importJSCode = WebConfig.replaceJsWebContext(importJSCode);
             	}
             	if (jsFileName.startsWith("http") || jsFileName.startsWith("https")) {
             		context.generateJS("<script type=\"text/javascript\" src=\"" + jsFileName + "\" ");
@@ -2110,7 +2122,11 @@ public class UIFormObject implements java.io.Serializable
         StringBuffer sb = new StringBuffer();
         Iterator jsFileNameIterator = null;
         if (UserContext.isMobileRequest()) {
-    		jsFileNameIterator = this.jsMobIncludeList.iterator();
+        	if (UserContext.isAppClient()) {
+    			jsFileNameIterator = this.jsMobAppIncludeList.iterator();
+    		} else {
+    			jsFileNameIterator = this.jsMobIncludeList.iterator();
+    		}
     	} else {
     		jsFileNameIterator = this.jsIncludeList.iterator();
     	}
@@ -2144,7 +2160,11 @@ public class UIFormObject implements java.io.Serializable
 		StringBuffer sb = new StringBuffer();
 		Iterator jsFileNameIterator = this.jsIncludeList.iterator();
 		if (UserContext.isMobileRequest()) {
-			jsFileNameIterator = this.jsMobIncludeList.iterator();
+			if (UserContext.isAppClient()) {
+    			jsFileNameIterator = this.jsMobAppIncludeList.iterator();
+    		} else {
+    			jsFileNameIterator = this.jsMobIncludeList.iterator();
+    		}
 		}
 		while (jsFileNameIterator.hasNext()) {
 			String jsFileName = (String) jsFileNameIterator.next();

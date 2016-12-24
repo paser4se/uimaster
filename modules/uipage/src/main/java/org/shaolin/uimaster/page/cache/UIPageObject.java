@@ -47,7 +47,11 @@ public class UIPageObject implements java.io.Serializable {
 	
 	private Map<String, List<String>> importMobCSSCodeMap = new HashMap<String, List<String>>();
 
+	private Map<String, List<String>> importAppMobCSSCodeMap = new HashMap<String, List<String>>();
+	
 	private final StringBuffer mobPageCSS = new StringBuffer();
+	
+	private final StringBuffer mobAppPageCSS = new StringBuffer();
 	
 	private boolean hasMobilePage = false;
 	
@@ -82,6 +86,7 @@ public class UIPageObject implements java.io.Serializable {
 
 		addCSS(DEFAULT_LOCALE, false);
 		addCSS(DEFAULT_LOCALE, true);
+		addMobAppCSS(DEFAULT_LOCALE);
 		
 		String importCSS = WebConfig.getImportCSS(entityName);
 		String cssCode = "<link rel=\"stylesheet\" href=\"" + importCSS
@@ -90,6 +95,7 @@ public class UIPageObject implements java.io.Serializable {
 
 		importCSS();
 		importMobCSS();
+		importMobAppCSS();
 	}
 
 	private void addCSS(String locale, boolean isMobile) {
@@ -117,6 +123,25 @@ public class UIPageObject implements java.io.Serializable {
 			importCSSCodeMap.put(locale, importCSSCode);
 		}
 	}
+	
+	private void addMobAppCSS(String locale) {
+		List<String> importCSSCode = new ArrayList<String>();
+		String[] css = WebConfig.getSingleCommonAppCSS(entityName);
+		if (css != null) {
+			for (int i = 0; i < css.length; i++) {
+				importCSSCode.add("<link rel=\"stylesheet\" href=\"" + css[i]
+						+ "\" type=\"text/css\">\n");
+			}
+		}
+		if (!WebConfig.skipCommonCss(entityName)) {
+			String[] common = WebConfig.getCommonMobAppCss();
+			for (int i = 0; common != null && i < common.length; i++) {
+				importCSSCode.add("<link rel=\"stylesheet\" href=\"" + common[i]
+						+ "\" type=\"text/css\">\n");
+			}
+		}
+		importAppMobCSSCodeMap.put(locale, importCSSCode);
+	}
 
 	private void importCSS() {
 //		String userLocale = LocaleContext.getUserLocale();
@@ -139,16 +164,6 @@ public class UIPageObject implements java.io.Serializable {
 	}
 	
 	private void importMobCSS() {
-//		String userLocale = LocaleContext.getUserLocale();
-//		if (userLocale != null && !userLocale.trim().equals(DEFAULT_LOCALE)) {
-//			if (!importCSSCodeMap.containsKey(userLocale)) {
-//				addCSS(userLocale, true);
-//				addCSSFile(userLocale);
-//			}
-//		} else {
-//			userLocale = DEFAULT_LOCALE;
-//		}
-
 		List<String> importCSSCode = (List<String>) importMobCSSCodeMap.get(DEFAULT_LOCALE);
 		Iterator<String> iterator = importCSSCode.iterator();
 		while (iterator.hasNext()) {
@@ -159,6 +174,18 @@ public class UIPageObject implements java.io.Serializable {
 		String cssCode = "<link rel=\"stylesheet\" href=\"" + importCSS
 				+ "\" type=\"text/css\">\n";
 		mobPageCSS.append(cssCode);
+	}
+	
+	private void importMobAppCSS() {
+		List<String> importCSSCode = (List<String>) importAppMobCSSCodeMap.get(DEFAULT_LOCALE);
+		Iterator<String> iterator = importCSSCode.iterator();
+		while (iterator.hasNext()) {
+			String code = iterator.next();
+			mobAppPageCSS.append(code);
+		}
+		String cssCode = "<link rel=\"stylesheet\" href=\"" + WebConfig.getImportAppMobCSS(entityName)
+				+ "\" type=\"text/css\">\n";
+		mobAppPageCSS.append(cssCode);
 	}
 	
 	public boolean needBackButton() {
@@ -198,6 +225,11 @@ public class UIPageObject implements java.io.Serializable {
 	public StringBuffer getMobPageCSS() {
 		return mobPageCSS;
 	}
+	
+	public StringBuffer getMobAppPageCSS() {
+		return mobAppPageCSS;
+	}
+	
 	
 	public boolean hasMobilePage() {
 		return hasMobilePage;

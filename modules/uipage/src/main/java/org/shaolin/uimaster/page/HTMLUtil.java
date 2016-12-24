@@ -458,6 +458,35 @@ public class HTMLUtil
         jsIncludeMap.put(jsFileName, importJSCode);
         jsIncludeList.add(jsFileName);
     }
+    
+    public static void includeMobAppJsFiles(String entityName, Map<String, String> jsIncludeMap, List<String> jsIncludeList, boolean includeCommon)
+    {
+    	if (includeCommon) {
+	        String[] commons = WebConfig.getCommonMobAppJs();
+	        for (String common: commons)
+	        {
+	            String importJSCode = "<script type=\"text/javascript\" src=\"" + common
+	                    + "?_timestamp=";
+	            jsIncludeMap.put(common, importJSCode);
+	            jsIncludeList.add(common);
+	        }
+    	}
+        String[] singleCommons = WebConfig.getSingleCommonAppJS(entityName);
+        for (String single: singleCommons)
+        {
+            String importJSCode = "<script type=\"text/javascript\" src=\"" + single
+                    + "?_timestamp=";
+            jsIncludeMap.put(single, importJSCode);
+            jsIncludeList.add(single);
+        }
+        
+        String jsFileName = WebConfig.getImportAppJS(entityName);
+        String importJSCode = "<script type=\"text/javascript\" src=\"" + jsFileName
+                + "?_timestamp=";
+        jsIncludeMap.put(jsFileName, importJSCode);
+        jsIncludeList.add(jsFileName);
+    }
+
 
     public static void generateJSHTML(HTMLSnapshotContext context, String jsRootPath,
             String jsFileName, int depth) throws JspException

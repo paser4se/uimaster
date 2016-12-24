@@ -85,10 +85,15 @@ public class WebConfig {
 		final String[] commoncss;
 		final String[] commonjs;
 		final String[] commonMobcss;
+		final String[] commonMobAppcss;
 		final String[] commonMobjs;
+		final String[] commonMobAppjs;
 		final String[] syncLoadJs;
 		final Map<String, String[]> singleCommonCss;
 		final Map<String, String[]> singleCommonJs;
+		final Map<String, String[]> singleCommonAppCss;
+		final Map<String, String[]> singleCommonAppJs;
+		
 		final List<String> singleCustJs = new ArrayList<String>();
 		final List<String> singleCustCss = new ArrayList<String>();
 		final List<String> skipBackButtonPages;
@@ -168,60 +173,74 @@ public class WebConfig {
 			values = (Collection<String>)
 					instance.getNodeItems("/System/webConstant/commoncss-mob").values();
 			commonMobcss = values.toArray(new String[values.size()]);
+			commonMobAppcss = values.toArray(new String[values.size()]);
 			for (int i=0; i<commonMobcss.length; i++) {
 				if (!commonMobcss[i].startsWith("http")) {
+					commonMobAppcss[i] = getAppResourceContextRoot() + commonMobcss[i];
 					commonMobcss[i] = resourceContextRoot + commonMobcss[i];
 				}
 			}
 			values = instance.getNodeItems("/System/webConstant/commonjs-mob").values();
 			commonMobjs = values.toArray(new String[values.size()]);
+			commonMobAppjs = values.toArray(new String[values.size()]);
 			for (int i=0; i<commonMobjs.length; i++) {
 				if (!commonMobjs[i].startsWith("http")
 						&& !commonMobjs[i].startsWith("https")) {
+					commonMobAppjs[i] = getAppResourceContextRoot() + commonMobjs[i];
 					commonMobjs[i] = resourceContextRoot + commonMobjs[i];
 				}
 			}
 			
 			singleCommonCss = new HashMap<String, String[]>();
+			singleCommonAppCss = new HashMap<String, String[]>();
 			String commonssPath = "/System/webConstant/commoncss";
 			List<String> children = instance.getNodeChildren(commonssPath);
 			if (children != null && children.size() > 0) {
 				for (String child: children) {
 					values = (Collection<String>)instance.getNodeItems(commonssPath + "/" + child).values();
 					String[] items = values.toArray(new String[values.size()]);
+					String[] itemsApp = values.toArray(new String[values.size()]);
 					for (int i=0; i<items.length; i++) {
 						if (items[i].equals("skipCommonCss")) {
 							// the common js files will be skipped if specified.
 							singleCustCss.add(child);
 							items[i] = "/uimaster/js/emtpy.js";
+							itemsApp[i] = "/uimaster/js/emtpy.js";
 						} else if (!items[i].startsWith("http")
 								&& !items[i].startsWith("https")) {
 							items[i] = resourceContextRoot + items[i];
+							itemsApp[i] = getAppResourceContextRoot() + itemsApp[i];
 						}
 					}
 					singleCommonCss.put(child, items);
+					singleCommonAppCss.put(child, itemsApp);
 				}
 			}
 			
 			singleCommonJs = new HashMap<String, String[]>();
+			singleCommonAppJs = new HashMap<String, String[]>();
 			String commonjsPath = "/System/webConstant/commonjs";
 			children = instance.getNodeChildren(commonjsPath);
 			if (children != null && children.size() > 0) {
 				for (String child: children) {
 					values = (Collection<String>)instance.getNodeItems(commonjsPath + "/" + child).values();
 					String[] items = values.toArray(new String[values.size()]);
+					String[] itemsApp = values.toArray(new String[values.size()]);
 					for (int i=0; i<items.length; i++) {
 						if (items[i].equals("skipCommonJs")) {
 							// the common js files will be skipped if specified.
 							singleCustJs.add(child);
 							items[i] = "/uimaster/js/emtpy.js";
+							itemsApp[i] = "/uimaster/js/emtpy.js";
 						} else if (!items[i].startsWith("http")
 								&& !items[i].startsWith("https")) {
 							//skip http, https, www, 
 							items[i] = resourceContextRoot + items[i];
+							itemsApp[i] = getAppResourceContextRoot() + itemsApp[i];
 						}
 					}
 					singleCommonJs.put(child, items);
+					singleCommonAppJs.put(child, itemsApp);
 				}
 			}
 			
@@ -458,6 +477,15 @@ public class WebConfig {
 		return resourceContextRoot + "/css/" + name + ".css";
 	}
 	
+	public static String getImportAppMobCSS(String entityName) {
+		String name = entityName.replace('.', '/');//firefox only support '/'
+		File f = new File(WebConfig.getRealPath("/css/" + name + "_mob.css"));
+		if (f.exists()) {
+			return getAppResourceContextRoot() + "/css/" + name + "_mob.css";
+		}
+		return getAppResourceContextRoot() + "/css/" + name + ".css";
+	}
+	
 	/**
 	 * Import one js.
 	 * @param entityName
@@ -466,6 +494,11 @@ public class WebConfig {
 	public static String getImportJS(String entityName) {
 		String name = entityName.replace('.', '/');//firefox only support '/'
 		return resourceContextRoot + "/js/" + name + ".js";
+	}
+	
+	public static String getImportAppJS(String entityName) {
+		String name = entityName.replace('.', '/');//firefox only support '/'
+		return getAppResourceContextRoot() + "/js/" + name + ".js";
 	}
 
 	public static String replaceAppCssWebContext(final String str) {
@@ -512,6 +545,14 @@ public class WebConfig {
 
 	public static String[] getCommonMobJs() {
 		return getCacheObject().commonMobjs;
+	}
+	
+	public static String[] getCommonMobAppCss() {
+		return getCacheObject().commonMobAppcss;
+	}
+
+	public static String[] getCommonMobAppJs() {
+		return getCacheObject().commonMobAppjs;
 	}
 	
 	public static boolean skipCommonJs(String pageName) {
@@ -585,6 +626,53 @@ public class WebConfig {
 		return results.toArray(new String[results.size()]);
 	}
 	
+	public static String[] getSingleCommonAppJS(String entityName) {
+		String pack = entityName.substring(0, entityName.lastIndexOf('.'));
+		Set<String> keys = getCacheObject().singleCommonAppJs.keySet();
+		List<String> results = new ArrayList<String>();
+		for (String key : keys) {
+			if (key.startsWith("*")) {
+				String keyA = key.substring(1, 2);
+				if (keyA.endsWith(".*")) {
+					keyA = keyA.substring(0, keyA.length() - 2);
+					if (pack.indexOf(keyA) != -1) {
+						String[] vs = getCacheObject().singleCommonAppJs.get(key);
+						for (String v: vs) {
+							results.add(v);
+						}
+					}
+				} else {
+					if (pack.lastIndexOf(keyA) != -1) {
+						String[] vs = getCacheObject().singleCommonAppJs.get(key);
+						for (String v: vs) {
+							results.add(v);
+						}
+					}
+				}
+			} else if (key.endsWith(".*")) {
+				String keyPack = key.substring(0, key.length() - 2);
+				if (pack.startsWith(keyPack)) {
+					String[] vs = getCacheObject().singleCommonAppJs.get(key);
+					for (String v: vs) {
+						results.add(v);
+					}
+				}
+			} else if (key.equals(entityName)) {
+				String[] vs = getCacheObject().singleCommonAppJs.get(entityName);
+				for (String v: vs) {
+					results.add(v);
+				}
+			}
+		}
+		// keep the load sequence.
+		for (String key : keys) {
+			if (key.equals(pack)) {
+				results.add(key);
+			} 
+		} 
+		return results.toArray(new String[results.size()]);
+	}
+	
 	public static String[] getSingleCommonCSS(String entityName) {
 		String pack = entityName.substring(0, entityName.lastIndexOf('.'));
 		Set<String> keys = getCacheObject().singleCommonCss.keySet();
@@ -600,6 +688,35 @@ public class WebConfig {
 				}
 			} else if (key.equals(entityName)) {
 				String[] vs = getCacheObject().singleCommonCss.get(entityName);
+				for (String v: vs) {
+					results.add(v);
+				}
+			}
+		}
+		// keep the load sequence.
+		for (String key : keys) {
+			if (key.equals(pack)) {
+				results.add(key);
+			} 
+		} 
+		return results.toArray(new String[results.size()]);
+	}
+	
+	public static String[] getSingleCommonAppCSS(String entityName) {
+		String pack = entityName.substring(0, entityName.lastIndexOf('.'));
+		Set<String> keys = getCacheObject().singleCommonAppCss.keySet();
+		List<String> results = new ArrayList<String>();
+		for (String key : keys) {
+			if (key.endsWith(".*")) {
+				String keyPack = key.substring(0, key.length() - 2);
+				if (pack.startsWith(keyPack)) {
+					String[] vs = getCacheObject().singleCommonAppCss.get(key);
+					for (String v: vs) {
+						results.add(v);
+					}
+				}
+			} else if (key.equals(entityName)) {
+				String[] vs = getCacheObject().singleCommonAppCss.get(entityName);
 				for (String v: vs) {
 					results.add(v);
 				}

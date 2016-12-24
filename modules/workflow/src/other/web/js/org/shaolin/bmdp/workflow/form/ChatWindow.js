@@ -52,6 +52,7 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
     ({
         ui: elementList[prefix + "messageUI"]
         ,utype: "swiper"
+        ,skipEmptyRawMessage: true
         ,style: "height:220px;overflow-y: scroll;overflow-x: hidden;"
         ,appendRowMode: true
     });
