@@ -16,6 +16,7 @@
 package org.shaolin.uimaster.page.ajax.handlers;
 
 import org.hibernate.criterion.Order;
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.ajax.Table;
@@ -67,7 +68,7 @@ public class TableEventHandler implements IAjaxHandler {
 							.desc(colId));
 				}
 			}
-			
+			UserContext.getUserContext().setPullAction("filter");
 			return comp.refresh0();
 		} else if (actionName.endsWith("chart")) {
 			comp.showStatistic();

@@ -346,6 +346,10 @@ public class UserContext implements Serializable {
 		return pullAction != null && "history".equals(pullAction);
 	}
 	
+	public boolean isPullRefresh() {
+		return pullAction != null && "filter".equals(pullAction);
+	}
+	
 	public void setPullAction(String pullAction) {
 		this.pullAction = pullAction;
 	}

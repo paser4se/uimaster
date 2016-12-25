@@ -477,6 +477,8 @@ public class Table extends Widget implements Serializable {
 				if (UserContext.getUserContext().isPullNew()) {
 					rows.addAll(this.listData);
 					this.listData = rows;
+				} else if (UserContext.getUserContext().isPullRefresh()) {
+					this.listData = rows;
 				} else {
 					this.listData.addAll(rows);
 				}
