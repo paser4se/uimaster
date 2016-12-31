@@ -143,6 +143,8 @@ public class UIFormObject implements java.io.Serializable
 
     private String desc = null;
     
+    private String pageHintLink = null;
+    
     private ExpressionType descExpr = null;
     
     private String bodyName = null;
@@ -152,7 +154,7 @@ public class UIFormObject implements java.io.Serializable
 
     private Map<String, Object> bundleMap = new HashMap<String, Object>();
 
-    private Map<String, Object> expressionMap = new HashMap<String, Object>();// for ExpressionPropertyType
+    private Map<String, Map<String, ExpressionType>> expressionMap = new HashMap<String, Map<String, ExpressionType>>();
 
     private Map<String, Object> funcMap = new HashMap<String, Object>();
 
@@ -478,7 +480,7 @@ public class UIFormObject implements java.io.Serializable
 
         Map propMap = new HashMap();
         Map i18nMap = new HashMap();
-        Map expMap = new HashMap();
+        Map<String, ExpressionType> expMap = new HashMap<String, ExpressionType>();
         Map eventMap = new HashMap();
 
         propMap.put("type", getComponentType(component.getClass().getName()));
@@ -1696,9 +1698,9 @@ public class UIFormObject implements java.io.Serializable
         return (Map)bundleMap.get(componentID);
     }
 
-    public Map getComponentExpression(String componentID)
+    public Map<String, ExpressionType> getComponentExpression(String componentID)
     {
-        return (Map)expressionMap.get(componentID);
+        return expressionMap.get(componentID);
     }
     
 	public void addWorkflowAction(String eventConsumer, MissionNodeType node, String nodeInfo) throws ParsingException {
@@ -1965,6 +1967,14 @@ public class UIFormObject implements java.io.Serializable
     	}
     	prop.put("dtargetInfo", targetInfo);
     	prop.put("dlinkInfo", linkInfo);
+    }
+    
+    public void addDynamicPageHints(String linkInfo) {
+    	this.pageHintLink = linkInfo;
+    }
+    
+    public String getPageHintLink() {
+    	return this.pageHintLink;
     }
     
     public void addDynamicItem(HTMLDynamicUIItem item) throws EntityNotFoundException, 

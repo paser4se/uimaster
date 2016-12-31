@@ -321,6 +321,7 @@ public class PageDispatcher {
             } else {
 				context.generateHTML(title);
             }
+			String pageHintLink = uiForm.getPageHintLink();
             //is the title need i18n? -- the name should not be i18n, but the <title> should be i18n
             //currently all uipages are embedded in frame, so the title can't be seen by user
             context.generateHTML("</title>\n");
@@ -361,6 +362,8 @@ public class PageDispatcher {
             }
             context.generateHTML("\";\nvar UPLOAD_CONTEXTPATH=\"");
             context.generateHTML(WebConfig.getUploadFileRoot());
+            context.generateHTML("\";\nvar PAGE_HINT=\"");
+            context.generateHTML(pageHintLink);
             context.generateHTML("\";\nvar FRAMEWRAP=\"");
             context.generateHTML(WebConfig.replaceWebContext(WebConfig.getFrameWrap()));
             context.generateHTML("\";\nvar IS_SERVLETMODE=true;\nvar AJAX_SERVICE_URL=\"");

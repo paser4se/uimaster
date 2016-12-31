@@ -29,6 +29,8 @@ import org.shaolin.bmdp.runtime.spi.EventProcessor;
 import org.shaolin.bmdp.runtime.spi.FlowEvent;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.uimaster.page.ajax.Button;
+import org.shaolin.uimaster.page.ajax.Dialog;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.ajax.json.JSONArray;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
@@ -55,20 +57,27 @@ public class EventHandler implements IAjaxHandler {
 			throws AjaxHandlerException {
 		Widget w = context.getElement(context.getRequestData().getUiid());
 		if (w == null) {
-			log.warn("Event source is not existed from current page.");
-			return "{'value': 'event source error.'}";
+			Dialog.showMessageDialog("\u4E8B\u4EF6\u6E90\u4E0D\u5B58\u5728\uFF01", "", Dialog.WARNING_MESSAGE, null);
+			return context.getDataAsJSON();
 		}
 		if (!w.isVisible()) {
-			log.warn("Event source does not have privilege from current page.");
 			return "{'value': 'event source does not have privilege.'}"; 
 		}
 		if (w.getAttribute("disabled") != null && "true".equals(w.getAttribute("disabled"))) {
-			log.warn("Event source does not have privilege from current page.");
 			return "{'value': 'event source does not have privilege.'}"; 
 		}
-		
+		if (w.getClass() == Button.class) {
+			if (((Button)w).isReadOnly(context)) {
+				Dialog.showMessageDialog("\u64CD\u4F5C\u65E0\u6548\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\uFF01", "", Dialog.WARNING_MESSAGE, null);
+				return context.getDataAsJSON();
+			}
+			if (!((Button)w).isVisible(context)) {
+				Dialog.showMessageDialog("\u64CD\u4F5C\u65E0\u6548\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\uFF01", "", Dialog.WARNING_MESSAGE, null);
+				return context.getDataAsJSON();
+			}
+		}
 		if (log.isDebugEnabled()) {
-			log.debug("execute the function of ajax calling: " + actionName);
+			log.debug("executing the function of ajax call: " + actionName);
 		}
 		try {
 		List<OpType> ops = null;
@@ -132,6 +141,9 @@ public class EventHandler implements IAjaxHandler {
 		}
 
 		context.synchVariables();
+		if (w.getClass() == Button.class) {
+			((Button)w).setAsEnabled();
+		}
 		if ((value != null) && (value.getClass() != Void.class)) {
 			// if value is not null, return directly.
 			if (log.isDebugEnabled()) {

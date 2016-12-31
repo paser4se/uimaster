@@ -508,6 +508,11 @@ UIMaster.getAllScript = function(){
 };
 UIMaster.addResource = function(pageName){
 };
+UIMaster.ajustToMiddle = function(id) {
+	var m = $(id).parent().height()/2;
+	if (m == 0) {m=5;} else { m = m-2;}
+	$(id).css("margin-top", m + "px").css("display","block");
+};
 /**
  * @description Get an element from the page.
  * @param {String|Node} id Id of the element or the DOM node.
@@ -1311,6 +1316,9 @@ function syncAll() {
  * @param {String} entityName The UIEntity name of the action.
  */
 UIMaster.triggerServerEvent = function(uiid,actionName,data,entityName,action,async){
+	if (elementList[uiid] != null && elementList[uiid].type && elementList[uiid].type == "button") {
+		elementList[uiid].disable();
+	}
     UIMaster.ui.mask.open();
     syncAll();
     //(typeof(async) != "undefined")?async:false,

@@ -18,7 +18,7 @@
 	        import org.shaolin.bmdp.workflow.be.INotification;
 	        import org.shaolin.uimaster.page.ajax.json.*;
 	        {
-	           if (UserContext.getUserContext() == null || UserContext.getUserContext().getUserId() > 0) {
+	           if (UserContext.getUserContext() == null || UserContext.getUserContext().getUserId() <= 0) {
 	              return "";
 	           }
 	           Date queryDate = (Date)@request.getSession().getAttribute("lastQueryDate");

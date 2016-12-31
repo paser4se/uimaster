@@ -21,11 +21,6 @@ import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
 
-/**
- * Please use JavaScript to instead of this feature due to it cannot hold the user thread for entering data.
- *
- * @deprecated
- */
 public class Dialog extends Container
 {
     private static final long serialVersionUID = 121214544768634345L;
@@ -181,7 +176,7 @@ public class Dialog extends Container
      * @param frameInfo
      * @return ReturnType
      */
-    public static int showConfirmDialog(String message, String title, String frameInfo) throws InterruptedException
+    public static int showConfirmDialog(String message, String title, String frameInfo) 
     {
         return showConfirmDialog(message, title, Dialog.DEF_X, Dialog.DEF_Y, frameInfo);
     }
@@ -194,9 +189,8 @@ public class Dialog extends Container
      * @param y
      * @param frameInfo
      * @return
-     * @throws InterruptedException
      */
-    public static int showConfirmDialog(String message, String title, int x, int y, String frameInfo) throws InterruptedException
+    public static int showConfirmDialog(String message, String title, int x, int y, String frameInfo) 
     {
         return showConfirmDialog(message, title, Dialog.DEF_OPTION_TYPE, Dialog.DEF_MESSAGE_TYPE, x, y, frameInfo);
     }
@@ -209,9 +203,8 @@ public class Dialog extends Container
      * @param messageType
      * @param frameInfo
      * @return ReturnType
-     * @throws InterruptedException
      */
-    public static int showConfirmDialog(String message, String title, int optionType, int messageType, int x, int y, String frameInfo) throws InterruptedException
+    public static int showConfirmDialog(String message, String title, int optionType, int messageType, int x, int y, String frameInfo) 
     {
         Dialog dialog = new Dialog("dialog");
         dialog.setDialogType(CONFIRM_TYPE);
@@ -242,9 +235,8 @@ public class Dialog extends Container
      * @param messageType
      * @param frameInfo
      * @return client's input String if client clicks "Ok" option, else return null
-     * @throws InterruptedException
      */
-    public static String showInputDialog(String message, String title, int messageType, String frameInfo) throws InterruptedException
+    public static String showInputDialog(String message, String title, int messageType, String frameInfo) 
     {
         return showInputDialog(message,title,messageType,Dialog.DEF_X,Dialog.DEF_Y, frameInfo);
     }
@@ -259,9 +251,8 @@ public class Dialog extends Container
      * @param y
      * @param frameInfo
      * @return
-     * @throws InterruptedException
      */
-    public static String showInputDialog(String message, String title, int messageType, int x, int y, String frameInfo) throws InterruptedException
+    public static String showInputDialog(String message, String title, int messageType, int x, int y, String frameInfo) 
     {
         Dialog dialog = new Dialog("dialog");
         dialog.setDialogType(INPUT_TYPE);
@@ -287,9 +278,8 @@ public class Dialog extends Container
      * @param title
      * @param messageType
      * @param frameInfo
-     * @throws InterruptedException
      */
-    public static void showMessageDialog(String message, String title, int messageType, String frameInfo) throws InterruptedException
+    public static void showMessageDialog(String message, String title, int messageType, String frameInfo)
     {
         showMessageDialog(message,title,messageType,Dialog.DEF_X,Dialog.DEF_Y, frameInfo);
     }
@@ -303,9 +293,8 @@ public class Dialog extends Container
      * @param x
      * @param y
      * @param frameInfo
-     * @throws InterruptedException
      */
-    public static void showMessageDialog(String message, String title, int messageType,int x, int y, String frameInfo) throws InterruptedException
+    public static void showMessageDialog(String message, String title, int messageType,int x, int y, String frameInfo)
     {
         Dialog dialog = new Dialog("dialog");
         dialog.setDialogType(MESSAGE_TYPE);
@@ -340,10 +329,9 @@ public class Dialog extends Container
      * @param frameInfo
      * @return return the selection from client if clicks "Ok" option,
      *          else return -1
-     * @throws InterruptedException
      */
     public static int showOptionDialog(String message, String title, int optionType,
-            int messageType, String[] options, int initialValue, String frameInfo) throws InterruptedException
+            int messageType, String[] options, int initialValue, String frameInfo) 
     {
         return showOptionDialog(message,title,optionType,messageType,options,initialValue,Dialog.DEF_X,Dialog.DEF_Y,frameInfo);
     }
@@ -361,10 +349,9 @@ public class Dialog extends Container
      * @param x
      * @param y
      * @return
-     * @throws InterruptedException
      */
     public static int showOptionDialog(String message, String title, int optionType,
-            int messageType, String[] options, int initialValue,int x, int y, String frameInfo) throws InterruptedException
+            int messageType, String[] options, int initialValue,int x, int y, String frameInfo)
     {
         Dialog dialog = new Dialog("dialog");
         dialog.setDialogType(OPTION_TYPE);
@@ -407,7 +394,7 @@ public class Dialog extends Container
      * @param title
      * @return ReturnType
      */
-    public static int showConfirmDialog(String message, String title) throws InterruptedException
+    public static int showConfirmDialog(String message, String title)
     {
         return showConfirmDialog(message, title, Dialog.DEF_X, Dialog.DEF_Y);
     }
@@ -419,9 +406,8 @@ public class Dialog extends Container
      * @param x
      * @param y
      * @return
-     * @throws InterruptedException
      */
-    public static int showConfirmDialog(String message, String title, int x, int y) throws InterruptedException
+    public static int showConfirmDialog(String message, String title, int x, int y)
     {
         return showConfirmDialog(message, title, Dialog.DEF_OPTION_TYPE, Dialog.DEF_MESSAGE_TYPE, x, y);
     }
@@ -433,9 +419,8 @@ public class Dialog extends Container
      * @param optionType
      * @param messageType
      * @return ReturnType
-     * @throws InterruptedException
      */
-    public static int showConfirmDialog(String message, String title, int optionType, int messageType, int x, int y) throws InterruptedException
+    public static int showConfirmDialog(String message, String title, int optionType, int messageType, int x, int y)
     {
         Dialog dialog = new Dialog("dialog");
         dialog.setDialogType(CONFIRM_TYPE);
@@ -465,9 +450,8 @@ public class Dialog extends Container
      * @param title
      * @param messageType
      * @return client's input String if client clicks "Ok" option, else return null
-     * @throws InterruptedException
      */
-    public static String showInputDialog(String message, String title, int messageType) throws InterruptedException
+    public static String showInputDialog(String message, String title, int messageType)
     {
         return showInputDialog(message,title,messageType,Dialog.DEF_X,Dialog.DEF_Y);
     }
@@ -481,9 +465,8 @@ public class Dialog extends Container
      * @param x
      * @param y
      * @return
-     * @throws InterruptedException
      */
-    public static String showInputDialog(String message, String title, int messageType, int x, int y) throws InterruptedException
+    public static String showInputDialog(String message, String title, int messageType, int x, int y)
     {
         Dialog dialog = new Dialog("dialog");
         dialog.setDialogType(INPUT_TYPE);
@@ -520,9 +503,8 @@ public class Dialog extends Container
      * @param message
      * @param title
      * @param messageType
-     * @throws InterruptedException
      */
-    public static void showMessageDialog(String message, String title, int messageType) throws InterruptedException
+    public static void showMessageDialog(String message, String title, int messageType)
     {
         showMessageDialog(message,title,messageType,Dialog.DEF_X,Dialog.DEF_Y);
     }
@@ -535,9 +517,8 @@ public class Dialog extends Container
      * @param messageType
      * @param x
      * @param y
-     * @throws InterruptedException
      */
-    public static void showMessageDialog(String message, String title, int messageType,int x, int y) throws InterruptedException
+    public static void showMessageDialog(String message, String title, int messageType,int x, int y)
     {
         Dialog dialog = new Dialog("dialog");
         dialog.setDialogType(MESSAGE_TYPE);
@@ -569,10 +550,9 @@ public class Dialog extends Container
      * @param initialValue determine the initial choice of options
      * @return return the selection from client if clicks "Ok" option,
      *          else return -1
-     * @throws InterruptedException
      */
     public static int showOptionDialog(String message, String title, int optionType,
-            int messageType, String[] options, int initialValue) throws InterruptedException
+            int messageType, String[] options, int initialValue) 
     {
         return showOptionDialog(message,title,optionType,messageType,options,initialValue,Dialog.DEF_X,Dialog.DEF_Y);
     }
@@ -590,10 +570,9 @@ public class Dialog extends Container
      * @param x
      * @param y
      * @return
-     * @throws InterruptedException
      */
     public static int showOptionDialog(String message, String title, int optionType,
-            int messageType, String[] options, int initialValue,int x, int y) throws InterruptedException
+            int messageType, String[] options, int initialValue,int x, int y) 
     {
         Dialog dialog = new Dialog("dialog");
         dialog.setDialogType(OPTION_TYPE);

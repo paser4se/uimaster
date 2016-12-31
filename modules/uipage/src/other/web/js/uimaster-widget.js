@@ -160,7 +160,7 @@ function postInit(){
         var func = UIMaster.pageInitFunctions.shift();
 		func();
 	}
-	$(window).scrollTop(0);
+	//$(window).scrollTop(0);
 };
 /**
  * @description UI Field class.
@@ -1684,7 +1684,28 @@ UIMaster.ui.panel = function(conf){
 UIMaster.ui.button = UIMaster.extend(UIMaster.ui,{
     init:function(){
         this.parentDiv = this.parentNode;
-    }
+    },
+	addAttr: function(a){
+		if (a.name == "disabled" && a.value == "false") {
+		    this.enable();
+		} else {
+		    $(this).attr(a.name, a.value);
+		}
+	},
+	disable: function(a){
+		if (IS_MOBILEVIEW) {
+			$(this).parent().addClass("ui-disabled");		
+		} else {
+			$(this).addClass("ui-disabled");	
+		}
+	},
+	enable: function(a){
+		if (IS_MOBILEVIEW) {
+			$(this).parent().removeClass("ui-disabled");		
+		} else {
+			$(this).removeClass("ui-disabled");	
+		}
+	},
 });
 /**
  * @description UI Hidden class.
@@ -2058,6 +2079,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	tbody:null,
 	tfoot:null,
 	disableScrollY:false,
+	callSelectedFunc: null,
 	initMobileView:function(){
 	  var i=0;
 	  var othis = this;
@@ -2165,6 +2187,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				   $(selectedRow).removeClass('swiper-slide-active');
 				}
 			}
+			if (othis.callSelectedFunc) othis.callSelectedFunc();
 			$(this).addClass('swiper-slide-active');
 			othis.selectedIndex = $(this).attr("_rowindex");
 		 });
@@ -2613,6 +2636,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				    $($(tr).children()[0]).children()[0].checked=true;
 				othis.syncButtonGroup(isselected);
 			}
+			
+			if (othis.callSelectedFunc) othis.callSelectedFunc();
 			return false;//prevent the event pop.
 		  });
 		});
@@ -3108,6 +3133,27 @@ UIMaster.ui.mask={
         */
         this._isOpen = true;
     },
+	openHtml:function(html){
+		if (this._isOpen) { return; }
+		$.ajax({
+			url: RESOURCE_CONTEXTPATH + html + "?r=" + Math.random(),
+			type: "GET",async:true,
+			success: function(data){
+				var panel = $('<div class="ui-info-msg">'+ data +'</div>').appendTo($(document.body));
+				var dopts = {
+					title: "",
+					height: ($(window.top).height()) - 100,
+					modal: true,
+					closeOnEscape: false,
+					show: {effect: "slide", duration: 200}, 
+					hide: {effect: "slide", duration: 200},
+					open: function(event, ui) {},
+					buttons: {"Close": function(){panel.dialog("close");}} 
+				}
+				panel.dialog(dopts);
+			}
+		});
+	},
     /**
      * @description Close the mask.
      */
@@ -3184,8 +3230,18 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
             					click:function(e){
 								    var text=$(e.srcElement?e.srcElement:e.target).text();
 								    for (var i=0;i<actionButtons.length;i++){ 
-            						    if(text==actionButtons[i].value){$(actionButtons[i]).click();break;}
-									} } };
+            						    if(text==actionButtons[i].value){
+											if ($(actionButtons[i]).attr("disabled") == "disabled" 
+											    || $(actionButtons[i]).attr("disabled") == "true") {
+												alert("\u64CD\u4F5C\u65E0\u6548");
+												return;
+											}
+											$(actionButtons[i]).click();
+											break;
+										}
+									} 
+								} 
+							};
 						}
             		}
             	}

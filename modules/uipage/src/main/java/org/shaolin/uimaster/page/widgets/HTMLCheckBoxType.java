@@ -68,26 +68,24 @@ public class HTMLCheckBoxType extends HTMLSelectComponentType
                 context.generateHTML(" disabled=\"true\"");
             }
             context.generateHTML(" />");
-            if (!this.isVisible())
+            if (!this.isVisible()) {
                 context.generateHTML("<span style=\"display:none\">");
-            if (getName() == null || "null".equals(getName())) {
-	            context.generateHTML("<label for=\"");
-	            context.generateHTML(getName());
-	            context.generateHTML("\">");
             }
-            if (context.isValueMask())
-            {
+            String linkevent = getEventListener("linkevent");
+        	if (linkevent != null && linkevent.length() > 0) {
+        		context.generateHTML("<a href=\"" + getReconfigurateFunction(linkevent));
+        		context.generateHTML("\">");
+        	} 
+            if (context.isValueMask()) {
                 context.generateHTML(WebConfig.getHiddenValueMask());
-            }
-            else
-            {
+            } else {
 				if (getLabel() != null && !"null".equals(getName())) {
 					context.generateHTML(HTMLUtil.htmlEncode(getLabel()));
 				}
             }
-            if (getName() == null || "null".equals(getName())) {
-            	context.generateHTML("</label>");
-            }
+        	if (linkevent != null && linkevent.length() > 0) {
+        		context.generateHTML("</a>");
+        	} 
             if (!this.isVisible())
             {
                 context.generateHTML("</span>");

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.servlet.jsp.JspException;
 
+import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.TableLayoutConstraintType;
 import org.shaolin.javacc.Expression;
 import org.shaolin.javacc.ExpressionParser;
@@ -17,11 +18,13 @@ import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.ajax.Button;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.exception.UIComponentNotFoundException;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.shaolin.uimaster.page.od.ODContext;
+import org.shaolin.uimaster.page.widgets.HTMLButtonType;
 import org.shaolin.uimaster.page.widgets.HTMLCellLayoutType;
 import org.shaolin.uimaster.page.widgets.HTMLLayoutType;
 import org.shaolin.uimaster.page.widgets.HTMLReferenceEntityType;
@@ -50,7 +53,7 @@ public class HTMLComponentLayout extends AbstractHTMLLayout
     
     protected Map i18nMap;
     
-    protected Map expMap;
+    protected Map<String, ExpressionType> expMap;
     
     private boolean isContainer = false;
     
@@ -275,7 +278,7 @@ public class HTMLComponentLayout extends AbstractHTMLLayout
     	
         Map tempValuesMap = null;
         try {
-        	if (htmlComponent instanceof HTMLTableType) {
+        	if (htmlComponent.getClass() == HTMLTableType.class) {
         		if (ee.getExpressionContext() instanceof OOEEContext) {
         		((OOEEContext)ee.getExpressionContext()).getEvaluationContextObject(ODContext.LOCAL_TAG)
         			.setVariableValue("tableCondition", null);
@@ -283,7 +286,7 @@ public class HTMLComponentLayout extends AbstractHTMLLayout
         			((DefaultEvaluationContext)ee.getExpressionContext())
         			.setVariableValue("tableCondition", null);
         		}
-        	}
+        	} 
 			tempValuesMap = HTMLUtil.evaluateExpression(propMap, expMap, tempValuesMap, ee);
 		} catch (EvaluationException e1) {
 			logger.warn("Failed to evaluate expressions in UI widget: " + context.getHTMLPrefix() + UIID);
@@ -323,39 +326,34 @@ public class HTMLComponentLayout extends AbstractHTMLLayout
         htmlComponent.addEventListener(eventMap);
         htmlComponent.setFrameInfo(context.getFrameInfo());
         
-        if ( htmlComponent instanceof HTMLReferenceEntityType )
-        {
+        if (htmlComponent.getClass() == HTMLReferenceEntityType.class) {
             ((HTMLReferenceEntityType)htmlComponent).setDepth(depth);
             ((HTMLReferenceEntityType)htmlComponent).setReconfiguration(
                     ownerEntity.getReconfigurationMap(UIID, ee), propMap, tempValuesMap);
         }
         IUISkin uiskinObj = ownerEntity.getUISkinObj(UIID, ee, htmlComponent);
-        if ( uiskinObj != null )
-        {
+        if ( uiskinObj != null ) {
             htmlComponent.addAttribute(uiskinObj.getAttributeMap(htmlComponent));
             htmlComponent.preIncludePage(context);
-            try
-            {
-                uiskinObj.generatePreCode(htmlComponent);
-            }
-            catch ( Exception e )
-            {
-                logger.error("uiskin error: ", e);
-            }
-        }
-        else
-        {
+			try {
+				uiskinObj.generatePreCode(htmlComponent);
+			} catch (Exception e) {
+				logger.error("uiskin error: ", e);
+			}
+        } else {
             htmlComponent.preIncludePage(context);
         }
         
         Widget newWidget = htmlComponent.createAjaxWidget(ee);
-        if ( newWidget != null )
-        {
+        if ( newWidget != null ) {
             context.addAjaxWidget(newWidget.getId(), newWidget);
+            if (htmlComponent.getClass() == HTMLButtonType.class) {
+            	// all express must be re-calculate when click button in every time.
+        		((Button)newWidget).setExpressMap(expMap);
+        	}
         }
         
-        if ( uiskinObj == null || !uiskinObj.isOverwrite() )
-        {
+        if ( uiskinObj == null || !uiskinObj.isOverwrite() ) {
             htmlComponent.generateBeginHTML(context, this.ownerEntity, depth);
             htmlComponent.generateEndHTML(context, this.ownerEntity, depth);
         }

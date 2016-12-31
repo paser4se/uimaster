@@ -114,6 +114,13 @@ public class HTMLImageType extends HTMLTextWidgetType
 	            generateAttributes(context);
 	            generateEventListeners(context);
 	            context.generateHTML(" style=\"cursor:pointer;\"/>");
+	            if (this.getAttribute("sampleImagePath") != null) {
+	            	context.generateHTML("<img");
+            		context.generateHTML(" width='100px'");
+		            context.generateHTML(" src=\"");
+		            context.generateHTML(this.getAttribute("sampleImagePath").toString());
+		            context.generateHTML("\" />");
+	            }
 	            if (this.getAttribute("showWords") != null) {
 	            	context.generateHTML("<span>" + this.getAttribute("text") + "</span>");
 	            }

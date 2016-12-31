@@ -24,7 +24,6 @@
     z-index: 10;
     width: 100%;
     color: green;
-    background-color: #FFFFD5;
 }
 .uimaster_widget_cell {             /* sets fluid layout for all DIVs with class "cell" */
     vertical-align: top;        /* vertical aligns elements within the cell */ 
@@ -148,6 +147,11 @@ label {
     width:200px;
 }
 
+.uimaster-rightopenpanel {
+	float: right;
+    right: 0;
+}
+
 .uimaster_button {
  border: 1px solid #77d5f7;
  background: #0078ae url("images/ui-bg_glass_45_0078ae_1x400.png") 50% 50% repeat-x;
@@ -202,6 +206,14 @@ label {
  border-top: 1px solid #a6c9e2;
  display: -webkit-flex;
  z-index: 1;
+}
+
+.uimaster_mob_title {
+ text-align: center;
+ top: 0;
+ width: 100%;
+ padding-top: 10px;
+ height: 35px;
 }
 
 .uimaster_workflow_action {
@@ -653,7 +665,7 @@ html, body{
 .uimaster_table_mob .swiper-container {height:100px;}
 .uimaster_table_mob .swiper-slide {height:100px; display:-webkit-box;display:-moz-box;display:box;border-bottom:1px solid #8DB9DB;padding:5px 0 5px 0;opacity: 1;}
 .uimaster_table_mob .swiper-slide .p {width: 100px;height: 100px;margin-right: 10px;margin-left: 8px;}
-.uimaster_table_mob .swiper-slide .d {text-align: left; width:100%;}
+.uimaster_table_mob .swiper-slide .d {text-align: left; word-wrap: break-word; word-break: normal;}
 .uimaster_table_mob .swiper-slide-active {background-color: #a9b7d1;}
 .uimaster_table_mob .swiper-slide-visible {opacity: 1;}
 .uimaster_table_mob_pageinfo {

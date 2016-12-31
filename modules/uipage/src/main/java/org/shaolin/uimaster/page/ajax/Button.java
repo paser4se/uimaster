@@ -16,14 +16,22 @@
 package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
+import java.util.Map;
 
+import org.shaolin.bmdp.datamodel.common.ExpressionType;
+import org.shaolin.javacc.context.EvaluationContext;
+import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Button extends TextWidget implements Serializable
 {
+	private static final Logger logger = LoggerFactory.getLogger(Button.class);
+	
     private static final long serialVersionUID = 6492151356109754310L;
     
     public static final String NORMAL_BUTTON = "button";
@@ -34,6 +42,8 @@ public class Button extends TextWidget implements Serializable
     
     private String buttonType = NORMAL_BUTTON;
 
+    private Map<String, ExpressionType> expMap = null;
+    
     public Button(String uiid)
     {
         this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
@@ -51,6 +61,40 @@ public class Button extends TextWidget implements Serializable
         super(id, layout);
     }
 
+    public void setExpressMap(Map<String, ExpressionType> expMap) {
+    	this.expMap = expMap;
+    }
+    
+    public boolean isReadOnly(EvaluationContext context) {
+    	if (expMap == null || !this.expMap.containsKey("readOnly")) {
+    		return this.isReadOnly();
+    	}
+    	try {
+			return (boolean) this.expMap.get("readOnly").evaluate(context);
+		} catch (EvaluationException e) {
+			logger.warn(e.getMessage(), e);
+			return this.isReadOnly();
+		}
+    }
+    
+    public boolean isVisible(EvaluationContext context) {
+    	if (expMap == null || !this.expMap.containsKey("visible")) {
+    		return this.isVisible();
+    	}
+    	try {
+			return (boolean) this.expMap.get("visible").evaluate(context);
+		} catch (EvaluationException e) {
+			logger.warn(e.getMessage(), e);
+			return this.isVisible();
+		}
+    }
+    
+    public void setAsEnabled() {
+    	if (this.getAttribute("skipSetAsEnabled") == null) {
+    		this._updateAttribute("disabled", "false");
+    	}
+    }
+    
     /**
      * Button types
      * <ul>

@@ -218,6 +218,14 @@ public class UIPageObject implements java.io.Serializable {
 		return ui;
 	}
 
+	public String getPageHintLink() {
+    	return ui.getPageHintLink();
+    }
+	
+	public void addDynamicPageHints(String linkInfo) {
+		ui.addDynamicPageHints(linkInfo);
+    }
+	
 	public StringBuffer getPageCSS() {
 		return pageCSS;
 	}
