@@ -135,7 +135,11 @@ public class AjaxContext extends OpExecuteContext implements Serializable
      * request parameters.
      */
     private final IRequestData requestData;
+    
+    private Button eventSource;
 
+    private boolean illegalEventSource = false;
+    
     /**
      * Linear array list.
      */
@@ -438,7 +442,23 @@ public class AjaxContext extends OpExecuteContext implements Serializable
     {
         return requestData.getEntityName();
     }
+    
+    public void setEventSource(Button button) {
+    	this.eventSource = button;
+    }
+    
+    public Button getEventSource() {
+    	return this.eventSource;
+    }
 
+    public void markAsInvalidEventSource() {
+    	this.illegalEventSource = true;
+    }
+    
+    public boolean isInvalidEventSource() {
+    	return this.illegalEventSource;
+    }
+    
     /**
      * by relative id adjust whether is existed this component in the component tree.
      * 

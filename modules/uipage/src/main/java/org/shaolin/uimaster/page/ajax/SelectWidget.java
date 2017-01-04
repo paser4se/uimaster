@@ -62,7 +62,13 @@ abstract public class SelectWidget extends Widget implements Serializable
 	public void checkConstraint() {
     	String value = (String)getAttribute("selected");
     	if(this.hasConstraint("mustCheck")) {
-    		boolean mustCheck = (Boolean)this.getConstraint("mustCheck");
+    		Object v = this.getConstraint("mustCheck");
+    		boolean mustCheck;
+    		if (v instanceof Boolean) {
+    			mustCheck = (Boolean)this.getConstraint("mustCheck");
+    		} else {
+    			mustCheck = "true".equalsIgnoreCase(this.getConstraint("mustCheck").toString());
+    		}
     		if (mustCheck && value == null || !"true".equals(value)) {
     			throw new IllegalStateException("UI Constraint fails in: " 
     							+ this.getConstraint("mustCheckText")

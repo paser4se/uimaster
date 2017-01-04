@@ -60,21 +60,14 @@ public class EventHandler implements IAjaxHandler {
 			Dialog.showMessageDialog("\u4E8B\u4EF6\u6E90\u4E0D\u5B58\u5728\uFF01", "", Dialog.WARNING_MESSAGE, null);
 			return context.getDataAsJSON();
 		}
+		if (w.getClass() == Button.class) {
+			context.setEventSource((Button)w);
+		}
 		if (!w.isVisible()) {
 			return "{'value': 'event source does not have privilege.'}"; 
 		}
 		if (w.getAttribute("disabled") != null && "true".equals(w.getAttribute("disabled"))) {
 			return "{'value': 'event source does not have privilege.'}"; 
-		}
-		if (w.getClass() == Button.class) {
-			if (((Button)w).isReadOnly(context)) {
-				Dialog.showMessageDialog("\u64CD\u4F5C\u65E0\u6548\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\uFF01", "", Dialog.WARNING_MESSAGE, null);
-				return context.getDataAsJSON();
-			}
-			if (!((Button)w).isVisible(context)) {
-				Dialog.showMessageDialog("\u64CD\u4F5C\u65E0\u6548\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\uFF01", "", Dialog.WARNING_MESSAGE, null);
-				return context.getDataAsJSON();
-			}
 		}
 		if (log.isDebugEnabled()) {
 			log.debug("executing the function of ajax call: " + actionName);
@@ -97,9 +90,12 @@ public class EventHandler implements IAjaxHandler {
 				if (op instanceof OpCallAjaxType) {
 					OpCallAjaxType callAjaxOp = (OpCallAjaxType) op;
 					try {
-					value = callAjaxOp.getExp().evaluate(context);
+						value = callAjaxOp.getExp().evaluate(context);
 					} catch (EvaluationException ex) {
-						log.warn("This statement can not be evaluated: \n"+ callAjaxOp.getExp().getExpressionString());
+						if (context.isInvalidEventSource()) {
+							break;
+						}
+						log.warn("This statement can not be evaluated: \n"+ callAjaxOp.getExp().getExpressionString(), ex);
 						throw ex;
 					}
 				} else if (op instanceof OpInvokeWorkflowType) {
@@ -134,6 +130,9 @@ public class EventHandler implements IAjaxHandler {
 							}
 						}
 					} catch (EvaluationException ex) {
+						if (context.isInvalidEventSource()) {
+							break;
+						}
 						log.warn("This statement can not be evaluated: \n"+ wfOp.getExpression().getExpressionString(), ex);
 						throw ex;
 					}
@@ -142,7 +141,11 @@ public class EventHandler implements IAjaxHandler {
 
 		context.synchVariables();
 		if (w.getClass() == Button.class) {
-			((Button)w).setAsEnabled();
+			if (context.isInvalidEventSource()) {
+				//((Button)w).setValue(((Button)w).getValue() + " Invalid!");
+			} else {
+				((Button)w).setAsEnabled();
+			}
 		}
 		if ((value != null) && (value.getClass() != Void.class)) {
 			// if value is not null, return directly.

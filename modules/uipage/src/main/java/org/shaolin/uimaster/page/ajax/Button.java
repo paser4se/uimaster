@@ -72,8 +72,9 @@ public class Button extends TextWidget implements Serializable
     	try {
 			return (boolean) this.expMap.get("readOnly").evaluate(context);
 		} catch (EvaluationException e) {
-			logger.warn(e.getMessage(), e);
-			return this.isReadOnly();
+			logger.warn(e.getMessage(), e.getCause());
+			// anything goes wrong, set as true;
+			return true;
 		}
     }
     
@@ -84,8 +85,9 @@ public class Button extends TextWidget implements Serializable
     	try {
 			return (boolean) this.expMap.get("visible").evaluate(context);
 		} catch (EvaluationException e) {
-			logger.warn(e.getMessage(), e);
-			return this.isVisible();
+			logger.warn(e.getMessage(), e.getCause());
+			// anything goes wrong, set as false;
+			return false;
 		}
     }
     

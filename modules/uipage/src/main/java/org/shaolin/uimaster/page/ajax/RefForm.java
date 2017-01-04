@@ -40,6 +40,7 @@ import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.exception.ODException;
 import org.shaolin.uimaster.page.od.ODContext;
+import org.shaolin.uimaster.page.od.ODEntityContext;
 import org.shaolin.uimaster.page.od.ODProcessor;
 import org.shaolin.uimaster.page.widgets.HTMLReferenceEntityType;
 import org.slf4j.Logger;
@@ -233,22 +234,34 @@ public class RefForm extends Container implements Serializable
             inputParams = (inputParams == null)?new HashMap():inputParams;
             inputParams.put(odEntityObject.getUiParamName(), newReferObject);
             htmlContext.setODMapperData(inputParams);
-            callODMapper(htmlContext, this.getUIEntityName());
-
+            
+            ODProcessor processor = new ODProcessor(htmlContext, this.getUIEntityName(), -1);
+            ODEntityContext odContext = processor.process();
+    		if (ajaxContext.getEventSource() != null) {
+    			// this check is supposed to be in UI to Data stage.
+    			// check event source whether is valid or not.
+    			if (ajaxContext.getEventSource().isReadOnly(odContext)) {
+    				ajaxContext.markAsInvalidEventSource();
+    				Dialog.showMessageDialog("\u64CD\u4F5C\u65E0\u6548\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\uFF01", "", Dialog.WARNING_MESSAGE, null);
+    				throw new ODException("Ajax event source is readonly for secure check.");
+    			}
+    			if (!ajaxContext.getEventSource().isVisible(odContext)) {
+    				ajaxContext.markAsInvalidEventSource();
+    				Dialog.showMessageDialog("\u64CD\u4F5C\u65E0\u6548\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\uFF01", "", Dialog.WARNING_MESSAGE, null);
+    				throw new ODException("Ajax event source is invisible for secure check.");
+    			}
+    		}
+            
             Map referenceEntityMap = new HashMap();
             htmlContext.setRefEntityMap(referenceEntityMap);
             Map result = htmlContext.getODMapperData();
-            if(logger.isDebugEnabled())
-            {
-                if(result != null)
-                {
-                    logger.debug("OD Mapping Result: "+result.toString());
-                }
-                else
-                {
-                    logger.debug("OD Mapping Result is null!");
-                }
-            }
+			if (logger.isDebugEnabled()) {
+				if (result != null) {
+					logger.debug("OD Mapping Result: " + result.toString());
+				} else {
+					logger.debug("OD Mapping Result is null!");
+				}
+			}
             return result;
         }
         catch(Exception ex)

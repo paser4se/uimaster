@@ -31,6 +31,8 @@ public class BEEntityDaoObject {
 
 	public static final BEEntityDaoObject DAOOBJECT = new BEEntityDaoObject();
 
+	public static boolean testMode = false;
+	
 	public void addResource(String hbmMapping) {
 		HibernateUtil.getConfiguration().addResource(hbmMapping);
 	}
@@ -47,7 +49,10 @@ public class BEEntityDaoObject {
 		if (entity.getCreateDate() == null) {
 			entity.setCreateDate(new Date());
 		}
-
+		if (testMode) {
+			return;
+		}
+		
 		Session session = HibernateUtil.getSession();
 		session.save(entity);
 		if (commit) {
@@ -70,6 +75,9 @@ public class BEEntityDaoObject {
 		}
 		if (logger.isDebugEnabled()) {
 			logger.debug("Remove an entity: {}", entity);
+		}
+		if (testMode) {
+			return;
 		}
 
 		Session session = HibernateUtil.getSession();
@@ -99,6 +107,9 @@ public class BEEntityDaoObject {
 
 		if (entity.getCreateDate() == null) {
 			entity.setCreateDate(new Date());
+		}
+		if (testMode) {
+			return;
 		}
 		try {
 			Session session = HibernateUtil.getSession();
@@ -135,7 +146,9 @@ public class BEEntityDaoObject {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Reload an entity: {}", entity);
 		}
-
+		if (testMode) {
+			return;
+		}
 		Session session = HibernateUtil.getSession();
 		session.load(entity, entity.getId());
 		HibernateUtil.releaseSession(session, true);
@@ -148,7 +161,9 @@ public class BEEntityDaoObject {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Cascading update an entity: {}", entity);
 		}
-
+		if (testMode) {
+			return;
+		}
 		Session session = HibernateUtil.getSession();
 		session.merge(entity);
 		HibernateUtil.releaseSession(session, true);
@@ -170,7 +185,9 @@ public class BEEntityDaoObject {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Insert a batch of entities: {}", entities);
 		}
-
+		if (testMode) {
+			return;
+		}
 		Session session = HibernateUtil.getSession();
 		for (IPersistentEntity entity : entities) {
 			if (entity.getCreateDate() == null) {
@@ -204,7 +221,9 @@ public class BEEntityDaoObject {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Update a batch of entities: {}", entities);
 		}
-
+		if (testMode) {
+			return;
+		}
 		Session session = HibernateUtil.getSession();
 		for (IPersistentEntity entity : entities) {
 			if (entity.getId() == 0) {
@@ -234,7 +253,9 @@ public class BEEntityDaoObject {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Remove a batch of entities: {}", entities);
 		}
-
+		if (testMode) {
+			return;
+		}
 		Session session = HibernateUtil.getSession();
 		for (IPersistentEntity entity : entities) {
 			if (entity.getId() > 0) {
@@ -255,7 +276,9 @@ public class BEEntityDaoObject {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Disable an entity: {}", entity);
 		}
-
+		if (testMode) {
+			return;
+		}
 		Session session = HibernateUtil.getSession();
 		entity.setEnabled(false);
 		session.update(entity);
@@ -272,7 +295,9 @@ public class BEEntityDaoObject {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Enable an entity: {}", entity);
 		}
-
+		if (testMode) {
+			return;
+		}
 		Session session = HibernateUtil.getSession();
 
 		entity.setEnabled(true);
