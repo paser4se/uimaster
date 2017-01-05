@@ -92,6 +92,51 @@ public class AjaxServlet extends HttpServlet {
 		response.setCharacterEncoding(charset);
 		request.setCharacterEncoding(charset);
 
+		AppContext.register(IServerServiceManager.INSTANCE.getApplication(
+        		IServerServiceManager.INSTANCE.getMasterNodeName()));
+		
+		String serviceName = request.getParameter("serviceName");
+		if (serviceName != null && serviceName.trim().length() > 0) {
+			try 
+			{
+				IAjaxCommand ajaxCommand = AjaxFactory.getIAjaxCommand(serviceName);
+				if (ajaxCommand.needUserSession()) {
+					HttpSession httpSession = request.getSession(false);
+					if (httpSession == null || httpSession.getAttribute(AjaxContext.AJAX_COMP_MAP) == null) {
+						PrintWriter out = response.getWriter();
+						IDataItem dataItem = AjaxActionHelper
+								.createSessionTimeOut(WebConfig.replaceWebContext(WebConfig.getTimeoutPage()));
+						JSONArray array = new JSONArray();
+						array.put(new JSONObject(dataItem));
+						out.print(array.toString());
+						return;
+					}
+				}
+				Object result = ajaxCommand.execute(request, response);
+				if (result != null) 
+				{
+					PrintWriter out = response.getWriter();
+					out.print(result.toString());
+				}
+			} 
+			catch (Exception ex) 
+			{
+				HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
+				logger.error(ex.getMessage(), ex);
+
+				StringBuilder sb = new StringBuilder();
+				sb.append("[ajax_error]");
+				sb.append((new JSONException(ex)).toString());
+				PrintWriter out = response.getWriter();
+				out.print(sb.toString());
+			} finally {
+				AjaxActionHelper.removeAjaxContext();
+				UserContext.unregister();
+				LocaleContext.clearLocaleContext();
+			}
+			return;
+		}
+		
 		HttpSession httpSession = request.getSession(false);
 		if (!AjaxProcessor.EVENT_WEBSERVICE.equals(request.getParameter(AjaxContext.AJAX_USER_EVENT)) && 
 				(httpSession == null || httpSession.getAttribute(AjaxContext.AJAX_COMP_MAP) == null)) {
@@ -117,9 +162,6 @@ public class AjaxServlet extends HttpServlet {
         UserContext.register(session, currentUserContext, userLocale, userRoles, isMobile);
         UserContext.setAppClient(request);
 		LocaleContext.createLocaleContext(userLocale);
-		
-        AppContext.register(IServerServiceManager.INSTANCE.getApplication(
-        		IServerServiceManager.INSTANCE.getMasterNodeName()));
 		
 		if (request.getParameter("_ajaxUserEvent") != null) 
 		{ // for new UI framework.
@@ -167,40 +209,8 @@ public class AjaxServlet extends HttpServlet {
 				UserContext.unregister();
 				LocaleContext.clearLocaleContext();
 			}
-		} 
-		else 
-		{  // for old ajax calling.
-			try 
-			{
-				String serviceName = request.getParameter("serviceName");
-				if (serviceName == null || serviceName.length() == 0) 
-				{
-					throw new IllegalArgumentException("Invoking service name is null, please make sure service name.");
-				}
-
-				IAjaxCommand ajaxCommand = AjaxFactory.getIAjaxCommand(serviceName);
-				Object result = ajaxCommand.execute(request, response);
-				if (result != null) 
-				{
-					PrintWriter out = response.getWriter();
-					out.print(result.toString());
-				}
-			} 
-			catch (Exception ex) 
-			{
-				HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
-				logger.error(ex.getMessage(), ex);
-
-				StringBuilder sb = new StringBuilder();
-				sb.append("[ajax_error]");
-				sb.append((new JSONException(ex)).toString());
-				PrintWriter out = response.getWriter();
-				out.print(sb.toString());
-			} finally {
-				AjaxActionHelper.removeAjaxContext();
-				UserContext.unregister();
-				LocaleContext.clearLocaleContext();
-			}
+		} else {
+			//unsupported.
 		}
     }
 }

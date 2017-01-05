@@ -115,6 +115,10 @@ public class AjaxFactory
 				return "0";//need refreshing!
 			}
 		}
+		
+		public boolean needUserSession() {
+			return false;
+		}
 	}
     
 	private static class I18NService implements IAjaxCommand {
@@ -179,6 +183,10 @@ public class AjaxFactory
 			}
 			return value;
 		}
+		
+		public boolean needUserSession() {
+			return false;
+		}
 	}
 	
 	private static class DateFormatService implements IAjaxCommand {
@@ -222,6 +230,9 @@ public class AjaxFactory
 			return value;
 		}
 
+		public boolean needUserSession() {
+			return false;
+		}
 	}
 	
 	private static class SetTimezoneOffset implements IAjaxCommand {
@@ -238,6 +249,10 @@ public class AjaxFactory
 				logger.info(ex.getMessage(), ex);
 			}
 			return "";
+		}
+		
+		public boolean needUserSession() {
+			return false;
 		}
 	}
 	
@@ -270,6 +285,10 @@ public class AjaxFactory
 				value = "";
 			}
 			return value;
+		}
+		
+		public boolean needUserSession() {
+			return false;
 		}
 	}
 }

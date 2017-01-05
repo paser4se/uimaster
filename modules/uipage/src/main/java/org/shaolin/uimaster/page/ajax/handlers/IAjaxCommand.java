@@ -38,4 +38,11 @@ public interface IAjaxCommand {
 	public Object execute(HttpServletRequest request,
 			HttpServletResponse response) throws Exception;
 
+	/**
+	 * Whether need user session for executing this command.
+	 * 
+	 * @return
+	 */
+	public boolean needUserSession();
+	
 }
