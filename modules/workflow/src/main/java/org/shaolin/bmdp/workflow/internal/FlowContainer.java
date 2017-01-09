@@ -242,7 +242,7 @@ public class FlowContainer {
 		ICoordinatorService coordinator = AppContext.get().getService(ICoordinatorService.class);
         ITask task = new TaskImpl();
         if (UserContext.getCurrentUserContext() != null) {
-			task.setOrgId((Long)UserContext.getUserData(UserContext.CURRENT_USER_ORGID));
+			task.setOrgId(UserContext.getUserContext().getOrgId());
 		}
         task.setSessionId(flowContext.getSession().getID());
         task.setSubject("Task: " + currentNode.getName());
@@ -250,16 +250,23 @@ public class FlowContainer {
     	task.setPartyType(role);
         task.setExpiredTime(timeout);
         task.setEnabled(true);
+        task.setExecutedNode(flowContext.currentNodeToString());
         task.setListener(new MissionListener(task));
         task.setCreateDate(new Date());
-        
-    	CoordinatorModel.INSTANCE.create(task);
         
     	List<ITaskEntity> taskEntities = flowContext.getAllNewTaskEntities();
     	if (taskEntities != null) {
     		for (ITaskEntity entity: taskEntities) {
-    			entity.setTaskId(task.getId());
-    			CoordinatorModel.INSTANCE.update(entity);
+    			if (entity.getSessionId() != null) {
+    				if (!entity.getSessionId().equals(task.getSessionId())) {
+    					logger.warn("Session id has already set!");
+    					continue;
+    				}
+    			} else {
+    				//entity.setTaskId(task.getId()); no need
+	    			entity.setSessionId(task.getSessionId());
+	    			CoordinatorModel.INSTANCE.update(entity);
+    			}
     		}
 			flowContext.getAllNewTaskEntities().clear();
     	}
@@ -273,13 +280,22 @@ public class FlowContainer {
         		flowContext.getEvent().setAttribute(key, null);
         	}
         }
+        
+        CoordinatorModel.INSTANCE.create(task);
         flowContext.setTaskId(task.getId());
         task.setFlowState(FlowRuntimeContext.marshall(flowContext));
         
         coordinator.addTask(task);
         
         for (ITaskEntity entity: taskRelatedEntities) {
-    		entity.setTaskId(task.getId());
+        	if (entity.getSessionId() != null) {
+        		if (!entity.getSessionId().equals(task.getSessionId())) {
+        			continue;
+        		}
+			} else {
+				entity.setSessionId(task.getSessionId());
+				CoordinatorModel.INSTANCE.update(entity);
+			}
         }
         return task;
     }

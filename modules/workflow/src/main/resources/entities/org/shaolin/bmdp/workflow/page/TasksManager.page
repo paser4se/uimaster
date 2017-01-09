@@ -42,11 +42,42 @@
                     RefForm form = new RefForm("userForm", "org.shaolin.bmdp.workflow.form.Task", input);
                     @page.addElement(form);
                     
-                    form.openInWindows("Modify Item", new TableCallBack("tasksTable"), 690, 380);
+                    form.openInWindows("Modify Item", new TableCallBack("tasksTable"), true);
                 }
                 ]]></ns2:expressionString>
             </ns2:exp>
         </ns2:ops>
+    </ns2:eventHandler>
+    <ns2:eventHandler functionName="openSessionTracker">
+      <ns2:ops xsi:type="ns2:OpCallAjaxType" name="openSessionTracker-20160614">
+          <ns2:exp>
+              <ns2:expressionString><![CDATA[
+              import java.util.HashMap;
+              import org.shaolin.uimaster.page.AjaxContext;
+              import org.shaolin.uimaster.page.ajax.*;
+              import org.shaolin.bmdp.runtime.AppContext;
+              import org.shaolin.bmdp.workflow.be.TaskImpl;
+              import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
+              {
+                  Table tasksTable = (Table)@page.getElement("tasksTable");
+                  if (tasksTable.getSelectedRow() == null) {
+                      return;
+                  }
+                  ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class);
+                  
+                  TaskImpl defaultUser = (TaskImpl)tasksTable.getSelectedRow();
+                  String sessionId = defaultUser.getSessionId();
+                  HashMap input = new HashMap();
+                  input.put("sessionId", sessionId);
+                  input.put("editable", new Boolean(false));
+                  RefForm form = new RefForm("sessionTracket", "org.shaolin.bmdp.workflow.form.SessionTracker", input);
+                  @page.addElement(form);
+                  
+                  form.openInWindows("业务状态跟踪", null, true);
+              }
+              ]]></ns2:expressionString>
+          </ns2:exp>
+      </ns2:ops>
     </ns2:eventHandler>
     <ns2:eventHandler functionName="postponeTask">
        <ns2:ops xsi:type="ns2:OpCallAjaxType" name="postponeTask-20150827-1152">
@@ -143,7 +174,7 @@
                     RefForm form = new RefForm("userForm", "org.shaolin.bmdp.workflow.form.ServerNodeInfo", input);
                     @page.addElement(form);
                     
-                    form.openInWindows("Create Server Node", new TableCallBack("serverNodeTable"), 690, 380);
+                    form.openInWindows("Create Server Node", new TableCallBack("serverNodeTable"), true);
                 }
                 ]]></ns2:expressionString>
             </ns2:exp>
@@ -170,7 +201,7 @@
                     RefForm form = new RefForm("userForm", "org.shaolin.bmdp.workflow.form.ServerNodeInfo", input);
                     @page.addElement(form);
                     
-                    form.openInWindows("Modify Server Node", new TableCallBack("serverNodeTable"), 690, 380);
+                    form.openInWindows("Modify Server Node", new TableCallBack("serverNodeTable"), true);
                 }
                 ]]></ns2:expressionString>
             </ns2:exp>
@@ -377,6 +408,14 @@
 	                </ns2:defaultActions>
 	                <ns2:actionGroup>
                        <ns2:type>radio</ns2:type>
+                       <ns2:action>
+                           <ns2:uiid>openSessionTracker</ns2:uiid>
+                           <ns2:title xsi:type="ns2:StringPropertyType">
+                               <ns2:value>会话跟踪</ns2:value>
+                           </ns2:title>
+                           <ns2:icon>ui-icon-note</ns2:icon>
+                           <ns2:function>openSessionTracker</ns2:function>
+                       </ns2:action>
                        <ns2:action>
                            <ns2:uiid>postponeTask</ns2:uiid>
                            <ns2:title xsi:type="ns2:StringPropertyType">

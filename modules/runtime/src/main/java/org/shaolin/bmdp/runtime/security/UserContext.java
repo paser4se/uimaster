@@ -220,6 +220,10 @@ public class UserContext implements Serializable {
 		userSession.get().setAttribute(key, value);
 	}
 	
+	public static void addUserData(String key, Serializable value) {
+		userSession.get().setAttribute(key, value);
+	}
+	
 	public static Object getUserData(String key) {
 		if (userSessionCache.get() == null) {
 			return null;

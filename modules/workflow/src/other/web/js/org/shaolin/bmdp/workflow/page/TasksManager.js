@@ -125,6 +125,8 @@ function org_shaolin_bmdp_workflow_page_TasksManager(json)
 
     Form.openTask = org_shaolin_bmdp_workflow_page_TasksManager_openTask;
 
+    Form.openSessionTracker = org_shaolin_bmdp_workflow_page_TasksManager_openSessionTracker;
+
     Form.postponeTask = org_shaolin_bmdp_workflow_page_TasksManager_postponeTask;
 
     Form.completeTask = org_shaolin_bmdp_workflow_page_TasksManager_completeTask;
@@ -173,6 +175,17 @@ function org_shaolin_bmdp_workflow_page_TasksManager(json)
 
         UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"openTask-20150809-2009",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_openTask */
+
+
+    /* auto generated eventlistener function declaration */
+    function org_shaolin_bmdp_workflow_page_TasksManager_openSessionTracker(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_TasksManager_openSessionTracker */
+        var o = this;
+        var UIEntity = this;
+
+        // cal ajax function. 
+
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"openSessionTracker-20160614",UIMaster.getValue(eventsource),o.__entityName);
+    }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_openSessionTracker */
 
 
     /* auto generated eventlistener function declaration */

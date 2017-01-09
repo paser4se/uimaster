@@ -315,6 +315,8 @@ public class HibernateMappingGenerator implements IEntityEventListener<TableType
 		} else if ("_taskId".equals(beField)) {
 			out.write("\" type=\"long");
 			return;
+		} else if ("_sessionId".equals(beField)) {
+			return;
 		} else if ("orgId".equals(beField)) {
 			out.write("\" type=\"long");
 			return;

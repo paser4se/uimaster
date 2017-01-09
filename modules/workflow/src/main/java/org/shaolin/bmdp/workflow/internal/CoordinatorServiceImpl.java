@@ -238,27 +238,15 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		return CoordinatorModel.INSTANCE.get(taskId, TaskImpl.class);
 	}
 	
-	//TODO: too heavy!
 	@Override
-	public boolean isTaskExecutedOnNode(long taskId, String flowNode) {
-		if (taskId == 0) {
-			return false;
-		}
-		
-		if (this.isPendingTask(taskId)) {
+	public boolean isTaskExecutedOnNode(String sessionId, long taskId, String flowNode) {
+		if (taskId > 0 && this.isPendingTask(taskId)) {
 			return true;
 		} else {
-			ITaskHistory history = this.getHistoryTask(taskId);
-			List<ITaskHistory> list = this.getHistoryTasksBySessionId(history.getSessionId());
+			List<ITaskHistory> list = this.getHistoryTasksBySessionId(sessionId);
 			for (ITaskHistory task : list) {
-				if (task.getExecutedNode() == null) {
-					continue;
-				}
-				if (flowNode.equals(task.getExecutedNode())) {
-					// matched node.
-					return true;
-				} else if (ICoordinatorService.END_SESSION_NODE_NAME.equals(task.getExecutedNode())) {
-					// session is terminated.
+				if (task.getTaskId() == taskId || flowNode.equals(task.getExecutedNode()) 
+						|| ICoordinatorService.END_SESSION_NODE_NAME.equals(task.getExecutedNode())) {
 					return true;
 				}
 			}

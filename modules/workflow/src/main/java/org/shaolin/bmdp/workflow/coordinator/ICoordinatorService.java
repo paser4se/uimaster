@@ -83,7 +83,7 @@ public interface ICoordinatorService {
 	
 	boolean isPendingTask(long taskId);
 	
-	boolean isTaskExecutedOnNode(long taskId, String flowNode);
+	boolean isTaskExecutedOnNode(String sessionId, long taskId, String flowNode);
 	
 	ITask getTask(long taskId);
 	

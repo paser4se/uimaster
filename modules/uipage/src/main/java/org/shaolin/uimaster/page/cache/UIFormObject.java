@@ -1749,19 +1749,20 @@ public class UIFormObject implements java.io.Serializable
 					}
 					property.setExpression(expr);
 					button.setVisible(property);
-					ExpressionPropertyType property1 = new ExpressionPropertyType();
-					ExpressionType expr1 = new ExpressionType();
-					expr1.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; \n"
-							+ "import org.shaolin.bmdp.runtime.AppContext; \n"
-							+ "import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService; \n"
-							+ "\n{ "
-							+ "\n ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class); "
-							+ "\n return service.isTaskExecutedOnNode($beObject.getTaskId(), \"" + nodeInfo + "\");"
-							+ "\n}");
-					property1.setExpression(expr1);
-					if (!node.isMultipleInvoke()) {
-						button.setReadOnly(property1);
-					}
+					// Simplify validation logic of workflow action
+//					ExpressionPropertyType property1 = new ExpressionPropertyType();
+//					ExpressionType expr1 = new ExpressionType();
+//					expr1.setExpressionString("import org.shaolin.uimaster.page.security.UserContext; \n"
+//							+ "import org.shaolin.bmdp.runtime.AppContext; \n"
+//							+ "import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService; \n"
+//							+ "\n{ "
+//							+ "\n ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class); "
+//							+ "\n return service.isTaskExecutedOnNode($beObject.getSessionId(), $beObject.getTaskId(), \"" + nodeInfo + "\");"
+//							+ "\n}");
+//					property1.setExpression(expr1);
+//					if (!node.isMultipleInvoke()) {
+//						button.setReadOnly(property1);
+//					}
 					StringPropertyType originalStr = (StringPropertyType)button.getText();
 					if (originalStr == null) {
 						originalStr = new StringPropertyType();

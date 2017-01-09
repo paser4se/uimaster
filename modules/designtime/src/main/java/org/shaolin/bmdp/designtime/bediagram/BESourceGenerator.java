@@ -579,6 +579,17 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 				out.write("    }\n        ");
 				out.write("    private long get_taskId() {\n");
 				out.write("        return _taskId;\n");
+				out.write("    }\n");
+				out.write("    /**\n");
+				out.write("     *  Get sessionId\n");
+				out.write("     *\n");
+				out.write("     *  @return String\n");
+				out.write("     */\n");
+				out.write("    public String getSessionId() {\n");
+				out.write("        return _sessionId;\n");
+				out.write("    }\n        ");
+				out.write("    private String get_sessionId() {\n");
+				out.write("        return _sessionId;\n");
 				out.write("    }\n        ");
 			}
 		}
@@ -743,6 +754,15 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 				out.write("    }\n        ");
 				out.write("    private void set_taskId(long taskId) {\n");
 				out.write("        this._taskId = taskId;\n");
+				out.write("    }\n");
+				out.write("    /**\n");
+				out.write("     *  set sessionId\n");
+				out.write("     */\n");
+				out.write("    public void setSessionId(String sessionId) {\n");
+				out.write("        this._sessionId = sessionId;\n");
+				out.write("    }\n        ");
+				out.write("    private void set_sessionId(String sessionId) {\n");
+				out.write("        this._sessionId = sessionId;\n");
 				out.write("    }\n        ");
 			}
 		}
@@ -924,6 +944,11 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 				out.write("     * task id\n");
 				out.write("     */\n");
 				out.write("    private long _taskId;\n\n");
+				out.write("    /**\n");
+				out.write("     * session id\n");
+				out.write("     */\n");
+				out.write("    private String _sessionId;\n\n");
+				
 			}
 		}
 		
