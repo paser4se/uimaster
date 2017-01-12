@@ -151,18 +151,6 @@ public class EntityValidationMojo extends AbstractMojo {
 				hbmDirectory, sqlDirectory, targetClasses, 
 				DBMSProviderFactory.MYSQL);
 		
-		List<IEntityEventListener<? extends EntityType, ?>> listeners 
-			= new ArrayList<IEntityEventListener<? extends EntityType, ?>>();
-		listeners.add(new UIPageValidator(options));
-		listeners.add(new UIFormValidator(options));
-		listeners.add(new UIFlowValidator(options));
-		try {
-			listeners.add(new WorkflowValidator(options));
-		} catch (ParsingException e1) {
-			e1.printStackTrace();
-		}
-		listeners.add(new WebServiceValidator(options));
-		
 		// initialize entity manager.
 		String[] filters = new String[] {project.getName() + "/", ""};
 		
@@ -176,12 +164,24 @@ public class EntityValidationMojo extends AbstractMojo {
 		    for (String element : elements) {
 		        urls.add(new File(element).toURI().toURL());
 		    }
+		    this.getLog().debug("CompileClasspathElements: " + elements);
 		    ClassLoader contextClassLoader = URLClassLoader.newInstance(
 		            urls.toArray(new URL[0]),
 		            Thread.currentThread().getContextClassLoader());
 		    Thread.currentThread().setContextClassLoader(contextClassLoader);
 			
 			// Classloader will be switched in designtime
+		    List<IEntityEventListener<? extends EntityType, ?>> listeners 
+				= new ArrayList<IEntityEventListener<? extends EntityType, ?>>();
+			listeners.add(new UIPageValidator(options));
+			listeners.add(new UIFormValidator(options));
+			listeners.add(new UIFlowValidator(options));
+			try {
+				listeners.add(new WorkflowValidator(options));
+			} catch (ParsingException e1) {
+				e1.printStackTrace();
+			}
+			listeners.add(new WebServiceValidator(options));
 			IEntityManager entityManager = IServerServiceManager.INSTANCE.getEntityManager();
 			entityManager.addListeners(listeners);
 			ArrayList<File> files = new ArrayList<File>();
