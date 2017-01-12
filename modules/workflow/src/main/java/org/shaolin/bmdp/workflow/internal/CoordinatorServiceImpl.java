@@ -353,7 +353,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 	
 	@Override
-	public void updateTask(ITask task) {
+	public void updateTask(final ITask task) {
 		if (task.getId() <= 0) {
 			throw new IllegalArgumentException("The created task can't be updated!");
 		}
@@ -405,7 +405,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 	
 	@Override
-	public void completeTask(ITask task) {
+	public void completeTask(final ITask task) {
 		if (task == null) {
 			return;
 		}
@@ -436,7 +436,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 	
 	@Override
-	public void cancelTask(ITask task) {
+	public void cancelTask(final ITask task) {
 		AppContext.register(appService);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Task is cancelled.  {}", task.toString());
@@ -596,7 +596,20 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 	
 	@Override
-	public void addNotification(INotification message, boolean needRemoted) {
+	public void addNotification(final INotification message, final boolean needRemoted) {
+		if (NotificationService.push(message, message.getPartyId())) {
+			message.setRead(true);
+		}
+		CoordinatorModel.INSTANCE.create(message);
+		for (INotificationListener listener : listeners) {
+			listener.received(message);
+		}
+	}
+	
+	@Override
+	public void addNotificationToAdmin(final INotification message, final boolean needRemoted) {
+		message.setPartyId(1);
+		message.setOrgId(1);
 		if (NotificationService.push(message, message.getPartyId())) {
 			message.setRead(true);
 		}

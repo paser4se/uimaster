@@ -2,6 +2,7 @@
 package org.shaolin.uimaster.page.ajax.json;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -60,10 +61,12 @@ import org.shaolin.bmdp.runtime.be.IBusinessEntity;
  * @author JSON.org
  * @version 2008-09-18
  */
-public class JSONObject
+public class JSONObject implements Serializable
 {
 
-    /**
+	private static final long serialVersionUID = 5690970742480579577L;
+
+	/**
      * JSONObject.NULL is equivalent to the value that JavaScript calls null, whilst Java's null is
      * equivalent to the value that JavaScript calls undefined.
      */

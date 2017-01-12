@@ -126,7 +126,7 @@ public class EventHandler implements IAjaxHandler {
 						} else {
 							//if (obj instanceof Boolean)
 							if (log.isDebugEnabled()) {
-								log.debug("Workflow action result: " + obj);
+								log.debug("Workflow action failed result: " + obj);
 							}
 						}
 					} catch (EvaluationException ex) {

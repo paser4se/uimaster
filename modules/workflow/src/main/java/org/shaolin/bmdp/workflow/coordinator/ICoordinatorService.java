@@ -107,6 +107,14 @@ public interface ICoordinatorService {
 	void addNotification(INotification message, boolean needRemoted);
 	
 	/**
+	 * Add notification to admin user.
+	 * 
+	 * @param message
+	 * @param needRemoted
+	 */
+	void addNotificationToAdmin(INotification message, boolean needRemoted);
+	
+	/**
 	 * Notify after receiving a message.
 	 * 
 	 * @param listener
