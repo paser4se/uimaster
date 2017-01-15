@@ -85,6 +85,14 @@ public interface ICoordinatorService {
 	
 	boolean isTaskExecutedOnNode(String sessionId, long taskId, String flowNode);
 	
+	/**
+	 * Get the last active task from Task table.
+	 * 
+	 * @param sessionId
+	 * @return
+	 */
+	ITask getLastTaskBySessionId(String sessionId);
+	
 	ITask getTask(long taskId);
 	
 	void addTask(ITask task);

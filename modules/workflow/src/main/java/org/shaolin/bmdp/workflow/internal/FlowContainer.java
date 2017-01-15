@@ -31,10 +31,7 @@ import org.shaolin.bmdp.runtime.cache.CacheManager;
 import org.shaolin.bmdp.runtime.cache.ICache;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.workflow.be.ITask;
-import org.shaolin.bmdp.workflow.be.ITaskHistory;
-import org.shaolin.bmdp.workflow.be.TaskHistoryImpl;
 import org.shaolin.bmdp.workflow.be.TaskImpl;
-import org.shaolin.bmdp.workflow.ce.TaskStatusType;
 import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
 import org.shaolin.bmdp.workflow.coordinator.ITaskListener;
 import org.shaolin.bmdp.workflow.dao.CoordinatorModel;
@@ -211,20 +208,8 @@ public class FlowContainer {
     }
 
     public void scheduleEndTask(final FlowRuntimeContext flowContext) {
-        ITaskHistory task = new TaskHistoryImpl();
-        if (UserContext.getCurrentUserContext() != null) {
-			task.setOrgId((Long)UserContext.getUserData(UserContext.CURRENT_USER_ORGID));
-		}
-        task.setSessionId(flowContext.getSession().getID());
-        task.setTaskId(-1);
-        task.setExecutedNode(ICoordinatorService.END_SESSION_NODE_NAME);
-        task.setSubject("Task: " + ICoordinatorService.END_SESSION_NODE_NAME);
-        task.setDescription("Flow is finished!");
-        task.setEnabled(true);
-        task.setCreateDate(new Date());
-        task.setStatus(TaskStatusType.COMPLETED);
-        task.setCompleteRate(100);
-        CoordinatorModel.INSTANCE.create(task);
+    	ICoordinatorService coordinator = AppContext.get().getService(ICoordinatorService.class);
+    	((CoordinatorServiceImpl)coordinator).moveToHistory(flowContext.getSession().getID());
     }
     
     public ITask scheduleTask(Date timeout, final FlowRuntimeContext flowContext, final FlowEngine engine, 
@@ -257,11 +242,11 @@ public class FlowContainer {
     	List<ITaskEntity> taskEntities = flowContext.getAllNewTaskEntities();
     	if (taskEntities != null) {
     		for (ITaskEntity entity: taskEntities) {
-    			if (entity.getSessionId() != null) {
+    			if (entity.getSessionId() != null && entity.getSessionId().length() > 0) {
     				if (!entity.getSessionId().equals(task.getSessionId())) {
     					logger.warn("Session id has already set!");
-    					continue;
     				}
+    				continue;
     			} else {
     				//entity.setTaskId(task.getId()); no need
 	    			entity.setSessionId(task.getSessionId());
@@ -288,7 +273,7 @@ public class FlowContainer {
         coordinator.addTask(task);
         
         for (ITaskEntity entity: taskRelatedEntities) {
-        	if (entity.getSessionId() != null) {
+        	if (entity.getSessionId() != null && entity.getSessionId().length() > 0) {
         		if (!entity.getSessionId().equals(task.getSessionId())) {
         			continue;
         		}

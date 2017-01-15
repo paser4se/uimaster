@@ -19,17 +19,13 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.shaolin.bmdp.datamodel.workflow.MissionNodeType;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.be.ITaskEntity;
 import org.shaolin.bmdp.runtime.spi.Event;
 import org.shaolin.bmdp.runtime.spi.EventProcessor;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.shaolin.bmdp.workflow.be.ITask;
-import org.shaolin.bmdp.workflow.be.ITaskHistory;
 import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
-import org.shaolin.bmdp.workflow.internal.type.NodeInfo;
-import org.shaolin.bmdp.workflow.spi.SessionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,35 +85,27 @@ public final class WorkFlowEventProcessor implements EventProcessor, IServicePro
         	// get the previous flow context from the first task entity with task id.
         	if (var instanceof ITaskEntity) {
 				ITaskEntity taskObject = (ITaskEntity)var;
-				if (taskObject.getTaskId() > 0) {
+				if (taskObject.getTaskId() > 0
+						|| (taskObject.getSessionId() != null && taskObject.getSessionId().length() > 0)) {
 	        		try {
 	        			FlowRuntimeContext flowContext = null;
 		        		ICoordinatorService coordinator = AppContext.get().getService(ICoordinatorService.class);
-		        		ITask task = coordinator.getTask(taskObject.getTaskId());
-		        		if (task != null) {
+		        		ITask task = null;
+		        		if (taskObject.getSessionId() != null && taskObject.getSessionId().length() > 0) {
 		        			// find the previous context from the last executed task.
-		        			flowContext = FlowRuntimeContext.unmarshall(task.getFlowState());
-		        			flowContext.changeEvent(event);
-		        			flowContext.getFlowContextInfo().setWaitingNode(flowContext.getCurrentNode());
-		        		} else {
-		        			// find the previous context from the session Id for the middle mission node invocation.
-		        			ITaskHistory history = coordinator.getHistoryTask(taskObject.getTaskId());
-		        			if (history == null) {
-		        				throw new IllegalStateException("Task is not existed! ID: " + taskObject.getTaskId());
+		        			task = coordinator.getLastTaskBySessionId(taskObject.getSessionId());
+		        			if (task == null) {
+		        				throw new IllegalStateException("No any task is existing! session ID: " + taskObject.getSessionId());
 		        			}
-		        			event.setAttribute(SessionService.SESSION_ID, history.getSessionId());
-		        			EventConsumer consumer = allConsumers.get(event.getEventConsumer());
-		        			FlowEngine flowEngine = consumer.getFlowEngine();
-							flowContext = new FlowRuntimeContext(event, flowEngine);
-							flowContext.setSession(flowEngine.createSession(event, history.getSessionId()));
-							NodeInfo adhocNode = flowEngine.matchMissionNode(consumer.getEventConsumerName(), 
-									event.getAttribute(BuiltInAttributeConstant.KEY_AdhocNodeName).toString());
-		        			flowContext.changeEvent(event);
-		        			flowContext.setCurrentNode(adhocNode);
-		        			flowContext.getFlowContextInfo().setWaitingNode(adhocNode);
-		        			
-		        			flowEngine.processTimerNode(flowContext, adhocNode, (MissionNodeType)adhocNode.getNode());
-		        		}
+		        		} else if (taskObject.getTaskId() > 0) {
+		        			task = coordinator.getTask(taskObject.getTaskId());
+		        			if (task == null) {
+		        				throw new IllegalStateException("Task id is not existed! task ID: " + taskObject.getTaskId());
+		        			}
+		        		} 
+		        		flowContext = FlowRuntimeContext.unmarshall(task.getFlowState());
+		        		flowContext.changeEvent(event);
+		        		flowContext.getFlowContextInfo().setWaitingNode(flowContext.getCurrentNode());
 		        		flowContext.getEvent().setFlowContext(flowContext.getFlowContextInfo());
 		        		event.setFlowContext(flowContext.getFlowContextInfo());
 		        		break;

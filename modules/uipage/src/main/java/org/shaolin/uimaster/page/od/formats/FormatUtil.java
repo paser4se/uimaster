@@ -15,6 +15,7 @@
 */
 package org.shaolin.uimaster.page.od.formats;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -59,7 +60,15 @@ public class FormatUtil {
 		dataTypeMap.put(FLOAT_NUMBER, floatProcessor);
 		dataTypeMap.put(CURRENCY, currencyProcessor);
 	}
+	
+	public static String formatDate(Date d) throws FormatException {
+		return FormatUtil.convertDataToUI(DATE, d, null, null);
+	}
 
+	public static String formatDateTime(Date d) throws FormatException {
+		return FormatUtil.convertDataToUI(DATE_TIME, d, null, null);
+	}
+	
 	public static String convertDataToUI(String dataType, Object data,
 			String localeConfig, Map propValues)
 			throws FormatException {

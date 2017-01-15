@@ -28,6 +28,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.be.IPersistentEntity;
@@ -154,8 +155,11 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		condition.setSessionId(sessionId);
 		condition.setEnabled(true);
 		List<ITask> sessionTasks = CoordinatorModel.INSTANCE.searchTasks(condition, null, 0, -1);
-		List<ITask> allTasks = new ArrayList<ITask>(sessionTasks);
+		if (sessionTasks.size() > 0) {
+			return new ArrayList<ITask>(sessionTasks);
+		} 
 		
+		List<ITask> allTasks = new ArrayList<ITask>();
 		TaskHistoryImpl historyCriteria = new TaskHistoryImpl();
 		historyCriteria.setSessionId(sessionId);
 		List<ITaskHistory> list = CoordinatorModel.INSTANCE.searchTasksHistory(historyCriteria, null, 0, -1);
@@ -179,9 +183,42 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 	
 	public ITask getLastTaskBySessionId(String sessionId) {
+		TaskImpl condition = new TaskImpl();
+		condition.setSessionId(sessionId);
+		condition.setEnabled(true);
+		List<Order> orders = new ArrayList<Order>();
+		orders.add(Order.desc("createDate"));
+		List<ITask> sessionTasks = CoordinatorModel.INSTANCE.searchTasks(condition, orders, 0, -1);
+		if (sessionTasks.size() > 0) {
+			return sessionTasks.get(0);
+		} 
 		return null;
 	}
 	
+	@Override
+	public ITask getTask(long taskId) {
+		if (taskId == 0) {
+			return null;
+		}
+		return CoordinatorModel.INSTANCE.get(taskId, TaskImpl.class);
+	}
+
+	@Override
+	public boolean isTaskExecutedOnNode(String sessionId, long taskId, String flowNode) {
+		if (taskId > 0 && this.isPendingTask(taskId)) {
+			return true;
+		} else {
+			List<ITaskHistory> list = this.getHistoryTasksBySessionId(sessionId);
+			for (ITaskHistory task : list) {
+				if (task.getTaskId() == taskId || flowNode.equals(task.getExecutedNode()) 
+						|| ICoordinatorService.END_SESSION_NODE_NAME.equals(task.getExecutedNode())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public String getSessionId(long taskId) {
 		if (taskId == 0) {
@@ -228,30 +265,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		condition.setEnabled(true);
 		List<ITask> partyTasks = CoordinatorModel.INSTANCE.searchTasks(condition, null, 0, -1);
 		return partyTasks;
-	}
-	
-	@Override
-	public ITask getTask(long taskId) {
-		if (taskId == 0) {
-			return null;
-		}
-		return CoordinatorModel.INSTANCE.get(taskId, TaskImpl.class);
-	}
-	
-	@Override
-	public boolean isTaskExecutedOnNode(String sessionId, long taskId, String flowNode) {
-		if (taskId > 0 && this.isPendingTask(taskId)) {
-			return true;
-		} else {
-			List<ITaskHistory> list = this.getHistoryTasksBySessionId(sessionId);
-			for (ITaskHistory task : list) {
-				if (task.getTaskId() == taskId || flowNode.equals(task.getExecutedNode()) 
-						|| ICoordinatorService.END_SESSION_NODE_NAME.equals(task.getExecutedNode())) {
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 	
 	@Override
@@ -422,12 +435,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		task.setStatus(TaskStatusType.COMPLETED);
 		task.setCompleteRate(100);
 		
-		if (!testCaseFlag) {
-			moveToHistory(task, HibernateUtil.getSession());
-			// commit DB session once task completed.
-			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
-		}
-		
 		if (task.getListener() != null) {
 			ITaskListener listener = (ITaskListener)task.getListener();
 			listener.notifyCompleted();
@@ -445,55 +452,84 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		ScheduledFuture<?> future = futures.remove(task);
 		if (future != null && !future.isDone()) {
 			future.cancel(true);
-			
 			task.setStatus(TaskStatusType.CANCELLED);
-			if (!testCaseFlag) {
-				moveToHistory(task, HibernateUtil.getSession());
-				// commit DB session once task completed.
-				HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
-			}
 			
 			if (task.getListener() != null) {
 				ITaskListener listener = (ITaskListener)task.getListener();
 				listener.notifyCancelled();
 			}
-			
 			taskToNotification(task);
 		}
 	}
 	
-	private void moveToHistory(ITask task, Session session) {
-		if (task.getId() == 0) {
-			return;
+	boolean moveToHistory(final String sessionId) {
+		if (sessionId == null || sessionId.trim().length() == 0) {
+			return false;
 		}
-		TaskHistoryImpl history = new TaskHistoryImpl();
-		history.setTaskId(task.getId());
-		history.setOrgId(task.getOrgId());
-		history.setSessionId(task.getSessionId());
-		if (task.getFlowState() != null) {
-			FlowRuntimeContext runtime;
-			try {
-				runtime = FlowRuntimeContext.unmarshall(task.getFlowState());
-				history.setExecutedNode(runtime.currentNodeToString());
-			} catch (Exception e) {
+		boolean flag = true;
+		Session session = HibernateUtil.getSession();
+		try {
+			TaskImpl condition = new TaskImpl();
+			condition.setSessionId(sessionId);
+			condition.setEnabled(true);
+			List<ITask> sessionTasks = CoordinatorModel.INSTANCE.searchTasks(condition, null, 0, -1);
+			List<ITask> allTasks = new ArrayList<ITask>(sessionTasks);
+			while (allTasks.size() > 0) {
+				ITask task = (ITask)allTasks.get(0);
+				TaskHistoryImpl history = new TaskHistoryImpl();
+				history.setTaskId(task.getId());
+				history.setOrgId(task.getOrgId());
+				history.setSessionId(task.getSessionId());
+				if (task.getFlowState() != null) {
+					FlowRuntimeContext runtime;
+					try {
+						runtime = FlowRuntimeContext.unmarshall(task.getFlowState());
+						history.setExecutedNode(runtime.currentNodeToString());
+					} catch (Exception e) {
+					}
+				}
+				history.setCompleteRate(task.getCompleteRate());
+				history.setDescription(task.getDescription());
+				history.setEnabled(task.isEnabled());
+				history.setExpiredTime(task.getExpiredTime());
+				history.setPartyId(task.getPartyId());
+				history.setPartyType(task.getPartyType());
+				history.setPriority(task.getPriority());
+				history.setSendEmail(task.getSendEmail());
+				history.setSendSMS(task.getSendSMS());
+				history.setStatus(task.getStatus());
+				history.setSubject(task.getSubject());
+				history.setComments(task.getComments());
+				history.setCreateDate(task.getCreateDate());
+				
+				session.save(history);
+				session.delete(task);
+			}
+			ITaskHistory htask = new TaskHistoryImpl();
+	        if (UserContext.getCurrentUserContext() != null) {
+				htask.setOrgId((Long)UserContext.getUserData(UserContext.CURRENT_USER_ORGID));
+			}
+	        htask.setSessionId(sessionId);
+	        htask.setTaskId(-1);
+	        htask.setExecutedNode(ICoordinatorService.END_SESSION_NODE_NAME);
+	        htask.setSubject("Task: " + ICoordinatorService.END_SESSION_NODE_NAME);
+	        htask.setDescription("Flow is finished!");
+	        htask.setEnabled(true);
+	        htask.setCreateDate(new Date());
+	        htask.setStatus(TaskStatusType.COMPLETED);
+	        htask.setCompleteRate(100);
+	        session.save(htask);
+	        
+	        return flag;
+		} catch (Throwable e) {
+			flag = false;
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
+			return flag;
+		} finally {
+			if (flag) {
+				HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 			}
 		}
-		history.setCompleteRate(task.getCompleteRate());
-		history.setDescription(task.getDescription());
-		history.setEnabled(task.isEnabled());
-		history.setExpiredTime(task.getExpiredTime());
-		history.setPartyId(task.getPartyId());
-		history.setPartyType(task.getPartyType());
-		history.setPriority(task.getPriority());
-		history.setSendEmail(task.getSendEmail());
-		history.setSendSMS(task.getSendSMS());
-		history.setStatus(task.getStatus());
-		history.setSubject(task.getSubject());
-		history.setComments(task.getComments());
-		history.setCreateDate(task.getCreateDate());
-		
-		session.save(history);
-		session.delete(task);
 	}
 	
 	private ITask moveToTask(ITaskHistory hTask) {
