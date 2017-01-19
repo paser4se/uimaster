@@ -31,7 +31,9 @@ import org.shaolin.bmdp.datamodel.workflow.ExceptionHandlerType;
 import org.shaolin.bmdp.datamodel.workflow.GeneralNodeType;
 import org.shaolin.bmdp.datamodel.workflow.MissionNodeType;
 import org.shaolin.bmdp.datamodel.workflow.SplitNodeType;
+import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.AppContext;
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.Event;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
@@ -184,6 +186,9 @@ public class FlowEngine {
                     }
                     visitedExceptionNodes.add(lastExpNode);
                 }
+            } else {
+            	// roll back all commits.
+            	HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
             }
         }
                 
@@ -265,7 +270,14 @@ public class FlowEngine {
                         flowContext.getEvent().getId(), engineName, previousNode.getAppName(),
                         previousNode.getFlowName(), previousNode.getName() });
             }
-            if (currentNode != null && currentNode.getNodeType() == NodeInfo.Type.MISSION) {
+            if (currentNode != null && currentNode.hasEventDest()) {
+            	// must waiting for one of dest branches triggering from next operator.
+            	flowContext.setCurrentNode(currentNode);
+            	flowContainer.scheduleTask(null, flowContext, this, currentNode, null);
+            	flowContext.markWaitResponse();
+    			currentNode = null;
+    			break;
+        	} else if (currentNode != null && currentNode.getNodeType() == NodeInfo.Type.MISSION) {
             	// must waiting for response trigger from next operator.
         		// notify the relevant parties to do the job.
         		MissionNodeType m = (MissionNodeType)currentNode.getNode();
@@ -297,6 +309,11 @@ public class FlowEngine {
         flowContext.resetLocalVariables();
 
         if (n.getDest() == null) {
+        	if (n.getEventDest() != null) {
+        		// then just return current node and wait for next trigger!
+        		return node;
+        	}
+        	
             NodeInfo parentNode = flowContext.pop();
             NodeInfo destNode = null;
             while (parentNode != null) {

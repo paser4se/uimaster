@@ -60,6 +60,7 @@ public class EventHandler implements IAjaxHandler {
 			Dialog.showMessageDialog("\u4E8B\u4EF6\u6E90\u4E0D\u5B58\u5728\uFF01", "", Dialog.WARNING_MESSAGE, null);
 			return context.getDataAsJSON();
 		}
+		//TODO: prevent duplication click.
 		if (w.getClass() == Button.class) {
 			context.setEventSource((Button)w);
 		}

@@ -648,7 +648,14 @@ public class FlowObject implements java.io.Serializable {
                 }
                 List<DestType> dests = eventDest.getDests();
                 for (DestType dest : dests) {
-                    dest.setNode(_getNode(flow.getApp().getName(), flow.getName(), dest.getName()));
+                	if (dest.getEntity() != null && dest.getFlow() != null) {
+                		//dest.setNode(_getNode(dest.getEntity(), dest.getFlow(), dest.getName()));
+                		//TODO: unsupported yet!
+                	} else if (dest.getFlow() != null) {
+                		dest.setNode(_getNode(flow.getApp().getName(), dest.getFlow(), dest.getName()));
+                	} else {
+                		dest.setNode(_getNode(flow.getApp().getName(), flow.getName(), dest.getName()));
+                	}
                     eventNodes.remove(dest.getName());
                 }
             } else if (node.getNode() instanceof ConditionNodeType) {

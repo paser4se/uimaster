@@ -17,17 +17,21 @@ package org.shaolin.bmdp.workflow.internal;
 
 import java.util.Map;
 
+import org.shaolin.bmdp.datamodel.workflow.DestType;
 import org.shaolin.bmdp.datamodel.workflow.FlowType;
 import org.shaolin.bmdp.datamodel.workflow.NodeType;
 import org.shaolin.bmdp.datamodel.workflow.TimeoutNodeType;
 import org.shaolin.bmdp.datamodel.workflow.Workflow;
+import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.spi.Event;
 import org.shaolin.bmdp.workflow.exception.ExpirationException;
+import org.shaolin.bmdp.workflow.internal.cache.FlowObject;
 import org.shaolin.bmdp.workflow.internal.type.AppInfo;
 import org.shaolin.bmdp.workflow.internal.type.FlowInfo;
 import org.shaolin.bmdp.workflow.internal.type.NodeInfo;
 import org.shaolin.bmdp.workflow.spi.EventProducer.ErrorType;
 import org.shaolin.bmdp.workflow.spi.ExceptionEvent;
+import org.shaolin.bmdp.workflow.spi.IWorkflowService;
 import org.shaolin.bmdp.workflow.spi.TimeoutEvent;
 import org.shaolin.bmdp.workflow.spi.WorkflowSession;
 import org.slf4j.Logger;
@@ -275,6 +279,34 @@ public class EventConsumer {
         } else {
         	// response comes back.
             flowRuntime.startNewFlow(false);
+            if (flowRuntime.getCurrentNode().hasEventDest()) {
+	            String destNode = (String)evt.getAttribute(BuiltInAttributeConstant.KEY_AdhocNodeName);
+	            DestType destType = flowRuntime.getCurrentNode().getEventDestFromName(destNode);
+	            if (destType == null) {
+	            	logger.warn("The event {} is a response event, sesson id is {}. Dest Node {} does not exit/configure!", 
+	            			new Object[] {evt.getId(), flowRuntime.getSession().getID(), destNode});
+	            	engine.discardResponse(evt, false);
+	            	return null;
+	            }
+	            NodeInfo destNodeInfo = null;
+	            if (destType.getFlow() != null && destType.getFlow().trim().length() > 0
+	            		&& destType.getEntity() != null && destType.getEntity().trim().length() > 0) {
+	            	FlowObject flowObject = AppContext.get().getService(IWorkflowService.class).getFlowObject(destType.getEntity());
+	            	destNodeInfo = flowObject.getNode(destType.getEntity(), destType.getFlow(), destType.getName());
+            	} else if (destType.getFlow() != null && destType.getFlow().trim().length() > 0) {
+	            	destNodeInfo = flowRuntime.getCurrentNode().getFlow().getApp().getFlowFromName(destType.getFlow())
+	            					.getNodeFromName(destType.getName());
+	            } else {
+	            	destNodeInfo = flowRuntime.getCurrentNode().getFlow().getNodeFromName(destType.getName());
+	            }
+	            if (destNodeInfo == null) {
+	            	logger.warn("The event {} is a response event, sesson id is {}. Dest Node {} does not exit/configure!", 
+	            			new Object[] {evt.getId(), flowRuntime.getSession().getID(), destNode});
+	            	engine.discardResponse(evt, true);
+	            	return null;
+	            }
+	            flowRuntime.setCurrentNode(destNodeInfo);
+            }
         }
         return handle(flowRuntime.getCurrentNode(), flowRuntime, session);
     }

@@ -280,6 +280,8 @@
 			<xs:documentation>dest node with a name</xs:documentation>
 		</xs:annotation>
 		<xs:attribute name="name" type="xs:string" use="required" />
+		<xs:attribute name="flow" type="xs:string" />
+		<xs:attribute name="entity" type="xs:string" />
 	</xs:complexType>
 	<xs:complexType name="joinNodeType">
 		<xs:annotation>

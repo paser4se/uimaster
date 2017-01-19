@@ -321,6 +321,11 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
         this.event = evt;
         evt.setAttribute(BuiltInAttributeConstant.KEY_VARIABLECONTEXT, this);
         evt.setAttribute(BuiltInAttributeConstant.KEY_FLOWCONTEXT, flowContextInfo);
+        
+        Collection<String> keys = evt.getAttributeKeys();
+        for(String key: keys) {
+        	this.localVariables.getVariableObjects().put(key, evt.getAttribute(key));
+        }
     }
 
     @Override

@@ -363,7 +363,7 @@ public abstract class AbstractConstant implements IConstantEntity {
 	public String toString() {
 		return getDisplayName();
 	}
-
+	
 	@Override
 	public String getEntityName() {
 		return getTypeEntityName();

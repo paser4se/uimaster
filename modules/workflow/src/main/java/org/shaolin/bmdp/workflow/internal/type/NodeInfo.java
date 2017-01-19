@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.shaolin.bmdp.datamodel.workflow.ChildFlowNodeType;
 import org.shaolin.bmdp.datamodel.workflow.ConditionNodeType;
+import org.shaolin.bmdp.datamodel.workflow.DestType;
 import org.shaolin.bmdp.datamodel.workflow.DestWithFilterType;
 import org.shaolin.bmdp.datamodel.workflow.EndNodeType;
 import org.shaolin.bmdp.datamodel.workflow.ExceptionHandlerType;
@@ -72,6 +73,8 @@ public class NodeInfo implements Serializable {
     private final Map<String, DestWithFilterType> filterMap = new HashMap<String, DestWithFilterType>();
     
     private final Map<String, DestWithFilterType> destMap = new HashMap<String, DestWithFilterType>();
+    
+    private Map<String, DestType> eventDestMap = null;
     
     private List<DestWithFilterType> filtersInList;
     
@@ -192,6 +195,29 @@ public class NodeInfo implements Serializable {
 	            }
 	        }
         } 
+        
+        if (node instanceof GeneralNodeType && ((GeneralNodeType)node).getEventDest() != null) {
+        	eventDestMap = new HashMap<String, DestType>();
+        	List<DestType> dests = ((GeneralNodeType)node).getEventDest().getDests();
+        	for (DestType d : dests) {
+        		eventDestMap.put(d.getName(), d);
+        		if (d.getEntity() != null && d.getFlow() != null) {
+        			//TODO: check
+        		} else if (d.getEntity() == null && d.getFlow() != null) {
+        			FlowInfo realflow = flow.getApp().getFlowFromName(d.getFlow());
+					if (realflow == null) {
+        				errorMessages.add(new FlowValidationResult(appName, flowName, getName(),
+        						d.getFlow() +"." + d.getName() + " is not the destination in flow " + flow.getName()));
+        			} else if (!realflow.containsNode(d.getName())) {
+                			errorMessages.add(new FlowValidationResult(appName, flowName, getName(),
+                					d.getName() + " is not the destination in flow " + flow.getName()));
+        			}
+        		} else if (!flow.containsNode(d.getName())) {
+        			errorMessages.add(new FlowValidationResult(appName, flowName, getName(),
+        					d.getName() + " is not the destination in flow " + flow.getName()));
+        		}
+        	}
+        }
     }
 
     public boolean containsFilter(String name) {
@@ -225,6 +251,14 @@ public class NodeInfo implements Serializable {
     
     public DestWithFilterType getDestFromName(String name) {
         return destMap.get(name);
+    }
+    
+    public boolean hasEventDest() {
+    	return eventDestMap != null && eventDestMap.size() > 0;
+    }
+    
+    public DestType getEventDestFromName(String name) {
+        return eventDestMap.get(name);
     }
     
     public boolean isAsyn() {
