@@ -39,6 +39,7 @@ import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.cache.UIPageObject;
 
 public class EventHandler implements IAjaxHandler {
+	private static final String UI_INACTION_FLAG = "_uiinactionflag";
 	private static Logger log = Logger.getLogger(EventHandler.class);
 	public static final String AJAX_ACTION_NAME = "_actionName";
 
@@ -49,8 +50,16 @@ public class EventHandler implements IAjaxHandler {
 			throw new AjaxHandlerException(
 					"The action name can not be empty!");
 		}
-	
-		return trigger0(context, actionName);
+		try {
+			if (context.getRequest().getSession().getAttribute(UI_INACTION_FLAG) != null) {
+				Dialog.showMessageDialog("\u5DF2\u5904\u7406\u4E2D\uFF0C\u8BF7\u7A0D\u7B49\u3002", "", Dialog.WARNING_MESSAGE, null);
+				return context.getDataAsJSON();
+			}
+			context.getRequest().getSession().setAttribute(UI_INACTION_FLAG, "true");
+			return trigger0(context, actionName);
+		} finally {
+			context.getRequest().getSession().removeAttribute(UI_INACTION_FLAG);
+		}
 	}
 	
 	public String trigger0(AjaxContext context, String actionName)
