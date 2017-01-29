@@ -37,6 +37,8 @@ public class AFile extends TextWidget implements Serializable
     
     private int allowedNumbers = -1;
     
+    private int contentSize = -1;
+    
     private int width = -1;
     
 	private int height = -1;
@@ -89,7 +91,15 @@ public class AFile extends TextWidget implements Serializable
 	public void setAllowedNumbers(int allowedNumbers) {
 		this.allowedNumbers = allowedNumbers;
 	}
+	
+	public void setContentSize(int size) {
+		this.contentSize = size;
+	}
     
+	public int getContentSize() {
+		return this.contentSize;
+	}
+	
     public String getStoredPath() {
     	return this.storedPath;
     }

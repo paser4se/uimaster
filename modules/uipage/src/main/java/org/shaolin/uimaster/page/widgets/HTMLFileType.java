@@ -118,6 +118,9 @@ public class HTMLFileType extends HTMLTextWidgetType
         if (this.getAttribute("allowedNumbers") != null) {
         	file.setAllowedNumbers(Integer.parseInt(this.removeAttribute("allowedNumbers").toString()));
         }
+        if (this.getAttribute("contentSize") != null) {
+        	file.setContentSize((Integer)this.removeAttribute("contentSize"));
+        }
         if (this.getAttribute("photoWidth") != null) {
         	Object a = this.removeAttribute("photoWidth");
         	if (a instanceof String) {

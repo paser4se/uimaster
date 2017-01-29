@@ -46,6 +46,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class UploadFileServlet extends HttpServlet {
+	private static final int DEFAULT_CONTENTSIZE = 5120000;// 5M
+
 	private static final long serialVersionUID = 1L;
 
 	private static final Logger logger = LoggerFactory.getLogger(UploadFileServlet.class);
@@ -152,9 +154,9 @@ public class UploadFileServlet extends HttpServlet {
 					}
 					// TODO: security check
 					// item.getContentType(); file.getSuffix(); image/jpg
-					if (item.getSize() > 5120000) {
-						// 5M
-						logger.warn("the size of the uploading file is exceeded!");
+					if ((file.getContentSize() > 0 && item.getSize() > file.getContentSize()) 
+							|| (item.getSize() > DEFAULT_CONTENTSIZE)) {
+						logger.warn("the size of the uploading file is exceeded! size: " + item.getSize());
 						IDataItem dataItem = AjaxActionHelper.createErrorDataItem("\u4E0A\u4F20\u6587\u4EF6\u5FC5\u987B\u5C0F\u4E8E2M");
 						JSONArray array = new JSONArray();
 						array.put(new JSONObject(dataItem));
@@ -177,7 +179,11 @@ public class UploadFileServlet extends HttpServlet {
 							item.write(finalPicture);
 							
 							if (file.getWidth() > 0 && file.getHeight() > 0) {
-								ImageUtil.resizeImage(finalPicture, file.getWidth(), file.getHeight(), finalPicture);
+								try {
+									ImageUtil.resizeImage(finalPicture, file.getWidth(), file.getHeight(), finalPicture);
+								} catch (Exception e) {
+									//maybe not an image
+								}
 							}
 						} else {
 							//single file.
@@ -187,7 +193,11 @@ public class UploadFileServlet extends HttpServlet {
 							item.write(root);
 							logger.info("Received the uploading file: " + item.getName() + ", saving path: " + root);
 							if (file.getWidth() > 0 && file.getHeight() > 0) {
-								ImageUtil.resizeImage(root, file.getWidth(), file.getHeight(), root);
+								try {
+									ImageUtil.resizeImage(root, file.getWidth(), file.getHeight(), root);
+								} catch (Exception e) {
+									//maybe not an image
+								}
 							}
 						}
 					}
