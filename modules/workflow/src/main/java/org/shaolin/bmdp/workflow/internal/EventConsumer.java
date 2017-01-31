@@ -283,8 +283,8 @@ public class EventConsumer {
 	            String destNode = (String)evt.getAttribute(BuiltInAttributeConstant.KEY_AdhocNodeName);
 	            DestType destType = flowRuntime.getCurrentNode().getEventDestFromName(destNode);
 	            if (destType == null) {
-	            	logger.warn("The event {} is a response event, sesson id is {}. Dest Node {} does not exit/configure!", 
-	            			new Object[] {evt.getId(), flowRuntime.getSession().getID(), destNode});
+	            	logger.warn("The event {} is a response event, sesson id is {}. Dest Node {} does not exit/configure! Current Node {}.", 
+	            			new Object[] {evt.getId(), flowRuntime.getSession().getID(), destNode, flowRuntime.getCurrentNode()});
 	            	engine.discardResponse(evt, false);
 	            	return null;
 	            }
@@ -300,8 +300,8 @@ public class EventConsumer {
 	            	destNodeInfo = flowRuntime.getCurrentNode().getFlow().getNodeFromName(destType.getName());
 	            }
 	            if (destNodeInfo == null) {
-	            	logger.warn("The event {} is a response event, sesson id is {}. Dest Node {} does not exit/configure!", 
-	            			new Object[] {evt.getId(), flowRuntime.getSession().getID(), destNode});
+	            	logger.warn("The event {} is a response event, sesson id is {}. Dest Node {} does not exit/configure! Current Node {}.", 
+	            			new Object[] {evt.getId(), flowRuntime.getSession().getID(), destNode, flowRuntime.getCurrentNode()});
 	            	engine.discardResponse(evt, true);
 	            	return null;
 	            }

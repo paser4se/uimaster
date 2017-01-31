@@ -182,6 +182,46 @@ public class StringUtil
         return new String(sb);
     }
     
+    public static String escapeAsEmtpy(String line)
+    {
+        if (line == null)
+        {
+            return null;
+        }
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0, n = line.length(); i < n; i++)
+        {
+            char c = line.charAt(i);
+            switch (c)
+            {
+                case '\b':
+                    sb.append("");
+                    break;
+                case '\t':
+                    sb.append("");
+                    break;
+                case '\n':
+                    sb.append("");
+                    break;
+                case '\f':
+                    sb.append("");
+                    break;
+                case '\r':
+                    sb.append("");
+                    break;
+                case '"':
+                    sb.append("");
+                    break;
+                case '\\':
+                    sb.append("");
+                    break;
+                default:
+                    sb.append(c);
+            }
+        }
+        return new String(sb);
+    }
+    
     public static String unescape(String line)
     {
         if (line == null)

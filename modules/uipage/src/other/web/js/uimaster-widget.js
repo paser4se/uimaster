@@ -1434,7 +1434,7 @@ UIMaster.ui.panel = function(conf){
             this.initPageJs = function(){
                 if (!jQuery.isReady) jQuery.ready();
 				if (IS_MOBILEVIEW && UIMaster.browser.ios) {
-					alert("disabled touchmove");
+					//alert("disabled touchmove");
 					$(document.body).bind('touchmove', function(e) {e.preventDefault();}, false);
 				}
                 postInit();
@@ -2180,7 +2180,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				   var obj = UIMaster.getObject(othis);
 				   UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"selectedIndex",_value:othis.selectedIndex,_framePrefix:UIMaster.getFramePrefix(obj)});
 				   var id = othis.id.replace(/\./g,"_");
-				   if (IS_MOBILEVIEW) { eval($('#'+id+"_openItem")[0].href);}
+				   if (IS_MOBILEVIEW && $('#'+id+"_openItem")[0]) { eval($('#'+id+"_openItem")[0].href);}
 				   else {$('#'+id+"_openItem").trigger('click');}
 				   return;
 				} else {
@@ -3314,6 +3314,9 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
 					}
 					count++;
 				}
+			}
+			if (IS_MOBILEVIEW) {
+				$(document.body).trigger("click");//a bug fixed for first click event in jm.
 			}
         }
     },

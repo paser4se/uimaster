@@ -846,8 +846,12 @@ UIMaster.util.retrieveErrMsg = function(constraint){
 		msg[0] = constraint;
 	return msg;
 };
-UIMaster.util.forwardToPage = function(link){
-    window.top.location.href=link;
+UIMaster.util.forwardToPage = function(link, newpage){
+    if (newpage) {
+		window.open(link);
+	} else {
+	    window.top.location.href=link;
+	}
 };
 /**
  * @description Register an AJAX handler to handle UIMaster AJAX operations.
@@ -1316,7 +1320,8 @@ function syncAll() {
  * @param {String} entityName The UIEntity name of the action.
  */
 UIMaster.triggerServerEvent = function(uiid,actionName,data,entityName,action,async){
-	if (elementList[uiid] != null && elementList[uiid].type && elementList[uiid].type == "button") {
+	if (elementList[uiid] != null && elementList[uiid].type 
+		&& elementList[uiid].type == "button" && elementList[uiid].disable) {
 		elementList[uiid].disable();
 	}
     UIMaster.ui.mask.open();
@@ -1656,7 +1661,26 @@ UIMaster.pageInitFunctions.push(function() {//handle back button event and reloa
 		}
 	}
 });
-
+UIMaster.setCookie = function(name, value){
+	var Days = 30;
+	var exp = new Date();
+	exp.setTime(exp.getTime() + Days*24*60*60*1000);
+	document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+}
+UIMaster.getCookie = function(name){
+	var arr,reg = new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+	if(arr = document.cookie.match(reg))
+		return unescape(arr[2]);
+	else
+		return null;
+}
+UIMaster.deleteCookie = function(name){
+	var exp = new Date();
+	exp.setTime(exp.getTime() - 1);
+	var cval = getCookie(name);
+	if(cval != null)
+		document.cookie= name + "="+cval+";expires="+exp.toGMTString();
+}
 function getFormElementList(formName){
     getElementListSingle(document.forms[formName]);
     disableFormDoubleSubmit(formName);
