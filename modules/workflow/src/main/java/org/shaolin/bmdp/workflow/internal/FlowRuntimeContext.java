@@ -16,9 +16,7 @@
 package org.shaolin.bmdp.workflow.internal;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -577,26 +575,21 @@ public final class FlowRuntimeContext extends OpExecuteContext implements FlowVa
         this.exception = e;
     }
 
-    private transient List<ITaskEntity> newTaskEntities; 
-    
     public void save(ITaskEntity entity) {
     	if (entity.getId() == 0) {
     		CoordinatorModel.INSTANCE.create(entity);
-    	} 
-    	
-    	if (entity.getTaskId() == 0) {
-    		if (newTaskEntities == null) {
-    			newTaskEntities = new ArrayList<ITaskEntity>();
-    		} 
-    		newTaskEntities.add(entity);
+    	} else {
+    		CoordinatorModel.INSTANCE.update(entity);
     	}
-    }
-    
-    public List<ITaskEntity> getAllNewTaskEntities() {
-    	if (newTaskEntities == null) {
-			return Collections.emptyList();
+    	String sessionId = this.getSession().getID();
+    	if (entity.getSessionId() != null && entity.getSessionId().length() > 0) {
+			if (!entity.getSessionId().equals(sessionId)) {
+				logger.debug("Session id {} has already set!", entity.getSessionId());
+			}
+			return;
 		} 
-    	return newTaskEntities;
+    	entity.setSessionId(sessionId);
+    	CoordinatorModel.INSTANCE.update(entity);
     }
     
     @Override

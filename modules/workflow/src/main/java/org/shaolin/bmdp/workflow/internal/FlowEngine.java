@@ -33,7 +33,6 @@ import org.shaolin.bmdp.datamodel.workflow.MissionNodeType;
 import org.shaolin.bmdp.datamodel.workflow.SplitNodeType;
 import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.AppContext;
-import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.Event;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
@@ -292,13 +291,7 @@ public class FlowEngine {
         			currentNode = null;
         			break;
         		}
-            } else if (currentNode != null && flowContext.getAllNewTaskEntities().size() > 0) {
-            	// complete the unfinished task for any other node types.
-            	flowContainer.scheduleTask(null, flowContext, this, currentNode, 
-            			lastMissionNode.getParticipant().getPartyType());
-            	ICoordinatorService coordinator = AppContext.get().getService(ICoordinatorService.class);
-    			coordinator.completeTask(coordinator.getTask(flowContext.getTaskId()));
-            }
+            } 
         } while (currentNode != null);
     }
 
