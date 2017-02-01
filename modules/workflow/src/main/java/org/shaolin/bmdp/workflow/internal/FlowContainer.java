@@ -242,23 +242,6 @@ public class FlowContainer {
         task.setListener(new MissionListener(task));
         task.setCreateDate(new Date());
         
-    	List<ITaskEntity> taskEntities = flowContext.getAllNewTaskEntities();
-    	if (taskEntities != null) {
-    		for (ITaskEntity entity: taskEntities) {
-    			if (entity.getSessionId() != null && entity.getSessionId().length() > 0) {
-    				if (!entity.getSessionId().equals(task.getSessionId())) {
-    					logger.warn("Session id has already set!");
-    				}
-    				continue;
-    			} else {
-    				//entity.setTaskId(task.getId()); no need
-	    			entity.setSessionId(task.getSessionId());
-	    			CoordinatorModel.INSTANCE.update(entity);
-    			}
-    		}
-			flowContext.getAllNewTaskEntities().clear();
-    	}
-    	
         List<ITaskEntity> taskRelatedEntities = new ArrayList<ITaskEntity>();
         Collection<String> keys = flowContext.getEvent().getAttributeKeys();
         for (String key: keys) {

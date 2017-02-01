@@ -145,6 +145,16 @@ public class AjaxContext extends OpExecuteContext implements Serializable
      */
     private final ArrayList<JSONObject> dataItems;
     
+    /**
+     * only for serialization support.
+     */
+    public AjaxContext() {
+    	this.eventSourceUIMap = null;
+        this.dataItems = null;
+        this.requestData = null;
+        this.ajaxContextParams = null;
+    }
+    
     public AjaxContext(Map<?, ?> uiMap, IRequestData requestData)
     {
         this.eventSourceUIMap = uiMap;
