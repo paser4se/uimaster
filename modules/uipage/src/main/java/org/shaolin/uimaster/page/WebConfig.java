@@ -58,12 +58,12 @@ public class WebConfig {
 	private static String resourceContextRoot;
 	private static String uploadFileContextRoot;
 	private static String resourcePath;
+	private static int jsversion = 1;
 	
 	public static class WebConfigFastCache {
 		final String runningMode;
 		final boolean isHTTPs;
 		final boolean customizedMode;
-		final int jsVersion;
 		final String hiddenValueMask;
 		final String cssRootPath;
 		final String jsRootPath;
@@ -99,7 +99,6 @@ public class WebConfig {
 		final List<String> skipBackButtonPages;
 		
 		public WebConfigFastCache() {
-			jsVersion = (int)(Math.random() * 100);
 			Registry instance = Registry.getInstance();
 			runningMode = instance.getValue("/System/webConstant/runningMode");
 			resourceContextRoot = instance.getValue(
@@ -263,6 +262,14 @@ public class WebConfig {
 	
 	public static boolean isCustomizedMode() {
 		return getCacheObject().customizedMode;
+	}
+	
+	public static void updateJsVersion(int version) {
+		WebConfig.jsversion = version;
+	}
+	
+	public static int getJsVersion() {
+		return WebConfig.jsversion;
 	}
 	
 	public static String getHiddenValueMask() {
@@ -525,10 +532,6 @@ public class WebConfig {
 	
 	public static String replaceWebContext(String str) {
 		return str;
-	}
-
-	public static int getJsVersion() {
-		return getCacheObject().jsVersion;
 	}
 	
 	public static String[] getCommonCss() {

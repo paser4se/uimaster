@@ -2114,12 +2114,13 @@ public class UIFormObject implements java.io.Serializable
             	} else {
                     importJSCode = (String)this.jsIncludeMap.get(jsFileName);
             	}
-            	if (jsFileName.startsWith("http") || jsFileName.startsWith("https")) {
-            		context.generateJS("<script type=\"text/javascript\" src=\"" + jsFileName + "\" ");
+            	if (jsFileName.startsWith(WebConfig.getResourceContextRoot())) {
+            		context.generateJS(importJSCode + timestamp + "\" ");
             		context.generateJS(syncLoadJs ? "" : WebConfig.isSyncLoadingJs(jsFileName));
             		context.generateJS("></script>");
             	} else {
-            		context.generateJS(importJSCode + timestamp + "\" ");
+            		// thrid party's js file.
+            		context.generateJS("<script type=\"text/javascript\" src=\"" + jsFileName + "\" ");
             		context.generateJS(syncLoadJs ? "" : WebConfig.isSyncLoadingJs(jsFileName));
             		context.generateJS("></script>");
             	}
@@ -2150,17 +2151,18 @@ public class UIFormObject implements java.io.Serializable
             }
             if (jsFileName.endsWith(".js"))
             {
-				if (jsFileName.startsWith("http") || jsFileName.startsWith("https")) {
-					sb.append("<script type=\"text/javascript\" src=\"");
-	                sb.append(jsFileName).append("\" ");
+				if (jsFileName.startsWith(WebConfig.getResourceContextRoot())) {
+	                sb.append("<script type=\"text/javascript\" src=\"").append(HTMLUtil.getWebRoot());
+	                sb.append(jsFileName).append("?_timestamp=").append(WebConfig.getTimeStamp())
+	                .append("\" ");
 	                sb.append(syncLoadJs ? "" : WebConfig.isSyncLoadingJs(jsFileName));
 	                sb.append("></script>");
 				} else {
-	                sb.append("<script type=\"text/javascript\" src=\"").append(HTMLUtil.getWebRoot());
-	                sb.append(jsFileName).append("?_timestamp=").append(WebConfig.getTimeStamp())
-	                        .append("\" ");
-	                sb.append(syncLoadJs ? "" : WebConfig.isSyncLoadingJs(jsFileName));
-	                sb.append("></script>");
+					//third party.
+					sb.append("<script type=\"text/javascript\" src=\"");
+					sb.append(jsFileName).append("\" ");
+					sb.append(syncLoadJs ? "" : WebConfig.isSyncLoadingJs(jsFileName));
+					sb.append("></script>");
 				}
             }
         }

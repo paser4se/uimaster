@@ -2119,6 +2119,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	  this.loadNewSlides("history");
     },
 	showLoader: function(isNew){
+	 this.loader.css("display", "block");
 	 if (isNew) {
 	   this.loader.css("top","0px");this.loader.css("left",$(this).position().left + "px");
 	 } else {
@@ -2126,14 +2127,14 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	 }
 	 this.loader.css("opacity", "1");
 	},
-	hideLoader:function(){this.loader.css("opacity", "0");},
+	hideLoader:function(){this.loader.css("opacity", "0").css("display", "none");},
 	loadNewSlides: function(pullaction){
 	    var othis = this;
 	    var opts = {url:AJAX_SERVICE_URL,async:false,
 			data:{_ajaxUserEvent:"table",_uiid:othis.id,_actionName:"pull",_value:pullaction,_framePrefix:UIMaster.getFramePrefix(),_sync: UIMaster.ui.sync()},
 			success: function(data){
 		     //$($(othis.pageInfoPanel).children()[0]).text("1/"+data.totalCount);
-			 if (data.rows && data.rows.length > 0) {
+			 if(data.rows && data.rows.length > 0){
 			     if (pullaction == "filter") {
 				    $(othis).find(".swiper-slide").each(function() {
 						$(this).remove();
