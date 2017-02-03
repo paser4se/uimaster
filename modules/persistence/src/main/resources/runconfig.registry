@@ -12,6 +12,9 @@
 	   	       ]]></expression>
    	       </node>
         </node>
+        <node name="Persistence">
+        	<item name="PerQueryMaxRecord" value="100" />
+        </node>
     </node>
 </registry>
 

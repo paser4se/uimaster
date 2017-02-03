@@ -1,6 +1,7 @@
 package org.shaolin.bmdp.runtime.security;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -281,6 +282,13 @@ public class UserContext implements Serializable {
 
 	public static List<IConstantEntity> getUserRoles() {
 		return userRolesCache.get();
+	}
+	
+	public static void addUserRule(IConstantEntity role) {
+		if (userRolesCache.get() == null) {
+			userRolesCache.set(new ArrayList<IConstantEntity>());
+		} 
+		userRolesCache.get().add(role);
 	}
 	
 	public static boolean hasRole(String role) {

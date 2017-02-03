@@ -84,10 +84,7 @@ public class EventConsumer {
             FlowContextImpl payload = (FlowContextImpl) evt.getFlowContext();
             if (payload != null) {
                 // The pay-load is a pair of request and response events.
-                FlowRuntimeContext flowContext = payload.getFlowRuntime();
-                if (!flowContext.match(engine)) { // not for this flow.
-                    return false;
-                } else if (evt instanceof TimeoutEvent && ((TimeoutEvent) evt).fromTimerNode()) {
+                if (evt instanceof TimeoutEvent && ((TimeoutEvent) evt).fromTimerNode()) {
                     handleTimeoutEvent(evt);
                 } else {
                     evt.setAttribute(BuiltInAttributeConstant.KEY_PRODUCER_NAME,
@@ -293,10 +290,29 @@ public class EventConsumer {
 	            		&& destType.getEntity() != null && destType.getEntity().trim().length() > 0) {
 	            	FlowObject flowObject = AppContext.get().getService(IWorkflowService.class).getFlowObject(destType.getEntity());
 	            	destNodeInfo = flowObject.getNode(destType.getEntity(), destType.getFlow(), destType.getName());
+	            	if (!flowRuntime.match(engine)) {
+	            		long taskId = flowRuntime.getTaskId();
+	            		// switch flow engine to target.
+	            		flowRuntime = new FlowRuntimeContext(evt, engine);
+	            		flowRuntime.startNewFlow(false);
+	            		flowRuntime.setSession(session);
+	            		flowRuntime.setSessionId(session.getID());
+	            		flowRuntime.setTaskId(taskId);
+	            	}
             	} else if (destType.getFlow() != null && destType.getFlow().trim().length() > 0) {
+            		if (!flowRuntime.match(engine)) { // not for this flow.
+            			logger.warn("Workflow event is not on the right {}, it was {}.", 
+            					new Object[] {engine.toString(), flowRuntime.getEngine().toString()});
+            			return null;
+            		} 
 	            	destNodeInfo = flowRuntime.getCurrentNode().getFlow().getApp().getFlowFromName(destType.getFlow())
 	            					.getNodeFromName(destType.getName());
 	            } else {
+	            	if (!flowRuntime.match(engine)) { // not for this flow.
+	            		logger.warn("Workflow event is not on the right {}, it was {}.", 
+	            				new Object[] {engine.toString(), flowRuntime.getEngine().toString()});
+	            		return null;
+	            	} 
 	            	destNodeInfo = flowRuntime.getCurrentNode().getFlow().getNodeFromName(destType.getName());
 	            }
 	            if (destNodeInfo == null) {

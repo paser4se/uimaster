@@ -815,4 +815,8 @@ public class FlowEngine {
         }
     }
 
+    @Override
+    public String toString() {
+    	return "Flow Engine: " + flowInfo.toString();
+    }
 }

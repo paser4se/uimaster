@@ -232,10 +232,11 @@ public class FlowContainer {
         task.setSessionId(flowContext.getSession().getID());
         task.setSubject("Task: " + currentNode.getName());
         task.setDescription(currentNode.getDescription());
-        if (role == null) {
+        if (role == null && UserContext.getUserRoles() != null) {
         	task.setPartyType(UserContext.getUserRoles().toString());
+        } else {
+        	task.setPartyType(role);
         }
-    	task.setPartyType(role);
         task.setExpiredTime(timeout);
         task.setEnabled(true);
         task.setExecutedNode(flowContext.currentNodeToString());

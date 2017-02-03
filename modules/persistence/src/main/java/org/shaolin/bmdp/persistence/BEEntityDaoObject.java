@@ -19,6 +19,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.shaolin.bmdp.persistence.query.operator.Operator;
+import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.be.IBusinessEntity;
 import org.shaolin.bmdp.runtime.be.IPersistentEntity;
 import org.shaolin.bmdp.runtime.security.UserContext;
@@ -31,7 +32,14 @@ public class BEEntityDaoObject {
 
 	public static final BEEntityDaoObject DAOOBJECT = new BEEntityDaoObject();
 
+	public static final int PERQUERY_MAXRECORD;
+	
 	public static boolean testMode = false;
+	
+	static {
+		Registry instance = Registry.getInstance();
+		PERQUERY_MAXRECORD = Integer.valueOf(instance.getValue("/System/Persistence/PerQueryMaxRecord"));
+	}
 	
 	public void addResource(String hbmMapping) {
 		HibernateUtil.getConfiguration().addResource(hbmMapping);
@@ -422,6 +430,11 @@ public class BEEntityDaoObject {
 	public <T> List<T> list(int offset, int count, Class<T> elementType,
 			Class<?> persistentType, String alias, List<Criterion> criterions,
 			List<Order> orders) {
+		if (count <= 0) {
+			// we must to prevent the whole table set query if count == -1.
+			// so we set the maximum limited records per query.
+			count = PERQUERY_MAXRECORD;
+		}
 		Session session = HibernateUtil.getSession();
 		try {
 			Criteria criteria = null;
@@ -490,6 +503,8 @@ public class BEEntityDaoObject {
 		}
 	}
 
+	
+	
 	/**
 	 * Does query. internal only.
 	 * 
@@ -502,6 +517,11 @@ public class BEEntityDaoObject {
 	 */
 	@SuppressWarnings("unchecked")
 	protected <T> List<T> _list(int offset, int count, Criteria criteria) {
+		if (count <= 0) {
+			// we must to prevent the whole table set query if count == -1.
+			// so we set the maximum limited records per query.
+			// count = PERQUERY_MAXRECORD;
+		}
 		try {
 			// mobile pulling data supported.
 			if (UserContext.isMobileRequest() && UserContext.getUserContext() != null 

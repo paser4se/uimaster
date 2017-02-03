@@ -435,10 +435,13 @@ public class HTMLTableType extends HTMLContainerType {
 		int count = 0;
 		for (Object be : listData) {
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
-			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+//			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+			DefaultEvaluationContext evaContext = (DefaultEvaluationContext)ee.getExpressionContext(ODContext.LOCAL_TAG);
+			
 			evaContext.setVariableValue("rowBE", be);
 			evaContext.setVariableValue("index", count);
 			evaContext.setVariableValue("formId", this.getPrefix());
+			
 			ooeeContext.setDefaultEvaluationContext(evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
 			
@@ -638,7 +641,9 @@ public class HTMLTableType extends HTMLContainerType {
 		int count = 0;
 		for (Object be : listData) {
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
-			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+//			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
+			DefaultEvaluationContext evaContext = (DefaultEvaluationContext)ee.getExpressionContext(ODContext.LOCAL_TAG);
+			
 			evaContext.setVariableValue("rowBE", be);
 			evaContext.setVariableValue("index", count);
 			evaContext.setVariableValue("formId", this.getPrefix());
@@ -733,7 +738,7 @@ public class HTMLTableType extends HTMLContainerType {
 		return true;
 	}
 
-	VariableEvaluator ee;
+	private VariableEvaluator ee;
 	
 	public Widget createAjaxWidget(VariableEvaluator ee)
     {
