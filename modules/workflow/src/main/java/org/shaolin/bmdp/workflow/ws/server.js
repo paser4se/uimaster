@@ -74,7 +74,7 @@ io.on('connection', function(socket){
             
 			socket.emit('loginSuccess', obj); 
 		    if (DEBUG) {
-			  console.log(obj.partyId + " joined!");
+			  console.log(obj.partyId + " joined! request json: " + JSON.stringify(obj));
 			}
 		} catch (e) {
 		   console.error("registering error: " + e.stack || e);
@@ -119,8 +119,11 @@ io.on('connection', function(socket){
 		     return;
 		  }
 		  
+		  if (DEBUG) {
+		     console.log("query history: " + JSON.stringify(obj));
+		  }
 		  pool.getConnection(function(err, connection) {
-			  connection.query('SELECT * FROM WF_CHATHISTORY WHERE SESSIONID=? and SENTPARTYID=? and RECEIVEDPARTYID=? ORDER BY createdate ASC', [obj.sessionId, obj.fromPartyId, obj.toPartyId], function(err, results, fields) {
+			  connection.query('SELECT * FROM WF_CHATHISTORY WHERE SESSIONID=? ORDER BY createdate ASC', [obj.sessionId], function(err, results, fields) {
 					connection.release();
 					if (err) {
 						if (err.code === 'PROTOCOL_CONNECTION_LOST') {
@@ -223,13 +226,13 @@ io.on('connection', function(socket){
 						}
 					} else {
 						if (DEBUG) {
-						  console.log("WF_NOTIFICATION inserted: " + result);
+						  console.log("WF_NOTIFICATION inserted: " + JSON.stringify(msg));
 						}
 					}
 				   });
 			   });
 			   
-	           var msg = {"taskid":obj.taskId, "sentpartyid":obj.fromPartyId, "receivedpartyid":obj.toPartyId,
+	           var msg = {"sentpartyid":obj.fromPartyId, "receivedpartyid":obj.toPartyId,
 						"message":obj.content, "sessionid": obj.sessionId};
 			   pool.getConnection(function(err, connection) {
 				   connection.query('INSERT INTO WF_CHATHISTORY SET ?', msg, function(err, result) {
@@ -238,16 +241,19 @@ io.on('connection', function(socket){
 			            console.error(err.stack || err);
 			          } else {
 						  if (DEBUG) {
-							console.log("WF_CHATHISTORY inserted: " + result);
+							console.log("WF_CHATHISTORY inserted: " + JSON.stringify(msg));
 						  }
 					  }
 				   });
 			   });
 			   
 			   socket.emit('user_offline', obj); 
+			   if (DEBUG) {
+			       console.log('user_offline: '+ JSON.stringify(obj));
+			   }
 			   return;
 			}
-			var msg = {"taskid":obj.taskId, "sentpartyid":obj.fromPartyId, "receivedpartyid":obj.toPartyId,
+			var msg = {"sentpartyid":obj.fromPartyId, "receivedpartyid":obj.toPartyId,
 						"message":obj.content, "sessionid": obj.sessionId};
 			pool.getConnection(function(err, connection) {
 			    connection.query('INSERT INTO WF_CHATHISTORY SET ?', msg, function(err, result) {
@@ -256,7 +262,7 @@ io.on('connection', function(socket){
 			          console.error(err.stack || err);
 			       } else {
 					   if (DEBUG) {
-						  console.log("WF_CHATHISTORY inserted: " + result);
+						  console.log("WF_CHATHISTORY inserted: " + JSON.stringify(msg));
 					   }
 				   }
 			    });

@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>访问页面出错</title>
+<title>è®¿é—®é¡µé�¢å‡ºé”™</title>
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
 <link rel="apple-touch-icon" href="favicon.ico">
 <script type="text/javascript">
@@ -68,11 +68,11 @@ function finalizePage()
 	<div id="div-Form-0_1" style="min-height:350px;min-width:100%;" class="uimaster_container_cell " >
 		<div class="skin_titlepanel_table" name="titlePanel" id="loginPanel.titlePanel" >
 		<div class="skin_titlepanel_title" onclick="" >
-		<div style="color:red;font-weight:bold;">访问出错，整个人都不好了(`~`)!!!!</div></div><div class="skin_titlepanel_content">
+		<div style="color:red;font-weight:bold;">è®¿é—®å‡ºé”™ï¼Œæ•´ä¸ªäººéƒ½ä¸�å¥½äº†(`~`)!!!!</div></div><div class="skin_titlepanel_content">
 		<div id="loginPanel.wrapperPanel"><div id="loginPanel.msgLocation"></div>
 		<div class="uimaster_panel" id="loginPanel">
 			<div id="div-loginPanel-0_0" style="min-width:100%;" class="uimaster_widget_cell w1 h2 " >
-				您好，由于各种原因，此次访问操作失败。请您点击 <a href=""><span style="font-weight:bold;">"这里"</span></a> 重来。
+				æ‚¨å¥½ï¼Œç”±äºŽå�„ç§�åŽŸå› ï¼Œæ­¤æ¬¡è®¿é—®æ“�ä½œå¤±è´¥ã€‚è¯·æ‚¨ç‚¹å‡» <a href=""><span style="font-weight:bold;">"è¿™é‡Œ"</span></a> é‡�æ�¥ã€‚
 			</div>
 		</div></div></div></div>
 	</div>
@@ -86,6 +86,9 @@ function finalizePage()
 		</div>
 	</div>
 	<div class="hardreturn"></div>
+	<DIV>
+	  <a href="/uimaster/jsp/index.jsp">è¿”å›ž</a>
+	</DIV>
 </div>
 </form>
 </body>

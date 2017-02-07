@@ -171,6 +171,8 @@ public class ODPageObject extends ODObject implements java.io.Serializable
         
         parseInNode();
         
+        parseOutNode();
+        
         if(logger.isDebugEnabled())
         	logger.debug("---------->Parse od component end.");  
     }
@@ -220,6 +222,26 @@ public class ODPageObject extends ODObject implements java.io.Serializable
 		pageInDescritpor.getServerOperation().parse(opContext);
 	}
 
+	private void parseOutNode() throws ParsingException 
+	{
+		if(this.outs == null || this.outs.size() == 0) {
+			return;
+		}
+		
+		for (PageOutType out : this.outs) {
+			ExpressionType serverOperation = out.getServerOperation();
+			if (serverOperation == null || serverOperation.getExpressionString() == null) {
+				ExpressionType dataToUIExpr = new ExpressionType();
+				dataToUIExpr.setExpressionString("{@odContext.executeAllMappings();}");
+				out.setServerOperation(dataToUIExpr);
+			}
+			if(logger.isDebugEnabled()) {
+				logger.debug("Parse op type: {}", out.getServerOperation().getExpressionString()); 
+			}
+			out.getServerOperation().parse(opContext);
+		}
+	}
+	
 	public boolean isExistOdMapping() {
 		return isExistOdMapping;
 	}
