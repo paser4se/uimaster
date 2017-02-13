@@ -311,7 +311,6 @@ public class WebFlowServlet extends HttpServlet
         if (orgCode == null) {
         	orgCode = IServerServiceManager.INSTANCE.getMasterNodeName();
         }
-        AppContext.register(IServerServiceManager.INSTANCE.getApplication(orgCode));
     	IPermissionService permiService = AppContext.get().getService(IPermissionService.class);
     	List<IConstantEntity> roleIds = (List<IConstantEntity>)request.getSession().getAttribute(WebflowConstants.USER_ROLE_KEY);
     	int decision = permiService.checkModule(orgCode, attrAccessor.chunkName, attrAccessor.nodeName, roleIds);
@@ -361,10 +360,6 @@ public class WebFlowServlet extends HttpServlet
 					ProcessHelper.processDirectForward(sessionTimeoutPage, request, response);
 					return;
 				}
-				if (!checkAccessPermission(attrAccessor, request)) {
-					ProcessHelper.processDirectForward(permissionDenyPage, request, response);
-					return;
-				}
 				if (WebConfig.isJAAS()) {
 					if (request.getParameter("_login") == null) {
 						HttpSession session = request.getSession(false);
@@ -399,7 +394,11 @@ public class WebFlowServlet extends HttpServlet
 	            	orgCode = IServerServiceManager.INSTANCE.getMasterNodeName();
 	            }
 	            AppContext.register(IServerServiceManager.INSTANCE.getApplication(orgCode));
-				
+	            
+	            if (!checkAccessPermission(attrAccessor, request)) {
+					ProcessHelper.processDirectForward(permissionDenyPage, request, response);
+					return;
+				}
                 _process(request, response, attrAccessor);
             }
         }
