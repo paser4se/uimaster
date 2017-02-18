@@ -35,7 +35,7 @@ public class TableCallBack implements CallBack {
 		this.uiid = uiid;
 	}
 	
-	public void execute() {
+	public void execute(Object... objects) {
         Table table = (Table)AjaxActionHelper.getAjaxContext().getElementByAbsoluteId(entityPrefix + uiid);
         if (table == null) {
         	table = (Table)AjaxActionHelper.getAjaxContext().getElementByAbsoluteId(uiid);

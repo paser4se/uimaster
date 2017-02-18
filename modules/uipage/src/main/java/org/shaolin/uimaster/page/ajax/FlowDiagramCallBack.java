@@ -34,7 +34,7 @@ public class FlowDiagramCallBack implements CallBack {
 		this.uiid = uiid;
 	}
 	
-	public void execute() {
+	public void execute(Object... objects) {
 		WorkFlowDiagram table = (WorkFlowDiagram)AjaxActionHelper.getAjaxContext().getElementByAbsoluteId(entityPrefix + uiid);
 		table.refreshModel();
 	}

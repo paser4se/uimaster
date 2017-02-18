@@ -451,6 +451,25 @@ public class RefForm extends Container implements Serializable
     	callBackList.add(caller);
     }
     
+    public void closeIfinWindows(Object... obj) {
+    	if (window != null) {
+			window.close();
+
+			if (callBack != null) {
+				callBack.execute(obj);
+			}
+			if (callBackList != null) {
+				for (CallBack caller : callBackList) {
+					caller.execute(obj);
+				}
+			}
+			callBack = null;
+			callBackList = null;
+		}
+		
+		this.remove();
+    }
+    
 	public void closeIfinWindows() {
 		if (window != null) {
 			window.close();

@@ -34,7 +34,7 @@ public class TreeCallBack implements CallBack {
 		this.uiid = uiid;
 	}
 	
-	public void execute() {
+	public void execute(Object... objects) {
 		Tree tree = (Tree)AjaxActionHelper.getAjaxContext().getElementByAbsoluteId(entityPrefix + uiid);
 		tree.refresh();
 	}

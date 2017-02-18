@@ -26,5 +26,5 @@ import java.io.Serializable;
  */
 public interface CallBack extends Serializable {
 
-	void execute();
+	void execute(Object... objects);
 }

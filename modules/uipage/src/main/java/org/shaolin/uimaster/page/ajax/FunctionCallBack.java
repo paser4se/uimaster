@@ -47,7 +47,7 @@ public class FunctionCallBack implements CallBack {
 		this.functionName = functionName;
 	}
 	
-	public void execute() {
+	public void execute(Object... objects) {
 		String uientity = context.getEntityName();
 		List<OpType> ops = null;
 		if (PageCacheManager.isUIPage(uientity)) {
