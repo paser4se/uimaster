@@ -17,7 +17,7 @@ package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
 
-abstract public class SelectWidget extends Widget implements Serializable
+abstract public class SelectWidget extends Widget<SelectWidget> implements Serializable
 {
     private static final long serialVersionUID = 1871297456126957797L;
 
@@ -29,7 +29,7 @@ abstract public class SelectWidget extends Widget implements Serializable
         this._setWidgetLabel(id);
     }
 
-	public void generateAttribute(String name, Object value, StringBuilder sb) {
+	public SelectWidget generateAttribute(String name, Object value, StringBuilder sb) {
 		if (name.equals("selected")) {
 			if (value != null && Boolean.valueOf((String) value).booleanValue()) {
 				sb.append(" CHECKED");
@@ -37,6 +37,7 @@ abstract public class SelectWidget extends Widget implements Serializable
 		} else {
 			super.generateAttribute(name, value, sb);
 		}
+		return this;
 	}
 
     public void setLabel(String label)
@@ -59,7 +60,7 @@ abstract public class SelectWidget extends Widget implements Serializable
 	    addAttribute("selected", String.valueOf(selected));
 	}
 
-	public void checkConstraint() {
+	public SelectWidget checkConstraint() {
     	String value = (String)getAttribute("selected");
     	if(this.hasConstraint("mustCheck")) {
     		Object v = this.getConstraint("mustCheck");
@@ -75,6 +76,7 @@ abstract public class SelectWidget extends Widget implements Serializable
     							+ ",UIID: " + this.getId());
     		}
     	}
+    	return this;
 	}
 	
     public boolean isSelected()

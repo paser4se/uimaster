@@ -46,7 +46,7 @@ public class TextField extends TextWidget implements java.io.Serializable
         this._setWidgetLabel(id);
     }
 
-    public void addAttribute(String name, Object value, boolean update)
+    public TextField addAttribute(String name, Object value, boolean update)
     {
         if (name.equals("editable"))
         {
@@ -76,6 +76,7 @@ public class TextField extends TextWidget implements java.io.Serializable
         {
             super.addAttribute(name, value, update);
         }
+        return this;
     }
 
     public String generateJS()
@@ -124,7 +125,7 @@ public class TextField extends TextWidget implements java.io.Serializable
 		}
     }
 
-    protected void generateAttribute(String name, Object value, StringBuilder sb)
+    protected TextField generateAttribute(String name, Object value, StringBuilder sb)
     {
         if ("editable".equals(name))
         {
@@ -159,6 +160,7 @@ public class TextField extends TextWidget implements java.io.Serializable
         {
             super.generateAttribute(name, value, sb);
         }
+        return this;
     }
     private void generateContent(StringBuilder sb)
     {

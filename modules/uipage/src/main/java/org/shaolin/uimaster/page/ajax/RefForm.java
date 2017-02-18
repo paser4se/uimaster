@@ -495,11 +495,11 @@ public class RefForm extends Container implements Serializable
 		return window != null;
 	}
     
-    public void remove() 
+    public RefForm remove() 
     {
         AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
         if(ajaxContext == null)
-            return;
+            return this;
         if(ajaxContext.existElmByAbsoluteId(getId(), getFrameInfo()))
         {
             Map map = null;
@@ -507,7 +507,7 @@ public class RefForm extends Container implements Serializable
 				map = AjaxActionHelper.getFrameMap(ajaxContext.getRequest());
 			} catch (AjaxException e) {
 				logger.warn("Session maybe timeout: " + e.getMessage(), e);
-				return;
+				return this;
 			}
             Iterator iterator = map.entrySet().iterator();
             while(iterator.hasNext())
@@ -536,5 +536,6 @@ public class RefForm extends Container implements Serializable
             ajaxContext.addDataItem(dataItem);
             ajaxContext.removeElement(getId(),getFrameInfo());
         }
+        return this;
     }
 }

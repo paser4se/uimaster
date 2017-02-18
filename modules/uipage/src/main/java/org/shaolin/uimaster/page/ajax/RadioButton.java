@@ -31,7 +31,7 @@ public class RadioButton extends SelectWidget implements Serializable
         super(id, layout);
     }
 
-    public void addAttribute(String name, Object value, boolean update)
+    public RadioButton addAttribute(String name, Object value, boolean update)
     {
         if ("selected".equals(name))
         {
@@ -61,6 +61,8 @@ public class RadioButton extends SelectWidget implements Serializable
         {
             this.addAttribute("selected", String.valueOf(true), update);
         }
+        
+        return this;
     }
 
     public String generateJS()

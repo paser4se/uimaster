@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Shaolin Wu
  */
-public class Tree extends Widget implements Serializable {
+public class Tree extends Widget<Tree> implements Serializable {
 	private static final long serialVersionUID = -1744731434666233557L;
 	
 	private static final Logger logger = LoggerFactory.getLogger(Tree.class);
@@ -76,7 +76,7 @@ public class Tree extends Widget implements Serializable {
 		this.dataModel.put(key, object);
 	}
 
-	public void addAttribute(String name, Object value, boolean update) {
+	public Tree addAttribute(String name, Object value, boolean update) {
 		if ("selectedNode".equals(name)) {
 			conditions.setSelectedId(value.toString());
 		} else if ("selectedParentNode".equals(name)) {
@@ -84,8 +84,9 @@ public class Tree extends Widget implements Serializable {
 		} else if ("selectedNodeName".equals(name)) {
 			selectedNodeName = value.toString();
 		} else {
-			super.addAttribute(name, value, update);
+			return super.addAttribute(name, value, update);
 		}
+		return this;
 	}
 	
 	public String getSelectedNodeName() {

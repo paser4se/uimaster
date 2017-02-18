@@ -58,7 +58,7 @@ import org.shaolin.uimaster.page.widgets.HTMLImageType;
  * 
  * @author Shaolin Wu
  */
-public class Table extends Widget implements Serializable {
+public class Table extends Widget<Table> implements Serializable {
 	private static final long serialVersionUID = -1744731434666233557L;
 
 	private TableConditions conditions = TableConditions.createCondition();
@@ -118,7 +118,7 @@ public class Table extends Widget implements Serializable {
 		this.stats = stats;
 	}
 	
-	public void addAttribute(String name, Object value, boolean update)
+	public Table addAttribute(String name, Object value, boolean update)
     {
 		if ("selectedIndex".equals(name)) {
 			conditions.setCurrentSelectedIndex(Integer.valueOf(value.toString()));
@@ -175,6 +175,7 @@ public class Table extends Widget implements Serializable {
 		} else {
 			super.addAttribute(name, value, update);
 		}
+		return this;
     }
 	
 	public List<Object> getSelectedRows() {
@@ -301,7 +302,7 @@ public class Table extends Widget implements Serializable {
 		}
 	}
 	
-	public void updateFilter(String field, String value) {
+	public Table updateFilter(String field, String value) {
 		for (UITableColumnType col : columns) {
 			if (col.getBeFieldId().equals(field) 
 					|| (col.getUiType().getType().equals("DateRange") 
@@ -327,9 +328,10 @@ public class Table extends Widget implements Serializable {
 				break;
 			}
 		}
+		return this;
 	}
 	
-	public void updateFilter(Object rowObject, String field, String value) {
+	public Table updateFilter(Object rowObject, String field, String value) {
 		for (UITableColumnType col : columns) {
 			if (col.getBeFieldId().equals(field) 
 					|| (col.getUiType().getType().equals("DateRange") 
@@ -353,23 +355,36 @@ public class Table extends Widget implements Serializable {
 				break;
 			}
 		}
+		return this;
 	}
 	
-	public void setRow(int index, Object object) {
+	public Table setRow(int index, Object object) {
 		this.listData.set(index, object);
+		return this;
 	}
 	
-	public void addRow(Object object) {
+	public Table addRow(Object object) {
+		this.addRow(object, true);
+		return this;
+	}
+	
+	public Table addRow(Object object, boolean needUpdate) {
 		this.listData.add(object);
-		
-		IDataItem dataItem = AjaxActionHelper.createDataItem();
-		dataItem.setUiid(this.getId());
-		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
-		dataItem.setData(this.refreshTable0(this.listData));
-		dataItem.setFrameInfo(this.getFrameInfo());
+		if (needUpdate) {
+			IDataItem dataItem = AjaxActionHelper.createDataItem();
+			dataItem.setUiid(this.getId());
+			dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
+			if (this.isSliderMode()) {
+				dataItem.setData(this.refreshPull0(this.listData));
+			} else {
+				dataItem.setData(this.refreshTable0(this.listData));
+			}
+			dataItem.setFrameInfo(this.getFrameInfo());
 
-		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
-		ajaxContext.addDataItem(dataItem);
+			AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+			ajaxContext.addDataItem(dataItem);
+		}
+		return this;
 	}
 	
 	public Object deleteRow(int index) {
@@ -381,7 +396,11 @@ public class Table extends Widget implements Serializable {
 		IDataItem dataItem = AjaxActionHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
-		dataItem.setData(this.refreshTable0(this.listData));
+		if (this.isSliderMode()) {
+			dataItem.setData(this.refreshPull0(this.listData));
+		} else {
+			dataItem.setData(this.refreshTable0(this.listData));
+		}
 		dataItem.setFrameInfo(this.getFrameInfo());
 
 		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
@@ -390,16 +409,17 @@ public class Table extends Widget implements Serializable {
 		return obj;
 	}
 	
-	public void clear() {
+	public Table clear() {
 		this.listData.clear();
 		
 		this.refresh(this.listData);
+		return this;
 	}
 	
 	/**
 	 * Refresh from the query expression.
 	 */
-	public void refresh() {
+	public Table refresh() {
 		if (this.isSliderMode()) {
 			conditions.setPullAction("filter");
 		}
@@ -409,6 +429,7 @@ public class Table extends Widget implements Serializable {
 		dataItem.setData(this.refresh0());
 		dataItem.setFrameInfo(this.getFrameInfo());
         AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        return this;
 	}
 	
 	/**
@@ -416,7 +437,7 @@ public class Table extends Widget implements Serializable {
 	 * 
 	 * @param rows
 	 */
-	public void refresh(List rows) {
+	public Table refresh(List rows) {
 		IDataItem dataItem = AjaxActionHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
@@ -427,6 +448,7 @@ public class Table extends Widget implements Serializable {
 		}
 		dataItem.setFrameInfo(this.getFrameInfo());
         AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        return this;
 	}
 	
 	public String refresh0() {
@@ -517,6 +539,9 @@ public class Table extends Widget implements Serializable {
 					totalCount = rows.size();
 				}
 			} 
+			if (totalCount == 0) {
+				totalCount = rows.size();
+			}
 			
 			StringBuilder sb = DisposableBfString.getBuffer();
 			try {

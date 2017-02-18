@@ -184,7 +184,7 @@ public class CellLayout extends Layout implements Serializable
         }
     }
 
-    public void remove()
+    public CellLayout remove()
     {
         if (next != null)
         {
@@ -195,9 +195,10 @@ public class CellLayout extends Layout implements Serializable
             front.next = null;
         }
         front = next = null;
+        return this;
     }
 
-    public void before(Widget comp)
+    public CellLayout before(Widget comp)
     {
         CellLayout layout = (CellLayout)comp.getHtmlLayout();
         layout.setFront(front);
@@ -208,9 +209,10 @@ public class CellLayout extends Layout implements Serializable
             layout.setParent(parent);
             ((Panel)parent).setIDForNewLayout(layout);
         }
+        return this;
     }
 
-    public void after(Widget comp)
+    public CellLayout after(Widget comp)
     {
         CellLayout layout = (CellLayout)comp.getHtmlLayout();
         layout.setNext(next);
@@ -221,6 +223,7 @@ public class CellLayout extends Layout implements Serializable
             layout.setParent(parent);
             ((Panel)parent).setIDForNewLayout(layout);
         }
+        return this;
     }
 
     private ComponentPermission getContainedComponentPermission()

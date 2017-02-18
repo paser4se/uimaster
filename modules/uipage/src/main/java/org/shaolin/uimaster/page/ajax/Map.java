@@ -20,7 +20,7 @@ import java.io.Serializable;
 /**
  * @author Shaolin Wu
  */
-public class Map extends Widget implements Serializable {
+public class Map extends Widget<Map> implements Serializable {
 	
 	private static final long serialVersionUID = -1744731434666233557L;
 	
@@ -31,10 +31,11 @@ public class Map extends Widget implements Serializable {
 		this._setWidgetLabel(id);
 	}
 
-	public void addAttribute(String name, Object value, boolean update) {
+	public Map addAttribute(String name, Object value, boolean update) {
 		if ("selectedNode".equals(name)) {
 			this.selectedNode = value.toString();
 		} 
+		return this;
 	}
 	
 	public String getSelectedNode() {

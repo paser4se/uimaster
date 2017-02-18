@@ -51,7 +51,7 @@ public class AList extends MultiChoice implements Serializable
         return multiple;
     }
 
-    public void addConstraint(String name, Object[] value, String message)
+    public AList addConstraint(String name, Object[] value, String message)
     {
         if (name != null)
         {
@@ -68,6 +68,7 @@ public class AList extends MultiChoice implements Serializable
                 super.addConstraint(name, value, message);
             }
         }
+        return this;
     }
 
     public String generateJS()

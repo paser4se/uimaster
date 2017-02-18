@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract public class MultiChoice extends Choice implements Serializable
+abstract public class MultiChoice extends Choice<MultiChoice> implements Serializable
 {
     private static final long serialVersionUID = 3779890420561677855L;
 
@@ -28,7 +28,7 @@ abstract public class MultiChoice extends Choice implements Serializable
         super(id, layout);
     }
 
-    public void addAttribute(String name, Object value, boolean update)
+    public MultiChoice addAttribute(String name, Object value, boolean update)
     {
         if ( name.equals("values") )
         {
@@ -69,14 +69,16 @@ abstract public class MultiChoice extends Choice implements Serializable
         {
             super.addAttribute(name, value, update);
         }
+        return this;
     }
 
-    public void generateAttribute(String name, Object value, StringBuilder sb)
+    public MultiChoice generateAttribute(String name, Object value, StringBuilder sb)
     {
         if ( !name.equals("values") )
         {
             super.generateAttribute(name, value, sb);
         }
+        return this;
     }
     
     public void addValue(String value)
@@ -146,7 +148,7 @@ abstract public class MultiChoice extends Choice implements Serializable
         super.addAttribute("values", values);
     }
 
-    public void checkConstraint() {
+    public MultiChoice checkConstraint() {
     	Object value = getAttribute("values");
     	if (value == null) {
 			throw new IllegalStateException("UI Constraint fails in: " 
@@ -165,6 +167,7 @@ abstract public class MultiChoice extends Choice implements Serializable
     			}
     		}
     	}
+    	return this;
 	}
     
     public String getSelectedDisplayValue() {

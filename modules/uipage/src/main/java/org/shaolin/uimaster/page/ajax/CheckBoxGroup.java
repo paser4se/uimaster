@@ -163,7 +163,7 @@ public class CheckBoxGroup extends MultiChoice implements Serializable
 		}
     }
 
-    public void addConstraint(String name, Object[] value, String message)
+    public CheckBoxGroup addConstraint(String name, Object[] value, String message)
     {
         if (name != null)
         {
@@ -180,6 +180,7 @@ public class CheckBoxGroup extends MultiChoice implements Serializable
                 super.addConstraint(name, value, message);
             }
         }
+        return this;
     }
     
     public Object removeConstraint(String name)

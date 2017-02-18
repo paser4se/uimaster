@@ -62,7 +62,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Shaolin Wu
  */
-public class WorkFlowDiagram extends Widget implements Serializable {
+public class WorkFlowDiagram extends Widget<WorkFlowDiagram> implements Serializable {
 	private static final long serialVersionUID = -1744731434666233557L;
 
 	private static final Logger logger = LoggerFactory.getLogger(WorkFlowDiagram.class);
@@ -97,7 +97,7 @@ public class WorkFlowDiagram extends Widget implements Serializable {
 		this.wflowModel = wflow;
 	}
 	
-	public void addAttribute(String name, Object value, boolean update)
+	public WorkFlowDiagram addAttribute(String name, Object value, boolean update)
     {
 		if ("selectedNode".equals(name)) {
 			selectedNode = value.toString();
@@ -137,8 +137,9 @@ public class WorkFlowDiagram extends Widget implements Serializable {
 				logger.error("error occurrs while synchronizing the value from the page.", e);
 			}
 		} else {
-			super.addAttribute(name, value, update);
+			return super.addAttribute(name, value, update);
 		}
+		return this;
     }
 	
 	public String getSelectedNode() {

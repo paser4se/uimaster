@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Shaolin Wu
  */
-public class FlowDiagram extends Widget implements Serializable {
+public class FlowDiagram extends Widget<FlowDiagram> implements Serializable {
 	private static final long serialVersionUID = -1744731434666233557L;
 
 	private static final Logger logger = LoggerFactory.getLogger(FlowDiagram.class);
@@ -76,7 +76,7 @@ public class FlowDiagram extends Widget implements Serializable {
 		this.allEntities = allEntities;
 	}
 	
-	public void addAttribute(String name, Object value, boolean update)
+	public FlowDiagram addAttribute(String name, Object value, boolean update)
     {
 		if ("selectedNode".equals(name)) {
 			selectedNode = value.toString();
@@ -118,6 +118,7 @@ public class FlowDiagram extends Widget implements Serializable {
 		} else {
 			super.addAttribute(name, value, update);
 		}
+		return this;
     }
 	
 	public String getSelectedNode() {

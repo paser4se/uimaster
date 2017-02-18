@@ -98,7 +98,7 @@ import org.shaolin.uimaster.page.security.ComponentPermission;
  * @author swu
  *
  */
-abstract public class Widget implements Serializable
+abstract public class Widget<T> implements Serializable
 {
     protected final Logger logger = Logger.getLogger(this.getClass());
 
@@ -384,60 +384,77 @@ abstract public class Widget implements Serializable
     /**
      * AJAX update is unnecessary to support this method
      */
-    public void addAttribute(Map<String, Object> attributeMap)
+    @SuppressWarnings("unchecked")
+	public T addAttribute(Map<String, Object> attributeMap)
     {
         if (attributeMap == null)
         {
-            return;
+            return (T) this;
         }
         if(!this.checkAcessible())
         {
-            return;
+            return (T) this;
         }
         
         this.attributeMap.putAll(attributeMap);
+        return (T) this;
     }
 
-    public void addAttribute(String name, int value)
+    @SuppressWarnings("unchecked")
+    public T addAttribute(String name, int value)
     {
         addAttribute(name, Integer.valueOf(value), true);
+        return (T) this;
     }
     
-    public void addAttribute(String name, long value)
+    @SuppressWarnings("unchecked")
+    public T addAttribute(String name, long value)
     {
         addAttribute(name, Long.valueOf(value), true);
+        return (T) this;
     }
     
-    public void addAttribute(String name, boolean value)
+    @SuppressWarnings("unchecked")
+    public T addAttribute(String name, boolean value)
     {
         addAttribute(name, Boolean.valueOf(value), true);
+        return (T) this;
     }
     
-    public void addAttribute(String name, float value)
+    @SuppressWarnings("unchecked")
+    public T addAttribute(String name, float value)
     {
         addAttribute(name, Float.valueOf(value), true);
+        return (T) this;
     }
     
-    public void addAttribute(String name, double value)
+    @SuppressWarnings("unchecked")
+    public T addAttribute(String name, double value)
     {
         addAttribute(name, Double.valueOf(value), true);
+        return (T) this;
     }
     
-    public void addAttribute(String name, String value)
+    @SuppressWarnings("unchecked")
+    public T addAttribute(String name, String value)
     {
         addAttribute(name, value, true);
+        return (T) this;
     }
     
-    public void addAttribute(String name, Object value)
+    @SuppressWarnings("unchecked")
+    public T addAttribute(String name, Object value)
     {
         addAttribute(name, value, true);
+        return (T) this;
     }
 
-    public void addAttribute(String name, Object value, boolean update)
+    @SuppressWarnings("unchecked")
+    public T addAttribute(String name, Object value, boolean update)
     {
         if(!this.checkAcessible())
         {
-            return;
+        	return (T) this;
         }
         
         attributeMap.put(name, value);
@@ -464,6 +481,7 @@ abstract public class Widget implements Serializable
                             +" for adding attribute in "+this.getClass()+" widget.");
             }
         }
+        return (T) this;
     }
 
     public boolean hasAttribute(String name)
@@ -494,11 +512,12 @@ abstract public class Widget implements Serializable
         }
     }
 
-    public void addClassName(String name)
+    @SuppressWarnings("unchecked")
+    public T addClassName(String name)
     {
         if(!this.checkAcessible())
         {
-            return;
+        	return (T) this;
         }
         
         if(attributeMap.containsKey("class"))
@@ -509,7 +528,7 @@ abstract public class Widget implements Serializable
             {
                 if(names[i].equals(name))
                 {
-                    return;
+                	return (T) this;
                 }
             }
             attributeMap.put("class", className+" "+name);
@@ -519,18 +538,22 @@ abstract public class Widget implements Serializable
             attributeMap.put("class", name);
         }
         _updateAttribute("class", (String)attributeMap.get("class"));
+        return (T) this;
     }
     
-    public void addStyle(String name, String value)
+    @SuppressWarnings("unchecked")
+    public T addStyle(String name, String value)
     {
         addStyle(name, value, true);
+        return (T) this;
     }
 
-    protected void addStyle(String name, String value, boolean update)
+    @SuppressWarnings("unchecked")
+    protected T addStyle(String name, String value, boolean update)
     {
         if(!this.checkAcessible())
         {
-            return;
+        	return (T) this;
         }
         
         if (styleMap == null)
@@ -543,6 +566,7 @@ abstract public class Widget implements Serializable
         {
             _updateCSS(name, value);
         }
+        return (T) this;
     }
 
     public String getStyle(String name)
@@ -550,29 +574,32 @@ abstract public class Widget implements Serializable
         return styleMap == null ? null : (String)styleMap.get(name);
     }
 
-    public void removeStyle(String name)
+    @SuppressWarnings("unchecked")
+    public T removeStyle(String name)
     {
         if(!this.checkAcessible())
         {
-            return;
+        	return (T) this;
         }
         
         if(styleMap == null)
         {
-            return;
+        	return (T) this;
         }
         if( styleMap.containsKey(name) )
         {
             styleMap.remove(name);
             _removeCSS(name);
         }
+        return (T) this;
     }
     
-    public void removeClassName(String name)
+    @SuppressWarnings("unchecked")
+    public T removeClassName(String name)
     {
         if(!this.checkAcessible())
         {
-            return;
+        	return (T) this;
         }
         
         if(attributeMap.containsKey("class"))
@@ -592,40 +619,46 @@ abstract public class Widget implements Serializable
             attributeMap.put("class", newClassName);
             _updateAttribute("class", newClassName);
         }
+        return (T) this;
     }
     
-    public void removeAllStyles()
+    @SuppressWarnings("unchecked")
+    public T removeAllStyles()
     {
         if(!this.checkAcessible())
         {
-            return;
+        	return (T) this;
         }
         
         if(styleMap == null)
         {
-            return;
+        	return (T) this;
         }
         styleMap.clear();
         _removeAttribute("style");
+        return (T) this;
     }
     
-    protected void addConstraint(String name, Object value)
+    @SuppressWarnings("unchecked")
+    protected T addConstraint(String name, Object value)
     {
         if(!this.checkAcessible())
         {
-            return;
+        	return (T) this;
         }
         
         constraintMap.put(name, value);
         
         this._updateConstraint();
+        return (T) this;
     }
 
-    protected void addConstraint(String name, Object value, boolean isUpdated)
+    @SuppressWarnings("unchecked")
+    protected T addConstraint(String name, Object value, boolean isUpdated)
     {
         if(!this.checkAcessible())
         {
-            return;
+        	return (T) this;
         }
         
         constraintMap.put(name, value);
@@ -633,13 +666,15 @@ abstract public class Widget implements Serializable
         {
             this._updateConstraint();
         }
+        return (T) this;
     }
     
-    public void addConstraint(String name, Object value, String message)
+    @SuppressWarnings("unchecked")
+    public T addConstraint(String name, Object value, String message)
     {
         if(!this.checkAcessible())
         {
-            return;
+        	return (T) this;
         }
         
         if (name != null && value != null)
@@ -655,13 +690,15 @@ abstract public class Widget implements Serializable
 	            }
             }
         }
+        return (T) this;
     }
 
-    public void addConstraint(String name, Object[] value, String message)
+    @SuppressWarnings("unchecked")
+    public T addConstraint(String name, Object[] value, String message)
     {
         if(!this.checkAcessible())
         {
-            return;
+        	return (T) this;
         }
         
         if (name != null && value != null)
@@ -673,6 +710,7 @@ abstract public class Widget implements Serializable
                 addConstraint(name + "Text", packMessageText(message));
             }
         }
+        return (T) this;
     }
 
     /**
@@ -680,8 +718,10 @@ abstract public class Widget implements Serializable
      * that will prevent the security violation issue.
      * 
      */
-    public void checkConstraint() {
+    @SuppressWarnings("unchecked")
+    public T checkConstraint() {
     	// it's override by the specific widget.
+    	return (T) this;
     }
     
     public boolean hasConstraint(String name)
@@ -724,11 +764,12 @@ abstract public class Widget implements Serializable
         }
     }
 
-    public void addCustomValidator(String script, String[] param, String msg)
+    @SuppressWarnings("unchecked")
+	public T addCustomValidator(String script, String[] param, String msg)
     {
         if(!this.checkAcessible())
         {
-            return;
+        	return (T) this;
         }
         
         ValidatorsPropertyType validators = (ValidatorsPropertyType)constraintMap.get("validators");
@@ -752,13 +793,15 @@ abstract public class Widget implements Serializable
         validators.getValidators().add(v);
         
         this._updateConstraint();
+        return (T) this;
     }
 
-    public void removeCustomValidators()
+    @SuppressWarnings("unchecked")
+	public T removeCustomValidators()
     {
         if(!this.checkAcessible())
         {
-            return;
+        	return (T) this;
         }
         
         ValidatorsPropertyType validators = (ValidatorsPropertyType)constraintMap.get("validators");
@@ -766,17 +809,22 @@ abstract public class Widget implements Serializable
         {
             this._removeValidators();
         }
+        return (T) this;
     }
     
-    public void click() {
+    @SuppressWarnings("unchecked")
+	public T click() {
     	if(!this.checkAcessible())
         {
-            return;
+    		return (T) this;
         }
     	AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
-        if (ajaxContext == null)
-            return;
+        if (ajaxContext == null) {
+        	return (T) this;
+        }
         ajaxContext.executeJavaScript("$('"+this.getId()+"').trigger('click');");
+        
+        return (T) this;
     }
     
     /**
@@ -784,22 +832,25 @@ abstract public class Widget implements Serializable
      * 
      * @param eventMap
      */
-    public void addEventListener(Map<String, String> eventMap)
+    @SuppressWarnings("unchecked")
+	public T addEventListener(Map<String, String> eventMap)
     {
         if(!this.checkAcessible())
         {
-            return;
+        	return (T) this;
         }
         
         if (eventMap == null)
         {
-            return;
+        	return (T) this;
         }
         if (eventListenerMap == null)
         {
             eventListenerMap = new HashMap();
         }
         eventListenerMap.putAll(eventMap);
+        
+        return (T) this;
     }
 
     /**
@@ -810,11 +861,12 @@ abstract public class Widget implements Serializable
      * @param eventName
      * @param handler
      */
-    public void addEventListener(String eventName, String handler)
+    @SuppressWarnings("unchecked")
+	public T addEventListener(String eventName, String handler)
     {
         if(!this.checkAcessible())
         {
-            return;
+        	return (T) this;
         }
         
         if (eventListenerMap == null)
@@ -823,6 +875,8 @@ abstract public class Widget implements Serializable
         }
         eventListenerMap.put(eventName, handler);
         _updateEvent(eventName, handler);
+        
+        return (T) this;
     }
     
     /**
@@ -900,11 +954,12 @@ abstract public class Widget implements Serializable
      * @param eventName 
      * @param handler only object reference is allowed!
      */
-    public void addEvent(String eventName, String handler)
+    @SuppressWarnings("unchecked")
+	public T addEvent(String eventName, String handler)
     {
         if(!this.checkAcessible())
         {
-            return;
+        	return (T) this;
         }
         
         if (eventListenerMap == null)
@@ -913,6 +968,8 @@ abstract public class Widget implements Serializable
         }
         eventListenerMap.put(eventName, handler);
         _updateEvent(eventName, handler);
+        
+        return (T) this;
     }
 
     public String getEventListener(String eventName)
@@ -942,15 +999,18 @@ abstract public class Widget implements Serializable
         }
     }
 
-    public void setWidgetLabel(String widgetLabel)
+    @SuppressWarnings("unchecked")
+	public T setWidgetLabel(String widgetLabel)
     {
         if(!this.checkAcessible())
         {
-            return;
+        	return (T) this;
         }
         
         this.widgetLabel = widgetLabel;
         _updateAttribute("widgetLabel",widgetLabel);
+        
+        return (T) this;
     }
 
     public String getWidgetLabel()
@@ -958,15 +1018,18 @@ abstract public class Widget implements Serializable
         return widgetLabel;
     }
 
-    public void setWidgetLabelColor(String widgetLabelColor)
+    @SuppressWarnings("unchecked")
+	public T setWidgetLabelColor(String widgetLabelColor)
     {
         if(!this.checkAcessible())
         {
-            return;
+        	return (T) this;
         }
         
         this.widgetLabelColor = widgetLabelColor;
         _updateCSS("widgetLabelColor",widgetLabelColor);
+        
+        return (T) this;
     }
 
     public String getWidgetLabelColor()
@@ -974,15 +1037,18 @@ abstract public class Widget implements Serializable
         return widgetLabelColor;
     }
 
-    public void setWidgetLabelFont(String widgetLabelFont)
+    @SuppressWarnings("unchecked")
+	public T setWidgetLabelFont(String widgetLabelFont)
     {
         if(!this.checkAcessible())
         {
-            return;
+        	return (T) this;
         }
         
         this.widgetLabelFont = widgetLabelFont;
         _updateCSS("widgetLabelFont",widgetLabelFont);
+        
+        return (T) this;
     }
 
     public String getWidgetLabelFont()
@@ -996,9 +1062,12 @@ abstract public class Widget implements Serializable
      * @param visible setting this to true makes it visible setting it to false makes it invisible
      * @see setVisible(boolean visible, boolean update)
      */
-    public void setVisible(boolean visible)
+    @SuppressWarnings("unchecked")
+	public T setVisible(boolean visible)
     {
         setVisible(visible, true);
+        
+        return (T) this;
     }
 
     /**
@@ -1008,7 +1077,8 @@ abstract public class Widget implements Serializable
      * @param visible - setting this to true makes it visible setting it to false makes it invisible
      * @param update - update should only be called ONCE when the component is instanciated.
      */
-    public void setVisible(boolean visible, boolean update)
+    @SuppressWarnings("unchecked")
+	public T setVisible(boolean visible, boolean update)
     {
         this.visible = visible;
         if (!visible)
@@ -1019,6 +1089,8 @@ abstract public class Widget implements Serializable
         {
             addStyle("display", "", update);
         }
+        
+        return (T) this;
     }
 
     /**
@@ -1026,9 +1098,10 @@ abstract public class Widget implements Serializable
      * 
      * @param mask - whether to mask the value
      */
-    public void setValueMask(boolean mask)
+    public T setValueMask(boolean mask)
     {
         this.valueMask = mask;
+        return (T) this;
     }
 
     protected boolean isValueMask()
@@ -1036,14 +1109,16 @@ abstract public class Widget implements Serializable
         return this.valueMask;
     }
     
-    public void enableFLS()
+    public T enableFLS()
     {
         FLSEnabled = true;
+        return (T) this;
     }
     
-    public void disableFLS()
+    public T disableFLS()
     {
         FLSEnabled = false;
+        return (T) this;
     }
     
     public boolean isFLSEnabled()
@@ -1056,17 +1131,21 @@ abstract public class Widget implements Serializable
         return visible;
     }
 
-    public void setEditable(boolean editable)
+    public T setEditable(boolean editable)
     {
         setEditable(editable, true);
+        return (T) this;
     }
     
-    protected void disableValidation()
+    @SuppressWarnings("unchecked")
+	protected T disableValidation()
     {
         attributeMap.put("flag", "disabled");
+        return (T) this;
     }
     
-    protected void setEditable(boolean editable, boolean update)
+    @SuppressWarnings("unchecked")
+	protected T setEditable(boolean editable, boolean update)
     {
         attributeMap.put("disabled", String.valueOf(editable));
         if (update)
@@ -1080,6 +1159,7 @@ abstract public class Widget implements Serializable
                 _updateAttribute("disabled", "disabled");
             }
         }
+        return (T) this;
     }
 
     public boolean isEditable()
@@ -1111,7 +1191,8 @@ abstract public class Widget implements Serializable
     /**
      * @param sb
      */
-    public void generateWidget(StringBuilder sb)
+    @SuppressWarnings("unchecked")
+	public T generateWidget(StringBuilder sb)
     {
         boolean isNeed = false;
         if (!visible)
@@ -1156,15 +1237,19 @@ abstract public class Widget implements Serializable
         {
             sb.append("<br/>");
         }
+        
+        return (T) this;
     }
 
-    public void setListened(boolean isListened)
+    @SuppressWarnings("unchecked")
+	public T setListened(boolean isListened)
     {
         this.isListened = isListened;
         if (this.getHtmlLayout() != null)
         {
             this.getHtmlLayout().setListened(isListened);
         }
+        return (T) this;
     }
 
     public boolean isListened()
@@ -1172,16 +1257,17 @@ abstract public class Widget implements Serializable
         return isListened;
     }
 
-    public void remove()
+    @SuppressWarnings("unchecked")
+	public T remove()
     {
         if(!this.checkAcessible())
         {
-            return;
+        	return (T) this;
         }
         
         AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
         if (ajaxContext == null)
-            return;
+        	return (T) this;
 
         if (ajaxContext.existElmByAbsoluteId(id, frameInfo))
         {
@@ -1199,9 +1285,11 @@ abstract public class Widget implements Serializable
             ajaxContext.addDataItem(dataItem);
             ajaxContext.removeElement(id, frameInfo);
         }
+        return (T) this;
     }
 
-    public void before(Widget comp)
+    @SuppressWarnings("unchecked")
+	public T before(Widget comp)
     {
         if(comp == null)
         {
@@ -1209,7 +1297,7 @@ abstract public class Widget implements Serializable
         }
         if(comp == this)
         {
-            return;
+        	return (T) this;
         }
         if(comp instanceof Layout)
         {
@@ -1218,7 +1306,7 @@ abstract public class Widget implements Serializable
         AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
         if (ajaxContext == null)
         {
-            return;
+        	return (T) this;
         }
         if(this._isReadOnly())
         {
@@ -1236,7 +1324,7 @@ abstract public class Widget implements Serializable
         {
             if (!_addComponent(comp, ajaxContext))
             {
-                return;
+            	return (T) this;
             }
         }
         if (htmlLayout != null)
@@ -1253,9 +1341,12 @@ abstract public class Widget implements Serializable
             dataItem.setJs(comp.generateJS());
         }
         AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        
+        return (T) this;
     }
 
-    public void after(Widget comp)
+    @SuppressWarnings("unchecked")
+	public T after(Widget comp)
     {
         if(comp == null)
         {
@@ -1263,7 +1354,7 @@ abstract public class Widget implements Serializable
         }
         if(comp == this)
         {
-            return;
+        	return (T) this;
         }
         if(comp instanceof Layout)
         {
@@ -1272,7 +1363,7 @@ abstract public class Widget implements Serializable
         AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
         if (ajaxContext == null)
         {
-            return;
+        	return (T) this;
         }
         if(this._isReadOnly())
         {
@@ -1290,7 +1381,7 @@ abstract public class Widget implements Serializable
         {
             if (!_addComponent(comp, ajaxContext))
             {
-                return;
+            	return (T) this;
             }
 
         }
@@ -1308,6 +1399,8 @@ abstract public class Widget implements Serializable
             dataItem.setJs(comp.generateJS());
         }
         AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        
+        return (T) this;
     }
 
     boolean _addComponent(Widget comp, AjaxContext ajaxContext)
@@ -1331,16 +1424,17 @@ abstract public class Widget implements Serializable
         return success;
     }
     
-    protected void _updateReadOnly(boolean readonly)
+    @SuppressWarnings("unchecked")
+	protected T _updateReadOnly(boolean readonly)
     {
         if (!isListened || id == null)
         {
-            return;
+        	return (T) this;
         }
         AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
         if (ajaxContext == null || (!ajaxContext.existElement(this) && !(this instanceof Layout)))
         {
-            return;
+        	return (T) this;
         }
         if (htmlLayout != null && htmlLayout != Layout.NULL)
         {
@@ -1355,6 +1449,7 @@ abstract public class Widget implements Serializable
             dataItem.setData(htmlLayout.generateHTML());
             AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
         }
+        return (T) this;
     }
 
     /**
@@ -1362,7 +1457,8 @@ abstract public class Widget implements Serializable
      * 
      * @param sb
      */
-    protected void generateAttributes(StringBuilder sb)
+    @SuppressWarnings("unchecked")
+	protected T generateAttributes(StringBuilder sb)
     {
         for (Iterator it = attributeMap.keySet().iterator(); it.hasNext();)
         {
@@ -1390,9 +1486,11 @@ abstract public class Widget implements Serializable
             }
             sb.append("\"");
         }
+        return (T) this;
     }
 
-    protected void generateAttribute(String name, Object value, StringBuilder sb)
+    @SuppressWarnings("unchecked")
+	protected T generateAttribute(String name, Object value, StringBuilder sb)
     {
         if (value == null)
         {
@@ -1403,6 +1501,8 @@ abstract public class Widget implements Serializable
         sb.append("=\"");
         sb.append(HTMLUtil.handleEscape(String.valueOf(value)));
         sb.append("\"");
+        
+        return (T) this;
     }
 
     /**
@@ -1410,11 +1510,12 @@ abstract public class Widget implements Serializable
      * 
      * @param sb
      */
-    protected void generateEventListeners(StringBuilder sb)
+    @SuppressWarnings("unchecked")
+	protected T generateEventListeners(StringBuilder sb)
     {
         if (eventListenerMap == null)
         {
-            return;
+        	return (T) this;
         }
         else
         {
@@ -1430,6 +1531,7 @@ abstract public class Widget implements Serializable
                 sb.append("\"");
             }
         }
+        return (T) this;
     }
     
     protected String generateJS()
@@ -1698,16 +1800,20 @@ abstract public class Widget implements Serializable
         AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
     }
     
-    public void showConstraint(String message) {
+    public T showConstraint(String message) {
     	IDataItem dataItem = AjaxActionHelper.showConstraint(id, message);
         dataItem.setFrameInfo(getFrameInfo());
         AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        
+        return (T) this;
     }
     
-    public void removeConstraint() {
+    public T removeConstraint() {
     	IDataItem dataItem = AjaxActionHelper.removeConstraint(id);
         dataItem.setFrameInfo(getFrameInfo());
         AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        
+        return (T) this;
     }
     
     /**

@@ -23,7 +23,7 @@ import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 
-public class RadioButtonGroup extends SingleChoice implements Serializable
+public class RadioButtonGroup extends SingleChoice<RadioButtonGroup> implements Serializable
 {
     private static final long serialVersionUID = -8629479224652156061L;
 
@@ -164,7 +164,7 @@ public class RadioButtonGroup extends SingleChoice implements Serializable
 		}
     }
 
-    public void addConstraint(String name, Object[] value, String message)
+    public RadioButtonGroup addConstraint(String name, Object[] value, String message)
     {
         if (name != null)
         {
@@ -181,6 +181,7 @@ public class RadioButtonGroup extends SingleChoice implements Serializable
                 super.addConstraint(name, value, message);
             }
         }
+        return this;
     }
     
     public String generateJS()

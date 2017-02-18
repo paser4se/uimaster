@@ -23,7 +23,7 @@ import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 
-public class ComboBox extends SingleChoice implements Serializable
+public class ComboBox extends SingleChoice<ComboBox> implements Serializable
 {
     private static final long serialVersionUID = -7820240489728224513L;
 
@@ -40,7 +40,7 @@ public class ComboBox extends SingleChoice implements Serializable
         super(id, layout, realValueDataType);
     }
 
-    public void addAttribute(String name, Object value, boolean update)
+    public ComboBox addAttribute(String name, Object value, boolean update)
     {
         if (name.equals("class"))
         {
@@ -57,7 +57,7 @@ public class ComboBox extends SingleChoice implements Serializable
             // temporary fix
             if (WebConfig.getHiddenValueMask().equals(value))
             {
-                return;
+                return this;
             }
 //            if (!checkValueExist((String)value))
 //            {
@@ -69,9 +69,11 @@ public class ComboBox extends SingleChoice implements Serializable
         {
             super.addAttribute(name, value, update);
         }
+        
+        return this;
     }
 
-    public void addConstraint(String name, Object[] value, String message)
+    public ComboBox addConstraint(String name, Object[] value, String message)
     {
         if (name != null)
         {
@@ -88,6 +90,7 @@ public class ComboBox extends SingleChoice implements Serializable
                 super.addConstraint(name, value, message);
             }
         }
+        return this;
     }
 
     public String generateJS()

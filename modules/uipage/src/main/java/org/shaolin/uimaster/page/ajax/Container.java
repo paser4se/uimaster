@@ -17,7 +17,7 @@ package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
 
-public abstract class Container extends Widget implements Serializable
+public abstract class Container<T> extends Widget<T> implements Serializable
 {
     private static final long serialVersionUID = -8001162150899252012L;
 

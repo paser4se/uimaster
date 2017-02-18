@@ -18,7 +18,7 @@ package org.shaolin.uimaster.page.ajax;
 import java.io.Serializable;
 import java.util.List;
 
-abstract public class SingleChoice extends Choice implements Serializable
+abstract public class SingleChoice<T> extends Choice<T> implements Serializable
 {
     private static final long serialVersionUID = 329245687316770737L;
 
@@ -30,12 +30,13 @@ abstract public class SingleChoice extends Choice implements Serializable
         this.realValueDataType = realValueDataType;
     }
 
-    public void generateAttribute(String name, Object value, StringBuilder sb)
+    public T generateAttribute(String name, Object value, StringBuilder sb)
     {
         if ( !name.equals("value") )
         {
             super.generateAttribute(name, value, sb);
         }
+        return (T)this;
     }
     
     public void setOptions(List<String> displayValues, List<String> optionValues)
@@ -77,7 +78,7 @@ abstract public class SingleChoice extends Choice implements Serializable
         return false;
     }
     
-    public void checkConstraint() {
+    public T checkConstraint() {
     	Object value = getAttribute("value");
     	if(this.hasConstraint("selectedValueConstraint")) {
     		String selectedValue = (String)this.getConstraint("selectedValueConstraint");
@@ -87,6 +88,7 @@ abstract public class SingleChoice extends Choice implements Serializable
     							 + ",UIID: " + this.getId());
     		}
     	}
+    	return (T)this;
 	}
 
     public Object getRealValue() {

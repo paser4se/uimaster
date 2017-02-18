@@ -61,7 +61,7 @@ public class TextArea extends TextWidget implements Serializable
         this._setWidgetLabel(id);
     }
 
-    public void addAttribute(String name, Object value, boolean update)
+    public TextArea addAttribute(String name, Object value, boolean update)
     {
         if ( name.equals("editable") )
         {
@@ -83,6 +83,7 @@ public class TextArea extends TextWidget implements Serializable
         {
             super.addAttribute(name, value, update);
         }
+        return this;
     }
     
     public void setRows(int row)
@@ -195,7 +196,7 @@ public class TextArea extends TextWidget implements Serializable
         return js.toString();
     }
     
-    protected void generateAttribute(String name, Object value, StringBuilder sb)
+    protected TextArea generateAttribute(String name, Object value, StringBuilder sb)
     {
         String attrValue = (String)value;
         if ("editable".equals(name))
@@ -218,6 +219,7 @@ public class TextArea extends TextWidget implements Serializable
         {
             super.generateAttribute(name, value, sb);
         }
+        return this;
     }
     
     public String generateHTML()

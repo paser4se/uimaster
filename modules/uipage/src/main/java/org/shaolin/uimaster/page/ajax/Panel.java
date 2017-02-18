@@ -29,7 +29,7 @@ import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.widgets.HTMLDynamicUIItem;
 
-public class Panel extends Container implements Serializable
+public class Panel extends Container<Panel> implements Serializable
 {
     private static final long serialVersionUID = -1544166229921639074L;
 
@@ -217,7 +217,7 @@ public class Panel extends Container implements Serializable
         return divPrefix;
     }
 
-    public void addAttribute(String name, Object value, boolean update)
+    public Panel addAttribute(String name, Object value, boolean update)
     {
         if ( name.equals("hasDiv") )
         {
@@ -227,6 +227,7 @@ public class Panel extends Container implements Serializable
         {
             super.addAttribute(name, value, update);
         }
+        return this;
     }
     
     public void setFrameInfo(String frameinfo)
@@ -319,7 +320,7 @@ public class Panel extends Container implements Serializable
 		}
     }
     
-    protected void generateAttribute(String name, Object value, StringBuilder sb)
+    protected Panel generateAttribute(String name, Object value, StringBuilder sb)
     {
         if ("editable".equals(name))
         {
@@ -328,6 +329,7 @@ public class Panel extends Container implements Serializable
         {
             super.generateAttribute(name, value, sb);
         }
+        return this;
     }
 
     public String generateJS()

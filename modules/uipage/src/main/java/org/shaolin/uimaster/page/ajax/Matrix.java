@@ -22,7 +22,7 @@ import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 /**
  * @author Shaolin Wu
  */
-public class Matrix extends Widget implements Serializable {
+public class Matrix extends Widget<Matrix> implements Serializable {
 	
 	private static final long serialVersionUID = -1744731434666233557L;
 	
@@ -39,7 +39,7 @@ public class Matrix extends Widget implements Serializable {
 		this._setWidgetLabel(id);
 	}
 
-	public void addAttribute(String name, Object value, boolean update) {
+	public Matrix addAttribute(String name, Object value, boolean update) {
 		if ("selectedNode".equals(name)) {
 			this.selectedNode = value.toString();
 		} else if ("selectedNodeId".equals(name)) {
@@ -49,6 +49,7 @@ public class Matrix extends Widget implements Serializable {
 		} else if ("selectedY".equals(name)) {
 			this.selectedY = Integer.parseInt(value.toString());
 		} 
+		return this;
 	}
 	
 	public void setCEType(String ceType) {

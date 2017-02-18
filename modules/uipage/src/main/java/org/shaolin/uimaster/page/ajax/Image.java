@@ -71,10 +71,10 @@ public class Image extends TextWidget implements Serializable
     	this.isgallery = isgallery;
     }
     
-    public void addAttribute(String name, Object value, boolean update)
+    public Image addAttribute(String name, Object value, boolean update)
     {
     	if (!this.isgallery) {
-    		return;
+    		return this;
     	}
     	
 		if ("selectedImage".equals(name) && value != null) {
@@ -95,6 +95,7 @@ public class Image extends TextWidget implements Serializable
 				}
 			}
 		} 
+		return this;
     }
     
     public void setSrc(String src)

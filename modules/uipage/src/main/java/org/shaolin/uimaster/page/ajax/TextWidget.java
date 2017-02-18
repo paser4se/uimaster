@@ -24,7 +24,7 @@ import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 
-abstract public class TextWidget extends Widget implements Serializable
+abstract public class TextWidget extends Widget<TextWidget> implements Serializable
 {
     private static final long serialVersionUID = 7730729344287217301L;
     
@@ -43,11 +43,12 @@ abstract public class TextWidget extends Widget implements Serializable
         this.setValue(value);
     }
 
-    protected void generateAttribute(String name, Object value, StringBuilder sb)
+    protected TextWidget generateAttribute(String name, Object value, StringBuilder sb)
     {
 		if (!name.equals("value")) {
-			super.generateAttribute(name, value, sb);
+			return super.generateAttribute(name, value, sb);
 		}
+		return this;
     }
 
     public void setValue(String value)
@@ -79,7 +80,7 @@ abstract public class TextWidget extends Widget implements Serializable
         ajaxContext.addDataItem(dataItem);
     }
     
-    public void checkConstraint() {
+    public TextWidget checkConstraint() {
     	String value = (String)getAttribute("value");
     	if(this.hasConstraint("allowBlank")) {
     		boolean allowBlank = Boolean.valueOf(this.getConstraint("allowBlank").toString());
@@ -115,6 +116,7 @@ abstract public class TextWidget extends Widget implements Serializable
     							+ ",UIID: " + this.getId());
     		}
     	}
+    	return this;
     }
 
     public String getValue()

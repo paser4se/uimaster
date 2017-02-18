@@ -124,16 +124,17 @@ public class TabPane extends Container implements Serializable
         this.uiid = this.getId();
     }
     
-    public void addAttribute(String name, Object value, boolean update)
+    public TabPane addAttribute(String name, Object value, boolean update)
     {
         if(name == null || name.length() == 0)
         {
-            return;
+            return this;
         }
         if(name.equals("selectedIndex"))
         {
             selectedIndex = Integer.valueOf(value.toString()).intValue();
         }
+        return this;
     }
     
     /**

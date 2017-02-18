@@ -144,6 +144,9 @@ public class HTMLTableType extends HTMLContainerType {
 			} else {
 				context.generateHTML(" editable=\"false\" style=\"display:none;\"");
 			}
+			if (this.getAttribute("style") != null) {
+				context.generateHTML(" style=\""+this.getAttribute("style")+"\"");
+			}
 			context.generateHTML(">");
 			List<UITableActionType> defaultActions = (List<UITableActionType>)this.removeAttribute("defaultActionGroup");
 			if (isSliderMode) {

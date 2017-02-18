@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Shaolin Wu
  */
-public class Chart extends Widget implements Serializable {
+public class Chart extends Widget<Chart> implements Serializable {
 	
 	private static final long serialVersionUID = -1744731434666233557L;
 	
@@ -93,7 +93,7 @@ public class Chart extends Widget implements Serializable {
 		ajaxContext.addDataItem(dataItem);
 	}
 
-	public void addAttribute(String name, Object value, boolean update) {
+	public Chart addAttribute(String name, Object value, boolean update) {
 		if ("conditions".equals(name)) {
 			try {
 				JSONArray array = new JSONArray(value.toString());
@@ -108,6 +108,7 @@ public class Chart extends Widget implements Serializable {
 				logger.error("error occurrs while synchronizing the value from the page.", e);
 			}
 		}
+		return this;
     }
 	
 	private void updateFilter(String field, String value) {

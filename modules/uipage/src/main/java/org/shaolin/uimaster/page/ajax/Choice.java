@@ -23,7 +23,7 @@ import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 
-abstract public class Choice extends Widget
+abstract public class Choice<T> extends Widget<T>
 {
     private static final long serialVersionUID = -2155496455366137360L;
 
