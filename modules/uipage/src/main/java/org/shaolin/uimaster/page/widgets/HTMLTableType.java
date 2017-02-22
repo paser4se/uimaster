@@ -126,7 +126,7 @@ public class HTMLTableType extends HTMLContainerType {
 			if (!isSliderMode) {
 				context.getRequest().setAttribute("_hasTable", Boolean.TRUE);
 	            HTMLUtil.generateTab(context, depth);
-	            String root = UserContext.isAppClient() ? WebConfig.getAppContextRoot() : WebConfig.getResourceContextRoot();
+	            String root = UserContext.isAppClient() ? WebConfig.getAppContextRoot(context.getRequest()) : WebConfig.getResourceContextRoot();
 	            context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/css/jquery-dataTable.css\" type=\"text/css\">");
 	            HTMLUtil.generateTab(context, depth);
 	            context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/jquery-dataTable.js\"></script>");

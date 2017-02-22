@@ -57,7 +57,7 @@ public class HTMLLabelType extends HTMLTextWidgetType
     {
     	if (this.getAttribute("captureScreen") != null) {
     		String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
-        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
+        			? WebConfig.getAppContextRoot(context.getRequest()) : WebConfig.getResourceContextRoot();
     		HTMLUtil.generateTab(context, depth);
             context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/html2canvas.js\"></script>");
         }

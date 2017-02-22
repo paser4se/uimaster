@@ -68,7 +68,7 @@ public class HTMLMapType extends HTMLWidgetType
             if (context.getRequest().getAttribute("_hasWorldMap") == null) {
 				context.getRequest().setAttribute("_hasWorldMap", Boolean.TRUE);
 	            String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
-	        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
+	        			? WebConfig.getAppContextRoot(context.getRequest()) : WebConfig.getResourceContextRoot();
 	        	//context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/map/raphael-min.js\"></script>");
 	        	//context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/map/chinaMapConfig.js\"></script>");
 	        	//context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/map/map.js\"></script>");

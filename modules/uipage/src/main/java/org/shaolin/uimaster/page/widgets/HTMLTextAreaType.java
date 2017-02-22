@@ -72,7 +72,7 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
             if (isHTMLSupported && context.getRequest().getAttribute("_hasCKeditor") == null) {
 				context.getRequest().setAttribute("_hasCKeditor", Boolean.TRUE);
 	            String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
-	        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
+	        			? WebConfig.getAppContextRoot(context.getRequest()) : WebConfig.getResourceContextRoot();
 	        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/ckeditor/ckeditor.js\"></script>");
             }
             boolean emojiSupport = this.getAttribute("emojiSupport") != null 
@@ -80,7 +80,7 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
             if (emojiSupport && context.getRequest().getAttribute("_emojiSupport") == null) {
             	context.getRequest().setAttribute("_emojiSupport", Boolean.TRUE);
 	            String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
-	        			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
+	        			? WebConfig.getAppContextRoot(context.getRequest()) : WebConfig.getResourceContextRoot();
             	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/emoji/jquery.emoji.js\"></script>");
             }
             context.generateHTML("<textarea name=\"");

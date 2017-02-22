@@ -64,7 +64,7 @@ public class HTMLFlowDiagramType extends HTMLWidgetType
 			context.getRequest().setAttribute("_hasFlowDiagram", Boolean.TRUE);
 	    	HTMLUtil.generateTab(context, depth);
 	    	String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
-	    			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
+	    			? WebConfig.getAppContextRoot(context.getRequest()) : WebConfig.getResourceContextRoot();
 	    	context.generateHTML("<link rel=\"stylesheet\" href=\""+root+"/css/jsplumb/jsplumb.css\" type=\"text/css\">\n");
 	    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/jquery.ui.touch-punch-0.2.2.min.js\"></script>\n");
 	    	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/jsplumb/dom-adapter.js\"></script>\n");

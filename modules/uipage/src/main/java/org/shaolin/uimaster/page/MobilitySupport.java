@@ -5,7 +5,8 @@ public class MobilitySupport {
 	public static final String MOB_PAGE_SUFFIX = "_mob";
 	
 	public static boolean isMobileRequest(String userAgent) {
-		if (userAgent.indexOf("Android") != -1
+		if (userAgent.indexOf("okhttp") != -1
+		 || userAgent.indexOf("Android") != -1
 		 || userAgent.indexOf("webOS") != -1
 		 || userAgent.indexOf("iPhone") != -1
 		 || userAgent.indexOf("iPad") != -1

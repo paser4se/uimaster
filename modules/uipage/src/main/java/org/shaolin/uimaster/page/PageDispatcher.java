@@ -330,7 +330,7 @@ public class PageDispatcher {
             context.generateHTML("<!--[if lt ie 9]>");
             context.generateHTML("<script src=\"");
             if (UserContext.isMobileRequest() && UserContext.isAppClient()) {
-            	context.generateHTML(WebConfig.getAppResourceContextRoot());
+            	context.generateHTML(WebConfig.getAppContextRoot(context.getRequest()));
             } else {
             	context.generateHTML(WebConfig.getResourceContextRoot());
             }
@@ -356,7 +356,7 @@ public class PageDispatcher {
             context.generateHTML(WebConfig.getWebContextRoot());
             context.generateHTML("\";\nvar RESOURCE_CONTEXTPATH=\"");
             if (UserContext.isMobileRequest() && UserContext.isAppClient()) {
-            	context.generateHTML(WebConfig.getAppResourceContextRoot());
+            	context.generateHTML(WebConfig.getAppContextRoot(context.getRequest()));
             } else {
             	context.generateHTML(WebConfig.getResourceContextRoot());
             }
@@ -394,7 +394,7 @@ public class PageDispatcher {
             	context.generateHTML("<meta name=\"apple-mobile-web-app-status-bar-style\" content=\"black-translucent\">\n");
             	context.generateHTML("<meta name=\"format-detection\" content=\"telephone=no\">\n");
             	if (UserContext.isAppClient()) {
-            		context.generateHTML(pageObject.getMobAppPageCSS().toString());
+            		context.generateHTML(WebConfig.replaceAppCssWebContext(context.getRequest(), pageObject.getMobAppPageCSS().toString()));
             	} else {
             		context.generateHTML(pageObject.getMobPageCSS().toString());
             	}

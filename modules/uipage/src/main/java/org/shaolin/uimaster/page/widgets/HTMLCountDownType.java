@@ -45,7 +45,7 @@ public class HTMLCountDownType extends HTMLTextWidgetType {
 			context.getRequest().setAttribute("_hasCountDown", Boolean.TRUE);
 			HTMLUtil.generateTab(context, depth);
 	    	String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
-	    			? WebConfig.getAppResourceContextRoot() : WebConfig.getResourceContextRoot();
+	    			? WebConfig.getAppContextRoot(context.getRequest()) : WebConfig.getResourceContextRoot();
 			context.generateHTML("<!--[if IE]><script type=\"text/javascript\" src=\""+root+"/js/controls/countdown/excanvas.js\"></script><![endif]-->\n");
 			context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/countdown/jquery.ba-throttle-debounce.min.js\"></script>\n");
 			context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/countdown/jquery.knob.min.js\"></script>\n");

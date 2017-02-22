@@ -49,7 +49,7 @@ public class HTMLImageType extends HTMLTextWidgetType
     {
         try
         {
-        	String root = UserContext.isAppClient() ? WebConfig.getAppContextRoot() : WebConfig.getResourceContextRoot();
+        	String root = UserContext.isAppClient() ? WebConfig.getAppContextRoot(context.getRequest()) : WebConfig.getResourceContextRoot();
         	String imageRoot = WebConfig.getAppImageContextRoot(context.getRequest());
         	if (this.getAttribute("captureScreen") != null) {
         		HTMLUtil.generateTab(context, depth);

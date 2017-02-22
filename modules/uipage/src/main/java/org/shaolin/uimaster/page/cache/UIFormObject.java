@@ -2118,7 +2118,12 @@ public class UIFormObject implements java.io.Serializable
             		context.generateJS(importJSCode + timestamp + "\" ");
             		context.generateJS(syncLoadJs ? "" : WebConfig.isSyncLoadingJs(jsFileName));
             		context.generateJS("></script>");
-            	} else {
+            	} else if (UserContext.isMobileRequest() && UserContext.isAppClient()
+            			&& jsFileName.startsWith(WebConfig.APP_ROOT_VAR)) {
+            		jsFileName = WebConfig.replaceAppJsWebContext(context.getRequest(), jsFileName);
+					context.generateJS(jsFileName + "\" ");
+            		context.generateJS("></script>");
+				}  else {
             		// thrid party's js file.
             		context.generateJS("<script type=\"text/javascript\" src=\"" + jsFileName + "\" ");
             		context.generateJS(syncLoadJs ? "" : WebConfig.isSyncLoadingJs(jsFileName));
@@ -2157,6 +2162,13 @@ public class UIFormObject implements java.io.Serializable
 	                .append("\" ");
 	                sb.append(syncLoadJs ? "" : WebConfig.isSyncLoadingJs(jsFileName));
 	                sb.append("></script>");
+				} else if (UserContext.isMobileRequest() && UserContext.isAppClient()
+						&& jsFileName.startsWith(WebConfig.APP_ROOT_VAR)) {
+					jsFileName = WebConfig.replaceAppJsWebContext(context.getRequest(), jsFileName);
+					//third party.
+					sb.append("<script type=\"text/javascript\" src=\"");
+					sb.append(jsFileName).append("\" ");
+					sb.append("></script>");
 				} else {
 					//third party.
 					sb.append("<script type=\"text/javascript\" src=\"");
@@ -2190,8 +2202,9 @@ public class UIFormObject implements java.io.Serializable
 				boolean needTimestamp = true;
 				if (jsFileName.startsWith("http") || jsFileName.startsWith("https")) {
 					needTimestamp = false;
-				} else if (UserContext.isMobileRequest() && UserContext.isAppClient()) {
-					jsFileName = WebConfig.replaceAppJsWebContext(jsFileName);
+				} else if (UserContext.isMobileRequest() && UserContext.isAppClient()
+						&& jsFileName.startsWith(WebConfig.APP_ROOT_VAR)) {
+					jsFileName = WebConfig.replaceAppJsWebContext(context.getRequest(), jsFileName);
 				}
 				sb.append("<script type=\"text/javascript\" src=\"").append(jsFileName);
 				if (needTimestamp) {
