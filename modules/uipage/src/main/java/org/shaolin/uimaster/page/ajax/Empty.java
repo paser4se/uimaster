@@ -23,12 +23,21 @@ public class Empty extends Widget implements Serializable
 {
     private static final long serialVersionUID = -865322261124397002L;
 
+    private String html;
+    
     public Empty(String uiid)
     {
         this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
         this.setListened(true);
     }
 
+    public Empty(String uiid, String html)
+    {
+        this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
+        this.setListened(true);
+        this.html = html;
+    }
+    
     public Empty(String id, Layout layout)
     {
         super(id, layout);
@@ -36,7 +45,7 @@ public class Empty extends Widget implements Serializable
     
     public String generateHTML()
     {
-        return "&nbsp;";
+        return html != null ? html : "&nbsp;";
     }
 
 }
