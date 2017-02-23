@@ -2120,8 +2120,8 @@ public class UIFormObject implements java.io.Serializable
             		context.generateJS("></script>");
             	} else if (UserContext.isMobileRequest() && UserContext.isAppClient()
             			&& jsFileName.startsWith(WebConfig.APP_ROOT_VAR)) {
-            		jsFileName = WebConfig.replaceAppJsWebContext(context.getRequest(), jsFileName);
-					context.generateJS(jsFileName + "\" ");
+            		importJSCode = WebConfig.replaceAppJsWebContext(context.getRequest(), importJSCode);
+					context.generateJS(importJSCode + "\" ");
             		context.generateJS("></script>");
 				}  else {
             		// thrid party's js file.
@@ -2202,17 +2202,22 @@ public class UIFormObject implements java.io.Serializable
 				boolean needTimestamp = true;
 				if (jsFileName.startsWith("http") || jsFileName.startsWith("https")) {
 					needTimestamp = false;
-				} else if (UserContext.isMobileRequest() && UserContext.isAppClient()
+				} 
+				
+				if (UserContext.isMobileRequest() && UserContext.isAppClient()
 						&& jsFileName.startsWith(WebConfig.APP_ROOT_VAR)) {
 					jsFileName = WebConfig.replaceAppJsWebContext(context.getRequest(), jsFileName);
+					sb.append("<script type=\"text/javascript\" src=\"").append(jsFileName);
+					sb.append("\"></script>");
+				} else {
+					sb.append("<script type=\"text/javascript\" src=\"").append(jsFileName);
+					if (needTimestamp) {
+						sb.append("?_timestamp=").append(WebConfig.getTimeStamp());
+					}
+					sb.append("\"").append(" ");
+					sb.append(syncLoadJs ? "" : WebConfig.isSyncLoadingJs(jsFileName));
+					sb.append("></script>");
 				}
-				sb.append("<script type=\"text/javascript\" src=\"").append(jsFileName);
-				if (needTimestamp) {
-					sb.append("?_timestamp=").append(WebConfig.getTimeStamp());
-				}
-				sb.append("\"").append(" ");
-				sb.append(syncLoadJs ? "" : WebConfig.isSyncLoadingJs(jsFileName));
-				sb.append("></script>");
 			}
 		}
 

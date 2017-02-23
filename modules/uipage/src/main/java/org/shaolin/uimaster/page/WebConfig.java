@@ -340,7 +340,7 @@ public class WebConfig {
 	 */
 	public static String getAppContextRoot(HttpServletRequest request) {
 		String path = request.getParameter(WebConfig.APP_RESOURCE_PATH);
-		return path != null ? ("file://" + path) : "file:///storage/sdcard/uimaster";
+		return path != null ? ("file://" + path + "/uimaster") : "file:///storage/sdcard/uimaster";
 	}
 	
 	public static String getResourceContextRoot() {
@@ -349,7 +349,7 @@ public class WebConfig {
 	
 	public static String getAppResourceContextRoot(HttpServletRequest request) {
 		String path = request.getParameter(WebConfig.APP_RESOURCE_PATH);
-		return path != null ? ("file://" + path) : "file:///storage/sdcard/uimaster";
+		return path != null ? ("file://" + path + "/uimaster") : "file:///storage/sdcard/uimaster";
 	}
 
 	public static String getAppImageContextRoot(HttpServletRequest request) {
