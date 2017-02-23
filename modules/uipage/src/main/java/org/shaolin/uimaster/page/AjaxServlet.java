@@ -175,11 +175,12 @@ public class AjaxServlet extends HttpServlet {
 				    Table comp = (Table)uiMap.get(request.getParameter("_uiid"));
 				    comp.exportAsExcel(response.getOutputStream());
 				} else {
-					PrintWriter out = response.getWriter();
 		            ProcessHelper.processSyncValues(request);
 		            
 					HTMLSnapshotContext htmlContext = new HTMLSnapshotContext(request);
 					AjaxProcessor ajxProcessor = new AjaxProcessor(htmlContext);
+					response.setContentType("application/json"); 
+					PrintWriter out = response.getWriter();
 					out.print(ajxProcessor.execute());
 				}
 			} 
