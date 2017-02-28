@@ -1219,7 +1219,7 @@ UIMaster.cmdHandler = function(json,status,result){
 	    UIMaster.ui.mask.close();
 	    return;
 	}
-	var hasPostInit = arguments.callee.caller.toString().indexOf('postInit');
+	//var hasPostInit = (json.length && json.length > 0)? json[0].indexOf('postInit'):-1;
 	function executeCmd0(i, cmds) {
 		var isLoadJsBreak = false;
 		while (i<cmds.length){
@@ -1242,7 +1242,7 @@ UIMaster.cmdHandler = function(json,status,result){
 			i++;
 		}
 		if (!isLoadJsBreak && !MobileAppMode) {
-			if (cmds.length && (cmds.length<=0||cmds[cmds.length-1].jsHandler!="appendError") && hasPostInit==-1) {
+			if (cmds.length && (cmds.length<=0||cmds[cmds.length-1].jsHandler!="appendError")) {
 				UIMaster.ui.mask.close();
 			}
 		}

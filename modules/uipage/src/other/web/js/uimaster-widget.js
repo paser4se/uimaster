@@ -2065,6 +2065,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	utype: null,
 	initRefreshBody:false,
 	loader:null,
+	actionBarPanel:null,
 	filterPanel:null,
 	dtable:null,
 	isSingleSelection:false,
@@ -2091,6 +2092,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	  var loader = $("<div class='swiper-preloader' style='opacity:0;'>Loading ...</div>");
 	  loader.appendTo($(this));
 	  this.loader = loader;
+	  var timeout = false;
 	  $(window).scroll(function(){
 		  if ($(this).scrollTop() == 0) {
 			  //console.log("to the top");
@@ -2098,7 +2100,22 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			  //console.log("to the bottom");
 			  othis.pullHistory();
 		  }
+		  if (timeout) {clearTimeout(timeout);}//execute scroll end event 
+		  timeout = setTimeout(function(){ othis.showActionBar(); },100); 
 	  });
+	},
+	showActionBar:function() {
+		var _scrollTop = document.body.scrollTop; 
+		var _scrollHeight = document.body.scrollHeight; 
+		var _height = document.body.clientHeight; 
+		var actionBarTop = $(this.actionBarPanel).offset().top;
+		if (((_scrollTop - actionBarTop) > 30)
+			|| (_scrollTop > (parseInt($(this.actionBarPanel).attr("_top"))+ 30))){ 
+		    //actionBar is hidden and scroll down normally.					
+			$(this.actionBarPanel).css("position", "absolute").css("top", (Math.abs(_scrollTop) - $(this.actionBarPanel).height())+"px").attr("_scrollTop", _scrollTop).css("z-index", "1");
+		} else {// scroll up and recover.
+			$(this.actionBarPanel).css("position", "relative").css("top", "0px").css("z-index", "0").attr("_scrollTop", "-1");
+		} 
 	},
 	pullRefresh:function() {
 	  var obj = UIMaster.getObject(this);
@@ -2185,7 +2202,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				   else {$('#'+id+"_openItem").trigger('click');}
 				   return;
 				} else {
-				   $(selectedRow).removeClass('swiper-slide-active');
+				    $(selectedRow).removeClass('swiper-slide-active');
 				}
 			}
 			if (othis.callSelectedFunc) othis.callSelectedFunc();
@@ -2240,6 +2257,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			return;
 		this.initialized = true;
 		var othis = this;
+		this.actionBarPanel = $(this).prev();
+		$(this.actionBarPanel).attr("_top", $(this.actionBarPanel).offset().top);
 		this.editable = ($(this).prev().attr('editable')=="true");
 		this.editablecell = ($(this).prev().attr('editablecell')=="true");
 		if ((IS_MOBILEVIEW || this.utype == "swiper") && !this.editablecell) {
@@ -3269,6 +3288,7 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
 					},
 					buttons: buttonset
 				}
+				$(window).scrollTop(0);
 				this.content.dialog(dopts);
 			} else {
 				var dopts = {

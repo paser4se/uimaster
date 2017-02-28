@@ -283,12 +283,12 @@ display:none; float:left; width:30px; height:180px; margin:80px 0 0 10px; displa
 .uimaster_chat_item_to {}
 .uimaster_chat_item_old {
     text-align: left;
-    height: 40px !important;
+    height: 80px !important;
     background-color: aliceblue;
 }
 .uimaster_chat_item_even {
    text-align: left;
-   height: 40px !important;
+   height: 80px !important;
 }
 .uimaster_chat_message{
     word-wrap: break-word;
