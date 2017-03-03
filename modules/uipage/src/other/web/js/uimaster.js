@@ -846,9 +846,14 @@ UIMaster.util.retrieveErrMsg = function(constraint){
 		msg[0] = constraint;
 	return msg;
 };
+var alinkId = 0;
 UIMaster.util.forwardToPage = function(link, newpage){
     if (newpage) {
-		window.open(link);
+		//window.open(link); it's not good due to block by default!
+		var k = "alink" + alinkId;
+		$("<a id='"+(k)+"' href='" + link + "' target='_blank' style='display:none;'></a>").appendTo($(document.body));
+		document.getElementById(k).click();
+		alinkId ++;
 	} else {
 	    window.top.location.href=link;
 	}

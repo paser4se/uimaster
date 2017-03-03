@@ -131,7 +131,7 @@
           </ns2:Property>
           <ns2:Property name="style" >
             <ns2:value xsi:type="ns2:StringPropertyType">
-                <value>height:220px;overflow-y: scroll;overflow-x: hidden;</value>
+                <value>overflow-y: scroll;overflow-x: hidden;</value>
             </ns2:value>
           </ns2:Property>
           <ns2:query xsi:type="ns2:ExpressionPropertyType">

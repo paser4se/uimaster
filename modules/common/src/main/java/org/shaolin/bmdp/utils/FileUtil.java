@@ -44,6 +44,10 @@ public final class FileUtil {
     }
 
     public static void zip(File file, File zipFile) throws IOException {
+    	if (zipFile.exists()) {
+    		zipFile.delete();
+    	}
+    	
         zipFile.createNewFile();
         FileOutputStream fout = new FileOutputStream(zipFile);
         ZipOutputStream zout = null;

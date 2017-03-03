@@ -2089,7 +2089,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	  this.filterPanel = $(this).next();
 	  this.pageInfoPanel = $(this.filterPanel).next();
 	  this.refreshMobList();
-	  var loader = $("<div class='swiper-preloader' style='opacity:0;'>Loading ...</div>");
+	  var loader = $("<div class='swiper-preloader' style='display:none;opacity:0;'>Loading ...</div>");
 	  loader.appendTo($(this));
 	  this.loader = loader;
 	  var timeout = false;

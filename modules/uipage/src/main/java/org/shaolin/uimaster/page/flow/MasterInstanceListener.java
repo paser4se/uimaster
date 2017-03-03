@@ -235,6 +235,12 @@ public class MasterInstanceListener implements ServletContextListener {
 			@Override
 			public void notify(
 					EntityUpdatedEvent<WebService, DiagramType> event) {
+				try {
+					PageCacheManager.addWebService(event.getNewEntity());
+				} catch (ParsingException e) {
+					logger.error(
+							"Parse web service error: " + e.getMessage(), e);
+				}
 			}
 
 			@Override

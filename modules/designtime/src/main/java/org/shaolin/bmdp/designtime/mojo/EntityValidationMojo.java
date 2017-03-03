@@ -198,7 +198,7 @@ public class EntityValidationMojo extends AbstractMojo {
 			for (File f : files) {
 				entityManager.reloadDir(f);
 			}
-			entityManager.reloadDir(entitiesDirectory, new String[] {"pageflow", "page", "form", "workflow"});
+			entityManager.reloadDir(entitiesDirectory, new String[] {"websvis", "pageflow", "page", "form", "workflow"});
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (DependencyResolutionRequiredException e) {

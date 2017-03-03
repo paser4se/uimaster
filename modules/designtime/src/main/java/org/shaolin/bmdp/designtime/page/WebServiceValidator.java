@@ -34,15 +34,15 @@ public class WebServiceValidator implements IEntityEventListener<WebService, Dia
 
 	@Override
 	public void notify(EntityAddedEvent<WebService, DiagramType> event) {
-		try {
-			PageCacheManager.addWebService(event.getEntity());
-		} catch (ParsingException e) {
-			e.printStackTrace();
-		}
 	}
 
 	@Override
 	public void notify(EntityUpdatedEvent<WebService, DiagramType> event) {
+		try {
+			PageCacheManager.addWebService(event.getNewEntity());
+		} catch (ParsingException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
