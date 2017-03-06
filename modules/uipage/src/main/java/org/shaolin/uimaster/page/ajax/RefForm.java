@@ -454,7 +454,7 @@ public class RefForm extends Container implements Serializable
     public void closeIfinWindows(Object... obj) {
     	if (window != null) {
 			window.close();
-
+            this.remove();
 			if (callBack != null) {
 				callBack.execute(obj);
 			}
@@ -467,13 +467,12 @@ public class RefForm extends Container implements Serializable
 			callBackList = null;
 		}
 		
-		this.remove();
     }
     
 	public void closeIfinWindows() {
 		if (window != null) {
 			window.close();
-
+            this.remove();
 			if (callBack != null) {
 				callBack.execute();
 			}
@@ -485,14 +484,12 @@ public class RefForm extends Container implements Serializable
 			callBack = null;
 			callBackList = null;
 		}
-		
-		this.remove();
 	}
 	
 	public void closeIfinWindows(boolean skipCallBack) {
 		if (window != null) {
 			window.close();
-
+            this.remove();
 			if (!skipCallBack) {
 				if (callBack != null) {
 					callBack.execute();
@@ -507,7 +504,6 @@ public class RefForm extends Container implements Serializable
 			callBackList = null;
 		}
 		
-		this.remove();
 	}
 	
 	public boolean isInWindows() {
