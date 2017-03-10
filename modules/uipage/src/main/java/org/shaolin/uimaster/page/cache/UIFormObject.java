@@ -1874,11 +1874,13 @@ public class UIFormObject implements java.io.Serializable
 			}
 		}
 		if (!hasActionPanel) {
-			logger.info("Workflow action should to be added on Action Panel in general, a dynamic event added!");
+			logger.info("Workflow action should be added on Action Panel in general, a dynamic event added!");
 			for (MissionActionType action : node.getUiActions()) {
 				FunctionType function = new FunctionType();
 				function.setNeedAlert(Boolean.TRUE);
+				function.setNeedConstraint(Boolean.TRUE);
 				function.setFunctionName(action.getActionName());
+				
 				OpInvokeWorkflowType op = new OpInvokeWorkflowType();
 				op.setEventConsumer(eventConsumer);
 				op.setExpression(action.getExpression());
