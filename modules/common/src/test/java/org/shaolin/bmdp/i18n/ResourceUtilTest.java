@@ -15,6 +15,7 @@ public class ResourceUtilTest {
 
 	@Test
 	public void testGetResourceStringString() {
+		System.out.println(StringUtil.genRandomAlphaBits(32));
 		
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		String day = simpleDateFormat.format(new Date());

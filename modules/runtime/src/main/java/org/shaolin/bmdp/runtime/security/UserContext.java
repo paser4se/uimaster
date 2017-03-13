@@ -24,6 +24,8 @@ public class UserContext implements Serializable {
 	
 	String userLocation;
 	
+	String requestIP;
+	
 	String cityId;
 	
 	String lastLoginDate;
@@ -98,6 +100,14 @@ public class UserContext implements Serializable {
 	 */
 	public void setUserLocation(String userLocation) {
 		this.userLocation = userLocation;
+	}
+	
+	public void setUserRequestIP(String requestIP) {
+		this.requestIP = requestIP;
+	}
+	
+	public String getRequestIP() {
+		return this.requestIP;
 	}
 	
 	public void setCity(String cityId) {

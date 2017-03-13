@@ -377,6 +377,7 @@ public class WebFlowServlet extends HttpServlet
 					currentUserContext = new UserContext();
 					currentUserContext.setOrgCode(attrAccessor.orgCode);
 					currentUserContext.setOrgId(Long.valueOf(attrAccessor.orgId));
+					currentUserContext.setUserRequestIP(request.getRemoteAddr());
 					session.setAttribute(WebflowConstants.USER_SESSION_KEY, currentUserContext);
 				}
 				String userLocale = WebConfig.getUserLocale(request);

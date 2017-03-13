@@ -503,13 +503,18 @@ public class HttpSender {
 	 */
 	public String doPostSSL(String url, String text, String charset)
 			throws Exception {
+		return doPostSSL(url, text, charset, "text/plain");
+	}
+	
+	public String doPostSSL(String url, String text, String charset, String contentType)
+			throws Exception {
 		CloseableHttpClient httpClient = getHttpsClient();
 		HttpPost httpPost = new HttpPost(url);
 		CloseableHttpResponse response = null;
 		try {
 			StringEntity entity = new StringEntity(text, Consts.UTF_8);
 			entity.setContentEncoding(charset);
-			entity.setContentType("text/plain");
+			entity.setContentType(contentType);
 			httpPost.setEntity(entity);
 			response = httpClient.execute(httpPost);
 			return getResult(response, charset);

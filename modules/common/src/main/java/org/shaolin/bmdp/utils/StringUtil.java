@@ -25,10 +25,20 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
 
 public class StringUtil
 {
@@ -1453,7 +1463,7 @@ public class StringUtil
 		return sb.toString();
 	} 
 	
-	private static final String CHATS = "abcdefghijklmnopqrstuvwxyz";
+	private static final String CHATS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	
 	public static String genRandomStr() {
 		return genRandomAlphaBits(5) + "" + System.nanoTime();
@@ -1462,7 +1472,7 @@ public class StringUtil
 	public static String genRandomAlphaBits(int i) {
 		StringBuffer sb = new StringBuffer();
 		while (i-- > 0) {
-			sb.append(CHATS.charAt((int)(Math.random() * 26)));
+			sb.append(CHATS.charAt((int)(Math.random() * 52)));
 		}
 		return sb.toString();
 	}
@@ -1538,4 +1548,133 @@ public class StringUtil
         }
         return s;
     }
+	
+	public static String convertMapToXML(Map map, String rootName) {
+		Document doc = DocumentHelper.createDocument();  
+        Element root = DocumentHelper.createElement(rootName);  
+        doc.add(root);  
+        map2xml(map, root);  
+        try {
+			return formatXml(doc);
+		} catch (Exception e) {
+			return "";
+		}
+	}
+
+	public static Document map2xml(Map<String, Object> map) throws DocumentException, IOException  {  
+        Iterator<Map.Entry<String, Object>> entries = map.entrySet().iterator();  
+        if(entries.hasNext()){
+            Map.Entry<String, Object> entry = entries.next();  
+            Document doc = DocumentHelper.createDocument();  
+            Element root = DocumentHelper.createElement(entry.getKey());  
+            doc.add(root);  
+            map2xml((Map)entry.getValue(), root);  
+            return doc;  
+        }  
+        return null;  
+    }  
+	
+	private static Element map2xml(Map<String, Object> map, Element body) {
+		Iterator<Map.Entry<String, Object>> entries = map.entrySet().iterator();
+		while (entries.hasNext()) {
+			Map.Entry<String, Object> entry = entries.next();
+			String key = entry.getKey();
+			Object value = entry.getValue();
+			if (key.startsWith("@")) {
+				body.addAttribute(key.substring(1, key.length()), value.toString());
+			} else if (key.equals("#text")) {
+				body.setText(value.toString());
+			} else {
+				if (value instanceof java.util.List) {
+					List list = (List) value;
+					Object obj;
+					for (int i = 0; i < list.size(); i++) {
+						obj = list.get(i);
+						if (obj instanceof java.util.Map) {
+							Element subElement = body.addElement(key);
+							map2xml((Map) list.get(i), subElement);
+						} else {
+							body.addElement(key).setText((String) list.get(i));
+						}
+					}
+				} else if (value instanceof java.util.Map) {
+					Element subElement = body.addElement(key);
+					map2xml((Map) value, subElement);
+				} else {
+					body.addElement(key).setText(value.toString());
+				}
+			}
+		}
+		return body;
+	}  
+	
+	public static Map xml2map(String xmlString) {
+		try {
+			Document document = DocumentHelper.parseText(xmlString);
+			return xml2map(document.getRootElement());
+		} catch (DocumentException e) {
+			e.printStackTrace();
+			return Collections.EMPTY_MAP;
+		}
+	}
+	
+	public static Map xml2map(Element e) {  
+        Map map = new LinkedHashMap();  
+        List list = e.elements();  
+        if (list.size() > 0) {  
+            for (int i = 0; i < list.size(); i++) {  
+                Element iter = (Element) list.get(i);  
+                List mapList = new ArrayList();  
+  
+                if (iter.elements().size() > 0) {  
+                    Map m = xml2map(iter);  
+                    if (map.get(iter.getName()) != null) {  
+                        Object obj = map.get(iter.getName());  
+                        if (!(obj instanceof List)) {  
+                            mapList = new ArrayList();  
+                            mapList.add(obj);  
+                            mapList.add(m);  
+                        }  
+                        if (obj instanceof List) {  
+                            mapList = (List) obj;  
+                            mapList.add(m);  
+                        }  
+                        map.put(iter.getName(), mapList);  
+                    } else  
+                        map.put(iter.getName(), m);  
+                } else {  
+                    if (map.get(iter.getName()) != null) {  
+                        Object obj = map.get(iter.getName());  
+                        if (!(obj instanceof List)) {  
+                            mapList = new ArrayList();  
+                            mapList.add(obj);  
+                            mapList.add(iter.getText());  
+                        }  
+                        if (obj instanceof List) {  
+                            mapList = (List) obj;  
+                            mapList.add(iter.getText());  
+                        }  
+                        map.put(iter.getName(), mapList);  
+                    } else  
+                        map.put(iter.getName(), iter.getText());  
+                }  
+            }  
+        } else  
+            map.put(e.getName(), e.getText());  
+        return map;  
+    }  
+	
+	public static String formatXml(String xmlStr) throws DocumentException, IOException  {  
+        Document document = DocumentHelper.parseText(xmlStr);  
+        return formatXml(document);  
+    }
+	
+	public static String formatXml(Document document) throws DocumentException, IOException  {  
+        OutputFormat format = OutputFormat.createPrettyPrint();  
+        StringWriter writer = new StringWriter();  
+        XMLWriter xmlWriter = new XMLWriter(writer, format);  
+        xmlWriter.write(document);  
+        xmlWriter.close();  
+        return writer.toString();  
+    }  
 }

@@ -153,6 +153,7 @@ public class AjaxServlet extends HttpServlet {
 		if (currentUserContext == null) {
 			currentUserContext = new UserContext();
 			currentUserContext.setOrgCode(Registry.getInstance().getValue("/System/webConstant/defaultOrgCode"));
+			currentUserContext.setUserRequestIP(request.getRemoteAddr());
 		}
 		String userLocale = WebConfig.getUserLocale(request);
 		List userRoles = (List)session.getAttribute(WebflowConstants.USER_ROLE_KEY);
