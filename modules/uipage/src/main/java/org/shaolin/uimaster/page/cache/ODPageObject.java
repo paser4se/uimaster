@@ -39,6 +39,7 @@ import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
+import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.od.ODContext;
@@ -161,6 +162,7 @@ public class ODPageObject extends ODObject implements java.io.Serializable
         DefaultParsingContext defaultPContext = new DefaultParsingContext();
         defaultPContext.setVariableClass("context", HTMLSnapshotContext.class);
         defaultPContext.setVariableClass("odContext", ODContext.class);
+        defaultPContext.setVariableClass("page", AjaxContext.class);
         
         opContext.setDefaultParsingContext(defaultPContext);
         opContext.setParsingContextObject(ODContext.LOCAL_TAG, localPContext);

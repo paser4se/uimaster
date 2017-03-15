@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.shaolin.bmdp.i18n.ResourceUtil;
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.EvaluationContext;
 import org.shaolin.javacc.exception.EvaluationException;
@@ -847,5 +848,12 @@ public class AjaxContext extends OpExecuteContext implements Serializable
 			return ((HashMap)v).get(key);
 		}
 		return null;
+	}
+	
+	public void loadJs(final String js) {
+		String resource = UserContext.isAppClient()? WebConfig.getAppContextRoot(this.getRequest()) + js : WebConfig.getWebContextRoot() + js;
+		IDataItem dataItem = AjaxActionHelper.createLoadJS("", resource);
+        dataItem.setFrameInfo(this.getFrameId());
+        this.addDataItem(dataItem);
 	}
 }
