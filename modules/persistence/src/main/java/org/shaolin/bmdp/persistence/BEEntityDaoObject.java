@@ -119,8 +119,16 @@ public class BEEntityDaoObject {
 		if (testMode) {
 			return;
 		}
+		
+		// dirty data check!
+		IPersistentEntity newRecord = (IPersistentEntity)this.get(entity.getId(), entity.getClass());
+		if (newRecord == null || newRecord.getCas() != entity.getCas()) {
+			throw new RuntimeException("A dirty record found! update failed: " + entity.toString());
+		}
+		
 		try {
 			Session session = HibernateUtil.getSession();
+			entity.setCas(System.currentTimeMillis());
 			session.update(entity);
 		} catch (NonUniqueObjectException e) {
 			// try committing session again.

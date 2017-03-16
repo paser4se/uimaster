@@ -568,6 +568,14 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			out.write("    private boolean get_enable() {\n");
 			out.write("        return _enable;\n");
 			out.write("    }\n        ");
+			out.write("    /**\n");
+			out.write("     *  Get cas id.\n");
+			out.write("     *\n");
+			out.write("     *  @return long\n");
+			out.write("     */\n");
+			out.write("    public long getCas() {\n");
+			out.write("        return _cas;\n");
+			out.write("    }\n        ");
 			if (beEntity.isNeedTask()) {
 				out.write("    /**\n");
 				out.write("     *  Get taskId\n");
@@ -743,6 +751,13 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			out.write("     */\n");
 			out.write("    private void set_enable(boolean enable) {\n");
 			out.write("        _enable = enable;\n");
+			out.write("    }\n\n    ");
+			out.write("    /**\n");
+			out.write("     *  set cas\n");
+			out.write("     *  @parameter true or false.\n");
+			out.write("     */\n");
+			out.write("    public void setCas(long cas) {\n");
+			out.write("        _cas = cas;\n");
 			out.write("    }\n\n    ");
 			
 			if (beEntity.isNeedTask()) {
@@ -939,6 +954,11 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			out.write("     * Enable record\n");
 			out.write("     */\n");
 			out.write("    private boolean _enable = true;\n\n");
+			out.write("    /**\n");
+			out.write("     * Cas record\n");
+			out.write("     */\n");
+			out.write("    private long _cas = 0;\n\n");
+			
 			if (beEntity.isNeedTask()) {
 				out.write("    /**\n");
 				out.write("     * task id\n");

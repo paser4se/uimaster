@@ -79,7 +79,6 @@ public class HibernateMappingGenerator implements IEntityEventListener<TableType
 		if (!be.isNeedPersist()) {
 			return;
 		}
-		
 		try {
 			File path = new File(options.getHBMDirectory(), table.getEntityName()+ ".hbm.xml");
 			out.write("\n!!!!file ");
@@ -206,7 +205,7 @@ public class HibernateMappingGenerator implements IEntityEventListener<TableType
 					out.write("\"/>\n");
 				}
 			}
-			
+			out.write("    <property name=\"_cas\" type=\"long\" column=\"_cas\"/>\n");
 			out.write("  </class>\n");
 			
 			out.write("</hibernate-mapping>\n");
@@ -334,6 +333,9 @@ public class HibernateMappingGenerator implements IEntityEventListener<TableType
 			return;
 		} else if ("_enable".equals(beField)) {
 			out.write("\" type=\"boolean");
+			return;
+		} else if ("_cas".equals(beField)) {
+			out.write("\" type=\"long");
 			return;
 		} else if ("x".equals(beField)) {
 			out.write("\" type=\"int");

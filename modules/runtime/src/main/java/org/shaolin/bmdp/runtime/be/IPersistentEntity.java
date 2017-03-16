@@ -31,6 +31,21 @@ public interface IPersistentEntity extends IBusinessEntity {
 	public void setEnabled(boolean isEnabled);
 	
 	/**
+	 * Get the dirty record id
+	 * 
+	 * @return
+	 */
+	public long getCas();
+	
+	/**
+	 * Set the dirty record id  for every update.
+	 * 
+	 * @param cas
+	 * @return
+	 */
+	public void setCas(long cas);
+	
+	/**
 	 * Get create date of this item.
 	 * 
 	 * @return
