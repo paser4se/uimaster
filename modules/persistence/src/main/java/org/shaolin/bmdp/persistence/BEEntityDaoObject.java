@@ -121,8 +121,7 @@ public class BEEntityDaoObject {
 		}
 		
 		// dirty data check!
-		IPersistentEntity newRecord = (IPersistentEntity)this.get(entity.getId(), entity.getClass());
-		if (newRecord == null || newRecord.getCas() != entity.getCas()) {
+		if (!exist(entity.getId(), entity.getCas(), entity.getClass())) {
 			throw new RuntimeException("A dirty record found! update failed: " + entity.toString());
 		}
 		
@@ -389,6 +388,14 @@ public class BEEntityDaoObject {
 			return (T)result.get(0);
 		}
 		return null;
+	}
+	
+	public boolean exist(long id, long cas, Class<?> persistentClass) {
+		Criteria criteria = this._createCriteria(persistentClass, "a");
+		criteria.setProjection(Projections.rowCount());
+		criteria.add(createCriterion(Operator.EQUALS, "a.id", id));
+		criteria.add(createCriterion(Operator.EQUALS, "a._cas", cas));
+		return ((Long) criteria.uniqueResult()) > 0;
 	}
 	
 	/**

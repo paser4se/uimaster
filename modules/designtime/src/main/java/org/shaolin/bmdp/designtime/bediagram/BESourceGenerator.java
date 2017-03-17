@@ -576,6 +576,9 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			out.write("    public long getCas() {\n");
 			out.write("        return _cas;\n");
 			out.write("    }\n        ");
+			out.write("    private long get_cas() {\n");
+			out.write("        return _cas;\n");
+			out.write("    }\n        ");
 			if (beEntity.isNeedTask()) {
 				out.write("    /**\n");
 				out.write("     *  Get taskId\n");
@@ -757,6 +760,9 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			out.write("     *  @parameter true or false.\n");
 			out.write("     */\n");
 			out.write("    public void setCas(long cas) {\n");
+			out.write("        _cas = cas;\n");
+			out.write("    }\n\n    ");
+			out.write("    private void set_cas(long cas) {\n");
 			out.write("        _cas = cas;\n");
 			out.write("    }\n\n    ");
 			
