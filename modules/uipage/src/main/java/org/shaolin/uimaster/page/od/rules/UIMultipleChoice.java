@@ -184,6 +184,9 @@ public class UIMultipleChoice implements IODMappingConverter {
 			MultiChoice selectComp = (MultiChoice) AjaxActionHelper
 					.getCachedAjaxWidget(this.uiid, htmlContext);
 			this.value = selectComp.getValues();
+			if (this.value != null && "null".equals(this.value)) {
+				this.value = null;
+			}
 			this.optionValues = selectComp.getOptionValues();
 			this.optionDisplayValues = selectComp.getOptionDisplayValues();
 		} catch (Throwable t) {

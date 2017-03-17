@@ -40,10 +40,12 @@ public class TableCallBack implements CallBack {
         if (table == null) {
         	table = (Table)AjaxActionHelper.getAjaxContext().getElementByAbsoluteId(uiid);
         }
-        if (table.isSliderMode()) {
-        	table.getConditions().setPullAction("filter");
+        if (table != null) {
+	        if (table.isSliderMode()) {
+	        	table.getConditions().setPullAction("filter");
+	        }
+	        IDataItem item = AjaxActionHelper.updateTableItem(entityPrefix + uiid, table.refresh0());
+	        AjaxActionHelper.getAjaxContext().addDataItem(item);
         }
-        IDataItem item = AjaxActionHelper.updateTableItem(entityPrefix + uiid, table.refresh0());
-        AjaxActionHelper.getAjaxContext().addDataItem(item);
 	}
 }

@@ -182,7 +182,7 @@ public class UIText implements IODMappingConverter {
 			TextWidget textComp = (TextWidget) AjaxActionHelper
 					.getCachedAjaxWidget(this.uiid, htmlContext);
 			String value = textComp.getValue();
-			this.stringData = value != null ? value.trim() : "";
+			this.stringData = (value != null && !"null".equals(value))? value.trim() : "";
 		} catch (Throwable t) {
 			if (t instanceof UIConvertException) {
 				throw ((UIConvertException) t);

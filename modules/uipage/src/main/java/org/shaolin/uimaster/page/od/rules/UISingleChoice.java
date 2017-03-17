@@ -213,6 +213,9 @@ public class UISingleChoice implements IODMappingConverter {
 			SingleChoice singleChoice = (SingleChoice) AjaxActionHelper
 					.getCachedAjaxWidget(this.uiid, htmlContext);
 			this.value = singleChoice.getRealValue();
+			if (this.value != null && "null".equals(this.value)) {
+				this.value = null;
+			}
 		} catch (Throwable t) {
 			if (t instanceof UIConvertException) {
 				throw ((UIConvertException) t);
