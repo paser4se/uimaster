@@ -93,8 +93,9 @@ public class EventHandler implements IAjaxHandler {
 			ops = uiEntity.getEventHandler(actionName);
 		}
 		if (ops == null) {
+			Dialog.showMessageDialog("\u5F53\u524D\u4E8B\u4EF6\u5F02\u5E38\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\uFF01", "", Dialog.WARNING_MESSAGE, null);
 			log.warn("The action name " + actionName + " can't be found from current page!");
-			return "";
+			return context.getDataAsJSON();
 		}
 		for (OpType op : ops) {
 				if (op instanceof OpCallAjaxType) {

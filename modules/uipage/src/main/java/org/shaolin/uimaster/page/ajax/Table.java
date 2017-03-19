@@ -488,6 +488,7 @@ public class Table extends Widget<Table> implements Serializable {
 			evaContext.setVariableValue("formId", AjaxActionHelper.getAjaxContext().getEntityPrefix());
 			ooeeContext.setDefaultEvaluationContext(evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+			ooeeContext.setEvaluationContextObject(ODContext.GLOBAL_TAG, evaContext);
 			
 			List<Object> rows = (List<Object>)queryExpr.evaluate(ooeeContext);
 			if (rows == null) {
@@ -528,6 +529,7 @@ public class Table extends Widget<Table> implements Serializable {
 			evaContext.setVariableValue("formId", AjaxActionHelper.getAjaxContext().getEntityPrefix());
 			ooeeContext.setDefaultEvaluationContext(evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+			ooeeContext.setEvaluationContextObject(ODContext.GLOBAL_TAG, evaContext);
 			
 			long totalCount = 0;
 			if (rows != null && rows.size() > 0) {
@@ -632,6 +634,7 @@ public class Table extends Widget<Table> implements Serializable {
 			evaContext.setVariableValue("table", this);
 			ooeeContext.setDefaultEvaluationContext(evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+			ooeeContext.setEvaluationContextObject(ODContext.GLOBAL_TAG, evaContext);
 			
 			long totalCount = 0;
 			if (rows != null && rows.size() > 0) {
@@ -714,6 +717,7 @@ public class Table extends Widget<Table> implements Serializable {
 			evaContext.setVariableValue("table", this);
 			ooeeContext.setDefaultEvaluationContext(evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
+			ooeeContext.setEvaluationContextObject(ODContext.GLOBAL_TAG, evaContext);
 
 	        List<Object> rows = (List<Object>)queryExpr.evaluate(ooeeContext);
 	        this.listData = rows;
