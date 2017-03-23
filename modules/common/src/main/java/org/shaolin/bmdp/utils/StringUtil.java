@@ -1611,7 +1611,13 @@ public class StringUtil
 	public static Map xml2map(String xmlString) {
 		try {
 			Document document = DocumentHelper.parseText(xmlString);
-			return xml2map(document.getRootElement());
+			Map<String, Object> unsortMap = xml2map(document.getRootElement());
+			
+			Map<String, Object> result = new LinkedHashMap<String, Object>();
+			unsortMap.entrySet().stream()
+	            .sorted(Map.Entry.<String, Object>comparingByKey())
+	            .forEachOrdered(x -> result.put(x.getKey(), x.getValue()));
+			return result;
 		} catch (DocumentException e) {
 			e.printStackTrace();
 			return Collections.EMPTY_MAP;

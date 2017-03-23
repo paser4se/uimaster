@@ -2201,10 +2201,6 @@ public class UIFormObject implements java.io.Serializable
 			
 			if (jsFileName.endsWith(".js")) {
 				jsFileName = jsFileName.replace("\\", "/");
-				boolean needTimestamp = true;
-				if (jsFileName.startsWith("http") || jsFileName.startsWith("https")) {
-					needTimestamp = false;
-				} 
 				
 				if (UserContext.isMobileRequest() && UserContext.isAppClient()
 						&& jsFileName.startsWith(WebConfig.APP_ROOT_VAR)) {
@@ -2213,9 +2209,7 @@ public class UIFormObject implements java.io.Serializable
 					sb.append("\"></script>");
 				} else {
 					sb.append("<script type=\"text/javascript\" src=\"").append(jsFileName);
-					if (needTimestamp) {
-						sb.append("?_timestamp=").append(WebConfig.getTimeStamp());
-					}
+					sb.append("?_timestamp=").append(WebConfig.getTimeStamp());
 					sb.append("\"").append(" ");
 					sb.append(syncLoadJs ? "" : WebConfig.isSyncLoadingJs(jsFileName));
 					sb.append("></script>");
