@@ -1708,6 +1708,9 @@ public class UIFormObject implements java.io.Serializable
 			workflowActions = new ArrayList();
 		} 
 		for (MissionActionType action : node.getUiActions()) {
+			if (!action.getActionPage().equals(this.name)) {
+				continue;
+			}
 			workflowActions.add(action.getActionName());
 		}
 
@@ -1738,6 +1741,9 @@ public class UIFormObject implements java.io.Serializable
 				}
 				
 				for (MissionActionType action : node.getUiActions()) {
+					if (!action.getActionPage().equals(this.name)) {
+						continue;
+					}
 					UIButtonType button = new UIButtonType();
 					button.setUIID(action.getActionName());
 					ExpressionPropertyType property = new ExpressionPropertyType();
@@ -1876,6 +1882,9 @@ public class UIFormObject implements java.io.Serializable
 		if (!hasActionPanel) {
 			logger.info("Workflow action should be added on Action Panel in general, a dynamic event added!");
 			for (MissionActionType action : node.getUiActions()) {
+				if (!action.getActionPage().equals(this.name)) {
+					continue;
+				}
 				FunctionType function = new FunctionType();
 				function.setNeedAlert(Boolean.TRUE);
 				function.setNeedConstraint(Boolean.TRUE);

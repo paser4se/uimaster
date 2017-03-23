@@ -23,6 +23,7 @@ import org.shaolin.bmdp.datamodel.workflow.FlowImportType;
 import org.shaolin.bmdp.datamodel.workflow.GeneralNodeType;
 import org.shaolin.bmdp.datamodel.workflow.HandlerType;
 import org.shaolin.bmdp.datamodel.workflow.JoinNodeType;
+import org.shaolin.bmdp.datamodel.workflow.MissionActionType;
 import org.shaolin.bmdp.datamodel.workflow.MissionNodeType;
 import org.shaolin.bmdp.datamodel.workflow.SessionServiceType;
 import org.shaolin.bmdp.datamodel.workflow.SplitNodeType;
@@ -402,33 +403,35 @@ public class FlowObject implements java.io.Serializable {
             List<NodeInfo> l = new ArrayList<NodeInfo>();
             for (NodeInfo n : e.getValue()) {
             	MissionNodeType m = (MissionNodeType)n.getNode();
-            	if (m.getUiActions().isEmpty()) {
+            	if (m.getUiActions() == null || m.getUiActions().isEmpty()) {
             		continue;
             	}
-            	String actionPage = m.getUiActions().get(0).getActionPage();
-				if (actionPage == null || actionPage.trim().length() == 0) {
-            		continue;
+            	for (MissionActionType action : m.getUiActions()) {
+	            	String actionPage = action.getActionPage();
+					if (actionPage == null || actionPage.trim().length() == 0) {
+	            		continue;
+	            	}
+	            	if (logger.isDebugEnabled()) {
+	            		logger.debug("register {} Dyanmic workflow action to UI: {}", n.toString(), actionPage);
+	            	}
+	            	try {
+	        			UIFormObject uiCache = PageCacheManager.getUIFormObject(actionPage);
+	        			uiCache.addWorkflowAction(n.getFlow().getEventConsumer(), m, n.toString());
+	        		} catch (EntityNotFoundException e0) {
+	        			try {
+	        				UIPageObject uiCache = PageCacheManager.getUIPageObject(actionPage);
+	        				uiCache.getUIForm().addWorkflowAction(n.getFlow().getEventConsumer(), m, n.toString());
+	        			} catch (Exception e1) {
+	        				logger.error("Error to load the workflow action: " + e1.getMessage() 
+	            					+ ",ActionPage: " + actionPage
+	            					+ ",Node Info: " + n.toString(), e1);
+	        			} 
+	        		} catch (ParsingException e1) {
+	        			logger.error("Error to load the workflow action: " + e1.getMessage() 
+	        					+ ",ActionPage: " + actionPage
+	        					+ ",Node Info: " + n.toString(), e1);
+					} 
             	}
-            	if (logger.isDebugEnabled()) {
-            		logger.debug("register {} Dyanmic workflow action to UI: {}", n.toString(), actionPage);
-            	}
-            	try {
-        			UIFormObject uiCache = PageCacheManager.getUIFormObject(actionPage);
-        			uiCache.addWorkflowAction(n.getFlow().getEventConsumer(), m, n.toString());
-        		} catch (EntityNotFoundException e0) {
-        			try {
-        				UIPageObject uiCache = PageCacheManager.getUIPageObject(actionPage);
-        				uiCache.getUIForm().addWorkflowAction(n.getFlow().getEventConsumer(), m, n.toString());
-        			} catch (Exception e1) {
-        				logger.error("Error to load the workflow action: " + e1.getMessage() 
-            					+ ",ActionPage: " + actionPage
-            					+ ",Node Info: " + n.toString(), e1);
-        			} 
-        		} catch (ParsingException e1) {
-        			logger.error("Error to load the workflow action: " + e1.getMessage() 
-        					+ ",ActionPage: " + actionPage
-        					+ ",Node Info: " + n.toString(), e1);
-				} 
                 Set<String> set = initialEventNodes.get(n.getAppName() + "-" + n.getFlowName());
                 if (set != null && set.contains(n.getName())) {
                     l.add(n);
