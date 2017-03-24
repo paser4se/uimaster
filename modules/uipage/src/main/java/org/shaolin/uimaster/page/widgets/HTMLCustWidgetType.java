@@ -79,6 +79,8 @@ public class HTMLCustWidgetType extends HTMLWidgetType
 			Constructor<HTMLWidgetType> constructor = (Constructor<HTMLWidgetType>)
 					Class.forName(type).getConstructor(HTMLSnapshotContext.class, String.class);
 			custWidget = constructor.newInstance(context, this.getUIID());
+			custWidget.setPrefix(context.getHTMLPrefix());
+			custWidget.setReadOnly(isReadOnly());
 			return custWidget.createAjaxWidget(ee);
 		} catch (Exception e) {
 			logger.error("error generating ui the customized widget. in entity: " + getUIEntityName() +"."+ type, e);
