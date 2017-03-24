@@ -60,7 +60,9 @@ public class WebConfig {
 	private static String resourceContextRoot;
 	private static String uploadFileContextRoot;
 	private static String resourcePath;
-	private static int jsversion = 1;
+	
+	// make sure cleaning the js cache after restart server in every time.
+	private static int jsversion = (int)(Math.random() * 1000); 
 	
 	public static class WebConfigFastCache {
 		final String runningMode;
