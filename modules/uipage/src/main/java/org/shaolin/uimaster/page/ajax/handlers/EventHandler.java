@@ -107,7 +107,8 @@ public class EventHandler implements IAjaxHandler {
 							break;
 						}
 						log.warn("This statement can not be evaluated: \n"+ callAjaxOp.getExp().getExpressionString(), ex);
-						throw ex;
+						Dialog.showMessageDialog("\u64CD\u4F5C\u5F02\u5E38\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\u91CD\u8BD5\u3002", "", Dialog.WARNING_MESSAGE, null);
+						//TODO: log error to alarm!
 					}
 				} else if (op instanceof OpInvokeWorkflowType) {
 					OpInvokeWorkflowType wfOp = (OpInvokeWorkflowType) op;
@@ -133,6 +134,10 @@ public class EventHandler implements IAjaxHandler {
 								EventProcessor processor = (EventProcessor)AppContext.get().getService(
 										Class.forName("org.shaolin.bmdp.workflow.internal.WorkFlowEventProcessor"));
 								processor.process(e);
+								
+								if (e.getAttribute("_ErrorType") != null) {
+									Dialog.showMessageDialog("\u64CD\u4F5C\u5F02\u5E38\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\u91CD\u8BD5\u3002", "", Dialog.WARNING_MESSAGE, null);
+								}
 							}
 						} else {
 							//if (obj instanceof Boolean)
@@ -145,7 +150,8 @@ public class EventHandler implements IAjaxHandler {
 							break;
 						}
 						log.warn("This statement can not be evaluated: \n"+ wfOp.getExpression().getExpressionString(), ex);
-						throw ex;
+						Dialog.showMessageDialog("\u64CD\u4F5C\u5F02\u5E38\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\u91CD\u8BD5\u3002", "", Dialog.WARNING_MESSAGE, null);
+						//TODO: log error to alarm!
 					}
 				}
 		}

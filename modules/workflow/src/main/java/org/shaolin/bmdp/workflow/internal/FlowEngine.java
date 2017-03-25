@@ -805,6 +805,7 @@ public class FlowEngine {
         } else {
             logger.info("Discard event {}, can not found matched node", response);
         }
+        response.setAttribute(BuiltInAttributeConstant.KEY_ErrorType, "discardResponse");
     }
 
     public void analyzeException(FlowRuntimeContext flowContext, Throwable ex) {
