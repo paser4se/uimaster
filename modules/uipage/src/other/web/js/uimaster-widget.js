@@ -227,7 +227,7 @@ UIMaster.ui.field = UIMaster.extend(UIMaster.ui, /** @lends UIMaster.ui.field */
      * @description Synchronize the field's value.
      */
     sync: function(){
-        this.notifyChange(this);
+        if (this.notifyChange) {this.notifyChange(this);}
     },
     //private
     validateEvent: function(evnt){
@@ -1953,7 +1953,8 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 			return;
 		this.initialized = true;
 		var fileUI = this;
-		var actionBtns = IS_MOBILEVIEW? $(this).parent().next().next(): this.nextElementSibling.nextElementSibling;
+		//MobileAppMode the mobile style will be applied after UI ready which is reversed vs web page.
+		var actionBtns = IS_MOBILEVIEW && !MobileAppMode? $(this).parent().next().next(): this.nextElementSibling.nextElementSibling;
 		var uploadBtn = $(actionBtns).children()[0];
 		var cleanBtn = $(actionBtns).children()[1];
 		var searchBtn = $(actionBtns).children()[2]; 
@@ -2040,12 +2041,16 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 				return;
 			}
 			
-			var _framePrefix=UIMaster.getFramePrefix(UIMaster.El(fileUI).get(0));
-			var form = $('<form action='+UPLOAD_CONTEXTPATH+'?_uiid='+fileUI.name+'&_framePrefix='+_framePrefix+' method=post enctype=multipart/form-data></form>');
+			var _framePrefix = UIMaster.getFramePrefix(UIMaster.El(fileUI).get(0));
+			var uploadUrl = UPLOAD_CONTEXTPATH+'?_uiid='+fileUI.name+'&_framePrefix='+_framePrefix;
 			//encodeURI(fileUI.uploadName || fileUI.name)
-			if (IS_MOBILEVIEW){$(form).append($(fileUI).parent());}
-			else {$(form).append($(fileUI));}
-			$(form).ajaxSubmit(options);
+			if (MobileAppMode){ 
+			   _mobContext.uploadImage(uploadUrl, fileName);
+			} else {
+			   if (IS_MOBILEVIEW){$(form).append($(fileUI).parent());} else {$(form).append($(fileUI));}
+			   var form = $("<form action=\""+uploadUrl+"\" method=post enctype=multipart/form-data></form>");
+			   $(form).ajaxSubmit(options);
+			}
 			return;
 		});
 	}

@@ -476,6 +476,8 @@
     <xs:attribute name="actionPage" type="xs:string" />
     <xs:attribute name="actionName" type="xs:string" />
     <xs:attribute name="actionText" type="xs:string" />
+    <!-- hidden the action for dynamic displaying. -->
+    <xs:attribute name="isHidden" type="xs:boolean" />
     <xs:attribute name="beforeActionWidget" type="xs:string" />
     <xs:attribute name="nextActionWidget" type="xs:string" />
  </xs:complexType>

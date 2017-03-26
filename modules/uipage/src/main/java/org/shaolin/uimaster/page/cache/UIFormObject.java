@@ -1806,12 +1806,14 @@ public class UIFormObject implements java.io.Serializable
 							break;
 						}
 					}
-					if (index == -1) {
-						wfactionPanel.getComponents().add(button);
-						wfactionPanel.getLayoutConstraints().add(constraint);
-					} else {
-						wfactionPanel.getComponents().set(index, button);
-						wfactionPanel.getLayoutConstraints().set(index, constraint);
+					if (action.isIsHidden() == null || action.isIsHidden() == Boolean.FALSE) {
+						if (index == -1) {
+							wfactionPanel.getComponents().add(button);
+							wfactionPanel.getLayoutConstraints().add(constraint);
+						} else {
+							wfactionPanel.getComponents().set(index, button);
+							wfactionPanel.getLayoutConstraints().set(index, constraint);
+						}
 					}
 					
 					FunctionType function = new FunctionType();
