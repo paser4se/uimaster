@@ -102,7 +102,7 @@ public class EventHandler implements IAjaxHandler {
 					OpCallAjaxType callAjaxOp = (OpCallAjaxType) op;
 					try {
 						value = callAjaxOp.getExp().evaluate(context);
-					} catch (EvaluationException ex) {
+					} catch (Throwable ex) {
 						if (context.isInvalidEventSource()) {
 							break;
 						}
@@ -145,7 +145,7 @@ public class EventHandler implements IAjaxHandler {
 								log.debug("Workflow action failed result: " + obj);
 							}
 						}
-					} catch (EvaluationException ex) {
+					} catch (Throwable ex) {
 						if (context.isInvalidEventSource()) {
 							break;
 						}

@@ -110,8 +110,7 @@ public final class WorkFlowEventProcessor implements EventProcessor, IServicePro
 		        		event.setFlowContext(flowContext.getFlowContextInfo());
 		        		break;
 	        		} catch (Exception e) {
-	        			logger.warn("Unable to process Workflow due to fail recovering the previous flow state!", e);
-	        			return;
+	        			throw new RuntimeException("Unable to process Workflow due to fail recovering the previous flow state!", e);
 	        		}
 	        	}
 			}

@@ -1782,31 +1782,31 @@ public class UIFormObject implements java.io.Serializable
 					clickListener.setHandler(func);
 					button.getEventListeners().add(clickListener);
 					
-					if (wfactionPanel.getLayout() == null) {
-						TableLayoutType tableLayout = new TableLayoutType();
-						tableLayout.getColumnWidthWeights().add(0.0);
-						tableLayout.getRowHeightWeights().add(0.0);
-						wfactionPanel.setLayout(tableLayout);
-					} else {
-						TableLayoutType tableLayout = (TableLayoutType)wfactionPanel.getLayout();
-						tableLayout.getColumnWidthWeights().add(0.0);
-					}
-					ComponentConstraintType constraint = new ComponentConstraintType();
-					constraint.setComponentId(action.getActionName());
-					TableLayoutConstraintType position = new TableLayoutConstraintType();
-					position.setX(wfactionPanel.getLayoutConstraints().size());
-					position.setY(0);
-					constraint.setConstraint(position);
-					//check duplication.
-					int index = -1;
-					List<UIComponentType> uiList = wfactionPanel.getComponents();
-					for (int i=0; i <uiList.size(); i++) {
-						if (uiList.get(i).getUIID().endsWith(action.getActionName())) {
-							index = i;
-							break;
-						}
-					}
 					if (action.isIsHidden() == null || action.isIsHidden() == Boolean.FALSE) {
+						if (wfactionPanel.getLayout() == null) {
+							TableLayoutType tableLayout = new TableLayoutType();
+							tableLayout.getColumnWidthWeights().add(0.0);
+							tableLayout.getRowHeightWeights().add(0.0);
+							wfactionPanel.setLayout(tableLayout);
+						} else {
+							TableLayoutType tableLayout = (TableLayoutType)wfactionPanel.getLayout();
+							tableLayout.getColumnWidthWeights().add(0.0);
+						}
+						ComponentConstraintType constraint = new ComponentConstraintType();
+						constraint.setComponentId(action.getActionName());
+						TableLayoutConstraintType position = new TableLayoutConstraintType();
+						position.setX(wfactionPanel.getLayoutConstraints().size());
+						position.setY(0);
+						constraint.setConstraint(position);
+						//check duplication.
+						int index = -1;
+						List<UIComponentType> uiList = wfactionPanel.getComponents();
+						for (int i=0; i <uiList.size(); i++) {
+							if (uiList.get(i).getUIID().endsWith(action.getActionName())) {
+								index = i;
+								break;
+							}
+						}
 						if (index == -1) {
 							wfactionPanel.getComponents().add(button);
 							wfactionPanel.getLayoutConstraints().add(constraint);
@@ -1830,7 +1830,7 @@ public class UIFormObject implements java.io.Serializable
 					function.getOps().add(op);
 					
 					//check duplication.
-					index = -1;
+					int index = -1;
 					List<FunctionType> funcList = entity.getEventHandlers();
 					for (int i=0; i <funcList.size(); i++) {
 						if (funcList.get(i).getFunctionName().endsWith(action.getActionName())) {
