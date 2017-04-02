@@ -3458,21 +3458,6 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
 			if(typeof($(this).attr("uipanelid"))!="undefined"){
         		$(this).append($(elementList[$(this).attr("uipanelid")]).parent());
 			}
-			/**
-			var screenHeight = MobileAppMode?_mobContext.getScreenHeight():$(window.top).height();
-            if (!IS_MOBILEVIEW && $(this).height() > screenHeight) {
-			   $(this).css("height", (screenHeight - 50) + "px");
-			   $(this).css("overflow-y", "scroll");
-		    }*/
-		});
-		bodies.resize(function(){
-		    /**bodies.children().each(function(){
-			var screenHeight = MobileAppMode?_mobContext.getScreenHeight():$(window.top).height();
-            if (!IS_MOBILEVIEW && $(this).height() > screenHeight) {
-			   $(this).css("height", (screenHeight - 50) + "px");
-			   $(this).css("overflow-y", "scroll");
-		    }
-			});*/
 		});
 		if (this.subComponents != null) {
 		    for (var i=0;i<this.subComponents.length;i++) {
@@ -3481,6 +3466,27 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
 			}
 		}
     },
+	validate0:function() {
+	  if (this.subComponents != null && this.subComponents[this.selectedIndex]) {
+		  var id = "defaultname." + this.subComponents[this.selectedIndex];
+		  var constraint_result = eval(id).validate();
+		  if (constraint_result != true && constraint_result != null) {
+			  return false;
+		  }
+	  }
+	  return true;
+	},
+	validate:function() {
+	  if (this.subComponents != null && this.subComponents.length > 0) {
+		  for (var i=0; i<this.subComponents.length; i++) {
+		      var result = eval("defaultname." + this.subComponents[i]).validate();
+			  if (result != true && result != null) {
+                  return result;
+              }
+		  }
+	  }
+	  return null; 
+	},
 	sync:function(){
        if (this.subComponents != null && this.subComponents[this.selectedIndex] && defaultname[this.subComponents[this.selectedIndex]] && defaultname[this.subComponents[this.selectedIndex]].sync)
 	      defaultname[this.subComponents[this.selectedIndex]].sync();
@@ -3702,6 +3708,17 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 		  }
 	  }
 	  return true;
+	},
+	validate:function() {
+	  if (this.subComponents != null && this.subComponents.length > 0) {
+		  for (var i=0; i<this.subComponents.length; i++) {
+		      var result = eval("defaultname." + this.subComponents[i]).validate();
+			  if (result != true && result != null) {
+                  return result;
+              }
+		  }
+	  }
+	  return null; 
 	},
 	sync:function(){
 	   if (this.subComponents != null && this.subComponents[this.selectedIndex]) {
