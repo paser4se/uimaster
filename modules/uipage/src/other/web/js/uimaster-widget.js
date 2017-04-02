@@ -1650,7 +1650,7 @@ UIMaster.ui.panel = function(conf){
             },
 			buildActionPanel:function(){
 				var p = $(this);
-				p.children().each(function(){$(this).css("float","left");});
+				p.children().each(function(){$(this).css("float","left").css("min-width","initial");});
 				p.find("input[type=button]").each(function(){if($(this).attr("disabled") == "true" || $(this).attr("disabled") == "disabled" || $(this).css("display") == "none"){$(this).remove();}});
 				p.find("div[id$=wfactions]").each(function(){$(this).children().each(function(){$(this).css("float","left")});});
 				p.addClass("uimaster_workflow_panel");
@@ -1946,15 +1946,16 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 	disableSearch:false,
     initialized: false,
-    callback:null,
+    callback:function(state){},
 	cleanAll:null,
+	options:null,
 	init:function(){
 	    if (this.initialized)
 			return;
 		this.initialized = true;
 		var fileUI = this;
 		//MobileAppMode the mobile style will be applied after UI ready which is reversed vs web page.
-		var actionBtns = IS_MOBILEVIEW && !MobileAppMode? $(this).parent().next().next(): this.nextElementSibling.nextElementSibling;
+		var actionBtns = (IS_MOBILEVIEW && !MobileAppMode)? $(this).parent().next().next(): this.nextElementSibling.nextElementSibling;
 		var uploadBtn = $(actionBtns).children()[0];
 		var cleanBtn = $(actionBtns).children()[1];
 		var searchBtn = $(actionBtns).children()[2]; 
@@ -1969,8 +1970,8 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 			return;
 		}
 		if(this.disableSearch) {$(cleanBtn).css("display","none");$(searchBtn).css("display","none");}
-		var progressbox = IS_MOBILEVIEW? $(actionBtns).next(): this.nextElementSibling.nextElementSibling.nextElementSibling;
-		var messagebox = IS_MOBILEVIEW? $(progressbox).next(): progressbox.nextElementSibling;
+		var progressbox = (IS_MOBILEVIEW && !MobileAppMode)? $(actionBtns).next(): this.nextElementSibling.nextElementSibling.nextElementSibling;
+		var messagebox = (IS_MOBILEVIEW && !MobileAppMode)? $(progressbox).next(): progressbox.nextElementSibling;
 		var c = $(progressbox).children();
 		var progressbar = c[0];
 		var percent = c[1];
@@ -2008,6 +2009,7 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 				$(messagebox).html("<font color='red'>\u4E0A\u4F20\u9519\u8BEF!!!</font>");
 			}
 		};
+		this.options = options;
 		$(cleanBtn).click(function() {
 		   if (fileUI.cleanAll != null) {
 				fileUI.cleanAll(cleanBtn);
@@ -2045,7 +2047,8 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 			var uploadUrl = UPLOAD_CONTEXTPATH+'?_uiid='+fileUI.name+'&_framePrefix='+_framePrefix;
 			//encodeURI(fileUI.uploadName || fileUI.name)
 			if (MobileAppMode){ 
-			   _mobContext.uploadImage(uploadUrl, fileName);
+			   fileUI.options.beforeSend();
+			   _mobContext.uploadImage(uploadUrl, fileUI.name, fileName);
 			} else {
 			   if (IS_MOBILEVIEW){$(form).append($(fileUI).parent());} else {$(form).append($(fileUI));}
 			   var form = $("<form action=\""+uploadUrl+"\" method=post enctype=multipart/form-data></form>");
@@ -2053,6 +2056,14 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 			}
 			return;
 		});
+	},
+	appCallback: function(state){
+		if (state == 1) {
+			this.options.complete();
+			this.options.success();	
+		} else {
+			this.options.error();	
+		}
 	}
 });
 var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:function(input){var output="";var chr1,chr2,chr3,enc1,enc2,enc3,enc4;var i=0;input=Base64._utf8_encode(input);while(i<input.length){chr1=input.charCodeAt(i++);chr2=input.charCodeAt(i++);chr3=input.charCodeAt(i++);enc1=chr1>>2;enc2=((chr1&3)<<4)|(chr2>>4);enc3=((chr2&15)<<2)|(chr3>>6);enc4=chr3&63;if(isNaN(chr2)){enc3=enc4=64}else if(isNaN(chr3)){enc4=64}output=output+this._keyStr.charAt(enc1)+this._keyStr.charAt(enc2)+this._keyStr.charAt(enc3)+this._keyStr.charAt(enc4)}return output},decode:function(input){var output="";var chr1,chr2,chr3;var enc1,enc2,enc3,enc4;var i=0;input=input.replace(/[^A-Za-z0-9\+\/\=]/g,"");while(i<input.length){enc1=this._keyStr.indexOf(input.charAt(i++));enc2=this._keyStr.indexOf(input.charAt(i++));enc3=this._keyStr.indexOf(input.charAt(i++));enc4=this._keyStr.indexOf(input.charAt(i++));chr1=(enc1<<2)|(enc2>>4);chr2=((enc2&15)<<4)|(enc3>>2);chr3=((enc3&3)<<6)|enc4;output=output+String.fromCharCode(chr1);if(enc3!=64){output=output+String.fromCharCode(chr2)}if(enc4!=64){output=output+String.fromCharCode(chr3)}}output=Base64._utf8_decode(output);return output},_utf8_encode:function(string){string=string.replace(/\r\n/g,"\n");var utftext="";for(var n=0;n<string.length;n++){var c=string.charCodeAt(n);if(c<128){utftext+=String.fromCharCode(c)}else if((c>127)&&(c<2048)){utftext+=String.fromCharCode((c>>6)|192);utftext+=String.fromCharCode((c&63)|128)}else{utftext+=String.fromCharCode((c>>12)|224);utftext+=String.fromCharCode(((c>>6)&63)|128);utftext+=String.fromCharCode((c&63)|128)}}return utftext},_utf8_decode:function(utftext){var string="";var i=0;var c=c1=c2=c3=0;while(i<utftext.length){c=utftext.charCodeAt(i);if(c<128){string+=String.fromCharCode(c);i++}else if((c>191)&&(c<224)){c2=utftext.charCodeAt(i+1);string+=String.fromCharCode(((c&31)<<6)|(c2&63));i+=2}else{c2=utftext.charCodeAt(i+1);c3=utftext.charCodeAt(i+2);string+=String.fromCharCode(((c&15)<<12)|((c2&63)<<6)|(c3&63));i+=3}}return string}}
@@ -3021,6 +3032,7 @@ UIMaster.ui.dialog=UIMaster.extend(UIMaster.ui.dialog, /** @lends UIMaster.ui.di
     y:-1,
     parent:"",
     handler: UIMaster.emptyFn,
+	noHandler: UIMaster.emptyFn,
     /**
      * @description Open the dialog.
      */
@@ -3039,6 +3051,10 @@ UIMaster.ui.dialog=UIMaster.extend(UIMaster.ui.dialog, /** @lends UIMaster.ui.di
             diaObj.value = $(content).find("td").eq(1).children('[name="returnType"]').val();
 			if (this.getAttribute("id") == "yes" || this.getAttribute("id") == "ok") {
 				var rV = diaObj.handler.call(diaObj,e);
+				if (rV == false)
+					return;
+			} else if (this.getAttribute("id") == "no" || this.getAttribute("id") == "cancel") {
+				var rV = diaObj.noHandler.call(diaObj,e);
 				if (rV == false)
 					return;
 			}

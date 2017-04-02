@@ -81,10 +81,10 @@ io.on('connection', function(socket){
 		}
     }); 
      
-    socket.on('unregister', function(){ 
+    socket.on('unregister', function(obj){ 
         try {
-	        if(onlineUsers.hasOwnProperty(socket.partyId)) { 
-	            delete onlineUsers[socket.partyId]; 
+	        if(onlineUsers.hasOwnProperty(obj.partyId)) { 
+	            delete onlineUsers[obj.partyId]; 
 	            if (DEBUG) {
 	              console.log(obj.partyId+' exit!'); 
 	            }
