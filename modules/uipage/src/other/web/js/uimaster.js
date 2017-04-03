@@ -858,6 +858,15 @@ UIMaster.util.forwardToPage = function(link, newpage){
 	    window.top.location.href=link;
 	}
 };
+UIMaster.util.invokeWebService = function(service, name, parameters){
+	//parameters
+	var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"webservice",_serviceName:(service +"."+name), param: parameters,_framePrefix:UIMaster.getFramePrefix()}};
+	if (MobileAppMode) {
+	   _mobContext.ajax(JSON.stringify(opts));
+    } else {
+	   $.ajax(opts);
+    }
+}
 /**
  * @description Register an AJAX handler to handle UIMaster AJAX operations.
  * @param {String} name Handler's name.
