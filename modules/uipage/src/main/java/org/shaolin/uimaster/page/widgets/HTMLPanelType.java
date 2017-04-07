@@ -64,7 +64,7 @@ public class HTMLPanelType extends HTMLContainerType
             hasDiv = "true".equals(getAllAttribute("hasDiv"));
             hasErrorMessage = "true".equals(getAllAttribute("hasErrorMessage"));
 
-            if (title != null)
+            if (title != null && title.trim().length() > 0)
             {
                 context.generateHTML("<fieldset><legend>");
                 context.generateHTML(title);

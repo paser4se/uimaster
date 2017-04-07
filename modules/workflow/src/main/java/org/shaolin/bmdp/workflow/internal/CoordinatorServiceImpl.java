@@ -182,6 +182,23 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		return list;
 	}
 	
+	public ITaskHistory getLastHisTaskBySessionId(String sessionId) {
+		if (sessionId == null || sessionId.trim().length() == 0) {
+			return null;
+		}
+		
+		TaskHistoryImpl historyCriteria = new TaskHistoryImpl();
+		historyCriteria.setSessionId(sessionId);
+		historyCriteria.setEnabled(true);
+		List<Order> orders = new ArrayList<Order>();
+		orders.add(Order.desc("createDate"));
+		List<ITaskHistory> list = CoordinatorModel.INSTANCE.searchTasksHistory(historyCriteria, orders, 0, -1);
+		if (list.size() > 0) {
+			return list.get(0);
+		} 
+		return null;
+	}
+	
 	public ITask getLastTaskBySessionId(String sessionId) {
 		TaskImpl condition = new TaskImpl();
 		condition.setSessionId(sessionId);

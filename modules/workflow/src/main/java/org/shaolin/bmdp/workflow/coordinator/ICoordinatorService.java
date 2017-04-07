@@ -93,6 +93,14 @@ public interface ICoordinatorService {
 	 */
 	ITask getLastTaskBySessionId(String sessionId);
 	
+	/**
+	 * Get the last historical task from Task table.
+	 * 
+	 * @param sessionId
+	 * @return
+	 */
+	public ITaskHistory getLastHisTaskBySessionId(String sessionId);
+	
 	ITask getTask(long taskId);
 	
 	void addTask(ITask task);

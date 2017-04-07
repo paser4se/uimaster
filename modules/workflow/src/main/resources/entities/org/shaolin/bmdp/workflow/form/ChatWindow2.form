@@ -128,7 +128,7 @@
 	      </ns2:layoutConstraint>
       </ns2:component>
       <ns2:component xsi:type="ns2:UITableType" UIID="messageUI">
-          <ns2:beElement>org.shaolin.bmdp.workflow.be.IChatHistory</ns2:beElement>
+          <ns2:beElement>org.shaolin.bmdp.workflow.be.ChatHistory</ns2:beElement>
           <ns2:selectMode xsi:type="ns2:UITableSelectModeType">Single</ns2:selectMode>
           <ns2:defaultRowSize>10</ns2:defaultRowSize>
           <ns2:showActionBar>false</ns2:showActionBar>

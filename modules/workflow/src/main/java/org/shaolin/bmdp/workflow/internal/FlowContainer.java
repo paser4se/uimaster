@@ -232,8 +232,9 @@ public class FlowContainer {
         task.setSessionId(flowContext.getSession().getID());
         task.setSubject("Task: " + currentNode.getName());
         task.setDescription(currentNode.getDescription());
+        task.setComments(flowContext.getEvent().getComments());
         if (role == null && UserContext.getUserRoles() != null) {
-        	task.setPartyType(UserContext.getUserRoles().toString());
+        	task.setPartyType(UserContext.getUserRoleValues().toString());
         } else {
         	task.setPartyType(role);
         }

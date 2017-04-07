@@ -42,5 +42,7 @@ public interface Event extends Serializable {
 	public Object getFlowContext();
 
 	public void setFlowContext(Object flowContext);
+	
+	public String getComments();
 
 }

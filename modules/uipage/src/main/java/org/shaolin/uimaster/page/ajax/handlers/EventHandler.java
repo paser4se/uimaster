@@ -130,7 +130,8 @@ public class EventHandler implements IAjaxHandler {
 										log.warn("Variable " + key + " is not seriablizable.");
 									}
 								}
-								e.setComments(context.getRequest().getParameter("_comments"));
+								String note = context.getRequest().getParameter("_comments");
+								e.setComments((note != null && !"null".equals(note)) ? note : null);
 								EventProcessor processor = (EventProcessor)AppContext.get().getService(
 										Class.forName("org.shaolin.bmdp.workflow.internal.WorkFlowEventProcessor"));
 								processor.process(e);

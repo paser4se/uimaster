@@ -2,6 +2,7 @@ package org.shaolin.bmdp.runtime.security;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -207,7 +208,9 @@ public class UserContext implements Serializable {
 		userSession.set(session);
 		userSessionCache.set(userContext);
 		userLocaleCache.set(userLocale);
-		userRolesCache.set(userRoles);
+		if (userRoles != null) {
+			userRolesCache.set(Collections.unmodifiableList(userRoles));
+		}
 		userAccessMode.set(isMobileAccess);
 	}
 	
@@ -294,11 +297,16 @@ public class UserContext implements Serializable {
 		return userRolesCache.get();
 	}
 	
-	public static void addUserRule(IConstantEntity role) {
-		if (userRolesCache.get() == null) {
-			userRolesCache.set(new ArrayList<IConstantEntity>());
-		} 
-		userRolesCache.get().add(role);
+	public static List<String> getUserRoleValues() {
+		if (userRolesCache.get() != null) {
+			ArrayList<String> result = new ArrayList<String>();
+			List<IConstantEntity> items = userRolesCache.get();
+			for (IConstantEntity entity : items) {
+				result.add(entity.getEntityName() + "," + entity.getIntValue());
+			} 
+			return result;
+		}
+		return Collections.emptyList();
 	}
 	
 	public static boolean hasRole(String role) {
