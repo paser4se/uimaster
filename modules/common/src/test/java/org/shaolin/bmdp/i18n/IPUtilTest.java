@@ -26,5 +26,17 @@ public class IPUtilTest {
 		System.out.println(realInfo);
 		//{"code":0,"data":{"country":"\u4e2d\u56fd","country_id":"CN","area":"\u534e\u4e1c","area_id":"300000",
 		//"region":"\u6d59\u6c5f\u7701","region_id":"330000","city":"\u676d\u5dde\u5e02","city_id":"330100","county":"","county_id":"-1","isp":"","isp_id":"-1","ip":"110.75.225.254"}}
+	
+		String item = "120.8397067,30.77980118;122.1137989,31.66889673";
+    	String[] items = item.split(";");
+    	if (items.length ==2) {
+	    	String[] righttop = items[0].split(",");
+			String[] leftbottom = items[1].split(",");
+			
+			double longti= (Double.parseDouble(leftbottom[0]) - Double.parseDouble(righttop[0]))/2 + Double.parseDouble(righttop[0]);
+			double lati = (Double.parseDouble(leftbottom[1]) - Double.parseDouble(righttop[1]))/2 + Double.parseDouble(righttop[1]);
+			System.out.println("latitude: "+lati+", longtitude: " + longti);
+			
+    	}
 	}	
 }

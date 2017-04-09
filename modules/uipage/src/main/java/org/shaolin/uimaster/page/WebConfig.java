@@ -16,6 +16,7 @@
 package org.shaolin.uimaster.page;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,6 +32,10 @@ import javax.servlet.http.HttpSession;
 
 import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.security.UserContext;
+import org.shaolin.bmdp.runtime.spi.IConstantService;
+import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
+import org.shaolin.bmdp.utils.HttpSender;
+import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
 
 public class WebConfig {
@@ -86,6 +91,10 @@ public class WebConfig {
 		final String nopermissionPage;
 		final String timeoutPage;
 		final String hasAjaxErrorHandler;
+		final String ipLocationURL;
+		final String mapwebkey;
+		final String mapappkey;
+		
 		final String[] commoncss;
 		final String[] commonjs;
 		final String[] commonMobcss;
@@ -154,6 +163,12 @@ public class WebConfig {
 					"/System/webConstant/ajaxHandlingError");
 			syncLoadJs = instance.getValue(
 					"/System/webConstant/syncLoadJs").split(";");
+			ipLocationURL = instance.getValue(
+					"/System/webConstant/ipLocationURL");
+			mapwebkey = instance.getValue(
+					"/System/webConstant/mapwebkey");
+			mapappkey = instance.getValue(
+					"/System/webConstant/mapappkey");
 			
 			Collection<String> values = (Collection<String>)
 					instance.getNodeItems("/System/webConstant/commoncss").values();
@@ -828,4 +843,55 @@ public class WebConfig {
 		return new String(sb);
 	}
 
+	private static HttpSender sender = new HttpSender();
+	
+	public static final String IP_Service = "http://ip.taobao.com/service/getIpInfo.php?ip=";
+	
+	/**
+	 * Only for web user! App user will use SDK api.
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public static double[] getUserLocation(String ipAddress) throws Exception{
+		StringBuffer sb = new StringBuffer();
+		sb.append(getCacheObject().ipLocationURL).append("?key=");
+		sb.append(getCacheObject().mapwebkey);
+		sb.append("&output=JSON").append("&ip=").append(ipAddress);
+		
+		JSONObject json1 = new JSONObject(sender.get(sb.toString()));
+		if (json1.has("rectangle")) {
+			String value = json1.getString("rectangle");
+			String[] items = value.split(";");
+			if (items.length ==2) {
+				String[] righttop = items[0].split(",");
+				String[] leftbottom = items[1].split(",");
+				double longti = (Double.parseDouble(leftbottom[0]) - Double.parseDouble(righttop[0]))/2 + Double.parseDouble(righttop[0]);
+				double lati = (Double.parseDouble(leftbottom[1]) - Double.parseDouble(righttop[1]))/2 + Double.parseDouble(righttop[1]);
+				return new double[]{longti, lati};
+			}
+		}
+		return null;
+	}
+	
+	
+	/**
+	 * @param encoding
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 */
+	public static String getUserCityInfo(String ipAddress) throws Exception {
+		String jsonStr = sender.get(IP_Service + ipAddress);
+		JSONObject json = new JSONObject(jsonStr);
+		if (json.has("code") && json.getInt("code") == 0) {
+			String regionId = json.getJSONObject("data").getString("region_id");
+			String cityId = json.getJSONObject("data").getString("city_id");
+			if (regionId != null && regionId.trim().length() > 0) {
+				IConstantService cs = IServerServiceManager.INSTANCE.getConstantService();
+				String entityName = cs.getChildren("CityList", Integer.parseInt(regionId)).getEntityName();
+				return entityName +","+cityId;
+			}
+		}
+		return null;
+	}
 }

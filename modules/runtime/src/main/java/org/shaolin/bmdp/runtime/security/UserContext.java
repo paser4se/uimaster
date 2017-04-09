@@ -43,6 +43,10 @@ public class UserContext implements Serializable {
 	
 	String orgName;
 	
+	protected double longitude;
+    
+    protected double latitude;
+	
 	boolean verified;
 	
 	private String pullAction = "new";//mobile pull. we have new or history actions.
@@ -83,6 +87,22 @@ public class UserContext implements Serializable {
 		this.userAccount = userAccount;
 	}
 
+	public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+    
+    public double getLongitude() {
+    	return longitude;
+    }
+    
+    public double getLatitude() {
+    	return latitude;
+    }
+	
 	public String getUserLocation() {
 		return userLocation;
 	}
