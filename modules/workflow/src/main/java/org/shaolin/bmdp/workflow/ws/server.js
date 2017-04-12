@@ -60,7 +60,7 @@ pool.on('enqueue', function () {
   console.log('Waiting for available connection slot!');
 });
 
-
+// this is a distributed cache which shared for all of our systems.
 var onlineUsers = {}; 
  
 io.on('connection', function(socket){ 
@@ -339,6 +339,19 @@ app.use(function(req, res, next){
 });
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+var reqparams = function(req){
+  var q=req.url.split('?'),result={};
+  if(q.length>=2){
+      q[1].split('&').forEach((item)=>{
+           try {
+             result[item.split('=')[0]]=item.split('=')[1];
+           } catch (e) {
+             result[item.split('=')[0]]='';
+           }
+      })
+  }
+  return result;
+};
 
 var notifyHandler = function(req, res){ 
     try {
@@ -364,11 +377,45 @@ var notifyHandler = function(req, res){
         res.send('error');
     }
 };
+
+var onlineInfoHandler = function(req, res){ 
+    try {
+	    var params = reqparams(req);
+	    if (DEBUG) {
+	      console.log("received request parameters: " + Object.keys(params));
+	    }
+		if (params.type) {
+		   if (params.type == "userCount") {
+		      res.send(Object.keys(onlineUsers).length + ""); 
+		   } else if (params.type == "checkUserOnline") {
+		      res.send(onlineUsers.hasOwnProperty(params.userId) + "");
+		   } else if (params.type == "logout" && onlineUsers.hasOwnProperty(params.userId)) {
+		      try {
+	            delete onlineUsers[params.userId]; 
+	            if (DEBUG) {
+	              console.log(params.userId+' exit!'); 
+	            }
+			  } catch (e) {
+			    console.error("unregister error: " + e.stack || e);
+			  }
+		      res.send("1");
+		   } else {
+		      res.send("fail");
+		   }
+		} else {
+		   res.send("fail");
+		}
+    } catch(e){
+        console.error("notifyHandler error: " + e.stack || e);
+        res.send('fail');
+    }
+};
 app.get('/', function(req, res){
   res.send('Hi, what can we do for you?');
 });
 app.get('/uimaster/notify', notifyHandler); 
-app.post('/uimaster/notify', notifyHandler); 
+app.post('/uimaster/notify', notifyHandler);
+app.get('/uimaster/onlineinfo', onlineInfoHandler);  
 
 server.listen(8090, function(){ 
     console.log('listening on *:8090'); 
