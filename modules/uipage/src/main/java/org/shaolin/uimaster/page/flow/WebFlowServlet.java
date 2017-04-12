@@ -560,7 +560,6 @@ public class WebFlowServlet extends HttpServlet
                 ProcessHelper.processDirectForward(desturl, request, response);
                 return;
             }
-            
             WebNode destNode = null;
             if(attrAccessor.outName != null)
             {
@@ -573,8 +572,9 @@ public class WebFlowServlet extends HttpServlet
             	
                 try
                 {
+                	WebFlowContext flowContext = new WebFlowContext(srcNode, request, response);
                 	//validate and convert the output data of DisplayNode srcNode
-                    srcNode.prepareOutputData(request, response);
+                    srcNode.prepareOutputData(flowContext);
                     
                     HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
                 }
@@ -638,18 +638,22 @@ public class WebFlowServlet extends HttpServlet
                 logger.info("Process destination node " + destNode.toString());
             }
             
+            WebFlowContext flowContext = null;
             try
             {
                 while(destNode != null)
                 {
-                    if(!checkChunkPermission(destNode.getChunk()))
+                	flowContext = new WebFlowContext(destNode, request, response);
+                    if(!checkChunkPermission(destNode.getChunk())) {
                         throw new NoWebflowAPException("Webflow chunk access denied", 
                         		destNode.getChunk());
-                    if(!checkNodePermission(destNode))
+                    }
+                    if(!checkNodePermission(destNode)) {
                         throw new NoWebflowNodeAPException("Webflow node access denied", 
                         		destNode);
+                    }
                     
-                    WebNode nextNode = destNode.execute(request, response);
+                    WebNode nextNode = destNode.execute(flowContext);
                     destNode = nextNode;
                 }
                 
@@ -667,7 +671,7 @@ public class WebFlowServlet extends HttpServlet
                     
                     WebflowErrorUtil.addError(request, key, new WebflowError(message, ex));
                     ProcessHelper.processForwardError(destNode, request, response);
-                    rollbackTransaction(request, destNode);
+                    rollbackTransaction(request, flowContext);
                 }
                 else if(ex instanceof NoWebflowNodeAPException)
                 {
@@ -678,7 +682,7 @@ public class WebFlowServlet extends HttpServlet
                     
                     WebflowErrorUtil.addError(request, key, new WebflowError(message, ex));
                     ProcessHelper.processForwardError(destNode, request, response);
-                    rollbackTransaction(request, destNode);
+                    rollbackTransaction(request, flowContext);
                 }
                 else if (ex instanceof WebFlowException)
                 {
@@ -711,7 +715,7 @@ public class WebFlowServlet extends HttpServlet
                     WebflowErrorUtil.addError(request, key, new WebflowError(message, t));
                     ProcessHelper.processForwardError(destNode, request, response);
         
-                    rollbackTransaction(request, destNode);
+                    rollbackTransaction(request, flowContext);
                 }
                 else
                 {
@@ -723,7 +727,7 @@ public class WebFlowServlet extends HttpServlet
                     WebflowErrorUtil.addError(request, key, new WebflowError(message, ex));
                     ProcessHelper.processForwardError(destNode, request, response);
         
-                    rollbackTransaction(request, destNode);
+                    rollbackTransaction(request, flowContext);
                 }
             } 
         }
@@ -953,11 +957,10 @@ public class WebFlowServlet extends HttpServlet
         return manager.findWebNode(destchunkname, destnodename);
     }
     
-    private void rollbackTransaction(HttpServletRequest request, WebNode node)
+    private void rollbackTransaction(HttpServletRequest request, WebFlowContext context)
     {
         try
         {
-            WebFlowContext context = node.getWebFlowContext();
             if(context.isInTransaction())
             {
                 if (logger.isInfoEnabled())

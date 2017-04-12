@@ -39,6 +39,12 @@ import org.shaolin.uimaster.page.od.PageODProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This node is sharing for all requests!
+ * 
+ * @author wushaol
+ *
+ */
 public class UIPageNode extends WebNode {
 
 	private static final long serialVersionUID = 1L;
@@ -49,14 +55,9 @@ public class UIPageNode extends WebNode {
 
 	private PageNodeType type;
 	
+	private List<ParamType> inputVars;
+	
 	private boolean hasMobilePage = false;
-	
-	private List<ParamType> inputVars;//from ui page.
-	
-	private Map<String, WebFlowContext> outContexts = 
-			new HashMap<String, WebFlowContext>();
-    
-	protected WebFlowContext inContext;
 	
 	public UIPageNode(PageNodeType type) {
 		super(type);
@@ -68,10 +69,6 @@ public class UIPageNode extends WebNode {
 			return type.getSourceEntity().getEntityName();
 		}
 		return null;
-	}
-
-	public WebFlowContext getWebFlowContext() {
-		return inContext;
 	}
 	
     /**
@@ -88,21 +85,19 @@ public class UIPageNode extends WebNode {
 			return;
 		}
 
-		this.inContext = WebFlowContextHelper.getWebFlowContext(this, type.getVariables());
+		WebFlowContext inContext = WebFlowContextHelper.getWebFlowContext(this, type.getVariables(), true);
 		// parse input datas
         ProcessHelper.parseVariables(type.getVariables(), inContext);
         IEntityManager entityManager = IServerServiceManager.INSTANCE.getEntityManager();
         UIPage page = entityManager.getEntity(type.getSourceEntity().getEntityName(), UIPage.class);
-        this.inputVars = page.getODMapping().getDataEntities();
-        if (this.inputVars != null) {
-        	ProcessHelper.parseVariables(this.inputVars, inContext);
+        inputVars = page.getODMapping().getDataEntities();
+        if (inputVars != null) {
+        	ProcessHelper.parseVariables(inputVars, inContext);
         }
         
         List<OutType> outs = type.getOuts();
         for (OutType out: outs) {
-        	outContexts.put(out.getName(), WebFlowContextHelper.getWebFlowContext(
-					this, type.getVariables()));
-        	 
+        	WebFlowContext outContext = WebFlowContextHelper.getWebFlowContext(this, type.getVariables(), true);
         	NextType next = out.getNext();
 			if (next == null) {
 				logger.error("processDataMapping(():the next is null, out="
@@ -111,9 +106,8 @@ public class UIPageNode extends WebNode {
 			}
 
 			for (NameExpressionType ne : next.getOutDataMappingToNodes()) {
-				ne.getExpression().parse(inContext);
+				ne.getExpression().parse(outContext);
 			}
-        	 
         }
         
         try {
@@ -132,7 +126,7 @@ public class UIPageNode extends WebNode {
      *
      *@return
      */
-    public WebNode execute(HttpServletRequest request, HttpServletResponse response) 
+    public WebNode execute(WebFlowContext inContext) 
     		throws WebFlowException
     {
 		if (logger.isInfoEnabled())
@@ -140,14 +134,13 @@ public class UIPageNode extends WebNode {
 
 		try {
 			// parse node
-			if (!isParsed)
+			if (!isParsed) {
 				parse();
-
-			inContext.setRequest(request, response);
+			}
 			// prepare input data
-			prepareInputData(request);
+			prepareInputData(inContext);
 
-			if (!processDirectForward(request, response)) {
+			if (!processDirectForward(inContext.getRequest(), inContext.getResponse())) {
 				// forward error
 				return null;
 			}
@@ -167,6 +160,9 @@ public class UIPageNode extends WebNode {
 		} catch (EvaluationException ex1) {
 			throw new WebFlowException("EvaluationException when execute display node {0}", ex1,
 					new Object[] { toString() });
+		} finally {
+			// clear webflow temporary variables in session.
+			inContext.clearTempVariables();
 		}
 
 		return null;
@@ -186,18 +182,18 @@ public class UIPageNode extends WebNode {
 		}
 	}
     
-    public void prepareInputData(HttpServletRequest request)
+    public void prepareInputData(WebFlowContext inContext)
         throws ParsingException, EvaluationException
     {
         if (logger.isDebugEnabled())
             logger.debug("prepareInputData():" + toString());
 
         //prepare global variables of chunk
-        this.getChunk().prepareGlobalVariables(request, inContext);
+        this.getChunk().prepareGlobalVariables(inContext.getRequest(), inContext);
 
         //get datamappingToNode of previous node
-        Map datas = (Map) request.getAttribute(WebflowConstants.OUTDATA_MAPPING2NODE_KEY);
-        request.removeAttribute(WebflowConstants.OUTDATA_MAPPING2NODE_KEY);
+        Map datas = (Map) inContext.getRequest().getAttribute(WebflowConstants.OUTDATA_MAPPING2NODE_KEY);
+        inContext.getRequest().removeAttribute(WebflowConstants.OUTDATA_MAPPING2NODE_KEY);
         if(datas == null) {
         	datas = new HashMap();//can be null
         }
@@ -206,7 +202,7 @@ public class UIPageNode extends WebNode {
         	setLocalVariables(inContext, this.inputVars, datas);
         }
         
-        Map cachedInput = new HashMap();
+        Map<String, Object> cachedInput = new HashMap<String, Object>();
         List<ParamType> vars = type.getVariables();
         for (ParamType var: vars)
         {
@@ -232,7 +228,7 @@ public class UIPageNode extends WebNode {
         }
         if (!cachedInput.isEmpty())
         {
-            HttpSession session = request.getSession(true);
+            HttpSession session = inContext.getRequest().getSession(true);
             session.setAttribute(WEBFLOW_CACHED_INPUT, cachedInput);
         }
     }
@@ -248,7 +244,7 @@ public class UIPageNode extends WebNode {
      * @param variables the default value expression should be parsed
      * @throws ODProcessException 
      */
-    public void prepareOutputData(HttpServletRequest request, HttpServletResponse response)
+    public void prepareOutputData(WebFlowContext inContext)
         throws EvaluationException, ParsingException
     {
         if (logger.isInfoEnabled())
@@ -258,22 +254,15 @@ public class UIPageNode extends WebNode {
         	parse();
         }
         
-        //1.  init chunk
-        Iterator<WebFlowContext> i = outContexts.values().iterator();
-        while (i.hasNext()) {
-        	WebFlowContext context = i.next();
-        	context.setRequest(request, response);
-        }
-
         //2. find out
-        DisplayOutType out = findOut(request);
+        DisplayOutType out = findOut(inContext.getRequest());
         if(out != null)
         {
-        	WebFlowContext outContext = outContexts.get(out.getName());
+        	WebFlowContext outContext = new WebFlowContext(this, inContext.getRequest(), inContext.getResponse());
             //3.  UI2DataConvert
             Map convertResult = null;
 			try {
-				convertResult = processUI2DataConvert(request, response, out,
+				convertResult = processUI2DataConvert(inContext.getRequest(), inContext.getResponse(), out,
 						outContext);
 			} catch (ODProcessException e) {
 				throw new EvaluationException(e);
@@ -282,7 +271,7 @@ public class UIPageNode extends WebNode {
             setLocalVariables(outContext, this.getType().getVariables(), convertResult);
             
             //5. evaluate outDataMappingToNode and outDataMappingToChunk, and set for next node
-            processDataMapping(request, response, out, outContext);
+            processDataMapping(inContext.getRequest(), inContext.getResponse(), out, outContext);
         }
 
     }

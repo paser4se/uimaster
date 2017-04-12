@@ -21,8 +21,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  *  The context for webflow's nodes.
- *  which supports multiParsingContext and multiEvaluationContext
- *  in exteranalParsingContext/externalEvaluationContext.
  */
 public class WebFlowContext extends OpExecuteContext
 {
@@ -33,20 +31,25 @@ public class WebFlowContext extends OpExecuteContext
 
     protected final String envName;
     
-    protected transient HttpServletRequest request = null;
-    
-    protected transient HttpServletResponse response = null;
-
-    public WebFlowContext(WebNode node, List<ParamType> variables)
+    /**
+     * for parsing only!
+     * 
+     * @param node
+     * @param variables
+     * @param needParsing
+     */
+    public WebFlowContext(WebNode node, List<ParamType> variables, boolean needParsing)
     {
         super();
         this.node = node;
         this.envName = node.getChunk().getEntityName();
         
-        init(variables);
+        if (needParsing) {
+        	parse(variables);
+        }
     }
 
-    public void init(List<ParamType> variables)
+    private void parse(List<ParamType> variables)
     {
         //get request&session parsing context
         DefaultParsingContext requestPContext = WebFlowContextHelper.
@@ -65,14 +68,22 @@ public class WebFlowContext extends OpExecuteContext
         this.setExternalEvaluationContext(this);
     }
 
+    protected transient HttpServletRequest request = null;
+    
+    protected transient HttpServletResponse response = null;
+    
     /**
-     * request object can't be cached locally.
-     * we do it in two phase
+     * Request object can't be cached locally.
+     * we do it in two phases
      * @param request
      */
-    public void setRequest(HttpServletRequest request, HttpServletResponse response) {
+    public WebFlowContext(WebNode node, HttpServletRequest request, HttpServletResponse response) {
+    	super();
 		this.request = request;
 		this.response = response;
+        this.node = node;
+        this.envName = node.getChunk().getEntityName();
+		
 		//userTransaction
         if (request.getAttribute(WebflowConstants.USERTRANSACTION_KEY) != null)
         {
@@ -124,6 +135,11 @@ public class WebFlowContext extends OpExecuteContext
 
         super.setVariableValue(name, value);
     }
+    
+    public void clearTempVariables() {
+    	HttpSessionEvaluationContext sessionContext = (HttpSessionEvaluationContext)getEvaluationContextObject(WebflowConstants.SESSION_PARSING_CONTEXT_PREFIX);
+    	sessionContext.clearAllTempSessionVars();
+    }
 
     private String fixVarName(String name)
     {
@@ -145,6 +161,11 @@ public class WebFlowContext extends OpExecuteContext
     public HttpServletRequest getRequest()
     {
         return request;
+    }
+    
+    public HttpServletResponse getResponse()
+    {
+        return response;
     }
 
     /**

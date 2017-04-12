@@ -5,9 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.common.ParamType;
 import org.shaolin.bmdp.datamodel.pagediagram.OutType;
@@ -53,11 +50,6 @@ public abstract class WebNode implements java.io.Serializable {
 		return type;
 	}
 
-	public WebFlowContext getWebFlowContext() {
-		throw new UnsupportedOperationException(
-				"this method should not be called, it should be overrided!");
-	}
-
 	/**
 	 * get the chunk value
 	 * 
@@ -67,11 +59,10 @@ public abstract class WebNode implements java.io.Serializable {
 		return chunk;
 	}
 
-	public abstract void prepareInputData(HttpServletRequest request) throws ParsingException,
+	public abstract void prepareInputData(WebFlowContext inContext) throws ParsingException,
 			EvaluationException;
 
-	public abstract void prepareOutputData(HttpServletRequest request,
-			HttpServletResponse response) throws EvaluationException,
+	public abstract void prepareOutputData(WebFlowContext inContext) throws EvaluationException,
 			ParsingException;
 
 	/**
@@ -81,8 +72,7 @@ public abstract class WebNode implements java.io.Serializable {
 	 * 
 	 * @return
 	 */
-	public abstract WebNode execute(HttpServletRequest request,
-			HttpServletResponse response) throws WebFlowException;
+	public abstract WebNode execute(WebFlowContext inContext) throws WebFlowException;
 
 	/**
 	 * parse current node: variables, outs, operations

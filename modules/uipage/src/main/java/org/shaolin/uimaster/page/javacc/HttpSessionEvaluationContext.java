@@ -22,10 +22,11 @@ import org.shaolin.uimaster.page.flow.nodes.WebChunk;
 
 public class HttpSessionEvaluationContext implements EvaluationContext, Cloneable
 {
+	private WebChunk chunk = null;
     private transient HttpSession session = null;
     private transient HttpServletRequest request = null;
     private transient HttpServletResponse response = null;
-    private WebChunk chunk = null;
+    private transient List<String> tempVarNames = new ArrayList<String>();
 
     public HttpSessionEvaluationContext(HttpServletRequest req, WebChunk chunk)
     {
@@ -93,8 +94,20 @@ public class HttpSessionEvaluationContext implements EvaluationContext, Cloneabl
     {
         name = fixGlobalVarName(name);
         checkObjectLimit(value);
-        session.setAttribute(name, value);
+        if (value != null) {
+        	tempVarNames.add(name);
+        	session.setAttribute(name, value);
+        } else {
+        	session.removeAttribute(name);
+        }
     }
+    
+	public void clearAllTempSessionVars() {
+		for (String var : tempVarNames) {
+			session.removeAttribute(var);
+		}
+		tempVarNames.clear();
+	}
 
     /**
      *  Invoke a method with the the specified name and specified argument type classes and objects

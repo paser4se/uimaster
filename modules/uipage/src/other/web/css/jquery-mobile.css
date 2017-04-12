@@ -2940,6 +2940,8 @@ fieldset.ui-controlgroup {
 .ui-controlgroup-controls .ui-radio,
 .ui-controlgroup-controls .ui-select {
 	margin: 0;
+	font-weight: normal;
+    color: #1c94c4;
 }
 .ui-controlgroup-controls .ui-btn:focus,
 .ui-controlgroup-controls .ui-btn.ui-focus {

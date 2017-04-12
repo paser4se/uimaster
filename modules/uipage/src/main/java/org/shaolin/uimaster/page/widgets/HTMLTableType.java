@@ -791,6 +791,14 @@ public class HTMLTableType extends HTMLContainerType {
 			if (initQueryExpr != null) {
 				result = (List)ee.evaluateExpression(initQueryExpr);
 			} else {
+				EvaluationContext evalContext = ee.getExpressionContext("$");
+				try {
+					if (evalContext.getVariableValue("page") == null) {
+						evalContext.setVariableValue("page", null);
+					}
+				} catch (EvaluationException e) {
+					evalContext.setVariableValue("page", null);
+				}
 				result = (List)ee.evaluateExpression(queryExpr);
 			}
 			this.addAttribute("query", result);

@@ -27,15 +27,9 @@ public class DisplayNode extends WebNode {
 	
 	private final DisplayNodeType type;
 	
-	protected WebFlowContext inContext;
-	
 	public DisplayNode(DisplayNodeType type) {
 		super(type);
 		this.type = type;
-	}
-	
-	public WebFlowContext getWebFlowContext() {
-		return inContext;
 	}
 	
 	/**
@@ -44,8 +38,7 @@ public class DisplayNode extends WebNode {
      *
      *@return
      */
-    public WebNode execute(HttpServletRequest request, HttpServletResponse response) 
-    		throws WebFlowException
+    public WebNode execute(WebFlowContext inContext) throws WebFlowException
     {
 		if (logger.isInfoEnabled())
 			logger.info("execute():" + toString());
@@ -55,11 +48,10 @@ public class DisplayNode extends WebNode {
 			if (!isParsed)
 				parse();
 
-			inContext.setRequest(request, response);
 			// prepare input data
-			prepareInputData(request);
+			prepareInputData(inContext);
 
-			if (!processDirectForward(request, response)) {
+			if (!processDirectForward(inContext.getRequest(), inContext.getResponse())) {
 				// forward error
 				return null;
 			}
@@ -96,7 +88,7 @@ public class DisplayNode extends WebNode {
 
         if(isParsed) return;
 
-        inContext = WebFlowContextHelper.getWebFlowContext(this, type.getVariables());
+        WebFlowContext inContext = WebFlowContextHelper.getWebFlowContext(this, type.getVariables(), true);
         //parse input datas
         ProcessHelper.parseVariables(type.getVariables(), inContext);
 
@@ -116,18 +108,18 @@ public class DisplayNode extends WebNode {
      * @param context
      * @param variables the default value expression should be parsed
      */
-    public void prepareInputData(HttpServletRequest request)
+    public void prepareInputData(WebFlowContext inContext)
         throws ParsingException, EvaluationException
     {
         if (logger.isDebugEnabled())
             logger.debug("prepareInputData():" + toString());
 
         //prepare global variables of chunk
-        this.getChunk().prepareGlobalVariables(request, inContext);
+        this.getChunk().prepareGlobalVariables(inContext.getRequest(), inContext);
 
         //get datamappingToNode of previous node
-        Map datas = (Map) request.getAttribute(WebflowConstants.OUTDATA_MAPPING2NODE_KEY);
-        request.removeAttribute(WebflowConstants.OUTDATA_MAPPING2NODE_KEY);
+        Map datas = (Map) inContext.getRequest().getAttribute(WebflowConstants.OUTDATA_MAPPING2NODE_KEY);
+        inContext.getRequest().removeAttribute(WebflowConstants.OUTDATA_MAPPING2NODE_KEY);
         //if(datas == null) datas = new HashMap();//can be null
         this.setLocalVariables(inContext, type.getVariables(), datas);
 
@@ -140,7 +132,7 @@ public class DisplayNode extends WebNode {
      * @param context
      * @param variables the default value expression should be parsed
      */
-    public void prepareOutputData(HttpServletRequest request, HttpServletResponse response)
+    public void prepareOutputData(WebFlowContext inContext)
         throws //UIConvertException,
             EvaluationException,ParsingException
 
@@ -151,8 +143,7 @@ public class DisplayNode extends WebNode {
         	parse();
         }
         //1. init chunk
-        inContext.setRequest(request, response);
-        this.getChunk().prepareGlobalVariables(request, inContext);
+        this.getChunk().prepareGlobalVariables(inContext.getRequest(), inContext);
     }
 
     //rollback when exception occurs

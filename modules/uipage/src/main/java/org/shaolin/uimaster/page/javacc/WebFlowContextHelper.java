@@ -63,8 +63,7 @@ public class WebFlowContextHelper
     public static DefaultParsingContext getHttpSessionParsingContext(
     		List<ParamType> variables)
     {
-        HttpSessionParsingContext parsingContext = new
-            HttpSessionParsingContext();
+        HttpSessionParsingContext parsingContext = new HttpSessionParsingContext();
         if (variables == null)
         {
             return parsingContext;
@@ -125,9 +124,9 @@ public class WebFlowContextHelper
      * @return
      */
     public static WebFlowContext getWebFlowContext(
-        WebNode node, List<ParamType> variables)
+        WebNode node, List<ParamType> variables, boolean needParsing)
     {
-        return new WebFlowContext(node, variables);        
+        return new WebFlowContext(node, variables, needParsing);        
     }
 
 }
