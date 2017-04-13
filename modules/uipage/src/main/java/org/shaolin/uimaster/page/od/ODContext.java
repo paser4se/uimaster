@@ -253,4 +253,7 @@ public abstract class ODContext extends OpExecuteContext {
 
 	public abstract ODObject getODObject();
 
+	public void log(String message) {
+    	logger.info(message);
+    }
 }

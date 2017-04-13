@@ -35,6 +35,7 @@ import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
+import org.shaolin.javacc.context.EvaluationContext;
 import org.shaolin.javacc.context.ParsingContext;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.html.layout.HTMLPanelLayout;
@@ -302,6 +303,11 @@ public class TabPane extends Container implements Serializable
 			if (pContext == null || ee == null) {
 				throw new IllegalStateException("Failed to initialize the OD context for UIPage tab.");
 			}
+			EvaluationContext evalContext = ee.getExpressionContext("$");
+			evalContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+			EvaluationContext evalContext1 = ee.getExpressionContext("@");
+			evalContext1.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+			
         	//ui panel support
         	String id = entityPrefix + tab.getPanel().getUIID();
         	HTMLPanelLayout panelLayout = new HTMLPanelLayout(tab.getPanel().getUIID(), ownerEntity);

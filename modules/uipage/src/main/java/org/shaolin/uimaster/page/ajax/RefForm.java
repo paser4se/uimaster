@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.shaolin.javacc.context.DefaultEvaluationContext;
+import org.shaolin.javacc.context.EvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.uimaster.page.AjaxActionHelper;
@@ -364,6 +365,7 @@ public class RefForm extends Container implements Serializable
             	Map.Entry<String, Object> entry = i.next();
             	evaContext.setVariableValue(entry.getKey(), entry.getValue());
             }
+            evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
             ooeeContext.setDefaultEvaluationContext(evaContext);
             ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
             
