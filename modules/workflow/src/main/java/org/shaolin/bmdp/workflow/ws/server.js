@@ -166,7 +166,7 @@ io.on('connection', function(socket){
 					if (DEBUG) {
 					  console.log(results);
 					}
-				    socket.emit('notifyFrom', results); 
+				    socket.emit('notifyhistory', results); 
 			   });
 		  });
 		   
@@ -360,7 +360,7 @@ var notifyHandler = function(req, res){
 	      console.log("received request: " + d);
 	    }
 	    if (d.hasOwnProperty("toAll")) {
-			io.emit('nofityFrom', d); 
+			io.emit('notifySingleItem', d); 
 			io.emit('notifyCount', {v: 1}); 
 			res.send('sent'); 
 			return;
@@ -370,7 +370,7 @@ var notifyHandler = function(req, res){
 		   res.send('service_nopermission'); 
 		   return;
 		}
-		onlineUsers[d.partyId].socket.emit('notifyFrom', [d]); 
+		onlineUsers[d.partyId].socket.emit('notifySingleItem', [d]); 
 	    res.send('sent'); 
     } catch(e){
         console.error("notifyHandler error: " + e.stack || e);

@@ -88,13 +88,18 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
        o.nodesocket = io.connect(o.serverURLUI.value);
        o.nodesocket.on('connect', function(e) {
             var msg = {partyId: partyId};
-            o.nodesocket.emit('register', msg);
-       });
-       o.nodesocket.on('loginSuccess', function(e) {
-            var msg = {partyId: partyId};
             o.nodesocket.emit('notifihistory', msg);
        });
-       o.nodesocket.on('notifyFrom', function(e) {
+       o.nodesocket.on('notifyhistory', function(e) {
+            for (var i=0;i<e.length;i++) {
+	            var row = "<div class=\"uimaster_noti_item "+((i%2==0)?"uimaster_chat_item_even":"uimaster_chat_item_old")+"\"><div><div class=\"uimaster_chat_time\">"
+					 + e[i].CREATEDATE + "</div><div class=\"uimaster_chat_subject\"> " + e[i].SUBJECT + "</div><div class=\"uimaster_chat_message\"> " + e[i].DESCRIPTION + "</div></div></div>"
+	            $(row).appendTo(msgContainer);
+            }
+            o.msgCounter = o.msgCounter + e.length;
+            o.realCounter.text("("+o.msgCounter+")");
+       });
+       o.nodesocket.on('notifySingleItem', function(e) {
             for (var i=0;i<e.length;i++) {
 	            var row = "<div class=\"uimaster_noti_item "+((i%2==0)?"uimaster_chat_item_even":"uimaster_chat_item_old")+"\"><div><div class=\"uimaster_chat_time\">"
 					 + e[i].CREATEDATE + "</div><div class=\"uimaster_chat_subject\"> " + e[i].SUBJECT + "</div><div class=\"uimaster_chat_message\"> " + e[i].DESCRIPTION + "</div></div></div>"

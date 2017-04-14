@@ -242,7 +242,7 @@ function org_shaolin_bmdp_workflow_form_ChatWindow(json)
 	        var toPartyId = this.receivedPartyIdUI.value;
 	        var orgId = this.orgIdUI.value;
             var msg = {taskId: 0, orgId: orgId, sessionId: sessionId, fromPartyId: fromPartyId, 
-                       toPartyId: toPartyId, content: this.sentPartyNameUI.value+" : "+message};
+                       fromPartyName: this.sentPartyNameUI.value, toPartyId: toPartyId, content: message};
             this.nodesocket.emit('chatTo', msg);
             this.enterMessageUI.value="";
         }    }/* Gen_Last:org_shaolin_bmdp_workflow_form_ChatWindow_Send */
