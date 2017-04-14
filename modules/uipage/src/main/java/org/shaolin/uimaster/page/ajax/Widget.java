@@ -16,6 +16,7 @@
 package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -124,6 +125,8 @@ abstract public class Widget<T> implements Serializable
 
     private Map<String, Object> constraintMap;
 
+    private List<Widget<?>> listeners;
+    
     private Layout htmlLayout;
 
     private String widgetLabel;
@@ -152,7 +155,6 @@ abstract public class Widget<T> implements Serializable
             ((CellLayout)layout).addComponent(this);
         }
         attributeMap = new HashMap<String, Object>();
-        constraintMap = new HashMap<String, Object>();
         
         AjaxContext context = AjaxActionHelper.getAjaxContext();
         if(context != null)
@@ -646,7 +648,9 @@ abstract public class Widget<T> implements Serializable
         {
         	return (T) this;
         }
-        
+        if (constraintMap == null) {
+        	constraintMap = new HashMap<String, Object>();
+        }
         constraintMap.put(name, value);
         
         this._updateConstraint();
@@ -661,6 +665,9 @@ abstract public class Widget<T> implements Serializable
         	return (T) this;
         }
         
+        if (constraintMap == null) {
+        	constraintMap = new HashMap<String, Object>();
+        }
         constraintMap.put(name, value);
         if(isUpdated)
         {
@@ -726,12 +733,12 @@ abstract public class Widget<T> implements Serializable
     
     public boolean hasConstraint(String name)
     {
-        return constraintMap.containsKey(name) && constraintMap.get(name) != null;
+        return constraintMap != null && constraintMap.containsKey(name) && constraintMap.get(name) != null;
     }
     
     public Object getConstraint(String name)
     {
-        return constraintMap.get(name);
+        return constraintMap != null ? constraintMap.get(name) : null;
     }
 
     public Object removeConstraint(String name)
@@ -745,7 +752,7 @@ abstract public class Widget<T> implements Serializable
         {
             name = "flag";
         }
-        if(constraintMap.containsKey(name))
+        if(constraintMap != null && constraintMap.containsKey(name))
         {
             Object s = constraintMap.remove(name);
             constraintMap.remove(name + "Text");
@@ -772,6 +779,9 @@ abstract public class Widget<T> implements Serializable
         	return (T) this;
         }
         
+        if (constraintMap == null) {
+        	constraintMap = new HashMap<String, Object>();
+        }
         ValidatorsPropertyType validators = (ValidatorsPropertyType)constraintMap.get("validators");
         if (validators == null)
         {
@@ -804,6 +814,9 @@ abstract public class Widget<T> implements Serializable
         	return (T) this;
         }
         
+        if (constraintMap == null) {
+        	return (T) this;
+        }
         ValidatorsPropertyType validators = (ValidatorsPropertyType)constraintMap.get("validators");
         if (validators != null)
         {
@@ -1240,7 +1253,24 @@ abstract public class Widget<T> implements Serializable
         
         return (T) this;
     }
-
+    
+    public void registerListener(Widget<?> widget) {
+    	if (listeners == null) {
+    		listeners = new ArrayList<Widget<?>>();
+    	}
+    	listeners.add(widget);
+    }
+    
+    public void notifyChange() {
+    	if (listeners != null) {
+    		for (Widget<?> w : listeners) {
+    			w.refreshValue();
+    		}
+    	}
+    }
+    
+    public void refreshValue() {}
+    
     @SuppressWarnings("unchecked")
 	public T setListened(boolean isListened)
     {
@@ -1541,6 +1571,10 @@ abstract public class Widget<T> implements Serializable
     
     protected String generateConstraint()
     {
+    	if (constraintMap == null) {
+    		return "";
+    	}
+    	
         StringBuffer js = new StringBuffer(150);
         for (Iterator it = constraintMap.keySet().iterator(); it.hasNext();)
         {

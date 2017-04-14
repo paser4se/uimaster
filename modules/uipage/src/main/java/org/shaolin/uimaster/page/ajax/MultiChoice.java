@@ -146,6 +146,7 @@ abstract public class MultiChoice extends Choice<MultiChoice> implements Seriali
         }
 
         super.addAttribute("values", values);
+        this.notifyChange();
     }
 
     public MultiChoice checkConstraint() {

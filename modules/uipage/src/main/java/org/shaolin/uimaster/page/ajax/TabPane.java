@@ -233,9 +233,9 @@ public class TabPane extends Container implements Serializable
         return js.toString();
     }
     
-    public void loadContent(int index) throws JspException, EvaluationException {
+    public boolean loadContent(int index) throws JspException, EvaluationException {
     	if (!this.ajaxLoad) {
-    		return;
+    		return false;
     	}
     	if (this.tabs == null) {
     		throw new IllegalStateException("Please enable the ajax loading for this tab panel.");
@@ -243,7 +243,7 @@ public class TabPane extends Container implements Serializable
     	this.selectedIndex = index;
     	if (this.tabs.size() <= index || loadedTabs.containsKey(index)) {
     		//prevent the dynamic frame tab or loaded tab.
-    		return;
+    		return false;
     	}
     	loadedTabs.put(index, true);
     	this.accessedIndex.incrementAndGet();
@@ -255,7 +255,7 @@ public class TabPane extends Container implements Serializable
 			ajaxMap = AjaxActionHelper.getFrameMap(ajaxContext.getRequest());
 		} catch (AjaxException e1) {
 			logger.warn("Session maybe timeout: " + e1.getMessage(), e1);
-			return;
+			return false;
 		}
     	try {
     	HTMLSnapshotContext htmlContext = new HTMLSnapshotContext(ajaxContext.getRequest());
@@ -386,6 +386,7 @@ public class TabPane extends Container implements Serializable
             dataItem.setFrameInfo(this.getFrameInfo());
             AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
         } 
+		return true;
     	} finally {
     		if (this.accessedIndex.get() >= this.tabs.size()) {
     			this.tabs = null;

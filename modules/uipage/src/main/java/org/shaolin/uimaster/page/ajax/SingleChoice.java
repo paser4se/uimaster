@@ -24,7 +24,7 @@ abstract public class SingleChoice<T> extends Choice<T> implements Serializable
 
     private final Class realValueDataType;
     
-    public SingleChoice(String id, Layout layout, Class realValueDataType)
+	public SingleChoice(String id, Layout layout, Class realValueDataType)
     {
         super(id, layout);
         this.realValueDataType = realValueDataType;
@@ -64,6 +64,7 @@ abstract public class SingleChoice<T> extends Choice<T> implements Serializable
         if (checkValueExist(value))
         {
             addAttribute("value", value);
+            this.notifyChange();
         }
     }
 

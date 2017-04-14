@@ -70,8 +70,9 @@ public class TabPaneEventHandler implements IAjaxHandler {
 			if ("selectedIndex".equals(propertyName)) {
 				comp.addAttribute("selectedIndex", index, false);
 			} 
-			comp.loadContent(Integer.valueOf(index));
-			comp.syncSelectedAction(context);
+			if(!comp.loadContent(Integer.valueOf(index))) {
+				comp.syncSelectedAction(context);
+			}
 			
 			return AjaxActionHelper.getAjaxContext().getDataAsJSON();
 		} catch (Exception e) {

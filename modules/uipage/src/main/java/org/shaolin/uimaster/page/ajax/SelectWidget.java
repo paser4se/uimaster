@@ -58,6 +58,7 @@ abstract public class SelectWidget extends Widget<SelectWidget> implements Seria
 	        return;
 	    }
 	    addAttribute("selected", String.valueOf(selected));
+	    this.notifyChange();
 	}
 
 	public SelectWidget checkConstraint() {
