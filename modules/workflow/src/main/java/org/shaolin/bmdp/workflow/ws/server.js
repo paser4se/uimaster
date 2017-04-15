@@ -68,13 +68,15 @@ io.on('connection', function(socket){
     socket.on('register', function(obj){ 
         try {
 	        socket.partyId = obj.partyId; 
-	        // simply replace the existing cache.
-	        //if(!onlineUsers.hasOwnProperty(obj.partyId)) { 
-            onlineUsers[obj.partyId] = {"obj": obj, "socket": socket};
-            
+	        if(onlineUsers.hasOwnProperty(obj.partyId)) { 
+		        // just updated the socket reference.
+	           onlineUsers[obj.partyId].socket = socket;
+	        } else {
+            	onlineUsers[obj.partyId] = {"obj": obj, "socket": socket};
+            }
 			socket.emit('loginSuccess', obj); 
 		    if (DEBUG) {
-			  console.log(obj.partyId + " joined! request json: " + JSON.stringify(obj));
+			  console.log(obj.partyId + " registered websocket capability!");
 			}
 		} catch (e) {
 		   console.error("registering error: " + e.stack || e);
@@ -371,6 +373,10 @@ var notifyHandler = function(req, res){
 		   return;
 		}
 		onlineUsers[d.partyId].socket.emit('notifySingleItem', [d]); 
+		if (d.hasOwnProperty("latitude")) {
+		   //TODO: notify all online user in the same login area!
+		}
+		
 	    res.send('sent'); 
     } catch(e){
         console.error("notifyHandler error: " + e.stack || e);
@@ -385,7 +391,17 @@ var onlineInfoHandler = function(req, res){
 	      console.log("received request parameters: " + Object.keys(params));
 	    }
 		if (params.type) {
-		   if (params.type == "userCount") {
+		   if (params.type == "register") {
+		      try {
+	            onlineUsers[params.partyId] = {"obj": params};
+			    if (DEBUG) {
+				  console.log(params.partyId + " joined online! request json: " + JSON.stringify(params));
+				}
+			  } catch (e) {
+			    console.error("registering error: " + e.stack || e);
+			  }
+		      res.send("1"); 
+		   } else if (params.type == "userCount") {
 		      res.send(Object.keys(onlineUsers).length + ""); 
 		   } else if (params.type == "checkUserOnline") {
 		      res.send(onlineUsers.hasOwnProperty(params.userId) + "");

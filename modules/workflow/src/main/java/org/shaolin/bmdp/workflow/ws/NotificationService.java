@@ -162,7 +162,9 @@ public class NotificationService {
 			}
 			json.put("DESCRIPTION", message.getDescription());
 			json.put("CREATEDATE", FormatUtil.convertDataToUI(FormatUtil.DATE_TIME, message.getCreateDate(), null, null));
-			
+			json.put("latitude", message.getLatitude());
+			json.put("longitude", message.getLongitude());
+			json.put("partyType", message.getPartyType());
 			
 			Registry instance = Registry.getInstance();
 			String websocketServer = instance.getValue("/System/webConstant/websocketServer");

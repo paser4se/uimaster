@@ -648,15 +648,31 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		// addNotification(notifier, false);
 	}
 	
+	private static class NotificationTask implements Runnable {
+		
+		private final INotification message;
+		
+		private final List<INotificationListener> listeners;
+		
+		public NotificationTask(INotification message, List<INotificationListener> listeners) {
+			this.message = message;
+			this.listeners = listeners;
+		}
+		@Override
+		public void run() {
+			if (NotificationService.push(message, message.getPartyId())) {
+				message.setRead(true);
+			}
+			CoordinatorModel.INSTANCE.create(message);
+			for (INotificationListener listener : listeners) {
+				listener.received(message);
+			}
+		}
+	}
+	
 	@Override
 	public void addNotification(final INotification message, final boolean needRemoted) {
-		if (NotificationService.push(message, message.getPartyId())) {
-			message.setRead(true);
-		}
-		CoordinatorModel.INSTANCE.create(message);
-		for (INotificationListener listener : listeners) {
-			listener.received(message);
-		}
+		scheduler.schedule(new NotificationTask(message, listeners), 1, TimeUnit.SECONDS);
 	}
 	
 	@Override
