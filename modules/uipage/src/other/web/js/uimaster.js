@@ -1326,6 +1326,7 @@ function syncAll() {
         for (var i in defaultname)
             defaultname[i].sync && defaultname[i].sync();
 };
+UIMaster.actionComment = null;//for taking a simple note of each action for instance workflow action.
 /**
  * @description Trigger an UIMaster AJAX call.
  * @param {String} uiid An id of the triggered object. It should be an event's source object, or some objects on the same panel.
@@ -1348,6 +1349,7 @@ UIMaster.triggerServerEvent = function(uiid,actionName,data,entityName,action,as
             data:{_ajaxUserEvent: action==undefined?true:action,
                 _uiid: uiid,
                 _actionName: actionName,
+				_comments: UIMaster.actionComment,
                 _framePrefix: UIMaster.getFramePrefix(UIMaster.El(uiid).get(0)),
                 _actionPage: entityName,
                 _sync: UIMaster.ui.sync()},
@@ -1369,6 +1371,7 @@ UIMaster.triggerServerEvent = function(uiid,actionName,data,entityName,action,as
     } else {
         $.ajax(jQuery.extend({}, opt, opt2));
     }
+	UIMaster.actionComment = null;//reset.
 };
 /**
  * @description Get the frame's target according to the element.

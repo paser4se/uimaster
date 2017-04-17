@@ -2050,8 +2050,8 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 			   fileUI.options.beforeSend();
 			   _mobContext.uploadImage(uploadUrl, fileUI.name, fileName);
 			} else {
-			   if (IS_MOBILEVIEW){$(form).append($(fileUI).parent());} else {$(form).append($(fileUI));}
 			   var form = $("<form action=\""+uploadUrl+"\" method=post enctype=multipart/form-data></form>");
+			   if (IS_MOBILEVIEW){$(form).append($(fileUI).parent());} else {$(form).append($(fileUI));}
 			   $(form).ajaxSubmit(options);
 			}
 			return;
@@ -2105,18 +2105,19 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	  this.filterPanel = $(this).next();
 	  this.pageInfoPanel = $(this.filterPanel).next();
 	  this.refreshMobList();
-	  var loader = $("<div class='swiper-preloader' style='display:none;opacity:0;'>Loading ...</div>");
-	  loader.appendTo($(this));
-	  this.loader = loader;
-	  var timeout = false;
+	  var timeout, timeout1 = false;
 	  $(window).scroll(function(){
+		  if (othis.clientWidth == 0) {
+			  return;
+		  }
 		  if ($(this).scrollTop() == 0) {
 			  //console.log("to the top");
 		  } else if ($(this).scrollTop()>=($(document).height()-$(window).height())) {
 			  //console.log("to the bottom");
-			  othis.pullHistory();
+			  if (timeout1) {clearTimeout(timeout1);}//delay execute scroll end event 
+		      timeout1 = setTimeout(function(){ othis.pullHistory(); },500); 
 		  }
-		  if (timeout) {clearTimeout(timeout);}//execute scroll end event 
+		  if (timeout) {clearTimeout(timeout);}//delay execute scroll end event 
 		  timeout = setTimeout(function(){ othis.showActionBar(); },100); 
 	  });
 	},
@@ -2151,16 +2152,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	  this.showLoader(false);
 	  this.loadNewSlides("history");
     },
-	showLoader: function(isNew){
-	 this.loader.css("display", "block");
-	 if (isNew) {
-	   this.loader.css("top","0px");this.loader.css("left",$(this).position().left + "px");
-	 } else {
-	   this.loader.css("top",($(this).height() - 200) + "px");this.loader.css("left",$(this).position().left + "px");
-	 }
-	 this.loader.css("opacity", "1");
-	},
-	hideLoader:function(){this.loader.css("opacity", "0").css("display", "none");},
+	showLoader: function(isNew){},
+	hideLoader:function(){},
 	loadNewSlides: function(pullaction){
 	    var othis = this;
 	    var opts = {url:AJAX_SERVICE_URL,async:false,
@@ -3099,6 +3092,8 @@ UIMaster.ui.dialog=UIMaster.extend(UIMaster.ui.dialog, /** @lends UIMaster.ui.di
         //append input or select controls to first td
         if(this.dialogType==this.INPUT_DIALOG)
             $(content).find("td").eq(1).append('<input name="returnType" type="text" />');
+        if(this.dialogType==this.INPUT_DIALOG2)
+            $(content).find("td").eq(1).append('<textarea name="returnType"></textarea>');
         else if(this.dialogType==this.OPTION_DIALOG){
             var select = $('<select name="returnType"></select>');
             $.each(this.options,function(key, value){

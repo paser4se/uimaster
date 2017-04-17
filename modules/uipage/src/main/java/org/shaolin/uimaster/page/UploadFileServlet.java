@@ -82,7 +82,8 @@ public class UploadFileServlet extends HttpServlet {
 		}
 		String uiid = request.getParameter("_uiid");
 		if (!uiMap.containsKey(uiid)) {
-			IDataItem dataItem = AjaxActionHelper.createNoPermission("User does not have the permission to upload the file.");
+			//User does not have the permission to upload the file.
+			IDataItem dataItem = AjaxActionHelper.createNoPermission("\u6CA1\u6709\u8BBF\u95EE\u6743\u9650\uFF01");
 			JSONArray array = new JSONArray();
 			array.put(new JSONObject(dataItem));
 			response.getWriter().print(array.toString());
@@ -108,7 +109,8 @@ public class UploadFileServlet extends HttpServlet {
 		// move the file to the real path.
 		AFile file = (AFile)uiMap.get(uiid);
 		if (file.getStoredPath() == null || file.getStoredPath().isEmpty()) {
-			IDataItem dataItem = AjaxActionHelper.createErrorDataItem("The file stored path is null.");
+			// The file stored path is null
+			IDataItem dataItem = AjaxActionHelper.createErrorDataItem("\u4E0A\u4F20\u6587\u4EF6\u6CA1\u6709\u6307\u5B9A\u8DEF\u5B58\u653E\u5F84\uFF01");
 			JSONArray array = new JSONArray();
 			array.put(new JSONObject(dataItem));
 			response.getWriter().print(array.toString());
@@ -148,8 +150,10 @@ public class UploadFileServlet extends HttpServlet {
 				// Parse the request
 				int index = 0;
 				List<FileItem> multiparts = upload.parseRequest(request);
+				logger.info("Uploaded items: " + multiparts.size());
 				for (FileItem item : multiparts) {
 					if (file.getAllowedNumbers() <= (index++)) {
+						logger.warn("the size of the uploading file is exceeded! size: " + item.getSize());
 						break;
 					}
 					// TODO: security check
@@ -201,7 +205,6 @@ public class UploadFileServlet extends HttpServlet {
 							}
 						}
 					}
-					//TODO: move the upload files to our resource server by scheduler!
 				}
 				file.refresh();
 			} catch (Exception e) {

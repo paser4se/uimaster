@@ -88,6 +88,10 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
        o.nodesocket = io.connect(o.serverURLUI.value);
        o.nodesocket.on('connect', function(e) {
             var msg = {partyId: partyId};
+            o.nodesocket.emit('register', msg);
+       });
+       o.nodesocket.on('loginSuccess', function(e) {
+            var msg = {partyId: partyId};
             o.nodesocket.emit('notifihistory', msg);
        });
        o.nodesocket.on('notifyhistory', function(e) {

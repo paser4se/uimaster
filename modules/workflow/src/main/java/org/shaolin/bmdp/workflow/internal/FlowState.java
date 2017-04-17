@@ -89,15 +89,19 @@ public final class FlowState implements java.io.Serializable {
 	public void recover() {
 		IWorkflowService service = AppContext.get().getService(
 				IWorkflowService.class);
-		this.currentNode = service.getFlowObject(appName).getNode(appName,
-				flowName, nodeName);
-		if (this.snodeName != null) {
-			this.startNode = service.getFlowObject(sappName).getNode(sappName,
-					sflowName, snodeName);
-		}
-		if (this.enodeName != null) {
-			this.eventNode = service.getFlowObject(eappName).getNode(eappName,
-					eflowName, enodeName);
+		try {
+			this.currentNode = service.getFlowObject(appName).getNode(appName,
+					flowName, nodeName);
+			if (this.snodeName != null) {
+				this.startNode = service.getFlowObject(sappName).getNode(sappName,
+						sflowName, snodeName);
+			}
+			if (this.enodeName != null) {
+				this.eventNode = service.getFlowObject(eappName).getNode(eappName,
+						eflowName, enodeName);
+			}
+		} catch (NullPointerException e) {
+			throw new IllegalStateException("a NPE issue found: appName=" + appName + ", flowName=" + flowName + ", nodeName=" + nodeName);
 		}
 	}
 }
