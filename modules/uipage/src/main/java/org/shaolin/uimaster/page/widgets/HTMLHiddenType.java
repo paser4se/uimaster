@@ -70,6 +70,12 @@ public class HTMLHiddenType extends HTMLTextWidgetType
         }
     }
 
+    public String getValue()
+    {
+        String value = (String)getAllAttribute("value");
+        return value == null ? "" : value;
+    }
+    
     /**
      * Whether this component can have editPermission.
      */

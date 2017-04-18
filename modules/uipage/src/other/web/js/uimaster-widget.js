@@ -1173,6 +1173,9 @@ UIMaster.ui.combobox = UIMaster.extend(UIMaster.ui.field, /** @lends UIMaster.ui
 		} else {
 		   this.setValue(a.value, true);
 		}
+		if (IS_MOBILEVIEW) {
+			$(this).selectmenu('refresh', true);
+		}
 	},
 	removeAttr: function(v) {
 	    if (v != null && v.indexOf("CLEAR_ALL_ITEMS") == -1) {
