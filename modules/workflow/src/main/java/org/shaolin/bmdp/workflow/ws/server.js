@@ -125,7 +125,7 @@ io.on('connection', function(socket){
 		     console.log("query history: " + JSON.stringify(obj));
 		  }
 		  pool.getConnection(function(err, connection) {
-			  connection.query('SELECT * FROM WF_CHATHISTORY WHERE SESSIONID=? ORDER BY createdate ASC', [obj.sessionId], function(err, results, fields) {
+			  connection.query("SELECT ID, SESSIONID, SENTPARTYID, RECEIVEDPARTYID, MESSAGE, DATE_FORMAT(CREATEDATE, '%Y-%m-%d %h:%i:%s %p') as CREATEDATE FROM WF_CHATHISTORY WHERE SESSIONID=? ORDER BY createdate ASC", [obj.sessionId], function(err, results, fields) {
 					connection.release();
 					if (err) {
 						if (err.code === 'PROTOCOL_CONNECTION_LOST') {
@@ -156,7 +156,7 @@ io.on('connection', function(socket){
 		}
 	    try {
 	      pool.getConnection(function(err, connection) {
-			  connection.query('SELECT * FROM wf_notification WHERE partyid=? ORDER BY createdate ASC', [parseInt(obj.partyId)], function(err, results, fields) {
+			  connection.query("SELECT ID,PARTYID,SESSIONID,SUBJECT,DESCRIPTION,DATE_FORMAT(CREATEDATE, '%Y-%m-%d %h:%i:%s %p') as CREATEDATE FROM wf_notification WHERE partyid=? ORDER BY createdate ASC", [parseInt(obj.partyId)], function(err, results, fields) {
 					connection.release();
 					if (err) {
 						if (err.code === 'PROTOCOL_CONNECTION_LOST') {
