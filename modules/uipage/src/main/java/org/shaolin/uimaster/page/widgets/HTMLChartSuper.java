@@ -20,6 +20,7 @@ import java.util.List;
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.ExpressionPropertyType;
 import org.shaolin.bmdp.datamodel.page.UITableColumnType;
+import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.EvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
@@ -27,6 +28,7 @@ import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Chart;
 import org.shaolin.uimaster.page.ajax.Layout;
 import org.shaolin.uimaster.page.ajax.Widget;
@@ -57,6 +59,12 @@ public abstract class HTMLChartSuper extends HTMLWidgetType
 
     @Override
 	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+    	if (context.getRequest().getAttribute("_haschats") == null) {
+			context.getRequest().setAttribute("_haschats", Boolean.TRUE);
+            String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
+        			? WebConfig.getAppContextRoot(context.getRequest()) : WebConfig.getResourceContextRoot();
+        	context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/uimaster-chart.js\"></script>");
+        }
     	generateWidget(context);
     	Object widthProp = this.removeAttribute("width");
     	Object heightProp = this.removeAttribute("height");

@@ -10,6 +10,9 @@ if (MobileAppMode) {
 	  $.mobile.page.prototype.options.keepNative = "select,input.foo";
 	});
 }
+/**UI widget list*/
+var elementList = new Array();
+var DATA_FORMAT_SERVICE_URL = "/jsp/common/DataFormatService.jsp";
 function isWeiXinBrowser(){var ua = window.navigator.userAgent.toLowerCase(); return ua.indexOf('MicroMessenger') != -1;}
 function isSafariBrowser(){return UIMaster.browser.safari;}
 /**
@@ -29,58 +32,12 @@ var READONLY_BACKGROUND_IMAGE = "/images/widget_readonly.gif";
 var userAgent = navigator.userAgent.toLowerCase(),
     D="defaultname.",
     C="Common";
-function setListener(component, funcname){
-    if (component != null)
-        //for array
-        if (component.length != null && component.type == null)
-            for (var i = 0, n = component.length; i < n; i++)
-                setSingleListener(component[i], funcname);
-        else
-            setSingleListener(component, funcname);
-}
-function setSingleListener(component, funcname){
-    if (component == undefined)
-        return;
-    if (component.type == "select-one") {
-        if (component.onchange != null && component.onchange != undefined) {
-            var oldfunc = component.onchange;
-            component.onchange = function(){
-                oldfunc();
-                funcname();
-            };
-        }
-        else
-            component.onchange = funcname;
-    }
-    else //if(component.type == "checkbox")
-    {
-        if (component.onclick != null && component.onclick != undefined) {
-            var oldfunc = component.onclick;
-            component.onclick = function(){
-                oldfunc();
-                funcname();
-            };
-        }
-        else
-            component.onclick = funcname;
-    }
-}
-function Expression(components, expression){
-    var newExp = expression;
-    for (var i = 0; i < components.length; i++) {
-        var component = components[i];
-        if (component.type == "text" | component.type == "password")
-            newExp = newExp.replace("{" + (i + 1) + "}", component.value);
-        else
-            if (component.type == "checkbox")
-                if (component.checked == true)
-                    newExp = newExp.replace("{" + (i + 1) + "}", "true");
-                else
-                    newExp = newExp.replace("{" + (i + 1) + "}", "false");
-            else
-                newExp = newExp.replace("{" + (i + 1) + "}", component.value);
-    }
-    return eval(newExp);
+Array.prototype.remove=function(dx){
+    if(isNaN(dx)||dx>this.length){return false;}
+    for(var i=0,n=0;i<this.length;i++)
+    	if(this[i]!=this[dx])
+    		this[n++]=this[i]
+    this.length-=1;
 }
 /**
  *  hard code for dynamic page links.
@@ -199,51 +156,11 @@ function validateAll(event){
     }
     return true;
 }
-Array.prototype.remove=function(dx){
-    if(isNaN(dx)||dx>this.length){return false;}
-    for(var i=0,n=0;i<this.length;i++)
-    	if(this[i]!=this[dx])
-    		this[n++]=this[i]
-    this.length-=1;
-}
-function isArrayEquals(a, b){
-    if (a == b)
-        return true;
-    if (typeof(a) != typeof(b))
-        return false;
-    if (typeof(a) == "function")
-        return a.toString() == b.toString();
-    if (typeof(a) == "object") {
-        if (a.constructor == Array && b.constructor == Array) {
-            if (a.length == b.length) {
-                for (var i = 0; i < a.length; i++)
-                    if (!isArrayEquals(a[i], b[i]))
-                        return false;
-                return true;
-            }
-            return false;
-        }
-        if (a.constructor != Array && b.constructor != Array) {
-            if (typeof(a) == "object" && typeof(b) == "object") {
-                return a.equals(b);
-            }
-            else
-                if (typeof(a) != "object" && typeof(b) != "object")
-                    return a == b;
-            return false;
-        }
-    }
-    return false;
-}
-
 function registerConstraint(ui){
     try {
         //memorize default background image
         ui.defaultBackgroundImage = ui.defaultBackgroundImage || (UIMaster.browser.msie ? ui.currentStyle.backgroundImage : document.defaultView.getComputedStyle(ui, null).getPropertyValue("background-image"));
-    }
-    catch (e) {
-    }
-
+    }catch (e) {}
     try{
         ui.removeListener("mouseout",validateAll,false);
         ui.addListener("mouseout",validateAll,false);
@@ -251,76 +168,6 @@ function registerConstraint(ui){
         ui.addListener("blur",validateAll,false);
     }catch(e){}
 }
-
-function getInputUI(uientity){
-    for (var el in uientity) {
-        if (el == "parentEntity" || el == "Form" || el == "name" || el == "validators")
-            continue;
-        var e = eval("uientity." + el);
-
-        if (e == undefined || (e.style != undefined && e.style.display == "none") || typeof(e) != "object")
-            continue;
-        if (e.tagName == undefined) {
-            var e2 = getInputUI(e);
-            if (e2 != null) {
-                return e2;
-            }
-        }
-        if (e.type == "text" || e.type == 'password' || e.type == "checkbox" || e.type == 'radio' || e.type == 'textArea' || e.type == 'select-one' || e.type == 'select-multiple')
-            return e;
-    }
-    return null;
-}
-
-function getUIValue(uientity){
-    if (uientity.type == "checkbox" || uientity.type == 'radio' || uientity.type == 'select-multiple') {
-        //to do
-    }
-    else
-        return uientity.type != undefined ? uientity.value : null;
-}
-
-function setUIValue(uientity, value){
-    if (uientity.type == "checkbox" || uientity.type == 'radio' || uientity.type == 'select-multiple') {
-    }
-    else
-        (uientity.type != undefined) && (uientity.value = value);
-}
-
-function addEvent(obj,type,fn) {
-    if (obj.addEventListener)
-        obj.addEventListener(type,fn,false);
-    else if (obj.attachEvent)
-        obj.attachEvent("on"+type, fn);
-}
-
-function removeEvent(obj,type,fn) {
-    if (obj.removeEventListener)
-        obj.removeEventListener(type,fn,false);
-    else if (obj.detachEvent)
-        obj.detachEvent("on"+type, fn);
-}
-
-function retrieveFormValue(){
-    var map = [], action = "", arr;
-
-    if (arguments.length == 1) {    // example: retrieveFormValue(frameid), for multi-frame
-        action = $("#"+arguments[0]).attr("action");
-        map["_frameId"] = arguments[0];     // first reserved value
-    } else if (arguments.length == 0) {    // default: retrieveFormValue(), for non-frame
-        action = $("form").eq(0).attr("action");
-        map["_frameId"] = "";
-    }
-
-    map["_actionUrl"] = action;    // second reserved value
-    arr = (action.substring(action.indexOf('?')+1)).split("&");
-    for (var i=0; i<arr.length; i++) {
-        var s = arr[i].split('=');
-        map[s[0]]=s[1];
-    }
-    return map;
-}
-
 function containXSS(s) {
     var reg = /(<\s*script\s*>)|(javascript:)|(eval\()|(&#\d+)|(&amp;)/i;
     return reg.test(s);
@@ -374,59 +221,6 @@ function accDiv(arg1,arg2) {
     r2=Number(arg2.toString().replace(".",""));
     return accMul((r1/r2), Math.pow(10,t2-t1));
 }
-function sideBar(parentPanel, leftPanel, rightPanel) {
-	var children = $("#"+parentPanel).children();
-	if (children.length < 2) {
-		if (elementList[parentPanel]) {
-			children = $(elementList[parentPanel]).children();
-		}
-		if (children.length < 2) {
-			alert("Side bar requires two panels defined.");
-			return;
-		}
-	}
-	var setwidth = function(parentPanel) {
-		var p = $(elementList[parentPanel]);
-		var rp = $(elementList[rightPanel]);
-		var lp = $(elementList[leftPanel]);
-		
-		var leftPanelCell = $(children[0]);
-		var rightPanelCell = $(children[1]);
-		var readWidth = p.width() - leftPanelCell.width() - 18;
-		if (readWidth > 0) { 
-			rightPanelCell.css("width", readWidth); 
-		} 
-		
-		var b = p.parents("html:first");
-		var bodyheight = $(b).height();
-		var complement = $(window).height() - bodyheight - 20;
-        if (complement < 0) {
-            complement = $(window).height() - rp.height() - 80;//mobile fix
-        }
-		var realHeight =  rp.height() + complement;
-		if (realHeight > parseInt(rp.css("min-height"))) {
-			lp.css("height", realHeight);
-			rp.css("height", realHeight);
-		}
-		var frames = leftPanelCell.find("iframe");
-		frames.each(function(){
-			$(this).css({"height":(leftPanelCell.height() - 60) + "px"}); 
-		});
-		var frames = rightPanelCell.find("iframe");
-		frames.each(function(){
-			$(this).css({"height":(rightPanelCell.height() - 60) + "px"}); 
-		});
-	}
-	setwidth(parentPanel);//do it first normally.
-	var trick = function(parentPanel) {
-		return function() {setwidth(parentPanel);};
-	}
-	setTimeout(trick(parentPanel), 500);//do the second for correcting the wrong layout.
-	// the initial height settle down to the parent cell.
-	var height = $("#"+parentPanel).parent().css("min-height");
-	$("#"+leftPanel).css("min-height", height);
-	$("#"+rightPanel).css("min-height", height);
-};
 (function(){
 /**
  * @description UIMaster core utilities and functions.
@@ -440,10 +234,6 @@ var UIMaster = {
     handler:[],
     syncList:[],
     initList:[],
-    /**
-     * @description Util methods.
-     * @namespace Hold some util method.
-     */
     util:{}};
 if (window.UIMaster == undefined) {
     window.UIMaster = UIMaster;
@@ -487,7 +277,7 @@ UIMaster.require = function(_jsName, _nocheck){
     if (MobileAppMode) {
         _mobContext.addResource(_jsName);
     } else if (!UIMaster.funclist[_jsName]){
-        var head = document.getElementsByTagName("head")[0] || document.documentElement, script = document.createElement("script"), data = new UIMaster_appbase_AjaxClient(_jsName + (_nocheck ? "" : ("?_timestamp=" + new Date().getTime()))).submitAsString();
+        var head = document.getElementsByTagName("head")[0] || document.documentElement, script = document.createElement("script"), data = new UIMaster_AjaxClient(_jsName + (_nocheck ? "" : ("?_timestamp=" + new Date().getTime()))).submitAsString();
         script.type = "text/javascript";
         UIMaster.browser.msie ? (script.text = data) : script.appendChild( document.createTextNode( data ) );
         head.insertBefore( script, head.firstChild );
@@ -540,37 +330,12 @@ UIMaster.El.fn = {
                 this.jqObj = jQuery(id);
     },
     /**
-     * @description Get the parent of current element.
-     * @returns {UIMaster.El} An UIMaster.El element which represents the parent node of current element.
-     */
-    getParent: function(){
-        var p = new UIMaster.El();
-        p.jqObj = this.jqObj.parent();
-        return p;
-    },
-    /**
      * @description Get a DOM node of current node.
      * @param {Number} [i] Index of the node which wants to get.
      * @returns {Node} An UIMaster.El element which represents the parent node of current element.
      */
     get: function(i){
         return i ? this.jqObj.get(i) : this.jqObj.get(0);
-    },
-    /**
-     * @description Get the children of current element.
-     * @returns {UIMaster.El} An UIMaster.El element which represents the children of current element.
-     */
-    getChildren: function(){
-        var p = new UIMaster.El();
-        p.jqObj = this.jqObj.children();
-        return p;
-    },
-    /**
-     * @description Get the children nodes of current element.
-     * @returns {Array} An array of children nodes of current element.
-     */
-    getArray: function(){
-        return this.jqObj.get();
     },
     /**
      * @description Get position of current element.
@@ -634,57 +399,6 @@ UIMaster.El.fn = {
      */
     getAttr: function(k){
         return this.jqObj.attr(k);
-    },
-    /**
-     * @description Insert the content after the element.
-     * @param {String|Node} content Content to insert after the element.
-     */
-    after: function(v){
-        var p = new UIMaster.El();
-        p.jqObj = this.jqObj.after(v);
-        return p;
-    },
-    /**
-     * @description Insert the content before the element.
-     * @param {String|Node} content Content to insert before the element.
-     */
-    before: function(v){
-        var p = new UIMaster.El();
-        p.jqObj = this.jqObj.before(v);
-        return p;
-    },
-    /**
-     * @description Remove current element.
-     */
-    remove: function(){
-        this.jqObj.remove();
-    },
-    /**
-     * @description Append the content inside the element.
-     * @param {String|Node} content Content to append to the element.
-     */
-    append: function(v){
-        var p = new UIMaster.El();
-        p.jqObj = this.jqObj.append(v);
-        return p;
-    },
-    /**
-     * @description Prepend the content inside the element.
-     * @param {String|Node} content Content to prepend to the element.
-     */
-    prepend: function(v){
-        var p = new UIMaster.El();
-        p.jqObj = this.jqObj.prepend(v);
-        return p;
-    },
-    /**
-     * @description Replace this element with the content
-     * @param {String|Node} content Content to replace the element with.
-     */
-    update: function(v){
-        var p = new UIMaster.El();
-        p.jqObj = this.jqObj.replaceWith(v);
-        return p;
     }
 };
 UIMaster.El.fn.init.prototype = UIMaster.El.fn;
@@ -697,10 +411,7 @@ UIMaster.El.fn.init.prototype = UIMaster.El.fn;
 UIMaster.apply = function(o, c, v){
     if (o && c && typeof c == 'object')
         for (var m in c)
-            if (v)
-                (o[m]==undefined || typeof o[m] == "function") && (o[m] = c[m]);
-            else
-                o[m] = c[m];
+            v ? ((o[m]==undefined || typeof o[m] == "function") && (o[m] = c[m])) : (o[m] = c[m]);
 };
 /**
  * @description Assign attributes with same value to an object.
@@ -768,19 +479,6 @@ UIMaster.extend = function(sp, c){
     sb.superclass = sp.prototype;
     UIMaster.apply(sb.prototype, c);
     return sb;
-};
-/**
- * @description Get name from an UIMaster object. This method is for UIMaster specifically.
- * @param {Object} obj HTML element.
- * @returns {String} Name of the element.
- */
-UIMaster.getName = function(obj){
-    var name = (typeof obj.name == "string") ? obj.name : obj.id;
-    if (name) {
-        var n = name.split('.'), i = n[n.length - 1] == "Form" ? 2 : 1;
-        return n[n.length - i];
-    }
-    return null;
 };
 /**
  * @description Get object from the event. It is the source element of event, and from element of the mouseover and mouseout event.
@@ -867,402 +565,6 @@ UIMaster.util.invokeWebService = function(service, name, parameters){
 	   $.ajax(opts);
     }
 }
-/**
- * @description Register an AJAX handler to handle UIMaster AJAX operations.
- * @param {String} name Handler's name.
- * @param {Function} handler Function handler. <br/> There will be two parameters passed to the handler. First one is the data passed from the server, the second one is the window object of that operation.
- * @returns {UIMaster} UIMaster object.
- */
-var scriptCaches_ = new Array(); 
-UIMaster.registerHandler = function(name,handler){
-    UIMaster.handler[name]=handler;
-    return UIMaster;
-};
-UIMaster.registerHandler("fadeOut", function(data,win){
-    UIMaster.El(data.uiid).jqObj.fadeOut( (data.speed && typeof data.speed=="number") ? data.speed : 5000 );
-}).registerHandler("pageReSubmit",function(data,win){
-    UIMaster.ui.mask.close();
-    var sync = $('<input type="hidden" />').attr({'id':"_sync",'value':data.data});
-    var _form = (data.parent=="null" || data.parent=="") ? $("form:first") : $("form[_frameprefix='"+data.parent+"']");
-    _form.prepend(sync).submit();
-}).registerHandler("permitSubmit",function(data,win){
-    UIMaster.ui.mask.close();
-    var _form = $("form:first"), _target = ((!data.parent||data.parent=="null") ? "_self" : data.parent);
-    // data.frameInfo stores source form/frame name, and data.parent stores target form/frame name
-    var act = _form.attr("action") + "&_htmlkey=" + data.data;
-    _form.attr("target",_target).attr("action", act).submit();
-}).registerHandler("appendError",function(data,win){
-    // if any error found, update mask
-    UIMaster.ui.mask.close();
-    UIMaster.clearErrMsg(); 
-    if (data instanceof Object) {
-        var box, bw, m, t, le, p;
-        m = $('<div class="err-page-warn clearfix"></div>'), tip = $('<div></div>');
-        (data.image) ? tip.append('<div style="float: left;"><img src="'+RESOURCE_CONTEXTPATH+'/images/Error.png" /></div>') : tip.append('<div class="err-icon" style="float: left;"></div>');
-        if (data.errorMsgTitle) tip.append('<div class="err-title">'+data.errorMsgTitle+'</div>');
-        if (data.errorMsgBody) tip.append('<div class="err-body">'+data.errorMsgBody+'</div>');
-        t = $("#"+data.uiid);
-        if ( t.length == 0 ) {
-            t = $("[name='"+data.uiid+"']");
-        }
-        le = data.uiid.lastIndexOf(".");
-        if ( le == -1) {
-            p = $("#Form");
-        } else {
-            p = $("#" + data.uiid.substring(0, le + 1).replace(".","\\.") + "Form");
-        }
-        p.prepend(m.append(tip));
-        if (data.exceptionTrace) {
-            tip.append($('<span id="showTraceImg" style="float:right;cursor:pointer;" class="ui-button-icon-primary ui-icon ui-icon-arrow-1-s" alt="Show trace"></span>').bind('click', function(){
-                var t = $(this);
-                if (t.hasClass("ui-icon-arrowthick-1-n")) {
-                	t.removeClass("ui-icon-arrowthick-1-n");
-                	t.addClass("ui-icon-arrowthick-1-s");
-                } else {
-                	t.addClass("ui-icon-arrowthick-1-n");
-                	t.removeClass("ui-icon-arrowthick-1-s");
-                }
-                $('textarea[id=traceArea]').toggle();
-            }));
-            m.append('<textarea id="traceArea" style="display:none;clear:both;width:98%;" rows="20">'+data.exceptionTrace+'</textarea>');
-        }
-        if (data.uiid) constraint(data.uiid, data.errorMsgTitle);
-    }
-}).registerHandler("append",function(data,win){
-    if (data.data){
-        var n = $(win.eval(D+data.parent)).children(),k = data.parent.split(".");
-        if (win.eval(D+data.parent)){
-            win.getElementListSingle($(n.get(n.length-1)).before(data.data).get(0).previousSibling);
-            win.eval(data.js);
-            k[k.length-1]="Form";
-            win.eval(D+k.join(".")+".parentEntity").addComponent(win.eval(D+data.uiid),true);
-        }
-    }else{
-        var n = $(win.eval(D+data.parent)).children();
-        $(n.get(n.length-1)).before(win.eval(D+data.uiid).parentDiv);
-    }
-}).registerHandler("prepend",function(data,win){
-    if (data.data){
-        if (win.eval(D+data.parent)){
-            win.getElementListSingle(win.eval("UIMaster.El(defaultname."+data.parent+")").prepend(data.data).get(0));
-            win.eval(data.js);
-            var k = data.parent.split(".");
-            k[k.length-1]="Form";
-            win.eval(D+k.join(".")+".parentEntity").addComponent(win.eval(D+data.uiid),true);
-        }
-    }else{
-        $(win.eval(D+data.parent)).prepend(win.eval(D+data.uiid).parentDiv);
-    }
-}).registerHandler("before",function(data,win){
-    if (data.data){
-        if (win.eval(D+data.sibling+".parentDiv")){
-            win.getElementListSingle(win.eval("UIMaster.El(defaultname."+data.sibling+".parentDiv)").before(data.data).get(0).previousSibling);
-            win.eval(data.js);
-            win.eval(D+data.sibling+".parentEntity").addComponent(win.eval(D+data.uiid),true);
-        }
-    }else{
-        $(win.eval(D+data.sibling+".parentDiv")).before(win.eval(D+data.uiid+".parentDiv"));
-    }
-}).registerHandler("after",function(data,win){
-    if (data.data){
-        if (win.eval(D+data.sibling+".parentDiv")){
-            win.getElementListSingle(win.eval("UIMaster.El(defaultname."+data.sibling+".parentDiv)").after(data.data).get(0).nextSibling);
-            win.eval(data.js);
-            win.eval(D+data.sibling+".parentEntity").addComponent(win.eval(D+data.uiid),true);
-        }
-    }else{
-        $(win.eval(D+data.sibling+".parentDiv")).after(win.eval(D+data.uiid+".parentDiv"));
-    }
-}).registerHandler("remove",function(data,win){
-    var node = win.eval(D+data.uiid), i;
-    for (i in win.elementList)
-        if (i.indexOf(data.uiid) == 0 && (i == data.uiid || i.indexOf(data.uiid + '.') == 0))
-            delete win.elementList[i];
-    if (node) {
-	    node.parentEntity.removeComponent(node);
-	    win.UIMaster.El(node.parentDiv).remove();
-	    node.parentDiv = node.parentEntity = null;
-	    delete node;
-    }
-}).registerHandler("load_js",function(data,win,callback){
-	if ($(data.data).length > 0) {
-	   var scripts = $(data.data);
-	   var src = $(scripts[0]).attr("src");
-	   for (var s in scriptCaches_) { 
-	       if (scriptCaches_[s]==src) { 
-		       if(callback) {callback()};
-		       return;
-		   }
-	   }
-	   var count=scripts.length;
-	   for (var i=0;i<scripts.length;i++) {
-		  var url = $(scripts[i]).attr("src");
-		  $.ajax({url: url,dataType: "script",async:true, 
-		  success: function(){
-			if((--count == 0) && callback){callback();}
-		  }, 
-		  error: function(xhr,state,e){
-			console.error("Exception thrown", e.stack);
-		  }});
-		  scriptCaches_.push(url);
-	   }
-	   //$(data.data).appendTo($($(win.document).find("form:first")));
-	}
-}).registerHandler("openwindow",function(data,win){
-    var config = win.eval('('+data.sibling+')');
-    win.UIMaster.apply(config,{
-        js:data.js,
-        data:data.data,
-        uiid:data.uiid,
-        parent:data.parent,
-        frameInfo:data.frameInfo});
-    new win.UIMaster.ui.window(config).open(win);
-}).registerHandler("closewindow",function(data,win){
-    win.UIMaster.ui.window.getWindow(data.uiid).close(win);
-}).registerHandler("opendialog",function(data,win){
-    new win.UIMaster.ui.dialog(eval('('+data.data+')')).open();
-}).registerHandler("update_attr",function(data,win){
-    var e,i;
-    for (i in win.elementList)
-        if (i == data.uiid)
-        	e = win.elementList[i];
-    if(!e)
-    	 return;
-	var attribute = win.eval("("+data.data+")");
-	e.addAttr(attribute);
-}).registerHandler("remove_attr",function(data,win){
-    var e,i;
-    for (i in win.elementList)
-        if (i == data.uiid)
-        	e = win.elementList[i];
-    if(!e) return;
-    if (data.name == undefined) {
-       e.removeAttr(data.data);
-    } else {
-	   e.removeAttr(data.name);
-    }
-}).registerHandler("update_event",function(data,win){
-    var e,i;
-    for (i in win.elementList)
-        if (i == data.uiid)
-        	e = win.elementList[i];
-    if(!e) return;
-	var attribute = win.eval("("+data.data+")");
-	e.bind(attribute.name, attribute.value);
-}).registerHandler("remove_event",function(data,win){
-    var e,i;
-    for (i in win.elementList)
-        if (i == data.uiid)
-        	e = win.elementList[i];
-    if(!e) return;
-	e.unbind(data.name);
-}).registerHandler("update_style",function(data,win){
-    var e,i;
-    for (i in win.elementList)
-        if (i == data.uiid)
-        	e = win.elementList[i];
-    if(!e) return;
-	var attribute = win.eval("("+data.data+")");
-	$(e).css(attribute.name, attribute.value);
-}).registerHandler("remove_style",function(data,win){
-    var e,i;
-    for (i in win.elementList)
-        if (i == data.uiid)
-        	e = win.elementList[i];
-    if(!e) return;
-	$(e).css(data.name, "none");
-}).registerHandler("update_const",function(data,win){
-	if (data.readonly == "true") {
-		return;
-	}
-	var attribute = win.eval("("+data.data+")");
-	win.$('#'+data.uiid).validator=attribute.validator;
-	win.$('#'+data.uiid).validators=attribute.validators;
-}).registerHandler("remove_const",function(data,win){
-	if (data.readonly == "true") {
-		return;
-	}
-	var attribute = win.eval("("+data.data+")");
-	win.$('#'+data.uiid).validators=attribute.validators;
-}).registerHandler("show_constraint",function(data,win){
-    var e,i;
-    for (i in win.elementList)
-        if (i == data.uiid)
-        	e = win.elementList[i];
-    if(!e) return;
-	constraint(data.uiid, data.data);
-}).registerHandler("remove_constraint",function(data,win){
-    var e,i;
-    for (i in win.elementList)
-        if (i == data.uiid)
-        	e = win.elementList[i];
-    if(!e) return;
-	clearConstraint(data.uiid);
-}).registerHandler("update_readonly",function(data,win){
-	var attribute = win.eval("("+data.data+")");
-	UIMaster.handler["remove"](data, win);
-	UIMaster.handler["append"](data, win);
-}).registerHandler("hardreturn",function(data,win){
-    win.$('#'+data.uiid).append(data.data);
-}).registerHandler("javaobject",function(data,win){
-    return data.data;
-}).registerHandler("sessiontimeout",function(data){
-    location.replace(location.protocol + '//' + location.host + WEB_CONTEXTPATH + data.data);
-}).registerHandler("js",function(data,win){
-    win.eval(data.js);
-}).registerHandler("updateSingle",function(data,win){
-    //D + data.uiid + style? + data.attr = data.value
-}).registerHandler("table_update",function(data,win){
-	var tdata = win.eval("("+data.data+")"),id = data.uiid,uitable,i;
-    for (i in win.elementList)
-        if (i == id)
-        	uitable = win.elementList[i];
-    if(!uitable)
-    	 return;
-    uitable.refreshFromServer(tdata);
-}).registerHandler("tabPaneHandler",function(data,win){
-    var tabdata = win.eval("("+data.data+")"),id = data.uiid,uitab,i;
-    for (i in win.elementList)
-        if (i == id)
-            uitab = win.elementList[i];
-    if(!uitab)
-        return;
-    switch(tabdata.cmd){
-        case "addTab":
-            uitab.addTab(tabdata.entity, tabdata.title, tabdata.index);
-            break;
-        case "removeTab":
-            uitab.removeTab(tabdata.index);
-            break;
-        case "setBody":
-            uitab.setTabAt(tabdata.entity, tabdata.index);
-            break;
-        case "setTitle":
-            uitab.setTitleAt(tabdata.title, tabdata.index);
-            break;
-        case "setSelectedIndex":
-            uitab.setSelectedTab(tabdata.index);
-            break;
-    }
-    win.eval(data.js);
-}).registerHandler("tab_append",function(data,win){
-	var id = data.parent,uitab,i;
-    for (i in win.elementList)
-        if (i == id)
-            uitab = win.elementList[i];
-    if(!uitab)
-        return;
-    var c = uitab.addTabByLazyLoading(data.data, data.uiid);
-    c!=null? win.getElementListSingle(c):"";
-    win.eval(data.js);
-}).registerHandler("uiflowhandler",function(data,win){
-    var flowdata = win.eval("("+data.data+")"),id = data.uiid,uiflow,i;
-    for (i in win.elementList)
-        if (i == id)
-            uiflow = win.elementList[i];
-    if(!uiflow)
-        return;
-    switch(flowdata.cmd){
-		case "refreshModel":
-	    	uiflow.refreshModel(win.eval("("+flowdata.data+")"));
-	    	break;
-	    case "addNode":
-	    	uiflow.addNode(win.eval("("+flowdata.data+")"));
-	    	break;
-	    case "removeNode":
-	    	uiflow.removeNode(flowdata.nodeId);
-	    	break;
-        case "saveSuccess":
-        	uiflow.saveSuccessHint();
-            break;
-        case "saveFailure":
-        	uiflow.saveFailureHint();
-            break;
-    }
-}).registerHandler("tree_refresh",function(data,win){
-    var children = win.eval("("+data.data+")"),id = data.uiid,tree,i;
-    for (i in win.elementList)
-        if (i == id)
-            tree = win.elementList[i];
-    if(!tree)
-        return;
-    tree.refresh(children);
-}).registerHandler("gallery_refresh",function(data,win){
-    var children = data.data,id = data.uiid,image,i;
-    for (i in win.elementList)
-        if (i == id)
-            image = win.elementList[i];
-    if(!image)
-        return;
-    image.refresh(children);
-});
-/**
- * @description AJAX callback handler.
- * @ignore
- * @param {Object} data AJAX response text.
- * @param {String} status Text Status.
- * @param {String} result Variables passed to the callback handler.
- */
-UIMaster.cmdHandler = function(json,status,result){
-    function getW(f){
-        var fs, w, i;
-        w = FRAMEWRAP!="${FRAME_WRAP}"?(function(f){
-            var s=f.split('.'),w=window.top,i;
-            for (i=0;i<s.length;i++)
-                w = w.frames[s[i]];
-            return (w && w.window)?w:window;})(FRAMEWRAP):window.top;
-        if (f == "")
-            return w;
-        if (!f)
-            return window;
-        fs = f.split('.');
-        for (i=0;i<fs.length;i++)
-        {
-            try{w.name}catch(e){return window;}
-            w = w.frames[fs[i]];
-        }
-        return (w && w.window)?w:window;
-    }
-    var cmds, win, i;
-    if (MobileAppMode) {
-        cmds = eval("("+json+")");
-    } else {
-        cmds = json;
-    }
-	if (cmds.length == 0) {
-	    UIMaster.ui.mask.close();
-	    return;
-	}
-	//var hasPostInit = (json.length && json.length > 0)? json[0].indexOf('postInit'):-1;
-	function executeCmd0(i, cmds) {
-		var isLoadJsBreak = false;
-		while (i<cmds.length){
-			if (cmds[i] == null) {continue;}
-			win = getW(cmds[i].frameInfo);
-			if (win.UIMaster.handler[cmds[i].jsHandler]) {
-				try {
-					if(cmds[i].jsHandler == "load_js") {
-						var callback = function(){
-							executeCmd0(i+1, cmds);	
-						};
-						win.UIMaster.handler[cmds[i].jsHandler](cmds[i],win, callback);
-						if((i+1)<cmds.length){isLoadJsBreak = true;}
-						break;
-					} else {
-						win.UIMaster.handler[cmds[i].jsHandler](cmds[i],win);
-					}
-				} catch(e){console.log(e);}
-			}
-			i++;
-		}
-		if (!isLoadJsBreak && !MobileAppMode) {
-			if (cmds.length && (cmds.length<=0||cmds[cmds.length-1].jsHandler!="appendError")) {
-				UIMaster.ui.mask.close();
-			}
-		}
-	}
-	executeCmd0(0, cmds);
-};
 /**
  * @description Append error messages to the panel.
  * @ignore
@@ -1507,7 +809,7 @@ function g(t,v){
 //end;
 })();
 
-function UIMaster_appbase_AjaxClient(url, method, aysn, callBack, contentType){
+function UIMaster_AjaxClient(url, method, aysn, callBack, contentType){
     this._url = url || "";
     this._param = "";
     this._method = method || "GET";
@@ -1515,23 +817,16 @@ function UIMaster_appbase_AjaxClient(url, method, aysn, callBack, contentType){
     this.callBack = callBack;
     this.contentType = contentType || this.CONTENT_TYPE;
 }
-UIMaster_appbase_AjaxClient.prototype = {
+UIMaster_AjaxClient.prototype = {
     CONTENT_TYPE: "application/x-www-form-urlencoded",
-
     setUrl : function(url) {
         this._url = url;
-    },
-    setMethod : function(method) {
-        this._method = method;
     },
     setAysn : function(aysn) {
         this._aysn = aysn;
     },
     callBackObj : function(callBack) {
         this.callBack = callBack;
-    },
-    setContentType: function(contentType) {
-        this.contentType = contentType;
     },
     append : function(key,value) {
         if(key == null)
@@ -1583,7 +878,7 @@ function UIMaster_getI18NInfo(keyInfo, param, languageType){
     var v = UIMaster_getI18NInfo.get(keyInfo);
     if (param == undefined && v)
         return v;
-    var object = new UIMaster_appbase_AjaxClient(AJAX_SERVICE_URL);
+    var object = new UIMaster_AjaxClient(AJAX_SERVICE_URL);
     object.append('serviceName','I18NService').append('KEYINFO',keyInfo);
     if(param != null && param != "")
         if( param.length > 0 ){
@@ -1605,79 +900,25 @@ UIMaster_getI18NInfo.put=function(key,value){
     this.cache[key]=value;
     return value;
 };
-
 function UIMaster_getFormattedDate(format, datetype, date, datestring){
-    var object = new UIMaster_appbase_AjaxClient(AJAX_SERVICE_URL);
+    var object = new UIMaster_AjaxClient(AJAX_SERVICE_URL);
     object.append('serviceName','DateFormatService');
     if (date && date instanceof Date) object.append('DATE',date.getTime());
     return object.append('FORMAT',format).append('DATETYPE',datetype).append('DATESTRING',datestring).append('OFFSET', date?date.getTimezoneOffset():new Date().getTimezoneOffset()).submitAsString().replace(/^\s+|\s+$/g,"");
 }
-
-function bmiasia_UIMaster_appbase_setTimezoneOffset(){
-    new UIMaster_appbase_AjaxClient(AJAX_SERVICE_URL).append('serviceName','SetTimezoneOffset').append('OFFSET',new Date().getTimezoneOffset()).submitAsString();
-}
-
-var DATA_FORMAT_SERVICE_URL = "/jsp/common/DataFormatService.jsp";
-
-function bmiasia_UIMaster_appbase_getDataFormat(dataType, localeConfig, formatName){
-    var ajaxClient = new UIMaster_appbase_AjaxClient(WEB_CONTEXTPATH + DATA_FORMAT_SERVICE_URL);
+function UIMaster_setTimezoneOffset(){}
+function UIMaster_getDataFormat(dataType, localeConfig, formatName){
+    var ajaxClient = new UIMaster_AjaxClient(WEB_CONTEXTPATH + DATA_FORMAT_SERVICE_URL);
     ajaxClient.append("datatype", dataType);
     localeConfig && ajaxClient.append("localeconfig", localeConfig);
     formatName && ajaxClient.append("formatname", formatName);
     return ajaxClient.submitAsString();
 }
-
-function bmiasia_UIMaster_appbase_getDateTimeFormat(localeConfig, formatName){
-    return bmiasia_UIMaster_appbase_getDataFormat("dateTime", localeConfig, formatName);
-}
-
-function bmiasia_UIMaster_appbase_getDateFormat(localeConfig, formatName){
-    return bmiasia_UIMaster_appbase_getDataFormat("date", localeConfig, formatName);
-}
-
-function bmiasia_UIMaster_appbase_getFloatNumberFormat(localeConfig, formatName){
-    return bmiasia_UIMaster_appbase_getDataFormat("floatNumber", localeConfig, formatName);
-}
-
-function bmiasia_UIMaster_appbase_getNumberFormat(localeConfig, formatName){
-    return bmiasia_UIMaster_appbase_getDataFormat("number", localeConfig, formatName);
-}
-
-function bmiasia_UIMaster_appbase_getCurrencyFormat(localeConfig, formatName){
-    return bmiasia_UIMaster_appbase_getDataFormat("currency", localeConfig, formatName);
-}
-
-var elementList = new Array();
-UIMaster.pageInitFunctions = new Array();
-
-UIMaster.pageInitFunctions.push(function() {//handle back button event and reload server page.
-    var f = $($(document.body).find("form")[0]);
-    var url = f.attr("action");
-	var chunkNameIndex = url.indexOf("_chunkname=");
-	var nodenameIndex = url.indexOf("_nodename=");
-	if (chunkNameIndex != -1) {
-		var path = url.substring(chunkNameIndex + "_chunkname=".length, nodenameIndex - 1);
-		var node = url.substring(nodenameIndex + "_nodename=".length);
-		if (node.indexOf('&') != -1) {
-			node = node.substring(0, node.indexOf('&'));
-		}
-		var frameprefix = f.attr("_frameprefix");
-		if (frameprefix == undefined) {//only for main page.
-		    var opts = {async:true,url:AJAX_SERVICE_URL,
-				data:{serviceName:'pagestatesync',r:Math.random(),_chunkname:path,_nodename:node,_frameprefix:frameprefix},
-				success:function(data){
-					if(data == '0')
-					   window.location.reload();
-				}
-			};
-			if (MobileAppMode) {
-			  _mobContext.ajax(JSON.stringify(opts));
-			} else {
-			  $.ajax(opts);
-			}
-		}
-	}
-});
+function UIMaster_getDateTimeFormat(localeConfig, formatName){return UIMaster_getDataFormat("dateTime", localeConfig, formatName);}
+function UIMaster_getDateFormat(localeConfig, formatName){return UIMaster_getDataFormat("date", localeConfig, formatName);}
+function UIMaster_getFloatNumberFormat(localeConfig, formatName){return UIMaster_getDataFormat("floatNumber", localeConfig, formatName);}
+function UIMaster_getNumberFormat(localeConfig, formatName){return UIMaster_getDataFormat("number", localeConfig, formatName);}
+function UIMaster_getCurrencyFormat(localeConfig, formatName){return UIMaster_getDataFormat("currency", localeConfig, formatName);}
 UIMaster.setCookie = function(name, value){
 	var Days = 30;
 	var exp = new Date();

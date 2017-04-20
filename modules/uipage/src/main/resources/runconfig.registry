@@ -101,7 +101,6 @@
             	<item name="jquery-jstree" value="/js/jquery-jstree.js" />
             	<item name="uimaster" value="/js/uimaster.js" />
             	<item name="uimaster-widget" value="/js/uimaster-widget.js" />
-            	<item name="uimaster-chart" value="/js/uimaster-chart.js" />
             </node>
             <node name="commonjs-mob">
                 <!-- item name="google-analytics" value="https://www.google-analytics.com/ga.js" /-->
@@ -112,7 +111,6 @@
             	<item name="jquery-jstree" value="/js/jquery-jstree.js" />
             	<item name="uimaster" value="/js/uimaster.js" />
             	<item name="uimaster-widget" value="/js/uimaster-widget.js" />
-            	<item name="uimaster-chart" value="/js/uimaster-chart.js" />
             </node>
         </node>
     </node>
