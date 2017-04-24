@@ -39,6 +39,7 @@ import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.shaolin.bmdp.workflow.be.INotification;
 import org.shaolin.bmdp.workflow.be.IServerNodeInfo;
+import org.shaolin.bmdp.workflow.be.ISession;
 import org.shaolin.bmdp.workflow.be.ITask;
 import org.shaolin.bmdp.workflow.be.ITaskHistory;
 import org.shaolin.bmdp.workflow.be.NotificationImpl;
@@ -51,6 +52,7 @@ import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
 import org.shaolin.bmdp.workflow.coordinator.INotificationListener;
 import org.shaolin.bmdp.workflow.coordinator.ITaskListener;
 import org.shaolin.bmdp.workflow.dao.CoordinatorModel;
+import org.shaolin.bmdp.workflow.dao.CustCoordinatorModel;
 import org.shaolin.bmdp.workflow.ws.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,13 +94,39 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 	
 	@Override
-	public List<ITask> getAllTasks() {
-		TaskImpl condition = new TaskImpl();
+	public List<ISession> getActiveSessions(TaskImpl condition, int offset, int count) {
 		if (UserContext.getUserContext() != null && !UserContext.getUserContext().isAdmin()) {
 			condition.setOrgId(UserContext.getUserContext().getOrgId());
 		}
 		condition.setEnabled(true);
-		return CoordinatorModel.INSTANCE.searchTasks(condition, null, 0, -1);
+		return CustCoordinatorModel.INSTANCE.searchSessions(condition, offset, count);
+	}
+	
+	@Override
+	public List<ISession> getPassiveSessions(TaskImpl condition, int offset, int count) {
+		if (UserContext.getUserContext() != null && !UserContext.getUserContext().isAdmin()) {
+			condition.setOrgId(UserContext.getUserContext().getOrgId());
+		}
+		condition.setEnabled(true);
+		return CustCoordinatorModel.INSTANCE.searchSessionHistory(condition, offset, count);
+	}
+	
+	@Override
+	public long getActiveSessionSize(TaskImpl condition) {
+		if (UserContext.getUserContext() != null && !UserContext.getUserContext().isAdmin()) {
+			condition.setOrgId(UserContext.getUserContext().getOrgId());
+		}
+		condition.setEnabled(true);
+		return CustCoordinatorModel.INSTANCE.searchSessionCount(condition);
+	}
+	
+	@Override
+	public long getPassiveSessionSize(TaskImpl condition) {
+		if (UserContext.getUserContext() != null && !UserContext.getUserContext().isAdmin()) {
+			condition.setOrgId(UserContext.getUserContext().getOrgId());
+		}
+		condition.setEnabled(true);
+		return CustCoordinatorModel.INSTANCE.searchSessionHistoryCount(condition);
 	}
 	
 	@Override
@@ -109,16 +137,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		}
 		condition.setEnabled(true);
 		return CoordinatorModel.INSTANCE.searchTasksCount(condition);
-	}
-	
-	@Override
-	public List<ITaskHistory> getHistoryTasks(TaskStatusType status) {
-		TaskHistoryImpl condition = new TaskHistoryImpl();
-		if (UserContext.getUserContext() != null && !UserContext.getUserContext().isAdmin()) {
-			condition.setOrgId(UserContext.getUserContext().getOrgId());
-		}
-		condition.setStatus(TaskStatusType.EXPIRED);
-		return CoordinatorModel.INSTANCE.searchTasksHistory(condition, null, 0, -1);
 	}
 	
 	@Override
@@ -135,7 +153,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		return result.get(0);
 	}
 	
-	@Override
 	public List<ITask> getTasks(TaskStatusType status) {
 		TaskImpl condition = new TaskImpl();
 		if (UserContext.getUserContext() != null && !UserContext.getUserContext().isAdmin()) {

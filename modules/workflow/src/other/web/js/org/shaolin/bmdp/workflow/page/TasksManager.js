@@ -12,74 +12,29 @@ function org_shaolin_bmdp_workflow_page_TasksManager(json)
     ({
         ui: elementList[prefix + "functionsTab"]
         ,items: []
-        ,subComponents: [prefix + "tasksTablePanel",prefix + "tasksHistoryTablePanel",prefix + "tasksAnalysisPanel",prefix + "serverNodePanel"]
+        ,subComponents: [prefix + "sessionTablePanel",prefix + "sessionHistoryTablePanel"]
     });
-    var tasksTable = new UIMaster.ui.objectlist
+    var sessionTable = new UIMaster.ui.objectlist
     ({
-        ui: elementList[prefix + "tasksTable"]
+        ui: elementList[prefix + "sessionTable"]
     });
 
-    var tasksTablePanel = new UIMaster.ui.panel
+    var sessionTablePanel = new UIMaster.ui.panel
     ({
-        ui: elementList[prefix + "tasksTablePanel"]
+        ui: elementList[prefix + "sessionTablePanel"]
         ,items: []
-        ,subComponents: [prefix + "tasksTable"]
+        ,subComponents: [prefix + "sessionTable"]
     });
-    var tasksHistoryTable = new UIMaster.ui.objectlist
+    var sessionHistoryTable = new UIMaster.ui.objectlist
     ({
-        ui: elementList[prefix + "tasksHistoryTable"]
+        ui: elementList[prefix + "sessionHistoryTable"]
     });
 
-    var tasksHistoryTablePanel = new UIMaster.ui.panel
+    var sessionHistoryTablePanel = new UIMaster.ui.panel
     ({
-        ui: elementList[prefix + "tasksHistoryTablePanel"]
+        ui: elementList[prefix + "sessionHistoryTablePanel"]
         ,items: []
-        ,subComponents: [prefix + "tasksHistoryTable"]
-    });
-    var currentTasksPie = new UIMaster.ui.chart
-    ({
-        ui: elementList[prefix + "currentTasksPie"]
-        ,width: 250
-        ,height: 250
-    });
-
-    var historyTasksPie = new UIMaster.ui.chart
-    ({
-        ui: elementList[prefix + "historyTasksPie"]
-        ,width: 250
-        ,height: 250
-    });
-
-    var firstPanel = new UIMaster.ui.panel
-    ({
-        ui: elementList[prefix + "firstPanel"]
-        ,items: []
-        ,subComponents: [prefix + "currentTasksPie",prefix + "historyTasksPie"]
-    });
-    var historyTasksRadar = new UIMaster.ui.chart
-    ({
-        ui: elementList[prefix + "historyTasksRadar"]
-        ,width: 600
-        ,height: 400
-        ,dataType: "date"
-    });
-
-    var tasksAnalysisPanel = new UIMaster.ui.panel
-    ({
-        ui: elementList[prefix + "tasksAnalysisPanel"]
-        ,items: []
-        ,subComponents: [prefix + "firstPanel",prefix + "historyTasksRadar"]
-    });
-    var serverNodeTable = new UIMaster.ui.objectlist
-    ({
-        ui: elementList[prefix + "serverNodeTable"]
-    });
-
-    var serverNodePanel = new UIMaster.ui.panel
-    ({
-        ui: elementList[prefix + "serverNodePanel"]
-        ,items: []
-        ,subComponents: [prefix + "serverNodeTable"]
+        ,subComponents: [prefix + "sessionHistoryTable"]
     });
 
     var Form = new UIMaster.ui.panel
@@ -93,27 +48,13 @@ function org_shaolin_bmdp_workflow_page_TasksManager(json)
 
     Form.functionsTab=functionsTab;
 
-    Form.tasksTablePanel=tasksTablePanel;
+    Form.sessionTablePanel=sessionTablePanel;
 
-    Form.tasksTable=tasksTable;
+    Form.sessionTable=sessionTable;
 
-    Form.tasksHistoryTablePanel=tasksHistoryTablePanel;
+    Form.sessionHistoryTablePanel=sessionHistoryTablePanel;
 
-    Form.tasksHistoryTable=tasksHistoryTable;
-
-    Form.tasksAnalysisPanel=tasksAnalysisPanel;
-
-    Form.firstPanel=firstPanel;
-
-    Form.currentTasksPie=currentTasksPie;
-
-    Form.historyTasksPie=historyTasksPie;
-
-    Form.historyTasksRadar=historyTasksRadar;
-
-    Form.serverNodePanel=serverNodePanel;
-
-    Form.serverNodeTable=serverNodeTable;
+    Form.sessionHistoryTable=sessionHistoryTable;
 
     Form.user_constructor = function()
     {
@@ -121,23 +62,15 @@ function org_shaolin_bmdp_workflow_page_TasksManager(json)
         /* Construct_LAST:org_shaolin_bmdp_workflow_page_TasksManager */
     };
 
-    Form.createTask = org_shaolin_bmdp_workflow_page_TasksManager_createTask;
-
     Form.openTask = org_shaolin_bmdp_workflow_page_TasksManager_openTask;
 
     Form.openSessionTracker = org_shaolin_bmdp_workflow_page_TasksManager_openSessionTracker;
 
-    Form.postponeTask = org_shaolin_bmdp_workflow_page_TasksManager_postponeTask;
+    Form.openHistorySessionTracker = org_shaolin_bmdp_workflow_page_TasksManager_openHistorySessionTracker;
 
     Form.completeTask = org_shaolin_bmdp_workflow_page_TasksManager_completeTask;
 
     Form.cancelTask = org_shaolin_bmdp_workflow_page_TasksManager_cancelTask;
-
-    Form.createServerNode = org_shaolin_bmdp_workflow_page_TasksManager_createServerNode;
-
-    Form.openServerNode = org_shaolin_bmdp_workflow_page_TasksManager_openServerNode;
-
-    Form.deleteUser = org_shaolin_bmdp_workflow_page_TasksManager_deleteUser;
 
     Form.initPageJs = org_shaolin_bmdp_workflow_page_TasksManager_initPageJs;
 
@@ -154,17 +87,6 @@ function org_shaolin_bmdp_workflow_page_TasksManager(json)
     /* EventHandler Functions */
 /* Other_Func_FIRST:org_shaolin_bmdp_workflow_page_TasksManager */
 /* Other_Func_LAST:org_shaolin_bmdp_workflow_page_TasksManager */
-
-    /* auto generated eventlistener function declaration */
-    function org_shaolin_bmdp_workflow_page_TasksManager_createTask(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_TasksManager_createTask */
-        var o = this;
-        var UIEntity = this;
-
-        // cal ajax function. 
-
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"showBlanktaskInfoPanel",UIMaster.getValue(eventsource),o.__entityName);
-    }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_createTask */
-
 
     /* auto generated eventlistener function declaration */
     function org_shaolin_bmdp_workflow_page_TasksManager_openTask(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_TasksManager_openTask */
@@ -189,14 +111,14 @@ function org_shaolin_bmdp_workflow_page_TasksManager(json)
 
 
     /* auto generated eventlistener function declaration */
-    function org_shaolin_bmdp_workflow_page_TasksManager_postponeTask(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_TasksManager_postponeTask */
+    function org_shaolin_bmdp_workflow_page_TasksManager_openHistorySessionTracker(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_TasksManager_openHistorySessionTracker */
         var o = this;
         var UIEntity = this;
 
         // cal ajax function. 
 
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"postponeTask-20150827-1152",UIMaster.getValue(eventsource),o.__entityName);
-    }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_postponeTask */
+        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"openHistorySessionTracker-20160614",UIMaster.getValue(eventsource),o.__entityName);
+    }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_openHistorySessionTracker */
 
 
     /* auto generated eventlistener function declaration */
@@ -219,35 +141,6 @@ function org_shaolin_bmdp_workflow_page_TasksManager(json)
 
         UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"cancelTask-20150827-1152",UIMaster.getValue(eventsource),o.__entityName);
     }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_cancelTask */
-
-
-    /* auto generated eventlistener function declaration */
-    function org_shaolin_bmdp_workflow_page_TasksManager_createServerNode(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_TasksManager_createServerNode */
-        var o = this;
-        var UIEntity = this;
-
-        // cal ajax function. 
-
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"createServerNode-20150809-2009",UIMaster.getValue(eventsource),o.__entityName);
-    }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_createServerNode */
-
-
-    /* auto generated eventlistener function declaration */
-    function org_shaolin_bmdp_workflow_page_TasksManager_openServerNode(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_TasksManager_openServerNode */
-        var o = this;
-        var UIEntity = this;
-
-        // cal ajax function. 
-
-        UIMaster.triggerServerEvent(UIMaster.getUIID(eventsource),"openServerNode-20150809-2009",UIMaster.getValue(eventsource),o.__entityName);
-    }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_openServerNode */
-
-
-    /* auto generated eventlistener function declaration */
-    function org_shaolin_bmdp_workflow_page_TasksManager_deleteUser(eventsource,event) {/* Gen_First:org_shaolin_bmdp_workflow_page_TasksManager_deleteUser */
-        var o = this;
-        var UIEntity = this;
-    }/* Gen_Last:org_shaolin_bmdp_workflow_page_TasksManager_deleteUser */
 
 
     function org_shaolin_bmdp_workflow_page_TasksManager_initPageJs(){/* Gen_First:org_shaolin_bmdp_workflow_page_TasksManager_initPageJs */

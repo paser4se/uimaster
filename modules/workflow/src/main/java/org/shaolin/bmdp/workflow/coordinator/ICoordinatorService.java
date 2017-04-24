@@ -20,9 +20,10 @@ import java.util.List;
 
 import org.shaolin.bmdp.workflow.be.INotification;
 import org.shaolin.bmdp.workflow.be.IServerNodeInfo;
+import org.shaolin.bmdp.workflow.be.ISession;
 import org.shaolin.bmdp.workflow.be.ITask;
 import org.shaolin.bmdp.workflow.be.ITaskHistory;
-import org.shaolin.bmdp.workflow.ce.TaskStatusType;
+import org.shaolin.bmdp.workflow.be.TaskImpl;
 
 public interface ICoordinatorService {
 
@@ -39,7 +40,13 @@ public interface ICoordinatorService {
 	 * 
 	 * @return
 	 */
-	List<ITask> getAllTasks();
+	List<ISession> getActiveSessions(TaskImpl condition, int offset, int count);
+	
+	List<ISession> getPassiveSessions(TaskImpl condition, int offset, int count);
+	
+	long getActiveSessionSize(TaskImpl condition);
+	
+	long getPassiveSessionSize(TaskImpl condition);
 	
 	/**
 	 * Get tasks by session id.
@@ -53,14 +60,6 @@ public interface ICoordinatorService {
 	
 	boolean isSessionEnded(String sessionId);
 	
-	/**
-	 * How many tasks that the organization/company is running.
-	 * 
-	 * @param status
-	 * @return
-	 */
-	List<ITask> getTasks(TaskStatusType status);
-	
 	List<ITask> getAllExpiredTasks();	
 	
 	/**
@@ -70,14 +69,6 @@ public interface ICoordinatorService {
 	 * @return
 	 */
 	List<ITask> getPartyTasks(long partyId);
-	
-	/**
-	 * Get the history tasks.
-	 * 
-	 * @param status
-	 * @return
-	 */
-	List<ITaskHistory> getHistoryTasks(TaskStatusType status);
 	
 	ITaskHistory getHistoryTask(long taskId);
 	

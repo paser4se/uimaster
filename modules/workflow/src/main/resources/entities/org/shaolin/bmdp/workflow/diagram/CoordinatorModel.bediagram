@@ -7,6 +7,21 @@
 	<cePackage>org.shaolin.bmdp.workflow.ce</cePackage>
 	<diagramPackage>org.shaolin.bmdp.workflow.diagram</diagramPackage>
 
+    <bediagram:beEntity needOrgId="true">
+		<common:entityName>Session</common:entityName>
+		<bediagram:member pk="true">
+			<bediagram:name>id</bediagram:name>
+			<bediagram:type xsi:type="bediagram:LongType" />
+		</bediagram:member>
+		<bediagram:member>
+			<bediagram:name>sessionId</bediagram:name>
+			<bediagram:type xsi:type="bediagram:StringType" />
+		</bediagram:member>
+		<bediagram:member>
+            <bediagram:name>description</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
+	</bediagram:beEntity>	
 	<bediagram:beEntity needOrgId="true" needPersist="true" needUIEntity="true">
 		<common:entityName>Task</common:entityName>
 		<bediagram:member pk="true">

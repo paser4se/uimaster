@@ -228,6 +228,7 @@ public class FlowContainer {
         ITask task = new TaskImpl();
         if (UserContext.getCurrentUserContext() != null) {
 			task.setOrgId(UserContext.getUserContext().getOrgId());
+			task.setPartyId(UserContext.getUserContext().getUserId());
 		}
         task.setSessionId(flowContext.getSession().getID());
         task.setSubject("Task: " + currentNode.getName());

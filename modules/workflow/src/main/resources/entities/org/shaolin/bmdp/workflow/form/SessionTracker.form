@@ -144,7 +144,10 @@
                         <ns2:expressionString><![CDATA[
                         import org.shaolin.bmdp.runtime.AppContext;
                         {
-                         return org.shaolin.bmdp.runtime.ce.CEUtil.getValue($rowBE.getPartyType());
+                         if ($rowBE.getPartyType() != null) {
+                         	return $rowBE.getPartyType();
+                         }
+                         return "";
                         }]]></ns2:expressionString>
                     </ns2:expression>
                 </ns2:rowExpression>

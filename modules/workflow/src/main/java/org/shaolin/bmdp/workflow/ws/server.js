@@ -5,6 +5,7 @@ var dbhost;
 var dbuser;
 var dbpassword;
 var dbdatabase;
+var keyStorePass;
 
 process.argv.forEach(function (val, index, array) {
   console.log(index + ': ' + val);
@@ -23,8 +24,11 @@ process.argv.forEach(function (val, index, array) {
   if (val.indexOf("dbdatabase=") != -1) {
   	 dbdatabase = val.substring(val.indexOf("dbdatabase=") + 11);
   }
+  if (val.indexOf("keyStorePass=") != -1) {
+  	 keyStorePass = val.substring(val.indexOf("keyStorePass=") + 13);
+  }
 });
-console.log("dbhost=" + dbhost + ",dbuser=" + dbuser + ",dbpassword=" + dbpassword + ",dbdatabase=" + dbdatabase);
+//console.log("dbhost=" + dbhost + ",dbuser=" + dbuser + ",dbpassword=" + dbpassword + ",dbdatabase=" + dbdatabase);
 
 var express = require('express');
 var app = express();
@@ -37,8 +41,9 @@ var multer = require('multer'); // v1.0.5
 var upload = multer(); // for parsing multipart/form-data
 
 var caOptions = {
-    key: fs.readFileSync('/opt/uimaster/chat/ca/2_www.vogerp.com.key'),
-    cert: fs.readFileSync('/opt/uimaster/chat/ca/1_www.vogerp.com_bundle.crt')
+    key: fs.readFileSync('/opt/uimaster/apache-tomcat-8.0.9/conf/ca_comodo1/vogerp.key'),
+    cert: fs.readFileSync('/opt/uimaster/apache-tomcat-8.0.9/conf/ca_comodo1/www_vogerp_com-combine.crt'),
+	passphrase: keyStorePass
 };
 var server = https.createServer(caOptions, app);
 var io = require('socket.io').listen(server);
