@@ -16,6 +16,54 @@ UIMaster.registerHandler = function(name,handler){
     UIMaster.handler[name]=handler;
     return UIMaster;
 };
+var WORKFLOW_COMFORMATION_MSG="\u7EE7\u7EED\u672C\u64CD\u4F5C\u5417\uFF1F";
+UIMaster.workflowActionPanel = null;
+function postInit(){
+    while(UIMaster.initList.length > 0) {
+        var root = UIMaster.initList.shift();
+		var items = root.Form.items;
+		for (var i = 0; i < items.length; i++) {if (items[i]) {items[i].postInit && items[i].postInit();}}
+		root.user_constructor();
+	}
+	if (UIMaster.workflowActionPanel != null) {
+		UIMaster.workflowActionPanel();
+		UIMaster.workflowActionPanel = null;
+	}
+	while(UIMaster.pageInitFunctions.length > 0) {
+        var func = UIMaster.pageInitFunctions.shift();
+		func();
+	}
+	//$(window).scrollTop(0);
+};
+UIMaster.pageInitFunctions = new Array();
+UIMaster.pageInitFunctions.push(function() {//handle back button event and reload server page.
+    var f = $($(document.body).find("form")[0]);
+    var url = f.attr("action");
+	var chunkNameIndex = url.indexOf("_chunkname=");
+	var nodenameIndex = url.indexOf("_nodename=");
+	if (chunkNameIndex != -1) {
+		var path = url.substring(chunkNameIndex + "_chunkname=".length, nodenameIndex - 1);
+		var node = url.substring(nodenameIndex + "_nodename=".length);
+		if (node.indexOf('&') != -1) {
+			node = node.substring(0, node.indexOf('&'));
+		}
+		var frameprefix = f.attr("_frameprefix");
+		if (frameprefix == undefined) {//only for main page.
+		    var opts = {async:true,url:AJAX_SERVICE_URL,
+				data:{serviceName:'pagestatesync',r:Math.random(),_chunkname:path,_nodename:node,_frameprefix:frameprefix},
+				success:function(data){
+					if(data == '0')
+					   window.location.reload();
+				}
+			};
+			if (MobileAppMode) {
+			  _mobContext.ajax(JSON.stringify(opts));
+			} else {
+			  $.ajax(opts);
+			}
+		}
+	}
+});
 UIMaster.registerHandler("fadeOut", function(data,win){
     UIMaster.El(data.uiid).jqObj.fadeOut( (data.speed && typeof data.speed=="number") ? data.speed : 5000 );
 }).registerHandler("pageReSubmit",function(data,win){
@@ -121,6 +169,24 @@ UIMaster.registerHandler("fadeOut", function(data,win){
 	    win.UIMaster.El(node.parentDiv).remove();
 	    node.parentDiv = node.parentEntity = null;
 	    delete node;
+    }
+}).registerHandler("form_refresh",function(data,win){
+    var uiid = data.uiid;
+    if (elementList[uiid+".Form"]) {
+    	defaultname.removeComponent(win.eval(D+uiid));
+		var formEle = elementList[uiid+".Form"];
+		formEle.parentEntity.releaseFormObject();
+		var formParent = $(formEle).parent(); $(formEle).remove(); 
+		var c = $(data.data); c.appendTo(formParent);
+		elementList[uiid+".Form"] = c[0];
+		getElementListSingle(c,true);
+		win.eval(data.js);
+		defaultname.addComponent(win.eval(D+uiid),true);
+		var p = c.find("div[id$='actionPanel']");
+		if(!IS_MOBILEVIEW && p.length > 0) {
+			$(p[p.length-1]).css("display", "none");
+		}
+		c.trigger('create');//rerender jm css
     }
 }).registerHandler("load_js",function(data,win,callback){
 	if ($(data.data).length > 0) {
@@ -401,7 +467,6 @@ UIMaster.cmdHandler = function(json,status,result){
 	}
 	executeCmd0(0, cmds);
 };
-
 /**
  * @description UI widget definition.
  */
@@ -537,55 +602,6 @@ UIMaster.ui.sync = function(){
 UIMaster.ui.sync.set = function(data){
     UIMaster.syncList.push(data);
 };
-var WORKFLOW_COMFORMATION_MSG="\u7EE7\u7EED\u672C\u64CD\u4F5C\u5417\uFF1F";
-UIMaster.workflowActionPanel = null;
-function postInit(){
-    while(UIMaster.initList.length > 0) {
-        var root = UIMaster.initList.shift();
-		var items = root.Form.items;
-		for (var i = 0; i < items.length; i++) {if (items[i]) {items[i].postInit && items[i].postInit();}}
-		root.user_constructor();
-	}
-	if (UIMaster.workflowActionPanel != null) {
-		UIMaster.workflowActionPanel();
-		UIMaster.workflowActionPanel = null;
-	}
-	while(UIMaster.pageInitFunctions.length > 0) {
-        var func = UIMaster.pageInitFunctions.shift();
-		func();
-	}
-	//$(window).scrollTop(0);
-};
-UIMaster.pageInitFunctions = new Array();
-
-UIMaster.pageInitFunctions.push(function() {//handle back button event and reload server page.
-    var f = $($(document.body).find("form")[0]);
-    var url = f.attr("action");
-	var chunkNameIndex = url.indexOf("_chunkname=");
-	var nodenameIndex = url.indexOf("_nodename=");
-	if (chunkNameIndex != -1) {
-		var path = url.substring(chunkNameIndex + "_chunkname=".length, nodenameIndex - 1);
-		var node = url.substring(nodenameIndex + "_nodename=".length);
-		if (node.indexOf('&') != -1) {
-			node = node.substring(0, node.indexOf('&'));
-		}
-		var frameprefix = f.attr("_frameprefix");
-		if (frameprefix == undefined) {//only for main page.
-		    var opts = {async:true,url:AJAX_SERVICE_URL,
-				data:{serviceName:'pagestatesync',r:Math.random(),_chunkname:path,_nodename:node,_frameprefix:frameprefix},
-				success:function(data){
-					if(data == '0')
-					   window.location.reload();
-				}
-			};
-			if (MobileAppMode) {
-			  _mobContext.ajax(JSON.stringify(opts));
-			} else {
-			  $.ajax(opts);
-			}
-		}
-	}
-});
 /**
  * @description UI Field class.
  * @param {Object} conf Configuration items.

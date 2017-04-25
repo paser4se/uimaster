@@ -83,7 +83,12 @@ public final class VariableUtil {
 				} else if (objectClass == char.class || objectClass == Character.class) {
 					return new Character((char) 0);
 				} else {
-					return objectClass.newInstance();
+					try {
+						return objectClass.newInstance();
+					} catch (InstantiationException e) {
+						// no default constructor defined.
+						return null;
+					}
 				}
 			} catch (Exception ex) {
 				throw new EntityNotFoundException(

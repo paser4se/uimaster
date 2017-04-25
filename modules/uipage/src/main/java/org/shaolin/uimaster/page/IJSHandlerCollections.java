@@ -68,6 +68,11 @@ public interface IJSHandlerCollections {
     public static final String HTML_PANEL_PENDING = "panel_pending";
     
     /**
+     * refresh a form.
+     */
+    public static final String FROM_REFRESH = "form_refresh";
+    
+    /**
      * html doc insert before.
      */
     public static final String HTML_INSERTBEFORE = "before";

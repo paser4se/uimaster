@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.shaolin.javacc.context.DefaultEvaluationContext;
-import org.shaolin.javacc.context.EvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.uimaster.page.AjaxActionHelper;
@@ -33,6 +32,7 @@ import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.PageDispatcher;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.cache.ODFormObject;
@@ -86,7 +86,7 @@ public class RefForm extends Container implements Serializable
     
     private Map variableReconfigurationMap;
 
-    private Map inputParams;
+    private Map<String, Object> inputParams;
 
     public RefForm(String uiid, String uiEntityName)
     {
@@ -106,7 +106,7 @@ public class RefForm extends Container implements Serializable
      *
      * @throws Exception
      */
-    public RefForm(String uiid, String uiEntityName, Map inputParams)
+    public RefForm(String uiid, String uiEntityName, Map<String, Object> inputParams)
     {
         this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, uiEntityName, new CellLayout());
 
@@ -122,7 +122,7 @@ public class RefForm extends Container implements Serializable
         setUIEntityName(uiEntityName);
     }
     
-    public RefForm(String id, String uiEntityName, Layout layout, Map inputParams)
+    public RefForm(String id, String uiEntityName, Layout layout, Map<String, Object> inputParams)
     {
         super(id, layout);
         setUIEntityName(uiEntityName);
@@ -205,8 +205,18 @@ public class RefForm extends Container implements Serializable
 	}
 
 	public void refresh() {
-		this.closeIfinWindows(true);
-		this.openInWindows(this.window.getTitle(), this.callBack, this.window.getWidth(), this.window.getHeight());
+//		this.closeIfinWindows(true);
+//		this.openInWindows(this.window.getTitle(), this.callBack, this.window.getWidth(), this.window.getHeight());
+		
+		IDataItem dataItem = AjaxActionHelper.createDataItem();
+        dataItem.setUiid(this.getId());
+        dataItem.setJsHandler(IJSHandlerCollections.FROM_REFRESH);
+        dataItem.setJs(this.generateJS());
+        dataItem.setData(this.buildUpRefEntity());
+        dataItem.setFrameInfo(this.getFrameInfo());
+        
+        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        ajaxContext.addDataItem(dataItem);
 	}
 	
     public Map ui2Data()
