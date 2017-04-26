@@ -3,8 +3,6 @@ package org.shaolin.uimaster.page.skin;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.jsp.JspException;
-
 import org.shaolin.uimaster.html.layout.IUISkin;
 
 public abstract class BaseSkin implements IUISkin {
@@ -15,10 +13,7 @@ public abstract class BaseSkin implements IUISkin {
 		initParam();
 	}
 
-	public final void setParam(String name, String value) throws JspException {
-		if (!paramMap.containsKey(name)) {
-			throw new JspException("the parameter '" + name + "' is not defined in the skin.");
-		}
+	public final void setParam(String name, String value) {
 		paramMap.put(name, value);
 	}
 

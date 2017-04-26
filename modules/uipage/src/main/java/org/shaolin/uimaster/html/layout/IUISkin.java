@@ -3,15 +3,13 @@ package org.shaolin.uimaster.html.layout;
 import java.io.IOException;
 import java.util.Map;
 
-import javax.servlet.jsp.JspException;
-
 import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 
 public interface IUISkin {
 	/**
 	 * set UISkin parameter.
 	 */
-	public void setParam(String name, String value) throws JspException;
+	public void setParam(String name, String value);
 
 	/**
 	 * decide whether to invke generateHTML way of UI Component,default false.

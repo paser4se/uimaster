@@ -37,6 +37,11 @@ public class TitlePanel extends BaseSkin implements IUISkin {
 		if ("false".equals(component.getAllAttribute("visible"))
 				|| "false".equals(getParam("visible"))) {
 			context.generateHTML(" style=\"display:none;\"");
+		} else {
+			String w = getParam("width");
+			if (w != null && w.trim().length() > 0) {
+				context.generateHTML(" style=\"width:"+w+";\"");
+			}
 		}
 		context.generateHTML(" ><div class=\"skin_titlepanel_title\" ");
 		if ("true".equals(getParam("collapsed"))) {
