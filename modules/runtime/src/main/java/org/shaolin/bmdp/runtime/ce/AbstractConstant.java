@@ -62,7 +62,7 @@ public abstract class AbstractConstant implements IConstantEntity {
 		this.intValue = intValue;
 
 		setI18nKey(i18nKey);
-		this.description = description;
+		this.description = (description == null && intValue == CONSTANT_DEFAULT_INT_VALUE0)? IConstantEntity.CONSTANT_DEFAULT.getDescription() : description;
 		this.effTime = effTime;
 		this.expTime = expTime;
 	}
@@ -353,7 +353,10 @@ public abstract class AbstractConstant implements IConstantEntity {
 		if (!(anO instanceof AbstractConstant))
 			return false;
 		AbstractConstant ce = (AbstractConstant) anO;
-		return getValueEntityName().equals(ce.getValueEntityName());
+		return getValueEntityName().equals(ce.getValueEntityName())
+				|| (this.getIntValue() == IConstantEntity.CONSTANT_DEFAULT_INT_VALUE0 
+					&& ce.getIntValue() == IConstantEntity.CONSTANT_DEFAULT_INT_VALUE0);
+		// as a result, all -1 constant item are equivalent.
 	}
 
 	public int hashCode() {

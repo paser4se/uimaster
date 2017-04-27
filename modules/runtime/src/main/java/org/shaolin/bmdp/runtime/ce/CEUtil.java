@@ -84,17 +84,25 @@ public class CEUtil {
 
 	public static List<IConstantEntity> getConstantEntities(String ceType,
 			boolean containsNotSpecified, List<String> excludeValue) {
-
 		IConstantEntity ceEntity = IServerServiceManager.INSTANCE.getConstantService().getConstantEntity(ceType);
-
-		List<IConstantEntity> result = ceEntity.getConstantList();
+		List<IConstantEntity> result = new ArrayList<IConstantEntity>(ceEntity.getConstantList());
 		if (!containsNotSpecified) {
 			for (IConstantEntity item : result) {
-				if (item.getValue().equals(
-						IConstantEntity.CONSTANT_DEFAULT_VALUE)) {
+				if (item.getIntValue() == IConstantEntity.CONSTANT_DEFAULT_INT_VALUE0) {
 					result.remove(item);
 					break;
 				}
+			}
+		} else {
+			boolean found = false;
+			for (IConstantEntity item : result) {
+				if (item.getIntValue() == IConstantEntity.CONSTANT_DEFAULT_INT_VALUE0) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				result.add(IConstantEntity.CONSTANT_DEFAULT);
 			}
 		}
 
@@ -169,11 +177,9 @@ public class CEUtil {
 		List<String> constantEntityDisplayValues = new ArrayList<String>();
 
 		boolean hasNotSpecifiedDisplayValue = notSpecifiedDisplayValue != null;
-
 		for (IConstantEntity constantEntity : constantEntities) {
 			if (hasNotSpecifiedDisplayValue
-					&& IConstantEntity.CONSTANT_DEFAULT_VALUE
-							.equals(constantEntity.getValue())) {
+					&& IConstantEntity.CONSTANT_DEFAULT_INT_VALUE0 == constantEntity.getIntValue()) {
 				constantEntityDisplayValues.add(notSpecifiedDisplayValue);
 			} else {
 				constantEntityDisplayValues

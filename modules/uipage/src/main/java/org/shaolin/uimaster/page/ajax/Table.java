@@ -149,6 +149,9 @@ public class Table extends Widget<Table> implements Serializable {
 					String _value = item.getString("value");
 					this.updateFilter(_name.trim(), _value.trim());
 				}
+				if (logger.isDebugEnabled()) {
+					logger.debug("Table conditions updated: " + conditions.getCondition());
+				}
 			} catch (JSONException e) {
 				logger.error("error occurrs while synchronizing the value from the page.", e);
 			}
@@ -308,6 +311,9 @@ public class Table extends Widget<Table> implements Serializable {
 					|| (col.getUiType().getType().equals("DateRange") 
 							&& (col.getUiType().getStartCondition().equals(field) 
 									|| col.getUiType().getEndCondition().equals(field)))){
+				if (col.getUiType().getType().equalsIgnoreCase("label")) {
+					break;
+				}
 				try {
 					OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 					DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
@@ -320,6 +326,9 @@ public class Table extends Widget<Table> implements Serializable {
 					ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
 					
 					if (col.getUpdateCondition() != null) {
+						if (logger.isDebugEnabled()) {
+							logger.debug("Update table condition field: " + field + ", value: " + value);
+						}
 						col.getUpdateCondition().getExpression().evaluate(ooeeContext);
 					}
 				} catch (Exception e) {

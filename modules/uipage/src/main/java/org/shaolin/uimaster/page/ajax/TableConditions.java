@@ -17,7 +17,6 @@ package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.hibernate.criterion.Order;
@@ -81,6 +80,12 @@ public class TableConditions implements Serializable {
 	public void addOrder(String name, boolean asc) {
 		if (this.orders == null) {
 			this.orders = new ArrayList<Order>();
+		}
+		for (int i=0; i<orders.size(); i++) {
+			if (orders.get(i).getPropertyName().equalsIgnoreCase(name)) {
+				orders.remove(i);
+				break;
+			}
 		}
 		this.orders.add(asc ? Order.asc(name) : Order.desc(name));
 	}

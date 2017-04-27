@@ -743,13 +743,32 @@ public class HTMLTableType extends HTMLContainerType {
 
 	private VariableEvaluator ee;
 	
-	public Widget createAjaxWidget(VariableEvaluator ee)
+	public Widget<Table> createAjaxWidget(VariableEvaluator ee)
     {
 		this.ee = ee;
+		String beElement =  (String)this.getAttribute("beElememt");;
+		Class beClass = null;
+		try {
+			beClass = BEUtil.getBEImplementClass(beElement);
+		} catch (ClassNotFoundException e) {
+			try {
+				beClass = Class.forName(beElement);
+			} catch (ClassNotFoundException e1) {
+			}
+		}
+		IBusinessEntity obj = null;
+		try {
+			obj = (IBusinessEntity)beClass.newInstance();
+		} catch (Exception e1) {
+		}
         Table t = new Table(getName(), Layout.NULL);
-
         t.setReadOnly(isReadOnly());
         t.setUIEntityName(getUIEntityName());
+        t.getConditions().setBECondition(obj);
+        int defaultRowSize = (Integer)this.getAttribute("defaultRowSize");
+        t.getConditions().setCount(defaultRowSize);
+        t.getConditions().addOrder("createDate", false); //by default.
+        
         Boolean isAppendRowMode = (Boolean)this.removeAttribute("isAppendRowMode");
 		if (isAppendRowMode == null) {
 			isAppendRowMode = Boolean.FALSE;
@@ -777,6 +796,7 @@ public class HTMLTableType extends HTMLContainerType {
 		try {
 			EvaluationContext expressionContext = ee.getExpressionContext(ODContext.LOCAL_TAG);
 			expressionContext.setVariableValue("table", t);
+			expressionContext.setVariableValue("tableCondition", t.getConditions());
 			
 			Object stats = this.removeAttribute("statistic");
 			if (stats != null) {

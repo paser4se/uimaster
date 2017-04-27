@@ -19,6 +19,7 @@ public interface IConstantEntity extends Serializable
      */
     public final static String CONSTANT_DEFAULT_VALUE = "_NOT_SPECIFIED";
     public final static String CONSTANT_DEFAULT_INT_VALUE = "-1";
+    public final static int CONSTANT_DEFAULT_INT_VALUE0 = -1;
     
     public static final IConstantEntity CONSTANT_DEFAULT = new DynamicConstant(-1, CONSTANT_DEFAULT_VALUE, -1, null, "\u672A\u6307\u5B9A");
     
