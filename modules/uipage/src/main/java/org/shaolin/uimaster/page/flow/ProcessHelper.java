@@ -696,8 +696,10 @@ public class ProcessHelper
                     framePrefix = (framePrefix == null || framePrefix.equals("null")) ? "" : framePrefix;
                     Widget component = ajaxContext.getElementByAbsoluteId(uiid,framePrefix);
                     if (component == null) {
-                        logger.warn("Component not found in synchronizing values: uiid=" + uiid +
-                                     ", framePrefix=" + framePrefix);
+                    	if (uiid != null && uiid.toLowerCase().indexOf("label") == -1) { //hide label log.
+                    		logger.warn("Component not found in synchronizing values: uiid=" + uiid +
+                    				", framePrefix=" + framePrefix);
+                    	}
                     } else {
                     	if (component.isEditable()) {
 	                        component.addAttribute(valueName,value,false);

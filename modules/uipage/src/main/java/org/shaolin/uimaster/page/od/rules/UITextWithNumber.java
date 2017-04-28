@@ -22,11 +22,14 @@ import java.util.Map;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.ajax.TextWidget;
+import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.od.IODMappingConverter;
 import org.shaolin.uimaster.page.od.formats.FormatUtil;
 import org.shaolin.uimaster.page.widgets.HTMLLabelType;
 import org.shaolin.uimaster.page.widgets.HTMLTextWidgetType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UITextWithNumber implements IODMappingConverter {
 	private HTMLTextWidgetType uiText;
@@ -270,6 +273,9 @@ public class UITextWithNumber implements IODMappingConverter {
 				this.number = ((Number) numberObject).longValue();
 				this.textEmpty = false;
 			}
+		} catch (AjaxException e) {
+			logger.warn("Failed to get data from ui widget: " + this.uiid + ", message: " + e.getMessage());
+			this.number = 0l;
 		} catch (Throwable t) {
 			if (t instanceof UIConvertException) {
 				throw ((UIConvertException) t);
@@ -282,4 +288,6 @@ public class UITextWithNumber implements IODMappingConverter {
 
 	public void callAllMappings(boolean isDataToUI) throws UIConvertException {
 	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(UITextWithNumber.class);
 }

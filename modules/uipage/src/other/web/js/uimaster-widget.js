@@ -4,115 +4,18 @@ function checkUIMasterReady(){
 function g(t,v){
     return UIMaster.browser.mozilla?t.getAttribute(v):$(t).attr(v);
 }
-
-/**
- * @description Register an AJAX handler to handle UIMaster AJAX operations.
- * @param {String} name Handler's name.
- * @param {Function} handler Function handler. <br/> There will be two parameters passed to the handler. First one is the data passed from the server, the second one is the window object of that operation.
- * @returns {UIMaster} UIMaster object.
- */
-var scriptCaches_ = new Array(); 
 UIMaster.registerHandler = function(name,handler){
     UIMaster.handler[name]=handler;
     return UIMaster;
 };
-var WORKFLOW_COMFORMATION_MSG="\u7EE7\u7EED\u672C\u64CD\u4F5C\u5417\uFF1F";
-UIMaster.workflowActionPanel = null;
-function postInit(){
-    while(UIMaster.initList.length > 0) {
-        var root = UIMaster.initList.shift();
-		var items = root.Form.items;
-		for (var i = 0; i < items.length; i++) {if (items[i]) {items[i].postInit && items[i].postInit();}}
-		root.user_constructor();
-	}
-	if (UIMaster.workflowActionPanel != null) {
-		UIMaster.workflowActionPanel();
-		UIMaster.workflowActionPanel = null;
-	}
-	while(UIMaster.pageInitFunctions.length > 0) {
-        var func = UIMaster.pageInitFunctions.shift();
-		func();
-	}
-	//$(window).scrollTop(0);
-};
-UIMaster.pageInitFunctions = new Array();
-UIMaster.pageInitFunctions.push(function() {//handle back button event and reload server page.
-    var f = $($(document.body).find("form")[0]);
-    var url = f.attr("action");
-	var chunkNameIndex = url.indexOf("_chunkname=");
-	var nodenameIndex = url.indexOf("_nodename=");
-	if (chunkNameIndex != -1) {
-		var path = url.substring(chunkNameIndex + "_chunkname=".length, nodenameIndex - 1);
-		var node = url.substring(nodenameIndex + "_nodename=".length);
-		if (node.indexOf('&') != -1) {
-			node = node.substring(0, node.indexOf('&'));
-		}
-		var frameprefix = f.attr("_frameprefix");
-		if (frameprefix == undefined) {//only for main page.
-		    var opts = {async:true,url:AJAX_SERVICE_URL,
-				data:{serviceName:'pagestatesync',r:Math.random(),_chunkname:path,_nodename:node,_frameprefix:frameprefix},
-				success:function(data){
-					if(data == '0')
-					   window.location.reload();
-				}
-			};
-			if (MobileAppMode) {
-			  _mobContext.ajax(JSON.stringify(opts));
-			} else {
-			  $.ajax(opts);
-			}
-		}
-	}
-});
 UIMaster.registerHandler("fadeOut", function(data,win){
     UIMaster.El(data.uiid).jqObj.fadeOut( (data.speed && typeof data.speed=="number") ? data.speed : 5000 );
-}).registerHandler("pageReSubmit",function(data,win){
-    UIMaster.ui.mask.close();
-    var sync = $('<input type="hidden" />').attr({'id':"_sync",'value':data.data});
-    var _form = (data.parent=="null" || data.parent=="") ? $("form:first") : $("form[_frameprefix='"+data.parent+"']");
-    _form.prepend(sync).submit();
-}).registerHandler("permitSubmit",function(data,win){
-    UIMaster.ui.mask.close();
-    var _form = $("form:first"), _target = ((!data.parent||data.parent=="null") ? "_self" : data.parent);
-    // data.frameInfo stores source form/frame name, and data.parent stores target form/frame name
-    var act = _form.attr("action") + "&_htmlkey=" + data.data;
-    _form.attr("target",_target).attr("action", act).submit();
 }).registerHandler("appendError",function(data,win){
     // if any error found, update mask
     UIMaster.ui.mask.close();
     UIMaster.clearErrMsg(); 
     if (data instanceof Object) {
-        var box, bw, m, t, le, p;
-        m = $('<div class="err-page-warn clearfix"></div>'), tip = $('<div></div>');
-        (data.image) ? tip.append('<div style="float: left;"><img src="'+RESOURCE_CONTEXTPATH+'/images/Error.png" /></div>') : tip.append('<div class="err-icon" style="float: left;"></div>');
-        if (data.errorMsgTitle) tip.append('<div class="err-title">'+data.errorMsgTitle+'</div>');
-        if (data.errorMsgBody) tip.append('<div class="err-body">'+data.errorMsgBody+'</div>');
-        t = $("#"+data.uiid);
-        if ( t.length == 0 ) {
-            t = $("[name='"+data.uiid+"']");
-        }
-        le = data.uiid.lastIndexOf(".");
-        if ( le == -1) {
-            p = $("#Form");
-        } else {
-            p = $("#" + data.uiid.substring(0, le + 1).replace(".","\\.") + "Form");
-        }
-        p.prepend(m.append(tip));
-        if (data.exceptionTrace) {
-            tip.append($('<span id="showTraceImg" style="float:right;cursor:pointer;" class="ui-button-icon-primary ui-icon ui-icon-arrow-1-s" alt="Show trace"></span>').bind('click', function(){
-                var t = $(this);
-                if (t.hasClass("ui-icon-arrowthick-1-n")) {
-                	t.removeClass("ui-icon-arrowthick-1-n");
-                	t.addClass("ui-icon-arrowthick-1-s");
-                } else {
-                	t.addClass("ui-icon-arrowthick-1-n");
-                	t.removeClass("ui-icon-arrowthick-1-s");
-                }
-                $('textarea[id=traceArea]').toggle();
-            }));
-            m.append('<textarea id="traceArea" style="display:none;clear:both;width:98%;" rows="20">'+data.exceptionTrace+'</textarea>');
-        }
-        if (data.uiid) constraint(data.uiid, data.errorMsgTitle);
+    //todo:
     }
 }).registerHandler("append",function(data,win){
     if (data.data){
@@ -126,38 +29,6 @@ UIMaster.registerHandler("fadeOut", function(data,win){
     }else{
         var n = $(win.eval(D+data.parent)).children();
         $(n.get(n.length-1)).before(win.eval(D+data.uiid).parentDiv);
-    }
-}).registerHandler("prepend",function(data,win){
-    if (data.data){
-        if (win.eval(D+data.parent)){
-            win.getElementListSingle(win.eval("UIMaster.El(defaultname."+data.parent+")").prepend(data.data).get(0));
-            win.eval(data.js);
-            var k = data.parent.split(".");
-            k[k.length-1]="Form";
-            win.eval(D+k.join(".")+".parentEntity").addComponent(win.eval(D+data.uiid),true);
-        }
-    }else{
-        $(win.eval(D+data.parent)).prepend(win.eval(D+data.uiid).parentDiv);
-    }
-}).registerHandler("before",function(data,win){
-    if (data.data){
-        if (win.eval(D+data.sibling+".parentDiv")){
-            win.getElementListSingle(win.eval("UIMaster.El(defaultname."+data.sibling+".parentDiv)").before(data.data).get(0).previousSibling);
-            win.eval(data.js);
-            win.eval(D+data.sibling+".parentEntity").addComponent(win.eval(D+data.uiid),true);
-        }
-    }else{
-        $(win.eval(D+data.sibling+".parentDiv")).before(win.eval(D+data.uiid+".parentDiv"));
-    }
-}).registerHandler("after",function(data,win){
-    if (data.data){
-        if (win.eval(D+data.sibling+".parentDiv")){
-            win.getElementListSingle(win.eval("UIMaster.El(defaultname."+data.sibling+".parentDiv)").after(data.data).get(0).nextSibling);
-            win.eval(data.js);
-            win.eval(D+data.sibling+".parentEntity").addComponent(win.eval(D+data.uiid),true);
-        }
-    }else{
-        $(win.eval(D+data.sibling+".parentDiv")).after(win.eval(D+data.uiid+".parentDiv"));
     }
 }).registerHandler("remove",function(data,win){
     var node = win.eval(D+data.uiid), i;
@@ -1862,6 +1733,24 @@ UIMaster.ui.container = UIMaster.extend(UIMaster.ui.field, /** @lends UIMaster.u
         this.parentEntity.initialized = true;
     }
 });
+var WORKFLOW_COMFORMATION_MSG="\u7EE7\u7EED\u672C\u64CD\u4F5C\u5417\uFF1F";
+function postInit(){
+    while(UIMaster.initList.length > 0) {
+        var root = UIMaster.initList.shift();
+		var items = root.Form.items;
+		for (var i = 0; i < items.length; i++) {if (items[i]) {items[i].postInit && items[i].postInit();}}
+		root.user_constructor();
+	}
+	if (UIMaster.workflowActionPanel != null) {
+		UIMaster.workflowActionPanel();
+		UIMaster.workflowActionPanel = null;
+	}
+	while(UIMaster.pageInitFunctions.length > 0) {
+        var func = UIMaster.pageInitFunctions.shift();
+		func();
+	}
+	//$(window).scrollTop(0);
+};
 /**
  * @description Panel class. This is the abstract object of UIEntity or UIPage.
  * @param {Object} conf Configuration items.
@@ -2543,7 +2432,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	initMobileView:function(){
 	  var i=0;
 	  var othis = this;
-	  othis.selectedIndex = 0;
+	  othis.selectedIndex = -1;
 	  $($($(this).prev()).children()[0]).css("display","block");
 	  this.filterPanel = $(this).next();
 	  this.pageInfoPanel = $(this.filterPanel).next();
@@ -2996,7 +2885,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		if (this.editablecell) {
 			return;//the editable cell and the filters are mutual exclusive.
 		}
-        var filters = $(elementList[this.id]).find('tfoot th');
+		// looking for dataTables_scrollFoot
+        var filters = $(elementList[this.id]).parent().next().find('tfoot th');
 		var conditions = new Array();
 		filters.each(function(){
 			var c = $(this).children();

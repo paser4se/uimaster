@@ -22,10 +22,13 @@ import java.util.Map;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.ajax.TextWidget;
+import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.od.IODMappingConverter;
 import org.shaolin.uimaster.page.widgets.HTMLLabelType;
 import org.shaolin.uimaster.page.widgets.HTMLTextWidgetType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UIText implements IODMappingConverter {
 	private HTMLTextWidgetType uiText;
@@ -179,14 +182,17 @@ public class UIText implements IODMappingConverter {
 
 	public void pullDataFromWidget(HTMLSnapshotContext htmlContext) throws UIConvertException {
 		try {
-			TextWidget textComp = (TextWidget) AjaxActionHelper
-					.getCachedAjaxWidget(this.uiid, htmlContext);
+			TextWidget textComp = (TextWidget) AjaxActionHelper.getCachedAjaxWidget(this.uiid, htmlContext);
 			String value = textComp.getValue();
 			this.stringData = (value != null && !"null".equals(value))? value.trim() : "";
+		} catch (AjaxException e) {
+			logger.warn("Failed to get data from ui widget: " + this.uiid + ", message: " + e.getMessage());
+			this.stringData = "";
 		} catch (Throwable t) {
 			if (t instanceof UIConvertException) {
 				throw ((UIConvertException) t);
 			}
+
 			throw new UIConvertException("EBOS_ODMAPPER_073", t,
 					new Object[] { this.uiid });
 		}
@@ -194,4 +200,6 @@ public class UIText implements IODMappingConverter {
 
 	public void callAllMappings(boolean isDataToUI) throws UIConvertException {
 	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(UIText.class);
 }

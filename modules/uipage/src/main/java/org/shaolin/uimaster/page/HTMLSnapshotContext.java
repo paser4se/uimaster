@@ -110,8 +110,6 @@ public class HTMLSnapshotContext implements Serializable
 
     private boolean jsonStyle;
 
-    private boolean ajaxSubmit;
-
     private transient Map pageData;
 
     private transient Map<String, Widget> ajaxWidgetMap;
@@ -144,7 +142,6 @@ public class HTMLSnapshotContext implements Serializable
 		} catch (IOException e) {
 			logger.warn(e.getMessage(), e);
 		}
-        this.ajaxSubmit = checkIfNeedAjaxSubmit(this.request);
     }
 
     public HTMLSnapshotContext(HttpServletRequest request)
@@ -157,7 +154,6 @@ public class HTMLSnapshotContext implements Serializable
             resetRepository();
         }
         noResponse = true;
-        this.ajaxSubmit = checkIfNeedAjaxSubmit(this.request);
     }
     
 	public HTMLSnapshotContext(HttpServletRequest request, Writer writer) {
@@ -170,20 +166,6 @@ public class HTMLSnapshotContext implements Serializable
 		}
 		this.out = writer;
 	}
-
-    private boolean checkIfNeedAjaxSubmit(HttpServletRequest request)
-    {
-        String ajaxSubmitFlag = request.getParameter(WebflowConstants.AJAX_SUBMIT_FLAG);
-
-        if (ajaxSubmitFlag != null && ajaxSubmitFlag.equalsIgnoreCase("true"))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
 
     public void setAjaxWidgetMap(Map ajaxComponentMap)
     {
@@ -597,30 +579,19 @@ public class HTMLSnapshotContext implements Serializable
         }
         else if (!noResponse)
         {
-            if (ajaxSubmit)
-            {
-                // save out content in buffer
-                if(!isNullWriter)
-                {
-                	appendHtmlBuffer(value);
-                }
-            }
-            else
-            {
-            	// write out to client directly
-            	try
-            	{
-            		if (value == null) {
-            			value = "";
-            		}
-            		out.write(value);
-            		out.flush();
-            	}
-            	catch (IOException e)
-            	{
-            		CloseUtil.close(out);
-            	}
-            }
+        	// write out to client directly
+        	try
+        	{
+        		if (value == null) {
+        			value = "";
+        		}
+        		out.write(value);
+        		out.flush();
+        	}
+        	catch (IOException e)
+        	{
+        		CloseUtil.close(out);
+        	}
         }
     }
 
@@ -641,16 +612,6 @@ public class HTMLSnapshotContext implements Serializable
     public boolean isJSONStyle()
     {
         return jsonStyle;
-    }
-
-    public void setAjaxSubmit(boolean flag)
-    {
-        ajaxSubmit = flag;
-    }
-
-    public boolean isAjaxSubmit()
-    {
-        return ajaxSubmit;
     }
 
     /**

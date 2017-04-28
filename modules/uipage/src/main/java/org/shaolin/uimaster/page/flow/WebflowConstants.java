@@ -248,18 +248,6 @@ public interface WebflowConstants
     */
     public static final String CLIENT_TIMEZONE_OFFSET = "_clientTimeZoneOffset";
     
-    
-    /**
-     * The request parameter name under which the
-     * identifier for whether this request is submitted by
-     * ajax method or not.
-     * 
-     * The value of this constant is "_htmlkey".
-     */
-    public static final String AJAX_SUBMIT_FLAG = "_ajaxSubmit";
-
-    public static final String AJAX_PRESUBMIT_DATA = "_ajaxPresubmitData";
-    
     /**
      * The <code>Session</code> attribute name under which the
      * next html page's content is normally stored.

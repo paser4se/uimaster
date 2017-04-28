@@ -43,24 +43,9 @@ public interface IJSHandlerCollections {
     public static final String HTML_APPEND = "append";
     
     /**
-     * html doc pre-append.
-     */
-    public static final String HTML_PREPEND = "prepend";
-    
-    /**
      * insert error message.
      */
     public static final String HTML_APPEND_ERROR = "appendError";
-    
-    /**
-     * permit the page to submit.
-     */
-    public static final String PERMIT_SUBMIT = "permitSubmit";
-    
-    /**
-     * tell the browser to re-submit the page through page submit method
-     */
-    public static final String PAGE_RE_SUBMIT = "pageReSubmit";
     
     /**
      * html doc panel pending for a created panel without parent.
@@ -71,16 +56,6 @@ public interface IJSHandlerCollections {
      * refresh a form.
      */
     public static final String FROM_REFRESH = "form_refresh";
-    
-    /**
-     * html doc insert before.
-     */
-    public static final String HTML_INSERTBEFORE = "before";
-    
-    /**
-     * html doc insert after.
-     */
-    public static final String HTML_INSERTAFTER = "after";
     
     /**
      * html doc remove.

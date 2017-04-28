@@ -257,36 +257,12 @@ public class AjaxActionHelper {
 		dataItem.setJsHandler(IJSHandlerCollections.HTML_APPEND);
 		return dataItem;
 	}
-
-	public static IDataItem createPrependItem(String parentId, String uiid) {
-		IDataItem dataItem = new DataItem();
-		dataItem.setUiid(uiid);
-		dataItem.setParent(parentId);
-		dataItem.setJsHandler(IJSHandlerCollections.HTML_PREPEND);
-		return dataItem;
-	}
-
-	public static IDataItem createInsertBeforeItem(String siblingId, String uiid) {
-		IDataItem dataItem = new DataItem();
-		dataItem.setUiid(uiid);
-		dataItem.setSibling(siblingId);
-		dataItem.setJsHandler(IJSHandlerCollections.HTML_INSERTBEFORE);
-		return dataItem;
-	}
 	
 	public static IDataItem createAppendItemToTab(String parentId, String uiid) {
 		IDataItem dataItem = new DataItem();
 		dataItem.setUiid(uiid);
 		dataItem.setParent(parentId);
 		dataItem.setJsHandler(IJSHandlerCollections.TAB_APPEND);
-		return dataItem;
-	}
-
-	public static IDataItem createInsertAfterItem(String siblingId, String uiid) {
-		IDataItem dataItem = new DataItem();
-		dataItem.setUiid(uiid);
-		dataItem.setSibling(siblingId);
-		dataItem.setJsHandler(IJSHandlerCollections.HTML_INSERTAFTER);
 		return dataItem;
 	}
 
@@ -412,39 +388,6 @@ public class AjaxActionHelper {
 		dataItem.setJsHandler(IJSHandlerCollections.NO_PERMISSION);
 		dataItem.setData(msg);
 		return dataItem;
-	}
-
-	public static IDataItem createPermitSubmitItem(String sourceFrame,
-			String targetFrame, String data) {
-		IDataItem dataItem = new DataItem();
-		dataItem.setFrameInfo(sourceFrame);
-		dataItem.setParent(targetFrame);
-		dataItem.setData(data);
-		dataItem.setJsHandler(IJSHandlerCollections.PERMIT_SUBMIT);
-		return dataItem;
-	}
-
-	public static String generateSuccessfulJSONResponse(String sourceFrame,
-			String targetFrame, String htmlKey) {
-		IDataItem dataItem = createPermitSubmitItem(sourceFrame, targetFrame,
-				htmlKey);
-		return "[" + (new JSONObject(dataItem)).toString() + "]";
-	}
-
-	public static IDataItem createReSubmitItem(String sourceFrame,
-			String targetFrame, String data) {
-		IDataItem dataItem = new DataItem();
-		dataItem.setFrameInfo(sourceFrame);
-		dataItem.setParent(targetFrame);
-		dataItem.setData(data);
-		dataItem.setJsHandler(IJSHandlerCollections.PAGE_RE_SUBMIT);
-		return dataItem;
-	}
-
-	public static String generateReSubmitJSONResponse(String sourceFrame,
-			String targetFrame, String data) {
-		IDataItem dataItem = createReSubmitItem(sourceFrame, targetFrame, data);
-		return "[" + (new JSONObject(dataItem)).toString() + "]";
 	}
 
 }

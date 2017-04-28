@@ -207,8 +207,12 @@ public class HTMLPanelType extends HTMLContainerType
         }
     }
 
-    public Widget createAjaxWidget(VariableEvaluator ee)
+    public Widget<Panel> createAjaxWidget(VariableEvaluator ee)
     {
+    	if (!needAjaxSupport()) {
+    		return null;
+    	}
+    	
         Panel panel = new Panel(getName(), Layout.NULL);
         
         panel.setDivPrefix(getContext().getDIVPrefix());

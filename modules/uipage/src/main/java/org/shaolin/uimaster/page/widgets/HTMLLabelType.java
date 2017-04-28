@@ -184,12 +184,12 @@ public class HTMLLabelType extends HTMLTextWidgetType
         {
             return WebConfig.getHiddenValueMask();
         }
-        String displayValue = (String) getAllAttribute("displayValue");
+        Object displayValue = getAllAttribute("displayValue");
         if (displayValue == null)
         {
             displayValue = getValue();
         }
-        return displayValue;
+        return displayValue.toString();
     }
 
     /**
@@ -203,6 +203,10 @@ public class HTMLLabelType extends HTMLTextWidgetType
 
     public Widget createAjaxWidget(VariableEvaluator ee)
     {
+    	if (!needAjaxSupport()) {
+    		return null;
+    	}
+    	
         Label label = new Label(getName(), Layout.NULL);
 
         label.setReadOnly(isReadOnly());

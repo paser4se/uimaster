@@ -51,8 +51,6 @@ import org.shaolin.uimaster.page.od.IODMappingConverter;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.od.ODEntityContext;
 import org.shaolin.uimaster.page.od.ODProcessor;
-import org.shaolin.uimaster.page.widgets.HTMLReferenceEntityType;
-import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

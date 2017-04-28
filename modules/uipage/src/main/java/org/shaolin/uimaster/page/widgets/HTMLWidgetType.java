@@ -198,6 +198,10 @@ public abstract class HTMLWidgetType implements Serializable
         }
     }
 
+    public boolean needAjaxSupport() {
+    	return (attributeMap == null) ? false : attributeMap.containsKey("needAjaxSupport");
+    }
+    
     public Object getAttribute(String name)
     {
         return attributeMap == null ? null : attributeMap.get(name);

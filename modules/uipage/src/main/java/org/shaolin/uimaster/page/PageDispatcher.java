@@ -569,33 +569,7 @@ public class PageDispatcher {
             else
             {
             }
-
             context.generateHTML("");
-            // save real html page in session
-            if (context.isAjaxSubmit())
-            {   
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Ajax Submit - The framePrefix is: " + framePrefix + 
-                            " , The frameTarget is: " + frameTarget + " .");
-                }
-                
-                String timeStamp = String.valueOf(System.currentTimeMillis());
-                session.setAttribute(WebflowConstants.TEMP_RESPONSE_DATA, context.getHtmlString());
-                session.setAttribute(WebflowConstants.TEMP_RESPONSE_KEY, timeStamp);
-                // generate ajax response
-                String ajaxResponse = AjaxActionHelper.generateSuccessfulJSONResponse(
-                        context.getRequest().getParameter("_framePrefix"),
-                        context.getRequest().getParameter("_frameTarget"),
-                        timeStamp);
-                try
-                {
-                    context.getOut().write(ajaxResponse);
-                }
-                catch(IOException e)
-                {
-                    logger.error("Fail to get a response writer", e);
-                }
-            }
             if (logger.isDebugEnabled()) {
             	debugEnableToSerializable(context.getAjaxWidgetMap());
             }

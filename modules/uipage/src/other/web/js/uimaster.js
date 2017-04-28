@@ -12,6 +12,13 @@ if (MobileAppMode) {
 }
 /**UI widget list*/
 var elementList = new Array();
+/**
+ * @description Register an AJAX handler to handle UIMaster AJAX operations.
+ * @param {String} name Handler's name.
+ * @param {Function} handler Function handler. <br/> There will be two parameters passed to the handler. First one is the data passed from the server, the second one is the window object of that operation.
+ * @returns {UIMaster} UIMaster object.
+ */
+var scriptCaches_ = new Array(); 
 var DATA_FORMAT_SERVICE_URL = "/jsp/common/DataFormatService.jsp";
 function isWeiXinBrowser(){var ua = window.navigator.userAgent.toLowerCase(); return ua.indexOf('MicroMessenger') != -1;}
 function isSafariBrowser(){return UIMaster.browser.safari;}
@@ -285,6 +292,36 @@ UIMaster.require = function(_jsName, _nocheck){
         UIMaster.funclist[_jsName] = 'finished';
     }
 };
+UIMaster.workflowActionPanel = null;
+UIMaster.pageInitFunctions = new Array();
+UIMaster.pageInitFunctions.push(function() {//handle back button event and reload server page.
+    var f = $($(document.body).find("form")[0]);
+    var url = f.attr("action");
+	var chunkNameIndex = url.indexOf("_chunkname=");
+	var nodenameIndex = url.indexOf("_nodename=");
+	if (chunkNameIndex != -1) {
+		var path = url.substring(chunkNameIndex + "_chunkname=".length, nodenameIndex - 1);
+		var node = url.substring(nodenameIndex + "_nodename=".length);
+		if (node.indexOf('&') != -1) {
+			node = node.substring(0, node.indexOf('&'));
+		}
+		var frameprefix = f.attr("_frameprefix");
+		if (frameprefix == undefined) {//only for main page.
+		    var opts = {async:true,url:AJAX_SERVICE_URL,
+				data:{serviceName:'pagestatesync',r:Math.random(),_chunkname:path,_nodename:node,_frameprefix:frameprefix},
+				success:function(data){
+					if(data == '0')
+					   window.location.reload();
+				}
+			};
+			if (MobileAppMode) {
+			  _mobContext.ajax(JSON.stringify(opts));
+			} else {
+			  $.ajax(opts);
+			}
+		}
+	}
+});
 /**
  * @description Make a list of all scripts loaded in current page.
  * @ignore
