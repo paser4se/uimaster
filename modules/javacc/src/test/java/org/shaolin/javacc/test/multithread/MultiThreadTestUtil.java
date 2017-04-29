@@ -19,7 +19,7 @@ public class MultiThreadTestUtil
 {
 	private int no;
 	
-	MultiThreadTestUtil(int no)
+	public MultiThreadTestUtil(int no)
 	{
 		this.no = no;
 	}

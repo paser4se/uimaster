@@ -17,10 +17,13 @@ package org.shaolin.javacc.test.multithread;
 
 //imports
 //junit
-import org.shaolin.javacc.*;
-import org.shaolin.javacc.context.*;
-import org.shaolin.javacc.exception.*;
+import org.shaolin.javacc.Expression;
+import org.shaolin.javacc.ExpressionEvaluator;
+import org.shaolin.javacc.ExpressionParser;
+import org.shaolin.javacc.context.DefaultEvaluationContext;
+import org.shaolin.javacc.context.DefaultParsingContext;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -40,19 +43,13 @@ public class MultiThreadTest extends TestCase
     private static Expression expression;
     private static int count = 0;
     
-    private DefaultEvaluationContext evaluationContext;
-    
-    private int aValue;
-    
     static
     {
 		DefaultParsingContext parsingContext = new DefaultParsingContext();
 		parsingContext.setVariableClass("a", MultiThreadTestUtil.class);
 		
-    	String expressionString = "a.getNo()";
-		
-		try
-		{
+		try {
+			String expressionString = "a.getNo()";
     		expression = ExpressionParser.parse(expressionString, parsingContext);
     	}
     	catch(Exception ex)
@@ -62,16 +59,7 @@ public class MultiThreadTest extends TestCase
         
     protected void setUp()
     {
-    	try
-    	{
-	    	evaluationContext = new DefaultEvaluationContext();
-	    	aValue = count++;
-	    	evaluationContext.initVariable("a");
-	    	evaluationContext.setVariableValue("a", new MultiThreadTestUtil(aValue));
-	    }
-	    catch(Exception ex)
-	    {
-	    }
+    	
     }
     
     protected void tearDown()
@@ -83,9 +71,24 @@ public class MultiThreadTest extends TestCase
      */
     public void testCase1() throws Exception
     {
-    	Object expressionValue = ExpressionEvaluator.evaluate(expression, evaluationContext);
-    	assertEquals(new Integer(aValue), expressionValue);
+		for (int i=0; i<200; i++) {
+			new Thread(new Runnable() {
+				public void run() {
+					try {
+						DefaultEvaluationContext evaluationContext = new DefaultEvaluationContext();
+			    		int aValue = count++;
+				    	evaluationContext.initVariable("a");
+				    	evaluationContext.setVariableValue("a", new MultiThreadTestUtil(aValue));
+				    	Object expressionValue = ExpressionEvaluator.evaluate(expression, evaluationContext);
+				    	assertEquals(new Integer(aValue), expressionValue);
+				    	System.out.println(expressionValue);
+					} catch (Exception e) {
+						Assert.fail(e.getMessage());
+					}
+				}
+			}).start();
+		}
+		Thread.sleep(3000);
     }
-    
 
 }
