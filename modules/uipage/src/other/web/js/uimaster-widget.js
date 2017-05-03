@@ -3753,12 +3753,15 @@ function showMobileFrame(link, name) {
 		    fc.attr("src","about:blank");
 		},
 		close: function() {//no need app ajax support.
-		  $.ajax({url:AJAX_SERVICE_URL,async:true,data:{_ajaxUserEvent:"tabpane",_uiid:"Form",_valueName:"removePage",_value:frameId,    _framePrefix:UIMaster.getFramePrefix()}});
+		  $.ajax({url:AJAX_SERVICE_URL,async:true,data:{serviceName:"closepage",_framePrefix:UIMaster.getFramePrefix()}});
 		}
 		//buttons: [{text:"\u5173\u95ED", open:function(){$(this).addClass('uimaster_button');}, click:function(){d.dialog("close");}}]
 		});
 	d.dialog("open");
 }
+UIMaster.goBack = function(e){//app close page in here!
+	$.ajax({url:AJAX_SERVICE_URL,async:false,data:{serviceName:"closepage",_framePrefix:UIMaster.getFramePrefix()}});
+};
 /**
  * @description UI Tab class. Need more information.
  * @param {Object} conf Configuration items.
@@ -3926,7 +3929,7 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
 		var c = $(selectedBody).children();
 		if (c.length > 0 && c[0].tagName.toLowerCase() == "iframe") { 
 			var obj = othis.ui;
-			var opts = {url:AJAX_SERVICE_URL,async:true,data:{_ajaxUserEvent:"tabpane",_uiid:othis.id,_valueName:"remveTabId",_value:$(c[0]).attr("name"),_framePrefix:UIMaster.getFramePrefix()}};
+			var opts = {url:AJAX_SERVICE_URL,async:true,data:{serviceName:"closepage",_framePrefix:$(c[0]).attr("name")}};
 			if (MobileAppMode) {
 				_mobContext.ajax(JSON.stringify(opts));
 			} else {

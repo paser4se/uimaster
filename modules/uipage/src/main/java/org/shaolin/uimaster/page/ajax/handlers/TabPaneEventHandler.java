@@ -43,6 +43,9 @@ public class TabPaneEventHandler implements IAjaxHandler {
 			if ("removePage".equals(propertyName)) {
 				AjaxActionHelper.getAjaxContext().removeFramePage(index);
 				return "";
+			} else if ("removeTab".equals(propertyName)) {
+				// skipped
+				return "";
 			} else if ("removeExcludedPage".equals(propertyName)) {
 				boolean isRoot = index.equals(AjaxContext.GLOBAL_PAGE);
 				List<String> list = AjaxActionHelper.getAllCachedPages(context.getRequest().getSession());
@@ -70,9 +73,11 @@ public class TabPaneEventHandler implements IAjaxHandler {
 			if ("selectedIndex".equals(propertyName)) {
 				comp.addAttribute("selectedIndex", index, false);
 			} 
-			if(!comp.loadContent(Integer.valueOf(index))) {
-				comp.syncSelectedAction(context);
-			}
+			try {
+				if(!comp.loadContent(Integer.valueOf(index))) {
+					comp.syncSelectedAction(context);
+				}
+			} catch (NumberFormatException e) {}
 			
 			return AjaxActionHelper.getAjaxContext().getDataAsJSON();
 		} catch (Exception e) {

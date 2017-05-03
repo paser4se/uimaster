@@ -48,6 +48,7 @@ public class AjaxFactory
         {
             // register common services.
         	register("pagestatesync", new PageStatusSync());
+        	register("closepage", new ClosePage());
             register("I18NService", new I18NService());
             register("DateFormatService", new DateFormatService());
             register("SetTimezoneOffset", new SetTimezoneOffset());
@@ -118,6 +119,22 @@ public class AjaxFactory
 		
 		public boolean needUserSession() {
 			return false;
+		}
+	}
+    
+    private static class ClosePage implements IAjaxCommand {
+		public Object execute(HttpServletRequest request,
+				HttpServletResponse response) throws Exception {
+			String frameId = request.getParameter("_framePrefix");
+			logger.info("Close the frame page: " + frameId);
+	    	Map ajaxComponentMap = AjaxActionHelper.getAjaxWidgetMap(request.getSession());
+	    	ajaxComponentMap.remove(frameId);
+	    	AjaxActionHelper.removeCachedPage(request.getSession(), frameId);
+			return "1";
+		}
+		
+		public boolean needUserSession() {
+			return true;
 		}
 	}
     
