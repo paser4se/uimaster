@@ -21,6 +21,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -80,10 +81,9 @@ public class UserRequestContext implements Serializable
     private final Map<String, Widget<?>> ajaxWidgetMap = new HashMap<String, Widget<?>>();
     private transient Map<String, ComponentPermission> componentPermissions;
     private transient Map<String, UIFormObject> refEntityMap;
-
+    private List<String> resourceBundles;
+    
     private transient ArrayList<String> pageJs;
-
-    private transient ArrayList<String> pageCSS;
 
     private Set<String> jsNameSet = new HashSet<String>();
     
@@ -199,6 +199,17 @@ public class UserRequestContext implements Serializable
     		return uicompStyles.get(uiid).get(name);
     	}
     	return null;
+    }
+    
+    public void addResourceBundle(String bundle) {
+    	if (this.resourceBundles == null) {
+    		this.resourceBundles = new ArrayList<String>();
+    	}
+    	this.resourceBundles.add(bundle);
+    }
+    
+    public List<String> getResourceBundle() {
+    	return this.resourceBundles;
     }
     
     public void resetRepository()

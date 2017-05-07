@@ -40,6 +40,7 @@ import org.shaolin.uimaster.html.layout.HTMLPanelLayout;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.DisposableBfString;
+import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
@@ -53,8 +54,11 @@ import org.shaolin.uimaster.page.od.ODEntityContext;
 import org.shaolin.uimaster.page.od.ODPageContext;
 import org.shaolin.uimaster.page.spi.IJsGenerator;
 import org.shaolin.uimaster.page.widgets.HTMLCellLayoutType;
+import org.shaolin.uimaster.page.widgets.HTMLDynamicUIItem;
 import org.shaolin.uimaster.page.widgets.HTMLFrameType;
+import org.shaolin.uimaster.page.widgets.HTMLPanelType;
 import org.shaolin.uimaster.page.widgets.HTMLReferenceEntityType;
+import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,6 +103,7 @@ public class TabPane extends Container implements Serializable
     private AtomicInteger accessedIndex = new AtomicInteger();
     
     private ExpressionType selectedAction;
+    private String originalUIID;
     private String uiid;
     private int selectedIndex;
     
@@ -120,6 +125,10 @@ public class TabPane extends Container implements Serializable
         super(AjaxActionHelper.getAjaxContext().getEntityPrefix() +id, layout);
         this.setListened(true);
         this.uiid = this.getId();
+    }
+    
+    public void setOriginalUIID(String uiid){
+    	this.originalUIID = uiid;
     }
     
     public TabPane addAttribute(String name, Object value, boolean update)
@@ -263,42 +272,69 @@ public class TabPane extends Container implements Serializable
     	UITabPaneItemType tab = tabs.get(index);
     	ODContext odContext = this.evalContexts.remove(tab.getUiid());
         String entityPrefix = ajaxContext.getEntityPrefix();
-		if (tab.getPanel() != null) {
-			ParsingContext pContext = null;
-			VariableEvaluator ee = null;
-			if (odContext != null) {
-				pContext = PageCacheManager.getUIFormObject(odContext.getODFormName()).getVariablePContext();
-				ee = new VariableEvaluator(odContext);
-			} else {
+        ParsingContext pContext = null;
+		VariableEvaluator ee = null;
+		if (odContext != null) {
+			pContext = PageCacheManager.getUIFormObject(odContext.getODFormName()).getVariablePContext();
+			ee = new VariableEvaluator(odContext);
+		} else {
+			try {
+				String pageName = ownerEntity.getName();
+				HTMLReferenceEntityType uiEntity = new HTMLReferenceEntityType(entityPrefix, pageName);
+				uiEntity.setReadOnly(Boolean.FALSE);
+				htmlContext.getODMapperData().put("UIWidgetType", uiEntity);
 				try {
-					String pageName = ownerEntity.getName();
-					HTMLReferenceEntityType uiEntity = new HTMLReferenceEntityType(entityPrefix, pageName);
-					uiEntity.setReadOnly(Boolean.FALSE);
-					htmlContext.getODMapperData().put("UIWidgetType", uiEntity);
-					try {
-						pContext = PageCacheManager.getUIFormObject(pageName).getVariablePContext();
-						ODEntityContext odEntityContext = new ODEntityContext(pageName, htmlContext);
-						odEntityContext.initContext();
-						odContext = odEntityContext;
-						ee = new VariableEvaluator(new DefaultEvaluationContext());
-					} catch (EntityNotFoundException e) {
-						pContext = PageCacheManager.getUIPageObject(pageName).getUIFormObject().getVariablePContext();
-						ODPageContext odPageContext = new ODPageContext( htmlContext, pageName );
-						odPageContext.initContext();
-						odContext = odPageContext;
-						ee = new VariableEvaluator(odPageContext);
-					}
-				} catch (Exception e) {
-					logger.warn(e.getMessage(), e);
+					pContext = PageCacheManager.getUIFormObject(pageName).getVariablePContext();
+					ODEntityContext odEntityContext = new ODEntityContext(pageName, htmlContext);
+					odEntityContext.initContext();
+					odContext = odEntityContext;
+					ee = new VariableEvaluator(new DefaultEvaluationContext());
+				} catch (EntityNotFoundException e) {
+					pContext = PageCacheManager.getUIPageObject(pageName).getUIFormObject().getVariablePContext();
+					ODPageContext odPageContext = new ODPageContext( htmlContext, pageName );
+					odPageContext.initContext();
+					odContext = odPageContext;
+					ee = new VariableEvaluator(odPageContext);
 				}
+			} catch (Exception e) {
+				logger.warn(e.getMessage(), e);
 			}
-			if (pContext == null || ee == null) {
-				throw new IllegalStateException("Failed to initialize the OD context for UIPage tab.");
-			}
-			EvaluationContext evalContext = ee.getExpressionContext("$");
-			evalContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
-			EvaluationContext evalContext1 = ee.getExpressionContext("@");
-			evalContext1.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+		}
+		if (pContext == null || ee == null) {
+			throw new IllegalStateException("Failed to initialize the OD context for UIPage tab.");
+		}
+		EvaluationContext evalContext = ee.getExpressionContext("$");
+		evalContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+		EvaluationContext evalContext1 = ee.getExpressionContext("@");
+		evalContext1.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+        
+		if (tab.getPanel() != null) {
+			// only search for current level excluding sub ref-entity.
+            List<String> componentIds = ownerEntity.getAllComponentID(this.originalUIID + tab.getPanel().getUIID());
+    		for(String compId : componentIds) {
+    			Map propMap = ownerEntity.getComponentProperty(compId);
+    			Map expMap = ownerEntity.getComponentExpression(compId);
+    			Map<String, Object> tempMap = new HashMap<String, Object>();
+    			if (expMap != null && expMap.size() > 0) {
+    				HTMLUtil.evaluateExpression(propMap, expMap, tempMap, ee);
+    			}
+    			// added the combined dynamic attributes for ui widget.
+    			// so, we can access these value through HTMLWidgetType.getAttribute(name);
+    			String uiid = htmlContext.getHTMLPrefix() + compId;
+    			htmlContext.addAttribute(uiid, tempMap);
+				HTMLWidgetType htmlWidget = ownerEntity.getComponents().get(compId);
+				if (htmlWidget.getClass() == HTMLPanelType.class && ((HTMLPanelType)htmlWidget).hasDynamicUI()) {
+		        	String filter = (String)htmlContext.getAttribute(htmlWidget.getName(), "dynamicUIFilter");
+		    		if (filter == null)
+		    			filter = "";
+		        	List<HTMLDynamicUIItem> dynamicItems = ownerEntity.getDynamicItems(compId, filter);
+		        	((HTMLPanelType)htmlWidget).setDynamicItems(dynamicItems);
+		        }
+    			Widget newAjax = htmlWidget.createAjaxWidget(ee);
+                if (newAjax != null) {
+                	htmlContext.addAjaxWidget(newAjax.getId(), newAjax);
+                }
+    		}
 			
         	//ui panel support
         	String id = entityPrefix + tab.getPanel().getUIID();

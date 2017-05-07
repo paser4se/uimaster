@@ -487,11 +487,6 @@ public class HTMLUtil
         return tempMap;
     }
 
-    public static Map internationalization(Map propMap, Map i18nMap, Map tempMap)
-    {
-        return internationalization(propMap, i18nMap, tempMap, null);
-    }
-
     public static Map internationalization(Map propMap, Map i18nMap, Map tempMap,
             UserRequestContext context)
     {
@@ -531,13 +526,15 @@ public class HTMLUtil
                                         || propName.equals("selectedValuesConstraint"))
                                 {
                                     value = ResourceUtil.getResource(locale, bundle, key);
-                                    context.generateHTML("<input type=\"hidden\" name=\"__resourcebundle\" value=\"");
-                            		context.generateHTML(bundle);
-                            		context.generateHTML("||");
-                            		context.generateHTML(key);
-                            		context.generateHTML("\" msg=\"");
-                            		context.generateHTML(HTMLUtil.formatHtmlValue(value));
-                            		context.generateHTML("\">");
+                                    StringBuffer sb = new StringBuffer();
+                                    sb.append("<input type=\"hidden\" name=\"__resourcebundle\" value=\"");
+                                    sb.append(bundle);
+                                    sb.append("||");
+                                    sb.append(key);
+                                    sb.append("\" msg=\"");
+                                    sb.append(HTMLUtil.formatHtmlValue(value));
+                            		sb.append("\">\n");
+                            		context.addResourceBundle(sb.toString());
                                 }
                             }
                             if (key == null)
@@ -553,13 +550,15 @@ public class HTMLUtil
                                     if (propName.equals("selectedValueConstraint")
                                             || propName.equals("selectedValuesConstraint"))
                                     {
-                                        context.generateHTML("<input type=\"hidden\" name=\"__resourcebundle\" value=\"");
-                                        context.generateHTML(bundle);
-                                        context.generateHTML("||");
-                                        context.generateHTML(key);
-                                        context.generateHTML("\" msg=\"");
-                                        context.generateHTML(HTMLUtil.formatHtmlValue(value));
-                                        context.generateHTML("\">");
+                                    	StringBuffer sb = new StringBuffer();
+                                    	sb.append("<input type=\"hidden\" name=\"__resourcebundle\" value=\"");
+                                    	sb.append(bundle);
+                                    	sb.append("||");
+                                    	sb.append(key);
+                                    	sb.append("\" msg=\"");
+                                    	sb.append(HTMLUtil.formatHtmlValue(value));
+                                    	sb.append("\">\n");
+                                    	context.addResourceBundle(sb.toString());
                                     }
                                 }
                             }
@@ -588,14 +587,16 @@ public class HTMLUtil
                                 || propName.equals("selectedValuesConstraintText")
                                 || propName.endsWith("-msg--"))
                         {
+                        	StringBuffer sb = new StringBuffer();
                             value = ResourceUtil.getResource(locale, bundle, key);
-                            context.generateHTML("<input type=\"hidden\" name=\"__resourcebundle\" value=\"");
-                            context.generateHTML(bundle);
-                            context.generateHTML("||");
-                            context.generateHTML(key);
-                            context.generateHTML("\" msg=\"");
-                            context.generateHTML(HTMLUtil.formatHtmlValue(value));
-                            context.generateHTML("\">");
+                            sb.append("<input type=\"hidden\" name=\"__resourcebundle\" value=\"");
+                            sb.append(bundle);
+                            sb.append("||");
+                            sb.append(key);
+                            sb.append("\" msg=\"");
+                            sb.append(HTMLUtil.formatHtmlValue(value));
+                            sb.append("\">\n");
+                            context.addResourceBundle(sb.toString());
                         }
                     }
                     if (key == null)
@@ -614,13 +615,15 @@ public class HTMLUtil
                                     || propName.equals("selectedValuesConstraintText")
                                     || propName.endsWith("-msg--"))
                             {
-                                context.generateHTML("<input type=\"hidden\" name=\"__resourcebundle\" value=\"");
-                                context.generateHTML(bundle);
-                                context.generateHTML("||");
-                                context.generateHTML(key);
-                                context.generateHTML("\" msg=\"");
-                                context.generateHTML(HTMLUtil.formatHtmlValue(value));
-                                context.generateHTML("\">");
+                            	StringBuffer sb = new StringBuffer();
+                            	sb.append("<input type=\"hidden\" name=\"__resourcebundle\" value=\"");
+                            	sb.append(bundle);
+                            	sb.append("||");
+                            	sb.append(key);
+                            	sb.append("\" msg=\"");
+                            	sb.append(HTMLUtil.formatHtmlValue(value));
+                            	sb.append("\">\n");
+                                context.addResourceBundle(sb.toString());
                             }
                         }
                     }
@@ -709,6 +712,13 @@ public class HTMLUtil
         generateBundle(context, "Common", "MINIMUM_LENGTH");
         generateBundle(context, "Common", "MUST_CHECK");
         generateBundle(context, "Common", "SELECT_VALUE");
+        
+        List<String> bundles = context.getResourceBundle();
+        if (bundles != null && bundles.size() > 0) {
+        	for (String bundle: bundles) {
+        		context.generateHTML(bundle);
+        	}
+        }
     }
 
     private static void generateBundle(UserRequestContext context, String bundle, String key)

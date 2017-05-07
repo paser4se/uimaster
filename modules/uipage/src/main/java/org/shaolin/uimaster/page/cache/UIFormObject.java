@@ -128,7 +128,9 @@ import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.od.ODContextHelper;
 import org.shaolin.uimaster.page.od.mappings.ComponentMappingHelper;
 import org.shaolin.uimaster.page.widgets.HTMLDynamicUIItem;
+import org.shaolin.uimaster.page.widgets.HTMLPreNextPanelType;
 import org.shaolin.uimaster.page.widgets.HTMLReferenceEntityType;
+import org.shaolin.uimaster.page.widgets.HTMLTabPaneType;
 import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,6 +154,9 @@ public class UIFormObject implements java.io.Serializable
     private Map<String, Map<String, Object>> componentMap = new HashMap<String, Map<String, Object>>();
 
     private final Map<String, HTMLWidgetType> components = new HashMap<String, HTMLWidgetType>();
+    
+    // tabpaneIdpanelId, component ids
+    private final Map<String, List<String>> tabPanelNestComponents = new HashMap<String, List<String>>();
     
     //App Name, UIPanel Name, UI Widgets.
     private Map<String, List<HTMLDynamicUIItem>> dynamicItems; 
@@ -179,7 +184,7 @@ public class UIFormObject implements java.io.Serializable
 
     private long lastModifyTime;
 
-    private List refereneEntityList = new ArrayList();
+    private List<String> refereneEntityList = new ArrayList<String>();
 
     private Map jsIncludeMap = new HashMap();
 
@@ -312,8 +317,6 @@ public class UIFormObject implements java.io.Serializable
             throw new IllegalStateException("Error occured when get HTMLUIComponent for type: "
                             + uiComponentType + ", the error message is: " + e.getMessage(), e);
         }
-//        HTMLLayoutType layout = HTMLUtil.getHTMLLayoutType("", "CellLayoutType");
-//        htmlComponent.setHTMLLayout(layout);
         htmlComponent.setEventListener(eventMap);
         IUISkin uiskinObj = this.getUISkinObj(UIID, null, htmlComponent);
         if (uiskinObj != null) {
@@ -330,6 +333,10 @@ public class UIFormObject implements java.io.Serializable
         	Map<String, Object> propMap1 = this.getComponentProperty(referObject.getUIID());
     		referObject.setEntityName((String)propMap1.get("referenceEntity"));
 			createRefEntity("", referObject);
+		} else if (htmlComponent instanceof HTMLTabPaneType) {
+			HTMLTabPaneType tabPane = (HTMLTabPaneType)htmlComponent;
+		} else if (htmlComponent instanceof HTMLPreNextPanelType) {
+			HTMLPreNextPanelType prenext = (HTMLPreNextPanelType)htmlComponent;
 		}
         
         return htmlComponent;
@@ -421,6 +428,21 @@ public class UIFormObject implements java.io.Serializable
 		return null;
     }
 
+    public void parseReferenceEntity(Map<String, UIFormObject> entityMap) throws EntityNotFoundException, UIPageException
+    {
+    	Iterator<String> iterator = refereneEntityList.iterator();
+    	while (iterator.hasNext())
+    	{
+    		String entityName = iterator.next();
+    		if (!entityMap.containsKey(entityName))
+    		{
+    			UIFormObject entityObj = HTMLUtil.parseUIForm(entityName);
+    			entityObj.parseReferenceEntity(entityMap);
+    			entityMap.put(entityName, entityObj);
+    		}
+    	}
+    }
+    
     private void parseReconfigurable(UIEntity entity)
     {
         List<ReconfigurableType> reconfigurables = entity.getReconfigurableProperties();
@@ -682,6 +704,18 @@ public class UIFormObject implements java.io.Serializable
 	                            i18nMap, expMap, parsingContext);
 					} else if (tab.getPanel() != null) {
 						parseComponent(tab.getPanel(), parsingContext);
+						List<String> nestedComponentIds = new ArrayList<String>();
+						List<UIComponentType> components = tab.getPanel().getComponents();
+			            for (UIComponentType uicomponent: components) {
+			            	nestedComponentIds.add(uicomponent.getUIID());
+			            	if (uicomponent.getClass() == UIPanelType.class) {
+			            		for (UIComponentType subComp: ((UIPanelType)uicomponent).getComponents()) {
+					            	nestedComponentIds.add(subComp.getUIID());
+					            	//TODO: only supported two layers in tab-panel! which is enough?
+					            }
+			            	}
+			            }
+						tabPanelNestComponents.put(tabPane.getUIID() + tab.getPanel().getUIID(), nestedComponentIds);
 					}
 
                 }
@@ -1771,6 +1805,18 @@ public class UIFormObject implements java.io.Serializable
         return componentMap.keySet().iterator();
     }
 
+    /**
+     * Get the nested components from a tab-panel.
+     * 
+     * @param tabpaneId
+     * @param panelId
+     * @return
+     */
+    public List<String> getAllComponentID(String tabpaneIdpanelId)
+    {
+    	return tabPanelNestComponents.get(tabpaneIdpanelId);
+    }
+    
     public Map getComponentEvent(String componentID)
     {
         return (Map)funcMap.get(componentID);

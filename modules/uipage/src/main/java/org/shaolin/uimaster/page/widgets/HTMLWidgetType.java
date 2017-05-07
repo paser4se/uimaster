@@ -497,6 +497,7 @@ public abstract class HTMLWidgetType implements Serializable
                 context.generateHTML(";");
             }
             context.generateHTML("\"");
+            context.getStyle(this.getName()).clear();//only used once.
         }
     }
 

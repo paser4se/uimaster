@@ -236,6 +236,7 @@ public class PageDispatcher {
 
             Map<String, UIFormObject> referenceEntityMap = new HashMap<String, UIFormObject>();
             referenceEntityMap.put(entityName, pageObject.getUIFormObject());
+            pageObject.getUIFormObject().parseReferenceEntity(referenceEntityMap);
             context.setRefEntityMap(referenceEntityMap);
 
             String charset = Registry.getInstance().getEncoding();

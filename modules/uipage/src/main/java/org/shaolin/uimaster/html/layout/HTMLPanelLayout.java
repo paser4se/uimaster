@@ -61,29 +61,24 @@ public class HTMLPanelLayout extends HTMLComponentLayout
 			} catch (Exception e) {
 				logger.error("uiskin error: ", e);
 			}
-		} else {
-			uiPanel.generateBeginHTML(context, this.ownerEntity, depth);
-		}
-
-//        Widget newWidget = uiPanel.createAjaxWidget(ee);
-//        if (newWidget != null) {
-//        	context.addAjaxWidget(newWidget.getId(), newWidget);
-//        }
+		} 
+		
+		uiPanel.generateBeginHTML(context, this.ownerEntity, depth);
 
         layout.generateHTML(context, depth + 1, realReadOnly, uiskinObj,
                 uiPanel);
 
-        HTMLUtil.generateTab(context, depth);
+    	uiPanel.generateEndHTML(context, this.ownerEntity, depth);
+
+    	HTMLUtil.generateTab(context, depth);
 		if (uiskinObj != null) {
 			try {
 				uiskinObj.generatePostCode(uiPanel);
 			} catch (Exception e) {
 				logger.error("uiskin error: ", e);
 			}
-        } else {
-        	uiPanel.generateEndHTML(context, this.ownerEntity, depth);
-        }
-
+        } 
+    	
         if (componentList != null)
         {
             for (int i = 0, n = componentList.size(); i < n; i++)

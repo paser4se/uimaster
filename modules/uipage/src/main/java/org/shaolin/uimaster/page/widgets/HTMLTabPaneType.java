@@ -259,22 +259,10 @@ public class HTMLTabPaneType extends HTMLContainerType
     
     public Widget createAjaxWidget(VariableEvaluator ee)
     {
-//        HashMap tempVars = null;
-//        boolean ajaxLoad = (boolean)this.getAttribute("ajaxLoad");
-//        if (ajaxLoad) {
-//        	// save the input variables to this tab panel.
-//        	EvaluationContext tempContext = ee.getExpressionContext(ODContext.LOCAL_TAG);
-//        	if (tempContext == null) {
-//        		tempContext = ee.getExpressionContext();
-//        	}
-//        	if (tempContext instanceof DefaultEvaluationContext) {
-//        		Map vars = ((DefaultEvaluationContext)tempContext).getVariableObjects();
-//        		tempVars = new HashMap(vars);
-//        	}
-//        }
     	ExpressionType selectedAction = (ExpressionType)this.removeAttribute("selectedAction");
     	List<UITabPaneItemType> tabs = (List<UITabPaneItemType>)this.getAttribute("tabPaneItems");
     	TabPane panel = new TabPane(getName(), tabs, 0, new CellLayout());
+    	panel.setOriginalUIID(this.getUIID());
     	panel.setAjaxLoad((boolean)this.getAttribute("ajaxLoad"));
     	panel.setSelectedAction(selectedAction);
         panel.setReadOnly(isReadOnly());
@@ -283,7 +271,7 @@ public class HTMLTabPaneType extends HTMLContainerType
         
         List<HTMLReferenceEntityType> createdRefEntities = new ArrayList<HTMLReferenceEntityType>();
         boolean ajaxLoad = (boolean)this.getAttribute("ajaxLoad");
-        for(int i = 0, n = tabs.size(); i < n; i++){
+        for(int i = 0, n = tabs.size(); i < n; i++) {
         	if (ajaxLoad && i > 0) {
         		// save context if it's ajax loading.
         		String uiid = tabs.get(i).getUiid();

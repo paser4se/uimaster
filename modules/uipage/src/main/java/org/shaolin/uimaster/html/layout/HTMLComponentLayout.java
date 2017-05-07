@@ -167,11 +167,10 @@ public class HTMLComponentLayout extends AbstractHTMLLayout
     public void generate(UserRequestContext context, int depth, Boolean readOnly, 
             IUISkin uiskinObj, HTMLWidgetType parentComponent, String rowUIStyle) throws UIPageException
     {
-    	HTMLCellLayoutType layout = (HTMLCellLayoutType)HTMLUtil.getHTMLLayoutType("", "CellLayoutType");
+    	HTMLCellLayoutType layout = (HTMLCellLayoutType)HTMLUtil.getHTMLLayoutType(parentComponent.getName() + "_Cell", "CellLayoutType");
         layout.setContainer(container);
         layout.setIsContainer(isContainer);
 
-        layout.setParentComponent(parentComponent);
         layout.setTableColumnCount(colCount);
         layout.setTableRowCount(rowCount);
         
@@ -267,15 +266,6 @@ public class HTMLComponentLayout extends AbstractHTMLLayout
 				logger.error("uiskin error: ", e);
 			}
         } 
-        
-//        Widget newWidget = htmlComponent.createAjaxWidget(ee);
-//        if ( newWidget != null ) {
-//            context.addAjaxWidget(newWidget.getId(), newWidget);
-//            if (htmlComponent.getClass() == HTMLButtonType.class) {
-//            	// all express must be re-calculate when click button in every time.
-//        		((Button)newWidget).setExpressMap(expMap);
-//        	}
-//        }
         
 		if (uiskinObj != null) {
 			try {

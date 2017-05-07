@@ -26,7 +26,6 @@ public abstract class HTMLLayoutType extends HTMLWidgetType implements Serializa
 	
 	private int tableRowCount;
 	private int tableColumnCount;
-	private HTMLWidgetType parent;
 
 	private static final Logger logger = LoggerFactory.getLogger(HTMLLayoutType.class);
 
@@ -86,14 +85,6 @@ public abstract class HTMLLayoutType extends HTMLWidgetType implements Serializa
 			}
 		}
 		return colSpan;
-	}
-
-	public void setParentComponent(HTMLWidgetType parent) {
-		this.parent = parent;
-	}
-
-	public HTMLWidgetType getParentComponent() {
-		return parent;
 	}
 
 	public void generateAttribute(UserRequestContext context,

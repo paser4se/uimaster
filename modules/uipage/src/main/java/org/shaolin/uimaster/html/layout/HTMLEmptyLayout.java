@@ -17,10 +17,9 @@ public class HTMLEmptyLayout extends AbstractHTMLLayout {
     public void generate(UserRequestContext context, int depth, Boolean readOnly, 
             IUISkin uiskinObj, HTMLWidgetType parentComponent, String rowUIStyle) throws UIPageException
     {
-        HTMLLayoutType layout = HTMLUtil.getHTMLLayoutType("", "CellLayoutType");
+        HTMLLayoutType layout = HTMLUtil.getHTMLLayoutType(parentComponent.getName() + "_Cell", "CellLayoutType");
         ((HTMLCellLayoutType)layout).setContainer(container);
         
-        layout.setParentComponent(parentComponent);
         layout.setTableColumnCount(colCount);
         layout.setTableRowCount(rowCount);
         layout.addAttribute("x", String.valueOf(cellX));
