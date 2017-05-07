@@ -26,7 +26,7 @@ import org.shaolin.bmdp.datamodel.page.UITableActionType;
 import org.shaolin.bmdp.datamodel.workflow.Workflow;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.FlowDiagram;
@@ -43,22 +43,13 @@ public class HTMLFlowDiagramType extends HTMLWidgetType
 {
     private static Logger logger = LoggerFactory.getLogger(HTMLFlowDiagramType.class);
 
-    public HTMLFlowDiagramType()
+    public HTMLFlowDiagramType(String id)
     {
-    }
-
-    public HTMLFlowDiagramType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public HTMLFlowDiagramType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+        super(id);
     }
 
     @Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
     	
     	if (context.getRequest().getAttribute("_hasFlowDiagram") == null) {
 			context.getRequest().setAttribute("_hasFlowDiagram", Boolean.TRUE);
@@ -92,7 +83,7 @@ public class HTMLFlowDiagramType extends HTMLWidgetType
 			HTMLUtil.generateTab(context, depth + 2);
 			context.generateHTML("<input type=\"radio\" name=\""+defaultBtnSet+"\" id=\""+action.getUiid());
 			context.generateHTML("\" onclick=\"javascript:defaultname.");
-			context.generateHTML(this.getPrefix() + action.getFunction());
+			context.generateHTML(context.getHTMLPrefix() + action.getFunction());
 			context.generateHTML("('" + this.getUIID() + "');\" title='");
 			context.generateHTML(UIVariableUtil.getI18NProperty(action.getTitle()));
 			context.generateHTML("' icon=\""+action.getIcon()+"\"><label for=\""+action.getUiid()+"\">");
@@ -101,8 +92,9 @@ public class HTMLFlowDiagramType extends HTMLWidgetType
 		}
 		HTMLUtil.generateTab(context, depth + 1);
 		context.generateHTML("</span>");
-		String htmlPrefix = this.getPrefix().replace('.', '_');
-		String htmlId = this.getPrefix().replace('.', '_') + this.getUIID();
+		String prefix = context.getHTMLPrefix();
+		String htmlPrefix = context.getHTMLPrefix().replace('.', '_');
+		String htmlId = context.getHTMLPrefix().replace('.', '_') + this.getUIID();
 		List<UITableActionGroupType> actionGroups = (List<UITableActionGroupType>)this.removeAttribute("actionGroups");
 		if (actionGroups !=null && actionGroups.size() > 0) {
 			int count = 0;
@@ -120,8 +112,8 @@ public class HTMLFlowDiagramType extends HTMLWidgetType
 						context.generateHTML("<input type='checkbox'");
 					}
 					context.generateHTML(" id=\""+htmlPrefix+action.getUiid()+"\" onclick=\"javascript:defaultname.");
-					context.generateHTML(this.getPrefix() + action.getFunction());
-					context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\" title='");
+					context.generateHTML(prefix + action.getFunction());
+					context.generateHTML("('" + prefix + this.getUIID() + "');\" title='");
 					context.generateHTML(UIVariableUtil.getI18NProperty(action.getTitle()));
 					context.generateHTML("' icon=\""+action.getIcon()+"\">");
 					
@@ -196,7 +188,7 @@ public class HTMLFlowDiagramType extends HTMLWidgetType
 	}
     
     @Override
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
     }
     
@@ -219,7 +211,6 @@ public class HTMLFlowDiagramType extends HTMLWidgetType
 	        t.setReadOnly(isReadOnly());
 	        t.setUIEntityName(getUIEntityName());
 	        t.setListened(true);
-	        t.setFrameInfo(getFrameInfo());
 	        return t;
     	} else if (dataModel instanceof Workflow) {
     		this.removeAttribute("loadDataModelExpr");
@@ -228,7 +219,6 @@ public class HTMLFlowDiagramType extends HTMLWidgetType
 	        t.setReadOnly(isReadOnly());
 	        t.setUIEntityName(getUIEntityName());
 	        t.setListened(true);
-	        t.setFrameInfo(getFrameInfo());
 	        return t;
     	} else {
     		throw new IllegalStateException("Unsupported object for flow diagram: " + dataModel);

@@ -28,7 +28,6 @@ import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.ajax.json.DataItem;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.IRequestData;
-import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.ajax.json.RequestData;
 import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
@@ -127,19 +126,19 @@ public class AjaxActionHelper {
 	 * @param request
 	 * @return the frame map
 	 */
-	public static Map<?, ?> getFrameMap(HttpServletRequest request) throws AjaxException {
+	public static Map<String, Widget<?>> getFrameMap(HttpServletRequest request) throws AjaxException {
 		String framePrefix = request.getParameter("_framePrefix");
-		Map<?, ?> ajaxComponentMap = (Map<?, ?>) request.getSession()
+		Map<String, Widget<?>> ajaxComponentMap = (Map<String, Widget<?>>) request.getSession()
 				.getAttribute(AjaxContext.AJAX_COMP_MAP);
 		if (ajaxComponentMap == null) {
 			throw new AjaxException("Please re-initialize the whole page.");
 		}
-		Map<?, ?> pageComponentMap;
+		Map<String, Widget<?>> pageComponentMap;
 		if (framePrefix == null || "null".equalsIgnoreCase(framePrefix)
 				|| framePrefix.length() == 0) {
-			pageComponentMap = (Map<?, ?>) ajaxComponentMap.get(AjaxContext.GLOBAL_PAGE);
+			pageComponentMap = (Map<String, Widget<?>>) ajaxComponentMap.get(AjaxContext.GLOBAL_PAGE);
 		} else {
-			pageComponentMap = (Map<?, ?>) ajaxComponentMap.get(framePrefix);
+			pageComponentMap = (Map<String, Widget<?>>) ajaxComponentMap.get(framePrefix);
 		}
 		if (pageComponentMap == null) {
 			LoggerFactory.getLogger(AjaxActionHelper.class).warn(
@@ -187,12 +186,12 @@ public class AjaxActionHelper {
 	}
 	
 	public static Widget getCachedAjaxWidget(String name,
-			HTMLSnapshotContext htmlContext) throws AjaxException {
+			UserRequestContext htmlContext) throws AjaxException {
 		Map uiMap = AjaxActionHelper.getFrameMap(htmlContext.getRequest());
 		Object obj = uiMap.get(name);
 		if (obj == null) {
 			throw new AjaxException("Can not be found this uiid["
-					+ name + "] in UI map!");
+					+ name + "] in UI map! make sure this widget is needAjaxSupported!");
 		}
 		return (Widget) obj;
 	}

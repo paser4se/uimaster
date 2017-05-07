@@ -22,7 +22,7 @@ import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.runtime.ce.CEUtil;
 import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 import org.shaolin.javacc.exception.EvaluationException;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.Layout;
 import org.shaolin.uimaster.page.ajax.Matrix;
 import org.shaolin.uimaster.page.ajax.Widget;
@@ -79,27 +79,18 @@ public class HTMLMatrixType extends HTMLTextWidgetType
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = LoggerFactory.getLogger(HTMLMatrixType.class);
 
-    public HTMLMatrixType()
+    public HTMLMatrixType(String id)
     {
-    }
-
-    public HTMLMatrixType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public HTMLMatrixType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+        super(id);
     }
 
     @Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		
 	}
     
     @Override
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
@@ -199,7 +190,6 @@ public class HTMLMatrixType extends HTMLTextWidgetType
     	Matrix matrix = new Matrix(getName(), Layout.NULL);
     	matrix.setUIEntityName(getUIEntityName());
     	matrix.setListened(true);
-    	matrix.setFrameInfo(getFrameInfo());
 		return matrix;
     }
 

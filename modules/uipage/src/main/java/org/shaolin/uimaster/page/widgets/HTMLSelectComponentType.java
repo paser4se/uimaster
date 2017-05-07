@@ -17,7 +17,7 @@ package org.shaolin.uimaster.page.widgets;
 
 import java.io.IOException;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,26 +25,17 @@ public abstract class HTMLSelectComponentType extends HTMLWidgetType
 {
 	private static final Logger logger = LoggerFactory.getLogger(HTMLSelectComponentType.class); 
     
-    public HTMLSelectComponentType()
-    {
-    }
-     
-    public HTMLSelectComponentType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-	public HTMLSelectComponentType(HTMLSnapshotContext context, String id)
+	public HTMLSelectComponentType(String id)
 	{
-	    super(context, id);
+	    super(id);
 	}
 	
     public String getLabel()
     {
-        return (String) getAllAttribute("label");
+        return (String) getAttribute("label");
     }
 
-	public void generateAttribute(HTMLSnapshotContext context, String attributeName, Object attributeValue) throws IOException
+	public void generateAttribute(UserRequestContext context, String attributeName, Object attributeValue) throws IOException
 	{
         if ("selected".equals(attributeName))
         {
@@ -63,12 +54,12 @@ public abstract class HTMLSelectComponentType extends HTMLWidgetType
 	}
     
 	public boolean getValue() {
-		return "true".equals((String) getAllAttribute("selected"));
+		return "true".equals((String) getAttribute("selected"));
 	}
 
 
 	public void setValue(boolean value)
 	{
-	    setHTMLAttribute("selected", String.valueOf(value));
+	    addAttribute("selected", String.valueOf(value));
 	}
 }

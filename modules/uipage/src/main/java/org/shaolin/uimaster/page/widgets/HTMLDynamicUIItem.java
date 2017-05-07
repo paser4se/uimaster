@@ -27,7 +27,7 @@ import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 import org.shaolin.bmdp.runtime.spi.IConstantService;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.DisposableBfString;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.CheckBoxGroup;
 import org.shaolin.uimaster.page.ajax.ComboBox;
 import org.shaolin.uimaster.page.ajax.RadioButtonGroup;
@@ -36,7 +36,6 @@ import org.shaolin.uimaster.page.ajax.json.JSONArray;
 import org.shaolin.uimaster.page.ajax.json.JSONException;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.cache.UIFormObject;
-import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 
 /**
  * The dynamic ui item is going to be generated as the described HTML widget.
@@ -150,7 +149,7 @@ public class HTMLDynamicUIItem {
 	}
 	
 	public void generate(String jsonValue, String uiid, HTMLLayoutType layout, 
-			VariableEvaluator ee, HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) throws Exception {
+			UserRequestContext context, UIFormObject ownerEntity, int depth) throws Exception {
 		List<IConstantEntity> value;
 		IConstantEntity constant ;
 		if (this.getCeName().indexOf(",") != -1) { //name,0 support.
@@ -170,17 +169,15 @@ public class HTMLDynamicUIItem {
 //			jssb.append("if (!").append(realid).append(") {").append(realid).append(" = new Object();} \n");
 //		}
 		if (this.getCeSelectMode() == HTMLDynamicUIItem.LIST) {
-			HTMLComboBoxType list = new HTMLComboBoxType(context, filterUIID); 
-			list.setPrefix(context.getHTMLPrefix());
+			HTMLComboBoxType list = new HTMLComboBoxType(filterUIID); 
 			list.setHTMLLayout(layout);
-			list.setFrameInfo(context.getFrameInfo());
 			list.addAttribute("UIStyle", "uimaster_rightform_widget");
 			
 			list.setValue((value == null || value.size() == 0)? "":value.get(0).getIntValue()+"");
 			list.setOptionValues(new ArrayList(avps.keySet()));
 			list.setOptionDisplayValues(new ArrayList(avps.values()));
 			
-			Widget newWidget = list.createAjaxWidget(ee);
+			Widget newWidget = list.createAjaxWidget(null);
 			if (newWidget != null) {
 	        	context.addAjaxWidget(newWidget.getId(), newWidget);
 	        	newWidget.removeAttribute("value");//remove the default selected.
@@ -195,17 +192,15 @@ public class HTMLDynamicUIItem {
 			jssb.append(jsvar).append(".init();\n");
 			
 		} else if (this.getCeSelectMode() == HTMLDynamicUIItem.RADIOBUTTONGROUP) {
-			HTMLRadioButtonGroupType list = new HTMLRadioButtonGroupType(context, filterUIID); 
-			list.setPrefix(context.getHTMLPrefix());
+			HTMLRadioButtonGroupType list = new HTMLRadioButtonGroupType(filterUIID); 
 			list.setHTMLLayout(layout);
-			list.setFrameInfo(context.getFrameInfo());
 			list.addAttribute("horizontalLayout", "true");
 			
 			list.setValue((value == null || value.size() == 0)? "":value.get(0).getIntValue()+"");
 			list.setOptionValues(new ArrayList(avps.keySet()));
 			list.setOptionDisplayValues(new ArrayList(avps.values()));
 			
-			Widget newWidget = list.createAjaxWidget(ee);
+			Widget newWidget = list.createAjaxWidget(null);
 			if (newWidget != null) {
 	        	context.addAjaxWidget(newWidget.getId(), newWidget);
 	        	newWidget.removeAttribute("value");//remove the default selected.
@@ -220,10 +215,8 @@ public class HTMLDynamicUIItem {
 			jssb.append(jsvar).append(".init();\n");
 			
 		} else if (this.getCeSelectMode() == HTMLDynamicUIItem.CHECKBOXGROUP) {
-			HTMLCheckBoxGroupType list = new HTMLCheckBoxGroupType(context, filterUIID); 
-			list.setPrefix(context.getHTMLPrefix());
+			HTMLCheckBoxGroupType list = new HTMLCheckBoxGroupType(filterUIID); 
 			list.setHTMLLayout(layout);
-			list.setFrameInfo(context.getFrameInfo());
 			list.addAttribute("horizontalLayout", "true");
 			
 			ArrayList<String> temp = new ArrayList<String>(value.size());
@@ -234,7 +227,7 @@ public class HTMLDynamicUIItem {
 			list.setOptionValues(new ArrayList(avps.keySet()));
 			list.setOptionDisplayValues(new ArrayList(avps.values()));
 			
-			Widget newWidget = list.createAjaxWidget(ee);
+			Widget newWidget = list.createAjaxWidget(null);
 			if (newWidget != null) {
 	        	context.addAjaxWidget(newWidget.getId(), newWidget);
 	        }

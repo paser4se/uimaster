@@ -9,8 +9,6 @@ import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 
-import junit.framework.Assert;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -52,6 +50,8 @@ import org.shaolin.uimaster.page.ajax.TextField;
 import org.shaolin.uimaster.page.ajax.json.RequestData;
 import org.shaolin.uimaster.page.cache.ODFormObject;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
+import org.shaolin.uimaster.page.exception.AjaxException;
+import org.shaolin.uimaster.page.exception.AttributeSetAlreadyException;
 import org.shaolin.uimaster.page.exception.ODProcessException;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.od.IODMappingConverter;
@@ -80,6 +80,8 @@ import org.shaolin.uimaster.page.widgets.HTMLTextFieldType;
 import org.shaolin.uimaster.test.be.CustomerImpl;
 import org.shaolin.uimaster.test.be.ICustomer;
 import org.shaolin.uimaster.test.ce.Gender;
+
+import junit.framework.Assert;
 
 public class ODTest {
 
@@ -121,11 +123,12 @@ public class ODTest {
 	}
 	
 	@Test
-	public void testTextComponentBaseRule() throws UIConvertException, EvaluationException {
+	public void testTextComponentBaseRule() throws UIConvertException, EvaluationException, AjaxException, AttributeSetAlreadyException {
 		MockHttpRequest request = new MockHttpRequest();
-        HTMLSnapshotContext htmlContext = new HTMLSnapshotContext(request);
+        UserRequestContext htmlContext = new UserRequestContext(request);
         htmlContext.setIsDataToUI(true);
-        htmlContext.setHTMLPrefix("");
+        htmlContext.setCurrentFormInfo("", "", "");
+        UserRequestContext.UserContext.set(htmlContext);
         
         RequestData requestData = new RequestData();
         AjaxActionHelper.createAjaxContext(new AjaxContext(new HashMap(), requestData));
@@ -133,12 +136,13 @@ public class ODTest {
         AjaxActionHelper.getAjaxContext().setRequest(request, null);
         
         Map ajaxWidgetMap = new HashMap();
-        Map pageComponentMap = new HashMap();
         request.getSession(true).setAttribute(AjaxContext.AJAX_COMP_MAP, ajaxWidgetMap);
-        ajaxWidgetMap.put(AjaxContext.GLOBAL_PAGE, pageComponentMap);
-        htmlContext.setAjaxWidgetMap(pageComponentMap);
+        ajaxWidgetMap.put(AjaxContext.GLOBAL_PAGE, htmlContext.getPageAjaxWidgets());
 		
-        HTMLLabelType label = new HTMLLabelType(htmlContext, "labelWidget");
+        HTMLLabelType label = new HTMLLabelType("labelWidget");
+        Map<String, Object> attributeMap = new HashMap<String, Object>();
+        attributeMap.put("needAjaxSupport", true);
+        label.setAttribute(attributeMap);
 		Map<String, Object> inputData = new HashMap<String, Object>();
 		inputData.put(IODMappingConverter.UI_WIDGET_TYPE, label);
 		inputData.put(IODMappingConverter.UI_WIDGET_ID, label.getUIID());
@@ -159,7 +163,7 @@ public class ODTest {
 		Assert.assertEquals("how are you?", output.get("StringData"));
 		
 		inputData.clear();
-		HTMLTextFieldType textField = new HTMLTextFieldType(htmlContext, "testWidget");
+		HTMLTextFieldType textField = new HTMLTextFieldType("testWidget");
 		inputData.put(IODMappingConverter.UI_WIDGET_TYPE, textField);
 		inputData.put(IODMappingConverter.UI_WIDGET_ID, textField.getUIID());
 		inputData.put("CEType", Gender.class.getName());
@@ -192,7 +196,7 @@ public class ODTest {
 		output = uiTextCurrencyRule.getOutputData();
 		Assert.assertEquals(120d, output.get("Currency"));
 		
-		HTMLDateType date = new HTMLDateType(htmlContext, "dateWidget");
+		HTMLDateType date = new HTMLDateType("dateWidget");
 		inputData.clear();
 		inputData.put(IODMappingConverter.UI_WIDGET_TYPE, date);
 		inputData.put(IODMappingConverter.UI_WIDGET_ID, date.getUIID());
@@ -255,11 +259,12 @@ public class ODTest {
 	}
 	
 	@Test
-	public void testChioceComponentBaseRule() throws UIConvertException, EvaluationException {
+	public void testChioceComponentBaseRule() throws UIConvertException, EvaluationException, AjaxException {
 		MockHttpRequest request = new MockHttpRequest();
-        HTMLSnapshotContext htmlContext = new HTMLSnapshotContext(request);
+        UserRequestContext htmlContext = new UserRequestContext(request);
         htmlContext.setIsDataToUI(true);
-        htmlContext.setHTMLPrefix("");
+        htmlContext.setCurrentFormInfo("", "", "");
+        UserRequestContext.UserContext.set(htmlContext);
         
         RequestData requestData = new RequestData();
         AjaxActionHelper.createAjaxContext(new AjaxContext(new HashMap(), requestData));
@@ -267,12 +272,10 @@ public class ODTest {
         AjaxActionHelper.getAjaxContext().setRequest(request, null);
         
         Map ajaxWidgetMap = new HashMap();
-        Map pageComponentMap = new HashMap();
         request.getSession(true).setAttribute(AjaxContext.AJAX_COMP_MAP, ajaxWidgetMap);
-        ajaxWidgetMap.put(AjaxContext.GLOBAL_PAGE, pageComponentMap);
-        htmlContext.setAjaxWidgetMap(pageComponentMap);
+        ajaxWidgetMap.put(AjaxContext.GLOBAL_PAGE, htmlContext.getPageAjaxWidgets());
         
-        HTMLListType listWidget = new HTMLListType(htmlContext, "chioceWidget");
+        HTMLListType listWidget = new HTMLListType("chioceWidget");
         List<String> values = new ArrayList<String>();
         values.add("item0");
         values.add("item1");
@@ -326,9 +329,9 @@ public class ODTest {
 		htmlContext.addAjaxWidget(listWidget.getUIID(), listWidget.createAjaxWidget(null));
 		uiMultipleCERule.pullDataFromWidget(htmlContext);
 		output = uiMultipleCERule.getOutputData();
-		Assert.assertEquals(3, ((List)output.get("CEValues")).size());
+		Assert.assertEquals(1, ((List)output.get("CEValues")).size());
 		
-		HTMLComboBoxType combobox = new HTMLComboBoxType(htmlContext, "combobox");
+		HTMLComboBoxType combobox = new HTMLComboBoxType("combobox");
         options = new ArrayList<String>();
         options.add("item0");
         options.add("item1");
@@ -354,7 +357,7 @@ public class ODTest {
 		Assert.assertEquals("item0", (String)output.get("Value"));
 		
 		
-		combobox = new HTMLComboBoxType(htmlContext, "combobox");
+		combobox = new HTMLComboBoxType("combobox");
 		inputData = new HashMap<String, Object>();
 		inputData.put(IODMappingConverter.UI_WIDGET_TYPE, combobox);
 		inputData.put(IODMappingConverter.UI_WIDGET_ID, combobox.getUIID());
@@ -367,12 +370,12 @@ public class ODTest {
 		output = uiSingleCERule.getOutputData();
 		Assert.assertEquals(3, ((HTMLComboBoxType)output.get(IODMappingConverter.UI_WIDGET_TYPE)).getOptionValues().size());
 		htmlContext.addAjaxWidget(combobox.getUIID(), combobox.createAjaxWidget(null));
-		((SingleChoice)AjaxActionHelper.getCachedAjaxWidget(combobox.getUIID(), htmlContext)).setValue("Male");
+		((SingleChoice)AjaxActionHelper.getCachedAjaxWidget(combobox.getUIID(), htmlContext)).setValue("1");
 		uiSingleCERule.pullDataFromWidget(htmlContext);
 		output = uiSingleCERule.getOutputData();
 		Assert.assertEquals(Gender.MALE, output.get("CEValue"));
 		
-		HTMLCheckBoxType checkBox = new HTMLCheckBoxType(htmlContext, "checkBox");
+		HTMLCheckBoxType checkBox = new HTMLCheckBoxType("checkBox");
 		inputData = new HashMap<String, Object>();
 		inputData.put(IODMappingConverter.UI_WIDGET_TYPE, checkBox);
 		inputData.put(IODMappingConverter.UI_WIDGET_ID, checkBox.getUIID());		
@@ -548,16 +551,16 @@ public class ODTest {
 	public void testODMapping() {
 		try {
 			MockHttpRequest request = new MockHttpRequest();
-            HTMLSnapshotContext htmlContext = new HTMLSnapshotContext(request);
-            htmlContext.setFormName("org.shaolin.uimaster.form.Customer");
+            UserRequestContext htmlContext = new UserRequestContext(request);
+            htmlContext.setCurrentFormInfo("org.shaolin.uimaster.form.Customer", "", "");
             htmlContext.setIsDataToUI(true);
-            htmlContext.setHTMLPrefix("");
-			
+            htmlContext.setFormObject(PageCacheManager.getUIFormObject(htmlContext.getFormName()));
+            
+            UserRequestContext.UserContext.set(htmlContext);
             AjaxActionHelper.createAjaxContext(new AjaxContext(new HashMap(), new RequestData()));
             
 			ODFormObject odEntityObject = PageCacheManager.getODFormObject(htmlContext.getFormName());
-            HTMLReferenceEntityType newReferObject = new HTMLReferenceEntityType(htmlContext, "customer", htmlContext.getFormName());
-            newReferObject.setPrefix("");
+            HTMLReferenceEntityType newReferObject = new HTMLReferenceEntityType("customer", htmlContext.getFormName());
             
             CustomerImpl customerPojo = new CustomerImpl();
             customerPojo.setId(10);
@@ -586,10 +589,10 @@ public class ODTest {
 	@Test
 	public void testPageODMapping() throws InterruptedException {
 		MockHttpRequest request = new MockHttpRequest();
-        HTMLSnapshotContext htmlContext = new HTMLSnapshotContext(request);
-        htmlContext.setFormName("org.shaolin.uimaster.page.AddCustomer");
+        UserRequestContext htmlContext = new UserRequestContext(request);
+        htmlContext.setCurrentFormInfo("org.shaolin.uimaster.page.AddCustomer", "", "");
         htmlContext.setIsDataToUI(true);
-        htmlContext.setHTMLPrefix("");
+        UserRequestContext.UserContext.set(htmlContext);
 		
         ICustomer customer = new CustomerImpl();
         customer.setId(1101);

@@ -9,8 +9,6 @@ import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 
-import junit.framework.Assert;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
@@ -38,7 +36,10 @@ import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.exception.WebFlowException;
 import org.shaolin.uimaster.page.flow.nodes.UIPageNode;
 import org.shaolin.uimaster.page.flow.nodes.WebChunk;
+import org.shaolin.uimaster.page.javacc.WebFlowContext;
 import org.shaolin.uimaster.test.be.ICustomer;
+
+import junit.framework.Assert;
 
 public class WebflowTest {
 
@@ -111,13 +112,16 @@ public class WebflowTest {
 		try {
 			WebChunk chunk = new WebChunk(flowType);
 			chunk.initChunk();
-			chunk.getWebNodes().get(0).execute(request, response);		
+			WebFlowContext context = new WebFlowContext(chunk.getWebNodes().get(0), request, response);
+			chunk.getWebNodes().get(0).execute(context);		
 		} catch (ParsingException e) {
 			e.printStackTrace();
 			Assert.fail();
 		} catch (WebFlowException e) {
 			e.printStackTrace();
 			Assert.fail();
+		} catch (Throwable e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -237,13 +241,14 @@ public class WebflowTest {
 			WebChunk chunk = new WebChunk(flowType);
 			chunk.initChunk();
 			UIPageNode pageNode = (UIPageNode)chunk.getWebNodes().get(0);
-			pageNode.execute(request, response);
+			WebFlowContext context = new WebFlowContext(pageNode, request, response);
+			pageNode.execute(context);
 			
 			System.out.println("HTML Code: \n" + response.getHtmlCode());
 			
-			Assert.assertEquals(10, ((Map)AjaxActionHelper.getAjaxWidgetMap(
+			Assert.assertEquals(8, ((Map)AjaxActionHelper.getAjaxWidgetMap(
 					request.getSession()).get(AjaxContext.GLOBAL_PAGE)).size());
-			ICustomer customer = (ICustomer)pageNode.getWebFlowContext().
+			ICustomer customer = (ICustomer)context.
 					getEvaluationContextObject("$").getVariableValue("customer");
 			Assert.assertEquals(1234, customer.getId());
 			Assert.assertEquals("Shaolin", customer.getName());

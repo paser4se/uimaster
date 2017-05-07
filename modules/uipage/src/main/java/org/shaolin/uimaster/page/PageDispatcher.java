@@ -16,13 +16,11 @@
 package org.shaolin.uimaster.page;
 
 import java.awt.ComponentOrientation;
-import java.io.IOException;
 import java.text.DecimalFormatSymbols;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.JspException;
 
-import org.shaolin.bmdp.datamodel.page.ReconfigurablePropertyType;
 import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.i18n.ResourceUtil;
 import org.shaolin.bmdp.runtime.Registry;
@@ -43,6 +40,7 @@ import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.cache.UIPageObject;
 import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.exception.UIComponentNotFoundException;
+import org.shaolin.uimaster.page.exception.UIPageException;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.shaolin.uimaster.page.od.PageODProcessor;
@@ -56,20 +54,20 @@ public class PageDispatcher {
 
 	private static Logger logger = LoggerFactory.getLogger(PageDispatcher.class);
 	
-	private final UIFormObject uiEntity;
+	private final UIFormObject formObject;
 	
 	private final UIPageObject pageObject;
 	
 	private final EvaluationContext evaContext;
 	
-	public PageDispatcher(UIFormObject uiEntity, EvaluationContext evaContext) {
-		this.uiEntity = uiEntity;
+	public PageDispatcher(UIFormObject form, EvaluationContext evaContext) {
+		this.formObject = form;
 		this.pageObject = null;
 		this.evaContext = evaContext;
 	}
 	
 	public PageDispatcher(UIPageObject pageObject) {
-		this.uiEntity = null;
+		this.formObject = null;
 		this.pageObject = pageObject;
 		this.evaContext = new DefaultEvaluationContext();
 	}
@@ -81,7 +79,7 @@ public class PageDispatcher {
 	 * @param depth
 	 * @throws JspException
 	 */
-	void forwardForm(HTMLSnapshotContext context, int depth) throws JspException
+	void forwardForm(UserRequestContext context, int depth) throws UIPageException
     {
         forwardForm(context, depth, null, null);
     }
@@ -95,18 +93,17 @@ public class PageDispatcher {
 	 * @param parent
 	 * @throws JspException
 	 */
-    public void forwardForm(HTMLSnapshotContext context, int depth, Boolean readOnly,
-            HTMLReferenceEntityType parent) throws JspException
+    public void forwardForm(UserRequestContext context, int depth, Boolean readOnly,
+            HTMLReferenceEntityType parent) throws UIPageException
     {
-        try
-        {
-        	if (uiEntity == null) {
+        try {
+        	if (formObject == null) {
         		logger.warn("Please invoke UIEntityObject.forward");
         		return;
         	}
 			if (logger.isDebugEnabled()) {
 				logger.debug("<---HTMLUIEntity.forward--->start to access the uientity: "
-						+ uiEntity.getName());
+						+ formObject.getName());
 			}
 			// set a null value for all tables as a mark.
 			if (evaContext instanceof DefaultEvaluationContext 
@@ -114,121 +111,76 @@ public class PageDispatcher {
 				evaContext.setVariableValue("tableCondition", null);
 			}
             VariableEvaluator ee = new VariableEvaluator(this.evaContext);
-            
-            Map appendComponentMap = new HashMap();
-            setReconfigurablePropertyValue(context, appendComponentMap);
+            // setReconfigurablePropertyValue(context, appendComponentMap);
 
-            Map propMap = uiEntity.getComponentProperty(uiEntity.getBodyName());
-            Map eventMap = uiEntity.getComponentEvent(uiEntity.getBodyName());
-            Map i18nMap = uiEntity.getComponentI18N(uiEntity.getBodyName());
-            Map expMap = uiEntity.getComponentExpression(uiEntity.getBodyName());
-
-            Map tempMap = null;
-            tempMap = HTMLUtil.evaluateExpression(propMap, expMap, tempMap, ee);
-            tempMap = HTMLUtil.internationalization(propMap, i18nMap, tempMap, context);
-            tempMap = HTMLUtil.merge(tempMap, (Map)appendComponentMap.get(uiEntity.getBodyName()));
-
-            String selfReadOnly = (String)propMap.get("readOnly");
-            Boolean realReadOnly;
-			if (readOnly == null) {
+            Boolean realReadOnly = readOnly;
+			if (realReadOnly == null) {
+				String selfReadOnly = (String)formObject.getComponentProperty(formObject.getBodyName()).get("readOnly");
 				realReadOnly = Boolean.valueOf(ee.evaluateReadOnly(selfReadOnly));
-			} else {
-				realReadOnly = readOnly;
 			}
-            if (logger.isTraceEnabled())
-            {
+            if (logger.isTraceEnabled()) {
                 logger.trace("The readOnly value for component: "
-                        + uiEntity.getBodyName() + " in the uientity: " + uiEntity.getName() + " is "
+                        + formObject.getBodyName() + " in the uientity: " + formObject.getName() + " is "
                         + (realReadOnly == null ? "null" : realReadOnly.toString()));
             }
 
             HTMLWidgetType htmlComponent = null;
             if (parent != null) {
             	try {
-            		htmlComponent = context.getHtmlWidget(parent.getName() + "." + uiEntity.getBodyName());
+            		htmlComponent = context.getHtmlWidget(context.getHTMLPrefix() + formObject.getBodyName());
             	} catch (UIComponentNotFoundException e) {
-            		throw new IllegalStateException("Make sure the od mapping is invoked for this form", e);
+            		String formId = parent.getName() + "." + formObject.getBodyName();
+            		throw new IllegalStateException("Make sure the od mapping is invoked for this form: " + formId, e);
             	}
             	htmlComponent.setHTMLLayout(parent.getHTMLLayout());
 
                 String visible = (String)parent.getAttribute("visible");
-                if (visible != null)
-                {
-                    if (!"false".equals(visible))
-                    {
-                        visible = "true";
-                    }
+                if (visible != null) {
+					if ("true".equalsIgnoreCase(visible)) {
+						visible = "true";
+					}
                     htmlComponent.addAttribute("visible", visible);
                 }
             } else {
-            	htmlComponent = context.getHtmlWidget(uiEntity.getBodyName());
+            	htmlComponent = context.getHtmlWidget(formObject.getBodyName());
             }
+            
             if (UserContext.isMobileRequest() && parent == null) {
             	// jquery mobile page supported.
 //            	propMap.put("data-role", "main");
 //            	propMap.put("class", "ui-content");
             }
-            
-            htmlComponent.addAttribute(propMap);
-            htmlComponent.addAttribute(tempMap);
-            htmlComponent.addEventListener(eventMap);
-            htmlComponent.setPrefix(context.getHTMLPrefix());
-            realReadOnly = htmlComponent.isReadOnly();
+            if (realReadOnly == null) {
+            	realReadOnly = htmlComponent.isReadOnly();
+            }
+            IUISkin uiskinObj = htmlComponent.getUISkin();
+            if (uiskinObj != null) {
+				try {
+					uiskinObj.generatePreCode(htmlComponent);
+				} catch (Exception e) {
+					logger.error("uiskin error: ", e);
+				}
+			} else {
+				htmlComponent.generateBeginHTML(context, formObject, depth);
+			}
 
-            IUISkin uiskinObj = uiEntity.getUISkinObj(uiEntity.getBodyName(), ee, htmlComponent);
-            if (uiskinObj != null)
-            {
-                htmlComponent.addAttribute(uiskinObj.getAttributeMap(htmlComponent));
-                htmlComponent.preIncludePage(context);
-                try
-                {
-                    uiskinObj.generatePreCode(htmlComponent);
-                }
-                catch (Exception e)
-                {
-                    logger.error("uiskin error: ", e);
-                }
-            }
-            else
-            {
-                htmlComponent.preIncludePage(context);
-            }
-
-            if (uiskinObj == null || !uiskinObj.isOverwrite())
-            {
-                htmlComponent.generateBeginHTML(context, uiEntity, depth);
-            }
-
-            Widget newAjax = htmlComponent.createAjaxWidget(ee);
-            if (newAjax != null) {
-            	context.addAjaxWidget(newAjax.getId(), newAjax);
-            }
-            
-            uiEntity.getBodyLayout().generateHTML(context, depth + 1, realReadOnly, 
-            		appendComponentMap, ee, uiskinObj, htmlComponent);
+            formObject.getBodyLayout().generateHTML(context, depth + 1, realReadOnly, uiskinObj, htmlComponent);
             HTMLUtil.generateTab(context, depth);
 
-            if (uiskinObj == null || !uiskinObj.isOverwrite())
-            {
-                htmlComponent.generateEndHTML(context, uiEntity, depth);
-            }
 			if (uiskinObj != null) {
 				try {
 					uiskinObj.generatePostCode(htmlComponent);
 				} catch (Exception e) {
 					logger.error("uiskin error: ", e);
 				}
+			} else {
+				htmlComponent.generateEndHTML(context, formObject, depth);
 			}
-            htmlComponent.postIncludePage(context);
-
         }
         catch (Exception e)
         {
-            throw new JspException("<---HTMLUIEntity.forward--->Exception occurred while accessing form: " + 
-            			uiEntity.getName(), e);
-        }
-        finally
-        {
+            throw new UIPageException("<---HTMLUIEntity.forward--->Exception occurred while accessing form: " + 
+            			formObject.getName(), e);
         }
     }
     
@@ -236,12 +188,13 @@ public class PageDispatcher {
      * HTMLUIPage.forward
      * 
      * @param context
-     * @throws JspException
      */
-    public void forwardPage(HTMLSnapshotContext context) throws JspException
+    public void forwardPage(UserRequestContext context) throws UIPageException
     {//portlet not processed here
         try
         {
+        	UserRequestContext.UserContext.set(context);
+        	
         	if (pageObject == null) {
         		logger.warn("Please invoke UIPageObject.forward");
         		return;
@@ -281,28 +234,21 @@ public class PageDispatcher {
             PageODProcessor pageODProcessor = new PageODProcessor(context, entityName);
             EvaluationContext evaContext = pageODProcessor.process();
 
-            Map referenceEntityMap = new HashMap();
+            Map<String, UIFormObject> referenceEntityMap = new HashMap<String, UIFormObject>();
             referenceEntityMap.put(entityName, pageObject.getUIFormObject());
-            pageObject.getUIFormObject().parseReferenceEntity(referenceEntityMap);
             context.setRefEntityMap(referenceEntityMap);
 
             String charset = Registry.getInstance().getEncoding();
             String actionPath = getActionPath(context);
             context.getRequest().setAttribute(WebflowConstants.FORM_URL, actionPath);
             
-            String prefix = context.getHTMLPrefix();
-            if ( prefix != null )
-            {
-                while ( prefix.indexOf(".") >= 0 )
-                {
-                    prefix = prefix.replace('.', '-');
-                }
-                context.setDIVPrefix(prefix);
-            }
-            else
-            {
-                context.setDIVPrefix("");
-            }
+//            String prefix = context.getHTMLPrefix();
+//            if ( prefix != null ) {
+//                while ( prefix.indexOf(".") >= 0 ) {
+//                    prefix = prefix.replace('.', '-');
+//                }
+//                context.setDIVPrefix(prefix);
+//            }
             
             //prepare the static values for client javascript
             Calendar currentDate = Calendar.getInstance();
@@ -510,7 +456,7 @@ public class PageDispatcher {
                 }
             }
             Map ajaxWidgetMap = AjaxActionHelper.getAjaxWidgetMap(session);
-            Map pageComponentMap = new HashMap();
+            Map pageComponentMap = context.getPageAjaxWidgets();
             if(ajaxWidgetMap == null)
             {
                 ajaxWidgetMap = new HashMap();
@@ -525,7 +471,6 @@ public class PageDispatcher {
                 	AjaxActionHelper.addCachePage(session, superPrefix);
                     ajaxWidgetMap.put(superPrefix, pageComponentMap);
                 }
-                context.setAjaxWidgetMap(pageComponentMap);
             }
             else
             {
@@ -541,7 +486,6 @@ public class PageDispatcher {
                     ajaxWidgetMap.clear();
                     
                     ajaxWidgetMap.put(AjaxContext.GLOBAL_PAGE, pageComponentMap);
-                    context.setAjaxWidgetMap(pageComponentMap);
                     AjaxActionHelper.removeAllCachedPages(session);
                     AjaxActionHelper.addCachePage(session, AjaxContext.GLOBAL_PAGE);
                 }
@@ -549,7 +493,6 @@ public class PageDispatcher {
                 {
                 	AjaxActionHelper.addCachePage(session, frameTarget);
                 	ajaxWidgetMap.put(frameTarget, pageComponentMap);
-                	context.setAjaxWidgetMap(pageComponentMap);
                 }
             }
             
@@ -570,18 +513,22 @@ public class PageDispatcher {
             {
             }
             context.generateHTML("");
-            if (logger.isDebugEnabled()) {
-            	debugEnableToSerializable(context.getAjaxWidgetMap());
+            
+            if (logger.isTraceEnabled()) {
+            	debugEnableToSerializable(context.getPageAjaxWidgets());
             }
         }
         catch ( Exception e )
         {
             logger.warn("<---HTMLUIPage.forward--->Be interrupted when access uipage: " + pageObject.getRuntimeEntityName());
-            throw new JspException(e);
+            throw new UIPageException(pageObject.getRuntimeEntityName() + " : " + e.getMessage(), e);
         }
     }
     
     private boolean checkSupportAccess(HttpServletRequest request) {
+    	if (request.getHeader("User-Agent") == null) {
+    		return true;
+    	}
     	String userAgent = request.getHeader("User-Agent").toLowerCase();
     	if (userAgent.indexOf("msie") != -1
     			&& (userAgent.indexOf("msie 5.0") != -1 
@@ -593,7 +540,7 @@ public class PageDispatcher {
     	return true;
     }
     
-    private String getActionPath(HTMLSnapshotContext context) throws JspException
+    private String getActionPath(UserRequestContext context) throws JspException
     {
         HttpServletResponse response = context.getResponse();
         HttpServletRequest request = context.getRequest();;
@@ -681,7 +628,7 @@ public class PageDispatcher {
     
     private void debugEnableToSerializable(Map ajaxComponentMap) 
     {
-        logger.debug("Created ui ajax widgets(only data widgets).");
+        logger.debug("Created UI ajax widgets.");
         Iterator iterator = ajaxComponentMap.entrySet().iterator();
         while(iterator.hasNext())
         {
@@ -693,7 +640,6 @@ public class PageDispatcher {
                 while(iterator1.hasNext())
                 {
                     Map.Entry compEntry = (Map.Entry)iterator1.next();
-                    logger.debug("Ajax widget name: "+compEntry.getKey());
                     logger.debug("Ajax widget: "+compEntry.getValue());
                 }
             }
@@ -723,49 +669,7 @@ public class PageDispatcher {
     	}
     }
 
-    public void setReconfigurablePropertyValue(HTMLSnapshotContext context, Map tempMap)
-    {
-        if (!uiEntity.getReconfigurablePropMap().isEmpty())
-        {
-        	if (logger.isDebugEnabled())
-            {
-                logger.debug("set the real value for reconfigurable property of components' in the uientity: {}", 
-                        uiEntity.getName());
-            }
-            Iterator iterator = uiEntity.getReconfigurablePropMap().keySet().iterator();
-            while (iterator.hasNext())
-            {
-                String compName = (String)iterator.next();
-                Map tMap;
-                if (tempMap.containsKey(compName))
-                {
-                    tMap = (Map)tempMap.get(compName);
-                }
-                else
-                {
-                    tMap = new HashMap();
-                }
-                List propList = (List)uiEntity.getReconfigurablePropMap().get(compName);
-                for (int i = 0, n = propList.size(); i < n; i++)
-                {
-                    ReconfigurablePropertyType prop = (ReconfigurablePropertyType)propList.get(i);
-                    String propertyName = prop.getPropertyName();
-                    String newPropertyName = prop.getNewPropertyName();
-                    Object reconfigValue = context.getReconfigProperty(newPropertyName);
-                    if (reconfigValue != null)
-                    {
-                        tMap.put(propertyName, reconfigValue);
-                    }
-                }
-                if (!tMap.isEmpty())
-                {
-                    tempMap.put(compName, tMap);
-                }
-            }
-        }
-    }
-	
-    private void importAllJS(HTMLSnapshotContext context, int depth) throws JspException
+    private void importAllJS(UserRequestContext context, int depth) throws JspException
     {
         Map refEntityMap = context.getRefEntityMap();
         UIFormObject tEntityObj = (UIFormObject)refEntityMap.remove(pageObject.getRuntimeEntityName());

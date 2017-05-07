@@ -21,7 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.shaolin.uimaster.page.AjaxActionHelper;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.Calendar;
 import org.shaolin.uimaster.page.ajax.Label;
 import org.shaolin.uimaster.page.ajax.TextWidget;
@@ -207,7 +207,7 @@ public class UITextWithDate implements IODMappingConverter {
 		return new String[0];
 	}
 
-	public void pushDataToWidget(HTMLSnapshotContext htmlContext) throws UIConvertException {
+	public void pushDataToWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
 			if (this.date == null) {
 				return;
@@ -228,7 +228,7 @@ public class UITextWithDate implements IODMappingConverter {
 		}
 	}
 
-	public void pullDataFromWidget(HTMLSnapshotContext htmlContext) throws UIConvertException {
+	public void pullDataFromWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
 			Widget calendar = AjaxActionHelper
 					.getCachedAjaxWidget(this.uiid, htmlContext);

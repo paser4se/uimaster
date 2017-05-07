@@ -18,7 +18,7 @@ package org.shaolin.uimaster.page.widgets;
 import java.io.IOException;
 import java.util.List;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Layout;
@@ -33,27 +33,18 @@ public class HTMLRadioButtonGroupType extends HTMLSingleChoiceType
 {
     private static final Logger logger = LoggerFactory.getLogger(HTMLRadioButtonGroupType.class);
 
-    public HTMLRadioButtonGroupType()
+    public HTMLRadioButtonGroupType(String id)
     {
-    }
-
-    public HTMLRadioButtonGroupType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public HTMLRadioButtonGroupType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+        super(id);
     }
     
     @Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		
 	}
 
     @Override
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
@@ -65,7 +56,7 @@ public class HTMLRadioButtonGroupType extends HTMLSingleChoiceType
             {
                 displayOptions = options;
             }
-            if ("false".equals((String)getAllAttribute("visible")))
+            if ("false".equals((String)getAttribute("visible")))
             {
                 context.generateHTML("<p style=\"display:none\">");
             }
@@ -151,7 +142,7 @@ public class HTMLRadioButtonGroupType extends HTMLSingleChoiceType
                 else
                 {
                     boolean horizontalLayout = Boolean
-                            .parseBoolean((String)getAllAttribute("horizontalLayout"));
+                            .parseBoolean((String)getAttribute("horizontalLayout"));
                     int colCount = 15;
                     if (this.getAttribute("colCount") != null) {
                     	colCount = Integer.parseInt(this.getAttribute("colCount").toString());
@@ -202,7 +193,7 @@ public class HTMLRadioButtonGroupType extends HTMLSingleChoiceType
         }
     }
 
-    public void generateAttribute(HTMLSnapshotContext context, String attributeName,
+    public void generateAttribute(UserRequestContext context, String attributeName,
             Object attributeValue) throws IOException
     {
         if ("visible".equals(attributeName))
@@ -225,10 +216,9 @@ public class HTMLRadioButtonGroupType extends HTMLSingleChoiceType
         radioButtonGroup.setValue(getValue());
 
         setAJAXConstraints(radioButtonGroup);
-        setAJAXAttributes(radioButtonGroup);
+        setAJAXAttributes(UserRequestContext.UserContext.get(), radioButtonGroup);
         
         radioButtonGroup.setListened(true);
-        radioButtonGroup.setFrameInfo(getFrameInfo());
 
         return radioButtonGroup;
     }

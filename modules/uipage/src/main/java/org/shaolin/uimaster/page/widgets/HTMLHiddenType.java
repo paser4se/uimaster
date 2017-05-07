@@ -15,7 +15,7 @@
 */
 package org.shaolin.uimaster.page.widgets;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.ajax.Hidden;
 import org.shaolin.uimaster.page.ajax.Layout;
@@ -29,27 +29,18 @@ public class HTMLHiddenType extends HTMLTextWidgetType
 {
     private static final Logger logger = LoggerFactory.getLogger(HTMLHiddenType.class);
 
-    public HTMLHiddenType()
+    public HTMLHiddenType(String id)
     {
-    }
-
-    public HTMLHiddenType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public HTMLHiddenType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+        super(id);
     }
 
     @Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		
 	}
     
     @Override
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
@@ -72,7 +63,7 @@ public class HTMLHiddenType extends HTMLTextWidgetType
 
     public String getValue()
     {
-        String value = (String)getAllAttribute("value");
+        String value = (String)getAttribute("value");
         return value == null ? "" : value;
     }
     
@@ -98,7 +89,6 @@ public class HTMLHiddenType extends HTMLTextWidgetType
         hidden.setValue(getValue());
         
         hidden.setListened(true);
-        hidden.setFrameInfo(getFrameInfo());
 
         return hidden;
     }

@@ -37,7 +37,7 @@ import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.AjaxContext;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.od.ODContextHelper;
 import org.shaolin.uimaster.page.od.mappings.ComponentMapping;
@@ -159,7 +159,7 @@ public class ODFormObject extends ODObject implements java.io.Serializable
 	    	
 	    	DefaultParsingContext globalPContext = new DefaultParsingContext();
 	    	globalPContext.setVariableClass(ODContext.AJAX_UICOMP_NAME, AjaxContext.class);
-	    	globalPContext.setVariableClass("context", HTMLSnapshotContext.class);
+	    	globalPContext.setVariableClass("context", UserRequestContext.class);
 	    	globalPContext.setVariableClass("odContext", ODContext.class);
 	    	
 	    	opContext.setDefaultParsingContext(globalPContext);

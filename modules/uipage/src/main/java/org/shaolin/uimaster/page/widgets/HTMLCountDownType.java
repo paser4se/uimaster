@@ -17,7 +17,7 @@ package org.shaolin.uimaster.page.widgets;
 
 import org.apache.log4j.Logger;
 import org.shaolin.bmdp.runtime.security.UserContext;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.cache.UIFormObject;
@@ -28,19 +28,12 @@ public class HTMLCountDownType extends HTMLTextWidgetType {
 
 	private static final Logger logger = Logger.getLogger(HTMLCountDownType.class);
 
-	public HTMLCountDownType() {
-	}
-
-	public HTMLCountDownType(HTMLSnapshotContext context) {
-		super(context);
-	}
-
-	public HTMLCountDownType(HTMLSnapshotContext context, String id) {
-		super(context, id);
+	public HTMLCountDownType(String id) {
+		super(id);
 	}
 
 	@Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		if (context.getRequest().getAttribute("_hasCountDown") == null) {
 			context.getRequest().setAttribute("_hasCountDown", Boolean.TRUE);
 			HTMLUtil.generateTab(context, depth);
@@ -54,7 +47,7 @@ public class HTMLCountDownType extends HTMLTextWidgetType {
 	}
 	
 	@Override
-	public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		try {
 			context.generateHTML("<div id=\"");
             context.generateHTML(getName());

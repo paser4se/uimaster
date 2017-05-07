@@ -49,29 +49,33 @@ public class FunctionCallBack implements CallBack {
 	
 	public void execute(Object... objects) {
 		String uientity = context.getEntityName();
-		List<OpType> ops = null;
-		if (PageCacheManager.isUIPage(uientity)) {
-			UIPageObject uipage = PageCacheManager.getUIPageObject(uientity);
-			ops = uipage.getUIForm().getEventHandler(functionName);
-		} else {
-			UIFormObject uiEntity = PageCacheManager.getUIFormObject(uientity);
-			ops = uiEntity.getEventHandler(functionName);
-		}
-		if (ops == null) {
-			log.warn("The action name " + functionName + " can't be found from current page: " + uientity);
-			return;
-		}
-		for (OpType op : ops) {
-			if (op instanceof OpCallAjaxType) {
-				OpCallAjaxType callAjaxOp = (OpCallAjaxType) op;
-				try {
-					callAjaxOp.getExp().evaluate(context);
-					context.synchVariables();
-				} catch (EvaluationException ex) {
-					log.warn("This statement can not be evaluated: \n"+ callAjaxOp.getExp().getExpressionString(), ex);
-				}
-				break;
+		try {
+			List<OpType> ops = null;
+			if (PageCacheManager.isUIPage(uientity)) {
+				UIPageObject uipage = PageCacheManager.getUIPageObject(uientity);
+				ops = uipage.getUIForm().getEventHandler(functionName);
+			} else {
+				UIFormObject uiEntity = PageCacheManager.getUIFormObject(uientity);
+				ops = uiEntity.getEventHandler(functionName);
 			}
+			if (ops == null) {
+				log.warn("The action name " + functionName + " can't be found from current page: " + uientity);
+				return;
+			}
+			for (OpType op : ops) {
+				if (op instanceof OpCallAjaxType) {
+					OpCallAjaxType callAjaxOp = (OpCallAjaxType) op;
+					try {
+						callAjaxOp.getExp().evaluate(context);
+						context.synchVariables();
+					} catch (EvaluationException ex) {
+						log.warn("This statement can not be evaluated: \n"+ callAjaxOp.getExp().getExpressionString(), ex);
+					}
+					break;
+				}
+			}
+		} catch (Exception e) {
+			log.warn("The action name " + functionName + " can't be found from current page: " + uientity, e);
 		}
 		context = null;// must release manually!
 	}

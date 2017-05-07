@@ -17,7 +17,7 @@ package org.shaolin.uimaster.page.widgets;
 
 import java.io.IOException;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.ajax.Calendar;
 import org.shaolin.uimaster.page.ajax.Layout;
@@ -34,19 +34,10 @@ public class HTMLDateType extends HTMLTextWidgetType
     private static final long serialVersionUID = -5232602952223828765L;
     
     private boolean isRange = false;
-    
-	public HTMLDateType()
-    {
-    }
 
-    public HTMLDateType(HTMLSnapshotContext context)
+    public HTMLDateType(String id)
     {
-        super(context);
-    }
-
-    public HTMLDateType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+        super(id);
     }
 
     public boolean isRange() {
@@ -58,12 +49,12 @@ public class HTMLDateType extends HTMLTextWidgetType
 	}
     
     @Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		
 	}
     
     @Override
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         generateWidget(context);
         generateContent(context);
@@ -72,15 +63,15 @@ public class HTMLDateType extends HTMLTextWidgetType
 
     public String getValue()
     {
-        String value = (String)getAllAttribute("value");
+        String value = (String)getAttribute("value");
         if (value == null)
         {
-            value = (String)getAllAttribute("text");
+            value = (String)getAttribute("text");
         }
         return value == null ? "" : value;
     }
 
-    private void generateContent(HTMLSnapshotContext context)
+    private void generateContent(UserRequestContext context)
     {
         try
         {
@@ -128,7 +119,7 @@ public class HTMLDateType extends HTMLTextWidgetType
         }
     }
 
-    public void generateAttribute(HTMLSnapshotContext context, String attributeName, Object attributeValue) throws IOException
+    public void generateAttribute(UserRequestContext context, String attributeName, Object attributeValue) throws IOException
     {
         if ("initValidation".equals(attributeName) || "validator".equals(attributeName))
         {
@@ -181,10 +172,9 @@ public class HTMLDateType extends HTMLTextWidgetType
 
         // add necessary attribute especially the server side constraint check.
         setAJAXConstraints(calendar);
-        setAJAXAttributes(calendar);
+        setAJAXAttributes(UserRequestContext.UserContext.get(), calendar);
         
         calendar.setListened(true);
-        calendar.setFrameInfo(getFrameInfo());
 
         return calendar;
     }

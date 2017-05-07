@@ -1,21 +1,17 @@
 package org.shaolin.uimaster.page.exception;
 
-//imports
-import org.shaolin.bmdp.exceptions.BaseException;
 import org.shaolin.bmdp.i18n.Localizer;
 
 /**
- * Exception for Ajax
- *
  */
-public class UIComponentNotFoundException extends UIPageException
+public class AttributeSetAlreadyException extends UIPageException
 {
     /**
      * Constructs a AjaxException with a given exception reason
      *
      * @param aReason
      */
-    public UIComponentNotFoundException(String aReason)
+    public AttributeSetAlreadyException(String aReason)
     {
         super(aReason);
     }
@@ -27,7 +23,7 @@ public class UIComponentNotFoundException extends UIPageException
      * @param aReason
      * @param args
      */
-    public UIComponentNotFoundException(String aReason, Object[] args)
+    public AttributeSetAlreadyException(String aReason, Object[] args)
     {
         super(aReason, args);
     }
@@ -39,7 +35,7 @@ public class UIComponentNotFoundException extends UIPageException
      * @param aReason
      * @param aThrowable
      */
-    public UIComponentNotFoundException(String aReason, Throwable aThrowable)
+    public AttributeSetAlreadyException(String aReason, Throwable aThrowable)
     {
         super(aReason, aThrowable);
     }
@@ -52,7 +48,7 @@ public class UIComponentNotFoundException extends UIPageException
      * @param aThrowable
      * @param args
      */
-    public UIComponentNotFoundException(String aReason, Throwable aThrowable,
+    public AttributeSetAlreadyException(String aReason, Throwable aThrowable,
                             Object[] args)
     {
         super(aReason, aThrowable, args);
@@ -66,7 +62,7 @@ public class UIComponentNotFoundException extends UIPageException
      * @param aThrowable
      * @param args
      */
-    public UIComponentNotFoundException(String aReason, Throwable aThrowable,
+    public AttributeSetAlreadyException(String aReason, Throwable aThrowable,
                             Object[] args, Localizer aLocalizer)
     {
         super(aReason, aThrowable, args, aLocalizer);

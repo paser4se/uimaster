@@ -16,7 +16,7 @@
 package org.shaolin.uimaster.page.widgets;
 
 import org.shaolin.bmdp.runtime.security.UserContext;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Layout;
@@ -31,27 +31,18 @@ public class HTMLMapType extends HTMLWidgetType
 {
     private static final Logger logger = LoggerFactory.getLogger(HTMLMapType.class);
 
-    public HTMLMapType()
+    public HTMLMapType(String id)
     {
-    }
-
-    public HTMLMapType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public HTMLMapType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+        super(id);
     }
 
     @Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		
 	}
     
     @Override
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
@@ -75,7 +66,7 @@ public class HTMLMapType extends HTMLWidgetType
             }
             
             String data = (String)this.removeAttribute("value");
-            String event = this.removeEventListenter("onclick");
+            String event = this.getEventListener("onclick");
             if (event != null && event.trim().length() > 0) {
             	event = getReconfigurateFunction(event);
             }
@@ -108,7 +99,6 @@ public class HTMLMapType extends HTMLWidgetType
     	Map matrix = new Map(getName(), Layout.NULL);
     	matrix.setUIEntityName(getUIEntityName());
     	matrix.setListened(true);
-    	matrix.setFrameInfo(getFrameInfo());
 		return matrix;
     }
 

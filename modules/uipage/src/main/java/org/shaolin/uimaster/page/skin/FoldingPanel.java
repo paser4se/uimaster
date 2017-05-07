@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.shaolin.bmdp.datamodel.page.UIPanelType;
 import org.shaolin.uimaster.html.layout.IUISkin;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.widgets.HTMLLayoutType;
 import org.shaolin.uimaster.page.widgets.HTMLPanelType;
@@ -68,7 +68,7 @@ public class FoldingPanel extends BaseSkin implements IUISkin {
 	public void generatePreCode(HTMLWidgetType component)
 			throws java.io.IOException {
 		HTMLPanelType panel = (HTMLPanelType) component;
-		HTMLSnapshotContext context = panel.getContext();
+		UserRequestContext context = UserRequestContext.UserContext.get();
 		HttpServletRequest request = context.getRequest();
 		String webRoot = WebConfig.getResourceContextRoot();
 		context.generateHTML("<table class=\"table-fp\">");
@@ -98,7 +98,7 @@ public class FoldingPanel extends BaseSkin implements IUISkin {
 
 	public void generatePostCode(HTMLWidgetType component)
 			throws java.io.IOException {
-		HTMLSnapshotContext context = component.getContext();
+		UserRequestContext context = UserRequestContext.UserContext.get();
 		if ("true".equals(getParam("isHidden"))) {
 			context.generateHTML("<script>document.getElementById(\"");
 			context.generateHTML(component.getName());

@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.od.IODMappingConverter;
 import org.shaolin.uimaster.page.widgets.HTMLChoiceType;
@@ -143,7 +143,7 @@ public class UIChoiceOptionValue implements IODMappingConverter {
 		return new String[0];
 	}
 
-	public void pushDataToWidget(HTMLSnapshotContext htmlContext) throws UIConvertException {
+	public void pushDataToWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
 			if (this.optionValues != null) {
 				this.uiChoice.setOptionValues(this.optionValues);
@@ -160,7 +160,7 @@ public class UIChoiceOptionValue implements IODMappingConverter {
 		}
 	}
 
-	public void pullDataFromWidget(HTMLSnapshotContext htmlContext) throws UIConvertException {
+	public void pullDataFromWidget(UserRequestContext htmlContext) throws UIConvertException {
 	}
 
 }

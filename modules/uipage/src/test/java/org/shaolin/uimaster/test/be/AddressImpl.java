@@ -22,7 +22,7 @@ import org.shaolin.uimaster.test.ce.Gender;
  *
  */
 
-public class CustomerImpl  implements org.shaolin.uimaster.test.be.ICustomer
+public class AddressImpl  implements org.shaolin.uimaster.test.be.IAddress
 {
     private static final long serialVersionUID = 0x90B1123CE87B50FFL;
 
@@ -31,14 +31,14 @@ public class CustomerImpl  implements org.shaolin.uimaster.test.be.ICustomer
         return "org.shaolin.uimaster.test.be.Customer";
     }
 
-    public CustomerImpl()
+    public AddressImpl()
     {
         
         _extField = new BEExtensionInfo();
         
     }
     
-    private IAddress address = new AddressImpl();
+    
     
     /**
      *  BEExtension _extType
@@ -138,9 +138,9 @@ public class CustomerImpl  implements org.shaolin.uimaster.test.be.ICustomer
     public boolean equals(Object obj) {
         if (obj == this)
             return true;
-        if (!(obj instanceof org.shaolin.uimaster.test.be.CustomerImpl))
+        if (!(obj instanceof org.shaolin.uimaster.test.be.AddressImpl))
             return false;
-        org.shaolin.uimaster.test.be.CustomerImpl o = (org.shaolin.uimaster.test.be.CustomerImpl)obj;
+        org.shaolin.uimaster.test.be.AddressImpl o = (org.shaolin.uimaster.test.be.AddressImpl)obj;
         
         boolean result = super.equals(obj);
 
@@ -216,20 +216,10 @@ public class CustomerImpl  implements org.shaolin.uimaster.test.be.ICustomer
         return memberTypeList;
     }
     
-    public ICustomer createEntity ()
+    public IAddress createEntity ()
     {
-        return new CustomerImpl();
+        return new AddressImpl();
     }
-
-	@Override
-	public void setAddress(IAddress address) {
-		this.address = address;
-	}
-
-	@Override
-	public IAddress getAddress() {
-		return address;
-	}
     
 }
 

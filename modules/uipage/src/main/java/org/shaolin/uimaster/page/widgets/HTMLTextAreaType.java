@@ -21,7 +21,7 @@ import java.io.IOException;
 
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.utils.FileUtil;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Layout;
@@ -38,26 +38,16 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
 	
     private static Logger logger = LoggerFactory.getLogger(HTMLTextAreaType.class);
 
-    public HTMLTextAreaType()
-    {
-    }
-
-    public HTMLTextAreaType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public HTMLTextAreaType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+    public HTMLTextAreaType(String id) {
+        super(id);
     }
 
     @Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		
 	}
     
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
@@ -87,11 +77,11 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
             context.generateHTML(getName());
             context.generateHTML("\"");
             generateAttributes(context);
-            if (getAllAttribute("rows") == null)
+            if (getAttribute("rows") == null)
             {
                 context.generateHTML(" rows=\"4\"");
             }
-            if (getAllAttribute("cols") == null)
+            if (getAttribute("cols") == null)
             {
                 context.generateHTML(" cols=\"30\"");
             }
@@ -148,7 +138,7 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
         }
     }
 
-    public void generateAttribute(HTMLSnapshotContext context, String attributeName, Object attributeValue) throws IOException
+    public void generateAttribute(UserRequestContext context, String attributeName, Object attributeValue) throws IOException
     {
         if ("initValidation".equals(attributeName) || "validator".equals(attributeName))
         {
@@ -196,10 +186,9 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
         }
         
         setAJAXConstraints(textArea);
-        setAJAXAttributes(textArea);
+        setAJAXAttributes(UserRequestContext.UserContext.get(), textArea);
         
         textArea.setListened(true);
-        textArea.setFrameInfo(getFrameInfo());
 
         return textArea;
     }

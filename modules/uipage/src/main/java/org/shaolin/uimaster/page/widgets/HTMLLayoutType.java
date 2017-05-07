@@ -18,7 +18,7 @@ package org.shaolin.uimaster.page.widgets;
 import java.io.IOException;
 import java.io.Serializable;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,15 +30,8 @@ public abstract class HTMLLayoutType extends HTMLWidgetType implements Serializa
 
 	private static final Logger logger = LoggerFactory.getLogger(HTMLLayoutType.class);
 
-	public HTMLLayoutType() {
-	}
-
-	public HTMLLayoutType(HTMLSnapshotContext context) {
-		super(context);
-	}
-
-	public HTMLLayoutType(HTMLSnapshotContext context, String id) {
-		super(context, id);
+	public HTMLLayoutType(String id) {
+		super(id);
 	}
 
 	public void setTableRowCount(int tableRowCount) {
@@ -62,7 +55,7 @@ public abstract class HTMLLayoutType extends HTMLWidgetType implements Serializa
 		try {
 			row = Integer.parseInt((String) getAttribute("y"));
 		} catch (NumberFormatException e) {
-			logger.error("error. in entity: " + getUIEntityName(), e);
+			logger.error("error. in entity: " + UserRequestContext.UserContext.get().getFormName(), e);
 		}
 		return row;
 	}
@@ -77,7 +70,7 @@ public abstract class HTMLLayoutType extends HTMLWidgetType implements Serializa
 			try {
 				rowSpan = Integer.parseInt((String) getAttribute("rowSpan"));
 			} catch (NumberFormatException e) {
-				logger.error("error. in entity: " + getUIEntityName(), e);
+				logger.error("error. in entity: " + UserRequestContext.UserContext.get().getFormName(), e);
 			}
 		}
 		return rowSpan;
@@ -89,7 +82,7 @@ public abstract class HTMLLayoutType extends HTMLWidgetType implements Serializa
 			try {
 				colSpan = Integer.parseInt((String) getAttribute("colSpan"));
 			} catch (NumberFormatException e) {
-				logger.error("error. in entity: " + getUIEntityName(), e);
+				logger.error("error. in entity: " + UserRequestContext.UserContext.get().getFormName(), e);
 			}
 		}
 		return colSpan;
@@ -103,7 +96,7 @@ public abstract class HTMLLayoutType extends HTMLWidgetType implements Serializa
 		return parent;
 	}
 
-	public void generateAttribute(HTMLSnapshotContext context,
+	public void generateAttribute(UserRequestContext context,
 			String attributeName, Object attributeValue) throws IOException {
 		super.generateAttribute(context, attributeName, attributeValue);
 	}

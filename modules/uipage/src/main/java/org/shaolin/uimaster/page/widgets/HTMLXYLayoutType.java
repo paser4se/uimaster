@@ -17,33 +17,20 @@ package org.shaolin.uimaster.page.widgets;
 
 import java.io.IOException;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.cache.UIFormObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HTMLXYLayoutType extends HTMLLayoutType
 {
-	private static final Logger logger = LoggerFactory.getLogger(HTMLXYLayoutType.class);
-
-    public HTMLXYLayoutType()
-    {
-    }
-
-    public HTMLXYLayoutType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-	public HTMLXYLayoutType(HTMLSnapshotContext context, String id)
+	public HTMLXYLayoutType(String id)
 	{
-	    super(context, id);
+	    super(id);
 	}
 
-    public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         HTMLWidgetType parentComponent = (HTMLWidgetType) context.getRequest().
-                getAttribute(HTMLSnapshotContext.REQUEST_PARENT_TAG_KEY);
+                getAttribute(UserRequestContext.REQUEST_PARENT_TAG_KEY);
         if (parentComponent != null)
         {
             HTMLLayoutType htmlLayout = parentComponent.getHTMLLayout();
@@ -61,11 +48,11 @@ public class HTMLXYLayoutType extends HTMLLayoutType
         }
     }
 
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
     }
 
-	public void generateAttribute(HTMLSnapshotContext context, String attributeName, Object attributeValue) throws IOException
+	public void generateAttribute(UserRequestContext context, String attributeName, Object attributeValue) throws IOException
 	{
 	    String attrValue = (String)attributeValue;
         if ("align".equals(attributeName))

@@ -25,8 +25,8 @@ public final class UIVariableUtil {
 			return BEUtil.createBEObject(entityName);
 		} else if (VariableCategoryType.CONSTANT_ENTITY == categoryType) {
 			return CEUtil.getConstantEntity(entityName);
-		} else if (VariableCategoryType.UI_ENTITY == categoryType) {
-			return new HTMLReferenceEntityType(entityName);
+		//} else if (VariableCategoryType.UI_ENTITY == categoryType) {
+			//return new HTMLReferenceEntityType(entityName);
 		} else if (VariableCategoryType.JAVA_CLASS == categoryType 
 				|| VariableCategoryType.JAVA_PRIMITIVE == categoryType) {
 			try {

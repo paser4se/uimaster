@@ -7,10 +7,12 @@ import org.shaolin.bmdp.datamodel.page.UIEntity;
 import org.shaolin.bmdp.designtime.tools.GeneratorOptions;
 import org.shaolin.bmdp.runtime.entity.EntityAddedEvent;
 import org.shaolin.bmdp.runtime.entity.EntityManager;
+import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
 import org.shaolin.bmdp.runtime.entity.EntityUpdatedEvent;
 import org.shaolin.bmdp.runtime.entity.IEntityEventListener;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
+import org.shaolin.uimaster.page.exception.UIPageException;
 
 public class UIFormValidator implements IEntityEventListener<UIEntity, DiagramType> {
 
@@ -41,6 +43,10 @@ public class UIFormValidator implements IEntityEventListener<UIEntity, DiagramTy
 			} catch (ParsingException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch (EntityNotFoundException e) {
+				e.printStackTrace();
+			} catch (UIPageException e) {
 				e.printStackTrace();
 			}
 		}

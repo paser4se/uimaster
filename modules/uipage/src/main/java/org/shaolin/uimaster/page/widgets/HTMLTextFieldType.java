@@ -17,7 +17,7 @@ package org.shaolin.uimaster.page.widgets;
 
 import java.io.IOException;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Layout;
@@ -32,27 +32,18 @@ public class HTMLTextFieldType extends HTMLTextWidgetType
 {
     private static Logger logger = LoggerFactory.getLogger(HTMLTextFieldType.class);
 
-    public HTMLTextFieldType()
+    public HTMLTextFieldType(String id)
     {
-    }
-
-    public HTMLTextFieldType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public HTMLTextFieldType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+        super(id);
     }
 
     @Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		
 	}
     
     @Override
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         generateWidget(context);
         String currencySymbol = getCurrencySymbol();
@@ -73,7 +64,7 @@ public class HTMLTextFieldType extends HTMLTextWidgetType
         generateEndWidget(context);
     }
 
-    public void generateCurrencySymbol(HTMLSnapshotContext context, String currencySymbol)
+    public void generateCurrencySymbol(UserRequestContext context, String currencySymbol)
     {
         context.generateHTML("<span class=\"currencySymbolText\"");
         context.generateHTML(" id=\"" + getName() + "_currencySymbol\" >");
@@ -81,7 +72,7 @@ public class HTMLTextFieldType extends HTMLTextWidgetType
         context.generateHTML("</span>");
     }
 
-    private void generateContent(HTMLSnapshotContext context)
+    private void generateContent(UserRequestContext context)
     {
         try
         {
@@ -126,7 +117,7 @@ public class HTMLTextFieldType extends HTMLTextWidgetType
         }
     }
 
-    public void generateAttribute(HTMLSnapshotContext context, String attributeName, Object attributeValue) throws IOException
+    public void generateAttribute(UserRequestContext context, String attributeName, Object attributeValue) throws IOException
     {
         if ("initValidation".equals(attributeName) || "validator".equals(attributeName))
         {
@@ -181,10 +172,9 @@ public class HTMLTextFieldType extends HTMLTextWidgetType
         }
         // add necessary attribute especially the server side constraint check.
         setAJAXConstraints(textField);
-        setAJAXAttributes(textField);
+        setAJAXAttributes(UserRequestContext.UserContext.get(), textField);
         
         textField.setListened(true);
-        textField.setFrameInfo(getFrameInfo());
 
         return textField;
     }

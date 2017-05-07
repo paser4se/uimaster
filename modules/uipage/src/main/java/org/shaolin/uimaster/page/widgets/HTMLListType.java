@@ -18,7 +18,7 @@ package org.shaolin.uimaster.page.widgets;
 import java.io.IOException;
 import java.util.List;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.AList;
@@ -32,27 +32,18 @@ public class HTMLListType extends HTMLMultiChoiceType
 {
     private static final Logger logger = LoggerFactory.getLogger(HTMLListType.class);
 
-    public HTMLListType()
+    public HTMLListType(String id)
     {
-    }
-
-    public HTMLListType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public HTMLListType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+        super(id);
     }
     
     @Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		
 	}
 
     @Override
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
@@ -124,19 +115,19 @@ public class HTMLListType extends HTMLMultiChoiceType
         }
     }
 
-    public void generateAttribute(HTMLSnapshotContext context, String attributeName,
+    public void generateAttribute(UserRequestContext context, String attributeName,
             Object attributeValue) throws IOException
     {
         if ("multiple".equals(attributeName))
         {
-            if ("true".equals(String.valueOf(getAllAttribute("multiple"))))
+            if ("true".equals(String.valueOf(getAttribute("multiple"))))
             {
                 context.generateHTML(" multiple");
             }
         }
         else if ("size".equals(attributeName))
         {
-            context.generateHTML(" size=" + String.valueOf(getAllAttribute("size")));
+            context.generateHTML(" size=" + String.valueOf(getAttribute("size")));
         } 
         else
         {
@@ -155,10 +146,9 @@ public class HTMLListType extends HTMLMultiChoiceType
         list.setValues(getValue());
 
         setAJAXConstraints(list);
-        setAJAXAttributes(list);
+        setAJAXAttributes(UserRequestContext.UserContext.get(), list);
         
         list.setListened(true);
-        list.setFrameInfo(getFrameInfo());
 
         return list;
     }

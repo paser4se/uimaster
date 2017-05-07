@@ -17,13 +17,11 @@ import org.shaolin.bmdp.datamodel.page.UILayoutType;
 import org.shaolin.bmdp.datamodel.page.UIPanelType;
 import org.shaolin.bmdp.datamodel.page.UIReferenceEntityType;
 import org.shaolin.bmdp.datamodel.page.UITabPaneType;
-import org.shaolin.javacc.context.ParsingContext;
-import org.shaolin.javacc.exception.EvaluationException;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
-import org.shaolin.uimaster.page.javacc.VariableEvaluator;
+import org.shaolin.uimaster.page.exception.UIComponentNotFoundException;
 import org.shaolin.uimaster.page.widgets.HTMLLayoutType;
 import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 import org.slf4j.Logger;
@@ -35,15 +33,13 @@ public abstract class HTMLLayout
 
     protected UIFormObject entity = null;
 
-    protected List layoutComstraintList = null;
+    protected final List<AbstractHTMLLayout> layoutComstraintList = new ArrayList<AbstractHTMLLayout>();
 
     protected List unUsedReferenceEntity = null;
 
     protected int columnCount;
 
     protected int rowCount;
-
-    protected ParsingContext parsingContext;
 
     private List hiddenList = null;
     
@@ -53,18 +49,11 @@ public abstract class HTMLLayout
 	 */
     public HTMLLayout() {}
 
-    public HTMLLayout(UIFormObject entity, ParsingContext parsingContext)
+    public HTMLLayout(UIFormObject entity)
     {
         this.entity = entity;
-        this.parsingContext = parsingContext;
-        layoutComstraintList = new ArrayList();
     }
 
-    protected void init(UIContainerType container, String cellUIStyle)
-    {
-        init(container, cellUIStyle, false);
-    }
-    
     /*
      * Transfer the xml layout constraint data to java flat cell layout data, like
      * rowNumber, colNumber, eachRowHeight, eachColWidth 
@@ -75,7 +64,7 @@ public abstract class HTMLLayout
      * transferd to appearence order by borwser rendering sequence.
      *
      */
-    protected void init(UIContainerType container, String cellUIStyle, boolean isInObjectList)
+    protected void init(UIContainerType container, String cellUIStyle)
     {
     	List<UIComponentType> components = container.getComponents();
         Map componentMap = new HashMap();
@@ -155,19 +144,13 @@ public abstract class HTMLLayout
                         		layoutConstraintMap.remove(key);
                         if (compLayout != null)
                         {
-                            try
-                            {
-                                for (int k1 = 0, n1 = compLayout.getColSpan(); k1 < n1; k1++)
-                                {
-                                    columnWidth = getSum(columnWidth, layout.getColumnWidthWeights().get(x
-                                            + k1));
-                                    for (int k2 = 0, n2 = compLayout.getRowSpan(); k2 < n2; k2++)
-                                    {
-                                        if (k1 == 0)
-                                        {
-                                            rowHeight = getSum(rowHeight, layout
-                                                    .getRowHeightWeights().get(y + k2));
-                                        }
+							try {
+								for (int k1 = 0, n1 = compLayout.getColSpan(); k1 < n1; k1++) {
+									columnWidth = getSum(columnWidth, layout.getColumnWidthWeights().get(x + k1));
+									for (int k2 = 0, n2 = compLayout.getRowSpan(); k2 < n2; k2++) {
+										if (k1 == 0) {
+											rowHeight = getSum(rowHeight, layout.getRowHeightWeights().get(y + k2));
+										}
                                         bitmap[x + k1][y + k2] = true;
                                     }
                                 }
@@ -262,18 +245,13 @@ public abstract class HTMLLayout
 
     private static double getSum(double a, double b)
     {
-        if (a >= 0 && b >= 0 && a + b < 1)
-        {
-            return a + b;
-        }
-        else if ((a >= 1 || a == 0) && (b >= 1 || b == 0))
-        {
-            return (int)a + (int)b;
-        }
-        else
-        {
-            return -1;
-        }
+		if (a >= 0 && b >= 0 && a + b < 1) {
+			return a + b;
+		} else if ((a >= 1 || a == 0) && (b >= 1 || b == 0)) {
+			return (int) a + (int) b;
+		} else {
+			return -1;
+		}
     }
 
     private HTMLComponentLayout generateHTMLLayout(UIComponentType component,
@@ -282,8 +260,8 @@ public abstract class HTMLLayout
         if (component instanceof UIPanelType)
         {
             HTMLPanelLayout panelLayout = new HTMLPanelLayout(component.getUIID(), entity);
-            panelLayout.setConstraints(layoutConstraint, parsingContext);
-            panelLayout.setBody((UIPanelType)component, parsingContext);
+            panelLayout.setConstraints(layoutConstraint);
+            panelLayout.setBody((UIPanelType)component);
             if (cellUIStyle != null)
             {
                 panelLayout.setTDAttribute("cellUIStyle", cellUIStyle);
@@ -294,7 +272,7 @@ public abstract class HTMLLayout
         else
         {
             HTMLComponentLayout compLayout = new HTMLComponentLayout(component.getUIID(), entity);
-            compLayout.setConstraints(layoutConstraint, parsingContext);
+            compLayout.setConstraints(layoutConstraint);
             if (cellUIStyle != null)
             {
                 compLayout.setTDAttribute("cellUIStyle", cellUIStyle);
@@ -306,23 +284,18 @@ public abstract class HTMLLayout
 
     private static String getTableWidthString(double d)
     {
-        if (d > 0.0 && d <= 1.0)
-        {
-            return (int)(d * 100) + "%";
-        }
-        else
-        {
-            return String.valueOf((int)d) + "px";
-        }
+		if (d > 0.0 && d <= 1.0) {
+			return (int) (d * 100) + "%";
+		} else {
+			return String.valueOf((int) d) + "px";
+		}
     }
 
-    public void generateHidden(HTMLSnapshotContext context, int depth, Map appendMap,
-    		VariableEvaluator ee, HTMLLayoutType htmlLayout) throws EvaluationException
+    public void generateHidden(UserRequestContext context, int depth, HTMLLayoutType htmlLayout) throws UIComponentNotFoundException
     {
-        if (hiddenList == null)
-        {
-            return;
-        }
+		if (hiddenList == null) {
+			return;
+		}
         if (logger.isDebugEnabled())
         {
             logger.debug("<---HTMLLayout.generateHidden--->generate hidden components for the uipage: {}",
@@ -335,58 +308,14 @@ public abstract class HTMLLayout
             for (int i = 0, n = hiddenList.size(); i < n; i++)
             {
                 String hiddenID = (String)hiddenList.get(i);
-                Map propMap = entity.getComponentProperty(hiddenID);
-                Map eventMap = entity.getComponentEvent(hiddenID);
-                Map i18nMap = entity.getComponentI18N(hiddenID);
-                Map expMap = entity.getComponentExpression(hiddenID);
-                Map tempMap = null;
-                tempMap = HTMLUtil.evaluateExpression(propMap, expMap, tempMap, ee);
-                tempMap = HTMLUtil.internationalization(propMap, i18nMap, tempMap, context);
-                tempMap = HTMLUtil.merge(tempMap, (Map)appendMap.get(hiddenID));
-                HTMLWidgetType htmlComponent = HTMLUtil.getHTMLUIComponent(hiddenID, context,
-                        propMap, eventMap, null, tempMap, htmlLayout, false);
-                HTMLUtil.generateTab(context, depth);
-                IUISkin uiskinObj = entity.getUISkinObj(hiddenID, ee, htmlComponent);
-                if (uiskinObj != null)
-                {
-                    htmlComponent.addAttribute(uiskinObj.getAttributeMap(htmlComponent));
-                    htmlComponent.preIncludePage(context);
-                    try
-                    {
-                        uiskinObj.generatePreCode(htmlComponent);
-                    }
-                    catch (Exception e)
-                    {
-                        logger.error("uiskin error: ", e);
-                    }
-                }
-                else
-                {
-                    htmlComponent.preIncludePage(context);
-                }
-
-                Widget newWidget = htmlComponent.createAjaxWidget(ee);
-                if (newWidget != null)
-                {
-                    context.addAjaxWidget(newWidget.getId(), newWidget);
-                }
-                if (uiskinObj == null || !uiskinObj.isOverwrite())
-                {
-                    htmlComponent.generateBeginHTML(context, this.entity, depth);
-                    htmlComponent.generateEndHTML(context, this.entity, depth);
-                }
-                if (uiskinObj != null)
-                {
-                    try
-                    {
-                        uiskinObj.generatePostCode(htmlComponent);
-                    }
-                    catch (Exception e)
-                    {
-                        logger.error("uiskin error: ", e);
-                    }
-                }
-                htmlComponent.postIncludePage(context);
+                HTMLWidgetType htmlComponent = context.getHtmlWidget(context.getHTMLPrefix() + hiddenID);
+                Widget newWidget = htmlComponent.createAjaxWidget(null);
+				if (newWidget != null) {
+					context.addAjaxWidget(newWidget.getId(), newWidget);
+				}
+				HTMLUtil.generateTab(context, depth);
+            	htmlComponent.generateBeginHTML(context, this.entity, depth);
+                htmlComponent.generateEndHTML(context, this.entity, depth);
             }
             HTMLUtil.generateTab(context, depth - 1);
             context.generateHTML("</div>");

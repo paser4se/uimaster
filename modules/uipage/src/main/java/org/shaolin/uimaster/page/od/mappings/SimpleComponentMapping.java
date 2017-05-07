@@ -37,7 +37,7 @@ import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.AjaxActionHelper;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.RefForm;
 import org.shaolin.uimaster.page.cache.ODFormObject;
 import org.shaolin.uimaster.page.cache.ODObject;
@@ -267,8 +267,9 @@ public class SimpleComponentMapping extends ComponentMapping {
 
 			Object uiid = this.uiDataParam.executeDataToUI(odContext);
 			if (uiid instanceof String) {
-				// remove the UI2Data context.
-				odContext.getHtmlContext().getODMapperContext(uiid.toString());
+				// remove the UI2Data context. 
+				// odContext.getHtmlContext().getHTMLPrefix() has already from executeDataToUI
+				odContext.getHtmlContext().getODMapperContext(uiid.toString() + ".");
 			}
 			Map<String, Object> resultMap = odContext.getHtmlContext().getODMapperData();
 			if (resultMap == null || resultMap.isEmpty())
@@ -320,7 +321,7 @@ public class SimpleComponentMapping extends ComponentMapping {
 			return;
 		}
 
-		HTMLSnapshotContext htmlContext = odContext.getHtmlContext();
+		UserRequestContext htmlContext = odContext.getHtmlContext();
 		Map<String, Object> odMapperData = htmlContext.getODMapperData();
 		if (odmapperName.startsWith("org.shaolin.uimaster.page.od.rules.")) {
 			if (logger.isTraceEnabled()) {
@@ -370,9 +371,7 @@ public class SimpleComponentMapping extends ComponentMapping {
 				odMapperData.put(uiDataParam.getParamName(), refEntity.getCopy());
 			}
 			ODProcessor processor = new ODProcessor(htmlContext, odmapperName, odContext.getDeepLevel());
-			ODEntityContext evaContext = processor.process();
-			// save the context for either the ui form variables evaluation or ajax loading.
-			htmlContext.setODMapperContext(evaContext.getUiEntity().getUIID(), evaContext);
+			processor.process();
 			
 			long end = System.currentTimeMillis();
 			long time = end - start;

@@ -1,7 +1,7 @@
 
 package org.shaolin.uimaster.page.cust;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.exception.ODProcessException;
 import org.shaolin.uimaster.page.od.ODEntityContext;
 
@@ -11,13 +11,13 @@ public class UICustomizeODPlugin implements IODEntityPlugin
     /**
      * Doesn't support AJAX code.
      */
-    public void postData2UIExecute(ODEntityContext odContext, HTMLSnapshotContext htmlContext)
+    public void postData2UIExecute(ODEntityContext odContext, UserRequestContext htmlContext)
             throws ODProcessException
     {
         
     }
 
-    public void postUI2DataExecute(ODEntityContext odContext, HTMLSnapshotContext htmlContext)
+    public void postUI2DataExecute(ODEntityContext odContext, UserRequestContext htmlContext)
             throws ODProcessException
     {
     	/**
@@ -70,7 +70,7 @@ public class UICustomizeODPlugin implements IODEntityPlugin
         */
     }
 
-    public void preData2UIExecute(ODEntityContext odContext, HTMLSnapshotContext htmlContext)
+    public void preData2UIExecute(ODEntityContext odContext, UserRequestContext htmlContext)
             throws ODProcessException
     {
     	/**
@@ -116,7 +116,7 @@ public class UICustomizeODPlugin implements IODEntityPlugin
         */
     }
 
-    public void preUI2DataExecute(ODEntityContext odContext, HTMLSnapshotContext htmlContext)
+    public void preUI2DataExecute(ODEntityContext odContext, UserRequestContext htmlContext)
             throws ODProcessException
     {
 

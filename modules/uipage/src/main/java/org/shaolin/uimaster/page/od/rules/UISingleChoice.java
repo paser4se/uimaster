@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.shaolin.uimaster.page.AjaxActionHelper;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.SingleChoice;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.od.IODMappingConverter;
@@ -191,7 +191,7 @@ public class UISingleChoice implements IODMappingConverter {
 		return new String[0];
 	}
 
-	public void pushDataToWidget(HTMLSnapshotContext htmlContext) throws UIConvertException {
+	public void pushDataToWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
 			if (this.value != null) {
 				this.uisingleChoice.setValue(this.value.toString());
@@ -208,7 +208,7 @@ public class UISingleChoice implements IODMappingConverter {
 		}
 	}
 
-	public void pullDataFromWidget(HTMLSnapshotContext htmlContext) throws UIConvertException {
+	public void pullDataFromWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
 			SingleChoice singleChoice = (SingleChoice) AjaxActionHelper
 					.getCachedAjaxWidget(this.uiid, htmlContext);
@@ -225,11 +225,11 @@ public class UISingleChoice implements IODMappingConverter {
 		}
 	}
 
-	public void callAllMappings(boolean isDataToUI, HTMLSnapshotContext htmlContext) throws UIConvertException {
+	public void callAllMappings(boolean isDataToUI, UserRequestContext htmlContext) throws UIConvertException {
 		callChoiceOption(isDataToUI, htmlContext);
 	}
 
-	public void callChoiceOption(boolean isDataToUI, HTMLSnapshotContext htmlContext) throws UIConvertException {
+	public void callChoiceOption(boolean isDataToUI, UserRequestContext htmlContext) throws UIConvertException {
 		try {
 			Map<String, Object> converter_in_data = new HashMap<String, Object>();
 			converter_in_data.put(UI_WIDGET_TYPE, this.uisingleChoice);

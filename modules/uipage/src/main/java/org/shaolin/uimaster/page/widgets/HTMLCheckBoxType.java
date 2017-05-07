@@ -15,7 +15,7 @@
 */
 package org.shaolin.uimaster.page.widgets;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.CheckBox;
@@ -30,27 +30,18 @@ public class HTMLCheckBoxType extends HTMLSelectComponentType
 {
     private static final Logger logger = LoggerFactory.getLogger(HTMLCheckBoxType.class);
 
-    public HTMLCheckBoxType()
+    public HTMLCheckBoxType(String id)
     {
-    }
-
-    public HTMLCheckBoxType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public HTMLCheckBoxType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+        super(id);
     }
 
     @Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		
 	}
     
     @Override
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
@@ -108,10 +99,9 @@ public class HTMLCheckBoxType extends HTMLSelectComponentType
         checkBox.setLabel(getLabel());
         checkBox.setSelected(getValue());
         setAJAXConstraints(checkBox);
-        setAJAXAttributes(checkBox);
+        setAJAXAttributes(UserRequestContext.UserContext.get(), checkBox);
         
         checkBox.setListened(true);
-        checkBox.setFrameInfo(getFrameInfo());
 
         return checkBox;
     }

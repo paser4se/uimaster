@@ -58,14 +58,6 @@ public class ProcessFlowTest extends TestContext {
         Thread.sleep(waitSeconds);
         
         //auto approved order
-        
-        coordinator.completeTask(coordinator.getAllTasks().get(0));// on production
-        Thread.sleep(waitSeconds);
-        
-        coordinator.completeTask(coordinator.getAllTasks().get(0));// on delivery
-        Thread.sleep(waitSeconds);
-        
-        Assert.assertEquals(0, coordinator.getAllTasks().size());
     }
 	
 	private class ResourceManagerImpl implements IResourceManager {

@@ -1,8 +1,6 @@
 package org.shaolin.uimaster.page.exception;
 
-import org.shaolin.bmdp.exceptions.BaseException;
-
-public class FormatException extends BaseException
+public class FormatException extends UIPageException
 {
     public FormatException(String msg)
     {

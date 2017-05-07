@@ -28,9 +28,10 @@ import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.context.EvaluationContext;
 import org.shaolin.javacc.exception.EvaluationException;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.OpExecuteContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.cache.ODObject;
+import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.exception.ODException;
 import org.shaolin.uimaster.page.widgets.HTMLReferenceEntityType;
 import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
@@ -51,7 +52,7 @@ public abstract class ODContext extends OpExecuteContext {
 
 	public static final String AJAX_UICOMP_NAME = "page";
 
-	protected HTMLSnapshotContext htmlContext;
+	protected UserRequestContext requestContext;
 
 	protected transient HttpServletRequest request;
 
@@ -104,8 +105,8 @@ public abstract class ODContext extends OpExecuteContext {
 	 */
 	private int deepLevel = 0;
 
-	public ODContext(HTMLSnapshotContext htmlContext, boolean isPageOD) {
-		this.htmlContext = htmlContext;
+	public ODContext(UserRequestContext htmlContext, boolean isPageOD) {
+		this.requestContext = htmlContext;
 		this.isPageOD = isPageOD;
 		this.request = htmlContext.getRequest();
 		this.isDataToUI = htmlContext.getIsDataToUI();
@@ -117,8 +118,8 @@ public abstract class ODContext extends OpExecuteContext {
 		}
 	}
 
-	public HTMLSnapshotContext getHtmlContext() {
-		return htmlContext;
+	public UserRequestContext getHtmlContext() {
+		return requestContext;
 	}
 
 	public HttpServletRequest getRequest() {
@@ -152,15 +153,15 @@ public abstract class ODContext extends OpExecuteContext {
 		return null;
 	}
 	
-	public String getOdEntityName() {
+	public String getODFormName() {
 		return odEntityName;
 	}
 
-	public String getUiEntityName() {
+	public String getUIFormName() {
 		return uiEntityName;
 	}
 	
-	public abstract String getUiParamName();
+	public abstract String getUIParamName();
 
 	public Map<String, Object> getLocalVariableValues() {
 		DefaultEvaluationContext evalContext = (DefaultEvaluationContext) this
@@ -252,6 +253,8 @@ public abstract class ODContext extends OpExecuteContext {
 //	public abstract List getODLocaleConfigs();
 
 	public abstract ODObject getODObject();
+	
+	public abstract UIFormObject getUIFormObject();
 
 	public void log(String message) {
     	logger.info(message);

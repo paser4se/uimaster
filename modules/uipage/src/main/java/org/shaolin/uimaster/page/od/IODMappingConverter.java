@@ -17,7 +17,7 @@ package org.shaolin.uimaster.page.od;
 
 import java.util.Map;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 
 public interface IODMappingConverter {
@@ -74,13 +74,13 @@ public interface IODMappingConverter {
 	 * 
 	 * @throws UIConvertException
 	 */
-	public void pushDataToWidget(HTMLSnapshotContext htmlContext) throws UIConvertException;
+	public void pushDataToWidget(UserRequestContext htmlContext) throws UIConvertException;
 
 	/**
 	 * convert UI values to Data model
 	 * 
 	 * @throws UIConvertException
 	 */
-	public void pullDataFromWidget(HTMLSnapshotContext htmlContext) throws UIConvertException;
+	public void pullDataFromWidget(UserRequestContext htmlContext) throws UIConvertException;
 
 }

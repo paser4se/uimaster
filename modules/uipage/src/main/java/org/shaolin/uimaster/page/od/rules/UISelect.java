@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.shaolin.uimaster.page.AjaxActionHelper;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.SelectWidget;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.od.IODMappingConverter;
@@ -135,7 +135,7 @@ public class UISelect implements IODMappingConverter {
 		return new String[0];
 	}
 
-	public void pushDataToWidget(HTMLSnapshotContext htmlContext) throws UIConvertException {
+	public void pushDataToWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
 			this.uiSelect.setValue(this.value);
 		} catch (Throwable t) {
@@ -147,7 +147,7 @@ public class UISelect implements IODMappingConverter {
 		}
 	}
 
-	public void pullDataFromWidget(HTMLSnapshotContext htmlContext) throws UIConvertException {
+	public void pullDataFromWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
 			SelectWidget selectComp = (SelectWidget) AjaxActionHelper
 					.getCachedAjaxWidget(this.uiid, htmlContext);

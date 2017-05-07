@@ -30,7 +30,7 @@ import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.DisposableBfString;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.PageDispatcher;
@@ -81,10 +81,6 @@ public class RefForm extends Container implements Serializable
     private String uiid;
     
     private Map functionReconfigurationMap;
-    
-    private Map propertyReconfigurationMap;
-    
-    private Map variableReconfigurationMap;
 
     private Map<String, Object> inputParams;
 
@@ -163,38 +159,6 @@ public class RefForm extends Container implements Serializable
         this.functionReconfigurationMap = functionReconfigurationMap;
     }
 
-    /**
-     * @return the propertyReconfigurationMap
-     */
-    public Map getPropertyReconfigurationMap()
-    {
-        return propertyReconfigurationMap;
-    }
-
-    /**
-     * @param propertyReconfigurationMap the propertyReconfigurationMap to set
-     */
-    public void setPropertyReconfigurationMap(Map propertyReconfigurationMap)
-    {
-        this.propertyReconfigurationMap = propertyReconfigurationMap;
-    }
-
-    /**
-     * @return the variableReconfigurationMap
-     */
-    public Map getVariableReconfigurationMap()
-    {
-        return variableReconfigurationMap;
-    }
-
-    /**
-     * @param variableReconfigurationMap the variableReconfigurationMap to set
-     */
-    public void setVariableReconfigurationMap(Map variableReconfigurationMap)
-    {
-        this.variableReconfigurationMap = variableReconfigurationMap;
-    }
-    
     public void setInputParameter(String key, Object value) {
 		if(inputParams != null) 
 			inputParams.put(key, value);
@@ -233,18 +197,17 @@ public class RefForm extends Container implements Serializable
                 logger.debug("[ui2Data] uientity: "+this.getUIEntityName());
             }
             AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
-            HTMLSnapshotContext htmlContext = new HTMLSnapshotContext(ajaxContext.getRequest());
-            htmlContext.setFormName(this.getUIEntityName());
+            UserRequestContext htmlContext = new UserRequestContext(ajaxContext.getRequest());
+            htmlContext.setCurrentFormInfo(this.getUIEntityName(), "", "");
             htmlContext.setIsDataToUI(false);//Don't set prefix in here.
             htmlContext.setAjaxWidgetMap(AjaxActionHelper.getFrameMap(ajaxContext.getRequest()));
-            htmlContext.setHTMLPrefix("");
 
             ODFormObject odEntityObject = PageCacheManager.getODFormObject(this.getUIEntityName());
-            HTMLReferenceEntityType newReferObject = new HTMLReferenceEntityType(htmlContext, this.getId(), this.getUIEntityName());
-            newReferObject.setPrefix("");
+            HTMLReferenceEntityType newReferObject = new HTMLReferenceEntityType(this.getId(), this.getUIEntityName());
             inputParams = (inputParams == null)?new HashMap():inputParams;
             inputParams.put(odEntityObject.getUiParamName(), newReferObject);
             htmlContext.setODMapperData(inputParams);
+            UserRequestContext.UserContext.set(htmlContext);
             
             ODProcessor processor = new ODProcessor(htmlContext, this.getUIEntityName(), -1);
             ODEntityContext odContext = processor.process();
@@ -323,12 +286,11 @@ public class RefForm extends Container implements Serializable
         	this.setFrameInfo(frameId);
         	
             StringWriter writer = new StringWriter();
-            HTMLSnapshotContext htmlContext = new HTMLSnapshotContext(ajaxContext.getRequest(), writer);
+            UserRequestContext htmlContext = new UserRequestContext(ajaxContext.getRequest(), writer);
             htmlContext.setIsDataToUI(true);
-            htmlContext.setFormName(this.getUIEntityName());
+            htmlContext.setCurrentFormInfo(this.getUIEntityName(), "", "");
             ODFormObject odEntityObject = PageCacheManager.getODFormObject(this.getUIEntityName());
-            HTMLReferenceEntityType newReferObject = new HTMLReferenceEntityType(htmlContext,
-                    this.getId(), this.getUIEntityName());
+            HTMLReferenceEntityType newReferObject = new HTMLReferenceEntityType(this.getId(), this.getUIEntityName());
             if (inputParams == null)
                 inputParams = new HashMap();
             inputParams.put(odEntityObject.getUiParamName(), newReferObject);
@@ -341,7 +303,6 @@ public class RefForm extends Container implements Serializable
             	}
             }
             
-            htmlContext.setHTMLPrefix("");
             htmlContext.setODMapperData(inputParams);
             callODMapper(htmlContext, this.getUIEntityName());
             Map referenceEntityMap = new HashMap();
@@ -349,17 +310,16 @@ public class RefForm extends Container implements Serializable
 
             inputParams.remove(odEntityObject.getUiParamName());// cannot be serializable!
             String id = this.getId();
-            htmlContext.setHTMLPrefix(id+".");
-            htmlContext.setDIVPrefix(id.replace('.','-')+'-');
+            htmlContext.resetCurrentFormInfo();
+            htmlContext.setCurrentFormInfo(this.getUIEntityName(), id+".", id.replace('.','-')+'-');
             htmlContext.setReconfigFunction(functionReconfigurationMap);
-            htmlContext.setReconfigProperty(propertyReconfigurationMap);
-            htmlContext.setReconfigVariable(variableReconfigurationMap);
             htmlContext.printHTMLAttributeValues();
 
             Map ajaxMap = AjaxActionHelper.getAjaxContext().getFrameComponentMap(this.getFrameInfo());
             htmlContext.setAjaxWidgetMap(ajaxMap);
             String oldFrameInfo = (String)htmlContext.getRequest().getAttribute("_framePagePrefix");
             htmlContext.getRequest().setAttribute("_framePagePrefix", this.getFrameInfo());
+            UserRequestContext.UserContext.set(htmlContext);
             
             //for a RefEntity uientity2.uientity1, firstly, 
             //call AjaxComponentSecurityUtil.loadSecurityMap to load all the security controls configured on higher level(in this case, uientity2, uipage)
@@ -379,25 +339,27 @@ public class RefForm extends Container implements Serializable
             ooeeContext.setDefaultEvaluationContext(evaContext);
             ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
             
-            HTMLReferenceEntityType refEntity = new HTMLReferenceEntityType(htmlContext, id);
+            HTMLReferenceEntityType refEntity = new HTMLReferenceEntityType(id);
             if (inputParams.get(RECONFIG_ORIGINAL) != null && inputParams.get(RECONFIG_OVERRIDE) != null) {
             	refEntity.addFunctionReconfiguration(inputParams.get(RECONFIG_ORIGINAL).toString(), 
             			inputParams.get(RECONFIG_OVERRIDE).toString());
             }
+            refEntity.generateBeginHTML(htmlContext, entity, 0);
+            
             PageDispatcher dispatcher = new PageDispatcher(entity, ooeeContext);
-            refEntity.initBegining(htmlContext);
             dispatcher.forwardForm(htmlContext, 0, isReadOnly(), refEntity);
             htmlContext.getRequest().setAttribute("_framePagePrefix",oldFrameInfo);
             
             // append the dynamic js files.
             StringWriter jswriter = new StringWriter();
-            HTMLSnapshotContext jsContext = new HTMLSnapshotContext(ajaxContext.getRequest(), jswriter);
+            UserRequestContext jsContext = new UserRequestContext(ajaxContext.getRequest(), jswriter);
         	UIFormObject formObject = PageCacheManager.getUIFormObject(this.getUIEntityName());
         	formObject.getJSPathSet(jsContext, Collections.emptyMap(), true);
         	String data = jswriter.getBuffer().toString();
         	IDataItem dataItem = AjaxActionHelper.createLoadJS(getId(), data);
             dataItem.setFrameInfo(getFrameInfo());
             ajaxContext.addDataItem(dataItem);
+            htmlContext.resetCurrentFormInfo();
             
             return writer.getBuffer().toString();
         }
@@ -408,7 +370,7 @@ public class RefForm extends Container implements Serializable
         }
     }
     
-    public void callODMapper(HTMLSnapshotContext htmlContext, String odmapperName) throws ODException
+    public void callODMapper(UserRequestContext htmlContext, String odmapperName) throws ODException
     {
         if (logger.isDebugEnabled())
             logger.debug("callODMapper odmapper name: " + odmapperName);

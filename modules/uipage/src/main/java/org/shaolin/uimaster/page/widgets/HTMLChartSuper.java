@@ -27,7 +27,7 @@ import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.DisposableBfString;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Chart;
 import org.shaolin.uimaster.page.ajax.Layout;
@@ -43,22 +43,13 @@ public abstract class HTMLChartSuper extends HTMLWidgetType
 {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public HTMLChartSuper()
+    public HTMLChartSuper(String id)
     {
-    }
-
-    public HTMLChartSuper(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public HTMLChartSuper(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+        super(id);
     }
 
     @Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
     	if (context.getRequest().getAttribute("_haschats") == null) {
 			context.getRequest().setAttribute("_haschats", Boolean.TRUE);
             String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
@@ -148,10 +139,10 @@ public abstract class HTMLChartSuper extends HTMLWidgetType
 		context.generateHTML("</canvas>");
 	}
     
-    public abstract void generateData(List<UITableColumnType> columns, HTMLSnapshotContext context, int depth) throws Exception;
+    public abstract void generateData(List<UITableColumnType> columns, UserRequestContext context, int depth) throws Exception;
     
     @Override
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
     }
 
@@ -173,7 +164,6 @@ public abstract class HTMLChartSuper extends HTMLWidgetType
 			chart.setUIEntityName(getUIEntityName());
 
 			chart.setListened(true);
-			chart.setFrameInfo(getFrameInfo());
 
 			return chart;
 		} catch (EvaluationException e) {

@@ -15,7 +15,7 @@
 */
 package org.shaolin.uimaster.page.widgets;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Layout;
@@ -30,33 +30,27 @@ public class HTMLRadioButtonType extends HTMLSelectComponentType
 {
     private static Logger logger = LoggerFactory.getLogger(HTMLRadioButtonType.class);
 
-    public HTMLRadioButtonType()
+    public HTMLRadioButtonType(String id)
     {
-    }
-
-    public HTMLRadioButtonType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public HTMLRadioButtonType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+        super(id);
     }
 
     private String _getName2()
     {
-        String prefix = getPrefix() == null ? "" : getPrefix();
+    	
+        String prefix = UserRequestContext.UserContext.get().getHTMLPrefix();
+        if (prefix == null) 
+        	prefix = "";
         return prefix + getId();
     }
 
     @Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		
 	}
     
     @Override
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
@@ -111,7 +105,6 @@ public class HTMLRadioButtonType extends HTMLSelectComponentType
 
         radioButton.setListened(true);
         radioButton.setSelected(getValue());
-        radioButton.setFrameInfo(getFrameInfo());
 
         return radioButton;
     }

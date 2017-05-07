@@ -31,48 +31,29 @@ public class WebFlowContext extends OpExecuteContext
 
     protected final String envName;
     
-    /**
-     * for parsing only!
-     * 
-     * @param node
-     * @param variables
-     * @param needParsing
-     */
-    public WebFlowContext(WebNode node, List<ParamType> variables, boolean needParsing)
-    {
-        super();
-        this.node = node;
-        this.envName = node.getChunk().getEntityName();
-        
-        if (needParsing) {
-        	parse(variables);
-        }
-    }
-
-    private void parse(List<ParamType> variables)
-    {
-        //get request&session parsing context
-        DefaultParsingContext requestPContext = WebFlowContextHelper.
-            getHttpRequestParsingContext(variables);
-        DefaultParsingContext sessionPContext = WebFlowContextHelper.
-            getHttpSessionParsingContext(node.getChunk().getGlobalVariable());
-        
-        //set parsing context.
-        setParsingContextObject(WebflowConstants.
-                                REQUEST_PARSING_CONTEXT_PREFIX,
-                                requestPContext);
-        setParsingContextObject(WebflowConstants.
-                                SESSION_PARSING_CONTEXT_PREFIX,
-                                sessionPContext);
-        this.setExternalParseContext(this);
-        this.setExternalEvaluationContext(this);
-    }
-
     protected transient HttpServletRequest request = null;
     
     protected transient HttpServletResponse response = null;
     
     /**
+	 * for parsing only!
+	 * 
+	 * @param node
+	 * @param variables
+	 * @param needParsing
+	 */
+	public WebFlowContext(WebNode node, List<ParamType> variables, boolean needParsing)
+	{
+	    super();
+	    this.node = node;
+	    this.envName = node.getChunk().getEntityName();
+	    
+	    if (needParsing) {
+	    	parse(variables);
+	    }
+	}
+
+	/**
      * Request object can't be cached locally.
      * we do it in two phases
      * @param request
@@ -114,7 +95,26 @@ public class WebFlowContext extends OpExecuteContext
         }
 	}
     
-    public Class<?> getVariableClass(String name) throws ParsingException
+    private void parse(List<ParamType> variables)
+	{
+	    //get request&session parsing context
+	    DefaultParsingContext requestPContext = WebFlowContextHelper.
+	        getHttpRequestParsingContext(variables);
+	    DefaultParsingContext sessionPContext = WebFlowContextHelper.
+	        getHttpSessionParsingContext(node.getChunk().getGlobalVariable());
+	    
+	    //set parsing context.
+	    setParsingContextObject(WebflowConstants.
+	                            REQUEST_PARSING_CONTEXT_PREFIX,
+	                            requestPContext);
+	    setParsingContextObject(WebflowConstants.
+	                            SESSION_PARSING_CONTEXT_PREFIX,
+	                            sessionPContext);
+	    this.setExternalParseContext(this);
+	    this.setExternalEvaluationContext(this);
+	}
+
+	public Class<?> getVariableClass(String name) throws ParsingException
     {
         name = fixVarName(name);
 
@@ -138,7 +138,9 @@ public class WebFlowContext extends OpExecuteContext
     
     public void clearTempVariables() {
     	HttpSessionEvaluationContext sessionContext = (HttpSessionEvaluationContext)getEvaluationContextObject(WebflowConstants.SESSION_PARSING_CONTEXT_PREFIX);
-    	sessionContext.clearAllTempSessionVars();
+    	if (sessionContext != null) {
+    		sessionContext.clearAllTempSessionVars();
+    	}
     }
 
     private String fixVarName(String name)

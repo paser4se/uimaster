@@ -10,7 +10,6 @@ import org.shaolin.bmdp.runtime.ddc.ZookeeperServiceLauncher;
  */
 public class ZookeeperLauncherTest {
 
-    @Test
     public void testZookeeperService() {
         
         final ZookeeperServiceLauncher launcher0 = new ZookeeperServiceLauncher(true);
@@ -30,7 +29,8 @@ public class ZookeeperLauncherTest {
         launcher1.getProperties().setProperty(ZookeeperServiceLauncher.DATADIR, "/tmp/zookeeper1");
         launcher1.getProperties().setProperty("server.1", "127.0.0.1:2888:3888");
         launcher1.getProperties().setProperty("server.2", "127.0.0.1:4888:5888");
-
+        
+        
         new Thread(new Runnable() {
             @Override
             public void run() {

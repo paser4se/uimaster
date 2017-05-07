@@ -17,7 +17,7 @@ package org.shaolin.uimaster.page.widgets;
 
 import java.io.IOException;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,18 +41,9 @@ public class HTMLCellLayoutType extends HTMLLayoutType
     
     private boolean isContainer = false;
 
-    public HTMLCellLayoutType()
+    public HTMLCellLayoutType(String id)
     {
-    }
- 
-    public HTMLCellLayoutType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public HTMLCellLayoutType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+    	super(id);
     }
 
     public void setContainer(String container)
@@ -66,7 +57,7 @@ public class HTMLCellLayoutType extends HTMLLayoutType
     }
 
     @Override
-    public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
@@ -103,12 +94,12 @@ public class HTMLCellLayoutType extends HTMLLayoutType
         }
         catch (Exception e)
         {
-            logger.error("error. in entity: " + getUIEntityName(), e);
+            logger.error("error. in entity: " + context.getFormName(), e);
         }
     }
 
     @Override
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
@@ -116,11 +107,11 @@ public class HTMLCellLayoutType extends HTMLLayoutType
         }
         catch (Exception e)
         {
-            logger.error("error. in entity: " + getUIEntityName(), e);
+            logger.error("error. in entity: " + context.getFormName(), e);
         }
     }
     
-    public void generateAttribute(HTMLSnapshotContext context, String attributeName, Object attributeValue) throws IOException
+    public void generateAttribute(UserRequestContext context, String attributeName, Object attributeValue) throws IOException
     {
         String attrValue = (String)attributeValue;
         if( "visible".equals(attributeName) )

@@ -15,7 +15,7 @@
 */
 package org.shaolin.uimaster.page.widgets;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Layout;
@@ -30,22 +30,13 @@ public class HTMLPasswordFieldType extends HTMLTextFieldType
 {
     private static Logger logger = LoggerFactory.getLogger(HTMLPasswordFieldType.class);
 
-    public HTMLPasswordFieldType()
+    public HTMLPasswordFieldType(String id)
     {
-    }
-
-    public HTMLPasswordFieldType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public HTMLPasswordFieldType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+        super(id);
     }
 
     @Override
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
@@ -89,7 +80,6 @@ public class HTMLPasswordFieldType extends HTMLTextFieldType
         password.setValue(getValue());
 
         password.setListened(true);
-        password.setFrameInfo(getFrameInfo());
 
         return password;
     }

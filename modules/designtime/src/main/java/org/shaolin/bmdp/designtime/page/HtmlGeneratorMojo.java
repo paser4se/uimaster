@@ -11,7 +11,7 @@ import org.apache.maven.project.MavenProject;
 import org.shaolin.bmdp.runtime.spi.IEntityManager;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.utils.CloseUtil;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.PageDispatcher;
 import org.shaolin.uimaster.page.cache.UIPageObject;
@@ -94,10 +94,9 @@ public class HtmlGeneratorMojo extends AbstractMojo {
 		MockHttpResponse response = new MockHttpResponse();
 		
 		
-        HTMLSnapshotContext htmlContext = new HTMLSnapshotContext(request, response);
-        htmlContext.setFormName(entityName);
+        UserRequestContext htmlContext = new UserRequestContext(request, response);
+        htmlContext.setCurrentFormInfo(entityName, "", "");
         htmlContext.setIsDataToUI(true);
-        htmlContext.setHTMLPrefix("");
         
         try {
         	IEntityManager entityManager = IServerServiceManager.INSTANCE.getEntityManager();

@@ -15,7 +15,7 @@ public class ResourceUtilTest {
 	public void test() {
 		Registry.getInstance().initRegistry();
 		
-		Assert.assertEquals("en_US", ResourceUtil.getDefaultLocale());
+		Assert.assertEquals("zh_CN", ResourceUtil.getDefaultLocale());
 		Assert.assertEquals("default", ResourceUtil.getDefaultConfig());
 		Assert.assertEquals("zh_CN", ResourceUtil.getLocale("Chinese"));
 
@@ -26,13 +26,6 @@ public class ResourceUtilTest {
 				"bmiasia.ebos.constant.test.ce.Sex1._NOT_SPECIFIED");
 		Assert.assertEquals("not_specified_sex_en_US", msg);
 
-		String msg1 = ResourceUtil.getResource("Errors",
-				"EBOS_APPBASE_000");
-		Assert.assertEquals("Unsupported data type:{0}", msg1);
-
-		ExceptionData data = new ExceptionData("EBOS_APPBASE_000",
-				new String[] { "hi" }, null);
-		Assert.assertEquals("Unsupported data type:hi", data.getMessage());
 	}
 
 }

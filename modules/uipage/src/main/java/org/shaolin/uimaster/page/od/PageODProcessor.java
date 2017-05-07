@@ -16,6 +16,8 @@
 package org.shaolin.uimaster.page.od;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -24,12 +26,18 @@ import org.shaolin.bmdp.i18n.ExceptionConstants;
 import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.EvaluationContext;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
-import org.shaolin.uimaster.page.PageWidgetsContext;
-import org.shaolin.uimaster.page.cust.IODPagePlugin;
-import org.shaolin.uimaster.page.cust.ODPagePlugin;
-import org.shaolin.uimaster.page.exception.AjaxException;
+import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.UserRequestContext;
+import org.shaolin.uimaster.page.ajax.Button;
+import org.shaolin.uimaster.page.ajax.Widget;
+import org.shaolin.uimaster.page.cache.PageCacheManager;
+import org.shaolin.uimaster.page.cache.UIFormObject;
+import org.shaolin.uimaster.page.cache.UIPageObject;
 import org.shaolin.uimaster.page.exception.ODProcessException;
+import org.shaolin.uimaster.page.javacc.VariableEvaluator;
+import org.shaolin.uimaster.page.widgets.HTMLDynamicUIItem;
+import org.shaolin.uimaster.page.widgets.HTMLPanelType;
+import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 
 /**
  * Processing Data to UI/UI to Data operation.
@@ -44,13 +52,13 @@ public class PageODProcessor
 {
 	private static final Logger logger = Logger.getLogger(PageODProcessor.class);
 	
-	private HTMLSnapshotContext htmlContext;
+	private UserRequestContext requestContext;
 	
 	private String pageName ;
 	
-	public PageODProcessor(HTMLSnapshotContext context, String pageName) 
+	public PageODProcessor(UserRequestContext context, String pageName) 
 	{
-		this.htmlContext = context;
+		this.requestContext = context;
 		this.pageName = pageName;
 	}
 
@@ -62,10 +70,9 @@ public class PageODProcessor
 	        {
 				logger.trace("\n\n\n");
 				logger.trace("Start ui page entity processor.");
-	        	htmlContext.printHTMLAttributeValues();
+	        	requestContext.printHTMLAttributeValues();
 	        }
-			IODPagePlugin plugger = new ODPagePlugin();
-			ODPageContext odPageContext = new ODPageContext( htmlContext, pageName );
+			ODPageContext odPageContext = new ODPageContext( requestContext, pageName );
 			odPageContext.setDeepLevel(0);
 			odPageContext.initContext();
 			
@@ -75,16 +82,15 @@ public class PageODProcessor
 					logger.debug("OD mapping dosen't have configed, stop to process ui.");
 				return new DefaultEvaluationContext();
 			}
-			if ( !odPageContext.getUiEntityName().equals(htmlContext.getODMapperName()) ) {
+			if ( !odPageContext.getUIFormName().equals(requestContext.getODMapperName()) ) {
 				throw new ODProcessException(ExceptionConstants.EBOS_ODMAPPER_052,
-						new Object[]{htmlContext.getODMapperName(), odPageContext.getUiEntityName()});
+						new Object[]{requestContext.getODMapperName(), odPageContext.getUIFormName()});
 			}
 			
-			if ( odPageContext.isDataToUI() )
+			if (odPageContext.isDataToUI())
 			{
-				PageWidgetsContext uiPageContext = new PageWidgetsContext(pageName);
-				uiPageContext.loadComponent(htmlContext, "", pageName, false);
-				htmlContext.setPageWidgetContext(uiPageContext);
+				UIPageObject pageObject = PageCacheManager.getUIPageObject(pageName);
+				requestContext.setFormObject(pageObject.getUIForm()); //a page only need to be set at here.
 				if(logger.isDebugEnabled()) {
 					logger.debug("----->Execute page in.");
 				}
@@ -109,11 +115,47 @@ public class PageODProcessor
 						}
 					}
     				
+    				requestContext.setCurrentFormInfo(odPageContext.getUIFormName(), odPageContext.getHtmlPrefix(), "");
     				odPageContext.executePageIn();
-    				plugger.postInExecute(odPageContext, htmlContext);
     				
-    				htmlContext.setHTMLPrefix( odPageContext.getHtmlPrefix() );
-    				htmlContext.setFormName(odPageContext.getUiEntityName());
+    				VariableEvaluator ee = new VariableEvaluator(odPageContext);
+    				// calculate all dynamic variables in this form.
+    				UIFormObject formObject = odPageContext.getUIFormObject();
+    				// only search for current level excluding sub ref-entity since the evaluation context is different.
+    	            Iterator<String> i = formObject.getAllComponentID(); 
+    	    		while(i.hasNext()) {
+    	    			String compId = i.next();
+    	    			Map propMap = formObject.getComponentProperty(compId);
+    	    			Map i18nMap = formObject.getComponentI18N(compId);
+    	    			Map expMap = formObject.getComponentExpression(compId);
+    	    			Map<String, Object> tempMap = new HashMap<String, Object>();
+    	    			if (expMap != null && expMap.size() > 0) {
+    	    				HTMLUtil.evaluateExpression(propMap, expMap, tempMap, ee);
+    	    			}
+    	    			if (i18nMap != null && i18nMap.size() > 0) {
+    	    				HTMLUtil.internationalization(propMap, i18nMap, tempMap, requestContext);
+    	    			}
+    	    			// added the combined dynamic attributes for ui widget.
+    	    			// so, we can access these value through HTMLWidgetType.getAttribute(name);
+    	    			String uiid = requestContext.getHTMLPrefix() + compId;
+						requestContext.addAttribute(uiid, tempMap);
+						HTMLWidgetType htmlWidget = formObject.getComponents().get(uiid);
+						if (htmlWidget.getClass() == HTMLPanelType.class && ((HTMLPanelType)htmlWidget).hasDynamicUI()) {
+				        	String filter = (String)requestContext.getAttribute(htmlWidget.getName(), "dynamicUIFilter");
+				    		if (filter == null)
+				    			filter = "";
+				        	List<HTMLDynamicUIItem> dynamicItems = formObject.getDynamicItems(compId, filter);
+				        	((HTMLPanelType)htmlWidget).setDynamicItems(dynamicItems);
+				        }
+		    			Widget newAjax = htmlWidget.createAjaxWidget(ee);
+    	                if (newAjax != null) {
+    	                	requestContext.addAjaxWidget(newAjax.getId(), newAjax);
+    	                	if (newAjax.getClass() == Button.class) {
+    	                    	// all express must be re-calculate when click button in every time.
+    	                		((Button)newAjax).setExpressMap(expMap);
+    	                	}
+    	                }
+    	    		}
     			}
     			finally
     			{
@@ -145,8 +187,8 @@ public class PageODProcessor
 					if(logger.isDebugEnabled()) {
 						logger.debug("----->Execute page out: " + outType.getName());
 					}
+					requestContext.setCurrentFormInfo(odPageContext.getUIFormName(), odPageContext.getHtmlPrefix(), "");
 					odPageContext.executePageOut(outType.getName());
-					plugger.postOutExecute(odPageContext, htmlContext);
     				
     				Map<String, Object> outResult = new HashMap<String, Object>();
     				String[] keys = odPageContext.getLocalVariableKeys();
@@ -158,18 +200,13 @@ public class PageODProcessor
 								continue;
 							}
 							try {
-								
-								Object variableValue = dEContext
-										.getVariableValue(key);
+								Object variableValue = dEContext.getVariableValue(key);
 								outResult.put(key, variableValue);
 							} catch (Exception e) {
 							}
 						}
 					}
-    				
-                    htmlContext.setHTMLPrefix(odPageContext.getHtmlPrefix());
-                    htmlContext.setFormName(odPageContext.getUiEntityName());
-    				htmlContext.setODMapperData(outResult);
+    				requestContext.setODMapperData(outResult);
     			}
     			finally
     			{
@@ -180,7 +217,7 @@ public class PageODProcessor
 			if(logger.isTraceEnabled())
 	        {
 				logger.info("UI page entity processor stop.\n\n");
-	        	htmlContext.printHTMLAttributeValues();
+	        	requestContext.printHTMLAttributeValues();
 	        }
 			return odPageContext;
 		}

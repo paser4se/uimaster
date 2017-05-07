@@ -19,7 +19,7 @@ import org.shaolin.uimaster.test.ce.Gender;
  *
  */
 
-public interface ICustomer 
+public interface IAddress 
     extends IBusinessEntity, IExtensibleEntity
 {
     public final static String ENTITY_NAME = "org.shaolin.uimaster.test.be.Customer";
@@ -52,11 +52,6 @@ public interface ICustomer
     public Gender getGender() ;
 
 	public void setGender(Gender gender);
-	
-	public void setAddress(IAddress address);
-	
-	public IAddress getAddress();
-	
 }
 
         

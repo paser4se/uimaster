@@ -1,10 +1,8 @@
 package org.shaolin.uimaster.page.exception;
 
-//imports
-import org.shaolin.bmdp.exceptions.BaseException;
 import org.shaolin.bmdp.i18n.Localizer;
 
-public class ODException extends BaseException
+public class ODException extends UIPageException
 {
     /**
      * Constructs a ODException with a given exception reason

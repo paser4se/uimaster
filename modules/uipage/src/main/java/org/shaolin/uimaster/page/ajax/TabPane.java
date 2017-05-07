@@ -17,14 +17,12 @@ package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.jsp.JspException;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.TableLayoutConstraintType;
@@ -42,13 +40,13 @@ import org.shaolin.uimaster.html.layout.HTMLPanelLayout;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.DisposableBfString;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
-import org.shaolin.uimaster.page.PageWidgetsContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.exception.AjaxException;
+import org.shaolin.uimaster.page.exception.UIPageException;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.od.ODEntityContext;
@@ -97,7 +95,6 @@ public class TabPane extends Container implements Serializable
     private List<UITabPaneItemType> tabs;
     private UIFormObject ownerEntity;
     private Map<String, ODContext> evalContexts;
-    private PageWidgetsContext widgetContext;
     // clean the ajax loading objects if all tabs loaded.
     private AtomicInteger accessedIndex = new AtomicInteger();
     
@@ -166,10 +163,6 @@ public class TabPane extends Container implements Serializable
     	this.ownerEntity = ownerEntity;
     }
     
-    public void setPageWidgetContext(PageWidgetsContext widgetContext) {
-    	this.widgetContext = widgetContext;
-    }
-    
     public void addODMapperContext(String tabId, ODContext eval) {
     	if (this.evalContexts == null) {
     		this.evalContexts = new HashMap<String, ODContext>();
@@ -233,7 +226,7 @@ public class TabPane extends Container implements Serializable
         return js.toString();
     }
     
-    public boolean loadContent(int index) throws JspException, EvaluationException {
+    public boolean loadContent(int index) throws UIPageException, EvaluationException {
     	if (!this.ajaxLoad) {
     		return false;
     	}
@@ -258,16 +251,15 @@ public class TabPane extends Container implements Serializable
 			return false;
 		}
     	try {
-    	HTMLSnapshotContext htmlContext = new HTMLSnapshotContext(ajaxContext.getRequest());
-        htmlContext.setFormName(this.getUIEntityName());
+    	UserRequestContext htmlContext = new UserRequestContext(ajaxContext.getRequest());
+        htmlContext.setCurrentFormInfo(this.getUIEntityName(), ajaxContext.getEntityPrefix(), ajaxContext.getEntityPrefix().replace(".", "-"));
         htmlContext.setIsDataToUI(true);//Don't set prefix in here.
         htmlContext.setAjaxWidgetMap(ajaxMap);
-        htmlContext.setHTMLPrefix(ajaxContext.getEntityPrefix());
-        htmlContext.setDIVPrefix(ajaxContext.getEntityPrefix().replace(".", "-"));
         htmlContext.setJSONStyle(true);
-        htmlContext.setPageWidgetContext(widgetContext);
+        htmlContext.setFormObject(ownerEntity);
         htmlContext.setODMapperData(new HashMap());
-    	
+        UserRequestContext.UserContext.set(htmlContext);
+        
     	UITabPaneItemType tab = tabs.get(index);
     	ODContext odContext = this.evalContexts.remove(tab.getUiid());
         String entityPrefix = ajaxContext.getEntityPrefix();
@@ -275,12 +267,12 @@ public class TabPane extends Container implements Serializable
 			ParsingContext pContext = null;
 			VariableEvaluator ee = null;
 			if (odContext != null) {
-				pContext = PageCacheManager.getUIFormObject(odContext.getOdEntityName()).getVariablePContext();
+				pContext = PageCacheManager.getUIFormObject(odContext.getODFormName()).getVariablePContext();
 				ee = new VariableEvaluator(odContext);
 			} else {
 				try {
 					String pageName = ownerEntity.getName();
-					HTMLReferenceEntityType uiEntity = new HTMLReferenceEntityType(htmlContext, entityPrefix, pageName);
+					HTMLReferenceEntityType uiEntity = new HTMLReferenceEntityType(entityPrefix, pageName);
 					uiEntity.setReadOnly(Boolean.FALSE);
 					htmlContext.getODMapperData().put("UIWidgetType", uiEntity);
 					try {
@@ -312,11 +304,11 @@ public class TabPane extends Container implements Serializable
         	String id = entityPrefix + tab.getPanel().getUIID();
         	HTMLPanelLayout panelLayout = new HTMLPanelLayout(tab.getPanel().getUIID(), ownerEntity);
         	TableLayoutConstraintType layoutConstraint = new TableLayoutConstraintType();
-            panelLayout.setConstraints(layoutConstraint, pContext);
-            panelLayout.setBody(tab.getPanel(), pContext);
+            panelLayout.setConstraints(layoutConstraint);
+            panelLayout.setBody(tab.getPanel());
         	
-            HTMLCellLayoutType layout = new HTMLCellLayoutType(htmlContext, id);
-            panelLayout.generateComponentHTML(htmlContext, 0, false, Collections.emptyMap(), ee, layout);
+            HTMLCellLayoutType layout = new HTMLCellLayoutType(id);
+            panelLayout.generateComponentHTML(htmlContext, 0, false, layout);
             
             IJsGenerator jsGenerator = IServerServiceManager.INSTANCE.getService(IJsGenerator.class);
             StringBuilder js = DisposableBfString.getBuffer();
@@ -375,8 +367,8 @@ public class TabPane extends Container implements Serializable
         	request.setAttribute("_nodename", definedFrame.getNodeName());
         	request.setAttribute("_framePagePrefix", ajaxContext.getFrameId());
         	request.setAttribute("_tabcontent", "true");
-        	HTMLFrameType frame = new HTMLFrameType(htmlContext, tab.getUiid());
-        	frame.setHTMLAttribute(HTMLFrameType.NEED_SRC, "true");
+        	HTMLFrameType frame = new HTMLFrameType(tab.getUiid());
+        	frame.addAttribute(HTMLFrameType.NEED_SRC, "true");
         	frame.generateBeginHTML(htmlContext, ownerEntity, 0);
         	frame.generateEndHTML(htmlContext, ownerEntity, 0);
         	
@@ -390,7 +382,6 @@ public class TabPane extends Container implements Serializable
     	} finally {
     		if (this.accessedIndex.get() >= this.tabs.size()) {
     			this.tabs = null;
-    			this.widgetContext = null;
     			this.ownerEntity = null;
     			this.accessedIndex = null;
     		}

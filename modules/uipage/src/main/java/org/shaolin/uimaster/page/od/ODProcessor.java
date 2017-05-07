@@ -15,14 +15,24 @@
 */
 package org.shaolin.uimaster.page.od;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.shaolin.bmdp.i18n.ExceptionConstants;
 import org.shaolin.bmdp.i18n.LocaleContext;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
-import org.shaolin.uimaster.page.PageWidgetsContext;
-import org.shaolin.uimaster.page.cust.IODEntityPlugin;
-import org.shaolin.uimaster.page.cust.ODEntityPlugin;
+import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.UserRequestContext;
+import org.shaolin.uimaster.page.ajax.Button;
+import org.shaolin.uimaster.page.ajax.Widget;
+import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.exception.ODEntityProcessException;
+import org.shaolin.uimaster.page.javacc.VariableEvaluator;
+import org.shaolin.uimaster.page.widgets.HTMLDynamicUIItem;
+import org.shaolin.uimaster.page.widgets.HTMLPanelType;
+import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 
 /**
  * Processing Data to UI/UI to Data operation.
@@ -32,56 +42,94 @@ public class ODProcessor
 {
 	private static final Logger logger = Logger.getLogger(ODProcessor.class);
 	
-	private HTMLSnapshotContext htmlContext;
+	private UserRequestContext requestContext;
 
 	private String odEntityName;
 	
 	private int deepLevel;
 	
-	public ODProcessor(HTMLSnapshotContext context, String odEntityName, int deepLevel) 
+	public ODProcessor(UserRequestContext context, String odEntityName, int deepLevel) 
 	{
-		this.htmlContext = context;
+		this.requestContext = context;
 		this.odEntityName = odEntityName;
 		this.deepLevel = deepLevel;
 	}
 
 	public ODEntityContext process() throws ODEntityProcessException 
 	{
+		String orignalHtmlPrefix = requestContext.getHTMLPrefix();
 		try 
 		{
-			IODEntityPlugin plugger = new ODEntityPlugin(); 
-			ODEntityContext odContext = new ODEntityContext(odEntityName, htmlContext);
+//			IODEntityPlugin plugger = new ODEntityPlugin(); 
+			ODEntityContext odContext = new ODEntityContext(odEntityName, requestContext);
 			odContext.setDeepLevel(++deepLevel);//next deep level.
 			
-			if(logger.isDebugEnabled())
-			{
+			if (logger.isDebugEnabled()) {
 				logger.debug("\n\n");
-				logger.debug("Start od entity processor( **[the depth of level is "+odContext.getDeepLevel()+".]** ).");
+				logger.debug("Start od entity processor( **[the depth of level is " + odContext.getDeepLevel() + ".]** ).");
 			}
 			
 			LocaleContext.pushDataLocale(odContext.evalDataLocale());
-			
 			odContext.initContext();
 			
-			String uientity = odContext.getUiEntityName();
-			String uiid = odContext.getUiEntity().getUIID();
-			
-			if ( odContext.isDataToUI() )
-			{
-				if (htmlContext.getPageWidgetContext() == null) {
-					// only does uientity mapping.
-					PageWidgetsContext uiPageContext = new PageWidgetsContext(uientity);
-					htmlContext.setPageWidgetContext(uiPageContext);
+			if (orignalHtmlPrefix != null && orignalHtmlPrefix.length() > 0) {
+				String formPrefix = odContext.getUiEntity().getUIID() + ".";
+				if (orignalHtmlPrefix.equals(formPrefix)) {
+					requestContext.setCurrentFormInfo(odEntityName, orignalHtmlPrefix, "");
+				} else {
+					requestContext.setCurrentFormInfo(odEntityName, orignalHtmlPrefix + odContext.getUiEntity().getUIID() + ".", "");
 				}
-				htmlContext.getPageWidgetContext().loadComponent(
-						htmlContext, uiid + ".", uientity, true);
+			} else {
+				requestContext.setCurrentFormInfo(odEntityName, odContext.getUiEntity().getUIID() + ".", "");
+			}
+			requestContext.setODMapperContext(requestContext.getHTMLPrefix(), odContext);
+			
+			if (odContext.isDataToUI())
+			{
 				if(logger.isDebugEnabled()) {
 		    		logger.debug("----->Processing od entity data to ui...");
 				}
 				
-				plugger.preData2UIExecute(odContext, htmlContext);
 				odContext.executeDataToUI();
-				plugger.postData2UIExecute(odContext, htmlContext);
+				
+				VariableEvaluator ee = new VariableEvaluator(odContext);
+				// calculate all dynamic variables in this form.
+				UIFormObject formObject = odContext.getUIFormObject();
+				// only search for current level excluding sub ref-entity.
+	            Iterator<String> i = formObject.getAllComponentID();
+	    		while(i.hasNext()) {
+	    			String compId = i.next();
+	    			Map propMap = formObject.getComponentProperty(compId);
+	    			Map i18nMap = formObject.getComponentI18N(compId);
+	    			Map expMap = formObject.getComponentExpression(compId);
+	    			Map<String, Object> tempMap = new HashMap<String, Object>();
+	    			if (expMap != null && expMap.size() > 0) {
+	    				HTMLUtil.evaluateExpression(propMap, expMap, tempMap, ee);
+	    			}
+	    			if (i18nMap != null && i18nMap.size() > 0) {
+	    				HTMLUtil.internationalization(propMap, i18nMap, tempMap, requestContext);
+	    			}
+	    			// added the combined dynamic attributes for ui widget.
+	    			// so, we can access these value through HTMLWidgetType.getAttribute(name);
+	    			String uiid = requestContext.getHTMLPrefix() + compId;
+					requestContext.addAttribute(uiid, tempMap);
+					HTMLWidgetType htmlWidget = formObject.getComponents().get(compId);
+					if (htmlWidget.getClass() == HTMLPanelType.class && ((HTMLPanelType)htmlWidget).hasDynamicUI()) {
+			        	String filter = (String)requestContext.getAttribute(htmlWidget.getName(), "dynamicUIFilter");
+			    		if (filter == null)
+			    			filter = "";
+			        	List<HTMLDynamicUIItem> dynamicItems = formObject.getDynamicItems(compId, filter);
+			        	((HTMLPanelType)htmlWidget).setDynamicItems(dynamicItems);
+			        }
+	    			Widget newAjax = htmlWidget.createAjaxWidget(ee);
+	                if (newAjax != null) {
+	                	requestContext.addAjaxWidget(newAjax.getId(), newAjax);
+	                	if (newAjax.getClass() == Button.class) {
+	                    	// all express must be re-calculate when click button in every time.
+	                		((Button)newAjax).setExpressMap(expMap);
+	                	}
+	                }
+	    		}
 			}
 			else 
 			{
@@ -89,16 +137,16 @@ public class ODProcessor
 		    		logger.debug("----->Processing od entity ui to data...");
 				}
 				
-				plugger.preUI2DataExecute(odContext, htmlContext);
 				odContext.executeUITOData();
-		        plugger.postUI2DataExecute(odContext, htmlContext);
-		        
-				htmlContext.setODMapperData(odContext.getLocalVariableValues());	
+				requestContext.setODMapperData(odContext.getLocalVariableValues());	
 			}
 			
 			if(logger.isDebugEnabled()) {
 	    		logger.debug("OD entity processor stop ( **[the depth of level is "+odContext.getDeepLevel()+".]** ).");
 			}
+			// save the context for either the ui form variables evaluation or ajax loading.
+//			requestContext.(requestContext.getHTMLPrefix() + evaContext.getUiEntity().getUIID() + ".", evaContext);
+						
 			return odContext;
 		}
 		catch(Throwable e)
@@ -108,6 +156,7 @@ public class ODProcessor
 		}
 		finally 
 		{
+			requestContext.resetCurrentFormInfo();
 			LocaleContext.popDataLocale();
 		}
 	}

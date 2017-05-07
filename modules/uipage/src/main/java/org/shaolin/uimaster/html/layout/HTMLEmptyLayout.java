@@ -1,33 +1,25 @@
 package org.shaolin.uimaster.html.layout;
 
-import java.util.Map;
-
-import javax.servlet.jsp.JspException;
-
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.cache.UIFormObject;
-import org.shaolin.uimaster.page.javacc.VariableEvaluator;
+import org.shaolin.uimaster.page.exception.UIPageException;
 import org.shaolin.uimaster.page.widgets.HTMLCellLayoutType;
-import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 import org.shaolin.uimaster.page.widgets.HTMLLayoutType;
+import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 
-public class HTMLEmptyLayout extends AbstractHTMLLayout
-{
+public class HTMLEmptyLayout extends AbstractHTMLLayout {
     
-    public HTMLEmptyLayout(UIFormObject entity)
-    {
+    public HTMLEmptyLayout(UIFormObject entity) {
         super(entity);
     }
     
-    public void generate(HTMLSnapshotContext context, int depth, Boolean readOnly, 
-            Map appendMap, VariableEvaluator ee, IUISkin uiskinObj,
-            HTMLWidgetType parentComponent, String rowUIStyle) throws JspException
+    public void generate(UserRequestContext context, int depth, Boolean readOnly, 
+            IUISkin uiskinObj, HTMLWidgetType parentComponent, String rowUIStyle) throws UIPageException
     {
-        HTMLLayoutType layout = HTMLUtil.getHTMLLayoutType("CellLayoutType");
+        HTMLLayoutType layout = HTMLUtil.getHTMLLayoutType("", "CellLayoutType");
         ((HTMLCellLayoutType)layout).setContainer(container);
         
-        layout.setContext(context);
         layout.setParentComponent(parentComponent);
         layout.setTableColumnCount(colCount);
         layout.setTableRowCount(rowCount);
@@ -42,10 +34,6 @@ public class HTMLEmptyLayout extends AbstractHTMLLayout
             layout.addAttribute("height", rowHeight);
         }
         layout.addAttribute("cellUIStyle", "");
-        if ( uiskinObj != null )
-        {
-            layout.addAttribute(uiskinObj.getAttributeMap(layout));
-        }
         if ( newLine && !firstLine )
         {
             HTMLUtil.generateTab(context, depth);

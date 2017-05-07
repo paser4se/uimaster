@@ -24,7 +24,7 @@ import java.util.Map;
 import org.shaolin.bmdp.runtime.ce.CEUtil;
 import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 import org.shaolin.uimaster.page.AjaxActionHelper;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.MultiChoice;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.od.IODMappingConverter;
@@ -199,7 +199,7 @@ public class UIMultipleChoiceAndCE implements IODMappingConverter {
 		return new String[0];
 	}
 
-	public void pushDataToWidget(HTMLSnapshotContext htmlContext) throws UIConvertException {
+	public void pushDataToWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
 			if (this.ceValues != null) {
 				List<String> values = new ArrayList<String>();
@@ -218,7 +218,7 @@ public class UIMultipleChoiceAndCE implements IODMappingConverter {
 		}
 	}
 
-	public void pullDataFromWidget(HTMLSnapshotContext htmlContext) throws UIConvertException {
+	public void pullDataFromWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
 			MultiChoice selectComp = (MultiChoice) AjaxActionHelper
 					.getCachedAjaxWidget(this.uiid, htmlContext);
@@ -233,11 +233,11 @@ public class UIMultipleChoiceAndCE implements IODMappingConverter {
 		}
 	}
 
-	public void callAllMappings(boolean isDataToUI, HTMLSnapshotContext htmlContext) throws UIConvertException {
+	public void callAllMappings(boolean isDataToUI, UserRequestContext htmlContext) throws UIConvertException {
 		callChoiceOption(isDataToUI, htmlContext);
 	}
 
-	private void callChoiceOption(boolean isDataToUI, HTMLSnapshotContext htmlContext) throws UIConvertException {
+	private void callChoiceOption(boolean isDataToUI, UserRequestContext htmlContext) throws UIConvertException {
 		try {
 			Map<String, Object> converter_in_data = new HashMap<String, Object>();
 

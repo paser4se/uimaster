@@ -1,8 +1,10 @@
 package org.shaolin.uimaster.page.skin;
 
+import java.util.Collections;
+
 import org.shaolin.bmdp.datamodel.page.UIPanelType;
 import org.shaolin.uimaster.html.layout.IUISkin;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 
@@ -18,13 +20,9 @@ public class TitlePanel extends BaseSkin implements IUISkin {
 		return false;
 	}
 
-	public java.util.Map getAttributeMap(HTMLWidgetType component) {
-		return null;
-	}
-
 	public void generatePreCode(HTMLWidgetType component)
 			throws java.io.IOException {
-		HTMLSnapshotContext context = component.getContext();
+		UserRequestContext context = UserRequestContext.UserContext.get();
 		String webRoot = WebConfig.getResourceContextRoot();
 		String name = component.getName();
 		String titlePanelId = name + ".titlePanel";
@@ -34,7 +32,7 @@ public class TitlePanel extends BaseSkin implements IUISkin {
 		context.generateHTML("<div class=\"skin_titlepanel_table\" name=\"titlePanel\" id=\"");
 		context.generateHTML(titlePanelId);
 		context.generateHTML("\"");
-		if ("false".equals(component.getAllAttribute("visible"))
+		if ("false".equals(component.getAttribute("visible"))
 				|| "false".equals(getParam("visible"))) {
 			context.generateHTML(" style=\"display:none;\"");
 		} else {
@@ -61,7 +59,7 @@ public class TitlePanel extends BaseSkin implements IUISkin {
 
 	public void generatePostCode(HTMLWidgetType component)
 			throws java.io.IOException {
-		HTMLSnapshotContext context = component.getContext();
+		UserRequestContext context = UserRequestContext.UserContext.get();
 		if ("true".equals(getParam("collapsed"))) {
 			context.generateHTML("<script>document.getElementById(\"");
 			context.generateHTML(component.getName() + ".wrapperPanel");

@@ -15,7 +15,7 @@
 */
 package org.shaolin.uimaster.page.widgets;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Button;
@@ -32,27 +32,18 @@ public class HTMLButtonType extends HTMLTextWidgetType
 
     private String buttonType;
 
-    public HTMLButtonType()
+    public HTMLButtonType(String id)
     {
-    }
-
-    public HTMLButtonType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public HTMLButtonType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+        super(id);
     }
 
     @Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		
 	}
     
     @Override
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
@@ -119,10 +110,9 @@ public class HTMLButtonType extends HTMLTextWidgetType
 
       button.setValue(getValue());
 
-      setAJAXAttributes(button);
+      setAJAXAttributes(UserRequestContext.UserContext.get(), button);
 
       button.setListened(true);
-      button.setFrameInfo(getFrameInfo());
 
       return button;
     }

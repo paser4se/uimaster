@@ -178,7 +178,7 @@ public class AjaxServlet extends HttpServlet {
 				} else {
 		            ProcessHelper.processSyncValues(request);
 		            
-					HTMLSnapshotContext htmlContext = new HTMLSnapshotContext(request);
+					UserRequestContext htmlContext = new UserRequestContext(request);
 					AjaxProcessor ajxProcessor = new AjaxProcessor(htmlContext);
 					response.setContentType("application/json"); 
 					PrintWriter out = response.getWriter();

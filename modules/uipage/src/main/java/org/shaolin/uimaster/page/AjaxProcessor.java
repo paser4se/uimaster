@@ -84,7 +84,7 @@ public class AjaxProcessor implements Serializable
 
     private final AjaxContext context;
 
-    public AjaxProcessor(HTMLSnapshotContext htmlContext) throws AjaxException
+    public AjaxProcessor(UserRequestContext htmlContext) throws AjaxException
     {
         this.context = createAjaxContext(htmlContext);
         AjaxActionHelper.createAjaxContext(this.context);
@@ -130,7 +130,7 @@ public class AjaxProcessor implements Serializable
         return requestData;
     }
 
-    private AjaxContext createAjaxContext(HTMLSnapshotContext htmlContext)
+    private AjaxContext createAjaxContext(UserRequestContext htmlContext)
             throws AjaxException
     {
         HttpServletRequest request = htmlContext.getRequest();
@@ -150,14 +150,11 @@ public class AjaxProcessor implements Serializable
             }
             else
             {
-                if (requestData.getEntityUiid().length() > 0)
-                {
-                    htmlContext.setHTMLPrefix(requestData.getEntityUiid() + ".");
-                }
-                else
-                {
-                    htmlContext.setHTMLPrefix("");
-                }
+				if (requestData.getEntityUiid().length() > 0) {
+					htmlContext.setCurrentFormInfo(requestData.getEntityName(), requestData.getEntityUiid() + ".", "");
+				} else {
+					htmlContext.setCurrentFormInfo(requestData.getEntityName(), "", "");
+				}
                 Map uiMap = AjaxActionHelper.getFrameMap(request);
                 Widget comp = (Widget)uiMap.get(requestData.getUiid());
                 if (comp == null)
@@ -194,7 +191,7 @@ public class AjaxProcessor implements Serializable
      * @param htmlContext
      * @throws AjaxInitializedException
      */
-    private void updateParam(HTMLSnapshotContext htmlContext) throws AjaxInitializedException
+    private void updateParam(UserRequestContext htmlContext) throws AjaxInitializedException
     {
         IRequestData requestData = this.context.getRequestData();
         HttpServletRequest request = htmlContext.getRequest();

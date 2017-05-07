@@ -1,9 +1,11 @@
 package org.shaolin.uimaster.page.skin;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.shaolin.uimaster.html.layout.IUISkin;
+import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 
 public abstract class BaseSkin implements IUISkin {
 	private final Map<String, String> paramMap;
@@ -31,4 +33,7 @@ public abstract class BaseSkin implements IUISkin {
 
 	protected abstract void initParam();
 
+	public java.util.Map getAttributeMap(HTMLWidgetType component) {
+		return Collections.emptyMap();
+	}
 }

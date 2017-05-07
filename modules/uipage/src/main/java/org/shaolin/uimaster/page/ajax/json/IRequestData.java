@@ -5,8 +5,6 @@ public interface IRequestData extends java.io.Serializable
 {
     public final static String ENTITY_NAME = "org.shaolin.uimaster.page.ajax.json.RequestData";
     
-    // getter methods block
-    
     /**
      *  get uiid
      *

@@ -17,7 +17,7 @@ package org.shaolin.uimaster.page.widgets;
 
 import java.lang.reflect.Constructor;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
@@ -38,26 +38,19 @@ public class HTMLCustWidgetType extends HTMLWidgetType
     
     private String type;
     
-	public HTMLCustWidgetType() {
-	}
-
-	public HTMLCustWidgetType(HTMLSnapshotContext context) {
-		super(context);
-	}
-
-	public HTMLCustWidgetType(HTMLSnapshotContext context, String id) {
-		super(context, id);
+	public HTMLCustWidgetType(String id) {
+		super(id);
 	}
 
     @Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
     	try {
 			if (this.getAttribute("init") != null) {
 				custWidget.addAttribute("expr", this.getAttribute("init"));
 			}
-			if (this.getAttributeMap() != null) {
-				custWidget.addAttribute(this.getAttributeMap());
-			}
+			custWidget.attributeMap = this.attributeMap;
+			custWidget.eventListenerMap = this.eventListenerMap;
+			
 			custWidget.generateBeginHTML(context, ownerEntity, depth);
 		} catch (Exception e) {
 			logger.error("error generating ui the customized widget. in entity: " + getUIEntityName() +"."+ type, e);
@@ -65,7 +58,7 @@ public class HTMLCustWidgetType extends HTMLWidgetType
 	}
     
     @Override
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
         try {
         	custWidget.generateEndHTML(context, ownerEntity, depth);
         } catch (Exception e) {
@@ -77,9 +70,8 @@ public class HTMLCustWidgetType extends HTMLWidgetType
 		type = (String)this.getAttribute("custType");
 		try {
 			Constructor<HTMLWidgetType> constructor = (Constructor<HTMLWidgetType>)
-					Class.forName(type).getConstructor(HTMLSnapshotContext.class, String.class);
-			custWidget = constructor.newInstance(context, this.getUIID());
-			custWidget.setPrefix(context.getHTMLPrefix());
+					Class.forName(type).getConstructor(String.class);
+			custWidget = constructor.newInstance(this.getUIID());
 			custWidget.setReadOnly(isReadOnly());
 			return custWidget.createAjaxWidget(ee);
 		} catch (Exception e) {

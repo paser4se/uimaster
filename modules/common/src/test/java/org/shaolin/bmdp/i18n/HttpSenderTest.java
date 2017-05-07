@@ -26,11 +26,11 @@ public class HttpSenderTest {
 	public void testSend() throws Exception {
 		HttpSender sender = new HttpSender();
 		
-		HashMap<String, String> a = new HashMap<String, String>();
-		a.put("a", "hello");
-		sender.post("http://localhost:8080/uimaster/webflow.do?_chunkname=org.shaolin.bmdp.adminconsole.diagram.LoginAuthentication&_nodename=LoginPage", a);
-		sender.get("http://localhost:8080/uimaster/ajaxservice", a);
-		
-		sender.shutdown();
+//		HashMap<String, String> a = new HashMap<String, String>();
+//		a.put("a", "hello");
+//		sender.post("http://localhost:8080/uimaster/webflow.do?_chunkname=org.shaolin.bmdp.adminconsole.diagram.LoginAuthentication&_nodename=LoginPage", a);
+//		sender.get("http://localhost:8080/uimaster/ajaxservice", a);
+//		
+//		sender.shutdown();
 	}	
 }

@@ -23,18 +23,21 @@ import java.util.Set;
 
 import org.shaolin.bmdp.datamodel.page.PageInType;
 import org.shaolin.bmdp.datamodel.page.PageOutType;
+import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.cache.ODObject;
 import org.shaolin.uimaster.page.cache.ODPageObject;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
+import org.shaolin.uimaster.page.cache.UIFormObject;
+import org.shaolin.uimaster.page.cache.UIPageObject;
 import org.shaolin.uimaster.page.exception.ODException;
-import org.shaolin.uimaster.page.exception.ODProcessException;
+import org.shaolin.uimaster.page.exception.UIPageException;
 import org.shaolin.uimaster.page.od.mappings.ComponentMapping;
 import org.shaolin.uimaster.page.widgets.HTMLReferenceEntityType;
 import org.slf4j.Logger;
@@ -52,6 +55,10 @@ public class ODPageContext extends ODContext
     
     private ODPageObject odPageEntityObject;
     
+    private UIPageObject uiPageObject;
+    
+    private UIFormObject uiFormObject;
+    
 	/**
 	 * out node name.
 	 */
@@ -61,7 +68,7 @@ public class ODPageContext extends ODContext
 	
 	private boolean processedOdMapping;
 	
-	public ODPageContext(HTMLSnapshotContext htmlContext, String pageName)
+	public ODPageContext(UserRequestContext htmlContext, String pageName)
     {
         super(htmlContext, true);
         this.pageName = pageName;
@@ -71,15 +78,18 @@ public class ODPageContext extends ODContext
      * 1. set local variables and default values.
      * 2. the local variable values gotten by input parameters.
      * 
-     * @throws ODProcessException
      * @throws EvaluationException
      * @throws ParsingException
      * @throws ClassNotFoundException
+     * @throws UIPageException 
+     * @throws EntityNotFoundException 
      * @throws RepositoryException 
      */
-	public void initContext() throws ODProcessException, EvaluationException, ParsingException, ClassNotFoundException
+	public void initContext() throws EvaluationException, ParsingException, ClassNotFoundException, EntityNotFoundException, UIPageException
     {
 		this.odPageEntityObject = PageCacheManager.getODPageEntityObject(pageName);
+		this.uiPageObject = PageCacheManager.getUIPageObject(pageName);
+		this.uiFormObject = uiPageObject.getUIForm();
         this.uiEntityName = odPageEntityObject.getUIEntityName();
 	    this.htmlPrefix = ""; // page is the top level.
 
@@ -87,17 +97,17 @@ public class ODPageContext extends ODContext
             logger.info("Process UI Page: {}", this.uiEntityName);  
 		}
 		
-		uiEntity = new HTMLReferenceEntityType(htmlContext, htmlPrefix, uiEntityName);
+		uiEntity = new HTMLReferenceEntityType(htmlPrefix, uiEntityName);
 		
 		DefaultEvaluationContext defaultEContext = new DefaultEvaluationContext();
-    	defaultEContext.setVariableValue("context", htmlContext);
+    	defaultEContext.setVariableValue("context", requestContext);
     	defaultEContext.setVariableValue("odContext", this);
     	this.setDefaultEvaluationContext(defaultEContext);
 		this.setExternalEvaluationContext(this);
 		
 		DefaultEvaluationContext localEContext = odPageEntityObject.getLocalEContext();
 		localEContext.setVariableValue(UIPageEntity_MARK, uiEntity);
-		Map<String, Object> inputData = htmlContext.getODMapperData();
+		Map<String, Object> inputData = requestContext.getODMapperData();
 		if (inputData != null && !inputData.isEmpty()) {
 			Set<Entry<String, Object>> entries = inputData.entrySet();
 			for (Entry<String, Object> entry: entries) {
@@ -111,10 +121,10 @@ public class ODPageContext extends ODContext
 		this.setEvaluationContextObject(GLOBAL_TAG, defaultEContext);
 		if (!this.isDataToUI()) {
 			if (AjaxActionHelper.getAjaxContext() == null) {
-				AjaxContext.registerPageAjaxContext(uiEntityName, htmlContext.getRequest());
+				AjaxContext.registerPageAjaxContext(uiEntityName, requestContext.getRequest());
 			}
 			defaultEContext.setVariableValue(AJAX_UICOMP_NAME, AjaxActionHelper.getAjaxContext());
-			this.outName = htmlContext.getRequest().getParameter(ODPageContext.OUT_NAME);
+			this.outName = requestContext.getRequest().getParameter(ODPageContext.OUT_NAME);
 		}
     }
     
@@ -189,7 +199,7 @@ public class ODPageContext extends ODContext
 		}
 	}
     
-	public String getUiParamName() {
+	public String getUIParamName() {
 		return UIPageEntity_MARK;
 	}
 	
@@ -233,4 +243,7 @@ public class ODPageContext extends ODContext
 		return odPageEntityObject;
 	}
 	
+	public UIFormObject getUIFormObject() {
+		return uiFormObject;
+	}
 }

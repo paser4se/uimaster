@@ -18,7 +18,7 @@ package org.shaolin.uimaster.page.widgets;
 import java.io.IOException;
 import java.util.List;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.ajax.CheckBoxGroup;
 import org.shaolin.uimaster.page.ajax.Layout;
@@ -32,27 +32,18 @@ public class HTMLCheckBoxGroupType extends HTMLMultiChoiceType
 {
     private static final Logger logger = LoggerFactory.getLogger(HTMLCheckBoxGroupType.class);
 
-    public HTMLCheckBoxGroupType()
+    public HTMLCheckBoxGroupType(String id)
     {
-    }
-
-    public HTMLCheckBoxGroupType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-    
-    public HTMLCheckBoxGroupType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+        super(id);
     }
 
     @Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		
 	}
     
     @Override
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
@@ -63,7 +54,7 @@ public class HTMLCheckBoxGroupType extends HTMLMultiChoiceType
             {
                 displayOptions = options;
             }
-            if ("false".equals((String) getAllAttribute("visible")))
+            if ("false".equals((String) getAttribute("visible")))
             {
                 context.generateHTML("<p style=\"display:none\">");
             }
@@ -113,7 +104,7 @@ public class HTMLCheckBoxGroupType extends HTMLMultiChoiceType
                 else
                 {
                     boolean horizontalLayout = 
-                    	Boolean.parseBoolean((String)getAllAttribute("horizontalLayout"));
+                    	Boolean.parseBoolean((String)getAttribute("horizontalLayout"));
                     int colCount = 15;
                     if (this.getAttribute("colCount") != null) {
                     	colCount = Integer.parseInt(this.getAttribute("colCount").toString());
@@ -162,7 +153,7 @@ public class HTMLCheckBoxGroupType extends HTMLMultiChoiceType
         }
     }
 
-    public void generateAttribute(HTMLSnapshotContext context, String attributeName, Object attributeValue) throws IOException
+    public void generateAttribute(UserRequestContext context, String attributeName, Object attributeValue) throws IOException
     {
         if( "visible".equals(attributeName) )
         {
@@ -184,10 +175,9 @@ public class HTMLCheckBoxGroupType extends HTMLMultiChoiceType
         checkBoxGroup.setValues(getValue());
 
         setAJAXConstraints(checkBoxGroup);
-        setAJAXAttributes(checkBoxGroup);
+        setAJAXAttributes(UserRequestContext.UserContext.get(), checkBoxGroup);
         
         checkBoxGroup.setListened(true);
-        checkBoxGroup.setFrameInfo(getFrameInfo());
 
         return checkBoxGroup;
     }

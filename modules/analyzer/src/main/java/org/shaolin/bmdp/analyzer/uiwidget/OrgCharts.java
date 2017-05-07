@@ -24,8 +24,8 @@ import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.exception.ParsingException;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
@@ -44,27 +44,18 @@ public class OrgCharts extends HTMLWidgetType {
 
 	private static final Logger logger = LoggerFactory.getLogger(OrgCharts.class);
 	
-	public OrgCharts()
+    public OrgCharts(String id)
     {
-    }
-
-    public OrgCharts(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public OrgCharts(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+        super(id);
     }
 	
 	@Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		
 	}
     
     @Override
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
     	generateWidget(context);
     	
@@ -137,30 +128,28 @@ public class OrgCharts extends HTMLWidgetType {
     		HTMLChartSuper chartWidget = null;
     		String uiid = group.getTableName() + (int)(Math.random() * 1000);
 			if (group.getChartType() == StatisticChartType.LINEAR) {
-    			chartWidget = new HTMLChartLinearType(context, uiid);
+    			chartWidget = new HTMLChartLinearType(uiid);
     			chartWidget.addAttribute("query", chartPointData);
     			chartWidget.addAttribute("labels", AanlysisModelCust.getLabels(chartPointData));
         	} else if (group.getChartType() == StatisticChartType.BAR) {
-        		chartWidget = new HTMLChartBarType(context, uiid);
+        		chartWidget = new HTMLChartBarType(uiid);
     			chartWidget.addAttribute("query", chartPointData);
     			chartWidget.addAttribute("labels", AanlysisModelCust.getLabels(chartPointData));
         	} else if (group.getChartType() == StatisticChartType.RADAR) {
-        		chartWidget = new HTMLChartRadarType(context, uiid);
+        		chartWidget = new HTMLChartRadarType(uiid);
     			chartWidget.addAttribute("query", chartPointData);
     			chartWidget.addAttribute("labels", AanlysisModelCust.getLabels(chartPointData));
         	} else if (group.getChartType() == StatisticChartType.PIE) {
-        		chartWidget = new HTMLChartDoughnutType(context, uiid);
+        		chartWidget = new HTMLChartDoughnutType(uiid);
         		chartWidget.addAttribute("query", chartSum);
         		chartWidget.addAttribute("labels", AanlysisModelCust.getLabels(chartSum));
         	} else if (group.getChartType() == StatisticChartType.POLARPIE) {
-        		chartWidget = new HTMLChartPolarPieType(context, uiid);
+        		chartWidget = new HTMLChartPolarPieType(uiid);
         		chartWidget.addAttribute("query", chartSum);
         		chartWidget.addAttribute("labels", AanlysisModelCust.getLabels(chartSum));
         	} else {
         		context.generateHTML(">");
         	}
-    		chartWidget.setPrefix(context.getHTMLPrefix());
-    		chartWidget.setFrameInfo(context.getFrameInfo());
     		chartWidget.addAttribute("columns", columns);
     		chartWidget.addAttribute("width", "400px");
     		chartWidget.addAttribute("height", "300px");
@@ -238,14 +227,12 @@ public class OrgCharts extends HTMLWidgetType {
     	generateEndWidget(context);
     }
     
-    private HTMLChartDoughnutType generateSumPie(HTMLSnapshotContext context, List<UITableColumnType> columns, 
+    private HTMLChartDoughnutType generateSumPie(UserRequestContext context, List<UITableColumnType> columns, 
     		HashMap<String, Integer> chartSum, StringBuilder jsBuffer, String uiid, String title) {
-		HTMLChartDoughnutType chartWidget = new HTMLChartDoughnutType(context, uiid);
+		HTMLChartDoughnutType chartWidget = new HTMLChartDoughnutType(uiid);
 		chartWidget.addAttribute("columns", columns);
 		chartWidget.addAttribute("query", chartSum);
 		chartWidget.addAttribute("labels", AanlysisModelCust.getLabels(chartSum));
-		chartWidget.setPrefix(context.getHTMLPrefix());
-		chartWidget.setFrameInfo(context.getFrameInfo());
 		chartWidget.addAttribute("width", "400px");
 		chartWidget.addAttribute("height", "300px");
 		chartWidget.addAttribute("title", title);

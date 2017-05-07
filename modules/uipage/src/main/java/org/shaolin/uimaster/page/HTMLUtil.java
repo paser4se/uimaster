@@ -38,12 +38,14 @@ import org.shaolin.bmdp.datamodel.page.StringPropertyType;
 import org.shaolin.bmdp.datamodel.page.UISkinType;
 import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.i18n.ResourceUtil;
+import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
 import org.shaolin.bmdp.utils.ClassLoaderUtil;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.html.layout.IUISkin;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.cache.UIPageObject;
+import org.shaolin.uimaster.page.exception.UIPageException;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.shaolin.uimaster.page.security.ComponentPermission;
 import org.shaolin.uimaster.page.widgets.HTMLLayoutType;
@@ -179,106 +181,42 @@ public class HTMLUtil
 		return s;
 	}
     
-    public static void forward(HTMLSnapshotContext context, String pageName) throws JspException
+    public static void forward(UserRequestContext context, String pageName) throws EntityNotFoundException, UIPageException
     {
     	UIPageObject pageObject = parseUIPage(pageName);
 		PageDispatcher dispatcher = new PageDispatcher(pageObject);
 		dispatcher.forwardPage(context);
     }
 
-    public static UIPageObject parseUIPage(String pageName)
+    public static UIPageObject parseUIPage(String pageName) throws EntityNotFoundException, UIPageException
     {
-        if (logger.isDebugEnabled())
-        {
-            logger.debug("get uipage: {} from cache", pageName);
-        }
+		if (logger.isDebugEnabled()) {
+			logger.debug("get uipage: {} from cache", pageName);
+		}
         return PageCacheManager.getUIPageObject(pageName);
     }
 
-    public static UIFormObject parseUIForm(String entityName)
+    public static UIFormObject parseUIForm(String entityName) throws EntityNotFoundException, UIPageException
     {
-        if (logger.isDebugEnabled())
-        {
-            logger.debug("get uientity: {} from cache", entityName);
-        }
-
+		if (logger.isDebugEnabled()) {
+			logger.debug("get uientity: {} from cache", entityName);
+		}
         return PageCacheManager.getUIFormObject(entityName);
     }
 
-    public static UIFormObject getUIForm(String entityName)
-    {
-        return PageCacheManager.getUIFormObject(entityName);
-    }
-
-    public static HTMLWidgetType getHTMLUIComponent(String UIID, HTMLSnapshotContext context,
-            String type)
-    {
-        Map propMap = new HashMap();
-        propMap.put("type", type);
-        return getHTMLUIComponent(UIID, context, propMap, null, null, null, null, true);
-    }
-
-    public static HTMLWidgetType getHTMLUIComponent(String UIID, HTMLSnapshotContext context,
-            Map propMap, Map eventMap, Boolean readOnly, Map tempMap, HTMLLayoutType htmlLayout,
-            boolean fromOD)
-    {
-        HTMLWidgetType htmlComponent = null;
-        String uiComponentType = (String)propMap.get("type");
-        try
-        {
-            if (htmlUIClassMap.containsKey(uiComponentType))
-            {
-                htmlComponent = (HTMLWidgetType)((Class)htmlUIClassMap.get(uiComponentType))
-                        .newInstance();
-            }
-            else
-            {
-                String typeString = MAPPING_NAME_PREFIX + uiComponentType;
-                Class cls = ClassLoaderUtil.loadClass(typeString);
-                htmlUIClassMap.put(uiComponentType, cls);
-                htmlComponent = (HTMLWidgetType)cls.newInstance();
-            }
-        }
-        catch (Exception e)
-        {
-            throw new IllegalStateException("error occured when get HTMLUIComponent for type: "
-                            + uiComponentType + ". The error message is: " + e.getMessage(), e);
-        }
-
-        htmlComponent.setContext(context);
-        htmlComponent.setId(UIID);
-        htmlComponent.setReadOnly(readOnly);
-        htmlComponent.setPrefix(context.getHTMLPrefix());
-        htmlComponent.setHTMLLayout(htmlLayout);
-        htmlComponent.addAttribute(propMap);
-        htmlComponent.addAttribute(tempMap);
-        htmlComponent.addEventListener(eventMap);
-        htmlComponent.setFrameInfo(context.getFrameInfo());
-
-        if (!fromOD)
-        {
-            addSecurityControl(context, htmlComponent);
-        }
-
-        return htmlComponent;
-    }
-
-    public static HTMLLayoutType getHTMLLayoutType(String uiLayoutType)
+    public static HTMLLayoutType getHTMLLayoutType(String uiid, String uiLayoutType)
     {
         HTMLLayoutType htmlLayout = null;
         try
         {
-            if (htmlUIClassMap.containsKey(uiLayoutType))
-            {
+            if (htmlUIClassMap.containsKey(uiLayoutType)) {
                 htmlLayout = (HTMLLayoutType)((Class)htmlUIClassMap.get(uiLayoutType))
-                        .newInstance();
-            }
-            else
-            {
+                        .getConstructor(new Class[]{String.class}).newInstance(uiid);
+            } else {
                 String typeString = "org.shaolin.uimaster.page.widgets.HTML" + uiLayoutType;
                 Class cls = ClassLoaderUtil.loadClass(typeString);
                 htmlUIClassMap.put(uiLayoutType, cls);
-                htmlLayout = (HTMLLayoutType)cls.newInstance();
+                htmlLayout = (HTMLLayoutType)cls.getConstructor(new Class[]{String.class}).newInstance(uiid);
             }
         }
         catch (Exception e)
@@ -369,7 +307,7 @@ public class HTMLUtil
                     skinMap.put(uiskinName, cls);
                     uiskinObj = (IUISkin)cls.newInstance();
                 }
-                htmlComponent.addAttribute(uiskinObj.getAttributeMap(htmlComponent));
+                htmlComponent.setAttribute(uiskinObj.getAttributeMap(htmlComponent));
 
                 if (beginIndex > -1)
                 {
@@ -487,27 +425,6 @@ public class HTMLUtil
         jsIncludeList.add(jsFileName);
     }
 
-
-    public static void generateJSHTML(HTMLSnapshotContext context, String jsRootPath,
-            String jsFileName, int depth) throws JspException
-    {
-		if (context.containsJsName(jsFileName)) {
-			return;
-		} else {
-			context.addJsName(jsFileName);
-		}
-
-		if (jsFileName.endsWith(".js")) {
-			context.generateJS("<script type=\"text/javascript\" src=\"");
-			context.generateJS(jsRootPath);
-			context.generateJS(jsFileName);
-			context.generateJS("?_timestamp=");
-			context.generateJS(WebConfig.getTimeStamp());
-			context.generateJS("\"></script>");
-			generateTab(context, depth);
-		}
-    }
-
     public static Map evaluateExpression(Map propMap, Map expMap, Map tempMap,
             VariableEvaluator ee) throws EvaluationException
     {
@@ -529,8 +446,7 @@ public class HTMLUtil
 					List valueList = (List) propValue;
 					String[] values = new String[valueList.size()];
 					for (int i = 0, n = valueList.size(); i < n; i++) {
-						ExpressionType expression = (ExpressionType) valueList
-								.get(i);
+						ExpressionType expression = (ExpressionType) valueList.get(i);
 						if (expression != null) {
 							if (logger.isTraceEnabled()) {
 								logger.trace("evaluate expression: {}", expression.getExpressionString());
@@ -577,7 +493,7 @@ public class HTMLUtil
     }
 
     public static Map internationalization(Map propMap, Map i18nMap, Map tempMap,
-            HTMLSnapshotContext context)
+            UserRequestContext context)
     {
         if (i18nMap != null && !i18nMap.isEmpty())
         {
@@ -727,7 +643,7 @@ public class HTMLUtil
 		return target;
 	}
 
-	public static void generateTab(HTMLSnapshotContext context, int depth) {
+	public static void generateTab(UserRequestContext context, int depth) {
 		if (WebConfig.isFormatHTML()) {
 			StringBuffer sb = new StringBuffer("\n");
 			for (int i = 0; i < depth; i++) {
@@ -784,7 +700,7 @@ public class HTMLUtil
                 + ce.isLeftToRight() + "\" >";
     }
 
-    public static void generateJSBundleConstants(HTMLSnapshotContext context)
+    public static void generateJSBundleConstants(UserRequestContext context)
     {
         generateBundle(context, "Common", "AJAX_EXCEPTION_REQUEST_WAIT");
         generateBundle(context, "Common", "VERIFY_FAIL");
@@ -795,7 +711,7 @@ public class HTMLUtil
         generateBundle(context, "Common", "SELECT_VALUE");
     }
 
-    private static void generateBundle(HTMLSnapshotContext context, String bundle, String key)
+    private static void generateBundle(UserRequestContext context, String bundle, String key)
     {
         String locale = LocaleContext.getUserLocale();
         String value = ResourceUtil.getResource(locale, bundle, key);
@@ -803,7 +719,7 @@ public class HTMLUtil
                 + "||" + key + "\" msg=\"" + HTMLUtil.formatHtmlValue(value) + "\">\n");
     }
 
-    private static void addSecurityControl(HTMLSnapshotContext context,
+    private static void addSecurityControl(UserRequestContext context,
             HTMLWidgetType htmlComponent)
     {
         ComponentPermission cp = context.getCompPermission(htmlComponent.getName(false));

@@ -1,19 +1,12 @@
 package org.shaolin.uimaster.html.layout;
 
-import java.util.Map;
-
-import javax.servlet.jsp.JspException;
-
-import org.apache.log4j.Logger;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.cache.UIFormObject;
-import org.shaolin.uimaster.page.javacc.VariableEvaluator;
+import org.shaolin.uimaster.page.exception.UIPageException;
 import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 
 abstract public class AbstractHTMLLayout
 {
-    private static Logger logger = Logger.getLogger(AbstractHTMLLayout.class);
-
     protected UIFormObject ownerEntity = null;
     
     protected int cellX;
@@ -84,8 +77,7 @@ abstract public class AbstractHTMLLayout
         this.container = container;
     }
     
-    abstract public void generate(HTMLSnapshotContext context, int depth, Boolean readOnly, 
-            Map appendMap, VariableEvaluator ee, IUISkin uiskinObj, 
-            HTMLWidgetType parentComponent, String rowUIStyle) throws JspException;
+    abstract public void generate(UserRequestContext context, int depth, Boolean readOnly, 
+            IUISkin uiskinObj, HTMLWidgetType parentComponent, String rowUIStyle) throws UIPageException;
     
 }

@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
@@ -52,9 +53,7 @@ import org.shaolin.bmdp.datamodel.page.OpType;
 import org.shaolin.bmdp.datamodel.page.PropertyReconfigurationType;
 import org.shaolin.bmdp.datamodel.page.PropertyType;
 import org.shaolin.bmdp.datamodel.page.PropertyValueType;
-import org.shaolin.bmdp.datamodel.page.ReconfigurablePropertyType;
 import org.shaolin.bmdp.datamodel.page.ReconfigurableType;
-import org.shaolin.bmdp.datamodel.page.ReconfigurableVariableType;
 import org.shaolin.bmdp.datamodel.page.ReconfigurationType;
 import org.shaolin.bmdp.datamodel.page.ResourceBundlePropertyType;
 import org.shaolin.bmdp.datamodel.page.StringPropertyType;
@@ -107,22 +106,23 @@ import org.shaolin.bmdp.runtime.be.BEUtil;
 import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
+import org.shaolin.bmdp.utils.ClassLoaderUtil;
 import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
-import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.html.layout.HTMLCellLayout;
 import org.shaolin.uimaster.html.layout.IUISkin;
 import org.shaolin.uimaster.page.AjaxContext;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.OpExecuteContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Table;
 import org.shaolin.uimaster.page.ajax.TableConditions;
 import org.shaolin.uimaster.page.ajax.TreeConditions;
 import org.shaolin.uimaster.page.ajax.Widget;
+import org.shaolin.uimaster.page.exception.UIPageException;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.od.ODContextHelper;
@@ -149,17 +149,19 @@ public class UIFormObject implements java.io.Serializable
     
     private String bodyName = null;
 
-    private Map<String, Map<String, Object>> componentMap = 
-    		new HashMap<String, Map<String, Object>>();
+    private Map<String, Map<String, Object>> componentMap = new HashMap<String, Map<String, Object>>();
 
+    private final Map<String, HTMLWidgetType> components = new HashMap<String, HTMLWidgetType>();
+    
+    //App Name, UIPanel Name, UI Widgets.
+    private Map<String, List<HTMLDynamicUIItem>> dynamicItems; 
+    
     private Map<String, Object> bundleMap = new HashMap<String, Object>();
 
     private Map<String, Map<String, ExpressionType>> expressionMap = new HashMap<String, Map<String, ExpressionType>>();
 
     private Map<String, Object> funcMap = new HashMap<String, Object>();
 
-    //App Name, UIPanel Name, UI Widgets.
-    private Map<String, List<HTMLDynamicUIItem>> dynamicItems; 
     
     private List<String> workflowActions; 
     
@@ -168,10 +170,6 @@ public class UIFormObject implements java.io.Serializable
     private HTMLCellLayout bodyLayout = null;
 
 	private List<ParamType> variables = null;
-
-	private Set reconfigurableVarSet = new HashSet();
-
-    private Map reconfigurablePropMap = new HashMap();
 
     private Map reconfigurationMap = new HashMap();
 
@@ -195,7 +193,7 @@ public class UIFormObject implements java.io.Serializable
 
     private List jsMobAppIncludeList = new ArrayList();
     
-	public UIFormObject(String name)
+	public UIFormObject(String name) throws UIPageException
     {
         if (logger.isInfoEnabled())
         {
@@ -206,7 +204,7 @@ public class UIFormObject implements java.io.Serializable
         load();
     }
 
-    public UIFormObject(String name, UIPage entity)
+    public UIFormObject(String name, UIPage entity) throws UIPageException
     {
         if (logger.isInfoEnabled())
         {
@@ -229,9 +227,22 @@ public class UIFormObject implements java.io.Serializable
         HTMLUtil.includeJsFiles(name, jsIncludeMap, jsIncludeList, !WebConfig.skipCommonJs(name));
         HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, !WebConfig.skipCommonJs(name));
         HTMLUtil.includeMobAppJsFiles(name, jsMobAppIncludeMap, jsMobAppIncludeList, !WebConfig.skipCommonJs(name));
+        
+        components.clear();
+        Iterator<String> i = this.getAllComponentID();
+		while(i.hasNext()) {
+			String compId = i.next();
+			Map<String, Object> propMap = this.getComponentProperty(compId);
+			Map eventMap = this.getComponentEvent(compId);
+	        HTMLWidgetType component = createHTMLUIComponent(compId, propMap, eventMap);
+	        components.put(component.getName(), component);
+	        if (logger.isDebugEnabled()) {
+	        	logger.debug("Create component: {}, type: {}", component.getName(), component);
+	        }
+		}
     }
     
-    private void load()
+    private void load() throws EntityNotFoundException, UIPageException
     {
     	UIEntity entity = IServerServiceManager.INSTANCE.getEntityManager()
     			.getEntity(this.name, UIEntity.class);
@@ -240,9 +251,22 @@ public class UIFormObject implements java.io.Serializable
         HTMLUtil.includeJsFiles(name, jsIncludeMap, jsIncludeList, false);
         HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, false);
         HTMLUtil.includeMobAppJsFiles(name, jsMobAppIncludeMap, jsMobAppIncludeList, false);
+        
+        components.clear();
+        Iterator<String> i = this.getAllComponentID();
+		while(i.hasNext()) {
+			String compId = i.next();
+			Map<String, Object> propMap = this.getComponentProperty(compId);
+			Map eventMap = this.getComponentEvent(compId);
+	        HTMLWidgetType component = createHTMLUIComponent(compId, propMap, eventMap);
+	        components.put(component.getName(), component);
+	        if (logger.isDebugEnabled()) {
+	        	logger.debug("Create component: {}, type: {}", component.getName(), component);
+	        }
+		}
     }
     
-    private void loadForPage()
+    private void loadForPage() throws EntityNotFoundException, UIPageException
     {
     	UIEntity entity = (UIEntity)IServerServiceManager.INSTANCE.getEntityManager()
     			.getEntity(this.name, UIPage.class).getUIEntity();
@@ -251,9 +275,82 @@ public class UIFormObject implements java.io.Serializable
         HTMLUtil.includeJsFiles(name, jsIncludeMap, jsIncludeList, !WebConfig.skipCommonJs(name));
         HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, !WebConfig.skipCommonJs(name));
         HTMLUtil.includeMobJsFiles(name, jsMobAppIncludeMap, jsMobAppIncludeList, !WebConfig.skipCommonJs(name));
+        
+        components.clear();
+        Iterator<String> i = this.getAllComponentID();
+		while(i.hasNext()) {
+			String compId = i.next();
+			Map<String, Object> propMap = this.getComponentProperty(compId);
+			Map eventMap = this.getComponentEvent(compId);
+	        HTMLWidgetType component = createHTMLUIComponent(compId, propMap, eventMap);
+	        components.put(component.getName(), component);
+	        if (logger.isDebugEnabled()) {
+	        	logger.debug("Create component: {}, type: {}", component.getName(), component);
+	        }
+		}
     }
     
-    private void parseUI(OOEEContext parsingContext, UIEntity entity, Map extraInfo)
+    private static final Map<String, Class<?>> htmlUIClassMap = new ConcurrentHashMap<String, Class<?>>();
+
+    private HTMLWidgetType createHTMLUIComponent(String UIID, Map propMap, Map eventMap) 
+    		throws EntityNotFoundException, UIPageException
+    {
+        HTMLWidgetType htmlComponent = null;
+        String uiComponentType = (String)propMap.get("type");
+        try {
+        	// performance optimization
+            if (htmlUIClassMap.containsKey(uiComponentType)) {
+                htmlComponent = (HTMLWidgetType)((Class)htmlUIClassMap.get(uiComponentType))
+                        .getConstructor(new Class[]{String.class}).newInstance(UIID);
+            } else {
+                String typeString = HTMLUtil.MAPPING_NAME_PREFIX + uiComponentType;
+                Class cls = ClassLoaderUtil.loadClass(typeString);
+                htmlUIClassMap.put(uiComponentType, cls);
+                htmlComponent = (HTMLWidgetType)cls.getConstructor(new Class[]{String.class}).newInstance(UIID);
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Error occured when get HTMLUIComponent for type: "
+                            + uiComponentType + ", the error message is: " + e.getMessage(), e);
+        }
+//        HTMLLayoutType layout = HTMLUtil.getHTMLLayoutType("", "CellLayoutType");
+//        htmlComponent.setHTMLLayout(layout);
+        htmlComponent.setEventListener(eventMap);
+        IUISkin uiskinObj = this.getUISkinObj(UIID, null, htmlComponent);
+        if (uiskinObj != null) {
+        	Map attr = uiskinObj.getAttributeMap(htmlComponent);
+        	if (attr != null) {
+        		propMap.putAll(attr);
+        	}
+        	htmlComponent.setUISkin(uiskinObj);
+        }
+        htmlComponent.setAttribute(propMap);
+        htmlComponent.setUIEntityName(this.name);
+        if (htmlComponent instanceof HTMLReferenceEntityType) {
+        	HTMLReferenceEntityType referObject = (HTMLReferenceEntityType)htmlComponent;
+        	Map<String, Object> propMap1 = this.getComponentProperty(referObject.getUIID());
+    		referObject.setEntityName((String)propMap1.get("referenceEntity"));
+			createRefEntity("", referObject);
+		}
+        
+        return htmlComponent;
+    }
+
+	private void createRefEntity(String prefix , HTMLReferenceEntityType referObject) throws UIPageException {
+		// parse HTMLReferenceEntityType;
+		UIFormObject refform = PageCacheManager.getUIFormObject(referObject.getType());
+		for (Map.Entry<String, HTMLWidgetType> entry : refform.getComponents().entrySet()) {
+			components.put(prefix + referObject.getName() + "." + entry.getKey(), entry.getValue());
+			// recursive for more nested HTMLReferenceEntityType
+			if (entry.getValue() instanceof HTMLReferenceEntityType) {
+				HTMLReferenceEntityType subRef = (HTMLReferenceEntityType)entry.getValue();
+				Map<String, Object> propMap1 = refform.getComponentProperty(subRef.getUIID());
+				subRef.setEntityName((String)propMap1.get("referenceEntity"));
+				createRefEntity(prefix + referObject.getName() + ".", subRef);
+			}
+		}
+	}
+    
+    private void parseUI(OOEEContext parsingContext, UIEntity entity, Map extraInfo) throws EntityNotFoundException, UIPageException
     {
     	this.clear();
 		if (logger.isDebugEnabled()) {
@@ -267,7 +364,7 @@ public class UIFormObject implements java.io.Serializable
         UIContainerType body = entity.getBody();
         bodyName = body.getUIID();
         parseComponent(body, parsingContext);
-        bodyLayout = new HTMLCellLayout((UIPanelType)body, this, parsingContext);
+        bodyLayout = new HTMLCellLayout((UIPanelType)body, this);
         bodyLayout.setContainer(bodyName + "-");
         parseEventHandler(entity, parsingContext);
     }
@@ -329,23 +426,23 @@ public class UIFormObject implements java.io.Serializable
         List<ReconfigurableType> reconfigurables = entity.getReconfigurableProperties();
         for (ReconfigurableType reconfigurable: reconfigurables)
         {
-            if (reconfigurable instanceof ReconfigurablePropertyType)
-            {
-                ReconfigurablePropertyType reconfig = (ReconfigurablePropertyType)reconfigurable;
-                String compID = reconfig.getComponentId();
-                List valueList = (List)reconfigurablePropMap.get(compID);
-                if (valueList == null)
-                {
-                    valueList = new ArrayList();
-                    reconfigurablePropMap.put(compID, valueList);
-                }
-                valueList.add(reconfig);
-            }
-            else if (reconfigurable instanceof ReconfigurableVariableType)
-            {
-                reconfigurableVarSet.add(((ReconfigurableVariableType)reconfigurable)
-                        .getVarName());
-            }
+//            if (reconfigurable instanceof ReconfigurablePropertyType)
+//            {
+//                ReconfigurablePropertyType reconfig = (ReconfigurablePropertyType)reconfigurable;
+//                String compID = reconfig.getComponentId();
+//                List valueList = (List)reconfigurablePropMap.get(compID);
+//                if (valueList == null)
+//                {
+//                    valueList = new ArrayList();
+//                    reconfigurablePropMap.put(compID, valueList);
+//                }
+//                valueList.add(reconfig);
+//            }
+//            else if (reconfigurable instanceof ReconfigurableVariableType)
+//            {
+//                reconfigurableVarSet.add(((ReconfigurableVariableType)reconfigurable)
+//                        .getVarName());
+//            }
         }
     }
 
@@ -472,7 +569,7 @@ public class UIFormObject implements java.io.Serializable
     }
 
     private void parseComponent(UIComponentType component,
-            OOEEContext parsingContext)
+            OOEEContext parsingContext) throws EntityNotFoundException, UIPageException
     {
 		if (logger.isDebugEnabled()) {
 			logger.debug("parse ui widget: " + component.getUIID());
@@ -1559,8 +1656,6 @@ public class UIFormObject implements java.io.Serializable
         funcMap = new HashMap();
         callServerSideOpMap = new HashMap();
         variables = null;
-        reconfigurableVarSet.clear();
-        reconfigurablePropMap.clear();
         reconfigurationMap.clear();
         uiskinMap.clear();
         includeMap.clear();
@@ -1585,57 +1680,15 @@ public class UIFormObject implements java.io.Serializable
         }
     }
 
-    public Map getReconfigurationMap(String referenceEntityID, VariableEvaluator ee)
+    public Map getReconfigurationMap(String referenceEntityID)
     {
         Map entityReconfiguration = null;
         if (reconfigurationMap.containsKey(referenceEntityID))
         {
             entityReconfiguration = new HashMap();
             entityReconfiguration.putAll((Map)reconfigurationMap.get(referenceEntityID));
-
-            Map variableReconfiguration = (Map)entityReconfiguration
-                    .get(HTMLReferenceEntityType.VARIABLE);
-            if (variableReconfiguration != null)
-            {
-                Map tempVariableReconfiguration = new HashMap();
-                entityReconfiguration.put(HTMLReferenceEntityType.VARIABLE,
-                        tempVariableReconfiguration);
-
-                Iterator it = variableReconfiguration.entrySet().iterator();
-                while (it.hasNext())
-                {
-                    Map.Entry entry = (Map.Entry)it.next();
-                    String key = (String)entry.getKey();
-                    ExpressionType expression = (ExpressionType)entry.getValue();
-                    try
-                    {
-                        Object value = expression.evaluate(ee.getExpressionContext());
-                        tempVariableReconfiguration.put(key, value);
-                    }
-                    catch (EvaluationException e)
-                    {
-                        logger.error("Exception occured when evaluate the value of the reconfig variable: "
-                                        + key + " in form: " + name, e);
-                    }
-                }
-            }
         }
         return entityReconfiguration;
-    }
-
-    public void parseReferenceEntity(Map entityMap)
-    {
-        Iterator iterator = refereneEntityList.iterator();
-        while (iterator.hasNext())
-        {
-            String entityName = (String)iterator.next();
-            if (!entityMap.containsKey(entityName))
-            {
-                UIFormObject entityObj = HTMLUtil.parseUIForm(entityName);
-                entityObj.parseReferenceEntity(entityMap);
-                entityMap.put(entityName, entityObj);
-            }
-        }
     }
 
     public List<OpType> getEventHandler(String opName)
@@ -1678,11 +1731,41 @@ public class UIFormObject implements java.io.Serializable
     	return descExpr;
     }
     
-    public Map getComponentProperty(String componentID)
+    public Map<String, HTMLWidgetType> getComponents() {
+    	return components;
+    }
+   
+    public void printAllComponents() {
+		if (logger.isTraceEnabled())
+        {
+			 StringBuilder sb = new StringBuilder();
+			 sb.append("\n\nPrint all created UIComponents in page: ").append(this.name).append("\n");
+			 
+			 Iterator<String> f = components.keySet().iterator();
+			 while(f.hasNext()) {
+        		String uiid = f.next();
+        		Object object = components.get(uiid);
+        		sb.append("  Widget: ").append(uiid).append("=").append(object);
+        		sb.append("\n");
+            }
+            logger.trace(sb.toString());
+        }
+	}
+    
+    public Map<String, Object> getComponentProperty(String componentID)
     {
         return componentMap.get(componentID);
     }
     
+    public HTMLWidgetType getHTMLComponent(String componentID) {
+    	return components.get(componentID);
+    }
+    
+    /**
+     * Only returns all component ids excluding the sub-references.
+     * 
+     * @return
+     */
     public Iterator<String> getAllComponentID()
     {
         return componentMap.keySet().iterator();
@@ -1698,12 +1781,17 @@ public class UIFormObject implements java.io.Serializable
         return (Map)bundleMap.get(componentID);
     }
 
+    public Iterator<String> getAllExpressionID()
+    {
+        return expressionMap.keySet().iterator();
+    }
+    
     public Map<String, ExpressionType> getComponentExpression(String componentID)
     {
         return expressionMap.get(componentID);
     }
     
-	public void addWorkflowAction(String eventConsumer, MissionNodeType node, String nodeInfo) throws ParsingException {
+	public void addWorkflowAction(String eventConsumer, MissionNodeType node, String nodeInfo) throws ParsingException, EntityNotFoundException, UIPageException {
 		if (workflowActions == null) {
 			workflowActions = new ArrayList();
 		} 
@@ -2075,13 +2163,13 @@ public class UIFormObject implements java.io.Serializable
 		return variables;
 	}
 
-	public Set getReconfigurableVarSet() {
-		return reconfigurableVarSet;
-	}
-
-	public Map getReconfigurablePropMap() {
-		return reconfigurablePropMap;
-	}
+//	public Set getReconfigurableVarSet() {
+//		return reconfigurableVarSet;
+//	}
+//
+//	public Map getReconfigurablePropMap() {
+//		return reconfigurablePropMap;
+//	}
 
 	public Map getReconfigurationMap() {
 		return reconfigurationMap;
@@ -2091,7 +2179,7 @@ public class UIFormObject implements java.io.Serializable
 		return bodyLayout;
 	}
 
-	public void importSelfJS(HTMLSnapshotContext context, int depth, boolean syncLoadJs) throws JspException
+	public void importSelfJS(UserRequestContext context, int depth, boolean syncLoadJs) throws JspException
     {
     	Iterator jsFileNameIterator = null;
     	if (UserContext.isMobileRequest()) {
@@ -2147,7 +2235,7 @@ public class UIFormObject implements java.io.Serializable
         }
     }
 
-    public String importSelfJs(HTMLSnapshotContext context, UIFormObject tEntityObj, boolean syncLoadJs)
+    public String importSelfJs(UserRequestContext context, UIFormObject tEntityObj, boolean syncLoadJs)
     {
         StringBuffer sb = new StringBuffer();
         Iterator jsFileNameIterator = null;
@@ -2194,7 +2282,7 @@ public class UIFormObject implements java.io.Serializable
         return sb.toString();
     }
 
-	public String importSelfJs(HTMLSnapshotContext context, boolean syncLoadJs) {
+	public String importSelfJs(UserRequestContext context, boolean syncLoadJs) {
 		StringBuffer sb = new StringBuffer();
 		Iterator jsFileNameIterator = this.jsIncludeList.iterator();
 		if (UserContext.isMobileRequest()) {
@@ -2231,11 +2319,11 @@ public class UIFormObject implements java.io.Serializable
 		return sb.toString();
 	}
 	
-	public void getJSPathSet(HTMLSnapshotContext context, Map entityMap) {
+	public void getJSPathSet(UserRequestContext context, Map entityMap) throws EntityNotFoundException, UIPageException {
 		getJSPathSet(context, entityMap, false);
 	}
 	
-	public void getJSPathSet(HTMLSnapshotContext context, Map entityMap, boolean syncLoadJs) {
+	public void getJSPathSet(UserRequestContext context, Map entityMap, boolean syncLoadJs) throws EntityNotFoundException, UIPageException {
 		if (entityMap == null) {
 			entityMap = new HashMap();
 		}

@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.uimaster.page.DisposableBfString;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Image;
@@ -25,27 +25,18 @@ public class HTMLImageType extends HTMLTextWidgetType
 	
     private static final Logger logger = LoggerFactory.getLogger(HTMLImageType.class);
 
-    public HTMLImageType()
+    public HTMLImageType(String id)
     {
-    }
-
-    public HTMLImageType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public HTMLImageType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+        super(id);
     }
 
     @Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		
 	}
     
     @Override
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
@@ -133,7 +124,7 @@ public class HTMLImageType extends HTMLTextWidgetType
         }
     }
     
-    private void genarateAblum(String imageRoot, HTMLSnapshotContext context, File directory) {
+    private void genarateAblum(String imageRoot, UserRequestContext context, File directory) {
     	String[] images = directory.list();
     	context.generateHTML("<div class=\"album\" data-jgallery-album-title=\""+directory.getName()+"\">");
     	for (String i : images) {
@@ -146,10 +137,10 @@ public class HTMLImageType extends HTMLTextWidgetType
     	context.generateHTML("</div>");
     }
 
-    private String getSrc(HTMLSnapshotContext context)
+    private String getSrc(UserRequestContext context)
     {
     	if (this.getAttribute("custDirectory") != null && "true".equals(String.valueOf(this.getAttribute("custDirectory")))) {
-    		String url = (String)getAllAttribute("src");
+    		String url = (String)getAttribute("src");
             if(url == null) {
             	return "";
             }
@@ -159,10 +150,10 @@ public class HTMLImageType extends HTMLTextWidgetType
     		return WebConfig.getResourceContextRoot() + url;
     	}
     	
-        return context.getImageUrl(getUIEntityName(), (String) getAllAttribute("src"));
+        return context.getImageUrl(getUIEntityName(), (String) getAttribute("src"));
     }
 
-    public void generateAttribute(HTMLSnapshotContext context, String attributeName, Object attributeValue) throws IOException
+    public void generateAttribute(UserRequestContext context, String attributeName, Object attributeValue) throws IOException
     {
         if ("src".equals(attributeName))
         {
@@ -191,11 +182,10 @@ public class HTMLImageType extends HTMLTextWidgetType
 		if (getValue() != null && !"".equals(getValue())) {
 			image.setSrc(getValue());
 		} else {
-			image.setSrc((String) getAllAttribute("src"));
+			image.setSrc((String) getAttribute("src"));
 		}
 		image.setIsGallery(this.getAttribute("isGallery") != null && ("true".equals(String.valueOf(this.getAttribute("isGallery")))));
 		image.setListened(true);
-		image.setFrameInfo(getFrameInfo());
 
 		Object expr = this.removeAttribute("selectedImageExpr");
 		if (expr != null) {

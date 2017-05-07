@@ -17,7 +17,7 @@ package org.shaolin.uimaster.page.widgets;
 
 import java.io.IOException;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Link;
@@ -30,21 +30,12 @@ public class HTMLLinkType extends HTMLLabelType
 {
     private static final Logger logger = LoggerFactory.getLogger(HTMLLinkType.class);
 
-    public HTMLLinkType()
+    public HTMLLinkType(String id)
     {
+        super(id);
     }
 
-    public HTMLLinkType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public HTMLLinkType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
-    }
-
-    public void generateEndHTML(HTMLSnapshotContext context)
+    public void generateEndHTML(UserRequestContext context)
     {
         try
         {
@@ -84,7 +75,7 @@ public class HTMLLinkType extends HTMLLabelType
         }
     }
 
-    public void generateAttribute(HTMLSnapshotContext context, String attributeName, Object attributeValue) throws IOException
+    public void generateAttribute(UserRequestContext context, String attributeName, Object attributeValue) throws IOException
     {
         if ( "href".equals(attributeName) )
         {
@@ -97,7 +88,7 @@ public class HTMLLinkType extends HTMLLabelType
 
     private String getHref()
     {
-        String href = (String) getAllAttribute("href");
+        String href = (String) getAttribute("href");
         if (href == null)
         {
             return "#";
@@ -108,8 +99,8 @@ public class HTMLLinkType extends HTMLLabelType
 
     public String getReconfigurateFunction(String handler)
     {
-        HTMLSnapshotContext context = getContext();
-        String functionPrefix = getPrefix();
+        UserRequestContext context = UserRequestContext.UserContext.get();
+        String functionPrefix = context.getHTMLPrefix();
         String reconfiguration = context.getReconfigFunction(functionPrefix, handler);
         while (reconfiguration != null)
         {
@@ -157,7 +148,6 @@ public class HTMLLinkType extends HTMLLabelType
         link.setHref(getHref());
 
         link.setListened(true);
-        link.setFrameInfo(getFrameInfo());
 
         return link;
     }

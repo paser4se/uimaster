@@ -19,26 +19,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 
 public abstract class HTMLMultiChoiceType extends HTMLChoiceType 
 {
 
-    public HTMLMultiChoiceType()
-    {
-    }
-     
-    public HTMLMultiChoiceType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-	public HTMLMultiChoiceType(HTMLSnapshotContext context, String id)
+	public HTMLMultiChoiceType(String id)
 	{
-	    super(context, id);
+	    super(id);
 	}
 	 
-    public void generateAttribute(HTMLSnapshotContext context, String attributeName, Object attributeValue) throws IOException
+    public void generateAttribute(UserRequestContext context, String attributeName, Object attributeValue) throws IOException
 	{
 	    if ( "value".equals(attributeName) )
         {
@@ -63,14 +54,14 @@ public abstract class HTMLMultiChoiceType extends HTMLChoiceType
 	}
 
 	public List getValue() {
-		List values = (List) getAllAttribute("value");
+		List values = (List) getAttribute("value");
 		return values == null ? new ArrayList() : values;
 	}
 
 
 	public void setValue(List<String> value)
 	{
-        setHTMLAttribute("value", value);
+        addAttribute("value", value);
 	}
 
     private static final long serialVersionUID = 8008004105287717253L;

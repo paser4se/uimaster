@@ -24,26 +24,19 @@ import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.uimaster.page.DisposableBfString;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.od.ODContext;
 
 public class HTMLChartLinearType extends HTMLChartSuper {
 	private static final long serialVersionUID = -5232602952223828765L;
 
-	public HTMLChartLinearType() {
-	}
-
-	public HTMLChartLinearType(HTMLSnapshotContext context) {
-		super(context);
-	}
-
-	public HTMLChartLinearType(HTMLSnapshotContext context, String id) {
-		super(context, id);
+	public HTMLChartLinearType(String id) {
+		super(id);
 	}
 
 	@Override
-	public void generateData(List<UITableColumnType> columns, HTMLSnapshotContext context, int depth) throws Exception {
+	public void generateData(List<UITableColumnType> columns, UserRequestContext context, int depth) throws Exception {
 		List<String> cssStyles = new ArrayList<String>();
 		for (UITableColumnType col: columns) {
 			cssStyles.add("label: '" + UIVariableUtil.getI18NProperty(col.getTitle()) + "'," + col.getCssStype());

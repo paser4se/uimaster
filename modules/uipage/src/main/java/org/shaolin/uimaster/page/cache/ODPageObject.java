@@ -40,7 +40,7 @@ import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.AjaxContext;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.od.ODContextHelper;
@@ -160,7 +160,7 @@ public class ODPageObject extends ODObject implements java.io.Serializable
         
         //DefaultParsingContext inPagePContext = ODContextHelper.getParsingContext( inParamTypes );
         DefaultParsingContext defaultPContext = new DefaultParsingContext();
-        defaultPContext.setVariableClass("context", HTMLSnapshotContext.class);
+        defaultPContext.setVariableClass("context", UserRequestContext.class);
         defaultPContext.setVariableClass("odContext", ODContext.class);
         defaultPContext.setVariableClass("page", AjaxContext.class);
         

@@ -17,7 +17,7 @@ package org.shaolin.uimaster.page.widgets;
 
 import java.io.IOException;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,21 +26,12 @@ public class HTMLTableLayoutType extends HTMLLayoutType
 {
 	private static final Logger logger = LoggerFactory.getLogger(HTMLTableLayoutType.class);
 
-    public HTMLTableLayoutType()
-    {
-    }
- 
-    public HTMLTableLayoutType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-	public HTMLTableLayoutType(HTMLSnapshotContext context, String id)
+	public HTMLTableLayoutType(String id)
 	{
-	    super(context, id);
+	    super(id);
 	}
 
-    public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
@@ -55,7 +46,7 @@ public class HTMLTableLayoutType extends HTMLLayoutType
     	}
     }
 
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
@@ -67,7 +58,7 @@ public class HTMLTableLayoutType extends HTMLLayoutType
         }
     }
     
-	public void generateAttribute(HTMLSnapshotContext context, String attributeName, Object attributeValue) throws IOException
+	public void generateAttribute(UserRequestContext context, String attributeName, Object attributeValue) throws IOException
 	{
 	    String attrValue = (String)attributeValue;
         if ("align".equals(attributeName))

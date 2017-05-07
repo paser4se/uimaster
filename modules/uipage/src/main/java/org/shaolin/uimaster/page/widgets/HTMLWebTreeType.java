@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.UITableActionType;
 import org.shaolin.bmdp.runtime.security.UserContext;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.ajax.Layout;
 import org.shaolin.uimaster.page.ajax.Tree;
@@ -44,32 +44,26 @@ public class HTMLWebTreeType extends HTMLWidgetType {
 
 	private static final Logger logger = Logger.getLogger(HTMLWebTreeType.class);
 
-	public HTMLWebTreeType() {
-	}
-
-	public HTMLWebTreeType(HTMLSnapshotContext context) {
-		super(context);
-	}
-
-	public HTMLWebTreeType(HTMLSnapshotContext context, String id) {
-		super(context, id);
+	public HTMLWebTreeType(String id) {
+		super(id);
 	}
 
 	@Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		
 	}
 	
 	
 	@Override
-	public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		try {
+			String prefix = context.getHTMLPrefix();
 			String selectedNodeEvent = (String)this.getAttribute("selectedNode");
 			String overrided = getEventListener("onclick");
 			if ((overrided != null) && (overrided.length() > 0))
 				selectedNodeEvent = getReconfigurateFunction(overrided);
 			else {
-				selectedNodeEvent = "defaultname." + getPrefix() + selectedNodeEvent + "(tree, e)";
+				selectedNodeEvent = "defaultname." + prefix + selectedNodeEvent + "(tree, e)";
 			}
 			String dblselectedNodeEvent = (String)this.getAttribute("dblselectedNode");
 			String deleteNodeEvent = (String)this.getAttribute("deleteNode");
@@ -79,7 +73,7 @@ public class HTMLWebTreeType extends HTMLWidgetType {
 				if ((overrided != null) && (overrided.length() > 0))
 					addNodeEvent = getReconfigurateFunction(overrided);
 				else {
-					addNodeEvent = "defaultname." + getPrefix() + addNodeEvent + "(tree, e)";
+					addNodeEvent = "defaultname." + prefix + addNodeEvent + "(tree, e)";
 				}
 			}
 			String refreshNodeEvent = (String)this.getAttribute("refreshNode");
@@ -89,16 +83,16 @@ public class HTMLWebTreeType extends HTMLWidgetType {
 			Boolean isopened= (Boolean)this.getAttribute("opened");
 			
 			if (actions != null && actions.size() > 0) {
-				String htmlPrefix = this.getPrefix().replace('.', '_');
-				String htmlId = this.getPrefix().replace('.', '_') + this.getUIID();
+				String htmlPrefix = prefix.replace('.', '_');
+				String htmlId = prefix.replace('.', '_') + this.getUIID();
 				String defaultBtnSet = "defaultBtnSet_" + htmlId;
 				context.generateHTML("<div class=\"ui-widget-header ui-corner-all\">");
 				if (UserContext.isMobileRequest()) {
 					context.generateHTML("<div id=\""+defaultBtnSet+"\" data-role=\"controlgroup\" data-type=\"horizontal\">");
 					for (UITableActionType action: actions){
 						context.generateHTML("<a href=\"javascript:defaultname.");
-						context.generateHTML(this.getPrefix() + action.getFunction());
-						context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\" class=\"ui-btn ui-corner-all\">");
+						context.generateHTML(prefix + action.getFunction());
+						context.generateHTML("('" + prefix + this.getUIID() + "');\" class=\"ui-btn ui-corner-all\">");
 						String i18nProperty = UIVariableUtil.getI18NProperty(action.getTitle());
 						context.generateHTML(i18nProperty);
 						context.generateHTML("</a>");
@@ -108,8 +102,8 @@ public class HTMLWebTreeType extends HTMLWidgetType {
 					context.generateHTML("<span style=\"display:none;\">");
 					for (UITableActionType action: actions){
 						context.generateHTML("<span event=\"javascript:defaultname.");
-						context.generateHTML(this.getPrefix() + action.getFunction());
-						context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\" title='");
+						context.generateHTML(prefix + action.getFunction());
+						context.generateHTML("('" + prefix + this.getUIID() + "');\" title='");
 						String i18nProperty = UIVariableUtil.getI18NProperty(action.getTitle());
 						context.generateHTML(i18nProperty);
 						context.generateHTML("'></span>");
@@ -117,8 +111,8 @@ public class HTMLWebTreeType extends HTMLWidgetType {
 						String btnId = htmlPrefix + action.getUiid();
 						context.generateHTML("<input type=\"radio\" name=\""+defaultBtnSet+"\" id=\""+ btnId + "\" ");
 						context.generateHTML("onclick=\"javascript:defaultname.");
-						context.generateHTML(this.getPrefix() + action.getFunction());
-						context.generateHTML("('" + this.getPrefix() + this.getUIID() + "');\" title='");
+						context.generateHTML(prefix + action.getFunction());
+						context.generateHTML("('" + prefix + this.getUIID() + "');\" title='");
 						context.generateHTML(i18nProperty);
 						context.generateHTML("' icon=\""+action.getIcon()+"\">");
 						context.generateHTML("<label for=\""+ btnId + "\">");
@@ -141,7 +135,7 @@ public class HTMLWebTreeType extends HTMLWidgetType {
 			context.generateHTML("<div style='display:none;' clickevent=\"");
 			context.generateHTML(selectedNodeEvent);
 			context.generateHTML("\" dblclickevent=\"defaultname.");
-			context.generateHTML(this.getPrefix() + dblselectedNodeEvent);
+			context.generateHTML(prefix + dblselectedNodeEvent);
 			context.generateHTML("(tree, e)\" ");
 			if (addNodeEvent != null) {
 		        context.generateHTML(" addnodeevent=\"");
@@ -152,7 +146,7 @@ public class HTMLWebTreeType extends HTMLWidgetType {
 				context.generateHTML(" deletenodeevent0=\"");
 				context.generateHTML(deleteNodeEvent);
 				context.generateHTML("\" deletenodeevent=\"defaultname.");
-				context.generateHTML(this.getPrefix() + deleteNodeEvent);
+				context.generateHTML(prefix + deleteNodeEvent);
 				context.generateHTML("(tree, e)\"");
 			}
 			if (refreshNodeEvent != null) {
@@ -160,7 +154,7 @@ public class HTMLWebTreeType extends HTMLWidgetType {
 				context.generateHTML(refreshNodeEvent);
 				//TODO: add more actions
 				context.generateHTML("\" refreshnodeevent=\"defaultname.");
-				context.generateHTML(this.getPrefix() + refreshNodeEvent);
+				context.generateHTML(prefix + refreshNodeEvent);
 				context.generateHTML("(tree, e)\"");
 			}
 			context.generateHTML(">");
@@ -181,7 +175,6 @@ public class HTMLWebTreeType extends HTMLWidgetType {
         tree.setUIEntityName(getUIEntityName());
 
         tree.setListened(true);
-        tree.setFrameInfo(getFrameInfo());
 
         List result = (List)this.getAttribute("initValue");
         Object lastObject = result.get(result.size()-1);

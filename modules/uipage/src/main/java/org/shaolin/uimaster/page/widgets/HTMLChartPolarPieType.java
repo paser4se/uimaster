@@ -22,26 +22,19 @@ import java.util.Set;
 
 import org.shaolin.bmdp.datamodel.page.UITableColumnType;
 import org.shaolin.uimaster.page.DisposableBfString;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 
 public class HTMLChartPolarPieType extends HTMLChartSuper {
 	private static final long serialVersionUID = -5232602952223828765L;
 
-	public HTMLChartPolarPieType() {
-	}
-
-	public HTMLChartPolarPieType(HTMLSnapshotContext context) {
-		super(context);
-	}
-
-	public HTMLChartPolarPieType(HTMLSnapshotContext context, String id) {
-		super(context, id);
+	public HTMLChartPolarPieType(String id) {
+		super(id);
 	}
 
 	@Override
 	public void generateData(List<UITableColumnType> columns,
-			HTMLSnapshotContext context, int depth) throws Exception {
+			UserRequestContext context, int depth) throws Exception {
 		Map<String, String> cssStyles = new HashMap<String, String>();
 		for (UITableColumnType col: columns) {
 			cssStyles.put(UIVariableUtil.getI18NProperty(col.getTitle()), col.getCssStype());

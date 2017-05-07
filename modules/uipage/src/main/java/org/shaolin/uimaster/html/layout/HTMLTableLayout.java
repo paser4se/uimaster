@@ -1,41 +1,35 @@
 package org.shaolin.uimaster.html.layout;
 
-import java.util.Map;
-
-import javax.servlet.jsp.JspException;
-
 import org.shaolin.bmdp.datamodel.page.UIContainerType;
-import org.shaolin.javacc.context.OOEEContext;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.cache.UIFormObject;
-import org.shaolin.uimaster.page.javacc.VariableEvaluator;
+import org.shaolin.uimaster.page.exception.UIPageException;
 import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 
 public class HTMLTableLayout extends HTMLLayout
 {
-    public HTMLTableLayout(UIContainerType container, UIFormObject entity, OOEEContext parsingContext)
+    public HTMLTableLayout(UIContainerType container, UIFormObject entity)
     {
-        super(entity, parsingContext);
+        super(entity);
         
-        init(container, null, true);
+        init(container, null);
     }
     
-    public HTMLTableLayout(UIContainerType container, UIFormObject entity, String cellUIStyle, OOEEContext parsingContext)
+    public HTMLTableLayout(UIContainerType container, UIFormObject entity, String cellUIStyle)
     {
-        super(entity, parsingContext);
+        super(entity);
         
-        init(container, cellUIStyle, true);
+        init(container, cellUIStyle);
     }
     
-    public void generateHTML(HTMLSnapshotContext context, int depth, Boolean readOnly, 
-            Map appendMap, VariableEvaluator ee, IUISkin uiskinObj,
-            HTMLWidgetType parentComponent, String rowUIStyle) throws JspException
+    public void generateHTML(UserRequestContext context, int depth, Boolean readOnly, 
+            IUISkin uiskinObj, HTMLWidgetType parentComponent, String rowUIStyle) throws UIPageException
     {
         for ( int i = 0, n = layoutComstraintList.size(); i < n; i++ )
         {
             AbstractHTMLLayout layout = (AbstractHTMLLayout)layoutComstraintList.get(i);
-            layout.generate(context, depth, readOnly, appendMap, ee, uiskinObj, parentComponent, rowUIStyle);
+            layout.generate(context, depth, readOnly, uiskinObj, parentComponent, rowUIStyle);
         }
         if ( layoutComstraintList.size() != 0 )
         {

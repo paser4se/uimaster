@@ -5,34 +5,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.jsp.JspException;
-
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.TableLayoutConstraintType;
-import org.shaolin.javacc.Expression;
-import org.shaolin.javacc.ExpressionParser;
-import org.shaolin.javacc.context.DefaultEvaluationContext;
-import org.shaolin.javacc.context.OOEEContext;
-import org.shaolin.javacc.context.ParsingContext;
-import org.shaolin.javacc.exception.EvaluationException;
-import org.shaolin.javacc.exception.ParsingException;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
-import org.shaolin.uimaster.page.ajax.Button;
-import org.shaolin.uimaster.page.ajax.Widget;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.exception.UIComponentNotFoundException;
-import org.shaolin.uimaster.page.javacc.VariableEvaluator;
-import org.shaolin.uimaster.page.od.ODContext;
-import org.shaolin.uimaster.page.widgets.HTMLButtonType;
+import org.shaolin.uimaster.page.exception.UIPageException;
 import org.shaolin.uimaster.page.widgets.HTMLCellLayoutType;
 import org.shaolin.uimaster.page.widgets.HTMLLayoutType;
 import org.shaolin.uimaster.page.widgets.HTMLReferenceEntityType;
-import org.shaolin.uimaster.page.widgets.HTMLTableType;
 import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * HTML Layout is not sharable for all users. Each user has it's owned layouts. 
+ * 
+ * @author wushaol
+ *
+ */
 public class HTMLComponentLayout extends AbstractHTMLLayout
 {
     private static Logger logger = LoggerFactory.getLogger(HTMLComponentLayout.class);
@@ -43,30 +35,19 @@ public class HTMLComponentLayout extends AbstractHTMLLayout
     
     protected String UIID = null;
     
-    private Map<String, String> attributeMap;
+    private Map<String, Object> attributeMap;
     
     protected List componentList;
 
-    protected Map propMap;
-    
-    protected Map eventMap;
-    
-    protected Map i18nMap;
-    
     protected Map<String, ExpressionType> expMap;
     
     private boolean isContainer = false;
-    
-    protected Expression visible;
     
     public HTMLComponentLayout(String UIID, UIFormObject entity)
     {
         super(entity);
         String tempId = (UIID.lastIndexOf('.') != -1)? UIID.substring(UIID.lastIndexOf('.')+1): UIID;
         this.UIID = tempId;
-        propMap = ownerEntity.getComponentProperty(tempId);
-        eventMap = ownerEntity.getComponentEvent(tempId);
-        i18nMap = ownerEntity.getComponentI18N(tempId);
         expMap = ownerEntity.getComponentExpression(tempId);
     }
     
@@ -85,9 +66,9 @@ public class HTMLComponentLayout extends AbstractHTMLLayout
      * to corresponding attribute.
      *
      */
-    public void setConstraints(TableLayoutConstraintType constraint,  ParsingContext parsingContext)
+    public void setConstraints(TableLayoutConstraintType constraint)
     {
-        attributeMap = new HashMap();
+        attributeMap = new HashMap<String, Object>();
         
         this.cellX = constraint.getX();
         this.cellY = constraint.getY();
@@ -140,17 +121,6 @@ public class HTMLComponentLayout extends AbstractHTMLLayout
         {
             attributeMap.put("bgColor", bgColor);
         }
-        
-        try
-        {
-    		String visibleStr = constraint.getVisible();
-    		visible = ExpressionParser.parse(visibleStr, parsingContext);
-        }
-        catch (ParsingException e)
-        {
-            logger.error("<---HTMLComponentLayout.generate--->Exception occured when pass the expression for the attribute:", e);
-        }
-        
     }
 
     public void addComponent(HTMLComponentLayout component)
@@ -194,40 +164,32 @@ public class HTMLComponentLayout extends AbstractHTMLLayout
         attributeMap.put(name, value);
     }
     
-    public void generate(HTMLSnapshotContext context, int depth, Boolean readOnly, 
-            Map appendMap, VariableEvaluator ee, IUISkin uiskinObj, 
-            HTMLWidgetType parentComponent, String rowUIStyle) throws JspException
+    public void generate(UserRequestContext context, int depth, Boolean readOnly, 
+            IUISkin uiskinObj, HTMLWidgetType parentComponent, String rowUIStyle) throws UIPageException
     {
-        HTMLLayoutType layout = HTMLUtil.getHTMLLayoutType("CellLayoutType");
-        ((HTMLCellLayoutType)layout).setContainer(container);
-        ((HTMLCellLayoutType)layout).setIsContainer(isContainer);
+    	HTMLCellLayoutType layout = (HTMLCellLayoutType)HTMLUtil.getHTMLLayoutType("", "CellLayoutType");
+        layout.setContainer(container);
+        layout.setIsContainer(isContainer);
 
-		try {
-			String tempVisible = ee.evaluateExpression(visible).toString();
-			layout.addAttribute("visible", tempVisible);
-		} catch (EvaluationException e) {
-			throw new JspException(e);
-		}
-        
-        layout.setContext(context);
         layout.setParentComponent(parentComponent);
         layout.setTableColumnCount(colCount);
         layout.setTableRowCount(rowCount);
-        layout.addAttribute("x", String.valueOf(cellX));
-        layout.addAttribute("y", String.valueOf(cellY));
-        if ( colWidth != null )
+        
+        attributeMap.put("x", String.valueOf(cellX));
+        attributeMap.put("y", String.valueOf(cellY));
+        if (colWidth != null)
         {
-            layout.addAttribute("width", colWidth);
+        	attributeMap.put("width", colWidth);
         }
-        if ( rowHeight != null )
+        if (rowHeight != null)
         {
-            layout.addAttribute("height", rowHeight);
+        	attributeMap.put("height", rowHeight);
         }
-        layout.addAttribute(attributeMap);
-        if ( uiskinObj != null )
+        if (uiskinObj != null)
         {
-            layout.addAttribute(uiskinObj.getAttributeMap(layout));
+        	attributeMap.putAll(uiskinObj.getAttributeMap(layout));
         }
+        layout.setAttribute(attributeMap);
         
         //TODO:
 //        String compId = context.getHTMLPrefix() + UIID;
@@ -253,7 +215,7 @@ public class HTMLComponentLayout extends AbstractHTMLLayout
         HTMLUtil.generateTab(context, depth);
         layout.generateBeginHTML(context, this.ownerEntity, depth);
         
-        generateComponentHTML(context, depth + 1, readOnly, appendMap, ee, layout);
+        generateComponentHTML(context, depth + 1, readOnly, layout);
         
         HTMLUtil.generateTab(context, depth);
         layout.generateEndHTML(context, this.ownerEntity, depth);
@@ -265,118 +227,72 @@ public class HTMLComponentLayout extends AbstractHTMLLayout
 //        }
     }
     
-    public void generateComponentHTML(HTMLSnapshotContext context, int depth, Boolean readOnly, 
-            Map appendMap, VariableEvaluator ee, HTMLLayoutType htmlLayout) throws JspException
+    public void generateComponentHTML(UserRequestContext context, int depth,
+    		 Boolean readOnly, HTMLLayoutType htmlLayout) throws UIPageException
     {
     	HTMLUtil.generateTab(context, depth);
-        HTMLWidgetType htmlComponent;
-		try {
-			htmlComponent = context.getHtmlWidget(context.getHTMLPrefix() + UIID);
-		} catch (UIComponentNotFoundException e1) {
-			throw new JspException(e1.getMessage(), e1);
-		}
     	
-        Map tempValuesMap = null;
-        try {
-        	if (htmlComponent.getClass() == HTMLTableType.class) {
-        		if (ee.getExpressionContext() instanceof OOEEContext) {
-        		((OOEEContext)ee.getExpressionContext()).getEvaluationContextObject(ODContext.LOCAL_TAG)
-        			.setVariableValue("tableCondition", null);
-        		} else if (ee.getExpressionContext() instanceof DefaultEvaluationContext) {
-        			((DefaultEvaluationContext)ee.getExpressionContext())
-        			.setVariableValue("tableCondition", null);
-        		}
-        	} 
-			tempValuesMap = HTMLUtil.evaluateExpression(propMap, expMap, tempValuesMap, ee);
-		} catch (EvaluationException e1) {
-			logger.warn("Failed to evaluate expressions in UI widget: " + context.getHTMLPrefix() + UIID);
-			throw new JspException(e1);
-		}
-        tempValuesMap = HTMLUtil.internationalization(propMap, i18nMap, tempValuesMap, context);
-        tempValuesMap = HTMLUtil.merge(tempValuesMap, (Map)appendMap.get(UIID));
-        String selfReadOnly = (String)propMap.get("readOnly");
+        Object selfReadOnly = context.getAttribute(this.getUIID(), "readOnly");
         Boolean realReadOnly = null;
 		if (selfReadOnly == null || selfReadOnly.equals("parent")) {
 			realReadOnly = readOnly;
 		} else if (selfReadOnly.equals("self")) {
 			realReadOnly = null;
 		} else {
-			realReadOnly = Boolean.valueOf(selfReadOnly);
+			realReadOnly = Boolean.parseBoolean(selfReadOnly.toString());
 		}
-        if ( logger.isTraceEnabled() )
-        {
+        if ( logger.isTraceEnabled() ) {
         	String flag = (realReadOnly == null ? "null" : realReadOnly.toString());
         	if (flag.equals("true")) {
 	            logger.trace("The readOnly value for component: {} in the uientity: {} is true",
 	                    new Object[] {UIID, ownerEntity.getName()});
         	}
         }
-        
-        htmlComponent.setContext(context);
-        htmlComponent.setId(UIID);
-        if (tempValuesMap != null && tempValuesMap.containsKey("readOnly")) {
-        	htmlComponent.setReadOnly((Boolean)tempValuesMap.get("readOnly"));
-        } else {
-        	htmlComponent.setReadOnly(readOnly);
+        HTMLWidgetType htmlComponent = context.getHtmlWidget(context.getHTMLPrefix() + UIID);
+        if (htmlComponent == null) {
+        	throw new UIComponentNotFoundException(context.getHTMLPrefix() + UIID);
         }
-        htmlComponent.setPrefix(context.getHTMLPrefix());
         htmlComponent.setHTMLLayout(htmlLayout);
-        htmlComponent.addAttribute(propMap);
-        htmlComponent.addAttribute(tempValuesMap);
-        htmlComponent.addEventListener(eventMap);
-        htmlComponent.setFrameInfo(context.getFrameInfo());
+        htmlComponent.setReadOnly(realReadOnly);
         
         if (htmlComponent.getClass() == HTMLReferenceEntityType.class) {
-            ((HTMLReferenceEntityType)htmlComponent).setDepth(depth);
             ((HTMLReferenceEntityType)htmlComponent).setReconfiguration(
-                    ownerEntity.getReconfigurationMap(UIID, ee), propMap, tempValuesMap);
+                    ownerEntity.getReconfigurationMap(UIID), null, null);
         }
-        IUISkin uiskinObj = ownerEntity.getUISkinObj(UIID, ee, htmlComponent);
-        if ( uiskinObj != null ) {
-            htmlComponent.addAttribute(uiskinObj.getAttributeMap(htmlComponent));
-            htmlComponent.preIncludePage(context);
+        IUISkin uiskinObj = htmlComponent.getUISkin();
+        if (uiskinObj != null) {
 			try {
 				uiskinObj.generatePreCode(htmlComponent);
 			} catch (Exception e) {
 				logger.error("uiskin error: ", e);
 			}
-        } else {
-            htmlComponent.preIncludePage(context);
-        }
+        } 
         
-        Widget newWidget = htmlComponent.createAjaxWidget(ee);
-        if ( newWidget != null ) {
-            context.addAjaxWidget(newWidget.getId(), newWidget);
-            if (htmlComponent.getClass() == HTMLButtonType.class) {
-            	// all express must be re-calculate when click button in every time.
-        		((Button)newWidget).setExpressMap(expMap);
-        	}
-        }
+//        Widget newWidget = htmlComponent.createAjaxWidget(ee);
+//        if ( newWidget != null ) {
+//            context.addAjaxWidget(newWidget.getId(), newWidget);
+//            if (htmlComponent.getClass() == HTMLButtonType.class) {
+//            	// all express must be re-calculate when click button in every time.
+//        		((Button)newWidget).setExpressMap(expMap);
+//        	}
+//        }
         
-        if ( uiskinObj == null || !uiskinObj.isOverwrite() ) {
-            htmlComponent.generateBeginHTML(context, this.ownerEntity, depth);
+		if (uiskinObj != null) {
+			try {
+				uiskinObj.generatePostCode(htmlComponent);
+			} catch (Exception e) {
+				logger.error("uiskin error: ", e);
+			}
+		} else {
+			htmlComponent.generateBeginHTML(context, this.ownerEntity, depth);
             htmlComponent.generateEndHTML(context, this.ownerEntity, depth);
-        }
-
-        if ( uiskinObj != null )
-        {
-            try
-            {
-                uiskinObj.generatePostCode(htmlComponent);
-            }
-            catch (Exception e)
-            {
-                logger.error("uiskin error: ", e);
-            }
-        }
-        htmlComponent.postIncludePage(context);
-        
+		}
         if ( componentList != null )
         {
             for ( int i = 0, n = componentList.size(); i < n; i++ )
             {
                 HTMLComponentLayout component=(HTMLComponentLayout)componentList.get(i);                
-                component.generateComponentHTML(context, depth, realReadOnly, appendMap, ee, htmlLayout);
+                component.generateComponentHTML(context, depth, realReadOnly, htmlLayout);
             }
         }
     }

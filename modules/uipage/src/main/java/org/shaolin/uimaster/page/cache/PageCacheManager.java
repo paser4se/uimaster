@@ -29,7 +29,7 @@ import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.OpExecuteContext;
-import org.shaolin.uimaster.page.ajax.Widget;
+import org.shaolin.uimaster.page.exception.UIPageException;
 
 /**
  * The ui entities shared for the whole system, which can be multiple applications running.
@@ -132,7 +132,7 @@ public class PageCacheManager {
 		return odEntityObject;
 	}
 	
-	public static UIPageObject getUIPageObject(String pageName) throws EntityNotFoundException {
+	public static UIPageObject getUIPageObject(String pageName) throws EntityNotFoundException, UIPageException {
 		UIPageObject pageObject = uipageCache.get(pageName);
 		if (pageObject == null) {
 			pageObject = new UIPageObject(pageName);
@@ -142,7 +142,7 @@ public class PageCacheManager {
 		return pageObject;
 	}
 	
-	public static UIFormObject getUIFormObject(String entityName) throws EntityNotFoundException {
+	public static UIFormObject getUIFormObject(String entityName) throws EntityNotFoundException, UIPageException {
 		UIFormObject formObject = uiformCache.get(entityName);
 		if (formObject == null) {
 			formObject = new UIFormObject(entityName);

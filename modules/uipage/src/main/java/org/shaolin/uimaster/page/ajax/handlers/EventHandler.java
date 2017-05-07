@@ -27,7 +27,6 @@ import org.shaolin.bmdp.datamodel.page.OpType;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.spi.EventProcessor;
 import org.shaolin.bmdp.runtime.spi.FlowEvent;
-import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.ajax.Button;
 import org.shaolin.uimaster.page.ajax.Dialog;

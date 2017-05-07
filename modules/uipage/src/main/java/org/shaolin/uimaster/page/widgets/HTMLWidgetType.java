@@ -18,7 +18,7 @@ package org.shaolin.uimaster.page.widgets;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -27,86 +27,63 @@ import org.shaolin.bmdp.datamodel.page.StringPropertyType;
 import org.shaolin.bmdp.datamodel.page.ValidatorPropertyType;
 import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.i18n.ResourceUtil;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.html.layout.IUISkin;
 import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
+import org.shaolin.uimaster.page.exception.AttributeSetAlreadyException;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The top of all HTML widgets. 
+ * 
+ * Be aware of these HTML* classes are the static structure which shared for all user requests. 
+ * Each user requested data stores in {@link UserRequestContext} only.
+ * 
+ * @author wushaol
+ *
+ */
 public abstract class HTMLWidgetType implements Serializable
 {
     private static final Logger logger = LoggerFactory.getLogger(HTMLWidgetType.class);
     private static final long serialVersionUID = -6119707922874957783L;
     
-    private String id;
-    private String prefix = "";
-    private String name;
-    private String frameInfo;
-    private Boolean readOnly;
-    private Map<String, Object> attributeMap;
-    private Map<String, String> styleMap;
-    private Map eventListenerMap;
-    private HTMLLayoutType htmlLayout;
-    protected HTMLSnapshotContext context;
+    private String entityName;
+    private final String id;
+    // defined static maps.
+    Map<String, Object> attributeMap;
+    Map<String, Object> eventListenerMap;
+    
+    // defined static UISkin.
+    private IUISkin uiskinObj;
 
-    public HTMLWidgetType()
-    {
-    }
-
-    public HTMLWidgetType(HTMLSnapshotContext context)
-    {
-        this.setContext(context);
-        this.setFrameInfo(context.getFrameInfo());
-    }
-
-    public HTMLWidgetType(HTMLSnapshotContext context, String id)
-    {
-        this.setContext(context);
-        this.setId(id);
-        this.setFrameInfo(context.getFrameInfo());
+	public HTMLWidgetType(final String id) {
+    	this.id = id;
     }
 
     public void reset()
     {
-        this.id = null;
-        this.prefix = "";
-        this.name = null;
-        this.readOnly = null;
         this.attributeMap = null;
-        this.styleMap = null;
         this.eventListenerMap = null;
-        this.context = null;
-        this.htmlLayout = null;
     }
 
-    public void setId(String id)
-    {
-        this.id = id;
+    public void setUIEntityName(String entityName) {
+    	this.entityName = entityName;
     }
-
-    public void setPrefix(String prefix)
-    {
-        this.prefix = prefix;
+    
+    public String getUIEntityName() {
+    	return this.entityName;
     }
-
-    public void setReadOnly(Boolean readOnly)
-    {
-        this.readOnly = readOnly;
-    }
-
+    
     public String getId()
     {
         return id;
     }
 
-    public String getPrefix()
-    {
-        return prefix;
-    }
-    
     public String getName()
     {
         return getName(true);
@@ -114,199 +91,149 @@ public abstract class HTMLWidgetType implements Serializable
     
     public String getName(boolean withSuffix)
     {
-        if (id == null)
+        String name = id;
+        UserRequestContext context = UserRequestContext.UserContext.get();
+        if (context != null && context.getHTMLPrefix() != null && context.getHTMLPrefix().length() > 0)
         {
-            return null;
-        }
-        if (name != null)
-        {
-            return name;
-        }
-        name = id;
-        if (prefix != null && prefix.length() > 0)
-        {
-        	name = prefix + id;
+        	name = UserRequestContext.UserContext.get().getHTMLPrefix() + id;
         }
         return name;
     }
 
-    public String getFrameInfo() {
-        return frameInfo;
-    }
+    public IUISkin getUISkin() {
+		return uiskinObj;
+	}
 
-    public void setFrameInfo(String frameInfo) {
-        this.frameInfo = frameInfo;
-    }
-
-    public String getUIEntityName()
+	public void setUISkin(IUISkin uiskinObj) {
+		this.uiskinObj = uiskinObj;
+	}
+    
+    /**
+     * this is static attributes sharing for all users.
+     * 
+     * @param attributeMap
+     * @throws AttributeSetAlreadyException
+     */
+    public void setAttribute(Map<String, Object> attributeMap) throws AttributeSetAlreadyException
     {
-        return context.getFormName();
-    }
-
-    public boolean getIsDataToUI()
-    {
-        return context.getIsDataToUI();
-    }
-
-    public void addAttribute(Map attributeMap)
-    {
-        if (attributeMap == null)
-        {
+        if (attributeMap == null){
             return;
         }
-        if (this.attributeMap == null)
+        if (this.attributeMap != null)
         {
-            this.attributeMap = new HashMap();
+        	throw new AttributeSetAlreadyException("");
         }
-        this.attributeMap.putAll(attributeMap);
-        this.attributeMap.remove("readOnly");
+        attributeMap.remove("readOnly");//useless in here.
+        this.attributeMap = Collections.unmodifiableMap(attributeMap);
     }
 
+    /**
+     * Add dynamic attribute for current user.
+     * 
+     * @param name
+     * @param value
+     */
     public void addAttribute(String name, Object value)
     {
-        if (attributeMap == null)
-        {
-            attributeMap = new HashMap<String, Object>();
-        }
-
         int endIndex = name.indexOf("[");
         if (endIndex > -1)
         {
             name = name.substring(0, endIndex);
-            Object valueList = attributeMap.get(name);
-            if (valueList != null)
-            {
-                if (valueList instanceof List)
-                {
-                    ((List) valueList).add(value);
-                }
-                else
-                {
-                    logger.error(getName() + "'s " + name + " is not list attribute");
-                }
-            }
-            else
-            {
+            Object valueList = UserRequestContext.UserContext.get().getAttribute(this.getName()).get(name);
+			if (valueList != null) {
+				if (valueList instanceof List) {
+					((List) valueList).add(value);
+				} else {
+					logger.error(getName() + "'s " + name + " is not list attribute");
+				}
+			} else {
                 valueList = new ArrayList();
                 ((List) valueList).add(value);
-                attributeMap.put(name, valueList);
+                UserRequestContext.UserContext.get().addAttribute(this.getName(), name, valueList);
             }
         }
         else
         {
-            attributeMap.put(name, value);
+        	UserRequestContext.UserContext.get().addAttribute(this.getName(), name, value);
         }
     }
 
-    public boolean needAjaxSupport() {
+    public void setEventListener(Map<String, Object> eventMap) throws AttributeSetAlreadyException
+	{
+		if (eventMap == null) {
+			return;
+		}
+		if (eventListenerMap != null) {
+			throw new AttributeSetAlreadyException("");
+		}
+	    eventListenerMap = Collections.unmodifiableMap(eventMap);
+	}
+
+	public String getEventListener(String name)
+	{
+	    return eventListenerMap == null ? null : (String) eventListenerMap.get(name);
+	}
+
+	public boolean needAjaxSupport() {
     	return (attributeMap == null) ? false : attributeMap.containsKey("needAjaxSupport");
     }
     
     public Object getAttribute(String name)
     {
+    	Object v = null;
+    	String uiid = this.getName();
+		if (UserRequestContext.UserContext.get().hasAttribute(uiid)) {
+    		v = UserRequestContext.UserContext.get().getAttribute(uiid).get(name);
+    	}
+    	if (v != null) {
+    		return v;
+    	}
         return attributeMap == null ? null : attributeMap.get(name);
     }
-
-    public Map getAttributeMap()
-    {
-        return attributeMap;
-    }
-
+    
     public Object removeAttribute(String name)
     {
-        return attributeMap == null ? null : attributeMap.remove(name);
+    	String uiid = this.getName();
+    	if (UserRequestContext.UserContext.get().hasAttribute(uiid)) {
+    		Object v = UserRequestContext.UserContext.get().getAttribute(uiid).remove(name);
+    		if (v != null) {
+    			return v;
+    		}
+    	}
+    	// we must not remove the static attribute instead getting only.
+    	return attributeMap == null ? null : attributeMap.get(name);
     }
 
     public boolean containsAttribute(String name)
     {
-        return attributeMap == null ? false : attributeMap.containsKey(name);
-    }
-
-    public void setHTMLAttribute(String name, Object value)
-    {
-        context.addHTMLAttribute(getName(), name, value);
-    }
-
-    public Object getHTMLAttribute(String name)
-    {
-        return context.getHTMLAttribute(getName(), name);
-    }
-
-    public Object getAllAttribute(String name)
-    {
-        Object o =  getHTMLAttribute(name);
-        return o == null ? getAttribute(name) : o;
-    }
-
-    /**
-     * @deprecated
-     * @return
-     */
-    public String getHTMLValue()
-    {
-        if(logger.isInfoEnabled())
-            logger.info("**************************getHTMLValue: "+getName());
-        return context.getRequest().getParameter(getName());
-    }
-
-    /**
-     * @deprecated
-     * @return
-     */
-    public String[] getHTMLValues()
-    {
-        if(logger.isInfoEnabled())
-            logger.info("**************************getHTMLValues: "+getName());
-        return context.getRequest().getParameterValues(getName());
+    	String uiid = this.getName();
+		if (UserRequestContext.UserContext.get().hasAttribute(uiid)) {
+			return true;
+		}
+    	return attributeMap == null ? false : attributeMap.containsKey(name);
     }
 
     public void addStyle(String name, String value)
     {
-        if (styleMap == null)
-        {
-            styleMap = new HashMap();
-        }
-        styleMap.put(name, value);
+    	UserRequestContext.UserContext.get().addStyle(getName(), name, value);
     }
 
     public String getStyle(String name)
     {
-        return styleMap == null ? null : (String) styleMap.get(name);
+    	String v = null;
+    	String uiid = this.getName();
+		if (UserRequestContext.UserContext.get().hasAttribute(uiid)) {
+    		v = UserRequestContext.UserContext.get().getStyle(uiid, name);
+    	}
+		return v;
     }
 
-    public void addEventListener(Map eventMap)
+    public void setAJAXAttributes(UserRequestContext context, Widget widget)
     {
-        if (eventMap == null)
+        Map<String, Object> odMappingAttrs = context.getAttribute(getName());
+        if (odMappingAttrs != null && !odMappingAttrs.isEmpty())
         {
-            return;
-        }
-        if (eventListenerMap == null)
-        {
-            eventListenerMap = new HashMap();
-        }
-        eventListenerMap.putAll(eventMap);
-    }
-
-    public void addEventListener(String event, String handler)
-    {
-        if (eventListenerMap == null)
-        {
-            eventListenerMap = new HashMap();
-        }
-        eventListenerMap.put(event, handler);
-    }
-
-    public String removeEventListenter(String event)
-    {
-        return eventListenerMap == null ? null : (String) eventListenerMap.remove(event);
-    }
-    
-    public void setAJAXAttributes(Widget widget)
-    {
-        Map odAttributeMap = context.getHTMLAttributeMap(getName());
-        if (odAttributeMap != null && !odAttributeMap.isEmpty())
-        {
-            for (Iterator it = odAttributeMap.entrySet().iterator(); it.hasNext();)
+            for (Iterator it = odMappingAttrs.entrySet().iterator(); it.hasNext();)
             {
                 Map.Entry entry = (Map.Entry)it.next();
                 String attributeName = (String)entry.getKey();;
@@ -317,24 +244,24 @@ public abstract class HTMLWidgetType implements Serializable
 
         if (attributeMap != null && !attributeMap.isEmpty())
         {
-            if (odAttributeMap == null || !odAttributeMap.containsKey("viewPermission"))
+            if (odMappingAttrs == null || !odMappingAttrs.containsKey("viewPermission"))
             {
-            	Object attributeValue = attributeMap.get("viewPermission");
+            	Object attributeValue = getAttribute("viewPermission");
                 setAJAXAttribute("viewPermission", attributeValue, widget);
             }
-            if (odAttributeMap == null || !odAttributeMap.containsKey("editPermission"))
+            if (odMappingAttrs == null || !odMappingAttrs.containsKey("editPermission"))
             {
-            	Object attributeValue = attributeMap.get("editPermission");
+            	Object attributeValue = getAttribute("editPermission");
                 setAJAXAttribute("editPermission", attributeValue, widget);
             }
-            if (odAttributeMap == null || !odAttributeMap.containsKey("visible"))
+            if (odMappingAttrs == null || !odMappingAttrs.containsKey("visible"))
             {
-            	Object attributeValue = attributeMap.get("visible");
+            	Object attributeValue = getAttribute("visible");
                 setAJAXAttribute("visible", attributeValue, widget);
             }
-            if (odAttributeMap == null || !odAttributeMap.containsKey("editable"))
+            if (odMappingAttrs == null || !odMappingAttrs.containsKey("editable"))
             {
-            	Object attributeValue = attributeMap.get("editable");
+            	Object attributeValue = getAttribute("editable");
                 setAJAXAttribute("editable", attributeValue, widget);
             }
         }
@@ -382,17 +309,12 @@ public abstract class HTMLWidgetType implements Serializable
 
     protected void setAJAXConstraints(Widget widget)
     {
-		if (attributeMap == null) {
-			attributeMap = new HashMap<String, Object>();
-			return;
-		}
-		
-        Object init = attributeMap.get("initValidation");
+        Object init = getAttribute("initValidation");
         if (init != null)
         {
             widget.addConstraint("initValidation", init, null);
         }
-        Object value = attributeMap.get("validator");
+        Object value = getAttribute("validator");
         if (value != null)
         {
             ValidatorPropertyType validator = (ValidatorPropertyType)value;
@@ -415,38 +337,38 @@ public abstract class HTMLWidgetType implements Serializable
             widget.addCustomValidator(validator.getFuncCode(), parameters, message);
         }
         
-        if (attributeMap.containsKey("allowBlank")) {
+        if (containsAttribute("allowBlank")) {
 	        widget.addConstraint("allowBlank", 
-	        		attributeMap.get("allowBlank"), 
-	        		(String)attributeMap.get("allowBlankText"));
+	        		getAttribute("allowBlank"), 
+	        		(String)getAttribute("allowBlankText"));
         }
 		if (this instanceof HTMLTextWidgetType) {
 			widget.addConstraint("minLength", 
-					attributeMap.get("minLength"), 
-					(String)attributeMap.get("lengthText"));
+					getAttribute("minLength"), 
+					(String)getAttribute("lengthText"));
 			widget.addConstraint("regex", 
-					attributeMap.get("regex"), 
-					(String)attributeMap.get("regexText"));
+					getAttribute("regex"), 
+					(String)getAttribute("regexText"));
 			if (this instanceof HTMLTextAreaType) {
 				widget.addConstraint("maxLength", 
-						attributeMap.get("maxLength"), 
-						(String)attributeMap.get("lengthText"));
+						getAttribute("maxLength"), 
+						(String)getAttribute("lengthText"));
 			}
 		} else if (this instanceof HTMLChoiceType) {
 			if (this instanceof HTMLSingleChoiceType) {
 				widget.addConstraint("selectedValueConstraint", 
-						attributeMap.get("selectedValueConstraint"), 
-						(String)attributeMap.get("selectedValueConstraintText"));
+						getAttribute("selectedValueConstraint"), 
+						(String)getAttribute("selectedValueConstraintText"));
 			} else if (this instanceof HTMLMultiChoiceType) {
 				widget.addConstraint("selectedValuesConstraint", 
-						(Object[])attributeMap.get("selectedValuesConstraint"), 
-						(String)attributeMap.get("selectedValuesConstraintText"));
+						(Object[])getAttribute("selectedValuesConstraint"), 
+						(String)getAttribute("selectedValuesConstraintText"));
 			}
 		} else if (this instanceof HTMLSelectComponentType) {
 			if (this instanceof HTMLCheckBoxType) {
 				widget.addConstraint("mustCheck", 
-						attributeMap.get("mustCheck"), 
-						(String)attributeMap.get("mustCheckText"));
+						getAttribute("mustCheck"), 
+						(String)getAttribute("mustCheckText"));
 			}
 		}
     }
@@ -458,8 +380,9 @@ public abstract class HTMLWidgetType implements Serializable
     
     public String getReconfigurateFunction(final String handler, boolean needParameter)
     {
+    	UserRequestContext context = UserRequestContext.UserContext.get();
     	String aHandler = handler;
-        String functionPrefix = prefix;
+        String functionPrefix = context.getHTMLPrefix();
         String reconfiguration = context.getReconfigFunction(functionPrefix, aHandler);
         while (reconfiguration != null)
         {
@@ -489,78 +412,81 @@ public abstract class HTMLWidgetType implements Serializable
         }
     }
 
-    public String getEventListener(String name)
-    {
-        return eventListenerMap == null ? null : (String) eventListenerMap.get(name);
-    }
-
     public HTMLLayoutType getHTMLLayout()
     {
-        return htmlLayout;
+        return (HTMLLayoutType)UserRequestContext.UserContext.get().getAttribute(this.getName(), "layout");
     }
 
-    public void setHTMLLayout(HTMLLayoutType htmlLayout)
+    public void setHTMLLayout(final HTMLLayoutType htmlLayout)
     {
-        this.htmlLayout = htmlLayout;
+    	UserRequestContext.UserContext.get().addAttribute(this.getName(), "layout", htmlLayout);
     }
 
-    public abstract void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth);
+    public abstract void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth);
 
-    public abstract void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth);
+    public abstract void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth);
 
-    public void generateAttributes(HTMLSnapshotContext context) throws IOException
+    public void generateAttributes(UserRequestContext context) throws IOException
     {
-        // gen attribute
-        Map odAttributeMap = context.getHTMLAttributeMap(getName());
-        if (odAttributeMap != null && !odAttributeMap.isEmpty())
+    	if (attributeMap != null && !attributeMap.isEmpty())
         {
-            for (Iterator it = odAttributeMap.keySet().iterator(); it.hasNext(); )
+	    	String type = (String)attributeMap.get("type");
+	        if (type != null)
+	        {
+	            String defaultCssClass = "uimaster_" + type.substring(0, 1).toLowerCase() + type.substring(1, type.length()-4);
+	            if (isReadOnly() != null && isReadOnly().booleanValue())
+	            {
+	                defaultCssClass += "_readonly";
+	            }
+	            String UIStyle = (String)getAttribute("UIStyle");
+	            if (UIStyle != null && !UIStyle.trim().equals("null"))
+	            {
+	            	if (defaultCssClass.contains(UIStyle)) {
+	            		UIStyle = defaultCssClass;
+	            	} else {
+	            		UIStyle = defaultCssClass + " " + UIStyle;
+	            	}
+	                addAttribute("UIStyle", UIStyle);
+	            }
+	            else
+	            {
+	            	addAttribute("UIStyle", defaultCssClass);
+	            }
+	        }
+	    }
+    	
+        Map<String, Object> odMappingAttrs = context.getAttribute(getName());
+        if (odMappingAttrs != null && !odMappingAttrs.isEmpty())
+        {
+            for (Iterator it = odMappingAttrs.keySet().iterator(); it.hasNext(); )
             {
                 String attributeName = (String) it.next();
-                Object attributeValue = odAttributeMap.get(attributeName);
+                Object attributeValue = odMappingAttrs.get(attributeName);
                 generateAttribute(context, attributeName, attributeValue);
             }
         }
 
         if (attributeMap != null && !attributeMap.isEmpty())
         {
-            attributeMap.remove("initValidation");
-            attributeMap.remove("validator");
-            String type = (String)attributeMap.remove("type");
-            if (type != null)
-            {
-                String defaultCssClass = "uimaster_" + type.substring(0, 1).toLowerCase() + type.substring(1, type.length()-4);
-                if (isReadOnly() != null && isReadOnly().booleanValue())
-                {
-                    defaultCssClass += "_readonly";
-                }
-                String UIStyle = (String)attributeMap.get("UIStyle");
-                if (UIStyle != null && !UIStyle.trim().equals("null"))
-                {
-                    UIStyle = defaultCssClass + " " + UIStyle;
-                    attributeMap.put("UIStyle", UIStyle);
-                }
-                else
-                {
-                    attributeMap.put("UIStyle", defaultCssClass);
-                }
-            }
             for (Iterator it = attributeMap.keySet().iterator(); it.hasNext(); )
             {
                 String attributeName = (String) it.next();
-                if (odAttributeMap == null || !odAttributeMap.containsKey(attributeName))
+                if ("type".equals(attributeName)) {
+                	continue;
+                }
+                if (odMappingAttrs == null || !odMappingAttrs.containsKey(attributeName))
                 {
-                    Object attributeValue = attributeMap.get(attributeName);
+                    Object attributeValue = getAttribute(attributeName);
                     generateAttribute(context, attributeName, attributeValue);
                 }
             }
         }
 
-        // gen style attribute
-        if (styleMap != null && !styleMap.isEmpty())
+        if (context.hasStyle(this.getName()))
         {
             context.generateHTML(" style=\"");
-            for (Iterator it = styleMap.entrySet().iterator(); it.hasNext(); )
+            Iterator it = context.getStyle(this.getName()).entrySet().iterator();
+            while (it.hasNext())
             {
                 Map.Entry entry = (Map.Entry)it.next();
                 String name = (String) entry.getKey();
@@ -619,17 +545,11 @@ public abstract class HTMLWidgetType implements Serializable
         return sb.toString();
     }
 
-    public void generateEventListeners(HTMLSnapshotContext context) throws IOException
+    public void generateEventListeners(UserRequestContext context) throws IOException
     {
-        if (eventListenerMap == null)
-        {
-            return;
-        }
-        else
-        {
-            for (Iterator it = eventListenerMap.keySet().iterator();it.hasNext();)
-            {
-                String event = it.next().toString();
+		if (eventListenerMap != null) {
+            for (Iterator<String> it = eventListenerMap.keySet().iterator();it.hasNext();) {
+                String event = it.next();
                 context.generateHTML(" ");
                 context.generateHTML(event);
                 context.generateHTML("=\"");
@@ -639,18 +559,23 @@ public abstract class HTMLWidgetType implements Serializable
         }
     }
 
-    public void generateAttribute(HTMLSnapshotContext context, String attributeName, Object attributeValue) throws IOException
+    private static final List<String> SKIP_ATTRS = new ArrayList<String>();
+    static{
+	    SKIP_ATTRS.add("referenceEntity");
+	    SKIP_ATTRS.add("layout");
+	    SKIP_ATTRS.add("initValidation");
+	    SKIP_ATTRS.add("validator");
+	    SKIP_ATTRS.add("viewPermission");
+	    SKIP_ATTRS.add("editPermission");
+    }
+    public void generateAttribute(UserRequestContext context, String attributeName, Object attributeValue) throws IOException
     {
-        if("initValidation".equals(attributeName) || "validator".equals(attributeName) 
-            || "viewPermission".equals(attributeName) || "editPermission".equals(attributeName))
+        if(SKIP_ATTRS.contains(attributeName))
         {
             return;
         }
-        if(!(attributeValue instanceof String))
-        {
-        	attributeValue = attributeValue == null ? "": attributeValue.toString();
-        }
-        String attrValue = (String)attributeValue;
+        
+        String attrValue = attributeValue == null ? "": attributeValue.toString();
         if ("visible".equals(attributeName))
         {
             if ("false".equals(attrValue))
@@ -701,6 +626,10 @@ public abstract class HTMLWidgetType implements Serializable
                 context.generateHTML("\"");
             }
         }
+        else if ("readOnly".equals(attributeName) && "false".equals(attrValue))
+        {
+        	return;
+        }
         else
         {
             context.generateHTML(" ");
@@ -711,7 +640,7 @@ public abstract class HTMLWidgetType implements Serializable
         }
     }
 
-    public void addHints(HTMLSnapshotContext context) {
+    public void addHints(UserRequestContext context) {
     	if (this.getAttribute("hints") != null || this.getAttribute("hintsDesc") != null) {
     		String desc = (String)this.getAttribute("hintsDesc");
     		if (desc == null) {
@@ -721,9 +650,9 @@ public abstract class HTMLWidgetType implements Serializable
         }
     }
     
-    public void generateWidget(HTMLSnapshotContext context)
+    public void generateWidget(UserRequestContext context)
     {
-        Object visibleValue = getAllAttribute("visible");
+        Object visibleValue = getAttribute("visible");
         boolean unVisible = false;
         if ( visibleValue != null )
         {
@@ -790,16 +719,16 @@ public abstract class HTMLWidgetType implements Serializable
         }
     }
 
-    public void generateEndWidget(HTMLSnapshotContext context)
+    public void generateEndWidget(UserRequestContext context)
     {
     	addHints(context);
-    	String dlinkInfo = (String)getAllAttribute("dtargetInfo");
+    	String dlinkInfo = (String)getAttribute("dtargetInfo");
         if (dlinkInfo != null)
         {
         	int index = dlinkInfo.lastIndexOf(";");
         	String link = dlinkInfo.substring(0, index);
         	String uipanel = dlinkInfo.substring(index + 1);
-        	String comment = (String)getAllAttribute("dlinkInfo");
+        	String comment = (String)getAttribute("dlinkInfo");
         	context.generateHTML("<span><a href=\"javascript:dPageLink('");
         	context.generateHTML(link);
         	context.generateHTML("','");
@@ -812,90 +741,42 @@ public abstract class HTMLWidgetType implements Serializable
         }
     }
     
-    public void preIncludePage(HTMLSnapshotContext context)
-    {
-        String preIncludePage = (String)removeAttribute("preIncludePage");
-        if ( preIncludePage != null && !preIncludePage.trim().equals(""))
-        {
-            if ( !preIncludePage.startsWith("/") )
-            {
-                preIncludePage = "/" + preIncludePage;
-            }
-            try
-            {
-            	//TODO:
-                //context.getPageContext().include(preIncludePage);
-            }
-            catch (Exception e)
-            {
-                logger.error("error occured when include pre page for component: " + getName()
-                        + " in entity: " + getUIEntityName(), e);
-            }
-        }
-    }
-
-    public void postIncludePage(HTMLSnapshotContext context)
-    {
-        String postIncludePage = (String)removeAttribute("postIncludePage");
-        if ( postIncludePage != null && !postIncludePage.trim().equals(""))
-        {
-            if ( !postIncludePage.startsWith("/") )
-            {
-                postIncludePage = "/" + postIncludePage;
-            }
-            try
-            {
-            	//TODO:
-                //context.getPageContext().include(postIncludePage);
-            }
-            catch (Exception e)
-            {
-                logger.error("error occured when include post page for component: " + getName()
-                        + " in entity: " + getUIEntityName(), e);
-            }
-        }
-    }
-
-    public void setContext(HTMLSnapshotContext context)
-    {
-        this.context = context;
-    }
-
-    public HTMLSnapshotContext getContext()
-    {
-        return context;
-    }
-
     public Boolean isReadOnly()
     {
-        return readOnly;
+    	Object v = getAttribute("readOnly");
+        return v == null ? Boolean.FALSE : "true".equalsIgnoreCase(v.toString());
+    }
+    
+    public void setReadOnly(boolean v) 
+    {
+    	UserRequestContext.UserContext.get().addAttribute(this.getName(), "readOnly", v);
     }
     
     public boolean isVisible()
     {
-        String visible = (String) getAllAttribute("visible");
+        String visible = (String) getAttribute("visible");
         return visible == null ? true : "true".equals(visible);
     }
 
     public void setVisible(boolean visible)
     {
-        setHTMLAttribute("visible", String.valueOf(visible));
+        addAttribute("visible", String.valueOf(visible));
     }
 
     public void disableValidation()
     {
-        setHTMLAttribute("validationFlag", "disabled");
+        addAttribute("validationFlag", "disabled");
     }
     
     public boolean isEditable()
     {
-        Object editable = getAllAttribute("editable");
+        Object editable = getAttribute("editable");
         return (editable == null || editable.toString().trim().isEmpty()) ? true : "true".equalsIgnoreCase(editable.toString());
     }
 
     public void setEditable(boolean editable)
     {
-        setHTMLAttribute("editable", String.valueOf(editable));
+        addAttribute("editable", String.valueOf(editable));
     }
 
     public String getUIID()
@@ -915,21 +796,25 @@ public abstract class HTMLWidgetType implements Serializable
      * this method uses for UI to Data operation.
      * @return
      */
-	protected String getValueFromRequest() 
+	protected String getValueFromRequest(UserRequestContext context) 
 	{
-		return this.context.getRequest().getParameter(this.getUIID());
+		return context.getRequest().getParameter(this.getUIID());
 	}
 	
 	/**
      * this method uses for UI to Data operation.
      * @return
      */
-	protected String[] getValuesFromRequest() 
+	protected String[] getValuesFromRequest(UserRequestContext context) 
 	{
-		return this.context.getRequest().getParameterValues(this.getUIID());
+		return context.getRequest().getParameterValues(this.getUIID());
 	}
 	
 	public Widget createAjaxWidget(VariableEvaluator ee) {
 		return null;
+	}
+	
+	public String toString() {
+		return this.getName() + "[" + this.getClass().getSimpleName() + "]";
 	}
 }

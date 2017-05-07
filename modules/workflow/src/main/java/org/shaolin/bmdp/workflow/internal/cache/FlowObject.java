@@ -51,6 +51,7 @@ import org.shaolin.uimaster.page.OpExecuteContext;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.cache.UIPageObject;
+import org.shaolin.uimaster.page.exception.UIPageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -430,6 +431,10 @@ public class FlowObject implements java.io.Serializable {
 	        			logger.error("Error to load the workflow action: " + e1.getMessage() 
 	        					+ ",ActionPage: " + actionPage
 	        					+ ",Node Info: " + n.toString(), e1);
+					} catch (UIPageException e1) {
+						logger.error("Error to load the workflow action: " + e1.getMessage() 
+    					+ ",ActionPage: " + actionPage
+    					+ ",Node Info: " + n.toString(), e1);
 					} 
             	}
                 Set<String> set = initialEventNodes.get(n.getAppName() + "-" + n.getFlowName());

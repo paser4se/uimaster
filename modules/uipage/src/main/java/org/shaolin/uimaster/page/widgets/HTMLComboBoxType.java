@@ -17,7 +17,7 @@ package org.shaolin.uimaster.page.widgets;
 
 import java.util.List;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.ajax.ComboBox;
 import org.shaolin.uimaster.page.ajax.Layout;
@@ -31,27 +31,18 @@ public class HTMLComboBoxType extends HTMLSingleChoiceType
 {
     private static final Logger logger = LoggerFactory.getLogger(HTMLComboBoxType.class);
 
-    public HTMLComboBoxType()
+    public HTMLComboBoxType(String id)
     {
-    }
-
-    public HTMLComboBoxType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public HTMLComboBoxType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+        super(id);
     }
 
     @Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		
 	}
 
     @Override
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
@@ -77,7 +68,7 @@ public class HTMLComboBoxType extends HTMLSingleChoiceType
                 if (isReadOnly() != null && isReadOnly().booleanValue())
                 {
                     addAttribute("allowBlank", "true");
-                    String UIStyle = (String)getAllAttribute("UIStyle");
+                    String UIStyle = (String)getAttribute("UIStyle");
                     if (UIStyle != null && !UIStyle.trim().equals("null"))
                     {
                         UIStyle = "uimaster_comboBox_readOnly " + UIStyle;
@@ -208,10 +199,9 @@ public class HTMLComboBoxType extends HTMLSingleChoiceType
         comboBox.setValue(getValue());
 
         setAJAXConstraints(comboBox);
-        setAJAXAttributes(comboBox);
+        setAJAXAttributes(UserRequestContext.UserContext.get(), comboBox);
         
         comboBox.setListened(true);
-        comboBox.setFrameInfo(getFrameInfo());
 
         return comboBox;
     }

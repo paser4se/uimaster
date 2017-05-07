@@ -18,7 +18,7 @@ package org.shaolin.uimaster.page.widgets;
 import java.io.IOException;
 
 import org.shaolin.bmdp.runtime.security.UserContext;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Label;
@@ -33,27 +33,18 @@ public class HTMLLabelType extends HTMLTextWidgetType
 {
     private static Logger logger = LoggerFactory.getLogger(HTMLLabelType.class);
 
-    public HTMLLabelType()
+    public HTMLLabelType(String id)
     {
-    }
-
-    public HTMLLabelType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public HTMLLabelType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+        super(id);
     }
 
     @Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		
 	}
     
     @Override
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
     	if (this.getAttribute("captureScreen") != null) {
     		String root = (UserContext.isMobileRequest() && UserContext.isAppClient()) 
@@ -88,7 +79,7 @@ public class HTMLLabelType extends HTMLTextWidgetType
         generateEndWidget(context);
     }
 
-    public void generateCurrencySymbol(HTMLSnapshotContext context, String currencySymbol)
+    public void generateCurrencySymbol(UserRequestContext context, String currencySymbol)
     {
         context.generateHTML("<span class=\"currencySymbol\"");
         context.generateHTML(" id=\"" + getName() + "_currencySymbol\" >");
@@ -96,7 +87,7 @@ public class HTMLLabelType extends HTMLTextWidgetType
         context.generateHTML("</span>");
     }
     
-    private void generateContent(HTMLSnapshotContext context, String htmlValue)
+    private void generateContent(UserRequestContext context, String htmlValue)
     {
         try
         {
@@ -134,7 +125,7 @@ public class HTMLLabelType extends HTMLTextWidgetType
         }
     }
 
-    public void generateAttribute(HTMLSnapshotContext context, String attributeName, Object attributeValue) throws IOException
+    public void generateAttribute(UserRequestContext context, String attributeName, Object attributeValue) throws IOException
     {
         if("colorType".equals(attributeName))
         {
@@ -175,16 +166,16 @@ public class HTMLLabelType extends HTMLTextWidgetType
 
     public void setDisplayValue(String displayValue)
     {
-        setHTMLAttribute("displayValue", displayValue);
+        addAttribute("displayValue", displayValue);
     }
 
     public String getDisplayValue()
     {
-        if (context.isValueMask())
+        if (UserRequestContext.UserContext.get().isValueMask())
         {
             return WebConfig.getHiddenValueMask();
         }
-        Object displayValue = getAllAttribute("displayValue");
+        Object displayValue = getAttribute("displayValue");
         if (displayValue == null)
         {
             displayValue = getValue();
@@ -216,7 +207,6 @@ public class HTMLLabelType extends HTMLTextWidgetType
         label.setDisplayValue(getDisplayValue());
 
         label.setListened(true);
-        label.setFrameInfo(getFrameInfo());
 
         return label;
     }

@@ -7,7 +7,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 import org.shaolin.bmdp.datamodel.page.UIPanelType;
 import org.shaolin.uimaster.html.layout.IUISkin;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 
 public class GridLineSkin extends BaseSkin implements IUISkin {
@@ -21,13 +21,9 @@ public class GridLineSkin extends BaseSkin implements IUISkin {
 		return false;
 	}
 
-	public java.util.Map getAttributeMap(HTMLWidgetType component) {
-		return null;
-	}
-
 	public void generatePreCode(HTMLWidgetType component)
 			throws java.io.IOException {
-		HTMLSnapshotContext context = component.getContext();
+		UserRequestContext context = UserRequestContext.UserContext.get();
 		String lineFileName = getParam("lineFileName");
 		lineFileName = "/" + lineFileName.replace('.', '/') + ".properties";
 		InputStream in = this.getClass().getClassLoader()

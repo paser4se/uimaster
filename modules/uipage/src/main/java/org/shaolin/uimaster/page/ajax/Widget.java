@@ -1773,4 +1773,9 @@ abstract public class Widget<T> implements Serializable
         }
         AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
     }
+    
+    @Override
+    public String toString() {
+		return this.getId() + "[" + this.getClass().getSimpleName() + "]";
+	}
 }

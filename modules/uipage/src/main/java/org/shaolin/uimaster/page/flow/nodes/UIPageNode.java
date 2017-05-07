@@ -24,7 +24,7 @@ import org.shaolin.bmdp.runtime.spi.IEntityManager;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.MobilitySupport;
 import org.shaolin.uimaster.page.exception.ODProcessException;
@@ -355,19 +355,20 @@ public class UIPageNode extends WebNode {
             session.removeAttribute(WEBFLOW_CACHED_INPUT);
         }
         
-        HTMLSnapshotContext genContext = new HTMLSnapshotContext(request);
-        genContext.resetRepository();
+        UserRequestContext requestContext = new UserRequestContext(request);
+        requestContext.resetRepository();
         
         String uipageName = type.getSourceEntity().getEntityName();
         if (UserContext.isMobileRequest() && this.hasMobilePage) {
         	uipageName += MobilitySupport.MOB_PAGE_SUFFIX;
         } 
-        genContext.setFormName(uipageName);
-        genContext.setODMapperData(datas);
-        genContext.setIsDataToUI(false);
+        requestContext.setCurrentFormInfo(uipageName, "", "");
+        requestContext.setODMapperData(datas);
+        requestContext.setIsDataToUI(false);
         try
         {
-        	PageODProcessor pageODProcessor = new PageODProcessor(genContext, uipageName);
+        	UserRequestContext.UserContext.set(requestContext);
+        	PageODProcessor pageODProcessor = new PageODProcessor(requestContext, uipageName);
             pageODProcessor.process();
         } catch (ODProcessException e) {
 			throw e;
@@ -375,7 +376,7 @@ public class UIPageNode extends WebNode {
         finally
         {
         }
-        return genContext.getODMapperData();       
+        return requestContext.getODMapperData();       
     }
 
 
@@ -397,8 +398,7 @@ public class UIPageNode extends WebNode {
             logger.debug("processDataMapping(():" + toString());
         
         NextType next = out.getNext();
-        if(next == null)
-        {
+        if(next == null) {
             logger.error("processDataMapping(():the next is null, out=" + out.getName()
                          + ", node" + toString());
             return;
@@ -407,27 +407,20 @@ public class UIPageNode extends WebNode {
         //1. evaluate NameExpressions outDataMappingToNode, and set result in request
         Map datas = ProcessHelper.evaluateNameExpressions(outContext,
             next.getOutDataMappingToNodes());
-        if(datas == null || datas.size() == 0)
-        {
-            request.setAttribute(WebflowConstants.OUTDATA_MAPPING2NODE_KEY, null);
-        }
-        else
-        {
-            request.setAttribute(WebflowConstants.OUTDATA_MAPPING2NODE_KEY, datas);
-        }
+		if (datas == null || datas.size() == 0) {
+			request.setAttribute(WebflowConstants.OUTDATA_MAPPING2NODE_KEY, null);
+		} else {
+			request.setAttribute(WebflowConstants.OUTDATA_MAPPING2NODE_KEY, datas);
+		}
 
         //2.evaluate NameExpressions outDataMappingToChunk, and set result in session
         datas = ProcessHelper.evaluateNameExpressions(outContext,
             next.getOutDataMappingToNodes());
-        if(datas == null || datas.size() == 0)
-        {
-            request.setAttribute(WebflowConstants.OUTDATA_MAPPING2CHUNK_KEY, null);
-        }
-        else
-        {
-            request.setAttribute(WebflowConstants.OUTDATA_MAPPING2CHUNK_KEY, datas);
-        }
-
+		if (datas == null || datas.size() == 0) {
+			request.setAttribute(WebflowConstants.OUTDATA_MAPPING2CHUNK_KEY, null);
+		} else {
+			request.setAttribute(WebflowConstants.OUTDATA_MAPPING2CHUNK_KEY, datas);
+		}
     }
 
     /**
@@ -449,8 +442,8 @@ public class UIPageNode extends WebNode {
         	if (UserContext.isMobileRequest() && this.hasMobilePage) {
             	uipageName += MobilitySupport.MOB_PAGE_SUFFIX;
             } 
-        	HTMLSnapshotContext context = new HTMLSnapshotContext(request, response);
-        	context.setFormName(uipageName);
+        	UserRequestContext context = new UserRequestContext(request, response);
+        	context.setCurrentFormInfo(uipageName, "", "");
         	context.setIsDataToUI(true);
         	Map inputParams = (Map)request.getSession(true).getAttribute(WEBFLOW_CACHED_INPUT);
         	if (inputParams != null) {

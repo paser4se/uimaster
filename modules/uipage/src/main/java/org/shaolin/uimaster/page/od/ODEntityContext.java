@@ -22,19 +22,22 @@ import org.apache.log4j.Logger;
 import org.shaolin.bmdp.datamodel.page.ODMappingType;
 import org.shaolin.bmdp.exceptions.BusinessOperationException;
 import org.shaolin.bmdp.i18n.ExceptionConstants;
+import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.context.EvaluationContext;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.AjaxActionHelper;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.cache.ODFormObject;
 import org.shaolin.uimaster.page.cache.ODObject;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
+import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.exception.ODException;
 import org.shaolin.uimaster.page.exception.ODProcessException;
+import org.shaolin.uimaster.page.exception.UIPageException;
 import org.shaolin.uimaster.page.od.mappings.ComponentMapping;
 import org.shaolin.uimaster.page.widgets.HTMLReferenceEntityType;
 
@@ -49,7 +52,9 @@ public class ODEntityContext extends ODContext
     
     private ODFormObject odEntityObject;
     
-    public ODEntityContext( String odEntityName, HTMLSnapshotContext htmlContext )
+    private UIFormObject uiFromObject;
+    
+    public ODEntityContext( String odEntityName, UserRequestContext htmlContext )
     {
         super( htmlContext, false );
         this.odEntityName = odEntityName;
@@ -57,22 +62,24 @@ public class ODEntityContext extends ODContext
     
     /**
      * 
-     * @throws ODProcessException
      * @throws EvaluationException
      * @throws ParsingException
      * @throws BusinessOperationException
      * @throws RepositoryException
      * @throws ClassNotFoundException
      * @throws AjaxException 
+     * @throws UIPageException 
+     * @throws EntityNotFoundException 
      */
-    public void initContext() throws ODProcessException, EvaluationException, ParsingException, 
-    	BusinessOperationException, ClassNotFoundException, AjaxException
+    public void initContext() throws EvaluationException, ParsingException, 
+    	BusinessOperationException, ClassNotFoundException, AjaxException, EntityNotFoundException, UIPageException
     {
     	if(logger.isInfoEnabled())
     		logger.info("Initialize UI Form: " + odEntityName + 
-    				",htmlPrefix: " + htmlContext.getHTMLPrefix());	
+    				",htmlPrefix: " + requestContext.getHTMLPrefix());	
 		
     	this.odEntityObject = PageCacheManager.getODFormObject(odEntityName);
+    	this.uiFromObject = PageCacheManager.getUIFormObject(odEntityName);
 		this.uiEntityName = odEntityObject.getUIEntityName();
 		this.isODBaseRule = odEntityObject.isODBaseRule();
 		this.isODBaseType = odEntityObject.isODBaseType();
@@ -118,14 +125,14 @@ public class ODEntityContext extends ODContext
 				break;
 			}
 		}
-		if (uiEntity == null || !HTMLSnapshotContext.isInstance(uiEntityName, uiEntity))
+		if (uiEntity == null || !UserRequestContext.isInstance(uiEntityName, uiEntity))
 			throw new ODProcessException(ExceptionConstants.EBOS_ODMAPPER_049,
 					new Object[]{uiEntity.getUIEntityName(), uiEntityName});
     	if(logger.isDebugEnabled())
             logger.debug("UI Reference Entity uiid: "+this.uiEntity.getId());
     	
     	DefaultEvaluationContext defaultEContext = new DefaultEvaluationContext();
-    	defaultEContext.setVariableValue("context", htmlContext);
+    	defaultEContext.setVariableValue("context", requestContext);
     	defaultEContext.setVariableValue("odContext", this);
     	this.setEvaluationContextObject(GLOBAL_TAG, defaultEContext);
     	
@@ -135,11 +142,12 @@ public class ODEntityContext extends ODContext
     	if( !isDataToUI )
     	{
     		DefaultEvaluationContext globalContext = new DefaultEvaluationContext();
-    		globalContext.setVariableValue("context", htmlContext);
+    		globalContext.setVariableValue("context", requestContext);
     		globalContext.setVariableValue("odContext", this);
+    		String uiid = requestContext.getHTMLPrefix() + uiEntity.getUIID();
     		globalContext.setVariableValue(AJAX_UICOMP_NAME, 
-    				AjaxActionHelper.createUI2DataAjaxContext(uiEntity.getPrefix() + uiEntity.getUIID(), 
-					uiEntityName, htmlContext.getRequest()));
+    				AjaxActionHelper.createUI2DataAjaxContext(uiid, 
+					uiEntityName, requestContext.getRequest()));
     		this.setEvaluationContextObject(GLOBAL_TAG, globalContext);
     	}
     	if(logger.isInfoEnabled())
@@ -188,7 +196,7 @@ public class ODEntityContext extends ODContext
 		}
 	}
 	
-	public String getUiParamName() {
+	public String getUIParamName() {
 		return odEntityObject.getUiParamName();
 	}
 	
@@ -210,5 +218,9 @@ public class ODEntityContext extends ODContext
 	public ODObject getODObject() 
 	{
 		return odEntityObject;
+	}
+	
+	public UIFormObject getUIFormObject() {
+		return uiFromObject;
 	}
 }

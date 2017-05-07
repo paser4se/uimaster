@@ -16,7 +16,7 @@
 package org.shaolin.uimaster.page.widgets;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
@@ -29,11 +29,9 @@ import org.shaolin.bmdp.datamodel.page.UITabPaneItemType;
 import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.i18n.ResourceUtil;
 import org.shaolin.bmdp.runtime.security.UserContext;
-import org.shaolin.javacc.context.OOEEContext;
-import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.uimaster.html.layout.HTMLPanelLayout;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
 import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.CellLayout;
 import org.shaolin.uimaster.page.ajax.PreNextPanel;
 import org.shaolin.uimaster.page.ajax.Widget;
@@ -48,20 +46,9 @@ public class HTMLPreNextPanelType extends HTMLContainerType
 
     private int selectedIndex;
 
-    public HTMLPreNextPanelType()
+    public HTMLPreNextPanelType(String id)
     {
-        selectedIndex = 0;
-    }
-
-    public HTMLPreNextPanelType(HTMLSnapshotContext context)
-    {
-        super(context);
-        selectedIndex = 0;
-    }
-
-    public HTMLPreNextPanelType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+        super(id);
         selectedIndex = 0;
     }
     
@@ -69,7 +56,7 @@ public class HTMLPreNextPanelType extends HTMLContainerType
     	return (boolean)this.removeAttribute("ajaxLoad");
     }
 
-    public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
@@ -86,6 +73,8 @@ public class HTMLPreNextPanelType extends HTMLContainerType
             if(this.getAttribute("tabSelected") != null) {
                 tabSelected = Integer.parseInt((String)this.getAttribute("tabSelected"));
             }
+            List<HTMLReferenceEntityType> createdRefEntities = (List<HTMLReferenceEntityType>)this.removeAttribute("createdRefEntities");
+            
             //Generate the titles of the tabpane
             String cmpName = getName().replace('.', '_');
             HTMLUtil.generateTab(context, depth + 1);
@@ -154,28 +143,16 @@ public class HTMLPreNextPanelType extends HTMLContainerType
                 	String UIID = tab.getPanel().getUIID();
                 	HTMLPanelLayout panelLayout = new HTMLPanelLayout(UIID, ownerEntity);
                 	TableLayoutConstraintType layoutConstraint = new TableLayoutConstraintType();
-                	OOEEContext ooee = OOEEContextFactory.createOOEEContext();
-                    panelLayout.setConstraints(layoutConstraint, ooee);
-                    panelLayout.setBody(tab.getPanel(), ooee);
+                    panelLayout.setConstraints(layoutConstraint);
+                    panelLayout.setBody(tab.getPanel());
                 	
-                    panelLayout.generateComponentHTML(context, depth+3, false, Collections.emptyMap(), ee, this.getHTMLLayout());
+                    panelLayout.generateComponentHTML(context, depth+3, false, this.getHTMLLayout());
                 } else if (tab.getRefEntity() != null) {
                 	//form support
-                	String prefix = context.getHTMLPrefix();
-                	try {
-	                	UIReferenceEntityType itemRef = (UIReferenceEntityType)tab.getRefEntity();
-	                	String UIID = this.getPrefix() + itemRef.getUIID();
-		                String type = itemRef.getReferenceEntity().getEntityName();
-		                HTMLReferenceEntityType refEntity = new HTMLReferenceEntityType(context, UIID, type);
-		                
-		                Widget newWidget = refEntity.createAjaxWidget(ee);
-		                context.addAjaxWidget(newWidget.getId(), newWidget);
-		                //Generate the uiform of the body
-		                refEntity.generateBeginHTML(context, ownerEntity, depth+3);
-		                refEntity.generateEndHTML(context, ownerEntity, depth+3);
-                	} finally {
-                		context.setHTMLPrefix(prefix);
-                	}
+                	HTMLReferenceEntityType refEntity = createdRefEntities.get(i);
+	                //Generate the uiform of the body
+	                refEntity.generateBeginHTML(context, ownerEntity, depth+3);
+	                refEntity.generateEndHTML(context, ownerEntity, depth+3);
                 } else if (tab.getFrames() != null && tab.getFrames().size() > 0) {
                 	UIFrameType definedFrame = null;
                 	for (UIFrameType f : tab.getFrames()) {
@@ -196,12 +173,12 @@ public class HTMLPreNextPanelType extends HTMLContainerType
                 		}
                 	}
                 	//page support
-                	this.context.getRequest().setAttribute("_chunkname", definedFrame.getChunkName());
-                	this.context.getRequest().setAttribute("_nodename", definedFrame.getNodeName());
-                	this.context.getRequest().setAttribute("_framePagePrefix", this.context.getFrameInfo());
-                	this.context.getRequest().setAttribute("_tabcontent", "true");
-                	HTMLFrameType frame = new HTMLFrameType(this.context, tab.getUiid());
-                	frame.setHTMLAttribute(HTMLFrameType.NEED_SRC, "true");
+                	context.getRequest().setAttribute("_chunkname", definedFrame.getChunkName());
+                	context.getRequest().setAttribute("_nodename", definedFrame.getNodeName());
+                	context.getRequest().setAttribute("_framePagePrefix", context.getFrameInfo());
+                	context.getRequest().setAttribute("_tabcontent", "true");
+                	HTMLFrameType frame = new HTMLFrameType(tab.getUiid());
+                	frame.addAttribute(HTMLFrameType.NEED_SRC, "true");
                 	frame.generateBeginHTML(context, ownerEntity, depth + 3);
                 	frame.generateEndHTML(context, ownerEntity, depth + 3);
                 } 
@@ -223,7 +200,7 @@ public class HTMLPreNextPanelType extends HTMLContainerType
         }
     }
 
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
@@ -236,7 +213,7 @@ public class HTMLPreNextPanelType extends HTMLContainerType
         }
     }
 
-    public void generateAttribute(HTMLSnapshotContext context, String attributeName, Object attributeValue) throws IOException
+    public void generateAttribute(UserRequestContext context, String attributeName, Object attributeValue) throws IOException
     {
         if( !(attributeValue instanceof String) )
             return;
@@ -279,11 +256,8 @@ public class HTMLPreNextPanelType extends HTMLContainerType
         return false;
     }
     
-    private VariableEvaluator ee;
-    
     public Widget createAjaxWidget(VariableEvaluator ee)
     {
-    	this.ee = ee;
     	ExpressionType previousAction = (ExpressionType)this.removeAttribute("previousAction");
     	ExpressionType nextAction = (ExpressionType)this.removeAttribute("nextAction");
     	
@@ -294,9 +268,22 @@ public class HTMLPreNextPanelType extends HTMLContainerType
         panel.setReadOnly(isReadOnly());
         panel.setUIEntityName(getUIEntityName());
         
+        List<HTMLReferenceEntityType> createdRefEntities = new ArrayList<HTMLReferenceEntityType>();
+        for(int i = 0, n = tabs.size(); i < n; i++){
+        	UITabPaneItemType tab = tabs.get(i);
+            if (tab.getRefEntity() != null) {
+            	UIReferenceEntityType itemRef = (UIReferenceEntityType)tab.getRefEntity();
+            	String UIID = itemRef.getUIID();
+                String type = itemRef.getReferenceEntity().getEntityName();
+                HTMLReferenceEntityType refEntity = new HTMLReferenceEntityType(UIID, type);
+                
+                Widget newWidget = refEntity.createAjaxWidget(ee);
+                UserRequestContext.UserContext.get().addAjaxWidget(newWidget.getId(), newWidget);
+                createdRefEntities.add(refEntity);
+            }
+        }
+        this.addAttribute("createdRefEntities", createdRefEntities);
         panel.setListened(true);
-        panel.setFrameInfo(getFrameInfo());
-        
         return panel;
 
     }

@@ -18,7 +18,7 @@ package org.shaolin.uimaster.page.widgets;
 import java.io.IOException;
 import java.util.List;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.ajax.Layout;
 import org.shaolin.uimaster.page.ajax.Panel;
@@ -35,34 +35,19 @@ public class HTMLPanelType extends HTMLContainerType
 	
     private static final Logger logger = LoggerFactory.getLogger(HTMLPanelType.class);
 
-    private String title;
-
-    private boolean hasDiv;
-
-    private boolean hasErrorMessage;
-
-    public HTMLPanelType()
+    public HTMLPanelType(String id)
     {
+        super(id);
     }
 
-    public HTMLPanelType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public HTMLPanelType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
-    }
-
-    public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
             generateWidget(context);
-            title = (String)getAllAttribute("title");
-            hasDiv = "true".equals(getAllAttribute("hasDiv"));
-            hasErrorMessage = "true".equals(getAllAttribute("hasErrorMessage"));
+            String title = (String)getAttribute("title");
+            boolean hasDiv = "true".equals(getAttribute("hasDiv"));
+            boolean hasErrorMessage = "true".equals(getAttribute("hasErrorMessage"));
 
             if (title != null && title.trim().length() > 0)
             {
@@ -104,19 +89,15 @@ public class HTMLPanelType extends HTMLContainerType
     	return (this.getAttribute("dynamicUI") != null && "true".equals(this.getAttribute("dynamicUI")));
     }
     
-    private VariableEvaluator ee;
-    
-    private List<HTMLDynamicUIItem> items;
-    
-    public void setDynamicItems(VariableEvaluator ee, List<HTMLDynamicUIItem> items) {
-    	this.ee = ee;
-    	this.items = items;
+    public void setDynamicItems(List<HTMLDynamicUIItem> items) {
+    	this.addAttribute("dynamicItems", items);
     }
     
-    public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth)
+    public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)
     {
         try
         {
+        	List<HTMLDynamicUIItem> items = (List<HTMLDynamicUIItem>)this.getAttribute("dynamicItems");
         	if (this.hasDynamicUI() && items != null) {
         		String jsonValue = (String)context.getODMapperData().get(DynamicUIComponentMapping.JSON_VALUE);
         		
@@ -127,11 +108,10 @@ public class HTMLPanelType extends HTMLContainerType
 					HTMLUtil.generateTab(context, depth);
 					context.generateHTML("<div id=\"div-"+uiid+"-left-cell\" class=\"uimaster_widget_cell w1 h1 uimaster_dynamicitem_leftform_cell\" >");
 					HTMLUtil.generateTab(context, depth + 1);
-					HTMLLabelType lable = new HTMLLabelType(context, uiid + "Lable");
+					HTMLLabelType lable = new HTMLLabelType(uiid + "Lable");
 					lable.addAttribute("UIStyle", "uimaster_label uimaster_leftform_widget");
 					lable.setValue(item.getLabelName());
 					lable.setHTMLLayout(this.getHTMLLayout());
-					lable.setFrameInfo(context.getFrameInfo());
 					
 					lable.generateBeginHTML(context, ownerEntity, depth);
 					lable.generateEndHTML(context, ownerEntity, depth);
@@ -142,7 +122,7 @@ public class HTMLPanelType extends HTMLContainerType
 					context.generateHTML("<div id=\"div-"+uiid+"-right-cell\" class=\"uimaster_widget_cell w1 h1 uimaster_dynamicitem_rightform_cell\" >");
 					HTMLUtil.generateTab(context, depth + 1);
 					
-					item.generate(jsonValue, uiid, this.getHTMLLayout(), this.ee, context, ownerEntity, depth);
+					item.generate(jsonValue, uiid, this.getHTMLLayout(), context, ownerEntity, depth);
 					
 					HTMLUtil.generateTab(context, depth + 1);
 					context.generateHTML("</div>");
@@ -152,6 +132,9 @@ public class HTMLPanelType extends HTMLContainerType
         		
         	}
             super.generateEndHTML(context, ownerEntity, depth);
+            
+            String title = (String)getAttribute("title");
+            boolean hasDiv = "true".equals(getAttribute("hasDiv"));
             if (hasDiv)
             {
                 context.generateHTML("</div>");
@@ -167,7 +150,7 @@ public class HTMLPanelType extends HTMLContainerType
         }
     }
 
-    public void generateAttribute(HTMLSnapshotContext context, String attributeName,
+    public void generateAttribute(UserRequestContext context, String attributeName,
             Object attributeValue) throws IOException
     {
         if (!(attributeValue instanceof String))
@@ -215,14 +198,14 @@ public class HTMLPanelType extends HTMLContainerType
     	
         Panel panel = new Panel(getName(), Layout.NULL);
         
-        panel.setDivPrefix(getContext().getDIVPrefix());
+        panel.setDivPrefix(UserRequestContext.UserContext.get().getDIVPrefix());
         
         panel.setReadOnly(isReadOnly());
         panel.setUIEntityName(getUIEntityName());
         panel.setListened(true);
-        panel.setFrameInfo(getFrameInfo());
         if (this.hasDynamicUI()) {
-        	panel.setDynamicUI(this.items);
+        	List<HTMLDynamicUIItem> items = (List<HTMLDynamicUIItem>)this.getAttribute("dynamicItems");
+        	panel.setDynamicUI(items);
         }
         
         return panel;

@@ -27,6 +27,7 @@ import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.uimaster.page.MobilitySupport;
 import org.shaolin.uimaster.page.WebConfig;
+import org.shaolin.uimaster.page.exception.UIPageException;
 
 public class UIPageObject implements java.io.Serializable {
 	private static final String _CUST = "_cust";
@@ -57,12 +58,12 @@ public class UIPageObject implements java.io.Serializable {
 	
 	private boolean hasCustomizedPage = false;
 	
-	public UIPageObject(String entityName) {
+	public UIPageObject(String entityName) throws UIPageException {
 		this.entityName = entityName;
 		load();
 	}
 
-	private void load() {
+	private void load() throws UIPageException {
 		UIPage entity = IServerServiceManager.INSTANCE.getEntityManager()
 				.getEntity(entityName, UIPage.class);
 		
@@ -192,7 +193,7 @@ public class UIPageObject implements java.io.Serializable {
 		return !WebConfig.skipBackButton(this.entityName);
 	}
 
-	public UIFormObject getUIForm() {
+	public UIFormObject getUIForm() throws EntityNotFoundException, UIPageException {
 		if (UserContext.isMobileRequest() && hasMobilePage()) {
 			return PageCacheManager.getUIPageObject(getRuntimeEntityName()).ui;
 		}
@@ -210,7 +211,7 @@ public class UIPageObject implements java.io.Serializable {
 		return entityName;
 	}
 
-	public UIFormObject getUIFormObject() {
+	public UIFormObject getUIFormObject() throws EntityNotFoundException, UIPageException {
 		if (UserContext.isMobileRequest() && hasMobilePage()) {
 			return PageCacheManager.getUIPageObject(getRuntimeEntityName()).ui;
 		}

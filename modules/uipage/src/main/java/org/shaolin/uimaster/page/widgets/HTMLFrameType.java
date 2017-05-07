@@ -21,7 +21,7 @@ import java.io.Serializable;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 
 public class HTMLFrameType extends HTMLWidgetType implements Serializable {
@@ -29,25 +29,18 @@ public class HTMLFrameType extends HTMLWidgetType implements Serializable {
 	public static final String NEED_SRC = "needSrc";
 	private static final long serialVersionUID = 3905195996648815472L;
 
-	public HTMLFrameType() {
-	}
-
-	public HTMLFrameType(HTMLSnapshotContext context) {
-		super(context);
-	}
-
-	public HTMLFrameType(HTMLSnapshotContext context, String id) {
-		super(context, id);
+	public HTMLFrameType(String id) {
+		super(id);
 	}
 
 	@Override
-	public void generateBeginHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		// TODO Auto-generated method stub
 
 	}
 	
 	@Override
-	public void generateEndHTML(HTMLSnapshotContext context, UIFormObject ownerEntity, int depth) {
+	public void generateEndHTML(UserRequestContext context, UIFormObject ownerEntity, int depth) {
 		try {
 			HttpServletRequest request = context.getRequest();
 			String name = getName();
@@ -106,10 +99,10 @@ public class HTMLFrameType extends HTMLWidgetType implements Serializable {
 	}
 
 	private boolean isNeedSrc() {
-		return !"false".equals((String) getAllAttribute(NEED_SRC));
+		return !"false".equals((String) getAttribute(NEED_SRC));
 	}
 
-	public void generateAttribute(HTMLSnapshotContext context,
+	public void generateAttribute(UserRequestContext context,
 			String attributeName, Object attributeValue) throws IOException {
 		if ("width".equals(attributeName)) {
 			String attrValue = (String) attributeValue;

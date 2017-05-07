@@ -6,10 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.jsp.JspException;
-
-import junit.framework.Assert;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -18,6 +14,7 @@ import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.entity.EntityManager;
+import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
 import org.shaolin.bmdp.runtime.internal.AppServiceManagerImpl;
 import org.shaolin.bmdp.runtime.spi.IEntityManager;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
@@ -29,17 +26,29 @@ import org.shaolin.uimaster.page.ajax.TextArea;
 import org.shaolin.uimaster.page.ajax.TextField;
 import org.shaolin.uimaster.page.ajax.TreeItem;
 import org.shaolin.uimaster.page.ajax.TreeItem.LinkAttribute;
+import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.ajax.json.JSONArray;
 import org.shaolin.uimaster.page.ajax.json.JSONException;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.ajax.json.RequestData;
+import org.shaolin.uimaster.page.cache.ODFormObject;
+import org.shaolin.uimaster.page.cache.PageCacheManager;
+import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.cache.UIPageObject;
 import org.shaolin.uimaster.page.exception.ODProcessException;
+import org.shaolin.uimaster.page.exception.UIPageException;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
+import org.shaolin.uimaster.page.javacc.VariableEvaluator;
+import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.od.ODPageContext;
+import org.shaolin.uimaster.page.od.ODProcessor;
 import org.shaolin.uimaster.page.od.PageODProcessor;
+import org.shaolin.uimaster.page.widgets.HTMLReferenceEntityType;
 import org.shaolin.uimaster.test.be.CustomerImpl;
 import org.shaolin.uimaster.test.be.ICustomer;
+import org.shaolin.uimaster.test.ce.Gender;
+
+import junit.framework.Assert;
 
 public class PageTest {
 
@@ -72,16 +81,14 @@ public class PageTest {
 		MockHttpRequest request = new MockHttpRequest();
 		MockHttpResponse response = new MockHttpResponse();
 		
-        HTMLSnapshotContext htmlContext = new HTMLSnapshotContext(request, response);
-        htmlContext.setFormName("test");
+        UserRequestContext htmlContext = new UserRequestContext(request, response);
+        htmlContext.setCurrentFormInfo("test", "", "");
         htmlContext.setIsDataToUI(true);
-        htmlContext.setHTMLPrefix("");
 		
         Map ajaxWidgetMap = new HashMap();
         Map pageComponentMap = new HashMap();
         request.getSession(true).setAttribute(AjaxContext.AJAX_COMP_MAP, ajaxWidgetMap);
-        ajaxWidgetMap.put(AjaxContext.GLOBAL_PAGE, pageComponentMap);
-        htmlContext.setAjaxWidgetMap(pageComponentMap);
+        ajaxWidgetMap.put(AjaxContext.GLOBAL_PAGE, htmlContext.getPageAjaxWidgets());
         
 		RequestData requestData = new RequestData();
         AjaxActionHelper.createAjaxContext(new AjaxContext(new HashMap(), requestData));
@@ -153,22 +160,19 @@ public class PageTest {
 	}
 	
 	@Test
-	public void testDataToUI() throws IllegalStateException, IllegalArgumentException, IOException {
-		String page = "org.shaolin.uimaster.page.AddCustomer";
+	public void testD2UAndU2D() throws IllegalStateException, IllegalArgumentException, IOException {
+		String page = "org.shaolin.uimaster.page.SearchCustomer";
 		
 		MockHttpRequest request = new MockHttpRequest();
 		MockHttpResponse response = new MockHttpResponse();
 		
-        HTMLSnapshotContext htmlContext = new HTMLSnapshotContext(request, response);
-        htmlContext.setFormName(page);
+        UserRequestContext htmlContext = new UserRequestContext(request, response);
+        htmlContext.setCurrentFormInfo(page, "", "");
         htmlContext.setIsDataToUI(true);
-        htmlContext.setHTMLPrefix("");
 		
         Map ajaxWidgetMap = new HashMap();
-        Map pageComponentMap = new HashMap();
         request.getSession(true).setAttribute(AjaxContext.AJAX_COMP_MAP, ajaxWidgetMap);
-        ajaxWidgetMap.put(AjaxContext.GLOBAL_PAGE, pageComponentMap);
-        htmlContext.setAjaxWidgetMap(pageComponentMap);
+        ajaxWidgetMap.put(AjaxContext.GLOBAL_PAGE, htmlContext.getPageAjaxWidgets());
         
         ICustomer customer = new CustomerImpl();
         customer.setId(1101);
@@ -184,66 +188,159 @@ public class PageTest {
 			dispatcher.forwardPage(htmlContext);
 			
 			System.out.println("HTML Code: \n" + response.getHtmlCode());
-		} catch (JspException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail();
 		}
 		
-        inputParams.put("customer", customer);
+        inputParams.put("customer", new CustomerImpl());
 		
         htmlContext.resetRepository();
-        htmlContext.setFormName(page);
+        htmlContext.setCurrentFormInfo(page, "", "");
         htmlContext.setODMapperData(inputParams);
         htmlContext.setIsDataToUI(false);
-        request.setAttribute(ODPageContext.OUT_NAME, "Save");
+        request.setAttribute(ODPageContext.OUT_NAME, "out1");
         try
         {
         	PageODProcessor pageODProcessor = new PageODProcessor(htmlContext, page);
             pageODProcessor.process();
             
             System.out.println("UI To Data outcomes: \n" + htmlContext.getODMapperData());
+            ICustomer result = (ICustomer)htmlContext.getODMapperData().get("customer");
+            Assert.assertEquals(customer.getId(), result.getId());
+            Assert.assertEquals(customer.getName(), result.getName());
         } catch (ODProcessException e) {
         	e.printStackTrace();
 		}
 	}
 	
 	@Test
-	public void testFrameDataToUI() throws IllegalStateException, IllegalArgumentException, IOException {
-		
+	public void testSingleForm() {
+		try {
+			MockHttpRequest request = new MockHttpRequest();
+			MockHttpResponse response = new MockHttpResponse();
+			
+            UserRequestContext htmlContext = new UserRequestContext(request, response);
+            htmlContext.setCurrentFormInfo("org.shaolin.uimaster.form.Customer", "customer.", "");
+            htmlContext.setIsDataToUI(true);
+            htmlContext.setFormObject(PageCacheManager.getUIFormObject(htmlContext.getFormName()));
+            
+            UserRequestContext.UserContext.set(htmlContext);
+            AjaxActionHelper.createAjaxContext(new AjaxContext(new HashMap(), new RequestData()));
+            
+			ODFormObject odEntityObject = PageCacheManager.getODFormObject(htmlContext.getFormName());
+            HTMLReferenceEntityType newReferObject = new HTMLReferenceEntityType("customer", htmlContext.getFormName());
+            
+            CustomerImpl customerPojo = new CustomerImpl();
+            customerPojo.setId(10 + (int)(Math.random()* 100));
+            customerPojo.setName("John Prine");
+            Map inputParams = new HashMap();
+            inputParams.put("customer", customerPojo);
+            inputParams.put(odEntityObject.getUiParamName(), newReferObject);
+            
+            htmlContext.setODMapperData(inputParams);
+        	ODProcessor processor = new ODProcessor(htmlContext, htmlContext.getFormName(), -1);
+        	ODContext odContext = processor.process();
+        	VariableEvaluator ee = new VariableEvaluator(odContext);
+        	Widget refForm = newReferObject.createAjaxWidget(ee);
+        	htmlContext.addAjaxWidget(refForm.getId(), refForm);
+        	
+            Map referenceEntityMap = new HashMap();
+            htmlContext.setRefEntityMap(referenceEntityMap);
+            Map result = htmlContext.getODMapperData();
+            
+            htmlContext.printHTMLAttributeValues();
+            
+        	UIFormObject formObject = HTMLUtil.parseUIForm("org.shaolin.uimaster.form.Customer");
+			PageDispatcher dispatcher = new PageDispatcher(formObject, odContext);
+			dispatcher.forwardForm(htmlContext, 0, Boolean.FALSE, newReferObject);
+			
+			String htmlCode = response.getHtmlCode();
+			System.out.println("HTML Code: \n" + htmlCode);
+			Assert.assertTrue(htmlCode.indexOf(customerPojo.getName()) != -1);
+            
+			
+            HashMap ajaxWidgetMap = new HashMap();
+            ajaxWidgetMap.put(AjaxContext.GLOBAL_PAGE, htmlContext.getPageAjaxWidgets());
+            request.getSession().setAttribute(AjaxContext.AJAX_COMP_MAP, ajaxWidgetMap);
+            CustomerImpl customerPojo1 = new CustomerImpl();
+            inputParams.clear();
+            inputParams.put("customer", customerPojo1);
+            inputParams.put(odEntityObject.getUiParamName(), newReferObject);
+            
+            htmlContext.resetRepository();
+            htmlContext.setCurrentFormInfo("org.shaolin.uimaster.form.Customer", "customer.", "");
+            htmlContext.setODMapperData(inputParams);
+            htmlContext.setIsDataToUI(false);
+            request.setAttribute(ODPageContext.OUT_NAME, "out1");
+            
+        	ODProcessor pageODProcessor = new ODProcessor(htmlContext, "org.shaolin.uimaster.form.Customer", 0);
+            pageODProcessor.process();
+            
+            System.out.println("UI To Data outcomes: \n" + htmlContext.getODMapperData());
+            ICustomer result0 = (ICustomer)htmlContext.getODMapperData().get("customer");
+            Assert.assertEquals(customerPojo1.getId(), result0.getId());
+            Assert.assertEquals(customerPojo1.getName(), result0.getName());
+		} catch (Exception e) {
+			e.printStackTrace();
+			Assert.fail();
+		}
+	}
+	
+	@Test
+	public void testSinglePage() throws IllegalStateException, IllegalArgumentException, IOException {
+		for (int i=0; i<20; i++) {
+			new Thread(new Runnable(){
+				@Override
+				public void run() {
+					try {
+						testSinglePage0();
+					} catch (Exception e) {
+						e.printStackTrace();
+						Assert.fail();
+					}
+				}
+			}).start();
+		}
+		try {
+			Thread.sleep(4000);
+		} catch (InterruptedException e) {
+		}
+	}
+	
+	private void testSinglePage0() throws EntityNotFoundException, UIPageException {
 		String page = "org.shaolin.uimaster.page.AddCustomer";
+		
+		LocaleContext.createLocaleContext("zh_CN");
 		
 		MockHttpRequest request = new MockHttpRequest();
 		request.setAttribute(WebflowConstants.FRAME_NAME, "frame1");
 		request.setAttribute("_framePrefix", "frame1");
 		request.setAttribute("_frameTarget", "frame1");
 		
-		
 		MockHttpResponse response = new MockHttpResponse();
 		
-        HTMLSnapshotContext htmlContext = new HTMLSnapshotContext(request, response);
-        htmlContext.setFormName(page);
+        UserRequestContext htmlContext = new UserRequestContext(request, response);
+        htmlContext.setCurrentFormInfo(page, "", "");
         htmlContext.setIsDataToUI(true);
-        htmlContext.setHTMLPrefix("");
 		
+        long id = (long)(Math.random() * 100000);
         ICustomer customer = new CustomerImpl();
-        customer.setId(1101);
-        customer.setName("Shaolin Wu");
+        customer.setId(id);
+        customer.setName("Shaolin Wu " + customer.getId());
+        customer.setGender(Gender.MALE);
         
         Map inputParams = new HashMap();
         inputParams.put("customer", customer);
         htmlContext.setODMapperData(inputParams);
 		
-		try {
-			UIPageObject pageObject = HTMLUtil.parseUIPage(page);
-			PageDispatcher dispatcher = new PageDispatcher(pageObject);
-			dispatcher.forwardPage(htmlContext);
-			
-			System.out.println("HTML Code: \n" + response.getHtmlCode());
-		} catch (JspException e) {
-			e.printStackTrace();
-			Assert.fail();
-		}
+		UIPageObject pageObject = HTMLUtil.parseUIPage(page);
+		PageDispatcher dispatcher = new PageDispatcher(pageObject);
+		dispatcher.forwardPage(htmlContext);
 		
+		String htmlCode = response.getHtmlCode();
+		System.out.println("HTML Code: \n" + htmlCode);
+		Assert.assertTrue(htmlCode.indexOf(id + "") != -1);
 	}
 	
 	@Test

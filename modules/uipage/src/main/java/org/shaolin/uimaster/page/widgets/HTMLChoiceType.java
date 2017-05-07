@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.shaolin.uimaster.page.HTMLSnapshotContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.WebConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,24 +32,15 @@ public abstract class HTMLChoiceType extends HTMLWidgetType
 
     public static final String OPTIONDISPLAYVALUE_KEY = "optionDisplayValue";
 
-    public HTMLChoiceType()
+    public HTMLChoiceType(String id)
     {
-    }
-
-    public HTMLChoiceType(HTMLSnapshotContext context)
-    {
-        super(context);
-    }
-
-    public HTMLChoiceType(HTMLSnapshotContext context, String id)
-    {
-        super(context, id);
+        super(id);
     }
 
     public List<String> getOptionValues()
     {
-    	List<String> optionValues = (List<String>)getAllAttribute(OPTIONVALUE_KEY);
-        if (context.isValueMask() && optionValues != null)
+    	List<String> optionValues = (List<String>)getAttribute(OPTIONVALUE_KEY);
+        if (UserRequestContext.UserContext.get().isValueMask() && optionValues != null)
         {
             int length = optionValues.size();
             List<String> maskedOptionValues = new ArrayList<String>();
@@ -67,8 +58,8 @@ public abstract class HTMLChoiceType extends HTMLWidgetType
 
     public List<String> getOptionDisplayValues()
     {
-    	List<String> optionDisplayValues = (List<String>)getAllAttribute(OPTIONDISPLAYVALUE_KEY);
-        if (context.isValueMask() && optionDisplayValues != null)
+    	List<String> optionDisplayValues = (List<String>)getAttribute(OPTIONDISPLAYVALUE_KEY);
+        if (UserRequestContext.UserContext.get().isValueMask() && optionDisplayValues != null)
         {
             int length = optionDisplayValues.size();
             List<String> maskedOptionDisplayValues = new ArrayList<String>();
@@ -84,7 +75,7 @@ public abstract class HTMLChoiceType extends HTMLWidgetType
         }
     }
 
-    public void generateAttribute(HTMLSnapshotContext context, String attributeName,
+    public void generateAttribute(UserRequestContext context, String attributeName,
             Object attributeValue) throws IOException
     {
         if (OPTIONVALUE_KEY.equals(attributeName) || OPTIONDISPLAYVALUE_KEY.equals(attributeName))
@@ -102,7 +93,7 @@ public abstract class HTMLChoiceType extends HTMLWidgetType
         {
             return;
         }
-        setHTMLAttribute(OPTIONVALUE_KEY, optionValues);
+        addAttribute(OPTIONVALUE_KEY, optionValues);
     }
 
     public void setOptionDisplayValues(List<String> optionDisplayValues) // should be list of string
@@ -111,7 +102,7 @@ public abstract class HTMLChoiceType extends HTMLWidgetType
         {
             return;
         }
-        setHTMLAttribute(OPTIONDISPLAYVALUE_KEY, optionDisplayValues);
+        addAttribute(OPTIONDISPLAYVALUE_KEY, optionDisplayValues);
     }
 
 }
