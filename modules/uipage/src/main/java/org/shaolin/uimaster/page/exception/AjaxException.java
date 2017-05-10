@@ -1,14 +1,12 @@
 package org.shaolin.uimaster.page.exception;
 
-//imports
-import org.shaolin.bmdp.exceptions.BaseException;
 import org.shaolin.bmdp.i18n.Localizer;
 
 /**
  * Exception for Ajax
  *
  */
-public class AjaxException extends BaseException
+public class AjaxException extends UIPageException
 {
     /**
      * Constructs a AjaxException with a given exception reason

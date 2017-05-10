@@ -206,8 +206,19 @@ public class SimpleComponentMapping extends ComponentMapping {
 		else
 			convertUIToData(odContext);
 	}
+	
+	/**
+	 * Execute Date to UI only for single invocation.
+	 * 
+	 * @param odContext
+	 * @return
+	 * @throws ODException
+	 */
+	public ODEntityContext executeDataToUI(ODContext odContext) throws ODException {
+		return convertDataToUI(odContext);
+	}
 
-	private void convertDataToUI(ODContext odContext) throws ODException {
+	private ODEntityContext convertDataToUI(ODContext odContext) throws ODException {
 		try {
 			if (logger.isDebugEnabled()) {
 				if (odContext.isDataToUI()) {
@@ -240,7 +251,7 @@ public class SimpleComponentMapping extends ComponentMapping {
 				logger.trace("[Simple Mapping]: ui paramName: {}, paramValue: {}", 
 						new Object[] {paramName, paramValue});
 			}
-			callODMapping(paramMap, odContext);
+			return callODMapping(paramMap, odContext);
 		} catch (ODException e) {
 			throw e;
 		} catch (EvaluationException e) {
@@ -265,12 +276,7 @@ public class SimpleComponentMapping extends ComponentMapping {
 				logger.debug("[Simple Mapping]: ui to data mapping name: {}", 
 					type.getName());
 
-			Object uiid = this.uiDataParam.executeDataToUI(odContext);
-			if (uiid instanceof String) {
-				// remove the UI2Data context. 
-				// odContext.getHtmlContext().getHTMLPrefix() has already from executeDataToUI
-				odContext.getHtmlContext().getODMapperContext(uiid.toString() + ".");
-			}
+			this.uiDataParam.executeDataToUI(odContext);
 			Map<String, Object> resultMap = odContext.getHtmlContext().getODMapperData();
 			if (resultMap == null || resultMap.isEmpty())
 				return;
@@ -306,19 +312,19 @@ public class SimpleComponentMapping extends ComponentMapping {
 		}
 	}
 
-	private void callODMapping(Map<String, Object> paramMap, ODContext odContext)
+	private ODEntityContext callODMapping(Map<String, Object> paramMap, ODContext odContext)
 			throws ODException, EvaluationException {
 		String mappingRuleName = type.getMappingRule().getEntityName();
 
 		if (logger.isDebugEnabled())
 			logger.debug("Call od mapping : {}", mappingRuleName);
 		odContext.getHtmlContext().setODMapperData(paramMap);
-		callODMapper(odContext, mappingRuleName);
+		return callODMapper(odContext, mappingRuleName);
 	}
 	
-	private void callODMapper(ODContext odContext, String odmapperName) throws ODException {
+	private ODEntityContext callODMapper(ODContext odContext, String odmapperName) throws ODException {
 		if (odmapperName == null) {
-			return;
+			return null;
 		}
 
 		UserRequestContext htmlContext = odContext.getHtmlContext();
@@ -352,6 +358,7 @@ public class SimpleComponentMapping extends ComponentMapping {
 					converter.pullDataFromWidget(htmlContext);
 					htmlContext.setODMapperData(converter.getOutputData());
 				}
+				return null;
 			} catch (UIConvertException ex) {
 				throw ex;
 			}
@@ -371,13 +378,14 @@ public class SimpleComponentMapping extends ComponentMapping {
 				odMapperData.put(uiDataParam.getParamName(), refEntity.getCopy());
 			}
 			ODProcessor processor = new ODProcessor(htmlContext, odmapperName, odContext.getDeepLevel());
-			processor.process();
+			ODEntityContext result = processor.process();
 			
 			long end = System.currentTimeMillis();
 			long time = end - start;
 			if (logger.isDebugEnabled()) {
 				logger.debug("od entity execution time: " + time + "ms");
 			}
+			return result;
 		}
 	}
 

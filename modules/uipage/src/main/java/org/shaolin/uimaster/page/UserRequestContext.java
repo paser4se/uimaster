@@ -310,32 +310,6 @@ public class UserRequestContext implements Serializable
         return odMappingData;
     }
     
-    /**
-     * the context value is only available in once.
-     * 
-     * @param formId
-     * @return
-     */
-    public ODContext getODMapperContext(String formId)
-    {
-    	for (RefEntityInfo info : this.refEntityStack) {
-    		if (info.htmlPrefix.equals(formId)) {
-    			return info.evalContext;
-    		}
-    	}
-    	return null;
-    }
-    
-    public void setODMapperContext(String formId, ODContext odContext)
-    {
-    	for (RefEntityInfo info : this.refEntityStack) {
-			if (info.htmlPrefix.equals(formId)) {
-				info.evalContext = odContext;
-				break;
-			}
-		}
-	}
-
     public boolean getIsDataToUI()
     {
         return isDataToUI;
@@ -574,7 +548,10 @@ public class UserRequestContext implements Serializable
 			return currentUIForm.getComponents().get(uiid);
 		} else if (uiid.startsWith(this.getHTMLPrefix())) {
 			// single form access such as new refform.
-			return currentUIForm.getComponents().get(uiid.substring(this.getHTMLPrefix().length()));
+			String actualUIID = uiid;
+			// remove the top level only.
+			actualUIID = actualUIID.substring(actualUIID.indexOf('.') + 1); 
+			return currentUIForm.getComponents().get(actualUIID);
 		} else {
 			throw new UIComponentNotFoundException(
 					"the component does not exist in the cache. uiid: " + uiid );

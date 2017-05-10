@@ -128,8 +128,7 @@ public class AjaxActionHelper {
 	 */
 	public static Map<String, Widget<?>> getFrameMap(HttpServletRequest request) throws AjaxException {
 		String framePrefix = request.getParameter("_framePrefix");
-		Map<String, Widget<?>> ajaxComponentMap = (Map<String, Widget<?>>) request.getSession()
-				.getAttribute(AjaxContext.AJAX_COMP_MAP);
+		Map ajaxComponentMap = (Map) request.getSession().getAttribute(AjaxContext.AJAX_COMP_MAP);
 		if (ajaxComponentMap == null) {
 			throw new AjaxException("Please re-initialize the whole page.");
 		}
@@ -146,6 +145,20 @@ public class AjaxActionHelper {
 							+ framePrefix + "].");
 		}
 		return pageComponentMap;
+	}
+	
+	public static void updateFrameMap(HttpServletRequest request, Map<String, Widget<?>> pageComponentMap) throws AjaxException {
+		String framePrefix = request.getParameter("_framePrefix");
+		Map ajaxComponentMap = (Map) request.getSession().getAttribute(AjaxContext.AJAX_COMP_MAP);
+		if (ajaxComponentMap == null) {
+			throw new AjaxException("Please re-initialize the whole page.");
+		}
+		if (framePrefix == null || "null".equalsIgnoreCase(framePrefix)
+				|| framePrefix.length() == 0) {
+			ajaxComponentMap.put(AjaxContext.GLOBAL_PAGE, pageComponentMap);
+		} else {
+			ajaxComponentMap.put(framePrefix, pageComponentMap);
+		}
 	}
 
 	/**

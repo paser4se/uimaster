@@ -16,7 +16,9 @@
 package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,39 +27,41 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.servlet.http.HttpServletRequest;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
+import org.shaolin.bmdp.datamodel.page.SimpleComponentMappingType;
 import org.shaolin.bmdp.datamodel.page.TableLayoutConstraintType;
 import org.shaolin.bmdp.datamodel.page.UIFrameType;
 import org.shaolin.bmdp.datamodel.page.UIReferenceEntityType;
 import org.shaolin.bmdp.datamodel.page.UITabPaneItemType;
-import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.EvaluationContext;
-import org.shaolin.javacc.context.ParsingContext;
+import org.shaolin.javacc.context.OOEEContext;
+import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.javacc.exception.EvaluationException;
+import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.html.layout.HTMLPanelLayout;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.PageDispatcher;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.JSONObject;
-import org.shaolin.uimaster.page.cache.PageCacheManager;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.exception.UIPageException;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.od.ODEntityContext;
-import org.shaolin.uimaster.page.od.ODPageContext;
+import org.shaolin.uimaster.page.od.ODTabPaneContext;
+import org.shaolin.uimaster.page.od.mappings.SimpleComponentMapping;
 import org.shaolin.uimaster.page.spi.IJsGenerator;
 import org.shaolin.uimaster.page.widgets.HTMLCellLayoutType;
 import org.shaolin.uimaster.page.widgets.HTMLDynamicUIItem;
 import org.shaolin.uimaster.page.widgets.HTMLFrameType;
 import org.shaolin.uimaster.page.widgets.HTMLPanelType;
-import org.shaolin.uimaster.page.widgets.HTMLReferenceEntityType;
 import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,7 +102,7 @@ public class TabPane extends Container implements Serializable
      */
     private List<UITabPaneItemType> tabs;
     private UIFormObject ownerEntity;
-    private Map<String, ODContext> evalContexts;
+    private OOEEContext evalContext;
     // clean the ajax loading objects if all tabs loaded.
     private AtomicInteger accessedIndex = new AtomicInteger();
     
@@ -172,11 +176,30 @@ public class TabPane extends Container implements Serializable
     	this.ownerEntity = ownerEntity;
     }
     
-    public void addODMapperContext(String tabId, ODContext eval) {
-    	if (this.evalContexts == null) {
-    		this.evalContexts = new HashMap<String, ODContext>();
+    public void setODMapperContext(VariableEvaluator ee) {
+    	EvaluationContext cloneContext = null;
+    	EvaluationContext eContext = ee.getExpressionContext();
+    	if (eContext instanceof ODContext) {
+    		DefaultEvaluationContext localContext = (DefaultEvaluationContext)
+    					((ODContext)eContext).getEvaluationContextObject("$");
+    		if (localContext.getVariableObjects() != null) {
+    			cloneContext = new DefaultEvaluationContext(new HashMap(localContext.getVariableObjects()));
+    		}
+		} else if (eContext instanceof DefaultEvaluationContext) {
+			DefaultEvaluationContext localContext = (DefaultEvaluationContext)eContext;
+			if (localContext.getVariableObjects() != null) {
+				cloneContext = new DefaultEvaluationContext(new HashMap(localContext.getVariableObjects()));
+			}
+		} else {
+			cloneContext = eContext;
+		}
+    	if (cloneContext == null) {
+    		cloneContext = new DefaultEvaluationContext();
     	}
-    	this.evalContexts.put(tabId, eval);
+    	OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+    	ooeeContext.setDefaultEvaluationContext(cloneContext);
+    	ooeeContext.setEvaluationContextObject("$", cloneContext);
+    	this.evalContext = ooeeContext;
     }
     
     public String generateHTML()
@@ -235,7 +258,7 @@ public class TabPane extends Container implements Serializable
         return js.toString();
     }
     
-    public boolean loadContent(int index) throws UIPageException, EvaluationException {
+    public boolean loadContent(int index) throws UIPageException, EvaluationException, ParsingException {
     	if (!this.ajaxLoad) {
     		return false;
     	}
@@ -259,67 +282,37 @@ public class TabPane extends Container implements Serializable
 			logger.warn("Session maybe timeout: " + e1.getMessage(), e1);
 			return false;
 		}
+		UserRequestContext orginalUserContext = UserRequestContext.UserContext.get();
     	try {
-    	UserRequestContext htmlContext = new UserRequestContext(ajaxContext.getRequest());
-        htmlContext.setCurrentFormInfo(this.getUIEntityName(), ajaxContext.getEntityPrefix(), ajaxContext.getEntityPrefix().replace(".", "-"));
-        htmlContext.setIsDataToUI(true);//Don't set prefix in here.
-        htmlContext.setAjaxWidgetMap(ajaxMap);
-        htmlContext.setJSONStyle(true);
-        htmlContext.setFormObject(ownerEntity);
-        htmlContext.setODMapperData(new HashMap());
-        UserRequestContext.UserContext.set(htmlContext);
-        
-    	UITabPaneItemType tab = tabs.get(index);
-    	ODContext odContext = this.evalContexts.remove(tab.getUiid());
-        String entityPrefix = ajaxContext.getEntityPrefix();
-        ParsingContext pContext = null;
-		VariableEvaluator ee = null;
-		if (odContext != null) {
-			pContext = PageCacheManager.getUIFormObject(odContext.getODFormName()).getVariablePContext();
-			ee = new VariableEvaluator(odContext);
-		} else {
-			try {
-				String pageName = ownerEntity.getName();
-				HTMLReferenceEntityType uiEntity = new HTMLReferenceEntityType(entityPrefix, pageName);
-				uiEntity.setReadOnly(Boolean.FALSE);
-				htmlContext.getODMapperData().put("UIWidgetType", uiEntity);
-				try {
-					pContext = PageCacheManager.getUIFormObject(pageName).getVariablePContext();
-					ODEntityContext odEntityContext = new ODEntityContext(pageName, htmlContext);
-					odEntityContext.initContext();
-					odContext = odEntityContext;
-					ee = new VariableEvaluator(new DefaultEvaluationContext());
-				} catch (EntityNotFoundException e) {
-					pContext = PageCacheManager.getUIPageObject(pageName).getUIFormObject().getVariablePContext();
-					ODPageContext odPageContext = new ODPageContext( htmlContext, pageName );
-					odPageContext.initContext();
-					odContext = odPageContext;
-					ee = new VariableEvaluator(odPageContext);
-				}
-			} catch (Exception e) {
-				logger.warn(e.getMessage(), e);
-			}
-		}
-		if (pContext == null || ee == null) {
-			throw new IllegalStateException("Failed to initialize the OD context for UIPage tab.");
-		}
-		EvaluationContext evalContext = ee.getExpressionContext("$");
-		evalContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
-		EvaluationContext evalContext1 = ee.getExpressionContext("@");
-		evalContext1.setVariableValue("page", AjaxActionHelper.getAjaxContext());
-        
+    		StringWriter htmlWriter = new StringWriter();
+	    	UserRequestContext htmlContext = new UserRequestContext(ajaxContext.getRequest(), htmlWriter);
+	        htmlContext.setCurrentFormInfo(this.getUIEntityName(), ajaxContext.getEntityPrefix(), ajaxContext.getEntityPrefix().replace(".", "-"));
+	        htmlContext.setIsDataToUI(true);//Don't set prefix in here.
+	        htmlContext.setAjaxWidgetMap(ajaxMap);
+	        htmlContext.setFormObject(ownerEntity);
+	        htmlContext.setODMapperData(new HashMap());
+	        UserRequestContext.UserContext.set(htmlContext);
+	        
+	    	UITabPaneItemType tab = tabs.get(index);
+	        String entityPrefix = ajaxContext.getEntityPrefix();
+	        if (this.evalContext == null) {
+	        	throw new UIPageException("Evaluation Context is missing for TabPane lazyloading form! " + tab.getUiid());
+	        }
+	        
 		if (tab.getPanel() != null) {
-			// only search for current level excluding sub ref-entity.
-            List<String> componentIds = ownerEntity.getAllComponentID(this.originalUIID + tab.getPanel().getUIID());
+			VariableEvaluator ee = new VariableEvaluator(this.evalContext);
+			List<String> componentIds = ownerEntity.getAllComponentID(this.getId() + "."+ tab.getUiid());
     		for(String compId : componentIds) {
     			Map propMap = ownerEntity.getComponentProperty(compId);
+    			Map i18nMap = ownerEntity.getComponentI18N(compId);
     			Map expMap = ownerEntity.getComponentExpression(compId);
     			Map<String, Object> tempMap = new HashMap<String, Object>();
     			if (expMap != null && expMap.size() > 0) {
     				HTMLUtil.evaluateExpression(propMap, expMap, tempMap, ee);
     			}
-    			// added the combined dynamic attributes for ui widget.
-    			// so, we can access these value through HTMLWidgetType.getAttribute(name);
+    			if (i18nMap != null && i18nMap.size() > 0) {
+    				HTMLUtil.internationalization(propMap, i18nMap, tempMap, htmlContext);
+    			}
     			String uiid = htmlContext.getHTMLPrefix() + compId;
     			htmlContext.addAttribute(uiid, tempMap);
 				HTMLWidgetType htmlWidget = ownerEntity.getComponents().get(compId);
@@ -329,13 +322,19 @@ public class TabPane extends Container implements Serializable
 		    			filter = "";
 		        	List<HTMLDynamicUIItem> dynamicItems = ownerEntity.getDynamicItems(compId, filter);
 		        	((HTMLPanelType)htmlWidget).setDynamicItems(dynamicItems);
-		        }
+		        } 
+				
     			Widget newAjax = htmlWidget.createAjaxWidget(ee);
                 if (newAjax != null) {
                 	htmlContext.addAjaxWidget(newAjax.getId(), newAjax);
+                	if (newAjax.getClass() == Button.class) {
+                    	// all express must be re-calculate when click button in every time.
+                		((Button)newAjax).setExpressMap(expMap);
+                	}
                 }
     		}
-			
+    		AjaxActionHelper.updateFrameMap(ajaxContext.getRequest(), htmlContext.getPageAjaxWidgets());
+    		
         	//ui panel support
         	String id = entityPrefix + tab.getPanel().getUIID();
         	HTMLPanelLayout panelLayout = new HTMLPanelLayout(tab.getPanel().getUIID(), ownerEntity);
@@ -357,7 +356,7 @@ public class TabPane extends Container implements Serializable
 	            js.append("Form.items.push(elementList['").append(tab.getPanel().getUIID()).append("']);");
 	            
 	            IDataItem dataItem = AjaxActionHelper.createAppendItemToTab(this.getId(), id);
-	            dataItem.setData(htmlContext.getHtmlString());
+	            dataItem.setData(htmlWriter.getBuffer().toString());
 	            dataItem.setJs(js.toString());
 	            dataItem.setFrameInfo(this.getFrameInfo());
 	            AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
@@ -366,18 +365,55 @@ public class TabPane extends Container implements Serializable
     		}
 			
         } else if (tab.getRefEntity() != null) {
-        	//form support
+        	ODEntityContext refFormContext = null;
+			if (tab.getOdmappings() != null && tab.getOdmappings().size() > 0) {
+				// we assume only one SimpleComponentMappingType defined for referenced form.
+				// the panel mappings can be multiple supported.
+				ODContext odObject = new ODTabPaneContext(htmlContext, this.evalContext);
+				for (SimpleComponentMappingType mapping : tab.getOdmappings()) {
+					SimpleComponentMapping scMapping = new SimpleComponentMapping(mapping);
+					scMapping.parse(odObject, null);
+					ODEntityContext result = scMapping.executeDataToUI(odObject);
+					if (result != null) {
+						refFormContext = result;
+					}
+				}
+				AjaxActionHelper.updateFrameMap(ajaxContext.getRequest(), htmlContext.getPageAjaxWidgets());
+			}
+        	if (refFormContext == null) {
+        		throw new UIPageException("Evaluation Context is missing for TabPane lazyloading form! " + tab.getUiid());
+        	}
+        	DefaultEvaluationContext inputContext = (DefaultEvaluationContext)refFormContext.getEvaluationContextObject("$");
         	UIReferenceEntityType itemRef = (UIReferenceEntityType)tab.getRefEntity();
         	String UIID = entityPrefix + itemRef.getUIID();
             String type = itemRef.getReferenceEntity().getEntityName();
-			RefForm form = new RefForm(UIID, type, odContext.getLocalVariableValues());
+			RefForm form = new RefForm(UIID, type, inputContext.getVariableObjects());
+			htmlContext.addAjaxWidget(form.getId(), form);
+			AjaxActionHelper.updateFrameMap(ajaxContext.getRequest(), htmlContext.getPageAjaxWidgets());
 			AjaxActionHelper.getAjaxContext().addAJAXComponent(form.getId(), form);
-			
-			IDataItem dataItem = AjaxActionHelper.createAppendItemToTab(this.getId(), UIID);
-			dataItem.setData(form.generateHTML());
-			dataItem.setJs(form.generateJS());
-			dataItem.setFrameInfo(this.getFrameInfo());
-			AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+			htmlContext.setCurrentFormInfo(type, UIID + ".", "");
+			try {
+				PageDispatcher dispatcher = new PageDispatcher(refFormContext.getUIFormObject(), inputContext);
+	            dispatcher.forwardForm(htmlContext, 0, isReadOnly(), null);
+	            
+	            // append the dynamic js files.
+	            StringWriter jswriter1 = new StringWriter();
+	            UserRequestContext jsContext = new UserRequestContext(ajaxContext.getRequest(), jswriter1);
+	            refFormContext.getUIFormObject().getJSPathSet(jsContext, Collections.emptyMap(), true);
+	        	String data = jswriter1.getBuffer().toString();
+	        	IDataItem dataItem = AjaxActionHelper.createLoadJS(form.getId(), data);
+	            dataItem.setFrameInfo(getFrameInfo());
+	            ajaxContext.addDataItem(dataItem);
+				AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+				
+		    	IDataItem dataItem1 = AjaxActionHelper.createAppendItemToTab(this.getId(), UIID);
+	            dataItem1.setData(htmlWriter.getBuffer().toString());
+		        dataItem1.setJs(form.generateJS());
+	            dataItem1.setFrameInfo(this.getFrameInfo());
+	            AjaxActionHelper.getAjaxContext().addDataItem(dataItem1);
+			} finally {
+				htmlContext.resetCurrentFormInfo();
+			}
         } else if (tab.getFrames() != null && tab.getFrames().size() > 0) {
         	//page support
         	UIFrameType definedFrame = null;
@@ -416,6 +452,7 @@ public class TabPane extends Container implements Serializable
         } 
 		return true;
     	} finally {
+    		UserRequestContext.UserContext.set(orginalUserContext);
     		if (this.accessedIndex.get() >= this.tabs.size()) {
     			this.tabs = null;
     			this.ownerEntity = null;

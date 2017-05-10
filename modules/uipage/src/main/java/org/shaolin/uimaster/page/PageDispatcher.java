@@ -34,8 +34,10 @@ import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.EvaluationContext;
+import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.html.layout.IUISkin;
 import org.shaolin.uimaster.page.ajax.Widget;
+import org.shaolin.uimaster.page.ajax.json.IRequestData;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.cache.UIPageObject;
 import org.shaolin.uimaster.page.exception.AjaxException;
@@ -190,26 +192,23 @@ public class PageDispatcher {
      * @param context
      */
     public void forwardPage(UserRequestContext context) throws UIPageException
-    {//portlet not processed here
+    {
         try
         {
-        	UserRequestContext.UserContext.set(context);
-        	
         	if (pageObject == null) {
         		logger.warn("Please invoke UIPageObject.forward");
         		return;
         	}
             String entityName = pageObject.getRuntimeEntityName();
 			if (logger.isDebugEnabled()) {
-				logger.debug(
-						"<---HTMLUIPage.forward--->start to access the uipage: {}",
-						entityName);
+				logger.debug("<---HTMLUIPage.forward--->start to access the uipage: {}", entityName);
 			}
-            String userLocale = LocaleContext.getUserLocale();
-            ComponentOrientation ce = ComponentOrientation.getOrientation(
-                    ResourceUtil.getLocaleObject(userLocale));
-            context.setLeftToRight(ce.isLeftToRight());
 
+            String userLocale = LocaleContext.getUserLocale();
+            ComponentOrientation ce = ComponentOrientation.getOrientation(ResourceUtil.getLocaleObject(userLocale));
+            context.setLeftToRight(ce.isLeftToRight());
+            UserRequestContext.UserContext.set(context);
+            
 			if (logger.isDebugEnabled()) {
 				logger.debug("Call od to set data for the uipage: {}",
 						entityName);

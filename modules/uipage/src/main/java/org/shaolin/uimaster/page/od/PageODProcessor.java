@@ -16,7 +16,6 @@
 package org.shaolin.uimaster.page.od;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -122,9 +121,8 @@ public class PageODProcessor
     				// calculate all dynamic variables in this form.
     				UIFormObject formObject = odPageContext.getUIFormObject();
     				// only search for current level excluding sub ref-entity since the evaluation context is different.
-    	            Iterator<String> i = formObject.getAllComponentID(); 
-    	    		while(i.hasNext()) {
-    	    			String compId = i.next();
+    				List<String> componentIds = formObject.getAllComponentID();
+    	    		for(String compId : componentIds) {
     	    			Map propMap = formObject.getComponentProperty(compId);
     	    			Map i18nMap = formObject.getComponentI18N(compId);
     	    			Map expMap = formObject.getComponentExpression(compId);

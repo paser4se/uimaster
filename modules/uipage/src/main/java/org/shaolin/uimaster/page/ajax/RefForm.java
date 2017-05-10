@@ -30,10 +30,10 @@ import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.DisposableBfString;
-import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.PageDispatcher;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.cache.ODFormObject;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
@@ -190,18 +190,19 @@ public class RefForm extends Container implements Serializable
     
     public Map ui2Data(Map inputParams)
     {
-        try
-        {
+    	UserRequestContext orginalUserContext = UserRequestContext.UserContext.get();
+        try {
             if(logger.isDebugEnabled())
             {
                 logger.debug("[ui2Data] uientity: "+this.getUIEntityName());
             }
+            
             AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
             UserRequestContext htmlContext = new UserRequestContext(ajaxContext.getRequest());
             htmlContext.setCurrentFormInfo(this.getUIEntityName(), "", "");
             htmlContext.setIsDataToUI(false);//Don't set prefix in here.
             htmlContext.setAjaxWidgetMap(AjaxActionHelper.getFrameMap(ajaxContext.getRequest()));
-
+            
             ODFormObject odEntityObject = PageCacheManager.getODFormObject(this.getUIEntityName());
             HTMLReferenceEntityType newReferObject = new HTMLReferenceEntityType(this.getId(), this.getUIEntityName());
             inputParams = (inputParams == null)?new HashMap():inputParams;
@@ -242,6 +243,10 @@ public class RefForm extends Container implements Serializable
         {
 			throw new IllegalStateException("Call UI[" + this.getUIEntityName()
 					+ "] to Data error: " + ex.getMessage(), ex);
+        } 
+        finally 
+        {
+        	UserRequestContext.UserContext.set(orginalUserContext);
         }
     }
 
@@ -279,6 +284,7 @@ public class RefForm extends Container implements Serializable
     	if (this.getId() == null) {
     		throw new IllegalStateException("Please make sure you are using the right refform object!");
     	}
+    	UserRequestContext orginalUserContext = UserRequestContext.UserContext.get();
         try
         {
         	AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
@@ -289,6 +295,8 @@ public class RefForm extends Container implements Serializable
             UserRequestContext htmlContext = new UserRequestContext(ajaxContext.getRequest(), writer);
             htmlContext.setIsDataToUI(true);
             htmlContext.setCurrentFormInfo(this.getUIEntityName(), "", "");
+            
+            UIFormObject entity = HTMLUtil.parseUIForm(this.getUIEntityName());
             ODFormObject odEntityObject = PageCacheManager.getODFormObject(this.getUIEntityName());
             HTMLReferenceEntityType newReferObject = new HTMLReferenceEntityType(this.getId(), this.getUIEntityName());
             if (inputParams == null)
@@ -303,30 +311,28 @@ public class RefForm extends Container implements Serializable
             	}
             }
             
+            htmlContext.setFormObject(entity);
             htmlContext.setODMapperData(inputParams);
+			Map ajaxMap = AjaxActionHelper.getFrameMap(ajaxContext.getRequest());
+			htmlContext.setAjaxWidgetMap(ajaxMap);
+			UserRequestContext.UserContext.set(htmlContext);
+            
             callODMapper(htmlContext, this.getUIEntityName());
-            Map referenceEntityMap = new HashMap();
-            htmlContext.setRefEntityMap(referenceEntityMap);
-
+            
+            AjaxActionHelper.updateFrameMap(ajaxContext.getRequest(), htmlContext.getPageAjaxWidgets());
             inputParams.remove(odEntityObject.getUiParamName());// cannot be serializable!
-            String id = this.getId();
-            htmlContext.resetCurrentFormInfo();
-            htmlContext.setCurrentFormInfo(this.getUIEntityName(), id+".", id.replace('.','-')+'-');
             htmlContext.setReconfigFunction(functionReconfigurationMap);
+            htmlContext.setRefEntityMap(new HashMap());
             htmlContext.printHTMLAttributeValues();
 
-            Map ajaxMap = AjaxActionHelper.getAjaxContext().getFrameComponentMap(this.getFrameInfo());
-            htmlContext.setAjaxWidgetMap(ajaxMap);
             String oldFrameInfo = (String)htmlContext.getRequest().getAttribute("_framePagePrefix");
             htmlContext.getRequest().setAttribute("_framePagePrefix", this.getFrameInfo());
-            UserRequestContext.UserContext.set(htmlContext);
             
             //for a RefEntity uientity2.uientity1, firstly, 
             //call AjaxComponentSecurityUtil.loadSecurityMap to load all the security controls configured on higher level(in this case, uientity2, uipage)
             //in this method, the process sequence is from inside to outside
             //then call HTMLUIEntity.parse to process the security controls configured on lower level(in this case, security controls configured within uientity1)
             //in this method, the process sequence is from outside to inside
-            UIFormObject entity = HTMLUtil.parseUIForm(this.getUIEntityName());
             
             OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
             DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
@@ -339,7 +345,7 @@ public class RefForm extends Container implements Serializable
             ooeeContext.setDefaultEvaluationContext(evaContext);
             ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
             
-            HTMLReferenceEntityType refEntity = new HTMLReferenceEntityType(id);
+            HTMLReferenceEntityType refEntity = new HTMLReferenceEntityType(this.getId());
             if (inputParams.get(RECONFIG_ORIGINAL) != null && inputParams.get(RECONFIG_OVERRIDE) != null) {
             	refEntity.addFunctionReconfiguration(inputParams.get(RECONFIG_ORIGINAL).toString(), 
             			inputParams.get(RECONFIG_OVERRIDE).toString());
@@ -367,6 +373,10 @@ public class RefForm extends Container implements Serializable
         {
             logger.error("Error occurred while building the UI form structure of entity: " + uiid, ex);
             return "<div>Error occurred while building the UI form structure of entity: " + uiid + "</div>";
+        }
+        finally 
+        {
+        	UserRequestContext.UserContext.set(orginalUserContext);
         }
     }
     

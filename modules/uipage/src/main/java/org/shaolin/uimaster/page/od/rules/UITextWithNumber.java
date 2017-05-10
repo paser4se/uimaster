@@ -252,7 +252,10 @@ public class UITextWithNumber implements IODMappingConverter {
 			if (t instanceof UIConvertException) {
 				throw ((UIConvertException) t);
 			}
-
+			if (getUIHTML() == null) {
+				throw new UIConvertException("EBOS_ODMAPPER_072", t,
+						new Object[] { "null"});
+			}
 			throw new UIConvertException("EBOS_ODMAPPER_072", t,
 					new Object[] { getUIHTML().getUIID() });
 		}

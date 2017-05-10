@@ -30,6 +30,7 @@ import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.i18n.ResourceUtil;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.uimaster.html.layout.HTMLPanelLayout;
+import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.CellLayout;
 import org.shaolin.uimaster.page.ajax.TabPane;
@@ -61,7 +62,7 @@ public class HTMLTabPaneType extends HTMLContainerType
             context.generateHTML("<div id=\"");
             context.generateHTML(getName());
             context.generateHTML("\" class=\"tab ui-tabs ui-widget ui-corner-all\">");
-
+            HTMLUtil.generateTab(context, depth);
             super.generateBeginHTML(context, ownerEntity, depth);
 
             int selectedIndex = 0;
@@ -84,6 +85,7 @@ public class HTMLTabPaneType extends HTMLContainerType
             context.generateHTML("\" selectedIndex=\"");
             context.generateHTML(tabSelected + "");
             context.generateHTML("\">");
+            HTMLUtil.generateTab(context, depth);
             for(int i = 0, n = tabs.size(); i < n; i++)
             {
                 UITabPaneItemType tab = tabs.get(i);
@@ -102,19 +104,23 @@ public class HTMLTabPaneType extends HTMLContainerType
                 if(i == tabSelected)
                 {
                     context.generateHTML("<div class =\"ui-state-default ui-corner-top ui-tabs-active ui-state-active\" style=\"border-bottom: 1px solid white;\" id = \"tab-" + cmpName + "-titles-" + i + "\" index=\""+ i +"\">");
+                    HTMLUtil.generateTab(context, depth + 1);
                     selectedIndex = i;
                 }
                 else
                 {
                     context.generateHTML("<div class =\"ui-state-default ui-corner-top\" id = \"tab-" + cmpName + "-titles-" + i + "\" index=\""+ i +"\" ajaxload=\"" + ajaxLoad + "\">");
+                    HTMLUtil.generateTab(context, depth + 1);
                 }
                 context.generateHTML("" + title);
                 context.generateHTML("</div>");
+                HTMLUtil.generateTab(context, depth);
             }
             context.generateHTML("</div>");
-
+            HTMLUtil.generateTab(context, depth);
             //Generate the bodies of the tabpane
             context.generateHTML("<div class=\"tab-bodies\" id=\"bodies-container-" + cmpName + "\">");
+            HTMLUtil.generateTab(context, depth);
             for(int i = 0, n = tabs.size(); i < n; i++)
             {
             	//Generate one body
@@ -135,7 +141,7 @@ public class HTMLTabPaneType extends HTMLContainerType
             	context.generateHTML(" uiid=\"");
             	context.generateHTML(tabs.get(i).getUiid());
             	context.generateHTML("\">");
-            	
+            	HTMLUtil.generateTab(context, depth + 1);
             	if (!ajaxLoad || i==0) {
 	                UITabPaneItemType tab = tabs.get(i);
 	                if (tab.getPanel() != null) {
@@ -190,9 +196,10 @@ public class HTMLTabPaneType extends HTMLContainerType
 	                } 
             	}
                 context.generateHTML("</div>");
+                HTMLUtil.generateTab(context, depth + 1);
             }
             context.generateHTML("</div>");
-            
+            HTMLUtil.generateTab(context, depth);
             generateEndWidget(context);
         }
         catch (Exception e)
@@ -268,6 +275,9 @@ public class HTMLTabPaneType extends HTMLContainerType
         panel.setReadOnly(isReadOnly());
         panel.setUIEntityName(getUIEntityName());
         panel.setListened(true);
+        if ((boolean)this.getAttribute("ajaxLoad")) {
+        	panel.setODMapperContext(ee);
+        }
         
         List<HTMLReferenceEntityType> createdRefEntities = new ArrayList<HTMLReferenceEntityType>();
         boolean ajaxLoad = (boolean)this.getAttribute("ajaxLoad");
@@ -275,7 +285,6 @@ public class HTMLTabPaneType extends HTMLContainerType
         	if (ajaxLoad && i > 0) {
         		// save context if it's ajax loading.
         		String uiid = tabs.get(i).getUiid();
-        		panel.addODMapperContext(uiid, UserRequestContext.UserContext.get().getODMapperContext(uiid));
         	} 
         	if (!ajaxLoad || i==0) {
                 UITabPaneItemType tab = tabs.get(i);

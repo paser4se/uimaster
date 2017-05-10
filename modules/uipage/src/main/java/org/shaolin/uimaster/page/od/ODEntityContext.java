@@ -122,15 +122,18 @@ public class ODEntityContext extends ODContext
 			Object value = inputParamValues.get(key);
 			if (value instanceof HTMLReferenceEntityType) {
 				uiEntity = (HTMLReferenceEntityType)value;
-				break;
+				if (uiEntityName.equals(uiEntity.getReferenceEntity())) {
+					break;
+				}
 			}
 		}
-		if (uiEntity == null || !UserRequestContext.isInstance(uiEntityName, uiEntity))
+		if (uiEntity == null || !UserRequestContext.isInstance(uiEntityName, uiEntity)) {
 			throw new ODProcessException(ExceptionConstants.EBOS_ODMAPPER_049,
 					new Object[]{uiEntity.getUIEntityName(), uiEntityName});
-    	if(logger.isDebugEnabled())
-            logger.debug("UI Reference Entity uiid: "+this.uiEntity.getId());
-    	
+		}
+    	if(logger.isDebugEnabled()) {
+            logger.debug("UI Reference Entity uiid: " + this.uiEntity.getId());
+    	}
     	DefaultEvaluationContext defaultEContext = new DefaultEvaluationContext();
     	defaultEContext.setVariableValue("context", requestContext);
     	defaultEContext.setVariableValue("odContext", this);

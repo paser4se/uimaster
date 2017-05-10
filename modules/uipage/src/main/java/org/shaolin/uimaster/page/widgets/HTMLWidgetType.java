@@ -816,6 +816,6 @@ public abstract class HTMLWidgetType implements Serializable
 	}
 	
 	public String toString() {
-		return this.getName() + "[" + this.getClass().getSimpleName() + "]";
+		return this.getName() + "[" + this.getClass().getSimpleName() + "]" + this.hashCode();
 	}
 }

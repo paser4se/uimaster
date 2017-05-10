@@ -184,6 +184,18 @@ public class PageTest {
 		
 		try {
 			UIPageObject pageObject = HTMLUtil.parseUIPage(page);
+			
+			List<String> components = pageObject.getUIForm().getAllComponentID("functionsTab.machiningInfoPanel1");
+			Assert.assertEquals(components.toString(), "[machiningTable1, machiningInfoPanel1]");
+			Assert.assertEquals(pageObject.getUIForm().getComponentProperty("machiningTable1").get("beElememt"), "org.shaolin.uimaster.test.be.Customer");
+			Assert.assertTrue(pageObject.getUIForm().getComponentProperty("machiningTable1").containsKey("queryExpr"));
+			
+			components = pageObject.getUIForm().getAllComponentID("functionsTab.personalAccountForm");
+			Assert.assertEquals(components.toString(), "[personalAccountForm]");
+			Assert.assertEquals(pageObject.getUIForm().getComponentProperty("personalAccountForm").get("referenceEntity"), "org.shaolin.uimaster.form.Customer");
+			Assert.assertEquals(pageObject.getUIForm().getComponents().size(), 25);
+			
+			
 			PageDispatcher dispatcher = new PageDispatcher(pageObject);
 			dispatcher.forwardPage(htmlContext);
 			

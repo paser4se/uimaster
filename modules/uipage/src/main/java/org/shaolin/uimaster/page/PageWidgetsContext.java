@@ -16,14 +16,9 @@
 package org.shaolin.uimaster.page;
 
 import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
-import org.shaolin.uimaster.page.cache.PageCacheManager;
-import org.shaolin.uimaster.page.cache.UIFormObject;
-import org.shaolin.uimaster.page.cache.UIPageObject;
 import org.shaolin.uimaster.page.exception.UIComponentNotFoundException;
 import org.shaolin.uimaster.page.exception.UIPageException;
 import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * TODO: considering add this to the cache.
@@ -33,11 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PageWidgetsContext implements java.io.Serializable {
 
-	private static final Logger logger = LoggerFactory.getLogger(PageWidgetsContext.class);
-	
 	private final String pageName;
-	
-	private UIFormObject uientityObject;
 	
 	public PageWidgetsContext(String pageName) {
 		this.pageName = pageName;
@@ -45,50 +36,11 @@ public class PageWidgetsContext implements java.io.Serializable {
 	
 	public void loadComponent(UserRequestContext context, 
 			String uiid, String entityName, boolean isEntity) throws EntityNotFoundException, UIPageException {
-		if (isEntity) {
-			uientityObject = PageCacheManager.getUIFormObject(entityName);
-		} else {
-			UIPageObject pageObject = PageCacheManager.getUIPageObject(entityName);
-			uientityObject = pageObject.getUIForm();
-		}
-		
-//		if (logger.isDebugEnabled()) {
-//			logger.debug("Create html components for Entity: {}", entityName);
-//		}
-//
-//		Iterator<String> i = uientityObject.getAllComponentID();
-//		while (i.hasNext()) {
-//			String compId = i.next();
-//			Map<String, Object> propMap = uientityObject.getComponentProperty(compId);
-//			Map eventMap = uientityObject.getComponentEvent(compId);
-//			String UIID = uiid + compId;
-//			Boolean readOnly = Boolean.FALSE;
-//			Map tempMap = new HashMap();
-//			HTMLLayoutType layout = HTMLUtil.getHTMLLayoutType("CellLayoutType");
-//
-//			HTMLWidgetType component = HTMLUtil.getHTMLUIComponent(UIID, context, propMap, eventMap, readOnly, tempMap,
-//					layout, false);
-//			component.setPrefix(context.getHTMLPrefix());
-//			if (component instanceof HTMLReferenceEntityType) {
-//				HTMLReferenceEntityType oldReferObject = ((HTMLReferenceEntityType) component);
-//				oldReferObject.setType((String) propMap.get("referenceEntity"));
-//			}
-//
-//			components.put(component.getName(), component);
-//			if (logger.isDebugEnabled()) {
-//				logger.debug("Create component: {}, type: {}", component.getName(), component);
-//			}
-//		}
 	}
 	
 	public HTMLWidgetType getComponent(String uiid) 
 		throws UIComponentNotFoundException {
-		if (uientityObject.getComponents().containsKey(uiid)) {
-			return uientityObject.getComponents().get(uiid);
-		} else {
-			throw new UIComponentNotFoundException(
-					"the component does not exist in the cache. uiid: " + uiid );
-		}
+		return null;
 	}
 	
 	public String getPageName() {
@@ -96,7 +48,6 @@ public class PageWidgetsContext implements java.io.Serializable {
 	}
 	
 	public void printAllComponents() {
-		uientityObject.printAllComponents();
 	}
 	
 }

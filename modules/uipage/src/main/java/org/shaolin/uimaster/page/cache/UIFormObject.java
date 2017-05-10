@@ -151,21 +151,22 @@ public class UIFormObject implements java.io.Serializable
     
     private String bodyName = null;
 
-    private Map<String, Map<String, Object>> componentMap = new HashMap<String, Map<String, Object>>();
-
-    private final Map<String, HTMLWidgetType> components = new HashMap<String, HTMLWidgetType>();
+    // uiid with lazy loading.
+    private final Map<String, HTMLWidgetType> htmlWidgets = new HashMap<String, HTMLWidgetType>();
+    // uiid with lazy loading., but excludes all ajax/lazy loading components.
+    private List<String> componentIds = null;
+    // tabpaneIdpanelId includes all ajax/lazy loading components.
+    private final Map<String, List<String>> lazyloadingComponentIds = new HashMap<String, List<String>>();
     
-    // tabpaneIdpanelId, component ids
-    private final Map<String, List<String>> tabPanelNestComponents = new HashMap<String, List<String>>();
-    
-    //App Name, UIPanel Name, UI Widgets.
-    private Map<String, List<HTMLDynamicUIItem>> dynamicItems; 
-    
+    // ui attributes
+    private Map<String, Map<String, Object>> attributesMap = new HashMap<String, Map<String, Object>>();
     private Map<String, Object> bundleMap = new HashMap<String, Object>();
-
     private Map<String, Map<String, ExpressionType>> expressionMap = new HashMap<String, Map<String, ExpressionType>>();
-
     private Map<String, Object> funcMap = new HashMap<String, Object>();
+    private Map<String, Object> uiskinMap = new HashMap<String, Object>();
+    private Map reconfigurationMap = new HashMap();
+    // App Name, UIPanel Name, UI Widgets.
+    private Map<String, List<HTMLDynamicUIItem>> dynamicItems; 
 
     
     private List<String> workflowActions; 
@@ -176,26 +177,14 @@ public class UIFormObject implements java.io.Serializable
 
 	private List<ParamType> variables = null;
 
-    private Map reconfigurationMap = new HashMap();
-
-    private Map uiskinMap = new HashMap();
-
-    private Map includeMap = new HashMap();
-
-    private long lastModifyTime;
-
-    private List<String> refereneEntityList = new ArrayList<String>();
+    private List<String> refEntityList = new ArrayList<String>();
+    private List<String> referencedEntityList = new ArrayList<String>();
 
     private Map jsIncludeMap = new HashMap();
-
     private List jsIncludeList = new ArrayList();
-
     private Map jsMobIncludeMap = new HashMap();
-
     private List jsMobIncludeList = new ArrayList();
-
     private Map jsMobAppIncludeMap = new HashMap();
-
     private List jsMobAppIncludeList = new ArrayList();
     
 	public UIFormObject(String name) throws UIPageException
@@ -233,20 +222,9 @@ public class UIFormObject implements java.io.Serializable
         HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, !WebConfig.skipCommonJs(name));
         HTMLUtil.includeMobAppJsFiles(name, jsMobAppIncludeMap, jsMobAppIncludeList, !WebConfig.skipCommonJs(name));
         
-        components.clear();
-        Iterator<String> i = this.getAllComponentID();
-		while(i.hasNext()) {
-			String compId = i.next();
-			Map<String, Object> propMap = this.getComponentProperty(compId);
-			Map eventMap = this.getComponentEvent(compId);
-	        HTMLWidgetType component = createHTMLUIComponent(compId, propMap, eventMap);
-	        components.put(component.getName(), component);
-	        if (logger.isDebugEnabled()) {
-	        	logger.debug("Create component: {}, type: {}", component.getName(), component);
-	        }
-		}
+        loadHTMLWidgets();
     }
-    
+
     private void load() throws EntityNotFoundException, UIPageException
     {
     	UIEntity entity = IServerServiceManager.INSTANCE.getEntityManager()
@@ -257,18 +235,7 @@ public class UIFormObject implements java.io.Serializable
         HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, false);
         HTMLUtil.includeMobAppJsFiles(name, jsMobAppIncludeMap, jsMobAppIncludeList, false);
         
-        components.clear();
-        Iterator<String> i = this.getAllComponentID();
-		while(i.hasNext()) {
-			String compId = i.next();
-			Map<String, Object> propMap = this.getComponentProperty(compId);
-			Map eventMap = this.getComponentEvent(compId);
-	        HTMLWidgetType component = createHTMLUIComponent(compId, propMap, eventMap);
-	        components.put(component.getName(), component);
-	        if (logger.isDebugEnabled()) {
-	        	logger.debug("Create component: {}, type: {}", component.getName(), component);
-	        }
-		}
+        loadHTMLWidgets();
     }
     
     private void loadForPage() throws EntityNotFoundException, UIPageException
@@ -281,19 +248,87 @@ public class UIFormObject implements java.io.Serializable
         HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, !WebConfig.skipCommonJs(name));
         HTMLUtil.includeMobJsFiles(name, jsMobAppIncludeMap, jsMobAppIncludeList, !WebConfig.skipCommonJs(name));
         
-        components.clear();
-        Iterator<String> i = this.getAllComponentID();
-		while(i.hasNext()) {
-			String compId = i.next();
+        loadHTMLWidgets();
+    }
+    
+    /**
+     * lazy loading required for workflow dynamic action support!
+     * 
+     * @throws UIPageException
+     */
+    private synchronized void forceReloadHTMLWidgets() throws UIPageException {
+    	componentIds = new ArrayList<String>(attributesMap.keySet());
+        htmlWidgets.clear();
+		for(String compId : componentIds) {
 			Map<String, Object> propMap = this.getComponentProperty(compId);
 			Map eventMap = this.getComponentEvent(compId);
 	        HTMLWidgetType component = createHTMLUIComponent(compId, propMap, eventMap);
-	        components.put(component.getName(), component);
+	        htmlWidgets.put(component.getName(), component);
 	        if (logger.isDebugEnabled()) {
-	        	logger.debug("Create component: {}, type: {}", component.getName(), component);
+	        	logger.debug("Lazy loading HTML cached widget: {}, type: {}", component.getName(), component);
 	        }
 		}
+		for (List<String> ajaxCompIds : lazyloadingComponentIds.values()) {
+			for (String uiid : ajaxCompIds) {
+				componentIds.remove(uiid);
+			}
+		}
+		
+		for(String entity: referencedEntityList) {
+    		try {
+    			UIFormObject uiCache = PageCacheManager.getUIFormObject(entity);
+    			uiCache.forceReloadHTMLWidgets(); //refreshing!
+    		} catch (EntityNotFoundException e0) {
+    			try {
+    				UIPageObject uiCache = PageCacheManager.getUIPageObject(entity);
+    				uiCache.getUIForm().forceReloadHTMLWidgets(); //refreshing!
+    			} catch (Exception e1) {
+    			} 
+    		}
+    	}
     }
+    
+    /**
+     * lazy loading required for workflow dynamic action support!
+     * 
+     * @throws UIPageException
+     */
+    private synchronized void loadHTMLWidgets() throws UIPageException {
+    	if (componentIds != null) {
+    		return;
+    	}
+    	
+		componentIds = new ArrayList<String>(attributesMap.keySet());
+        htmlWidgets.clear();
+		for(String compId : componentIds) {
+			Map<String, Object> propMap = this.getComponentProperty(compId);
+			Map eventMap = this.getComponentEvent(compId);
+	        HTMLWidgetType component = createHTMLUIComponent(compId, propMap, eventMap);
+	        htmlWidgets.put(component.getName(), component);
+	        if (logger.isDebugEnabled()) {
+	        	logger.debug("Lazy loading HTML cached widget: {}, type: {}", component.getName(), component);
+	        }
+		}
+		for (List<String> ajaxCompIds : lazyloadingComponentIds.values()) {
+			for (String uiid : ajaxCompIds) {
+				componentIds.remove(uiid);
+			}
+		}
+		
+		// notify referenced form or page component.
+		for(String entity: referencedEntityList) {
+    		try {
+    			UIFormObject uiCache = PageCacheManager.getUIFormObject(entity);
+    			uiCache.forceReloadHTMLWidgets(); //refreshing!
+    		} catch (EntityNotFoundException e0) {
+    			try {
+    				UIPageObject uiCache = PageCacheManager.getUIPageObject(entity);
+    				uiCache.getUIForm().forceReloadHTMLWidgets(); //refreshing!
+    			} catch (Exception e1) {
+    			} 
+    		}
+    	}
+	}
     
     private static final Map<String, Class<?>> htmlUIClassMap = new ConcurrentHashMap<String, Class<?>>();
 
@@ -346,13 +381,17 @@ public class UIFormObject implements java.io.Serializable
 		// parse HTMLReferenceEntityType;
 		UIFormObject refform = PageCacheManager.getUIFormObject(referObject.getType());
 		for (Map.Entry<String, HTMLWidgetType> entry : refform.getComponents().entrySet()) {
-			components.put(prefix + referObject.getName() + "." + entry.getKey(), entry.getValue());
+			String compId = prefix + referObject.getUIID() + "." + entry.getKey();
+			htmlWidgets.put(compId, entry.getValue());
+			if (logger.isDebugEnabled()) {
+	        	logger.debug("Lazy loading HTML cached widget: {}, type: {}", compId, htmlWidgets.get(compId));
+	        }
 			// recursive for more nested HTMLReferenceEntityType
 			if (entry.getValue() instanceof HTMLReferenceEntityType) {
 				HTMLReferenceEntityType subRef = (HTMLReferenceEntityType)entry.getValue();
 				Map<String, Object> propMap1 = refform.getComponentProperty(subRef.getUIID());
 				subRef.setEntityName((String)propMap1.get("referenceEntity"));
-				createRefEntity(prefix + referObject.getName() + ".", subRef);
+				createRefEntity(prefix + referObject.getUIID() + ".", subRef);
 			}
 		}
 	}
@@ -430,7 +469,7 @@ public class UIFormObject implements java.io.Serializable
 
     public void parseReferenceEntity(Map<String, UIFormObject> entityMap) throws EntityNotFoundException, UIPageException
     {
-    	Iterator<String> iterator = refereneEntityList.iterator();
+    	Iterator<String> iterator = refEntityList.iterator();
     	while (iterator.hasNext())
     	{
     		String entityName = iterator.next();
@@ -590,8 +629,8 @@ public class UIFormObject implements java.io.Serializable
         callServerSideOpMap.put(callAjaxName, opsList);
     }
 
-    private void parseComponent(UIComponentType component,
-            OOEEContext parsingContext) throws EntityNotFoundException, UIPageException
+    private void parseComponent(UIComponentType component, OOEEContext parsingContext) 
+    		throws EntityNotFoundException, UIPageException
     {
 		if (logger.isDebugEnabled()) {
 			logger.debug("parse ui widget: " + component.getUIID());
@@ -631,8 +670,11 @@ public class UIFormObject implements java.io.Serializable
                     logger.debug("parse reference entity: " + referenceEntity);
                 }
                 UIFormObject refEntity = HTMLUtil.parseUIForm(referenceEntity);
-                includeMap.put(refEntity, Long.valueOf(refEntity.lastModifyTime));
-                refereneEntityList.add(referenceEntity);
+//                includeMap.put(refEntity, Long.valueOf(refEntity.lastModifyTime));
+                refEntityList.add(referenceEntity);
+                if (!refEntity.referencedEntityList.contains(this.name)) {
+                	refEntity.referencedEntityList.add(this.name);
+                }
                 if (logger.isDebugEnabled())
                 {
                     logger.debug("parse reconfiguration for reference entity: "
@@ -687,37 +729,54 @@ public class UIFormObject implements java.io.Serializable
             }
             else if (component instanceof UITabPaneType)
             {
+            	int index = 0;
                 UITabPaneType tabPane = (UITabPaneType)component;
                 List<UITabPaneItemType> tabs = tabPane.getTabs();
 				for (UITabPaneItemType tab : tabs)
                 {
+					if (tab.getOdmappings() != null && tab.getOdmappings().size() > 0) {
+						//TODO: validating!
+					}
 					if (tab.getRefEntity() != null) {
-	                    parseComponent(tab.getRefEntity(), parsingContext);
+						parseComponent(tab.getRefEntity(), parsingContext);
 	                    String referenceEntity = tab.getRefEntity().getReferenceEntity()
 	                            .getEntityName().trim();
 	
 	                    UIFormObject refEntity = HTMLUtil.parseUIForm(referenceEntity);
-	                    includeMap.put(refEntity, Long.valueOf(refEntity.lastModifyTime));
-	                    refereneEntityList.add(referenceEntity);
+//	                    includeMap.put(refEntity, Long.valueOf(refEntity.lastModifyTime));
+	                    refEntityList.add(referenceEntity);
+	                    if (!refEntity.referencedEntityList.contains(this.name)) {
+	                    	refEntity.referencedEntityList.add(this.name);
+	                    }
 	
 	                    parseReconfiguration(tab.getRefEntity(), propMap,
 	                            i18nMap, expMap, parsingContext);
+	                    
+	                    if (tabPane.isAjaxLoad() && index > 0) {
+		                    List<String> nestedComponentIds = new ArrayList<String>();
+		                    nestedComponentIds.add(tab.getRefEntity().getUIID());
+		                    lazyloadingComponentIds.put(tabPane.getUIID() +"."+ tab.getUiid(), nestedComponentIds);
+						} 
 					} else if (tab.getPanel() != null) {
 						parseComponent(tab.getPanel(), parsingContext);
-						List<String> nestedComponentIds = new ArrayList<String>();
-						List<UIComponentType> components = tab.getPanel().getComponents();
-			            for (UIComponentType uicomponent: components) {
-			            	nestedComponentIds.add(uicomponent.getUIID());
-			            	if (uicomponent.getClass() == UIPanelType.class) {
-			            		for (UIComponentType subComp: ((UIPanelType)uicomponent).getComponents()) {
-					            	nestedComponentIds.add(subComp.getUIID());
-					            	//TODO: only supported two layers in tab-panel! which is enough?
-					            }
-			            	}
-			            }
-						tabPanelNestComponents.put(tabPane.getUIID() + tab.getPanel().getUIID(), nestedComponentIds);
+						
+						if (tabPane.isAjaxLoad() && index > 0) { 
+							List<String> nestedComponentIds = new ArrayList<String>();
+							List<UIComponentType> components = tab.getPanel().getComponents();
+				            for (UIComponentType uicomponent: components) {
+				            	nestedComponentIds.add(uicomponent.getUIID());
+				            	if (uicomponent.getClass() == UIPanelType.class) {
+				            		for (UIComponentType subComp: ((UIPanelType)uicomponent).getComponents()) {
+						            	nestedComponentIds.add(subComp.getUIID());
+						            	//TODO: only supported two layers in tab-panel! which is enough?
+						            }
+				            	}
+				            }
+				            nestedComponentIds.add(tab.getPanel().getUIID());
+				            lazyloadingComponentIds.put(tabPane.getUIID() +"."+ tab.getUiid(), nestedComponentIds);
+						} 
 					}
-
+					index ++;
                 }
 				propMap.put("ajaxLoad", tabPane.isAjaxLoad());
                 propMap.put("tabPaneItems", tabPane.getTabs());
@@ -743,9 +802,12 @@ public class UIFormObject implements java.io.Serializable
 	                            .getEntityName().trim();
 	
 	                    UIFormObject refEntity = HTMLUtil.parseUIForm(referenceEntity);
-	                    includeMap.put(refEntity, Long.valueOf(refEntity.lastModifyTime));
-	                    refereneEntityList.add(referenceEntity);
-	
+//	                    includeMap.put(refEntity, Long.valueOf(refEntity.lastModifyTime));
+	                    refEntityList.add(referenceEntity);
+	                    if (!refEntity.referencedEntityList.contains(this.name)) {
+	                    	refEntity.referencedEntityList.add(this.name);
+	                    }
+	                    
 	                    parseReconfiguration(tab.getRefEntity(), propMap,
 	                            i18nMap, expMap, parsingContext);
 					} else if (tab.getPanel() != null) {
@@ -753,7 +815,7 @@ public class UIFormObject implements java.io.Serializable
 					}
 
                 }
-				propMap.put("ajaxLoad", preNextPanel.isAjaxLoad());
+				//propMap.put("ajaxLoad", preNextPanel.isAjaxLoad());
                 propMap.put("tabPaneItems", preNextPanel.getTabs());
                 if (preNextPanel.getPreviousAction() != null) {
                 	try {
@@ -1200,7 +1262,7 @@ public class UIFormObject implements java.io.Serializable
             uiskinMap.put(component.getUIID(), uiskin);
         }
 
-        componentMap.put(component.getUIID(), propMap);
+        attributesMap.put(component.getUIID(), propMap);
         if (!i18nMap.isEmpty())
         {
             bundleMap.put(component.getUIID(), i18nMap);
@@ -1684,7 +1746,8 @@ public class UIFormObject implements java.io.Serializable
 
     private void clear()
     {
-        componentMap = new HashMap();
+    	componentIds = null;
+        attributesMap = new HashMap();
         bundleMap = new HashMap();
         expressionMap = new HashMap();
         funcMap = new HashMap();
@@ -1692,8 +1755,8 @@ public class UIFormObject implements java.io.Serializable
         variables = null;
         reconfigurationMap.clear();
         uiskinMap.clear();
-        includeMap.clear();
-        refereneEntityList.clear();
+        refEntityList.clear();
+//        referencedEntityList.clear(); DON'T clear!
         jsIncludeMap.clear();
         jsIncludeList.clear();
         jsMobIncludeMap.clear();
@@ -1753,6 +1816,11 @@ public class UIFormObject implements java.io.Serializable
         return this.name;
     }
     
+    @Override
+    public String toString() {
+    	return getClass().getSimpleName() + "@" + Integer.toHexString(hashCode()) + "[" + this.name + "]";
+    }
+    
     public String getDescription() 
     {
     	if (desc != null && desc.trim().length() > 0) {
@@ -1765,20 +1833,16 @@ public class UIFormObject implements java.io.Serializable
     	return descExpr;
     }
     
-    public Map<String, HTMLWidgetType> getComponents() {
-    	return components;
-    }
-   
     public void printAllComponents() {
 		if (logger.isTraceEnabled())
         {
 			 StringBuilder sb = new StringBuilder();
 			 sb.append("\n\nPrint all created UIComponents in page: ").append(this.name).append("\n");
 			 
-			 Iterator<String> f = components.keySet().iterator();
+			 Iterator<String> f = htmlWidgets.keySet().iterator();
 			 while(f.hasNext()) {
         		String uiid = f.next();
-        		Object object = components.get(uiid);
+        		Object object = htmlWidgets.get(uiid);
         		sb.append("  Widget: ").append(uiid).append("=").append(object);
         		sb.append("\n");
             }
@@ -1788,11 +1852,21 @@ public class UIFormObject implements java.io.Serializable
     
     public Map<String, Object> getComponentProperty(String componentID)
     {
-        return componentMap.get(componentID);
+        return attributesMap.get(componentID);
+    }
+    
+    public Map<String, HTMLWidgetType> getComponents() {
+    	if (componentIds == null) {
+			logger.warn("Form " + this.name + " is refreshing, please wait.");
+    	}
+    	return htmlWidgets;
     }
     
     public HTMLWidgetType getHTMLComponent(String componentID) {
-    	return components.get(componentID);
+    	if (componentIds == null) {
+    		logger.warn("Form " + this.name + " is refreshing, please wait.");
+    	}
+    	return htmlWidgets.get(componentID);
     }
     
     /**
@@ -1800,9 +1874,12 @@ public class UIFormObject implements java.io.Serializable
      * 
      * @return
      */
-    public Iterator<String> getAllComponentID()
+    public List<String> getAllComponentID()
     {
-        return componentMap.keySet().iterator();
+    	if (componentIds == null) {
+    		logger.warn("Form " + this.name + " is refreshing, please wait.");
+    	}
+        return componentIds;
     }
 
     /**
@@ -1814,7 +1891,7 @@ public class UIFormObject implements java.io.Serializable
      */
     public List<String> getAllComponentID(String tabpaneIdpanelId)
     {
-    	return tabPanelNestComponents.get(tabpaneIdpanelId);
+    	return lazyloadingComponentIds.get(tabpaneIdpanelId);
     }
     
     public Map getComponentEvent(String componentID)
@@ -2010,7 +2087,11 @@ public class UIFormObject implements java.io.Serializable
 						b.setReadOnly(property2);
 					}
 				}
+				OOEEContext parsingContext = parseVariable(entity);
+				parseComponent(actionPanel, parsingContext); 
 				
+				// forceReloadHTMLWidgets(); invoke outside only.
+				// However, we are not able to refresh the parent page as well. this is an issue for workflow hot deploy!
 				hasActionPanel = true;
 				break;
 			}
@@ -2057,6 +2138,19 @@ public class UIFormObject implements java.io.Serializable
 			load();
 		}
 	}
+	
+	private List<String> getPanelSubIds(UIPanelType panel) {
+    	List<String> list = new ArrayList<String>();
+    	list.add(panel.getUIID());
+    	for (UIComponentType b : panel.getComponents()) {
+    		if (b instanceof UIPanelType) {
+    			list.addAll(getPanelSubIds((UIPanelType)b));
+    		} else {
+    			list.add(b.getUIID());
+    		}
+    	}
+    	return list;
+    }
     
     public void clearWorkflowActions() {
 		if (this.workflowActions != null && this.workflowActions.size() > 0) {
@@ -2171,8 +2265,8 @@ public class UIFormObject implements java.io.Serializable
 	}
 	
 	public void addStatsAction(UITableStatsType uiStatsType) {
-		if (componentMap.containsKey(uiStatsType.getUiid())) {
-			Map<String, Object> propMap = componentMap.get(uiStatsType.getUiid());
+		if (attributesMap.containsKey(uiStatsType.getUiid())) {
+			Map<String, Object> propMap = attributesMap.get(uiStatsType.getUiid());
 			propMap.put("statistic", uiStatsType);
 			
 			boolean added = false;
@@ -2375,7 +2469,7 @@ public class UIFormObject implements java.io.Serializable
 		}
 		context.generateJS(importSelfJs(context, syncLoadJs));
 
-		Iterator iterator = this.refereneEntityList.iterator();
+		Iterator iterator = this.refEntityList.iterator();
 		while (iterator.hasNext()) {
 			String entityName = (String) iterator.next();
 			if (!entityMap.containsKey(entityName)) {

@@ -53,7 +53,7 @@ public class HTMLPreNextPanelType extends HTMLContainerType
     }
     
     public boolean isAjaxLoading() {
-    	return (boolean)this.removeAttribute("ajaxLoad");
+    	return false;
     }
 
     public void generateBeginHTML(UserRequestContext context, UIFormObject ownerEntity, int depth)

@@ -16,7 +16,6 @@
 package org.shaolin.uimaster.page.od;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -82,7 +81,6 @@ public class ODProcessor
 			} else {
 				requestContext.setCurrentFormInfo(odEntityName, odContext.getUiEntity().getUIID() + ".", "");
 			}
-			requestContext.setODMapperContext(requestContext.getHTMLPrefix(), odContext);
 			
 			if (odContext.isDataToUI())
 			{
@@ -96,9 +94,8 @@ public class ODProcessor
 				// calculate all dynamic variables in this form.
 				UIFormObject formObject = odContext.getUIFormObject();
 				// only search for current level excluding sub ref-entity.
-	            Iterator<String> i = formObject.getAllComponentID();
-	    		while(i.hasNext()) {
-	    			String compId = i.next();
+	            List<String> componentIds = formObject.getAllComponentID();
+	    		for(String compId : componentIds) {
 	    			Map propMap = formObject.getComponentProperty(compId);
 	    			Map i18nMap = formObject.getComponentI18N(compId);
 	    			Map expMap = formObject.getComponentExpression(compId);
@@ -120,7 +117,8 @@ public class ODProcessor
 			    			filter = "";
 			        	List<HTMLDynamicUIItem> dynamicItems = formObject.getDynamicItems(compId, filter);
 			        	((HTMLPanelType)htmlWidget).setDynamicItems(dynamicItems);
-			        }
+			        } 
+					
 	    			Widget newAjax = htmlWidget.createAjaxWidget(ee);
 	                if (newAjax != null) {
 	                	requestContext.addAjaxWidget(newAjax.getId(), newAjax);

@@ -86,12 +86,9 @@ public class UIComponentParam extends DataParam {
 			uiid = uiid.substring(uiid.indexOf('.') + 1);
 		} else {
 			// handle ui form.
-			if (uiid.indexOf(odContext.getUIParamName()) != -1) {
+			if (uiid.indexOf(odContext.getUIParamName()) != -1 && odContext.getUiEntity() != null) {
 				uiid = uiid.replace(odContext.getUIParamName(), odContext.getUiEntity().getName());
 			} 
-//			else {
-//				uiid = odContext.getUiEntity().getName() + '.' + uiid;
-//			}
 		}
 		String htmlPrefix = odContext.getHtmlContext().getHTMLPrefix();
 		if (htmlPrefix != null && htmlPrefix.length() > 0) {

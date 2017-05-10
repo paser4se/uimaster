@@ -694,6 +694,7 @@ in simple component mapping, the paramName is required</xs:documentation>
             <xs:element name="refEntity" type="Page:UIReferenceEntityType"/>
             <xs:element name="frame" type="Page:UIFrameType" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element name="panel" type="Page:UIPanelType"/>
+            <xs:element name="odmapping" type="Page:SimpleComponentMappingType" maxOccurs="unbounded" minOccurs="0"/>
         </xs:sequence>
         <!-- one more type provided for current page panel. -->
         <xs:attribute name="uiid" type="xs:string"/>

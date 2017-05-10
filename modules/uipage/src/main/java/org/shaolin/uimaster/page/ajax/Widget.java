@@ -29,7 +29,6 @@ import org.shaolin.bmdp.datamodel.page.ValidatorsPropertyType;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.HTMLUtil;
-import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.JSONArray;
 import org.shaolin.uimaster.page.security.ComponentPermission;
@@ -1776,6 +1775,6 @@ abstract public class Widget<T> implements Serializable
     
     @Override
     public String toString() {
-		return this.getId() + "[" + this.getClass().getSimpleName() + "]";
+		return this.getId() + "[" + this.getClass().getSimpleName() + "]" + this.hashCode();
 	}
 }
