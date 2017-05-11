@@ -4,14 +4,15 @@ UI Master is a light weight J2EE development platform which fully defines all co
 Platform Features:<br>
 1. XML Data model designer<br>
 2. XML DAO mapping designer<br>
-3. XML UI Engine<br>
+3. XML UI Engine (server scripting supported)<br>
 4. XML Workflow Engine<br>
 5. Dynamic Data anaylzer<br>
 6. Site Search Engine<br>
 7. Cross Multiple Client Devices: Web, Mobile Web, Mobile App.<br>
 8. All in one generator<br>
 9. System Configurator and Monitor.<br>
-9. Internationalization<br>
+10. Internationalization<br>
+10. Spring Could Integration<br>
 
 Business Areas:<br>
 1. CRM<br>
