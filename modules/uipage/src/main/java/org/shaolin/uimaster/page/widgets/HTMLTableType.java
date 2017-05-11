@@ -80,7 +80,7 @@ public class HTMLTableType extends HTMLContainerType {
 			generateWidget(context);
 			super.generateBeginHTML(context, ownerEntity, depth);
 
-			UITableSelectModeType selectMode = (UITableSelectModeType)this.removeAttribute("selectMode");
+			UITableSelectModeType selectMode = (UITableSelectModeType)this.getAttribute("selectMode");
 			if (selectMode == null) {
 				selectMode = UITableSelectModeType.SINGLE;
 			}
@@ -88,21 +88,21 @@ public class HTMLTableType extends HTMLContainerType {
 			if (isSliderMode && selectMode == UITableSelectModeType.SINGLE) {
 				selectMode = UITableSelectModeType.NORMAL;
 			}
-			int defaultRowSize = (Integer)this.removeAttribute("defaultRowSize");
-			String totalCount = String.valueOf(this.removeAttribute("totalCount"));
+			int defaultRowSize = (Integer)this.getAttribute("defaultRowSize");
+			String totalCount = String.valueOf(this.getAttribute("totalCount"));
 			if (totalCount == null || totalCount.trim().length() == 0
 					|| "null".equals(totalCount)) {
 				totalCount = "0";
 			}
-			Boolean isShowActionBar = (Boolean)this.removeAttribute("isShowActionBar");
+			Boolean isShowActionBar = (Boolean)this.getAttribute("isShowActionBar");
 			if (isShowActionBar == null) {
 				isShowActionBar = Boolean.TRUE;
 			}
-			Boolean editable = (Boolean)this.removeAttribute("editable");
+			Boolean editable = (Boolean)this.getAttribute("editable");
 			if (editable == null) {
 				editable = Boolean.TRUE;
 			}
-			Boolean isEditableCell = (Boolean)this.removeAttribute("isEditableCell");
+			Boolean isEditableCell = (Boolean)this.getAttribute("isEditableCell");
 			if (isEditableCell == null) {
 				isEditableCell = Boolean.FALSE;
 			}
@@ -114,7 +114,7 @@ public class HTMLTableType extends HTMLContainerType {
 				isSliderMode = false;
 			}
 			
-			List<UITableColumnType> columns = (List<UITableColumnType>)this.removeAttribute("columns");
+			List<UITableColumnType> columns = (List<UITableColumnType>)this.getAttribute("columns");
 			if (columns == null || columns.size() == 0) {
 				return;
 			}
@@ -145,14 +145,14 @@ public class HTMLTableType extends HTMLContainerType {
 				context.generateHTML(" style=\""+this.getAttribute("style")+"\"");
 			}
 			context.generateHTML(">");
-			List<UITableActionType> defaultActions = (List<UITableActionType>)this.removeAttribute("defaultActionGroup");
+			List<UITableActionType> defaultActions = (List<UITableActionType>)this.getAttribute("defaultActionGroup");
 			if (isSliderMode) {
 				if (defaultActions == null) {
 					defaultActions = new ArrayList();
 				} else {
 					defaultActions = new ArrayList(defaultActions); //make copy
 				}
-				List<UITableActionGroupType> actionGroups = (List<UITableActionGroupType>) this.removeAttribute("actionGroups");
+				List<UITableActionGroupType> actionGroups = (List<UITableActionGroupType>) this.getAttribute("actionGroups");
 				if (actionGroups != null && actionGroups.size() > 0) {
 					for (UITableActionGroupType a : actionGroups) {
 						for (UITableActionType action: a.getActions()){
@@ -165,7 +165,7 @@ public class HTMLTableType extends HTMLContainerType {
 				HTMLUtil.generateTab(context, depth + 2);
 				String defaultBtnSet = "defaultBtnSet_" + htmlId;
 				if (isSliderMode) {
-					context.generateHTML("<div id=\""+defaultBtnSet+"\" data-role=\"controlgroup\" data-type=\"horizontal\" style=\"display:none;\">");
+					context.generateHTML("<div id=\""+defaultBtnSet+"\" data-role=\"controlgroup\" data-type=\"horizontal\">");
 					for (UITableActionType action: defaultActions) {
 						HTMLUtil.generateTab(context, depth + 3);
 						String btnId = htmlPrefix + action.getUiid();
@@ -222,17 +222,13 @@ public class HTMLTableType extends HTMLContainerType {
 					context.generateHTML("</span>");
 				}
 			}
-			List<UITableActionGroupType> actionGroups = (List<UITableActionGroupType>)this.removeAttribute("actionGroups");
-			if (actionGroups !=null && actionGroups.size() > 0 && this.isEditable()) {
+			List<UITableActionGroupType> actionGroups = (List<UITableActionGroupType>)this.getAttribute("actionGroups");
+			if (actionGroups !=null && actionGroups.size() > 0 && this.isEditable() && !isSliderMode) {
 				int count = 0;
 				for (UITableActionGroupType a : actionGroups) {
 					HTMLUtil.generateTab(context, depth + 2);
 					String btnSetName = "btnSet_" + htmlId + (count++);
-					if (isSliderMode) {
-						context.generateHTML("<fieldset id=\""+btnSetName+"\" data-role=\"controlgroup\" data-type=\"horizontal\">");
-					} else {
-						context.generateHTML("<span id=\""+btnSetName+"\" style=\"display:none;\">");
-					}
+					context.generateHTML("<span id=\""+btnSetName+"\" style=\"display:none;\">");
 					for (UITableActionType action: a.getActions()){
 						HTMLUtil.generateTab(context, depth + 3);
 						if("button".equals(a.getType())) {
@@ -263,11 +259,7 @@ public class HTMLTableType extends HTMLContainerType {
 						}
 					}
 					HTMLUtil.generateTab(context, depth + 2);
-					if (isSliderMode) {
-						context.generateHTML("</fieldset>");
-					} else {
-						context.generateHTML("</span>");
-					}
+					context.generateHTML("</span>");
 				}
 			}
 			HTMLUtil.generateTab(context, depth + 1);
@@ -407,7 +399,7 @@ public class HTMLTableType extends HTMLContainerType {
 		context.generateHTML("</tbody>");
 		HTMLUtil.generateTab(context, depth + 2);
 		
-		Boolean showFilter = (Boolean)this.removeAttribute("isShowFilter");
+		Boolean showFilter = (Boolean)this.getAttribute("isShowFilter");
 		context.generateHTML("<tfoot");
 		if (isEditableCell.booleanValue() || showFilter == Boolean.FALSE) {
 			context.generateHTML(" style=\"display:none;\"");
@@ -473,7 +465,7 @@ public class HTMLTableType extends HTMLContainerType {
 	private void generateFilter(UserRequestContext context,
 			UIFormObject ownerEntity, int depth, List<UITableColumnType> columns, String tag)
 			throws ClassNotFoundException, EvaluationException {
-		String beElement = (String)this.removeAttribute("beElememt");
+		String beElement = (String)this.getAttribute("beElememt");
 		DefaultParsingContext pContext = new DefaultParsingContext();
 		Class beClass = null;
 		try {
@@ -484,7 +476,7 @@ public class HTMLTableType extends HTMLContainerType {
 		pContext.setVariableClass("rowBE", beClass);
 		
 		int cbFilterIndex = 0;
-		List<List[]> comboxFilters = (List<List[]>)this.removeAttribute("comboxFilters");
+		List<List[]> comboxFilters = (List<List[]>)this.getAttribute("comboxFilters");
 		for (UITableColumnType col : columns) {
 			HTMLUtil.generateTab(context, depth + 3);
 			context.generateHTML("<"+tag+" class=\"colfilter\">");
@@ -705,11 +697,11 @@ public class HTMLTableType extends HTMLContainerType {
         t.getConditions().setCount(defaultRowSize);
         t.getConditions().addOrder("createDate", false); //by default.
         
-        Boolean isAppendRowMode = (Boolean)this.removeAttribute("isAppendRowMode");
+        Boolean isAppendRowMode = (Boolean)this.getAttribute("isAppendRowMode");
 		if (isAppendRowMode == null) {
 			isAppendRowMode = Boolean.FALSE;
 		}
-		Object disableRefreshClear = this.removeAttribute("disableRefreshClear");
+		Object disableRefreshClear = this.getAttribute("disableRefreshClear");
 		if (disableRefreshClear != null) {
 			if (disableRefreshClear instanceof Boolean && ((Boolean)disableRefreshClear).booleanValue()) {
 				t.disableRefreshClear();

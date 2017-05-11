@@ -381,7 +381,7 @@ public class TabPane extends Container implements Serializable
 				AjaxActionHelper.updateFrameMap(ajaxContext.getRequest(), htmlContext.getPageAjaxWidgets());
 			}
         	if (refFormContext == null) {
-        		throw new UIPageException("Evaluation Context is missing for TabPane lazyloading form! " + tab.getUiid());
+        		throw new UIPageException("OD Mapping Evaluation Context is missing for TabPane lazyloading form! " + tab.getUiid());
         	}
         	DefaultEvaluationContext inputContext = (DefaultEvaluationContext)refFormContext.getEvaluationContextObject("$");
         	UIReferenceEntityType itemRef = (UIReferenceEntityType)tab.getRefEntity();

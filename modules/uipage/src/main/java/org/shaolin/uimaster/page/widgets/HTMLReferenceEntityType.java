@@ -128,7 +128,9 @@ public class HTMLReferenceEntityType extends HTMLWidgetType implements Serializa
         {
             htmlName = htmlName.substring(0, htmlName.length() - 1);
         }
-        UserRequestContext.UserContext.get().addAttribute(htmlName, "referenceEntity", referenceEntity);
+        if (UserRequestContext.UserContext.get() != null) {
+        	UserRequestContext.UserContext.get().addAttribute(htmlName, "referenceEntity", referenceEntity);
+        }
     }
 
     public String getReferenceEntity()
