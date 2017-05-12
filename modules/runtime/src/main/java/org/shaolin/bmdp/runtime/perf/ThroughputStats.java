@@ -2,6 +2,8 @@ package org.shaolin.bmdp.runtime.perf;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.shaolin.bmdp.json.JSONObject;
+
 public class ThroughputStats implements SingleKPI {
 	
 	private final String kpiName;
@@ -89,7 +91,13 @@ public class ThroughputStats implements SingleKPI {
 	}
     
     public String toString() {
-    	return this.kpiName;
+    	JSONObject json = new JSONObject();
+        try {
+        	json.put("KPIName", this.getKpiName());
+        	json.put("tps", this.getThroughput());
+        	json.put("maxtps", this.getLargestThroughput());
+        } catch (Exception e) {}
+        return json.toString();
     }
 
 }

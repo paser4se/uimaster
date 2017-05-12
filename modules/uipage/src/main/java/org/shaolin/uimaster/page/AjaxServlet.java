@@ -42,6 +42,7 @@ import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.IErrorItem;
 import org.shaolin.uimaster.page.flow.ProcessHelper;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
+import org.shaolin.uimaster.page.monitor.RestUIPerfMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,6 +167,8 @@ public class AjaxServlet extends HttpServlet {
 		
 		if (request.getParameter("_ajaxUserEvent") != null) 
 		{ // for new UI framework.
+			boolean error = false;
+			long start = System.currentTimeMillis();
 			try 
 			{
 				String actionName = request.getParameter("_actionName");
@@ -187,6 +190,7 @@ public class AjaxServlet extends HttpServlet {
 			} 
 			catch (Throwable ex) 
 			{
+				error = true;
 				HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
 				logger.error(ex.getMessage(), ex);
 //				JSONException json = new JSONException(ex);			
@@ -207,6 +211,13 @@ public class AjaxServlet extends HttpServlet {
 				PrintWriter out = response.getWriter();
 				out.print(array.toString());
 			} finally {
+				long end = System.currentTimeMillis() - start;
+				RestUIPerfMonitor.updateKPI(RestUIPerfMonitor.AJAX_DATA_TO_UI_COUNT, end);
+				RestUIPerfMonitor.updateKPI(RestUIPerfMonitor.AJAX_DATA_TO_UI_PROCESS_TIME, end);
+				RestUIPerfMonitor.updateKPI(RestUIPerfMonitor.AJAX_DATA_TO_UI_TPS, end);
+				if (error) {
+					RestUIPerfMonitor.updateKPI(RestUIPerfMonitor.AJAX_DATA_TO_UI_ERROR_COUNT, end);
+				}
 				AjaxActionHelper.removeAjaxContext();
 				UserContext.unregister();
 				LocaleContext.clearLocaleContext();

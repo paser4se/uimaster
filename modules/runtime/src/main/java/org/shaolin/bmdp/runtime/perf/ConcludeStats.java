@@ -2,6 +2,8 @@ package org.shaolin.bmdp.runtime.perf;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.shaolin.bmdp.json.JSONObject;
+
 public class ConcludeStats implements SingleKPI {
 
 	private final String kpiName;
@@ -109,7 +111,15 @@ public class ConcludeStats implements SingleKPI {
     
     @Override
     public String toString() {
-        return this.kpiName;
+    	JSONObject json = new JSONObject();
+        try {
+        	json.put("KPIName", this.getKpiName());
+        	json.put("total", this.getCalls());
+        	json.put("min", this.getMinimum());
+        	json.put("max", this.getMaximum());
+        	json.put("ave", this.getAverage());
+        } catch (Exception e) {}
+        return json.toString();
     }
 
 }

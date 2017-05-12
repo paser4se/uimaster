@@ -5,13 +5,15 @@ import java.math.BigDecimal;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.shaolin.bmdp.json.JSONObject;
+
 /**
  * Time Ranges for Statistics information
  */
 public class TimeRangeStats implements SingleKPI {
 
     //the default time ranges.
-    public static final String RULE = "8,16,32,64,128,256";
+    public static final String RULE = "32,128,256,512,1024";
 
     private final AtomicLong totalAmount = new AtomicLong();
 
@@ -132,11 +134,15 @@ public class TimeRangeStats implements SingleKPI {
             return "No ranges are being configured currently!";
         }
 
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < ranges.length; i++) {
-            sb.append(ranges[i].toString()).append("\n");
-        }
-        return sb.toString();
+        JSONObject json = new JSONObject();
+        try {
+        	json.put("KPIName", this.getKpiName());
+        	json.put("Unit", this.unit);
+	        for (int i = 0; i < ranges.length; i++) {
+	        	json.put(ranges[i].getName(), ranges[i].getAmount());
+	        }
+        } catch (Exception e) {}
+        return json.toString();
     }
 
     public class Range implements Serializable {
@@ -180,10 +186,10 @@ public class TimeRangeStats implements SingleKPI {
                     ((threshold_high_value == Long.MAX_VALUE) ? "Infinite" : threshold_high_value) + ")]";
         }
         
-        public String value() {
-            return "[interval:(" + threshold_low_value + " -- " + threshold_high_value + ")"
-                    + unit.name() + ", amount:(" + getAmount() + ")]";
+        public String getName() {
+        	return "[interval:(" + threshold_low_value + " -- " + threshold_high_value + ")";
         }
+        
     }
 
 }

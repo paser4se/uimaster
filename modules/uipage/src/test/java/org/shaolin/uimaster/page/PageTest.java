@@ -298,8 +298,7 @@ public class PageTest {
             
             Map<String, SingleKPI> items = RestUIPerfMonitor.getKPICollector().getAllKIPs();
             for (Map.Entry<String, SingleKPI> item : items.entrySet()) {
-	            JSONObject jsonKPIs = new JSONObject(item.getValue());
-	            System.out.println(jsonKPIs.toString());
+	            System.out.println(item.toString());
             }
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -326,6 +325,10 @@ public class PageTest {
 			Thread.sleep(4000);
 		} catch (InterruptedException e) {
 		}
+		Map<String, SingleKPI> items = RestUIPerfMonitor.getKPICollector().getAllKIPs();
+        for (Map.Entry<String, SingleKPI> item : items.entrySet()) {
+            System.out.println(item.toString());
+        }
 	}
 	
 	private void testSinglePage0() throws EntityNotFoundException, UIPageException {
