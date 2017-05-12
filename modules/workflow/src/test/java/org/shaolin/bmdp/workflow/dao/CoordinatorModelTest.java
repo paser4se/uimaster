@@ -1,12 +1,12 @@
 package org.shaolin.bmdp.workflow.dao;
 
 import org.junit.Test;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.internal.AppServiceManagerImpl;
 import org.shaolin.bmdp.utils.HttpSender;
 import org.shaolin.bmdp.workflow.be.NotificationImpl;
-import org.shaolin.uimaster.page.ajax.json.JSONObject;
 
 
 public class CoordinatorModelTest {

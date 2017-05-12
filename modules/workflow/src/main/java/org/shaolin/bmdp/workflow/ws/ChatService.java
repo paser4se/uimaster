@@ -32,6 +32,8 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
 import org.hibernate.criterion.Order;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
@@ -39,8 +41,6 @@ import org.shaolin.bmdp.workflow.be.ChatHistoryImpl;
 import org.shaolin.bmdp.workflow.be.IChatHistory;
 import org.shaolin.bmdp.workflow.be.NotificationImpl;
 import org.shaolin.bmdp.workflow.dao.CoordinatorModel;
-import org.shaolin.uimaster.page.ajax.json.JSONException;
-import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.exception.FormatException;
 import org.shaolin.uimaster.page.od.formats.FormatUtil;
 import org.slf4j.Logger;

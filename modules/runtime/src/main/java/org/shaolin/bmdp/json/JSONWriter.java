@@ -1,5 +1,5 @@
 
-package org.shaolin.uimaster.page.ajax.json;
+package org.shaolin.bmdp.json;
 
 import java.io.IOException;
 import java.io.Writer;

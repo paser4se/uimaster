@@ -17,6 +17,8 @@ package org.shaolin.uimaster.page.ajax.json;
 
 import java.util.HashMap;
 
+import org.shaolin.bmdp.json.JSONObject;
+
 public class DataItem implements IDataItem {
 	private static final long serialVersionUID = 0x90B1123CE87B50FFL;
 

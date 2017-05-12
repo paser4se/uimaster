@@ -1,5 +1,5 @@
 
-package org.shaolin.uimaster.page.ajax.json;
+package org.shaolin.bmdp.json;
 
 /**
  * The JSONException is thrown by the JSON.org classes then things are amiss.

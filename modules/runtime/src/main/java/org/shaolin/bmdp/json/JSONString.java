@@ -1,5 +1,5 @@
 
-package org.shaolin.uimaster.page.ajax.json;
+package org.shaolin.bmdp.json;
 
 /**
  * The <code>JSONString</code> interface allows a <code>toJSONString()</code> method so that a class

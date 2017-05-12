@@ -26,11 +26,11 @@ import org.apache.log4j.Logger;
 import org.shaolin.bmdp.datamodel.page.StringPropertyType;
 import org.shaolin.bmdp.datamodel.page.ValidatorPropertyType;
 import org.shaolin.bmdp.datamodel.page.ValidatorsPropertyType;
+import org.shaolin.bmdp.json.JSONArray;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
-import org.shaolin.uimaster.page.ajax.json.JSONArray;
 import org.shaolin.uimaster.page.security.ComponentPermission;
 
 /**

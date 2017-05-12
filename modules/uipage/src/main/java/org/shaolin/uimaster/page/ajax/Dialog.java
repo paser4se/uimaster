@@ -16,10 +16,10 @@
 package org.shaolin.uimaster.page.ajax;
 
 import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
-import org.shaolin.uimaster.page.ajax.json.JSONObject;
 
 public class Dialog extends Container
 {

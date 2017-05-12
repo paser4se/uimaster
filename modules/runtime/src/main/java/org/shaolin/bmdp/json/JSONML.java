@@ -1,5 +1,5 @@
 
-package org.shaolin.uimaster.page.ajax.json;
+package org.shaolin.bmdp.json;
 
 /*
  * Copyright (c) 2008 JSON.org Permission is hereby granted, free of charge, to any person obtaining

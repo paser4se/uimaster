@@ -30,6 +30,7 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
@@ -37,7 +38,6 @@ import org.shaolin.bmdp.utils.HttpSender;
 import org.shaolin.bmdp.workflow.be.INotification;
 import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
 import org.shaolin.bmdp.workflow.internal.CoordinatorServiceImpl;
-import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.od.formats.FormatUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

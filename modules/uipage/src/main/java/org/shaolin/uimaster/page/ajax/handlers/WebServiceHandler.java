@@ -19,10 +19,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.shaolin.bmdp.datamodel.page.OpCallAjaxType;
+import org.shaolin.bmdp.json.JSONArray;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.AjaxContext;
-import org.shaolin.uimaster.page.ajax.json.JSONArray;
-import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
 import org.shaolin.uimaster.page.exception.AjaxInitializedException;
 

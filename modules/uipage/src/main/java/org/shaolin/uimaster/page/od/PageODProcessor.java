@@ -34,6 +34,7 @@ import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.cache.UIPageObject;
 import org.shaolin.uimaster.page.exception.ODProcessException;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
+import org.shaolin.uimaster.page.monitor.RestUIPerfMonitor;
 import org.shaolin.uimaster.page.widgets.HTMLDynamicUIItem;
 import org.shaolin.uimaster.page.widgets.HTMLPanelType;
 import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
@@ -63,6 +64,9 @@ public class PageODProcessor
 
 	public EvaluationContext process()throws ODProcessException 
 	{
+		boolean error = false;
+		boolean isDataToUI = false;
+		long start = System.currentTimeMillis();
 		try 
 		{
 			if(logger.isTraceEnabled())
@@ -85,7 +89,7 @@ public class PageODProcessor
 				throw new ODProcessException(ExceptionConstants.EBOS_ODMAPPER_052,
 						new Object[]{requestContext.getODMapperName(), odPageContext.getUIFormName()});
 			}
-			
+			isDataToUI = odPageContext.isDataToUI();
 			if (odPageContext.isDataToUI())
 			{
 				UIPageObject pageObject = PageCacheManager.getUIPageObject(pageName);
@@ -221,7 +225,25 @@ public class PageODProcessor
 		}
 		catch (Throwable e)
 		{
+			error = true;
 			throw new ODProcessException(ExceptionConstants.EBOS_ODMAPPER_067, e, new Object[]{pageName});
+		} 
+		finally {
+			long end = System.currentTimeMillis() - start;
+			if (isDataToUI) {
+				RestUIPerfMonitor.updateKPI(RestUIPerfMonitor.PAGE_DATA_TO_UI_COUNT, end);
+				RestUIPerfMonitor.updateKPI(RestUIPerfMonitor.PAGE_DATA_TO_UI_PROCESS_TIME, end);
+				RestUIPerfMonitor.updateKPI(RestUIPerfMonitor.PAGE_DATA_TO_UI_TPS, end);
+				if (error) {
+					RestUIPerfMonitor.updateKPI(RestUIPerfMonitor.PAGE_DATA_TO_UI_ERROR_COUNT, end);
+				}
+			} else {
+				RestUIPerfMonitor.updateKPI(RestUIPerfMonitor.PAGE_UI_TO_DATA_COUNT, end);
+				RestUIPerfMonitor.updateKPI(RestUIPerfMonitor.PAGE_UI_TO_DATA_PROCESS_TIME, end);
+				if (error) {
+					RestUIPerfMonitor.updateKPI(RestUIPerfMonitor.PAGE_UI_TO_DATA_ERROR_COUNT, end);
+				}
+			}
 		}
 	}
 

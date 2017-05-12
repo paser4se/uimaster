@@ -28,10 +28,10 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.utils.CloseUtil;
 import org.shaolin.uimaster.page.ajax.Widget;
-import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.exception.UIComponentNotFoundException;
 import org.shaolin.uimaster.page.od.ODContext;

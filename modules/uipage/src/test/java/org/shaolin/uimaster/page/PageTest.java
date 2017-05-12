@@ -11,11 +11,15 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.shaolin.bmdp.datamodel.flowdiagram.RectangleNodeType;
 import org.shaolin.bmdp.i18n.LocaleContext;
+import org.shaolin.bmdp.json.JSONArray;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.entity.EntityManager;
 import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
 import org.shaolin.bmdp.runtime.internal.AppServiceManagerImpl;
+import org.shaolin.bmdp.runtime.perf.SingleKPI;
 import org.shaolin.bmdp.runtime.spi.IEntityManager;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.javacc.exception.EvaluationException;
@@ -27,9 +31,6 @@ import org.shaolin.uimaster.page.ajax.TextField;
 import org.shaolin.uimaster.page.ajax.TreeItem;
 import org.shaolin.uimaster.page.ajax.TreeItem.LinkAttribute;
 import org.shaolin.uimaster.page.ajax.Widget;
-import org.shaolin.uimaster.page.ajax.json.JSONArray;
-import org.shaolin.uimaster.page.ajax.json.JSONException;
-import org.shaolin.uimaster.page.ajax.json.JSONObject;
 import org.shaolin.uimaster.page.ajax.json.RequestData;
 import org.shaolin.uimaster.page.cache.ODFormObject;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
@@ -39,6 +40,7 @@ import org.shaolin.uimaster.page.exception.ODProcessException;
 import org.shaolin.uimaster.page.exception.UIPageException;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
+import org.shaolin.uimaster.page.monitor.RestUIPerfMonitor;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.od.ODPageContext;
 import org.shaolin.uimaster.page.od.ODProcessor;
@@ -293,6 +295,12 @@ public class PageTest {
             ICustomer result0 = (ICustomer)htmlContext.getODMapperData().get("customer");
             Assert.assertEquals(customerPojo1.getId(), result0.getId());
             Assert.assertEquals(customerPojo1.getName(), result0.getName());
+            
+            Map<String, SingleKPI> items = RestUIPerfMonitor.getKPICollector().getAllKIPs();
+            for (Map.Entry<String, SingleKPI> item : items.entrySet()) {
+	            JSONObject jsonKPIs = new JSONObject(item.getValue());
+	            System.out.println(jsonKPIs.toString());
+            }
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail();

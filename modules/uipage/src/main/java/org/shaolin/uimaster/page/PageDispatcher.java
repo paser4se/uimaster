@@ -45,6 +45,7 @@ import org.shaolin.uimaster.page.exception.UIComponentNotFoundException;
 import org.shaolin.uimaster.page.exception.UIPageException;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
+import org.shaolin.uimaster.page.monitor.RestUIPerfMonitor;
 import org.shaolin.uimaster.page.od.PageODProcessor;
 import org.shaolin.uimaster.page.od.formats.FormatUtil;
 import org.shaolin.uimaster.page.widgets.HTMLReferenceEntityType;
@@ -193,6 +194,8 @@ public class PageDispatcher {
      */
     public void forwardPage(UserRequestContext context) throws UIPageException
     {
+    	boolean error = false;
+		long start = System.currentTimeMillis();
         try
         {
         	if (pageObject == null) {
@@ -520,9 +523,18 @@ public class PageDispatcher {
         }
         catch ( Exception e )
         {
+        	error = true;
             logger.warn("<---HTMLUIPage.forward--->Be interrupted when access uipage: " + pageObject.getRuntimeEntityName());
             throw new UIPageException(pageObject.getRuntimeEntityName() + " : " + e.getMessage(), e);
         }
+        finally {
+			long end = System.currentTimeMillis() - start;
+			RestUIPerfMonitor.updateKPI(RestUIPerfMonitor.PAGE_RENDERING, end);
+			RestUIPerfMonitor.updateKPI(RestUIPerfMonitor.PAGE_RENDERING_COUNT, end);
+			if (error) {
+				RestUIPerfMonitor.updateKPI(RestUIPerfMonitor.PAGE_RENDERING_ERROR_COUNT, end);
+			}
+		}
     }
     
     private boolean checkSupportAccess(HttpServletRequest request) {
