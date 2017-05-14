@@ -258,25 +258,26 @@ public class HTMLComponentLayout extends AbstractHTMLLayout
             ((HTMLReferenceEntityType)htmlComponent).setReconfiguration(
                     ownerEntity.getReconfigurationMap(UIID), null, null);
         }
-        IUISkin uiskinObj = htmlComponent.getUISkin();
-        if (uiskinObj != null) {
-			try {
-				uiskinObj.generatePreCode(htmlComponent);
-			} catch (Exception e) {
-				logger.error("uiskin error: ", e);
-			}
-        } 
+//        IUISkin uiskinObj = htmlComponent.getUISkin();
+//        if (uiskinObj != null) {
+//			try {
+//				uiskinObj.generatePreCode(htmlComponent);
+//			} catch (Exception e) {
+//				logger.error("uiskin error: ", e);
+//			}
+//        } 
         
-		if (uiskinObj != null) {
-			try {
-				uiskinObj.generatePostCode(htmlComponent);
-			} catch (Exception e) {
-				logger.error("uiskin error: ", e);
-			}
-		} else {
-			htmlComponent.generateBeginHTML(context, this.ownerEntity, depth);
-            htmlComponent.generateEndHTML(context, this.ownerEntity, depth);
-		}
+		htmlComponent.generateBeginHTML(context, this.ownerEntity, depth);
+        htmlComponent.generateEndHTML(context, this.ownerEntity, depth);
+        
+//		if (uiskinObj != null) {
+//			try {
+//				uiskinObj.generatePostCode(htmlComponent);
+//			} catch (Exception e) {
+//				logger.error("uiskin error: ", e);
+//			}
+//		} 
+        
         if ( componentList != null )
         {
             for ( int i = 0, n = componentList.size(); i < n; i++ )

@@ -1510,6 +1510,9 @@ public class UIFormObject implements java.io.Serializable
         }
         else if (propertyValue instanceof ResourceBundlePropertyType)
         {
+        	if (((ResourceBundlePropertyType)propertyValue).getBundle() == null) {
+        		throw new IllegalArgumentException(name + " ResourceBundlePropertyType misses the bundle element!");
+        	}
             addAttribute(i18nMap, name, ((ResourceBundlePropertyType)propertyValue).getBundle().trim(),
                     defaultValue);
             addAttribute(propMap, name, ((ResourceBundlePropertyType)propertyValue).getKey().trim(),

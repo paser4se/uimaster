@@ -34,10 +34,8 @@ import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.EvaluationContext;
-import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.html.layout.IUISkin;
 import org.shaolin.uimaster.page.ajax.Widget;
-import org.shaolin.uimaster.page.ajax.json.IRequestData;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.cache.UIPageObject;
 import org.shaolin.uimaster.page.exception.AjaxException;
@@ -163,22 +161,20 @@ public class PageDispatcher {
 				} catch (Exception e) {
 					logger.error("uiskin error: ", e);
 				}
-			} else {
-				htmlComponent.generateBeginHTML(context, formObject, depth);
-			}
+			} 
+			htmlComponent.generateBeginHTML(context, formObject, depth);
 
             formObject.getBodyLayout().generateHTML(context, depth + 1, realReadOnly, uiskinObj, htmlComponent);
             HTMLUtil.generateTab(context, depth);
 
+            htmlComponent.generateEndHTML(context, formObject, depth);
 			if (uiskinObj != null) {
 				try {
 					uiskinObj.generatePostCode(htmlComponent);
 				} catch (Exception e) {
 					logger.error("uiskin error: ", e);
 				}
-			} else {
-				htmlComponent.generateEndHTML(context, formObject, depth);
-			}
+			} 
         }
         catch (Exception e)
         {

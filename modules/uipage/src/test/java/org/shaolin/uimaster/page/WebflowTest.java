@@ -172,7 +172,6 @@ public class WebflowTest {
 	
 	@Test
 	public void testPageNode() {
-		Registry.getInstance().initRegistry();
 		LocaleContext.createLocaleContext("default");
 		
 		MockHttpRequest request = new MockHttpRequest();

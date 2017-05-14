@@ -40,12 +40,12 @@ public abstract class HTMLTextWidgetType extends HTMLWidgetType
 
     public String getValue()
     {
-        String value = (String)getAttribute("value");
+        Object value = getAttribute("value");
         if (value == null)
         {
-            value = (String)getAttribute("text");
+            value = getAttribute("text");
         }
-        return value == null ? "" : value;
+        return value == null ? "" : value.toString();
     }
 
     public void setValue(String value)
@@ -55,9 +55,8 @@ public abstract class HTMLTextWidgetType extends HTMLWidgetType
 
     public String getCurrencySymbol()
     {
-        String currencySymbol = (String)getAttribute("currencySymbol");
-
-        return currencySymbol == null ? "" : currencySymbol;
+        Object currencySymbol = getAttribute("currencySymbol");
+        return currencySymbol == null ? "" : currencySymbol.toString();
     }
 
     public void setCurrencySymbol(String currencySymbol)

@@ -111,7 +111,7 @@ public class HTMLReferenceEntityType extends HTMLWidgetType implements Serializa
             context.getRequest().setAttribute(UserRequestContext.REQUEST_PARENT_TAG_KEY, this);
             generateWidget(context);
             generateHTML(context, depth);
-
+            
             context.getRequest().setAttribute(UserRequestContext.REQUEST_PARENT_TAG_KEY, parentComponent);
             generateEndWidget(context);
             
