@@ -2089,6 +2089,10 @@ UIMaster.ui.hidden = UIMaster.extend(UIMaster.ui, /** @lends UIMaster.`*/{
 UIMaster.ui.label = UIMaster.extend(UIMaster.ui.hidden, /** @lends UIMaster.ui.label*/{
     captureScreen: false,
 	intialized: false,
+	oneditable: false,
+	editableInput: null,
+	editableIcon: null,
+	editableValueType: null,
 	/**
      * @description Set the widget's label text.
      * @param {String} text Label text to set.
@@ -2131,7 +2135,33 @@ UIMaster.ui.label = UIMaster.extend(UIMaster.ui.hidden, /** @lends UIMaster.ui.l
 				});
 			});
 		}
-    }
+		this.oneditable = $(this).parent().attr("oneditable");
+		this.editableValueType = $(this).parent().attr("editableValueType");
+		if (this.oneditable == "true" || this.oneditable) {
+			if (this.editableValueType == 'number') {
+				this.editableInput=$("<input type='number' class='uimaster_textField' style='display:none;float:left;'>");
+			} else {this.editableInput=$("<input class='uimaster_textField' style='display:none;float:left;'>");}
+			$(this).parent().css("float","left").after(this.editableInput);
+			this.editableIcon = this.editableInput.next();
+			var othis = this;
+			this.editableInput.keydown(function(e){
+				if(e.keyCode==13){othis.editableValueUpdate(this.value);}
+			});
+			this.editableIcon.click(function(e){
+				if(othis.editableInput.css("display") == "none") {
+					othis.editableInput.css("display", "block");
+				} else { othis.editableInput.css("display", "none"); }
+			});
+		}
+    },
+	showEditor:function(){
+		if(this.editableInput != null)this.editableInput.css("display", "block");
+	},
+	editableValueUpdate:function(v){
+		$(this.editableInput).css("display", "none"); 
+		this.setValue(v);
+		eval(this.editableIcon.attr("afterclick"));
+	}
 });
 /**
  * @description UI Link class.

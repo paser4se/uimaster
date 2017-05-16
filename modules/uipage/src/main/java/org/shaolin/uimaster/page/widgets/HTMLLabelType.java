@@ -55,27 +55,30 @@ public class HTMLLabelType extends HTMLTextWidgetType
     	String htmlValue = (String)this.removeAttribute("htmlValue");
     	
         generateWidget(context);
+        context.generateHTML("<div>");
         String currencySymbol = getCurrencySymbol();
         if ( currencySymbol == null || currencySymbol.equals("") )
         {
-            context.generateHTML("<div>");
             generateContent(context, htmlValue);
-            context.generateHTML("</div>");
         }
         else if ( getIsSymbolLeft() )
         {
-            context.generateHTML("<div>");
             generateCurrencySymbol(context, currencySymbol);
             generateContent(context, htmlValue);
-            context.generateHTML("</div>");
         }
         else
         {
-            context.generateHTML("<div>");
             generateContent(context, htmlValue);
             generateCurrencySymbol(context, currencySymbol);
-            context.generateHTML("</div>");
         }
+        Object oneditable = this.getAttribute("oneditable");
+        if (oneditable != null && oneditable.toString().equalsIgnoreCase("true")){
+        	String event = this.getEventListener("oneditable");
+        	context.generateHTML("<span afterclick=\"");
+        	context.generateHTML(getReconfigurateFunction(event));
+        	context.generateHTML("\" class=\"uimaster-label-editor ui-button-icon-primary ui-icon ui-icon-pencil\"></span>");
+        }
+        context.generateHTML("</div>");
         generateEndWidget(context);
     }
 
@@ -195,7 +198,10 @@ public class HTMLLabelType extends HTMLTextWidgetType
     public Widget createAjaxWidget(VariableEvaluator ee)
     {
     	if (!needAjaxSupport()) {
-    		return null;
+    		Object oneditable = this.getAttribute("oneditable");
+            if (oneditable == null || oneditable.toString().equalsIgnoreCase("false")){
+            	return null;
+            }
     	}
     	
         Label label = new Label(getName(), Layout.NULL);

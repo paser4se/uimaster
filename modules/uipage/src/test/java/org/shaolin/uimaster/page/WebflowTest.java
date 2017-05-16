@@ -170,7 +170,6 @@ public class WebflowTest {
 	}
 	
 	
-	@Test
 	public void testPageNode() {
 		LocaleContext.createLocaleContext("default");
 		

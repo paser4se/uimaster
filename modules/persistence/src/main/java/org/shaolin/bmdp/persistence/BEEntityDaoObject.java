@@ -67,9 +67,17 @@ public class BEEntityDaoObject {
 			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
 	}
-
+	
 	public void create(IPersistentEntity entity) {
 		this.create(entity, false);
+	}
+	
+	public void create(Object entity) {
+		if (entity instanceof IPersistentEntity) {
+			this.create((IPersistentEntity)entity, false);
+		} else {
+			logger.warn("Unsupported persistent entity: " + entity.getClass());
+		}
 	}
 
 	/**
@@ -101,6 +109,14 @@ public class BEEntityDaoObject {
 	 */
 	public void delete(IPersistentEntity entity) {
 		this.delete(entity, false);
+	}
+	
+	public void delete(Object entity) {
+		if (entity instanceof IPersistentEntity) {
+			this.delete((IPersistentEntity)entity, false);
+		} else {
+			logger.warn("Unsupported persistent entity: " + entity.getClass());
+		}
 	}
 
 	/**
@@ -148,6 +164,15 @@ public class BEEntityDaoObject {
 	public void update(IPersistentEntity entity) {
 		this.update(entity, false);
 	}
+	
+	public void update(Object entity) {
+		if (entity instanceof IPersistentEntity) {
+			this.update((IPersistentEntity)entity, false);
+		} else {
+			logger.warn("Unsupported persistent entity: " + entity.getClass());
+		}
+	}
+
 
 	/**
 	 * Reload the entity
