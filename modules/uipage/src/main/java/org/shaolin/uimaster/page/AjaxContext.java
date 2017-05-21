@@ -478,6 +478,9 @@ public class AjaxContext extends OpExecuteContext implements Serializable
      */
     public boolean existElement(String uiid)
     {
+    	if (uiid == null) {
+    		return false;
+    	}
     	if (uiid.equals(this.getEntityUiid())) {
     		return eventSourceUIMap.containsKey(uiid);
     	}
@@ -499,13 +502,10 @@ public class AjaxContext extends OpExecuteContext implements Serializable
      */
     public boolean existElement(Widget comp)
     {
-        String frameName = comp.getFrameInfo();
-        if (frameName == null)
-        {
-            return false;
-        }
-        Map map = getFrameComponentMap(frameName);
-        return map != null && map.containsKey(comp.getId()) && comp == map.get(comp.getId());
+    	if (comp == null) {
+    		return false;
+    	}
+        return eventSourceUIMap.containsKey(comp.getId()) && comp == eventSourceUIMap.get(comp.getId());
     }
 
     public boolean existElmByAbstId(String absoluteUiid)
@@ -527,15 +527,12 @@ public class AjaxContext extends OpExecuteContext implements Serializable
      */
     public boolean existElmByAbsoluteId(String absoluteUiid, String frameName)
     {
-        Map frameMap = getFrameComponentMap(frameName);
-        if (frameMap == null)
-        {
-            return false;
-        }
-        else
-        {
-            return frameMap.containsKey(absoluteUiid);
-        }
+		Map frameMap = getFrameComponentMap(frameName);
+		if (frameMap == null) {
+			return false;
+		} else {
+			return frameMap.containsKey(absoluteUiid);
+		}
     }
 
     /**

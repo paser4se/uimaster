@@ -3,6 +3,7 @@ package org.shaolin.bmdp.runtime.security;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,6 +52,8 @@ public class UserContext implements Serializable {
 	
 	private String pullAction = "new";//mobile pull. we have new or history actions.
 	private long pullId;
+	
+	private HashMap<String, Object> userData = new HashMap<String, Object>();
 	
 	public UserContext() {
 	}
@@ -250,12 +253,8 @@ public class UserContext implements Serializable {
 		return userSessionCache.get();
 	}
 
-	public static void addUserData(String key, String value) {
-		userSession.get().setAttribute(key, value);
-	}
-	
-	public static void addUserData(String key, Serializable value) {
-		userSession.get().setAttribute(key, value);
+	public static void addUserData(String key, Object value) {
+		getUserContext().userData.put(key, value);
 	}
 	
 	public static Object getUserData(String key) {
@@ -278,7 +277,7 @@ public class UserContext implements Serializable {
 			return userSessionCache.get().getUserAccount();
 		}
 		
-		return userSession.get().getAttribute(key);
+		return getUserContext().userData.get(key);
 	}
 	
 	public static Object getUserData(String key, boolean needException) {
@@ -302,7 +301,7 @@ public class UserContext implements Serializable {
 			return userSessionCache.get().getUserAccount();
 		}
 		
-		Object value = userSession.get().getAttribute(key);
+		Object value = getUserContext().userData.get(key);
 		if (value == null) {
 			throw new IllegalArgumentException(key + " can not be found!");
 		}

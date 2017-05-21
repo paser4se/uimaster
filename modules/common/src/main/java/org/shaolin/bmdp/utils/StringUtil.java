@@ -1219,24 +1219,25 @@ public class StringUtil
      * null then use default value : space characters(" \t\r\n\f")
      * @return string list contains tokens splitted by given delimiter
      */
-    public static List<String> split(String str, String delim)
+    public static List<String> split(final String str, final String delim)
     {
         List<String> splitList = null;
         StringTokenizer st = null;
-
         if (str == null)
         {
-            return splitList;
+            return Collections.emptyList();
+        }
+        String realStr = str;
+        if (str.startsWith("[") && str.endsWith("]")) {
+        	//remove wrapper.
+        	realStr = str.substring(1, str.length() - 2);
         }
 
-        if (isValid(delim))
-        {
-            st = new StringTokenizer(str, delim);
-        }
-        else
-        {
-            st = new StringTokenizer(str);
-        }
+		if (isValid(delim)) {
+			st = new StringTokenizer(realStr, delim);
+		} else {
+			st = new StringTokenizer(realStr);
+		}
 
         if ((st != null) && st.hasMoreTokens())
         {
@@ -1244,7 +1245,7 @@ public class StringUtil
 
             while (st.hasMoreTokens())
             {
-                splitList.add(st.nextToken());
+                splitList.add(st.nextToken().trim());
             }
         }
 

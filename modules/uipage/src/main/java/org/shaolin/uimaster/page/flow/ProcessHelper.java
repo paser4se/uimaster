@@ -697,8 +697,10 @@ public class ProcessHelper
                     Widget component = ajaxContext.getElementByAbsoluteId(uiid,framePrefix);
                     if (component == null) {
                     	if (uiid != null && uiid.toLowerCase().indexOf("label") == -1) { //hide label log.
-                    		logger.info("Component not found while synchronizing values: uiid=" + uiid +
+                    		if (logger.isDebugEnabled()) {
+                    			logger.debug("Component not found while synchronizing values: uiid=" + uiid +
                     				", framePrefix=" + framePrefix + ", ignored the value!");
+                    		}
                     	}
                     } else {
                     	if (component.isEditable()) {
