@@ -1118,44 +1118,9 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 		out.write("     * @return String the business entity in String format.\n");
 		out.write("     */\n");
 		out.write("    public  String  toString() {\n");
-		out.write("        StringBuffer aBuf = new StringBuffer();\n");
-		out.write("        aBuf.append(\"");
-		out.print(businessEntity.getEntityName());
-		out.write("\");\n    ");
-
-		ObjectRefType parentObj = businessEntity.getParentObject();
-		if (parentObj != null) {
-
-			out.write("\n        aBuf.append(\" extends \");\n");
-			out.write("        aBuf.append(super.toString());\n        ");
-
-		} else {
-
-			out.write("\n        aBuf.append(\" : \");\n        ");
-
-		}
-		out.write("\n        aBuf.append(\"createDate=\").append(createDate).append(\", \");\n        ");
-		if (businessEntity.isNeedOrgId()) {
-			out.write("\n        aBuf.append(\"orgId=\").append(orgId);\n        ");
-		}
-		if (isSelfNeedPersist(businessEntity) || isSelfNeedHistory(businessEntity)) {
-			out.write("\n        aBuf.append(\"enable=\").append(_enable).append(\", \");\n        ");
-		}
-		List<MemberType> members = businessEntity.getMembers();
-		for (MemberType member: members) {
-			String fieldValue = fieldToString(member);
-			if (fieldValue != null) {
-
-				out.write("\n        aBuf.append(\"");
-				out.print(member.getName());
-				out.write("\");\n        aBuf.append(\"=\");\n        aBuf.append(");
-				out.print(fieldValue);
-				out.write(");\n        aBuf.append(\", \");\n        ");
-
-			}
-		}
-
-		out.write("\n        return aBuf.toString();\n    }\n    ");
+		out.write("        org.shaolin.bmdp.json.JSONObject json = new org.shaolin.bmdp.json.JSONObject(this);\n");
+		out.write("        json.remove(\"memberList\");\n");
+		out.write("        return json.toString();\n    }\n    ");
 
 	}
 
