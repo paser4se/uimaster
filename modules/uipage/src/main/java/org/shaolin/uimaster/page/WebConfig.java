@@ -24,8 +24,17 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.servlet.AsyncContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -894,4 +903,58 @@ public class WebConfig {
 		}
 		return null;
 	}
+	
+	public static ThreadPoolExecutor getServletThreadPool(RejectedExecutionHandler handler) {
+		Registry instance = Registry.getInstance();
+		int maxMsgsQueue = instance.getValue("/System/webConstant/AsyncServlet/maxMsgsQueue", 1000);
+		int minThreadNum = instance.getValue("/System/webConstant/AsyncServlet/minThreadNum", Runtime.getRuntime().availableProcessors());
+		int maxThreadNum = instance.getValue("/System/webConstant/AsyncServlet/maxThreadNum", Runtime.getRuntime().availableProcessors());
+		return createThreadPool("ServletRequest", maxMsgsQueue, minThreadNum, maxThreadNum, handler);
+	}
+	
+	public static ThreadPoolExecutor getAjaxThreadPool(RejectedExecutionHandler handler) {
+		Registry instance = Registry.getInstance();
+		int maxMsgsQueue = instance.getValue("/System/webConstant/AsyncAjax/maxMsgsQueue", 5000);
+		int minThreadNum = instance.getValue("/System/webConstant/AsyncAjax/minThreadNum", Runtime.getRuntime().availableProcessors());
+		int maxThreadNum = instance.getValue("/System/webConstant/AsyncAjax/maxThreadNum", Runtime.getRuntime().availableProcessors());
+		return createThreadPool("AjaxRequest", maxMsgsQueue, minThreadNum, maxThreadNum, handler);
+	}
+	
+	public static ThreadPoolExecutor createThreadPool(String threadPoolName, 
+            int maxMsgsQueue, int minThreadNum, int maxThreadNum, RejectedExecutionHandler handler) {
+        ThreadPoolExecutor workerPool_;
+        if (maxMsgsQueue <= 0) {
+            workerPool_ = new ThreadPoolExecutor(minThreadNum, maxThreadNum, 0L, 
+                    TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(),
+                    new DefaultThreadFactory(threadPoolName + "-worker"));
+        } else {
+            BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(maxMsgsQueue);
+            workerPool_ = new ThreadPoolExecutor(minThreadNum, maxThreadNum, 0L, 
+                    TimeUnit.MILLISECONDS, queue,
+                    new DefaultThreadFactory(threadPoolName + "-worker"),
+                    handler);
+        }
+        return workerPool_;
+    }
+	
+	public static final class DefaultThreadFactory implements ThreadFactory {
+        final ThreadGroup group;
+        final AtomicInteger threadNumber = new AtomicInteger(1);
+        final String namePrefix;
+
+        DefaultThreadFactory(String prefix) {
+            SecurityManager s = System.getSecurityManager();
+            group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+            namePrefix = prefix + "-thread-";
+        }
+
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
+            if (t.isDaemon())
+                t.setDaemon(false);
+            if (t.getPriority() != Thread.NORM_PRIORITY)
+                t.setPriority(Thread.NORM_PRIORITY);
+            return t;
+        }
+    }
 }

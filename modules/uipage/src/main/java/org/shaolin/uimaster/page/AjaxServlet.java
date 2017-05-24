@@ -19,7 +19,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadPoolExecutor;
 
+import javax.servlet.AsyncContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -42,18 +45,24 @@ import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.IErrorItem;
 import org.shaolin.uimaster.page.flow.ProcessHelper;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
+import org.shaolin.uimaster.page.monitor.QueueKPI;
 import org.shaolin.uimaster.page.monitor.RestUIPerfMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AjaxServlet extends HttpServlet {
+public class AjaxServlet extends HttpServlet implements RejectedExecutionHandler {
 	
 	private static final long serialVersionUID = 236538261853041089L;
 	private static final Logger logger = LoggerFactory.getLogger(AjaxServlet.class);
 	
 	private String charset = "UTF-8";
 	
+	private ThreadPoolExecutor msgExecutor;
+	
 	public void init() throws ServletException {
+    	this.msgExecutor = WebConfig.getAjaxThreadPool(this);
+
+    	RestUIPerfMonitor.addKPI(new QueueKPI("AjaxRequestQueue", msgExecutor.getQueue()));
 		String value = getServletConfig().getInitParameter("content");
         if (value != null)
         {
@@ -73,12 +82,38 @@ public class AjaxServlet extends HttpServlet {
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
-		process(request, response);
+		AsyncContext aCtx = request.startAsync(request, response); 
+    	this.msgExecutor.execute(new RunAysncContext(aCtx, this));
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
-		process(request, response);
+		AsyncContext aCtx = request.startAsync(request, response); 
+    	this.msgExecutor.execute(new RunAysncContext(aCtx, this));
+	}
+	
+	private static class RunAysncContext implements Runnable {
+
+    	final AsyncContext aCtx;
+    	final AjaxServlet ajax;
+    	public RunAysncContext(AsyncContext aCtx, AjaxServlet ajax) {
+    		this.aCtx = aCtx;
+    		this.ajax = ajax;
+    	}
+    	
+		@Override
+		public void run() {
+			HttpServletRequest request = (HttpServletRequest)aCtx.getRequest();
+        	HttpServletResponse response = (HttpServletResponse)aCtx.getResponse();
+        	try {
+        		ajax.process(request, response);
+        	} catch (Throwable e) {
+        		//must not have this exception.
+				logger.warn(e.getMessage(), e);
+			} finally {
+        		aCtx.complete();
+        	}
+		}
 	}
 	
 	protected void process(HttpServletRequest request, HttpServletResponse response) throws IOException
@@ -120,7 +155,7 @@ public class AjaxServlet extends HttpServlet {
 					out.print(result.toString());
 				}
 			} 
-			catch (Exception ex) 
+			catch (Throwable ex) 
 			{
 				HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
 				logger.error(ex.getMessage(), ex);
@@ -226,4 +261,9 @@ public class AjaxServlet extends HttpServlet {
 			//unsupported.
 		}
     }
+
+	@Override
+	public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+		logger.warn("UIMaster web server is overloaded!!!!" + r);
+	}
 }

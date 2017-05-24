@@ -71,6 +71,10 @@ public class RestUIPerfMonitor extends HttpServlet {
 		collector.updateKPI(kipName, value);
 	}
 	
+	public static void addKPI(SingleKPI kpi) {
+		collector.addKPI(kpi.getKpiName(), kpi);
+	}
+	
 	public static KPICollector getKPICollector() {
 		return collector;
 	}
@@ -103,7 +107,7 @@ public class RestUIPerfMonitor extends HttpServlet {
 		sb.append("<html><body>");
 		Map<String, SingleKPI> items = RestUIPerfMonitor.getKPICollector().getAllKIPs();
         for (Map.Entry<String, SingleKPI> item : items.entrySet()) {
-        	sb.append("<div>").append(item.toString()).append("</div>");
+        	sb.append("<div>").append(item.getValue()).append("</div>");
         }
         sb.append("</body></html>");
 		PrintWriter out = response.getWriter();
