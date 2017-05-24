@@ -41,8 +41,8 @@ var multer = require('multer'); // v1.0.5
 var upload = multer(); // for parsing multipart/form-data
 
 var caOptions = {
-    key: fs.readFileSync('/opt/uimaster/apache-tomcat-8.0.9/conf/ca_comodo1/vogerp.key'),
-    cert: fs.readFileSync('/opt/uimaster/apache-tomcat-8.0.9/conf/ca_comodo1/www_vogerp_com-combine.crt'),
+    key: fs.readFileSync('/opt/uimaster/apache-tomcat-8.0.9/conf/aliyu/vogerp.key'),
+    cert: fs.readFileSync('/opt/uimaster/apache-tomcat-8.0.9/conf/aliyu/vogerp.pem'),
 	passphrase: keyStorePass
 };
 var server = https.createServer(caOptions, app);
