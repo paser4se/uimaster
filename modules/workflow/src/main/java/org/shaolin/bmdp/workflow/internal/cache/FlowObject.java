@@ -47,7 +47,7 @@ import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.javacc.exception.ParsingException;
-import org.shaolin.uimaster.page.OpExecuteContext;
+import org.shaolin.uimaster.page.TransOpsExecuteContext;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.cache.UIPageObject;
@@ -70,10 +70,10 @@ public class FlowObject implements java.io.Serializable {
 	 *            the Global variables of the WebChunk. session context
 	 * @return
 	 */
-	public static OpExecuteContext getOpParsingContext(
+	public static TransOpsExecuteContext getOpParsingContext(
 			List<ParamType> variables, DefaultParsingContext globalContext) {
 
-		OpExecuteContext opContext = new OpExecuteContext();
+		TransOpsExecuteContext opContext = new TransOpsExecuteContext();
 		OOEEContext external = OOEEContextFactory.createOOEEContext();
 
 		// set CurrentUser in session parsing context
@@ -179,7 +179,7 @@ public class FlowObject implements java.io.Serializable {
     		}
     		for (ExceptionHandlerType handler : exceptionHandlers) {
     			if (handler.getExpression() != null) {
-					OpExecuteContext opContext = getOpParsingContext(handler
+					TransOpsExecuteContext opContext = getOpParsingContext(handler
 							.getVars(), globalContext);
 					handler.getExpression().parse(opContext);
     			}
@@ -193,7 +193,7 @@ public class FlowObject implements java.io.Serializable {
     				|| start.getProcess().getExpression() == null) {
     			return;
     		}
-    		OpExecuteContext opContext = getOpParsingContext(start.getProcess()
+    		TransOpsExecuteContext opContext = getOpParsingContext(start.getProcess()
     				.getVars(), globalContext);
     		if (start.getFilter() != null) {
     			initConditionFilters(opContext, start.getFilter(), classPrefix);
@@ -207,19 +207,19 @@ public class FlowObject implements java.io.Serializable {
     			return;
     		}
 
-    		OpExecuteContext opContext = getOpParsingContext(interNode.getProcess()
+    		TransOpsExecuteContext opContext = getOpParsingContext(interNode.getProcess()
     				.getVars(), globalContext);
     		initConditionFilters(opContext, interNode.getFilter(), classPrefix);
     	}
 
-    	public void initConditionFilters(OpExecuteContext opContext,
+    	public void initConditionFilters(TransOpsExecuteContext opContext,
     			DestWithFilterType filter, String classPrefix) throws ParsingException {
     		if (filter != null && filter.getExpression() != null) {
 				filter.getExpression().parse(opContext);
 			}
     	}
     	
-    	public void initConditionFilters(OpExecuteContext opContext,
+    	public void initConditionFilters(TransOpsExecuteContext opContext,
     			List<DestWithFilterType> set, String classPrefix) throws ParsingException {
     		for (DestWithFilterType filter : set) {
     			if (filter.getExpression() != null) {
@@ -240,7 +240,7 @@ public class FlowObject implements java.io.Serializable {
 
     	public void initConditionHandlerInfo(DefaultParsingContext globalContext, 
     			ConditionNodeType conditionNode, String classPrefix) throws ParsingException {
-    		OpExecuteContext opContext = getOpParsingContext(
+    		TransOpsExecuteContext opContext = getOpParsingContext(
     				conditionNode.getVars(), globalContext);
     		if (conditionNode.getExpression() != null) {
     			conditionNode.getExpression().parse(opContext);
@@ -251,7 +251,7 @@ public class FlowObject implements java.io.Serializable {
 
     	public void initSplitHandlerInfo(DefaultParsingContext globalContext, 
     			SplitNodeType split, String className) throws ParsingException {
-    		OpExecuteContext opContext = getOpParsingContext(
+    		TransOpsExecuteContext opContext = getOpParsingContext(
     				split.getVars(), globalContext);
     		if (split.getExpression() != null) {
     			split.getExpression().parse(opContext);
@@ -311,11 +311,11 @@ public class FlowObject implements java.io.Serializable {
     
     private boolean initialized = false;
     
-	protected final transient OpExecuteContext opContext;
+	protected final transient TransOpsExecuteContext opContext;
 
     public FlowObject(AppInfo appInfo) {
         this.appInfo = appInfo;
-        this.opContext = new OpExecuteContext();
+        this.opContext = new TransOpsExecuteContext();
     }
 
     public void parse() throws ConfigException {

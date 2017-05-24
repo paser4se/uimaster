@@ -19,7 +19,7 @@ import org.shaolin.bmdp.datamodel.pagediagram.WebNodeType;
 import org.shaolin.bmdp.runtime.be.BEUtil;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
-import org.shaolin.uimaster.page.OpExecuteContext;
+import org.shaolin.uimaster.page.TransOpsExecuteContext;
 import org.shaolin.uimaster.page.flow.ProcessHelper;
 import org.shaolin.uimaster.page.flow.WebFlowUtil;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
@@ -150,7 +150,7 @@ public class WebChunk implements java.io.Serializable {
             logger.debug("parse WebChunk " + type.getEntityName());
 
         List<ParamType> variables = Collections.emptyList();
-        OpExecuteContext context = WebFlowContextHelper.getOpParsingContext(
+        TransOpsExecuteContext context = WebFlowContextHelper.getOpParsingContext(
         		variables, type.getGlobalVariables());
 
         //parse

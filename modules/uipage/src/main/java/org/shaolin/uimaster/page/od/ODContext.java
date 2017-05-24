@@ -28,7 +28,7 @@ import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.context.EvaluationContext;
 import org.shaolin.javacc.exception.EvaluationException;
-import org.shaolin.uimaster.page.OpExecuteContext;
+import org.shaolin.uimaster.page.TransOpsExecuteContext;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.cache.ODObject;
 import org.shaolin.uimaster.page.cache.UIFormObject;
@@ -36,7 +36,7 @@ import org.shaolin.uimaster.page.exception.ODException;
 import org.shaolin.uimaster.page.widgets.HTMLReferenceEntityType;
 import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 
-public abstract class ODContext extends OpExecuteContext {
+public abstract class ODContext extends TransOpsExecuteContext {
 
 	private static Logger logger = Logger.getLogger(ODContext.class);
 

@@ -69,7 +69,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author swu
  */
-public class AjaxContext extends OpExecuteContext implements Serializable
+public class AjaxContext extends TransOpsExecuteContext implements Serializable
 {
     private static final long serialVersionUID = -1744731434567233557L;
 

@@ -36,7 +36,7 @@ import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.javacc.util.ExpressionUtil;
 import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
-import org.shaolin.uimaster.page.OpExecuteContext;
+import org.shaolin.uimaster.page.TransOpsExecuteContext;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.exception.AjaxException;
@@ -258,7 +258,7 @@ public class ProcessHelper
         return result;
     }
 
-    public static void parseVariables(List<ParamType> variables, OpExecuteContext context) throws
+    public static void parseVariables(List<ParamType> variables, TransOpsExecuteContext context) throws
             ParsingException
     {
         if(variables == null || context == null)

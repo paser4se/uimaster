@@ -8,7 +8,7 @@ import org.shaolin.bmdp.runtime.VariableUtil;
 import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
-import org.shaolin.uimaster.page.OpExecuteContext;
+import org.shaolin.uimaster.page.TransOpsExecuteContext;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
 import org.shaolin.uimaster.page.flow.nodes.WebNode;
 import org.slf4j.Logger;
@@ -90,10 +90,10 @@ public class WebFlowContextHelper
          * @param globalVariables the Global variables of the WebChunk. session context
      * @return
      */
-    public static OpExecuteContext getOpParsingContext(List<ParamType> variables,
+    public static TransOpsExecuteContext getOpParsingContext(List<ParamType> variables,
         List<ParamType> globalVariables)
     {
-    	OpExecuteContext op = new OpExecuteContext();
+    	TransOpsExecuteContext op = new TransOpsExecuteContext();
         OOEEContext external = OOEEContextFactory.createOOEEContext();
         DefaultParsingContext global = getHttpSessionParsingContext(
             globalVariables);

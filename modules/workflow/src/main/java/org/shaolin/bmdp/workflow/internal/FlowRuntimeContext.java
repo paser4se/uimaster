@@ -38,7 +38,7 @@ import org.shaolin.bmdp.workflow.spi.IWorkflowService;
 import org.shaolin.bmdp.workflow.spi.WorkflowSession;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.exception.EvaluationException;
-import org.shaolin.uimaster.page.OpExecuteContext;
+import org.shaolin.uimaster.page.TransOpsExecuteContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * Flow runtime context, store everything related to flow state.
  * 
  */
-public final class FlowRuntimeContext extends OpExecuteContext implements FlowVariableContext, Serializable {
+public final class FlowRuntimeContext extends TransOpsExecuteContext implements FlowVariableContext, Serializable {
 
 	private static final long serialVersionUID = -6150417408203161229L;
 

@@ -16,7 +16,7 @@
 package org.shaolin.uimaster.page.cache;
 
 import org.shaolin.javacc.context.DefaultParsingContext;
-import org.shaolin.uimaster.page.OpExecuteContext;
+import org.shaolin.uimaster.page.TransOpsExecuteContext;
 import org.shaolin.uimaster.page.od.ODContext;
 
 public abstract class ODObject {
@@ -29,16 +29,16 @@ public abstract class ODObject {
 	 * 'page od' op context.
 	 * 
 	 */
-	protected transient OpExecuteContext opContext;
+	protected transient TransOpsExecuteContext opContext;
 
 	public ODObject() {
-		opContext = new OpExecuteContext();
+		opContext = new TransOpsExecuteContext();
 	}
 
 	protected void clearODObject() {
 		uiEntityName = "";
 		opContext = null;
-		opContext = new OpExecuteContext();
+		opContext = new TransOpsExecuteContext();
 	}
 
 	public String getUIEntityName() {

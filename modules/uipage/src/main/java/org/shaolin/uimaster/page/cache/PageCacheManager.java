@@ -28,7 +28,7 @@ import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
 import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.AjaxContext;
-import org.shaolin.uimaster.page.OpExecuteContext;
+import org.shaolin.uimaster.page.TransOpsExecuteContext;
 import org.shaolin.uimaster.page.exception.UIPageException;
 
 /**
@@ -78,7 +78,7 @@ public class PageCacheManager {
 		Map services = webServiceCache.get(webService.getEntityName());
 		services.clear();
 		
-		OpExecuteContext opContext = new OpExecuteContext();
+		TransOpsExecuteContext opContext = new TransOpsExecuteContext();
         DefaultParsingContext globalPContext = new DefaultParsingContext();
         globalPContext.setVariableClass("request", HttpServletRequest.class);
         globalPContext.setVariableClass("page", AjaxContext.class);

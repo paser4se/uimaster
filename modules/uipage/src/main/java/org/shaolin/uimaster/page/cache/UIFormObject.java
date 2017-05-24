@@ -115,7 +115,7 @@ import org.shaolin.uimaster.html.layout.HTMLCellLayout;
 import org.shaolin.uimaster.html.layout.IUISkin;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.HTMLUtil;
-import org.shaolin.uimaster.page.OpExecuteContext;
+import org.shaolin.uimaster.page.TransOpsExecuteContext;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Table;
@@ -570,7 +570,7 @@ public class UIFormObject implements java.io.Serializable
         List<FunctionType> eventHandler = entity.getEventHandlers();
         if (eventHandler != null && eventHandler.size() > 0)
         {
-            OpExecuteContext opContext = new OpExecuteContext();
+            TransOpsExecuteContext opContext = new TransOpsExecuteContext();
             DefaultParsingContext globalPContext = (DefaultParsingContext)parsingContext
                     .getParsingContextObject("@");
             if (globalPContext == null) {
@@ -597,7 +597,7 @@ public class UIFormObject implements java.io.Serializable
         }
     }
 
-    private void parseEventHandlerInternal(OpExecuteContext context, List<OpType> ops)
+    private void parseEventHandlerInternal(TransOpsExecuteContext context, List<OpType> ops)
             throws ParsingException
     {
     	String callAjaxName = null;

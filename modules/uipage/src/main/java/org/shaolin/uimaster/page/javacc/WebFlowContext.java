@@ -13,7 +13,7 @@ import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.context.EvaluationContext;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
-import org.shaolin.uimaster.page.OpExecuteContext;
+import org.shaolin.uimaster.page.TransOpsExecuteContext;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
 import org.shaolin.uimaster.page.flow.nodes.WebNode;
 import org.slf4j.Logger;
@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 /**
  *  The context for webflow's nodes.
  */
-public class WebFlowContext extends OpExecuteContext
+public class WebFlowContext extends TransOpsExecuteContext
 {
     //log4j
     private static Logger logger = LoggerFactory.getLogger(WebFlowContext.class);

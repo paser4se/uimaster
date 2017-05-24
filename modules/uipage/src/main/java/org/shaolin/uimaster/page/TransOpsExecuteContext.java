@@ -33,11 +33,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  */
-public class OpExecuteContext extends OOEEContext implements Serializable {
+public class TransOpsExecuteContext extends OOEEContext implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = LoggerFactory.getLogger(OpExecuteContext.class);
+	private static Logger logger = LoggerFactory.getLogger(TransOpsExecuteContext.class);
 
 	protected UserTransaction userTransaction = null;
 
@@ -45,7 +45,7 @@ public class OpExecuteContext extends OOEEContext implements Serializable {
 
 	private ParsingContext externalParseContext = null;
 
-	public OpExecuteContext() {
+	public TransOpsExecuteContext() {
 		super();
 	}
 
