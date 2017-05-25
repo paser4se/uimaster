@@ -20,6 +20,9 @@ public class HibernateUtil {
 
 	private static final Logger logger = LoggerFactory.getLogger(HibernateUtil.class);
 	
+	private static final String MASTER_DB = "/hibernate.cfg.xml";
+    private static final String READONLY_DB = "/readonly_hibernate.cfg.xml";
+	
 	// thread control session factory by out side.
 	private static final ThreadLocal<Session> sessionFactoryTL = new ThreadLocal<Session>();
 	
@@ -46,7 +49,7 @@ public class HibernateUtil {
 					config.addResource("hbm/" + file);
 				}
 			}
-			config.configure();
+			config.configure(MASTER_DB);
 			((AppServiceManagerImpl)AppContext.get()).setHibernateConfiguration(config);
 			// Create the SessionFactory from hibernate.cfg.xml
 			return config.buildSessionFactory();
@@ -59,6 +62,16 @@ public class HibernateUtil {
 
 	public static Configuration getConfiguration() {
 		return (Configuration)AppContext.get().getHibernateConfiguration();
+	}
+	
+	/**
+	 * Get the session of the read only database for boosting access performance.
+	 * 
+	 * @return
+	 */
+	public static Session getReadOnlySession() {
+		// TODO: 
+		return getSession();
 	}
 	
 	public static Session getSession() {

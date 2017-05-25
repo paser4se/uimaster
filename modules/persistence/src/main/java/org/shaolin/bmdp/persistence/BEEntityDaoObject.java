@@ -358,12 +358,12 @@ public class BEEntityDaoObject {
 	public <T> List<T> listStatistic(String table, int offset, int count,
 			Map<String, Object> conditions) {
 		try {
-			Session session = HibernateUtil.getSession();
+			Session session = HibernateUtil.getReadOnlySession();
 			return session.createSQLQuery("select * from " + table).list();
 		} finally {
 			// release session ASAP. but it's an issue for transaction
 			// manipulation.
-			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+			HibernateUtil.releaseSession(HibernateUtil.getReadOnlySession(), true);
 		}
 	}
 
@@ -377,12 +377,12 @@ public class BEEntityDaoObject {
 			sb.append("SELECT ORGID, COUNT(1) FROM " + table
 					+ " WHERE CREATEDATE between '" + day + " 00-00-00' and '"
 					+ day + " 23:59:59' GROUP BY ORGID");
-			Session session = HibernateUtil.getSession();
+			Session session = HibernateUtil.getReadOnlySession();
 			return session.createSQLQuery(sb.toString()).list();
 		} finally {
 			// release session ASAP. but it's an issue for transaction
 			// manipulation.
-			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+			HibernateUtil.releaseSession(HibernateUtil.getReadOnlySession(), true);
 		}
 	}
 	
@@ -396,12 +396,12 @@ public class BEEntityDaoObject {
 			sb.append("SELECT COUNT(1) FROM " + table
 					+ " WHERE CREATEDATE between '" + day + " 00-00-00' and '"
 					+ day + " 23:59:59' GROUP BY DAY(CREATEDATE)");
-			Session session = HibernateUtil.getSession();
+			Session session = HibernateUtil.getReadOnlySession();
 			return session.createSQLQuery(sb.toString()).list();
 		} finally {
 			// release session ASAP. but it's an issue for transaction
 			// manipulation.
-			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+			HibernateUtil.releaseSession(HibernateUtil.getReadOnlySession(), true);
 		}
 	}
 
@@ -475,7 +475,7 @@ public class BEEntityDaoObject {
 			// so we set the maximum limited records per query.
 			count = PERQUERY_MAXRECORD;
 		}
-		Session session = HibernateUtil.getSession();
+		Session session = HibernateUtil.getReadOnlySession();
 		try {
 			Criteria criteria = null;
 			if (alias != null) {
@@ -504,7 +504,7 @@ public class BEEntityDaoObject {
 		} finally {
 			// release session ASAP. but it's an issue for transaction
 			// manipulation.
-			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+			HibernateUtil.releaseSession(HibernateUtil.getReadOnlySession(), true);
 		}
 	}
 
@@ -518,7 +518,7 @@ public class BEEntityDaoObject {
 	 * @return
 	 */
 	protected Criteria _createCriteria(Class<?> persistentType, String alias) {
-		Session session = HibernateUtil.getSession();
+		Session session = HibernateUtil.getReadOnlySession();
 		return session.createCriteria(persistentType, alias);
 	}
 
@@ -589,10 +589,10 @@ public class BEEntityDaoObject {
 					be.get_extField().put("count", _count(criteria, result.size()));
 				}
 			}
-			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+			HibernateUtil.releaseSession(HibernateUtil.getReadOnlySession(), true);
 			return result;
 		} catch (Exception e) {
-			HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
+			HibernateUtil.releaseSession(HibernateUtil.getReadOnlySession(), false);
 			logger.warn(criteria.toString() + " " + e.getMessage(), e);
 			return Collections.emptyList();
 		} 
@@ -652,7 +652,7 @@ public class BEEntityDaoObject {
 	 * @return
 	 */
 	public long countStatistic(String table, Map<String, Object> condition) {
-		Session session = HibernateUtil.getSession();
+		Session session = HibernateUtil.getReadOnlySession();
 		return (Long) session.createSQLQuery("select count(1) from " + table)
 				.uniqueResult();
 	}
@@ -666,7 +666,7 @@ public class BEEntityDaoObject {
 	 */
 	public long count(Class<?> persistentType, String alias,
 			List<Criterion> criterions) {
-		Session session = HibernateUtil.getSession();
+		Session session = HibernateUtil.getReadOnlySession();
 		Criteria criteria = null;
 		if (alias != null) {
 			criteria = session.createCriteria(persistentType, alias);
