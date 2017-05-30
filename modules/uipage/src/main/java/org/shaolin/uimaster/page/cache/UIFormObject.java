@@ -260,13 +260,7 @@ public class UIFormObject implements java.io.Serializable
     	componentIds = new ArrayList<String>(attributesMap.keySet());
         htmlWidgets.clear();
 		for(String compId : componentIds) {
-			Map<String, Object> propMap = this.getComponentProperty(compId);
-			Map eventMap = this.getComponentEvent(compId);
-	        HTMLWidgetType component = createHTMLUIComponent(compId, propMap, eventMap);
-	        htmlWidgets.put(component.getName(), component);
-	        if (logger.isDebugEnabled()) {
-	        	logger.debug("Lazy loading HTML cached widget: {}, type: {}", component.getName(), component);
-	        }
+			reloadHtmlWidget(compId);
 		}
 		for (List<String> ajaxCompIds : lazyloadingComponentIds.values()) {
 			for (String uiid : ajaxCompIds) {
@@ -294,20 +288,10 @@ public class UIFormObject implements java.io.Serializable
      * @throws UIPageException
      */
     private synchronized void loadHTMLWidgets() throws UIPageException {
-    	if (componentIds != null) {
-    		return;
-    	}
-    	
 		componentIds = new ArrayList<String>(attributesMap.keySet());
         htmlWidgets.clear();
 		for(String compId : componentIds) {
-			Map<String, Object> propMap = this.getComponentProperty(compId);
-			Map eventMap = this.getComponentEvent(compId);
-	        HTMLWidgetType component = createHTMLUIComponent(compId, propMap, eventMap);
-	        htmlWidgets.put(component.getName(), component);
-	        if (logger.isDebugEnabled()) {
-	        	logger.debug("Lazy loading HTML cached widget: {}, type: {}", component.getName(), component);
-	        }
+			reloadHtmlWidget(compId);
 		}
 		for (List<String> ajaxCompIds : lazyloadingComponentIds.values()) {
 			for (String uiid : ajaxCompIds) {
@@ -328,6 +312,20 @@ public class UIFormObject implements java.io.Serializable
     			} 
     		}
     	}
+	}
+    
+    private void reloadHtmlWidget(String compId) {
+		Map<String, Object> propMap = this.getComponentProperty(compId);
+		Map eventMap = this.getComponentEvent(compId);
+		try {
+	        HTMLWidgetType component = createHTMLUIComponent(compId, propMap, eventMap);
+	        htmlWidgets.put(component.getName(), component);
+	        if (logger.isDebugEnabled()) {
+	        	logger.debug("Lazy loading HTML cached widget: {}, type: {}", component.getName(), component);
+	        }
+		} catch (Exception e) {
+			logger.warn("Error to lazy loading HTML cached widget: {}", compId);
+		}
 	}
     
     private static final Map<String, Class<?>> htmlUIClassMap = new ConcurrentHashMap<String, Class<?>>();
@@ -567,6 +565,7 @@ public class UIFormObject implements java.io.Serializable
 
     private void parseEventHandler(UIEntity entity, OOEEContext parsingContext)
     {
+    	callServerSideOpMap.clear();
         List<FunctionType> eventHandler = entity.getEventHandlers();
         if (eventHandler != null && eventHandler.size() > 0)
         {
@@ -2135,11 +2134,11 @@ public class UIFormObject implements java.io.Serializable
 		}
 		
 		logger.info("reload form {} due to workflow customization", this.name);
-		if (PageCacheManager.isUIPage(this.name)) {
-			loadForPage();
-		} else {
-			load();
-		}
+		OOEEContext parsingContext = parseVariable(entity);
+		parseEventHandler(entity, parsingContext);
+		bodyLayout = new HTMLCellLayout((UIPanelType)entity.getBody(), this);
+        bodyLayout.setContainer(bodyName + "-");
+		loadHTMLWidgets();
 	}
 	
 	private List<String> getPanelSubIds(UIPanelType panel) {
@@ -2199,8 +2198,10 @@ public class UIFormObject implements java.io.Serializable
     	}
     	prop.put("hints", url);
     	prop.put("hintsDesc", desc);
+    	
+    	reloadHtmlWidget(uiwidget);
     }
-    
+
     public void addDynamicLink(String uiPanel, String uiwidget, String linkInfo, String targetInfo) {
     	Map prop = getComponentProperty(uiwidget);
     	if (prop == null) {
@@ -2212,6 +2213,8 @@ public class UIFormObject implements java.io.Serializable
     	}
     	prop.put("dtargetInfo", targetInfo);
     	prop.put("dlinkInfo", linkInfo);
+    	
+    	reloadHtmlWidget(uiwidget);
     }
     
     public void addDynamicPageHints(String linkInfo) {
