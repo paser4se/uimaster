@@ -177,7 +177,7 @@ public class UploadFileServlet extends HttpServlet {
 								name = new File(item.getName()).getName();
 							}
 							String suffix = name.substring(name.lastIndexOf('.'));
-							name = Base64.encodeBase64String(name.substring(0, name.lastIndexOf('.')).getBytes()) + suffix;  
+							name = "f" + Math.abs(name.hashCode()) + suffix;  
 							logger.info("Received the uploading file: " + name + ", saving path: " + root);
 							File finalPicture = new File(root, name);
 							item.write(finalPicture);

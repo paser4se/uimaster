@@ -198,6 +198,16 @@ public final class FileUtil {
     }
 
     public static void copyFolder(final File srcPath, final File dstPath) throws IOException {
+    	if (!dstPath.exists()) {
+    		if (dstPath.isDirectory()) {
+    			dstPath.mkdirs();
+        	} else {
+        		File p = new File(dstPath.getParent());
+        		if (!p.exists()) {
+        			p.mkdirs();
+        		}
+        	}
+    	}
         final String[] files = srcPath.list();
         for (final String file : files) {
             InputStream in = null;
@@ -221,7 +231,16 @@ public final class FileUtil {
         if (!src.exists()) {
             throw new IOException("The source file does not exist! path: " + src);
         }
-
+        if (!dest.exists()) {
+        	if (dest.isDirectory()) {
+        		dest.mkdirs();
+        	} else {
+        		File p = new File(dest.getParent());
+        		if (!p.exists()) {
+        			p.mkdirs();
+        		}
+        	}
+    	}
         InputStream in = null;
         OutputStream out = null;
         try {
