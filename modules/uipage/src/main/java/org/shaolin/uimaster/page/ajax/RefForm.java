@@ -262,7 +262,6 @@ public class RefForm extends Container implements Serializable
 	        sb.append("defaultname.").append(this.getId());
 	        sb.append(" = new ").append(getJsName()).append("('");
 	        sb.append(this.getId()).append(".');\n");
-	        sb.append("postInit();\n");
 	        return sb.toString();
     	} finally {
 			DisposableBfString.release(sb);

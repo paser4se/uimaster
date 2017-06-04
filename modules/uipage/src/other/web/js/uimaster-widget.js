@@ -2316,8 +2316,7 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 			return;
 		this.initialized = true;
 		var fileUI = this;
-		//MobileAppMode the mobile style will be applied after UI ready which is reversed vs web page.
-		var actionBtns = (IS_MOBILEVIEW && !MobileAppMode)? $(this).parent().next().next(): this.nextElementSibling.nextElementSibling;
+		var actionBtns = (IS_MOBILEVIEW)? $(this).parent().next().next(): this.nextElementSibling.nextElementSibling;
 		var uploadBtn = $(actionBtns).children()[0];
 		var cleanBtn = $(actionBtns).children()[1];
 		var searchBtn = $(actionBtns).children()[2]; 
@@ -2332,8 +2331,8 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 			return;
 		}
 		if(this.disableSearch) {$(cleanBtn).css("display","none");$(searchBtn).css("display","none");}
-		var progressbox = (IS_MOBILEVIEW && !MobileAppMode)? $(actionBtns).next(): this.nextElementSibling.nextElementSibling.nextElementSibling;
-		var messagebox = (IS_MOBILEVIEW && !MobileAppMode)? $(progressbox).next(): progressbox.nextElementSibling;
+		var progressbox = (IS_MOBILEVIEW)? $(actionBtns).next(): this.nextElementSibling.nextElementSibling.nextElementSibling;
+		var messagebox = (IS_MOBILEVIEW)? $(progressbox).next(): progressbox.nextElementSibling;
 		var c = $(progressbox).children();
 		var progressbar = c[0];
 		var percent = c[1];
@@ -3698,6 +3697,7 @@ UIMaster.ui.window=UIMaster.extend(UIMaster.ui.dialog,{
 				getElementListSingle(this.content,true);
 				win.eval(this.js);
 				defaultname.addComponent(win.eval(D+this.uiid),true);
+				postInit();
 			}
             UIMaster.ui.window.addWindow(this.id,this);
 			
