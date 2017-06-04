@@ -171,7 +171,7 @@ public class ConstantServiceImpl implements Serializable, IConstantService, IEnt
 			} catch (Exception e) {
 				if (needException) {
 					throw new EntityNotFoundException(
-							ExceptionConstants.EBOS_COMMON_002, e,
+							ExceptionConstants.UIMASTER_COMMON_002, e,
 							new Object[] { ceName });
 				}
 			}

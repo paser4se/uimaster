@@ -34,7 +34,7 @@ public class UnaryOperator extends Operator
 		{
             if(childClass != boolean.class)
             {
-            	throw new ParsingException(ExceptionConstants.EBOS_OOEE_053,new Object[]{type});
+            	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_053,new Object[]{type});
                 //throw new ParsingException("Operands of Unary Operator " + type + " must be boolean");
             }
             setValueClass(boolean.class);
@@ -43,7 +43,7 @@ public class UnaryOperator extends Operator
 		{
 		    if(!ExpressionUtil.isNumeric(childClass))
 		    {
-		    	throw new ParsingException(ExceptionConstants.EBOS_OOEE_055,new Object[]{type});
+		    	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_055,new Object[]{type});
 		      //  throw new ParsingException("Operands of Unary Operator " + type + " must be number");
 		    }
 		    
@@ -51,7 +51,7 @@ public class UnaryOperator extends Operator
     		{
     		    if(ExpressionUtil.getNumericPrecision(childClass) > ExpressionUtil.LONG_PRECISION)
     		    {
-    		    	throw new ParsingException(ExceptionConstants.EBOS_OOEE_054,new Object[]{type});
+    		    	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_054,new Object[]{type});
 		           // throw new ParsingException("Operands of Unary Operator " + type + " must be integeral number");
     		    }
     		}
@@ -82,7 +82,7 @@ public class UnaryOperator extends Operator
         }
         catch(ParsingException e)
         {
-            throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+            throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
         
 		ExpressionNode child = (ExpressionNode)getChild(0);

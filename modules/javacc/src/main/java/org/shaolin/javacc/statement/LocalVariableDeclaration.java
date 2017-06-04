@@ -170,7 +170,7 @@ public class LocalVariableDeclaration implements Serializable
             if(parsingContext.getParsingContext().getAllVariableNames().contains(name))
                 alreadyDefined = true;  
         }             
-        if(alreadyDefined)throw new ParsingException(ExceptionConstants.EBOS_OOEE_026,new Object[]{name});
+        if(alreadyDefined)throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_026,new Object[]{name});
           //  throw new ParsingException("Already defined " + name);
     }
     

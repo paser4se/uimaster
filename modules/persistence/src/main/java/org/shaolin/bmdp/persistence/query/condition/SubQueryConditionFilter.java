@@ -157,7 +157,7 @@ public class SubQueryConditionFilter implements ISearchConditionFilter {
 						.equals(conditionExpressionValue);
 			} catch (EvaluationException ex) {
 				throw new PersistenceRuntimeException(
-						ExceptionConstants.EBOS_PERSISTENCE_042, ex);
+						ExceptionConstants.UIMASTER_PERSISTENCE_042, ex);
 			}
 			*/
 		}
@@ -246,7 +246,7 @@ public class SubQueryConditionFilter implements ISearchConditionFilter {
 	 */
 	public boolean validateSearchQueryResult(
 			SearchQueryEvaluationContext context) {
-		throw new I18NRuntimeException(ExceptionConstants.EBOS_000);
+		throw new I18NRuntimeException(ExceptionConstants.UIMASTER_000);
 	}
 	
 	public String getConditionExpressionCode(QueryParser parser, 

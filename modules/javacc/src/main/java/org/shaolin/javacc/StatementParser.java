@@ -48,7 +48,7 @@ public class StatementParser
         }
         catch(Throwable t)
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_039,t,new Object[]{statementString});
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_039,t,new Object[]{statementString});
         }
     }
 

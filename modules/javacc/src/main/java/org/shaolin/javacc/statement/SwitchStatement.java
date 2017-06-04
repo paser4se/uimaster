@@ -161,14 +161,14 @@ public class SwitchStatement extends ContextStatement
                 switchExpression.getValueClass() != byte.class &&
                 switchExpression.getValueClass() != short.class)
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_059);
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_059);
           //  throw new ParsingException("The incorrect switch type");
         }
         for(int i = 0; i < caseList.size(); i++)
         {
             if(!(caseList.get(i) instanceof  Literal || caseList.get(i) instanceof String))
             {
-            	throw new ParsingException(ExceptionConstants.EBOS_OOEE_065);
+            	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_065);
                // throw new ParsingException("case expressions must be constant expressions");
             }
             if(caseList.get(i) instanceof Literal)
@@ -180,7 +180,7 @@ public class SwitchStatement extends ContextStatement
                         valueClass != char.class &&
                         valueClass != short.class)
                 {
-                	throw new ParsingException(ExceptionConstants.EBOS_OOEE_072);
+                	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_072);
                    // throw new ParsingException("only int,byte,char or short literals can be case expressions");
                 }
                 caseValue.parse(parsingContext);
@@ -194,7 +194,7 @@ public class SwitchStatement extends ContextStatement
             {
                 String caseName = (String) caseList.get(i);
                 if(!("default").equals(caseName))
-                	throw new ParsingException(ExceptionConstants.EBOS_OOEE_057,new Object[]{caseName});
+                	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_057,new Object[]{caseName});
                    // throw new ParsingException("Syntax error on token \""+caseName+"\", default expected");
                 List switchSmt = (List) switchCase.get(caseName);
                 for(int j = 0; j < switchSmt.size(); j++)

@@ -48,7 +48,7 @@ public class ArrayInitExpression extends ExpressionNode
         
         if(dimensionNum < 0)
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_069,new Object[]{getValueClassName()});
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_069,new Object[]{getValueClassName()});
         }
         
         Class componentClass = valueClass;
@@ -74,7 +74,7 @@ public class ArrayInitExpression extends ExpressionNode
                 }
                 else
                 {
-                	throw new ParsingException(ExceptionConstants.EBOS_OOEE_069,new Object[]{getValueClassName()});
+                	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_069,new Object[]{getValueClassName()});
                  //   throw new ParsingException("illegal initialize for " + getValueClassName());
                 }                
             }
@@ -93,7 +93,7 @@ public class ArrayInitExpression extends ExpressionNode
         }
         catch(ParsingException e)
         {
-        	throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+        	throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
         
         Class componentClass = valueClass.getComponentType();
@@ -118,7 +118,7 @@ public class ArrayInitExpression extends ExpressionNode
                 }
                 catch(ParsingException e)
                 {
-                	throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+                	throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
                 }
             }
             

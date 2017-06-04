@@ -92,7 +92,7 @@ public class BlockParsingContext extends DefaultParsingContext
     {
         if (parsingContext == null)
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_043);
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_043);
         }
         else
         {

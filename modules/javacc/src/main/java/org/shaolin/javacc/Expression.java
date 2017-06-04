@@ -70,7 +70,7 @@ public class Expression implements Serializable
         }
         catch (Exception e)
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_039, e, new Object[]{e.getMessage()});
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_039, e, new Object[]{e.getMessage()});
         }
         OOEEParsingContext parsingContext = new OOEEParsingContext(cacheableContext);
         parsingContext.setParsingContext(context);

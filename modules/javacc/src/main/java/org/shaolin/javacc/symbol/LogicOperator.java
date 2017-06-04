@@ -29,7 +29,7 @@ public class LogicOperator extends Operator
 		Class childClass = lChild.checkType(context);
         if(childClass != boolean.class)
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_049,new Object[]{type});
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_049,new Object[]{type});
            // throw new ParsingException("Operands of Logic Operator " + type + " must be boolean");
         }
 
@@ -37,7 +37,7 @@ public class LogicOperator extends Operator
 		childClass = rChild.checkType(context);
         if(childClass != boolean.class)
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_049,new Object[]{type});
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_049,new Object[]{type});
            //throw new ParsingException("Operands of Logic Operator " + type + " must be boolean");
         }
 
@@ -68,7 +68,7 @@ public class LogicOperator extends Operator
         }
         catch(ParsingException e)
         {
-            throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+            throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
 
 		ExpressionNode lChild = (ExpressionNode)getChild(0);
@@ -79,7 +79,7 @@ public class LogicOperator extends Operator
 
 		if(!(lResult instanceof Boolean))
 		{
-			throw new EvaluationException(ExceptionConstants.EBOS_OOEE_008,new Object[]{lChild.toString(),lResult});
+			throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_008,new Object[]{lChild.toString(),lResult});
 			//throw new EvaluationException("Expect boolean type value in Logic Operator for " + lChild.toString() + ", but get " + lResult);
 		}
 		
@@ -97,7 +97,7 @@ public class LogicOperator extends Operator
 			
 			if(!(rResult instanceof Boolean))
 			{
-				throw new EvaluationException(ExceptionConstants.EBOS_OOEE_007,new Object[]{rChild.toString(),rResult});
+				throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_007,new Object[]{rChild.toString(),rResult});
 			//	throw new EvaluationException("Expect boolean type value in Logic Operator " + rChild.toString() + ", but get " + rResult);
 			}
 			

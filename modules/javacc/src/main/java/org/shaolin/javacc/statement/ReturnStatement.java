@@ -65,7 +65,7 @@ public class ReturnStatement extends Statement
             }
             if (!ExpressionUtil.isAssignableFrom(declareClass, returnClass))
             {
-            	throw new ParsingException(ExceptionConstants.EBOS_OOEE_025,new Object[]{declareReturnType,returnClass.getName()});
+            	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_025,new Object[]{declareReturnType,returnClass.getName()});
             }
         }
     }

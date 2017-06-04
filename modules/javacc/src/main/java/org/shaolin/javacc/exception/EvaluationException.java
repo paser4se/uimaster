@@ -14,7 +14,7 @@ public class EvaluationException extends BaseException {
 	}
 
 	public EvaluationException(Throwable t) {
-		super(ExceptionConstants.EBOS_000, getNestedException(t));
+		super(ExceptionConstants.UIMASTER_000, getNestedException(t));
 	}
 
 	public EvaluationException(String msg, Object[] args) {

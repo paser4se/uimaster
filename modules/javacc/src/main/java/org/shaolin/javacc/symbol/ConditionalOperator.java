@@ -34,7 +34,7 @@ public class ConditionalOperator extends Operator
         
         if(conditionClass != boolean.class)
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_067,new Object[]{condition.toString()});
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_067,new Object[]{condition.toString()});
         }
         
         ExpressionNode trueNode = getChild(1);
@@ -99,7 +99,7 @@ public class ConditionalOperator extends Operator
 		}
 		else
 		{
-			throw new ParsingException(ExceptionConstants.EBOS_OOEE_075,new Object[]{trueClass,falseClass});
+			throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_075,new Object[]{trueClass,falseClass});
 			//throw new ParsingException("wrong class for conditional operator between " + trueClass + " and " + falseClass);
 		}
 		
@@ -135,7 +135,7 @@ public class ConditionalOperator extends Operator
         }
         catch(ParsingException e)
         {
-        	throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+        	throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
 		
         ExpressionNode condition = getChild(0);
@@ -169,7 +169,7 @@ public class ConditionalOperator extends Operator
         }
 		catch(ParsingException e)
 		{
-			throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+			throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
 		}
 		
 		context.stackPush(valueObject);

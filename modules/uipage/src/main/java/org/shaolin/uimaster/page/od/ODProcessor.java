@@ -150,7 +150,7 @@ public class ODProcessor
 		catch(Throwable e)
 		{
 			throw new ODEntityProcessException(
-			        ExceptionConstants.EBOS_ODMAPPER_068, e, new Object[]{odEntityName});
+			        ExceptionConstants.UIMASTER_ODMAPPER_068, e, new Object[]{odEntityName});
 		}
 		finally 
 		{

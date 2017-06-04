@@ -330,7 +330,7 @@ public class QueryParser {
             try {
 				rightColumn = QueryUtil.buildValueSql(expr, parsingContext);
 			} catch (OQLException e) {
-				throw new QueryParsingException(ExceptionConstants.EBOS_000, e, e.getMessage());
+				throw new QueryParsingException(ExceptionConstants.UIMASTER_000, e, e.getMessage());
 			}
             IExpressionHandler expHandler = ExpressionHandlers.getHandler(op);
             String expStr = expHandler.parse(leftColumn, rightColumn,

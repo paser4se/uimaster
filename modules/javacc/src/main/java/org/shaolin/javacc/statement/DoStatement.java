@@ -65,7 +65,7 @@ public class DoStatement extends Statement
     {
         doExpressionNode.parse(parsingContext);
         if (doExpressionNode.getValueClass() != boolean.class)
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_029);
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_029);
          //   throw new ParsingException("Can't convert the expression to boolean");
         doStatement.parse(parsingContext);
 

@@ -48,7 +48,7 @@ public class DefaultParsingContext implements ParsingContext, CustomFieldParsing
     {
         if(!variableTypes.containsKey(name))
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_032);
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_032);
         //    throw new ParsingException("Can't find definition for variable " + name);
         }
         
@@ -121,7 +121,7 @@ public class DefaultParsingContext implements ParsingContext, CustomFieldParsing
 	 */
     public Method findMethod(String name, List argClasses) throws ParsingException
     {
-    	throw new ParsingException(ExceptionConstants.EBOS_OOEE_046);
+    	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_046);
     }
 
 	/**
@@ -134,7 +134,7 @@ public class DefaultParsingContext implements ParsingContext, CustomFieldParsing
 	 */	
 	public Class getFieldClass(Class ownerClass, String fieldName) throws ParsingException
 	{
-		throw new ParsingException(ExceptionConstants.EBOS_OOEE_044);
+		throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_044);
 	}
 	
     

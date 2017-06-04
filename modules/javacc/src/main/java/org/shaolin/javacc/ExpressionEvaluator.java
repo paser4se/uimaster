@@ -46,11 +46,11 @@ public class ExpressionEvaluator
 	    {
 	        if (expr == null)
 	        {
-	        	throw new EvaluationException(ExceptionConstants.EBOS_OOEE_009);
+	        	throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_009);
 	        }
 	        else
 	        {
-	        	throw new EvaluationException(ExceptionConstants.EBOS_OOEE_010,t,new Object[]{expr.getExpressionString()});
+	        	throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_010,t,new Object[]{expr.getExpressionString()});
 	    	   // throw new EvaluationException("Fail to evaluate expression:" + expr.getExpressionString(), t);
 	    	}
 	    }

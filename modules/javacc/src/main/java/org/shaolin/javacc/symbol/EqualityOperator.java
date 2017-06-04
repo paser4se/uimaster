@@ -47,7 +47,7 @@ public class EqualityOperator extends Operator
 		}
 		else
 		{
-			throw new ParsingException(ExceptionConstants.EBOS_OOEE_076,new Object[]{lClass,rClass});
+			throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_076,new Object[]{lClass,rClass});
 			//throw new ParsingException(lClass + " and " + rClass + " can't be operands of operator " + type);
 		}
 		
@@ -79,7 +79,7 @@ public class EqualityOperator extends Operator
         }
         catch(ParsingException e)
         {
-        	throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+        	throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
 
 		ExpressionNode lChild = (ExpressionNode)getChild(0);

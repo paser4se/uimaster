@@ -51,11 +51,11 @@ public class StatementEvaluator
         	}
             if (compilationUnit == null)
             {
-            	throw new EvaluationException(ExceptionConstants.EBOS_OOEE_012);
+            	throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_012);
             }
             else
             {
-            	throw new EvaluationException(ExceptionConstants.EBOS_OOEE_011,t);
+            	throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_011,t);
             }
         }
     }

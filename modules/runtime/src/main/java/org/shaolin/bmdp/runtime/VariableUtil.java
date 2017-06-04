@@ -92,14 +92,14 @@ public final class VariableUtil {
 				}
 			} catch (Exception ex) {
 				throw new EntityNotFoundException(
-						ExceptionConstants.EBOS_COMMON_003, ex,
+						ExceptionConstants.UIMASTER_COMMON_003, ex,
 						new Object[] { entityName });
 			}
 		} else if (VariableCategoryType.JOIN_TABLE == categoryType) {
 			return null;
 		} else {
 			throw new EntityNotFoundException(
-					ExceptionConstants.EBOS_COMMON_008, new Object[] { categoryType.value(),
+					ExceptionConstants.UIMASTER_COMMON_008, new Object[] { categoryType.value(),
 							entityName });
 		}
 	}
@@ -151,7 +151,7 @@ public final class VariableUtil {
 			return ExpressionUtil.findClass(varClassName);
 		} catch (ParsingException ex) {
 			throw new EntityNotFoundException(
-					ExceptionConstants.EBOS_COMMON_007, ex,
+					ExceptionConstants.UIMASTER_COMMON_007, ex,
 					new Object[] { varClassName });
 		}
 	}

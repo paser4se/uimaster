@@ -38,7 +38,7 @@ public class ShiftOperator extends Operator
         if(!ExpressionUtil.isNumeric(valueClass) || (ExpressionUtil.getNumericPrecision(valueClass) > ExpressionUtil.LONG_PRECISION)
            || !ExpressionUtil.isNumeric(shiftClass) || (ExpressionUtil.getNumericPrecision(shiftClass) > ExpressionUtil.LONG_PRECISION))
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_051,new Object[]{type});
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_051,new Object[]{type});
            // throw new ParsingException("operands of operator " + type + " must be integral number");
         }
         
@@ -73,7 +73,7 @@ public class ShiftOperator extends Operator
         }
         catch(ParsingException e)
         {
-            throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+            throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
 
         ExpressionNode lChild = (ExpressionNode)getChild(0);
@@ -94,7 +94,7 @@ public class ShiftOperator extends Operator
         }
         catch(ParsingException e)
         {
-            throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+            throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
 
         try
@@ -104,7 +104,7 @@ public class ShiftOperator extends Operator
         }
         catch(ParsingException e)
         {
-            throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+            throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
         
         valueObject = calculateShiftResult(valueObject, shiftObject);

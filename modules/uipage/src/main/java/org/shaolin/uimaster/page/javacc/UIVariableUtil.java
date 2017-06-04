@@ -56,12 +56,12 @@ public final class UIVariableUtil {
 				}
 			} catch (Exception ex) {
 				throw new EntityNotFoundException(
-						ExceptionConstants.EBOS_COMMON_003, ex,
+						ExceptionConstants.UIMASTER_COMMON_003, ex,
 						new Object[] { entityName });
 			}
 		} else {
 			throw new EntityNotFoundException(
-					ExceptionConstants.EBOS_COMMON_008, new Object[] { categoryType.value(),
+					ExceptionConstants.UIMASTER_COMMON_008, new Object[] { categoryType.value(),
 							entityName });
 		}
 	}

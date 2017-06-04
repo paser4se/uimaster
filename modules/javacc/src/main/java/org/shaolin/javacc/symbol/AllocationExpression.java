@@ -41,7 +41,7 @@ public class AllocationExpression extends ExpressionNode
 		    {
                 String className = field.toString();
                // throw new ParsingException("Can't find the class " + className + " for new expression");
-                throw new ParsingException(ExceptionConstants.EBOS_OOEE_034,new Object[]{className});
+                throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_034,new Object[]{className});
 		    }
         }
         
@@ -78,7 +78,7 @@ public class AllocationExpression extends ExpressionNode
         }
         catch(ParsingException e)
         {
-        	throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+        	throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
           //  throw new EvaluationException(e);
         }
         
@@ -108,7 +108,7 @@ public class AllocationExpression extends ExpressionNode
         	}
         	catch(Exception e)
         	{
-        		throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+        		throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         	}
 		}
 		else

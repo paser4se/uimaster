@@ -74,7 +74,7 @@ public class FieldExpression extends ExpressionNode
         
         if(valueClass == null)
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_036,new Object[]{toString()});
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_036,new Object[]{toString()});
         }
 
         return valueClass;
@@ -118,7 +118,7 @@ public class FieldExpression extends ExpressionNode
         }
         if (ret == 0)
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_036,new Object[]{toString()});
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_036,new Object[]{toString()});
            // throw new ParsingException("Can't resolve symbol " + toString());
         }
         return ret;
@@ -226,7 +226,7 @@ public class FieldExpression extends ExpressionNode
         }
         catch(ParsingException e)
         {
-        	throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+        	throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
 
         for(int i = 0, childNum = getChildNum(); i < childNum; i++)

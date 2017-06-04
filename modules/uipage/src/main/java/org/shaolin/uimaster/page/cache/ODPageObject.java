@@ -290,7 +290,7 @@ public class ODPageObject extends ODObject implements java.io.Serializable
 			if(out.getName().equals(outName))
 				return out;
         }
-    	throw new I18NRuntimeException(ExceptionConstants.EBOS_ODMAPPER_059,new Object[]{outName});
+    	throw new I18NRuntimeException(ExceptionConstants.UIMASTER_ODMAPPER_059,new Object[]{outName});
 	}
 
 	public PageInType getPageInDescritpor() {

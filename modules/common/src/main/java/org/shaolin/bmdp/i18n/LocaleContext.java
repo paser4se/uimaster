@@ -90,7 +90,7 @@ public class LocaleContext {
 	public static void pushDataLocale(String locale) {
 		LocaleContext lCtxt = getLocaleContext();
 		if (lCtxt == null) {
-			throw new I18NRuntimeException(ExceptionConstants.EBOS_COMMON_027);
+			throw new I18NRuntimeException(ExceptionConstants.UIMASTER_COMMON_027);
 		}
 		lCtxt.pushDLocale(locale);
 	}

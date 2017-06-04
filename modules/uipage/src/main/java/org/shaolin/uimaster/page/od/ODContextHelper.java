@@ -97,7 +97,7 @@ public class ODContextHelper
 							new Object[] { variable.getName(), clazz.getName() });
     		} else {
 				throw new I18NRuntimeException(
-						ExceptionConstants.EBOS_ODMAPPER_063, new Object[] {
+						ExceptionConstants.UIMASTER_ODMAPPER_063, new Object[] {
 								variable.getName(),
 								variable.getType().getEntityName() });
     		}
@@ -124,7 +124,7 @@ public class ODContextHelper
             				new Object[] {variable.getName(), clazz.getName()});
             } else {
 				throw new I18NRuntimeException(
-						ExceptionConstants.EBOS_ODMAPPER_063, new Object[] {
+						ExceptionConstants.UIMASTER_ODMAPPER_063, new Object[] {
 								variable.getName(),
 								variable.getType().getEntityName() });
             }
@@ -135,16 +135,16 @@ public class ODContextHelper
 	public static Class getVariableClass(VariableType variableType) 
 	{
 		if( variableType == null )
-			throw new I18NRuntimeException(ExceptionConstants.EBOS_ODMAPPER_062);
+			throw new I18NRuntimeException(ExceptionConstants.UIMASTER_ODMAPPER_062);
 		if( variableType.getCategory() == null )
-			throw new I18NRuntimeException(ExceptionConstants.EBOS_ODMAPPER_061,new Object[]{variableType.getName()});
+			throw new I18NRuntimeException(ExceptionConstants.UIMASTER_ODMAPPER_061,new Object[]{variableType.getName()});
 		
 		String varClassName = UIVariableUtil.getVariableClassName(variableType);
 		try {
 			return ExpressionUtil.findClass(varClassName);
 		} catch (ParsingException ex) {
 			throw new EntityNotFoundException(
-					ExceptionConstants.EBOS_COMMON_007, ex,
+					ExceptionConstants.UIMASTER_COMMON_007, ex,
 					new Object[] { varClassName });
 		}
 	}

@@ -34,7 +34,7 @@ public class InstanceofOperator extends Operator
 		
 		if(!ExpressionUtil.isReferenceType(exprClass) || !ExpressionUtil.isReferenceType(instanceClass) || !ExpressionUtil.isCastableFrom(instanceClass, exprClass))
 		{
-			throw new ParsingException(ExceptionConstants.EBOS_OOEE_037,new Object[]{exprClass,instanceClass});
+			throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_037,new Object[]{exprClass,instanceClass});
 		}
 
         instanceClassName = instanceClass.getName();
@@ -51,7 +51,7 @@ public class InstanceofOperator extends Operator
         }
         catch(ParsingException e)
         {
-            throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+            throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
 
         Class instanceClass = null;
@@ -61,7 +61,7 @@ public class InstanceofOperator extends Operator
         }
         catch(ParsingException e)
         {
-            throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+            throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
 
 		ExpressionNode expr = getChild(0);

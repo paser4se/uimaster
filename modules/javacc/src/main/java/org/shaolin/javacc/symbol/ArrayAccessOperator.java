@@ -40,7 +40,7 @@ public class ArrayAccessOperator extends ExpressionNode
         
         if(index.checkType(context) == null)
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_071);
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_071);
         //    throw new ParsingException("index can't be nothing");
         }
         
@@ -55,7 +55,7 @@ public class ArrayAccessOperator extends ExpressionNode
         }
         catch(ParsingException e)
         {
-        	throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+        	throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
         
         ExpressionNode child = getChild(0);
@@ -92,7 +92,7 @@ public class ArrayAccessOperator extends ExpressionNode
         }
         catch(Exception e)
         {
-        	throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+        	throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
     }
     

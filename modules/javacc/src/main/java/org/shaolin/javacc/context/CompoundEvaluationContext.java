@@ -140,7 +140,7 @@ public class CompoundEvaluationContext implements EvaluationContext
 		}
 		else
 		{
-			throw new EvaluationException(ExceptionConstants.EBOS_OOEE_019,new Object[]{name});
+			throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_019,new Object[]{name});
 		}
 	}
 

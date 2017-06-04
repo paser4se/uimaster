@@ -77,7 +77,7 @@ public class WhileStatement extends Statement
     {
         whileExpressionNode.parse(parsingContext);
         if(whileExpressionNode.getValueClass() != boolean.class)
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_029);
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_029);
          //   throw new ParsingException("Can't convert the expression to boolean");
         whileStatement.parse(parsingContext);
     }

@@ -241,7 +241,7 @@ public class ExpressionUtil
         }
         else
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_051);
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_051);
             //throw new ParsingException("Operands of Numeric Operator must be number");
         }
 
@@ -285,7 +285,7 @@ public class ExpressionUtil
         }
         else
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_028);
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_028);
         }
 
         return result;
@@ -481,7 +481,7 @@ public class ExpressionUtil
 
         if (foundClass == null)
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_030,new Object[]{className});
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_030,new Object[]{className});
         }
         for (int i = 0; i < dimension; i++)
         {
@@ -530,7 +530,7 @@ public class ExpressionUtil
 
         if (result == null)
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_066,new Object[]{className});
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_066,new Object[]{className});
         }
 
         return result;
@@ -895,7 +895,7 @@ public class ExpressionUtil
 
         if (foundField == null)
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_035,new Object[]{fieldName,parentClass.getName()});
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_035,new Object[]{fieldName,parentClass.getName()});
         }
 
         return foundField;
@@ -1035,14 +1035,14 @@ public class ExpressionUtil
         }
         if (foundClass == null)
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_030,new Object[]{className});
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_030,new Object[]{className});
         }
         if (isInnerClass)
         {
             int modifier = foundClass.getModifiers();
             if (!(Modifier.isPublic(modifier) && Modifier.isStatic(modifier)))
             {
-            	throw new ParsingException(ExceptionConstants.EBOS_OOEE_030,new Object[]{className});
+            	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_030,new Object[]{className});
             }
         }
 
@@ -1112,7 +1112,7 @@ public class ExpressionUtil
                 }
                 else
                 {
-                	throw new I18NRuntimeException(ExceptionConstants.EBOS_OOEE_022);
+                	throw new I18NRuntimeException(ExceptionConstants.UIMASTER_OOEE_022);
                    // throw new IllegalArgumentException("\\ should not end in the expression");
                 }
                 break;
@@ -1122,7 +1122,7 @@ public class ExpressionUtil
                 {
                     if (i + 2 > len || expressionString.charAt(i + 2) != '\'')
                     {
-                    	throw new I18NRuntimeException(ExceptionConstants.EBOS_OOEE_021);
+                    	throw new I18NRuntimeException(ExceptionConstants.UIMASTER_OOEE_021);
                     }
                     result.append(expressionString.charAt(i + 1));
                     result.append('\'');

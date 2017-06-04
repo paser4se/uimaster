@@ -58,7 +58,7 @@ public class CurrencyCommonProcessor implements IFormatProcessor {
 				logger.error("Parsing error: text is " + text + " pattern is "
 						+ pattern);
 
-				throw new FormatException(ExceptionConstants.EBOS_ODMAPPER_006,
+				throw new FormatException(ExceptionConstants.UIMASTER_ODMAPPER_006,
 						ee);
 			}
 		}

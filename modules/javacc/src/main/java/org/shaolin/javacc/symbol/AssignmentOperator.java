@@ -32,7 +32,7 @@ public class AssignmentOperator extends Operator
         
         if(!lChild.isVariable())
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_041,new Object[]{type});
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_041,new Object[]{type});
             //throw new ParsingException("Left Operand of Assignment " + type + " must be variable, not value");
         }
         
@@ -56,7 +56,7 @@ public class AssignmentOperator extends Operator
             }
             else
             {
-            	throw new ParsingException(ExceptionConstants.EBOS_OOEE_027,new Object[]{rClass,valueClass});
+            	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_027,new Object[]{rClass,valueClass});
               //  throw new ParsingException("Can't assign " + rClass + " to " + valueClass);
             }
         }
@@ -80,7 +80,7 @@ public class AssignmentOperator extends Operator
         }
         catch(ParsingException e)
         {
-        	throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+        	throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
 
         ExpressionNode lChild = (ExpressionNode)getChild(0);
@@ -99,7 +99,7 @@ public class AssignmentOperator extends Operator
             }
             catch(ParsingException e)
             {
-            	throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+            	throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
             }
         }
 

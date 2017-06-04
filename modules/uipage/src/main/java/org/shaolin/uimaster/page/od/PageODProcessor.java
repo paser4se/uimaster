@@ -86,7 +86,7 @@ public class PageODProcessor
 				return new DefaultEvaluationContext();
 			}
 			if ( !odPageContext.getUIFormName().equals(requestContext.getODMapperName()) ) {
-				throw new ODProcessException(ExceptionConstants.EBOS_ODMAPPER_052,
+				throw new ODProcessException(ExceptionConstants.UIMASTER_ODMAPPER_052,
 						new Object[]{requestContext.getODMapperName(), odPageContext.getUIFormName()});
 			}
 			isDataToUI = odPageContext.isDataToUI();
@@ -226,7 +226,7 @@ public class PageODProcessor
 		catch (Throwable e)
 		{
 			error = true;
-			throw new ODProcessException(ExceptionConstants.EBOS_ODMAPPER_067, e, new Object[]{pageName});
+			throw new ODProcessException(ExceptionConstants.UIMASTER_ODMAPPER_067, e, new Object[]{pageName});
 		} 
 		finally {
 			long end = System.currentTimeMillis() - start;

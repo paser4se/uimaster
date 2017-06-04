@@ -39,7 +39,7 @@ public class TypeExpression extends ExpressionNode
 		    FieldExpression name = (FieldExpression)typeNode;
 		    if(!name.isClass())
 		    {
-		    	throw new ParsingException(ExceptionConstants.EBOS_OOEE_034,new Object[]{name.toString()});
+		    	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_034,new Object[]{name.toString()});
 		     //   throw new ParsingException("Can't find the class " + name.toString() + " for new expression");
 		    }
 		}
@@ -65,7 +65,7 @@ public class TypeExpression extends ExpressionNode
         }
         catch(ParsingException e)
         {
-            throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+            throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
 	}
 	

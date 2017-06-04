@@ -43,7 +43,7 @@ public class DefaultSingleContext implements ParsingContext, EvaluationContext,
     {
         if (!variableTypes.containsKey(name))
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_032,new Object[]{name});
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_032,new Object[]{name});
         }
 
         Class result = (Class) variableTypes.get(name);
@@ -113,7 +113,7 @@ public class DefaultSingleContext implements ParsingContext, EvaluationContext,
     {
         if (!variableObjects.containsKey(name))
         {
-        	throw new EvaluationException(ExceptionConstants.EBOS_OOEE_003,new Object[]{name});
+        	throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_003,new Object[]{name});
          //   throw new EvaluationException("Can't find object for variable " + name);
         }
 
@@ -167,7 +167,7 @@ public class DefaultSingleContext implements ParsingContext, EvaluationContext,
      */
     public Method findMethod(String name, List argClasses) throws ParsingException
     {
-    	throw new ParsingException(ExceptionConstants.EBOS_OOEE_046);
+    	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_046);
     //    throw new ParsingException("No plugin method supported in DefaultEvaluationContext");
     }
 
@@ -188,7 +188,7 @@ public class DefaultSingleContext implements ParsingContext, EvaluationContext,
     public Object invokeMethod(String name, List argClasses, List argObjects)
             throws EvaluationException
     {
-    	throw new EvaluationException(ExceptionConstants.EBOS_OOEE_018);
+    	throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_018);
        // throw new EvaluationException("No plugin method supported in DefaultEvaluationContext");
     }
 
@@ -206,7 +206,7 @@ public class DefaultSingleContext implements ParsingContext, EvaluationContext,
      */
     public Class getFieldClass(Class ownerClass, String fieldName) throws ParsingException
     {
-    	throw new ParsingException(ExceptionConstants.EBOS_OOEE_044);
+    	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_044);
     }
 
     /**
@@ -226,7 +226,7 @@ public class DefaultSingleContext implements ParsingContext, EvaluationContext,
     public Object getFieldValue(Class ownerClass, Object ownerValue, String fieldName)
             throws EvaluationException
     {
-    	throw new EvaluationException(ExceptionConstants.EBOS_OOEE_016);
+    	throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_016);
     }
 
     /**
@@ -248,7 +248,7 @@ public class DefaultSingleContext implements ParsingContext, EvaluationContext,
     public void setFieldValue(Class ownerClass, Object ownerValue, String fieldName,
             Object fieldValue) throws EvaluationException
     {
-    	throw new EvaluationException(ExceptionConstants.EBOS_OOEE_016);
+    	throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_016);
     }
 
     /**

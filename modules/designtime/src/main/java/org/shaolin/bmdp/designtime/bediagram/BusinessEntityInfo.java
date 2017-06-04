@@ -14,7 +14,6 @@ import org.shaolin.bmdp.datamodel.bediagram.MemberType;
 import org.shaolin.bmdp.datamodel.bediagram.ObjectRefType;
 import org.shaolin.bmdp.datamodel.bediagram.PersistenceTypeType;
 import org.shaolin.bmdp.datamodel.bediagram.PersistentConfigType;
-import org.shaolin.bmdp.i18n.ExceptionConstants;
 import org.shaolin.bmdp.runtime.entity.InvalidEntityException;
 
 class BusinessEntityInfo {
@@ -109,10 +108,8 @@ class BusinessEntityInfo {
 				}
 			}
 		}
-		throw new InvalidEntityException(ExceptionConstants.EBOS_BE_021,
-				new Object[] { businessEntity.getEntityName() });
-		// throw new InvalidEntityException("Primary key field:" + fieldName +
-		// " not found in entity:" + businessEntity.getEntityName());
+		throw new InvalidEntityException("Primary key field:" + fieldName +
+				 " not found in entity:" + businessEntity.getEntityName());
 	}
 	
 	public class PrimaryKeyInfo

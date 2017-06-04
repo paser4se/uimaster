@@ -143,7 +143,7 @@ public class ForStatement extends ContextStatement
         {
             forExpNode.parse(parsingContext);
             if(forExpNode.getValueClass() != boolean.class)
-            	throw new ParsingException(ExceptionConstants.EBOS_OOEE_029);
+            	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_029);
                // throw new ParsingException("Can't convert the expression to boolean");            
         }
         if(this.updateSmtList != null)

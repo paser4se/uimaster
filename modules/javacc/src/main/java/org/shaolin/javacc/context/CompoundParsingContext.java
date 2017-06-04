@@ -77,7 +77,7 @@ public class CompoundParsingContext implements ParsingContext
 
 		if (m == null)
 		{
-			throw new ParsingException(ExceptionConstants.EBOS_OOEE_045,new Object[]{name});
+			throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_045,new Object[]{name});
 		}
 		else
 		{
@@ -109,7 +109,7 @@ public class CompoundParsingContext implements ParsingContext
 			}
 		}
 
-		throw new ParsingException(ExceptionConstants.EBOS_OOEE_032,new Object[]{name});
+		throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_032,new Object[]{name});
 	}
 
 }

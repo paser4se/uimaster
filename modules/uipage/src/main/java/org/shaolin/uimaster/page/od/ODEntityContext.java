@@ -128,7 +128,7 @@ public class ODEntityContext extends ODContext
 			}
 		}
 		if (uiEntity == null || !UserRequestContext.isInstance(uiEntityName, uiEntity)) {
-			throw new ODProcessException(ExceptionConstants.EBOS_ODMAPPER_049,
+			throw new ODProcessException(ExceptionConstants.UIMASTER_ODMAPPER_049,
 					new Object[]{uiEntity.getUIEntityName(), uiEntityName});
 		}
     	if(logger.isDebugEnabled()) {

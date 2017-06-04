@@ -178,7 +178,7 @@ public class OOEEContext implements MultipleParsingContext, MultipleEvaluationCo
         Class<?> result;
 		if (contextTag == null) {
 			if (defaultParsingContext == null) {
-				throw new ParsingException(ExceptionConstants.EBOS_OOEE_031,
+				throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_031,
 						new Object[] { name });
 			} else {
 				result = defaultParsingContext.getVariableClass(name);
@@ -242,7 +242,7 @@ public class OOEEContext implements MultipleParsingContext, MultipleEvaluationCo
         Method result;
 		if (contextTag == null) {
 			if (defaultParsingContext == null) {
-				throw new ParsingException(ExceptionConstants.EBOS_OOEE_031,
+				throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_031,
 						new Object[] { name });
 			} else {
 				result = defaultParsingContext.findMethod(name, argClasses);
@@ -292,7 +292,7 @@ public class OOEEContext implements MultipleParsingContext, MultipleEvaluationCo
         {
             if (defaultEvaluationContext == null)
             {
-            	throw new EvaluationException(ExceptionConstants.EBOS_OOEE_002,new Object[]{name});
+            	throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_002,new Object[]{name});
               //  throw new EvaluationException("Can't find corresponding context for variable "
                 //        + name);
             }
@@ -332,7 +332,7 @@ public class OOEEContext implements MultipleParsingContext, MultipleEvaluationCo
         {
             if (defaultEvaluationContext == null)
             {
-            	throw new EvaluationException(ExceptionConstants.EBOS_OOEE_002,new Object[]{name});
+            	throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_002,new Object[]{name});
             //    throw new EvaluationException("Can't find corresponding context for variable "
               //          + name);
             }
@@ -377,7 +377,7 @@ public class OOEEContext implements MultipleParsingContext, MultipleEvaluationCo
         {
             if (defaultEvaluationContext == null)
             {
-            	throw new EvaluationException(ExceptionConstants.EBOS_OOEE_002,new Object[]{name});
+            	throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_002,new Object[]{name});
                // throw new EvaluationException("Can't find corresponding context for variable "
                  //       + name);
             }
@@ -443,7 +443,7 @@ public class OOEEContext implements MultipleParsingContext, MultipleEvaluationCo
             }
         }
 
-        throw new ParsingException(ExceptionConstants.EBOS_OOEE_033,new Object[]{fieldName,ownerClass});
+        throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_033,new Object[]{fieldName,ownerClass});
     }
 
     /**
@@ -493,7 +493,7 @@ public class OOEEContext implements MultipleParsingContext, MultipleEvaluationCo
             }
         }
 
-        throw new EvaluationException(ExceptionConstants.EBOS_OOEE_035,new Object[]{fieldName,ownerClass});
+        throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_035,new Object[]{fieldName,ownerClass});
     }
 
     /**
@@ -545,7 +545,7 @@ public class OOEEContext implements MultipleParsingContext, MultipleEvaluationCo
             }
         }
 
-        throw new EvaluationException(ExceptionConstants.EBOS_OOEE_035,new Object[]{fieldName,ownerClass});
+        throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_035,new Object[]{fieldName,ownerClass});
     }
 
     /**
