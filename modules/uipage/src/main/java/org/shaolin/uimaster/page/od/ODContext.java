@@ -190,7 +190,7 @@ public abstract class ODContext extends OpExecuteContext {
 			return null;
 		} catch (EvaluationException ex) {
 			throw new I18NRuntimeException(
-					ExceptionConstants.EBOS_ODMAPPER_002, ex,
+					ExceptionConstants.UIMASTER_ODMAPPER_002, ex,
 					new Object[] { variableName });
 
 		}
@@ -206,7 +206,7 @@ public abstract class ODContext extends OpExecuteContext {
 			return null;
 		} catch (EvaluationException ex) {
 			throw new I18NRuntimeException(
-					ExceptionConstants.EBOS_ODMAPPER_002, ex,
+					ExceptionConstants.UIMASTER_ODMAPPER_002, ex,
 					new Object[] { variableName });
 		}
 	}

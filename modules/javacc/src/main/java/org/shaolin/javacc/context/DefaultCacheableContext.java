@@ -25,7 +25,7 @@ public class DefaultCacheableContext implements ICacheableContext {
 
 	public DefaultCacheableContext(Map map) {
 		if (map == null) {
-			throw new I18NRuntimeException(ExceptionConstants.EBOS_OOEE_024);
+			throw new I18NRuntimeException(ExceptionConstants.UIMASTER_OOEE_024);
 		}
 		this.classObjectCache = map;
 	}
@@ -102,7 +102,7 @@ public class DefaultCacheableContext implements ICacheableContext {
 						foundClass = lateFoundClass;
 					} else {
 						throw new ParsingException(
-								ExceptionConstants.EBOS_OOEE_056, new Object[] {
+								ExceptionConstants.UIMASTER_OOEE_056, new Object[] {
 										className, foundClass.getName(),
 										lateFoundClass.getName() });
 					}
@@ -116,7 +116,7 @@ public class DefaultCacheableContext implements ICacheableContext {
 						foundClass = lateFoundClass;
 					} else {
 						throw new ParsingException(
-								ExceptionConstants.EBOS_OOEE_056, new Object[] {
+								ExceptionConstants.UIMASTER_OOEE_056, new Object[] {
 										className, foundClass.getName(),
 										lateFoundClass.getName() });
 					}

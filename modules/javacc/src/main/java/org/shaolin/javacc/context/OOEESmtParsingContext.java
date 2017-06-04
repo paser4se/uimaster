@@ -51,7 +51,7 @@ public class OOEESmtParsingContext implements ICacheableContext
     {
         if (parsingContext == null)
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_043);
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_043);
            // throw new ParsingException("No Parsing Context Set");
         }
         else
@@ -94,7 +94,7 @@ public class OOEESmtParsingContext implements ICacheableContext
     {
         if (parsingContext == null)
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_043);
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_043);
         }
         else
         {
@@ -111,7 +111,7 @@ public class OOEESmtParsingContext implements ICacheableContext
         }
         else
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_042);
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_042);
         }
     }
 

@@ -65,7 +65,7 @@ public class DelegateEvaluationContext implements EvaluationContext
 			}
 		}
 		
-		throw new EvaluationException(ExceptionConstants.EBOS_OOEE_005,new Object[]{name});
+		throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_005,new Object[]{name});
 	}
 
 	/**
@@ -113,7 +113,7 @@ public class DelegateEvaluationContext implements EvaluationContext
 			}
 		}
 		
-		throw new EvaluationException(ExceptionConstants.EBOS_OOEE_017,new Object[]{name});
+		throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_017,new Object[]{name});
 	}
 
 }

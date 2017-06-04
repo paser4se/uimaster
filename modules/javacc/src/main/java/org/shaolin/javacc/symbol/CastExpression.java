@@ -38,7 +38,7 @@ public class CastExpression extends ExpressionNode
         
         if(!ExpressionUtil.isCastableFrom(valueClass, fromClass))
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_070,new Object[]{fromClass,valueClass});
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_070,new Object[]{fromClass,valueClass});
           //  throw new ParsingException("inconvertable cast from class " + fromClass + " to " + valueClass);
         }
         
@@ -79,7 +79,7 @@ public class CastExpression extends ExpressionNode
         }
         catch(ParsingException e)
         {
-        	throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+        	throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
 
         ExpressionNode expr = getChild(1);
@@ -96,7 +96,7 @@ public class CastExpression extends ExpressionNode
         	}
         	catch(ParsingException e)
         	{
-        		throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+        		throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         	}
         }
         else
@@ -104,7 +104,7 @@ public class CastExpression extends ExpressionNode
         {
         	if(valueObject != null && !valueClass.isAssignableFrom(valueObject.getClass()))
         	{
-        		throw new EvaluationException(ExceptionConstants.EBOS_OOEE_006,new Object[]{valueObject.getClass(),valueClass});
+        		throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_006,new Object[]{valueObject.getClass(),valueClass});
         	}
         }
         

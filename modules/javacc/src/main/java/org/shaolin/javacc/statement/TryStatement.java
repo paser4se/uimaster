@@ -92,7 +92,7 @@ public class TryStatement extends Statement
     {
         this.tryBlock.parse(parsingContext);
         if (this.catchBlock == null && this.finalBlock == null)
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_058);
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_058);
            // throw new ParsingException("Syntax error, insert \"Finally\" to complete TryStatement");
         if (this.catchBlock != null)
         {
@@ -166,7 +166,7 @@ public class TryStatement extends Statement
                 alreadyDefined = true;
         }
         if (alreadyDefined)
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_026,new Object[]{name});
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_026,new Object[]{name});
           //  throw new ParsingException("Already defined " + name);
     }
 

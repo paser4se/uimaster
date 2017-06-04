@@ -71,7 +71,7 @@ public class ArrayDimsAndInits extends ExpressionNode
         }
         catch(ParsingException e)
         {
-        	throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+        	throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
         
         int childNum = getChildNum();

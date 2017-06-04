@@ -93,7 +93,7 @@ public class IfStatement extends Statement
     {
         ifExpressionNode.parse(parsingContext);
         if (ifExpressionNode.getValueClass() != boolean.class)
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_029);
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_029);
           //  throw new ParsingException("Can't convert the expression to boolean");
         ifStatement.parse(parsingContext);
         if (elseStatement != null)

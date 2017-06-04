@@ -73,7 +73,7 @@ public class DateTimeCommonProcessor implements IFormatProcessor {
 			logger.error("Parsing error: text is " + text + " pattern is "
 					+ localeData.get("dateTimeFormat"));
 
-			throw new FormatException(ExceptionConstants.EBOS_ODMAPPER_006, e);
+			throw new FormatException(ExceptionConstants.UIMASTER_ODMAPPER_006, e);
 		}
 	}
 }

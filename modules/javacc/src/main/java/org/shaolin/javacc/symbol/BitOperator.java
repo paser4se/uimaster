@@ -31,7 +31,7 @@ public class BitOperator extends Operator
         
         if(ExpressionUtil.isReferenceType(lClass) || ExpressionUtil.isReferenceType(rClass))
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_074,new Object[]{type,lClass,rClass});
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_074,new Object[]{type,lClass,rClass});
         	//throw new ParsingException("operator " + type + " can't be applied to " + lClass + " and " + rClass);
         }
         else
@@ -43,7 +43,7 @@ public class BitOperator extends Operator
         	}
         	else
         	{
-        		throw new ParsingException(ExceptionConstants.EBOS_OOEE_074,new Object[]{type,lClass,rClass});
+        		throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_074,new Object[]{type,lClass,rClass});
         		//throw new ParsingException("operator " + type + " can't be applied to " + lClass + " and " + rClass);
         	}
         }
@@ -53,7 +53,7 @@ public class BitOperator extends Operator
         	String returnName = getValueClassName();
         	if(returnName.equals("double") || returnName.equals("float"))
         	{
-        		throw new ParsingException(ExceptionConstants.EBOS_OOEE_074,new Object[]{type,lClass,rClass});
+        		throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_074,new Object[]{type,lClass,rClass});
         		//throw new ParsingException("operator " + type + " can't be applied to " + lClass + " and " + rClass);
         	}
         }
@@ -83,7 +83,7 @@ public class BitOperator extends Operator
         }
         catch(ParsingException e)
         {
-        	throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+        	throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
 
         ExpressionNode lchild = (ExpressionNode)getChild(0);

@@ -86,7 +86,7 @@ public class SimpleComponentMapping extends ComponentMapping {
 
 		if (type.getUIComponents().size() == 0) {
 			throw new I18NRuntimeException(
-					ExceptionConstants.EBOS_ODMAPPER_002);
+					ExceptionConstants.UIMASTER_ODMAPPER_002);
 		}
 		if (type.getUIComponents().size() > 1) {
 			logger.warn("[Simple Mapping]: only support mapping one ui component with more data components!");

@@ -27,7 +27,7 @@ public class ResourceUtilTest {
 		Assert.assertNotNull(ResourceUtil.getResource("org_shaolin_bmdp_common_i18n", "a"));
 		
 		try {
-			throw new I18NRuntimeException(ExceptionConstants.EBOS_ODMAPPER_056,
+			throw new I18NRuntimeException(ExceptionConstants.UIMASTER_ODMAPPER_056,
 					new Object[]{"hello."});
 		} catch (Exception e) {
 			System.out.println(e.getMessage());

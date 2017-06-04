@@ -27,7 +27,7 @@ public class DefaultEvaluationContext implements EvaluationContext, CustomFieldE
     {
     	if(varValues == null)
     	{
-    		throw new I18NRuntimeException(ExceptionConstants.EBOS_OOEE_023);
+    		throw new I18NRuntimeException(ExceptionConstants.UIMASTER_OOEE_023);
     	}
     	
     	this.variableObjects = varValues;
@@ -53,7 +53,7 @@ public class DefaultEvaluationContext implements EvaluationContext, CustomFieldE
     {
         if(!variableObjects.containsKey(name))
         {
-        	throw new EvaluationException(ExceptionConstants.EBOS_OOEE_003,new Object[]{name});
+        	throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_003,new Object[]{name});
         }
 
         return variableObjects.get(name);
@@ -99,7 +99,7 @@ public class DefaultEvaluationContext implements EvaluationContext, CustomFieldE
 	 */
     public Object invokeMethod(String name, List argClasses, List argObjects) throws EvaluationException
     {
-    	throw new EvaluationException(ExceptionConstants.EBOS_OOEE_018);
+    	throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_018);
     }
 
 	/**
@@ -114,7 +114,7 @@ public class DefaultEvaluationContext implements EvaluationContext, CustomFieldE
 	 */	
 	public void setFieldValue(Class ownerClass, Object ownerValue, String fieldName, Object fieldValue) throws EvaluationException
 	{
-		throw new EvaluationException(ExceptionConstants.EBOS_OOEE_016);
+		throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_016);
 	}
 	    
 	/**
@@ -128,7 +128,7 @@ public class DefaultEvaluationContext implements EvaluationContext, CustomFieldE
 	 */	
 	public Object getFieldValue(Class ownerClass, Object ownerValue, String fieldName) throws EvaluationException
 	{
-		throw new EvaluationException(ExceptionConstants.EBOS_OOEE_016);
+		throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_016);
 	}
 
     /**

@@ -251,7 +251,7 @@ public class CEUtil {
 			List<Boolean> selectedList) {
 		if (allList.size() != selectedList.size()) {
 			throw new I18NRuntimeException(
-					ExceptionConstants.EBOS_ODMAPPER_010, new Object[] {
+					ExceptionConstants.UIMASTER_ODMAPPER_010, new Object[] {
 							new Integer(allList.size()),
 							new Integer(selectedList.size()) });
 

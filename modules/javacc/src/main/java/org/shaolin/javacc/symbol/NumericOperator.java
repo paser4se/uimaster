@@ -40,7 +40,7 @@ public class NumericOperator extends Operator
         {
             if(lChildClass == void.class || rChildClass == void.class)
             {
-            	throw new ParsingException(ExceptionConstants.EBOS_OOEE_050,new Object[]{type});
+            	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_050,new Object[]{type});
                // throw new ParsingException("Operands of Numeric Operator " + type + " must be number or String");
             }
             else
@@ -52,13 +52,13 @@ public class NumericOperator extends Operator
         {
             if(!ExpressionUtil.isNumeric(lChildClass))
             {
-            	throw new ParsingException(ExceptionConstants.EBOS_OOEE_051,new Object[]{type});
+            	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_051,new Object[]{type});
                // throw new ParsingException("Operands of Numeric Operator " + type + " must be number");
             }
 
             if(!ExpressionUtil.isNumeric(rChildClass))
             {
-            	throw new ParsingException(ExceptionConstants.EBOS_OOEE_051,new Object[]{type});
+            	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_051,new Object[]{type});
             //    throw new ParsingException("Operands of Numeric Operator " + type + " must be number");
             }
 
@@ -90,7 +90,7 @@ public class NumericOperator extends Operator
         }
         catch(ParsingException e)
         {
-            throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+            throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
 
         ExpressionNode lChild = (ExpressionNode)getChild(0);

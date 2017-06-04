@@ -80,7 +80,7 @@ public class FieldName extends ExpressionNode {
 			}
 		}
 		if (clazz == null) {
-			throw new ParsingException(ExceptionConstants.EBOS_OOEE_079,
+			throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_079,
 					new Object[] { toString(), parentClass });
 			// throw new ParsingException("Can't resolve symbol " + toString()
 			// + " for " + parentClass);
@@ -156,7 +156,7 @@ public class FieldName extends ExpressionNode {
 		try {
 			getValueClass();
 		} catch (ParsingException e) {
-			throw new EvaluationException(ExceptionConstants.EBOS_000, e);
+			throw new EvaluationException(ExceptionConstants.UIMASTER_000, e);
 		}
 
 		if (isField) {
@@ -170,7 +170,7 @@ public class FieldName extends ExpressionNode {
 						fieldClass = ExpressionUtil.findClass(fieldClassName);
 					}
 				} catch (ParsingException e) {
-					throw new EvaluationException(ExceptionConstants.EBOS_000,
+					throw new EvaluationException(ExceptionConstants.UIMASTER_000,
 							e);
 				}
 
@@ -196,7 +196,7 @@ public class FieldName extends ExpressionNode {
 						context.stackPush(field.get(currentObject));
 					}
 				} catch (Exception e) {
-					throw new EvaluationException(ExceptionConstants.EBOS_000,
+					throw new EvaluationException(ExceptionConstants.UIMASTER_000,
 							e);
 				}
 			}
@@ -229,7 +229,7 @@ public class FieldName extends ExpressionNode {
 					fieldClass = ExpressionUtil.findClass(fieldClassName);
 				}
 			} catch (ParsingException e) {
-				throw new EvaluationException(ExceptionConstants.EBOS_000, e);
+				throw new EvaluationException(ExceptionConstants.UIMASTER_000, e);
 			}
 
 			if (isCustomField) {
@@ -241,7 +241,7 @@ public class FieldName extends ExpressionNode {
 							fieldName, isStaticField);
 					field.set(currentObject, variableValue);
 				} catch (Exception e) {
-					throw new EvaluationException(ExceptionConstants.EBOS_000,
+					throw new EvaluationException(ExceptionConstants.UIMASTER_000,
 							e);
 				}
 			}

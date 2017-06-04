@@ -766,11 +766,11 @@ public final class EntityManager implements IEntityManager {
 			if (sysEntityCache.get(type).containsKey(name)) {
 				return (T) sysEntityCache.get(type).get(name);
 			} else {
-				throw new EntityNotFoundException(ExceptionConstants.EBOS_ODMAPPER_056,
+				throw new EntityNotFoundException(ExceptionConstants.UIMASTER_ODMAPPER_056,
 						new Object[]{name});
 			}
 		} else {
-			throw new EntityNotFoundException(ExceptionConstants.EBOS_ODMAPPER_056,
+			throw new EntityNotFoundException(ExceptionConstants.UIMASTER_ODMAPPER_056,
 					new Object[]{name});
 		}
 	}

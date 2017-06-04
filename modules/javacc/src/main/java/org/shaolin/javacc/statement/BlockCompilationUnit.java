@@ -45,7 +45,7 @@ public class BlockCompilationUnit implements CompilationUnit
         ExecutionResult execResult = block.execute(context);
         if (execResult.getResultCode() == StatementConstants.exceptionEnding)
         {
-        	throw new EvaluationException(ExceptionConstants.EBOS_000, execResult.getCauseException());
+        	throw new EvaluationException(ExceptionConstants.UIMASTER_000, execResult.getCauseException());
         }
         else if (execResult.getResultCode() == StatementConstants.returnEnding)
         {

@@ -82,7 +82,7 @@ public class BlockEvaluationContext extends DefaultEvaluationContext
 	{
 		if(evaluationContext == null)
 		{
-			throw new EvaluationException(ExceptionConstants.EBOS_OOEE_015);
+			throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_015);
 		}
 		else
 		{
@@ -107,7 +107,7 @@ public class BlockEvaluationContext extends DefaultEvaluationContext
 		}
 		else
 		{
-			throw new EvaluationException(ExceptionConstants.EBOS_OOEE_014);
+			throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_014);
 		}		
 	}
 	
@@ -128,7 +128,7 @@ public class BlockEvaluationContext extends DefaultEvaluationContext
 		}
 		else
 		{
-			throw new EvaluationException(ExceptionConstants.EBOS_OOEE_014);
+			throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_014);
 		}		
 	}
 

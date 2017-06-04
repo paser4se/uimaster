@@ -73,7 +73,7 @@ public class FormatUtil {
 			String localeConfig, Map propValues)
 			throws FormatException {
 		if (!dataTypeMap.containsKey(dataType)) {
-			throw new FormatException(ExceptionConstants.EBOS_ODMAPPER_008,
+			throw new FormatException(ExceptionConstants.UIMASTER_ODMAPPER_008,
 					new Object[] { dataType });
 		}
 
@@ -112,7 +112,7 @@ public class FormatUtil {
 			String localeConfig, Map propValues)
 			throws FormatException {
 		if (!dataTypeMap.containsKey(dataType)) {
-			throw new FormatException(ExceptionConstants.EBOS_ODMAPPER_008,
+			throw new FormatException(ExceptionConstants.UIMASTER_ODMAPPER_008,
 					new Object[] { dataType });
 		}
 

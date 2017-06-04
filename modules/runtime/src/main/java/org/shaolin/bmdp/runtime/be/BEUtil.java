@@ -20,7 +20,6 @@ import org.shaolin.bmdp.datamodel.bediagram.StringType;
 import org.shaolin.bmdp.datamodel.bediagram.TimeType;
 import org.shaolin.bmdp.datamodel.common.TargetJavaType;
 import org.shaolin.bmdp.datamodel.common.VariableCategoryType;
-import org.shaolin.bmdp.exceptions.I18NRuntimeException;
 import org.shaolin.bmdp.i18n.ExceptionConstants;
 import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
 import org.shaolin.bmdp.utils.ClassUtil;
@@ -139,15 +138,7 @@ public class BEUtil {
 	 * @return the interface of entity
 	 */
 	public static Class<?> getPrimitiveInterfaceClass(String dataType) {
-		Class<?> javaType = null;
-		try {
-			javaType = primitiveInterfaceMap.get(dataType);
-		} catch (Exception e) {
-			throw new I18NRuntimeException(ExceptionConstants.EBOS_BE_008, e,
-					new Object[] { dataType });
-		}
-
-		return javaType;
+		return primitiveInterfaceMap.get(dataType);
 	}
 
 	/**
@@ -158,15 +149,7 @@ public class BEUtil {
 	 * @return the class of entity
 	 */
 	public static Class<?> getPrimitiveImplementClass(String dataType) {
-		Class<?> javaType = null;
-		try {
-			javaType = primitiveClassMap.get(dataType);
-		} catch (Exception e) {
-			throw new I18NRuntimeException(ExceptionConstants.EBOS_BE_007, e,
-					new Object[] { dataType });
-		}
-
-		return javaType;
+		return primitiveClassMap.get(dataType);
 	}
 
 	/**
@@ -273,7 +256,7 @@ public class BEUtil {
 					Thread.currentThread().getContextClassLoader()).newInstance();
 		} catch (Exception e) {
 			throw new EntityNotFoundException(
-					ExceptionConstants.EBOS_COMMON_002, e,
+					ExceptionConstants.UIMASTER_COMMON_002, e,
 					new Object[] { entityName });
 		}
 	}
@@ -285,7 +268,7 @@ public class BEUtil {
 			return clazz.getDeclaredField(fieldName).getType();
 		} catch (Exception e) {
 			throw new EntityNotFoundException(
-					ExceptionConstants.EBOS_COMMON_002, e,
+					ExceptionConstants.UIMASTER_COMMON_002, e,
 					new Object[] { entityName });
 		}
 	}

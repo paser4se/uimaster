@@ -69,13 +69,13 @@ public class FunctionExpression extends ExpressionNode
                 }
                 catch(ParsingException e)
                 {
-                	throw new ParsingException(ExceptionConstants.EBOS_OOEE_063, e, new Object[]{funcName});
+                	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_063, e, new Object[]{funcName});
                  //   throw new ParsingException("can't find method " + funcName);                    
                 }
             }
             else
             {
-            	throw new ParsingException(ExceptionConstants.EBOS_OOEE_040,new Object[]{toString()});
+            	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_040,new Object[]{toString()});
                 //should never happen
             //    throw new ParsingException("Internal exception:" + toString());
             }
@@ -107,7 +107,7 @@ public class FunctionExpression extends ExpressionNode
         }
         catch(ParsingException e)
         {
-            throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+            throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
 
         List argClasses;
@@ -118,7 +118,7 @@ public class FunctionExpression extends ExpressionNode
         }
         catch(ParsingException e)
         {
-            throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+            throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
         
         Argument arg = (Argument)getChild(0);
@@ -155,7 +155,7 @@ public class FunctionExpression extends ExpressionNode
                     }
                     catch(ParsingException e)
                     {
-                        throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+                        throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
                     }
                     methodObject = ExpressionUtil.findMethod(methodClass, funcName, isStatic, argClasses);
                 }
@@ -170,21 +170,21 @@ public class FunctionExpression extends ExpressionNode
     		{
     		    String parameterInfo = "arguments"+argObjectList.toString()+"";
     			String classInfo = (methodClassName == null?"":(methodClassName+"."))+funcName;
-    			EvaluationException ee = new EvaluationException(ExceptionConstants.EBOS_OOEE_080,new Object[]{classInfo,parameterInfo});
+    			EvaluationException ee = new EvaluationException(ExceptionConstants.UIMASTER_OOEE_080,new Object[]{classInfo,parameterInfo});
     			throw new EvaluationException(ee.getMessage(), ee);
     		}
     		catch(InvocationTargetException e)
             {
     		    String parameterInfo = "arguments"+argObjectList.toString()+"";
                 String classInfo = (methodClassName == null?"":(methodClassName+"."))+funcName;
-                EvaluationException ee = new EvaluationException(ExceptionConstants.EBOS_OOEE_081, e, new Object[]{classInfo,parameterInfo});
+                EvaluationException ee = new EvaluationException(ExceptionConstants.UIMASTER_OOEE_081, e, new Object[]{classInfo,parameterInfo});
                 throw new EvaluationException(ee.getMessage(), ee);
             }
     		catch(Throwable e)
     		{
     			String parameterInfo = "arguments"+argObjectList.toString()+"";
                 String classInfo = (methodClassName == null?"":(methodClassName+"."))+funcName;
-                EvaluationException ee = new EvaluationException(ExceptionConstants.EBOS_OOEE_081, e, new Object[]{classInfo,parameterInfo});
+                EvaluationException ee = new EvaluationException(ExceptionConstants.UIMASTER_OOEE_081, e, new Object[]{classInfo,parameterInfo});
                 throw new EvaluationException(ee.getMessage(), ee);
     		}
     	}

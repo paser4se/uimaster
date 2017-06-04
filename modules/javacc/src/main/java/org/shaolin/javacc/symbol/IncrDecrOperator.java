@@ -33,7 +33,7 @@ public class IncrDecrOperator extends Operator
         
         if(!child.isVariable())
         {
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_048,new Object[]{type});
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_048,new Object[]{type});
          //   throw new ParsingException("Operand of Operator " + type + " must be variable, not value");
         }
         
@@ -41,7 +41,7 @@ public class IncrDecrOperator extends Operator
         
 	    if(!ExpressionUtil.isNumeric(valueClass))
 	    {
-	    	throw new ParsingException(ExceptionConstants.EBOS_OOEE_047,new Object[]{type});
+	    	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_047,new Object[]{type});
 	     //   throw new ParsingException("Operand of Operator " + type + " must be number");
 	    }
         
@@ -58,7 +58,7 @@ public class IncrDecrOperator extends Operator
         }
         catch(ParsingException e)
         {
-            throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+            throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
 
         ExpressionNode child = (ExpressionNode)getChild(0);
@@ -72,7 +72,7 @@ public class IncrDecrOperator extends Operator
         }
         catch(ParsingException e)
         {
-            throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+            throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
 
         Object newObject = null;

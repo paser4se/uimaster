@@ -182,12 +182,12 @@ public final class ResourceUtil {
 			throws ResourceBundleException {
 		if (locale == null || "".equals(locale)) {
 			throw new ResourceBundleException(
-					ExceptionConstants.EBOS_COMMON_041);
+					ExceptionConstants.UIMASTER_COMMON_041);
 		}
 
 		if (key == null || "".equals(key)) {
 			throw new ResourceBundleException(
-					ExceptionConstants.EBOS_COMMON_040);
+					ExceptionConstants.UIMASTER_COMMON_040);
 		}
 	}
 
@@ -195,17 +195,17 @@ public final class ResourceUtil {
 			throws ResourceBundleException {
 		if (locale == null || "".equals(locale)) {
 			throw new ResourceBundleException(
-					ExceptionConstants.EBOS_COMMON_041);
+					ExceptionConstants.UIMASTER_COMMON_041);
 		}
 
 		if (bundle == null || "".equals(bundle)) {
 			throw new ResourceBundleException(
-					ExceptionConstants.EBOS_COMMON_039);
+					ExceptionConstants.UIMASTER_COMMON_039);
 		}
 
 		if (key == null || "".equals(key)) {
 			throw new ResourceBundleException(
-					ExceptionConstants.EBOS_COMMON_040);
+					ExceptionConstants.UIMASTER_COMMON_040);
 		}
 	}
 

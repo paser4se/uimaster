@@ -48,7 +48,7 @@ public class ThrowStatement extends Statement
     {
         throwExpNode.parse(parsingContext);
         if(!Throwable.class.isAssignableFrom(throwExpNode.getValueClass()))
-        	throw new ParsingException(ExceptionConstants.EBOS_OOEE_064,new Object[]{throwExpNode.getValueClass()});
+        	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_064,new Object[]{throwExpNode.getValueClass()});
     }
     
     public void traverse(Traverser traverser)

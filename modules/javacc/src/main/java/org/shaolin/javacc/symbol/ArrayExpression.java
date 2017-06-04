@@ -36,7 +36,7 @@ public class ArrayExpression extends ExpressionNode
 
             if(!ExpressionUtil.isNumeric(sizeClass) || ExpressionUtil.getNumericPrecision(sizeClass) > ExpressionUtil.INTEGER_PRECISION)
             {
-            	throw new ParsingException(ExceptionConstants.EBOS_OOEE_062,new Object[]{node.toString(),sizeClass});
+            	throw new ParsingException(ExceptionConstants.UIMASTER_OOEE_062,new Object[]{node.toString(),sizeClass});
               //  throw new ParsingException("can't cast " + node.toString() + " type: " + sizeClass + " to int");
             }
             else
@@ -56,7 +56,7 @@ public class ArrayExpression extends ExpressionNode
         }
         catch(ParsingException e)
         {
-        	throw new EvaluationException(ExceptionConstants.EBOS_000,e);
+        	throw new EvaluationException(ExceptionConstants.UIMASTER_000,e);
         }
         
         if(getChildNum() > 0)
@@ -70,7 +70,7 @@ public class ArrayExpression extends ExpressionNode
             
             if(size < 0)
             {
-            	throw new EvaluationException(ExceptionConstants.EBOS_OOEE_013);
+            	throw new EvaluationException(ExceptionConstants.UIMASTER_OOEE_013);
              //   throw new EvaluationException("Negative Array Size");
             }
             

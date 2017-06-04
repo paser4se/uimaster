@@ -15,7 +15,7 @@ public class ParsingException extends BaseException {
 	}
 
 	public ParsingException(Throwable e) {
-		super(ExceptionConstants.EBOS_000, getNestedException(e));
+		super(ExceptionConstants.UIMASTER_000, getNestedException(e));
 	}
 
 	public ParsingException(String description) {
