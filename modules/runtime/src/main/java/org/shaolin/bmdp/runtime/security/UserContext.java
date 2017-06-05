@@ -30,6 +30,8 @@ public class UserContext implements Serializable {
 	
 	String cityId;
 	
+	String autoLoginSumCheck;
+	
 	String lastLoginDate;
 	
 	boolean isAdmin;
@@ -204,6 +206,14 @@ public class UserContext implements Serializable {
 
 	public void setVerified(boolean verified) {
 		this.verified = verified;
+	}
+	
+	public String getAutoLoginSumCheck() {
+		return autoLoginSumCheck;
+	}
+
+	public void setAutoLoginSumCheck(String autoLoginSumCheck) {
+		this.autoLoginSumCheck = autoLoginSumCheck;
 	}
 	
 	public static final String CURRENT_USER_ORGID = "CurrentUserOrgId";

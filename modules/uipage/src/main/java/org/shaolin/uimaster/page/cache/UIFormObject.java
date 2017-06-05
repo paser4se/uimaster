@@ -1464,6 +1464,10 @@ public class UIFormObject implements java.io.Serializable
             {
                 addAttribute(propMap, "isReferenceInterface", "true");
             }
+            if (((UIReferenceEntityType)component).getReferenceEntity() == null
+            		|| ((UIReferenceEntityType)component).getReferenceEntity().getEntityName() == null) {
+            	throw new IllegalStateException("referenceEntity is not defined proper!");
+            }
             addAttribute(propMap, "referenceEntity", ((UIReferenceEntityType)component)
                     .getReferenceEntity().getEntityName().trim());
         }
