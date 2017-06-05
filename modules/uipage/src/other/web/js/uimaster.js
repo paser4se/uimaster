@@ -706,7 +706,6 @@ UIMaster.triggerServerEvent = function(uiid,actionName,data,entityName,action,as
     }
     if (MobileAppMode) {
         _mobContext.ajax(JSON.stringify(opt));
-		setTimeout(function(){UIMaster.ui.mask.close()},3000);
     } else {
         $.ajax(jQuery.extend({}, opt, opt2));
     }

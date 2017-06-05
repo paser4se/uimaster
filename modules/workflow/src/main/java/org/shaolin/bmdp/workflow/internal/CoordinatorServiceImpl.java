@@ -680,7 +680,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 			if (NotificationService.push(message, message.getPartyId())) {
 				message.setRead(true);
 			}
-			CoordinatorModel.INSTANCE.create(message);
+			CoordinatorModel.INSTANCE.create(message, true);
 			for (INotificationListener listener : listeners) {
 				listener.received(message);
 			}
@@ -689,20 +689,14 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	
 	@Override
 	public void addNotification(final INotification message, final boolean needRemoted) {
-		scheduler.schedule(new NotificationTask(message, listeners), 1, TimeUnit.SECONDS);
+		scheduler.submit(new NotificationTask(message, listeners));
 	}
 	
 	@Override
 	public void addNotificationToAdmin(final INotification message, final boolean needRemoted) {
 		message.setPartyId(1);
 		message.setOrgId(1);
-		if (NotificationService.push(message, message.getPartyId())) {
-			message.setRead(true);
-		}
-		CoordinatorModel.INSTANCE.create(message);
-		for (INotificationListener listener : listeners) {
-			listener.received(message);
-		}
+		scheduler.submit(new NotificationTask(message, listeners));
 	}
 	
 	public List<IServerNodeInfo> getServerNodes() {
