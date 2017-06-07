@@ -1230,7 +1230,7 @@ public class StringUtil
         String realStr = str;
         if (str.startsWith("[") && str.endsWith("]")) {
         	//remove wrapper.
-        	realStr = str.substring(1, str.length() - 2);
+        	realStr = str.substring(1, str.length() - 1);
         }
 
 		if (isValid(delim)) {
