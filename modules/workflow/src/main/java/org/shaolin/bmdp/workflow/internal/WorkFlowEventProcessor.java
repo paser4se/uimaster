@@ -125,10 +125,8 @@ public final class WorkFlowEventProcessor implements EventProcessor, IServicePro
 					consumer);
 		}
 		if (!consumer.accept(event, null)) {
-			if (logger.isTraceEnabled()) {
-				logger.trace("No matched node for event {} from {}",
-						event.getId(), event.getEventConsumer());
-			}
+			logger.warn("No matched node for event {} from {}",
+					event.getId(), event.getEventConsumer());
 		}
 	}
     

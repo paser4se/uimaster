@@ -182,15 +182,15 @@
 	                        <ns2:expressionString><![CDATA[
 	                        import java.util.List;
 	                        import org.shaolin.uimaster.page.ajax.TableConditions;
-	                        import org.shaolin.bmdp.workflow.be.TaskImpl;
+	                        import org.shaolin.bmdp.workflow.be.SessionImpl;
 	                        import org.shaolin.bmdp.runtime.AppContext;
 	                        import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
 	                        {
 	                              if ($tableCondition == null) {
-	                                 $tableCondition = TableConditions.createCondition(new TaskImpl());
+	                                 $tableCondition = TableConditions.createCondition(new SessionImpl());
 	                                 $tableCondition.setCount(10);
 	                              }
-	                              TaskImpl condition = (TaskImpl)$tableCondition.getCondition();
+	                              SessionImpl condition = (SessionImpl)$tableCondition.getCondition();
 	                              ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class);
 	                              return service.getActiveSessions(condition, $tableCondition.getOffset(), $tableCondition.getCount());
 	                        }]]></ns2:expressionString>
@@ -249,15 +249,15 @@
 	                        <ns2:expressionString><![CDATA[
 	                        import java.util.List;
 	                        import org.shaolin.uimaster.page.ajax.TableConditions;
-	                        import org.shaolin.bmdp.workflow.be.TaskImpl;
+	                        import org.shaolin.bmdp.workflow.be.SessionImpl;
 	                        import org.shaolin.bmdp.runtime.AppContext;
 	                        import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
 	                        {
 	                              if ($tableCondition == null) {
-	                                 $tableCondition = TableConditions.createCondition(new TaskImpl());
+	                                 $tableCondition = TableConditions.createCondition(new SessionImpl());
 	                                 $tableCondition.setCount(10);
 	                              }
-	                              TaskImpl condition = (TaskImpl)$tableCondition.getCondition();
+	                              SessionImpl condition = (SessionImpl)$tableCondition.getCondition();
 	                              ICoordinatorService service = (ICoordinatorService)AppContext.get().getService(ICoordinatorService.class);
 	                              return service.getPassiveSessions(condition, $tableCondition.getOffset(), $tableCondition.getCount());
 	                        }]]></ns2:expressionString>

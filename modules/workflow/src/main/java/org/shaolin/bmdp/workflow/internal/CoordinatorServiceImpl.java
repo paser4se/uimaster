@@ -94,39 +94,47 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 	
 	@Override
-	public List<ISession> getActiveSessions(TaskImpl condition, int offset, int count) {
+	public List<ISession> getActiveSessions(ISession session, int offset, int count) {
+		TaskImpl task = new TaskImpl();
 		if (UserContext.getUserContext() != null && !UserContext.getUserContext().isAdmin()) {
-			condition.setOrgId(UserContext.getUserContext().getOrgId());
+			task.setOrgId(UserContext.getUserContext().getOrgId());
 		}
-		condition.setEnabled(true);
-		return CustCoordinatorModel.INSTANCE.searchSessions(condition, offset, count);
+		task.setSessionId(session.getSessionId());
+		task.setEnabled(true);
+		return CustCoordinatorModel.INSTANCE.searchSessions(task, offset, count);
 	}
 	
 	@Override
-	public List<ISession> getPassiveSessions(TaskImpl condition, int offset, int count) {
+	public List<ISession> getPassiveSessions(ISession session, int offset, int count) {
+		TaskImpl task = new TaskImpl();
 		if (UserContext.getUserContext() != null && !UserContext.getUserContext().isAdmin()) {
-			condition.setOrgId(UserContext.getUserContext().getOrgId());
+			task.setOrgId(UserContext.getUserContext().getOrgId());
 		}
-		condition.setEnabled(true);
-		return CustCoordinatorModel.INSTANCE.searchSessionHistory(condition, offset, count);
+		task.setSessionId(session.getSessionId());
+		task.setEnabled(true);
+		return CustCoordinatorModel.INSTANCE.searchSessionHistory(task, offset, count);
 	}
 	
 	@Override
-	public long getActiveSessionSize(TaskImpl condition) {
+	public long getActiveSessionSize(ISession session) {
+		TaskImpl task = new TaskImpl();
 		if (UserContext.getUserContext() != null && !UserContext.getUserContext().isAdmin()) {
-			condition.setOrgId(UserContext.getUserContext().getOrgId());
+			task.setOrgId(UserContext.getUserContext().getOrgId());
 		}
-		condition.setEnabled(true);
-		return CustCoordinatorModel.INSTANCE.searchSessionCount(condition);
+		task.setSessionId(session.getSessionId());
+		task.setEnabled(true);
+		return CustCoordinatorModel.INSTANCE.searchSessionCount(task);
 	}
 	
 	@Override
-	public long getPassiveSessionSize(TaskImpl condition) {
+	public long getPassiveSessionSize(ISession session) {
+		TaskImpl task = new TaskImpl();
 		if (UserContext.getUserContext() != null && !UserContext.getUserContext().isAdmin()) {
-			condition.setOrgId(UserContext.getUserContext().getOrgId());
+			task.setOrgId(UserContext.getUserContext().getOrgId());
 		}
-		condition.setEnabled(true);
-		return CustCoordinatorModel.INSTANCE.searchSessionHistoryCount(condition);
+		task.setSessionId(session.getSessionId());
+		task.setEnabled(true);
+		return CustCoordinatorModel.INSTANCE.searchSessionHistoryCount(task);
 	}
 	
 	@Override

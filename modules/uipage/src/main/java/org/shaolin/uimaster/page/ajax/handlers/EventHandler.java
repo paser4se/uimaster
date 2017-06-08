@@ -38,10 +38,19 @@ import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.cache.UIPageObject;
 
 public class EventHandler implements IAjaxHandler {
+	private static Class<?> WF_PROCESSOR = null;
 	private static final String UI_INACTION_FLAG = "_uiinactionflag";
 	private static Logger log = Logger.getLogger(EventHandler.class);
 	public static final String AJAX_ACTION_NAME = "_actionName";
 
+	static {
+		try {
+			WF_PROCESSOR = Class.forName("org.shaolin.bmdp.workflow.internal.WorkFlowEventProcessor");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	@Override
 	public String trigger(AjaxContext context) throws AjaxHandlerException {
 		String actionName = context.getRequest().getParameter("_actionName");
@@ -118,6 +127,9 @@ public class EventHandler implements IAjaxHandler {
 						Object obj = wfOp.getExpression().evaluate(context);
 						if (obj instanceof Map) {
 							Map map = (Map)obj;
+							if (log.isDebugEnabled()) {
+								log.debug("Invoke workflow "+wfOp.getAdhocNodeName()+" with parameters: " + map);
+							}
 							if (map.size() > 0) {
 								Iterator i = map.keySet().iterator();
 								while (i.hasNext()) {
@@ -131,8 +143,7 @@ public class EventHandler implements IAjaxHandler {
 								}
 								String note = context.getRequest().getParameter("_comments");
 								e.setComments((note != null && !"null".equals(note)) ? note : null);
-								EventProcessor processor = (EventProcessor)AppContext.get().getService(
-										Class.forName("org.shaolin.bmdp.workflow.internal.WorkFlowEventProcessor"));
+								EventProcessor processor = (EventProcessor)AppContext.get().getService(WF_PROCESSOR);
 								processor.process(e);
 								
 								if (e.getAttribute("_ErrorType") != null) {

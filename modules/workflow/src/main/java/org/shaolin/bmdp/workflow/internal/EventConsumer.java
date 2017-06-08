@@ -78,6 +78,8 @@ public class EventConsumer {
     public boolean accept(Event evt, Map oldMdc) {
         try {
         	if (!evt.getEventConsumer().equals(eventConsumerName)) {
+        		logger.warn("No matched node for event {} from Consumer {}",
+        				evt.getEventConsumer(), eventConsumerName);
         		return false;
         	}
         	
@@ -100,11 +102,13 @@ public class EventConsumer {
                 String sessionId = engine.getSessionId(evt);
                 if (sessionId == null) {
                     flowContext.clearEventAttributes();
+                    logger.warn("Session is not found by event {}", evt.getEventConsumer());
                     return false;
                 }
                 NodeInfo startNode = engine.matchStartNode(eventConsumerName, evt);
                 NodeInfo eventNode = engine.matchMissionNode(eventConsumerName, evt);
                 if (startNode == null && eventNode == null) {
+                	logger.warn("Mission node is not found by event {}", evt.getEventConsumer());
                     return false;
                 }
                 

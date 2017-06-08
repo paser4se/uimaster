@@ -40,13 +40,13 @@ public interface ICoordinatorService {
 	 * 
 	 * @return
 	 */
-	List<ISession> getActiveSessions(TaskImpl condition, int offset, int count);
+	List<ISession> getActiveSessions(ISession session, int offset, int count);
 	
-	List<ISession> getPassiveSessions(TaskImpl condition, int offset, int count);
+	List<ISession> getPassiveSessions(ISession session, int offset, int count);
 	
-	long getActiveSessionSize(TaskImpl condition);
+	long getActiveSessionSize(ISession session);
 	
-	long getPassiveSessionSize(TaskImpl condition);
+	long getPassiveSessionSize(ISession session);
 	
 	/**
 	 * Get tasks by session id.
