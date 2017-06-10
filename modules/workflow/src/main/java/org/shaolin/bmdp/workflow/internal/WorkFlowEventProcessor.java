@@ -78,12 +78,14 @@ public final class WorkFlowEventProcessor implements EventProcessor, IServicePro
 					.append('[').append(seq.getAndIncrement())
 					.append(']').toString());
 		}
+		boolean hasTaskEntity = false;
 		event.setAttribute(BuiltInAttributeConstant.KEY_ORIGINAL_EVENT, event);
 		Collection<String> keys = event.getAttributeKeys();
         for (String key: keys) {
         	Object var = event.getAttribute(key);
         	// get the previous flow context from the first task entity with task id.
         	if (var instanceof ITaskEntity) {
+        		hasTaskEntity = true;
 				ITaskEntity taskObject = (ITaskEntity)var;
 				if (taskObject.getTaskId() > 0
 						|| (taskObject.getSessionId() != null && taskObject.getSessionId().length() > 0)) {
@@ -114,6 +116,9 @@ public final class WorkFlowEventProcessor implements EventProcessor, IServicePro
 	        		}
 	        	}
 			}
+        }
+        if (!hasTaskEntity) {
+        	logger.warn("No any TaskEntity specified from {}", event.getId());
         }
 		if (logger.isTraceEnabled()) {
 			logger.trace("Assign Id {} to event {}", event.getId(), event);

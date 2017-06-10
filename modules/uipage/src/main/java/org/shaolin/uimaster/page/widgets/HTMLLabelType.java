@@ -52,7 +52,7 @@ public class HTMLLabelType extends HTMLTextWidgetType
     		HTMLUtil.generateTab(context, depth);
             context.generateHTML("<script type=\"text/javascript\" src=\""+root+"/js/controls/html2canvas.js\"></script>");
         }
-    	String htmlValue = (String)this.removeAttribute("htmlValue");
+    	Object htmlValue = this.removeAttribute("htmlValue");
     	
         generateWidget(context);
         context.generateHTML("<div>");
@@ -90,7 +90,7 @@ public class HTMLLabelType extends HTMLTextWidgetType
         context.generateHTML("</span>");
     }
     
-    private void generateContent(UserRequestContext context, String htmlValue)
+    private void generateContent(UserRequestContext context, Object htmlValue)
     {
         try
         {
@@ -103,7 +103,7 @@ public class HTMLLabelType extends HTMLTextWidgetType
             generateEventListeners(context);
             context.generateHTML(">");
             if (htmlValue != null) {
-            	context.generateHTML(htmlValue);
+            	context.generateHTML(htmlValue + "");
             } else {
             	String text = getDisplayValue();
             	if (this.getAttribute("showMaxLength") != null) {

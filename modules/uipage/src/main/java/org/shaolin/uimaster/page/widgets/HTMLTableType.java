@@ -692,7 +692,17 @@ public class HTMLTableType extends HTMLContainerType {
         Table t = new Table(getName(), Layout.NULL);
         t.setReadOnly(isReadOnly());
         t.setUIEntityName(getUIEntityName());
-        t.getConditions().setBECondition(obj);
+        try {
+	        if (ee.getExpressionContext() != null && ee.getExpressionContext().getVariableValue("tableCondition") != null) {
+	        	TableConditions conditions = (TableConditions)ee.getExpressionContext().getVariableValue("tableCondition");
+	        	t.setConditions(conditions);
+	        } else {
+	        	t.getConditions().setBECondition(obj);
+	        }
+        } catch (Exception e) {
+        	t.getConditions().setBECondition(obj);
+        	logger.debug("Failed to construct the table condition: " + e.getMessage(), e);
+        }
         int defaultRowSize = (Integer)this.getAttribute("defaultRowSize");
         t.getConditions().setCount(defaultRowSize);
         t.getConditions().addOrder("createDate", false); //by default.
