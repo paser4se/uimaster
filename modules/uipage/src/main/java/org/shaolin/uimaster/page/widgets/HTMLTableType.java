@@ -830,6 +830,12 @@ public class HTMLTableType extends HTMLContainerType {
 			throw new IllegalStateException(e);
 		}
         
+		try {
+	        if (ee.getExpressionContext() != null) {
+	        	ee.getExpressionContext().setVariableValue("tableCondition",  null);
+	        } 
+        } catch (Exception e) { }
+		
         t.setListened(true);
         return t;
     }

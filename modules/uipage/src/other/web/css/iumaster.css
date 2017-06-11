@@ -494,12 +494,10 @@ html {
 .uimaster_chat_item_to {}
 .uimaster_chat_item_old {
     text-align: left;
-    height: 40px !important;
     background-color: aliceblue;
 }
 .uimaster_chat_item_even {
    text-align: left;
-   height: 40px !important;
 }
 .uimaster_chat_message{
     word-wrap: break-word;
