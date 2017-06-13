@@ -27,7 +27,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.AppContext;
@@ -508,8 +507,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		if (sessionId == null || sessionId.trim().length() == 0) {
 			return false;
 		}
-		boolean flag = true;
-		Session session = HibernateUtil.getSession();
 		try {
 			TaskImpl condition = new TaskImpl();
 			condition.setSessionId(sessionId);
@@ -517,7 +514,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 			List<ITask> sessionTasks = CoordinatorModel.INSTANCE.searchTasks(condition, null, 0, -1);
 			List<ITask> allTasks = new ArrayList<ITask>(sessionTasks);
 			while (allTasks.size() > 0) {
-				ITask task = (ITask)allTasks.get(0);
+				ITask task = (ITask)allTasks.remove(0);
 				TaskHistoryImpl history = new TaskHistoryImpl();
 				history.setTaskId(task.getId());
 				history.setOrgId(task.getOrgId());
@@ -544,8 +541,8 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 				history.setComments(task.getComments());
 				history.setCreateDate(task.getCreateDate());
 				
-				session.save(history);
-				session.delete(task);
+				CoordinatorModel.INSTANCE.create(history);
+				CoordinatorModel.INSTANCE.delete(task);
 			}
 			ITaskHistory htask = new TaskHistoryImpl();
 	        if (UserContext.getCurrentUserContext() != null) {
@@ -560,18 +557,15 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	        htask.setCreateDate(new Date());
 	        htask.setStatus(TaskStatusType.COMPLETED);
 	        htask.setCompleteRate(100);
-	        session.save(htask);
+	        CoordinatorModel.INSTANCE.create(htask);
 	        
-	        return flag;
+	        HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+	        return true;
 		} catch (Throwable e) {
-			flag = false;
+			logger.warn("" + e.getMessage(), e);
 			HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
-			return flag;
-		} finally {
-			if (flag) {
-				HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
-			}
-		}
+			return false;
+		} 
 	}
 	
 	private ITask moveToTask(ITaskHistory hTask) {

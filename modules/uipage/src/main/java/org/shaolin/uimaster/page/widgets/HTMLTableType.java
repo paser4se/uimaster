@@ -730,8 +730,8 @@ public class HTMLTableType extends HTMLContainerType {
 			t.markSliderMode();
 		}
 		t.setEditableCell(isEditableCell);
+		EvaluationContext expressionContext = ee.getExpressionContext(ODContext.LOCAL_TAG);
 		try {
-			EvaluationContext expressionContext = ee.getExpressionContext(ODContext.LOCAL_TAG);
 			expressionContext.setVariableValue("table", t);
 			expressionContext.setVariableValue("tableCondition", t.getConditions());
 			
@@ -828,13 +828,15 @@ public class HTMLTableType extends HTMLContainerType {
 			t.setQueryExpr(queryExpr);
 		} catch (EvaluationException e) {
 			throw new IllegalStateException(e);
+		} finally {
+			try {
+				expressionContext.setVariableValue("table", null);
+				expressionContext.setVariableValue("tableCondition", null);
+				if (ee.getExpressionContext() != null) {
+					ee.getExpressionContext().setVariableValue("tableCondition",  null);
+				} 
+			} catch (Exception e) { }
 		}
-        
-		try {
-	        if (ee.getExpressionContext() != null) {
-	        	ee.getExpressionContext().setVariableValue("tableCondition",  null);
-	        } 
-        } catch (Exception e) { }
 		
         t.setListened(true);
         return t;

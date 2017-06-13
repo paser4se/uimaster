@@ -34,13 +34,13 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.servlet.AsyncContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.Registry;
+import org.shaolin.bmdp.runtime.Registry.RunningMode;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IConstantService;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
@@ -121,6 +121,7 @@ public class WebConfig {
 		final List<String> skipBackButtonPages;
 		
 		public WebConfigFastCache() {
+			Registry.getAppRunningMode();
 			Registry instance = Registry.getInstance();
 			runningMode = instance.getValue("/System/webConstant/runningMode");
 			resourceContextRoot = instance.getValue(
@@ -284,9 +285,9 @@ public class WebConfig {
 		return (WebConfigFastCache)instance.readFromFastCache("webconfig");
 	}
 	
-//	public static boolean isProductMode() {
-//		return getCacheObject().runningMode != null && "product".equalsIgnoreCase(getCacheObject().runningMode);
-//	}
+	public static boolean isProductMode() {
+		return Registry.getAppRunningMode() == RunningMode.Production;
+	}
 	
 	public static boolean isCustomizedMode() {
 		return getCacheObject().customizedMode;

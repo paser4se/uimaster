@@ -177,7 +177,7 @@ public class TabPane extends Container implements Serializable
     }
     
     public void setODMapperContext(VariableEvaluator ee) {
-    	EvaluationContext cloneContext = null;
+    	DefaultEvaluationContext cloneContext = null;
     	EvaluationContext eContext = ee.getExpressionContext();
     	if (eContext instanceof ODContext) {
     		DefaultEvaluationContext localContext = (DefaultEvaluationContext)
@@ -191,7 +191,7 @@ public class TabPane extends Container implements Serializable
 				cloneContext = new DefaultEvaluationContext(new HashMap(localContext.getVariableObjects()));
 			}
 		} else {
-			cloneContext = eContext;
+			cloneContext = (DefaultEvaluationContext)eContext;
 		}
     	if (cloneContext == null) {
     		cloneContext = new DefaultEvaluationContext();
@@ -199,6 +199,14 @@ public class TabPane extends Container implements Serializable
     	OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
     	ooeeContext.setDefaultEvaluationContext(cloneContext);
     	ooeeContext.setEvaluationContextObject("$", cloneContext);
+    	// tableCondition must be not kept in ajax context!
+    	if (cloneContext.hasVariable("tableCondition")) {
+    		try {
+				cloneContext.setVariableValue("tableCondition", null);
+			} catch (EvaluationException e) {
+			}
+    	}
+    	
     	this.evalContext = ooeeContext;
     }
     

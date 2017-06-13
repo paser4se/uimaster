@@ -359,4 +359,20 @@ public final class Registry implements IRegistry, Serializable {
 	public void putInFastCache(String key, Object value) {
 		fastreadCacheMap.put(key, value);
 	}
+	
+	private static RunningMode runningMode = null;
+	
+	public static RunningMode getAppRunningMode() {
+		if (runningMode == null) {
+			Registry instance = Registry.getInstance();
+			String v = instance.getValue("/System/runningMode", RunningMode.Production.toString());
+			runningMode = RunningMode.valueOf(v);
+			logger.info("Current application runs in " + runningMode + " mode!!!!!!");
+		}
+		return runningMode;
+	}
+	
+	public static enum RunningMode {
+		Dev, Production
+	}
 }

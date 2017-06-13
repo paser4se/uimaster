@@ -2,6 +2,8 @@
 <registry xmlns="http://bmdp.shaolin.org/datamodel/Registry">
     <node name="System">
     	<item name="encoding" value="UTF-8"/>
+    	<!-- application running modes: Dev, Production -->
+    	<item name="runningMode" value="Dev"/>
     	<node name="caches">
             <node name="__sys_entity">
 	            <item name="maxSize" value="-1" />
