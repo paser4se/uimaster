@@ -36,6 +36,11 @@
 			<version>${uimaster.version}</version>
 		</dependency>
 		<dependency>
+		    <groupId>com.rabbitmq</groupId>
+		    <artifactId>amqp-client</artifactId>
+		    <version>4.1.1</version>
+		</dependency>
+		<dependency>
 		    <groupId>junit</groupId>
 		    <artifactId>junit</artifactId>
 	    </dependency>

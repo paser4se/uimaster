@@ -23,17 +23,14 @@ public class DynamicConstant extends AbstractConstant {
 	public DynamicConstant(String entityName, long recordId) {
 		this.entityName = entityName;
 		this.dynamicItems = new ArrayList<IConstantEntity>();
-		this.addConstant(new DynamicConstant(0, AbstractConstant.CONSTANT_DEFAULT_VALUE, -1, 
-				AbstractConstant.CONSTANT_DEFAULT_VALUE, AbstractConstant.CONSTANT_DEFAULT_VALUE));
-	}
-
-	public DynamicConstant(long recordId, String value, int intValue, String i18nKey, String description) {
-		super(recordId, value, intValue, i18nKey, description);
+		DynamicConstant defaultItem = new DynamicConstant(AbstractConstant.CONSTANT_DEFAULT_VALUE, -1, 
+				AbstractConstant.CONSTANT_DEFAULT_VALUE, AbstractConstant.CONSTANT_DEFAULT_VALUE, null, null);
+		this.addConstant(defaultItem);
 	}
 
 	public DynamicConstant(String value, int intValue, String i18nKey,
 			String description, Date effTime, Date expTime) {
-		super(value, intValue, i18nKey, description, effTime, expTime);
+		super(value, intValue, i18nKey, description, effTime, expTime, false, 0, DEFAULT_ICON);
 	}
 
 	public Map<Integer, String> getAllConstants(boolean includedSpecific) {

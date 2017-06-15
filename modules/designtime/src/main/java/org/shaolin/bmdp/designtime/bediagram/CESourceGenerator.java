@@ -143,7 +143,7 @@ public final class CESourceGenerator implements IEntityEventListener<ConstantEnt
         out.write(constantEntityName);
         out.write(" NOT_SPECIFIED = new ");
         out.write(constantEntityName);
-        out.write("(CONSTANT_DEFAULT_VALUE, -1, null, null, null, null, false);\n");
+        out.write("(CONSTANT_DEFAULT_VALUE, -1, null, null, null, null, false, 0, DEFAULT_ICON);\n");
         
         for(ConstantValueType constantValue: constantValues)
         {
@@ -184,7 +184,9 @@ public final class CESourceGenerator implements IEntityEventListener<ConstantEnt
 		        out.print(expTime);
 		        out.write(",");
 		        out.print(isPassivated);
-		        out.write(");\n");
+		        out.write(", 0, \"");
+		        out.print(constantValue.getIcon());
+		        out.write("\");\n");
             }
             else
             {
@@ -211,7 +213,9 @@ public final class CESourceGenerator implements IEntityEventListener<ConstantEnt
 		        out.print(isPassivated);
 		        out.write(", ");
 		        out.print(priority);
-		        out.write(");\n");
+		        out.write(", \"");
+		        out.print(constantValue.getIcon());
+		        out.write("\");\n");
             }
         }
     
@@ -232,21 +236,10 @@ public final class CESourceGenerator implements IEntityEventListener<ConstantEnt
         out.print("    }\n\n    ");
         out.print("private "); // for dynamic reflecting.
         out.print(constantEntityName);
-        out.write("(long id, String value, int intValue, String i18nKey, String description)\n    {\n        ");
-        out.print("super(id, value, intValue, i18nKey, description);\n    ");
-        out.print("}\n    \n    ");
-        out.print("private ");
-        out.print(constantEntityName);
-        out.write("(String value, int intValue, String i18nKey,\n        ");
-        out.print("String description, Date effTime, Date expTime)\n    ");
-        out.print("{\n        ");
-        out.print("super(value, intValue, i18nKey, description, effTime, expTime);\n    ");
-        out.print("}\n\n    private ");
-        out.print(constantEntityName);
         out.write("(String value, int intValue, String i18nKey,\n            ");
-        out.print("String description, Date effTime, Date expTime, boolean isPassivated)\n    ");
+        out.print("String description, Date effTime, Date expTime, boolean isPassivated, int priority, String icon)\n    ");
         out.print("{\n        ");
-        out.print("super(value, intValue, i18nKey, description, effTime, expTime, isPassivated);\n    ");
+        out.print("super(value, intValue, i18nKey, description, effTime, expTime, isPassivated, priority, icon);\n    ");
         out.print("}\n    \n");
     
         if (hasSetPriority)
@@ -255,9 +248,9 @@ public final class CESourceGenerator implements IEntityEventListener<ConstantEnt
 	        out.print(constantEntityName);
 	        out.write("(String value, int intValue, String i18nKey,\n        ");
 	        out.print("String description, Date effTime, Date expTime, \n        ");
-	        out.print("boolean isPassivated, int priority)\n    {\n        ");
+	        out.print("boolean isPassivated, int priority, String icon)\n    {\n        ");
 	        out.print("super(value, intValue, i18nKey, description, effTime, expTime, \n            ");
-	        out.print("isPassivated, priority);\n    }\n");
+	        out.print("isPassivated, priority, icon);\n    }\n");
         }
     
         /**
@@ -307,7 +300,7 @@ public final class CESourceGenerator implements IEntityEventListener<ConstantEnt
         out.print("        String description, Date effTime, Date expTime)\n    {\n");
         out.print("        return new ");
         out.print(constantEntityName);
-        out.write("(value, intValue, i18nKey,\n            description, effTime, expTime);\n");
+        out.write("(value, intValue, i18nKey,\n            description, effTime, expTime, false, 0, DEFAULT_ICON);\n");
         out.print("    }\n\n");
         out.print("    protected String getTypeEntityName()\n    {\n");
         out.print("        return ENTITY_NAME;\n");

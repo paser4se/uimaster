@@ -12,7 +12,9 @@ public abstract class AbstractConstant implements IConstantEntity {
 
 	protected static final long serialVersionUID = 0x811b9115811b9115L;
 	
-	private long recordId;
+	public static final String DEFAULT_ICON = "images/cedefaulticon.png";
+	
+	private long recordId = -1;
 	protected String value = null;
 	private int intValue = 0;
 	private String i18nKey = null;
@@ -22,7 +24,7 @@ public abstract class AbstractConstant implements IConstantEntity {
 	private boolean isPassivated = false;
 	private int priority = 65535;
 	private boolean isEnabled = true;
-	private String icon = "images/cedefaulticon.png";
+	private String icon = DEFAULT_ICON;
 	private String bigIcon = null;
 	
 	public static final int INEFFICACY_PRIORITY = 65535;
@@ -40,24 +42,11 @@ public abstract class AbstractConstant implements IConstantEntity {
 	}
 
 	protected AbstractConstant(String value, int intValue, String i18nKey) {
-		this(value, intValue, i18nKey, null, null, null);
+		this(value, intValue, i18nKey, null, null, null, DEFAULT_ICON);
 	}
 	
-	/**
-	 * Dynamic constant item support.
-	 * 
-	 * @param recordId
-	 * @param value
-	 * @param intValue
-	 * @param i18nKey
-	 */
-	protected AbstractConstant(long recordId, String value, int intValue, String i18nKey, String description) {
-		this(value, intValue, i18nKey, description, null, null);
-		this.recordId = recordId;
-	}
-
 	protected AbstractConstant(String value, int intValue, String i18nKey,
-			String description, Date effTime, Date expTime) {
+			String description, Date effTime, Date expTime, String icon) {
 		this.value = value;
 		this.intValue = intValue;
 
@@ -65,11 +54,12 @@ public abstract class AbstractConstant implements IConstantEntity {
 		this.description = (description == null && intValue == CONSTANT_DEFAULT_INT_VALUE0)? IConstantEntity.CONSTANT_DEFAULT.getDescription() : description;
 		this.effTime = effTime;
 		this.expTime = expTime;
+		this.icon = icon;
 	}
 
 	protected AbstractConstant(String value, int intValue, String i18nKey,
 			String description, Date effTime, Date expTime, boolean isPassivated) {
-		this(value, intValue, i18nKey, description, effTime, expTime);
+		this(value, intValue, i18nKey, description, effTime, expTime, DEFAULT_ICON);
 		this.isPassivated = isPassivated;
 	}
 
@@ -79,6 +69,15 @@ public abstract class AbstractConstant implements IConstantEntity {
 		this(value, intValue, i18nKey, description, effTime, expTime,
 				isPassivated);
 		setPriority(priority);
+	}
+	
+	protected AbstractConstant(String value, int intValue, String i18nKey,
+			String description, Date effTime, Date expTime,
+			boolean isPassivated, int priority, String icon) {
+		this(value, intValue, i18nKey, description, effTime, expTime,
+				isPassivated);
+		setPriority(priority);
+		this.icon = icon;
 	}
 	
 	public void setEntityInfo(String description, String i18nInfo, String icon) {
@@ -175,6 +174,18 @@ public abstract class AbstractConstant implements IConstantEntity {
 	public long getRecordId() {
 		return recordId;
 	}
+	
+	/**
+	 * this is a unmodified attribute
+	 * @param recordId
+	 */
+	public void setRecordId0(final long recordId) {
+		if (this.recordId > 0) {
+			throw new IllegalStateException("Constant item's recordId has already existed!" + this.recordId);
+		}
+		this.recordId = recordId;
+	}
+	
 	
 	/*
 	 * (non-Javadoc)

@@ -15,14 +15,18 @@
 */
 package org.shaolin.uimaster.page.widgets;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.function.Consumer;
 
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.utils.FileUtil;
-import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Layout;
 import org.shaolin.uimaster.page.ajax.TextArea;
@@ -32,7 +36,7 @@ import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HTMLTextAreaType extends HTMLTextWidgetType
+public class HTMLTextAreaType extends HTMLTextWidgetType implements Consumer<String>
 {
 	private static final long serialVersionUID = -2216731075469117671L;
 	
@@ -102,16 +106,22 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
             if (isHTMLSupported) {
             	if (this.getAttribute("viewMode") != null && 
                 		"true".equals(this.getAttribute("viewMode").toString())) {
-            		context.generateHTML("<iframe id=\"");
+            		context.generateHTML("<div id=\"");
         			context.generateHTML(getName());
         			context.generateHTML("\" name=\"");
         			context.generateHTML(getName());
         			context.generateHTML("\" src=\"");
         			context.generateHTML(WebConfig.getAppImageContextRoot(context.getRequest()));
-        			context.generateHTML("/");
-        			context.generateHTML(getValue());
-        			context.generateHTML("\" frameborder=\"0\" width=\"100%\" height=\"100%\" scrolling='yes'>");
-        			context.generateHTML("</iframe>");
+        			context.generateHTML("/>");
+        			try {
+        			BufferedReader reader = Files.newBufferedReader(Paths.get(new File(WebConfig.getRealPath(getValue())).toURI()));
+        			reader.lines().forEach(this);
+        			reader.close();
+        			} catch (Throwable e) {
+        				logger.warn("Failed to read file: " + WebConfig.getRealPath(getValue()));
+        			}
+//        			context.generateHTML("\" frameborder=\"0\" width=\"100%\" height=\"100%\" scrolling='yes'>");
+        			context.generateHTML("</div>");
             	} else {
 	            	context.generateHTML("<div>");
 	            	HTMLUtil.generateTab(context, depth);
@@ -138,6 +148,11 @@ public class HTMLTextAreaType extends HTMLTextWidgetType
         }
     }
 
+    @Override
+	public void accept(String t) {
+    	UserRequestContext.UserContext.get().generateHTML(t);
+	}
+    
     public void generateAttribute(UserRequestContext context, String attributeName, Object attributeValue) throws IOException
     {
         if ("initValidation".equals(attributeName) || "validator".equals(attributeName))
