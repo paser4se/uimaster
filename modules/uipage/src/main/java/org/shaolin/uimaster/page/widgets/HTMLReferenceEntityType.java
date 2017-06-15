@@ -44,6 +44,8 @@ public class HTMLReferenceEntityType extends HTMLWidgetType implements Serializa
     
     private Map functionReconfigurationMap;
     
+    public static final HTMLReferenceEntityType EMPTY = new HTMLReferenceEntityType("EMPTY");
+    
     public HTMLReferenceEntityType(String id)
     {
     	super(id);

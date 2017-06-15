@@ -2,6 +2,8 @@ package org.shaolin.uimaster.page.monitor;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -9,6 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.shaolin.bmdp.persistence.PerfMonitor;
 import org.shaolin.bmdp.runtime.perf.ConcludeStats;
 import org.shaolin.bmdp.runtime.perf.KPICollector;
 import org.shaolin.bmdp.runtime.perf.SingleKPI;
@@ -26,7 +29,7 @@ import org.shaolin.bmdp.runtime.perf.TimeRangeStats;
 //import javax.ws.rs.core.Response;  
 //
 //@Path("/uiperf")  
-public class RestUIPerfMonitor extends HttpServlet {
+public final class RestUIPerfMonitor extends HttpServlet {
 	
 	public static final String PAGE_DATA_TO_UI_TPS = "PageDataToUI-TPS";
 	public static final String PAGE_DATA_TO_UI_COUNT = "PageDataToUI-Count";
@@ -48,6 +51,8 @@ public class RestUIPerfMonitor extends HttpServlet {
 	
 	private static final KPICollector collector = new KPICollector("UIKPIs");
 
+	private static final List<KPICollector> collectors = new ArrayList<KPICollector>();
+	
 	static {
 		collector.addKPI(PAGE_DATA_TO_UI_PROCESS_TIME, new TimeRangeStats(PAGE_DATA_TO_UI_PROCESS_TIME, StatisticUnit.Milliseconds));
 		collector.addKPI(PAGE_UI_TO_DATA_PROCESS_TIME, new TimeRangeStats(PAGE_UI_TO_DATA_PROCESS_TIME, StatisticUnit.Milliseconds));
@@ -79,6 +84,10 @@ public class RestUIPerfMonitor extends HttpServlet {
 		return collector;
 	}
 	
+	public static void registerCollector(KPICollector coll) {
+		collectors.add(coll);
+	}
+	
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 		process(request, response);
@@ -105,10 +114,30 @@ public class RestUIPerfMonitor extends HttpServlet {
 		
 		StringBuffer sb = new StringBuffer();
 		sb.append("<html><body>");
+		sb.append("<UL> UI Statistic KPIs");
 		Map<String, SingleKPI> items = RestUIPerfMonitor.getKPICollector().getAllKIPs();
         for (Map.Entry<String, SingleKPI> item : items.entrySet()) {
-        	sb.append("<div>").append(item.getValue()).append("</div>");
+        	sb.append("<LI>").append(item.getValue()).append("</LI>");
         }
+        sb.append("</UL>");
+        sb.append("<UL> Persistence Statistic KPIs");
+        items = PerfMonitor.getKPICollector().getAllKIPs();
+        for (Map.Entry<String, SingleKPI> item : items.entrySet()) {
+        	sb.append("<LI>").append(item.getValue()).append("</LI>");
+        }
+        sb.append("</UL>");
+        
+        if (!collectors.isEmpty()) {
+        	for (KPICollector collector: collectors) {
+        		sb.append("<UL> "+collector.getKpiSetName()+" Statistic KPIs");
+                items = collector.getAllKIPs();
+                for (Map.Entry<String, SingleKPI> item : items.entrySet()) {
+                	sb.append("<LI>").append(item.getValue()).append("</LI>");
+                }
+                sb.append("</UL>");
+        	}
+        }
+        
         sb.append("</body></html>");
 		PrintWriter out = response.getWriter();
 		out.print(sb.toString());

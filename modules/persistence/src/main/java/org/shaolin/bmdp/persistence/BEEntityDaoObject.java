@@ -475,6 +475,7 @@ public class BEEntityDaoObject {
 			// so we set the maximum limited records per query.
 			count = PERQUERY_MAXRECORD;
 		}
+		long start = System.currentTimeMillis();
 		Session session = HibernateUtil.getReadOnlySession();
 		try {
 			Criteria criteria = null;
@@ -505,6 +506,9 @@ public class BEEntityDaoObject {
 			// release session ASAP. but it's an issue for transaction
 			// manipulation.
 			HibernateUtil.releaseSession(HibernateUtil.getReadOnlySession(), true);
+			long end = (System.currentTimeMillis() - start);
+			PerfMonitor.updateKPI(PerfMonitor.SQLQUERY, end);
+			PerfMonitor.updateKPI(PerfMonitor.SQLQUERY_TIME, end);
 		}
 	}
 
@@ -562,6 +566,7 @@ public class BEEntityDaoObject {
 			// so we set the maximum limited records per query.
 			// count = PERQUERY_MAXRECORD;
 		}
+		long start = System.currentTimeMillis();
 		try {
 			// mobile pulling data supported.
 			if (UserContext.isMobileRequest() && UserContext.getUserContext() != null 
@@ -595,7 +600,11 @@ public class BEEntityDaoObject {
 			HibernateUtil.releaseSession(HibernateUtil.getReadOnlySession(), false);
 			logger.warn(criteria.toString() + " " + e.getMessage(), e);
 			return Collections.emptyList();
-		} 
+		} finally {
+			long end = (System.currentTimeMillis() - start);
+			PerfMonitor.updateKPI(PerfMonitor.SQLQUERY, end);
+			PerfMonitor.updateKPI(PerfMonitor.SQLQUERY_TIME, end);
+		}
 	}
 	
 	private long _count(Criteria criteria, long rowSize) {

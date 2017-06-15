@@ -280,6 +280,8 @@ public class HTMLPreNextPanelType extends HTMLContainerType
                 Widget newWidget = refEntity.createAjaxWidget(ee);
                 UserRequestContext.UserContext.get().addAjaxWidget(newWidget.getId(), newWidget);
                 createdRefEntities.add(refEntity);
+            } else {
+            	createdRefEntities.add(HTMLReferenceEntityType.EMPTY);
             }
         }
         this.addAttribute("createdRefEntities", createdRefEntities);

@@ -226,12 +226,17 @@ public class FlowEngine {
                 	currentNode = processGeneralNode(flowContext, currentNode);
                 	break;
                 case MISSION:
-            		currentNode = processGeneralNode(flowContext, currentNode);
-            		ICoordinatorService coordinator = AppContext.get().getService(ICoordinatorService.class);
-            		if (flowContext.getTaskId() == 0) {
-            			throw new IllegalStateException("Current flow context does not have the assgined task id! " + flowContext.toString());
-            		}
-        			coordinator.completeTask(coordinator.getTask(flowContext.getTaskId()));
+                	long start = System.currentTimeMillis();
+                	try {
+	            		currentNode = processGeneralNode(flowContext, currentNode);
+	            		ICoordinatorService coordinator = AppContext.get().getService(ICoordinatorService.class);
+	            		if (flowContext.getTaskId() == 0) {
+	            			throw new IllegalStateException("Current flow context does not have the assgined task id! " + flowContext.toString());
+	            		}
+	        			coordinator.completeTask(coordinator.getTask(flowContext.getTaskId()));
+                	} finally {
+	        			PerfMonitor.updateMissionNodeKPI(currentNode, (System.currentTimeMillis() - start));
+                	}
                     break;
                 case CONDITION:
                     currentNode = processConditionNode(flowContext, currentNode, flowContext.getEvent());
