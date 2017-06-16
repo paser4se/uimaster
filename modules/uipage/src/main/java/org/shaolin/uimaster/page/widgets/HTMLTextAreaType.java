@@ -112,7 +112,7 @@ public class HTMLTextAreaType extends HTMLTextWidgetType implements Consumer<Str
         			context.generateHTML(getName());
         			context.generateHTML("\" src=\"");
         			context.generateHTML(WebConfig.getAppImageContextRoot(context.getRequest()));
-        			context.generateHTML("/>");
+        			context.generateHTML("\"/>");
         			try {
         			BufferedReader reader = Files.newBufferedReader(Paths.get(new File(WebConfig.getRealPath(getValue())).toURI()));
         			reader.lines().forEach(this);
