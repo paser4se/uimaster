@@ -26,6 +26,8 @@ public class RabbitMQReceiver implements Consumer {
 	
 	private final String exchangeName;
 	
+	private final String topicbindingKey;
+	
 	private final BuiltinExchangeType policy;
 	
 	private Channel channel;
@@ -38,6 +40,7 @@ public class RabbitMQReceiver implements Consumer {
 		this.port = port;
 		this.queueName = queueName;
 		this.exchangeName = null;
+		this.topicbindingKey = null;
 		this.policy = null;
 		this.receiver = receiver;
 		
@@ -50,6 +53,20 @@ public class RabbitMQReceiver implements Consumer {
 		this.port = port;
 		this.queueName = null;
 		this.exchangeName = exchangeName;
+		this.topicbindingKey = null;
+		this.policy = policy;
+		this.receiver = receiver;
+		
+		init();
+	}
+	
+	public RabbitMQReceiver(String host, int port, String exchangeName, String topicbindingKey, BuiltinExchangeType policy, ReceivingHandler receiver) throws Exception {
+		super();
+		this.host = host;
+		this.port = port;
+		this.queueName = null;
+		this.exchangeName = exchangeName;
+		this.topicbindingKey = topicbindingKey;
 		this.policy = policy;
 		this.receiver = receiver;
 		
@@ -66,7 +83,7 @@ public class RabbitMQReceiver implements Consumer {
 		if (policy != null) {
 			channel.exchangeDeclare(exchangeName, policy, true, false, null);
 		    String queueName = channel.queueDeclare().getQueue();
-		    channel.queueBind(queueName, exchangeName, "");
+		    channel.queueBind(queueName, exchangeName, (topicbindingKey == null)? "":topicbindingKey);
 		    channel.basicConsume(queueName, true, this);
 		} else {
 			channel.queueDeclare(queueName, true, false, false, null);
