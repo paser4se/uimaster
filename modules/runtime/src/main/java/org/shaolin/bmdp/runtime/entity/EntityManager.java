@@ -783,5 +783,33 @@ public final class EntityManager implements IEntityManager {
 	public void removeEventListener(IEntityEventListener<? extends EntityType, ?> listener) {
 		listeners.remove(listener);
 	}
+	
+	public void offUselessCaches() {
+		CacheManager.getInstance().getCache("__sys_entity_be", String.class, BusinessEntityType.class).clear();
+		CacheManager.getInstance().getCache("__sys_entity_ce", String.class, ConstantEntityType.class).clear();
+		CacheManager.getInstance().getCache("__sys_entity_odform", String.class, ODMappingType.class).clear();
+		CacheManager.getInstance().getCache("__sys_entity_uiform", String.class, UIEntity.class).clear();
+		//CacheManager.getInstance().getCache("__sys_entity_uipage", String.class, UIPage.class));
+		CacheManager.getInstance().getCache("__sys_entity_websvis", String.class, WebService.class).clear();
+		CacheManager.getInstance().getCache("__sys_entity_webflow", String.class, WebChunk.class).clear();
+		CacheManager.getInstance().getCache("__sys_entity_dbtable", String.class, TableType.class).clear();
+		CacheManager.getInstance().getCache("__sys_entity_dbview", String.class, ViewType.class).clear();
+		CacheManager.getInstance().getCache("__sys_entity_rbmapping", String.class, ClassMappingType.class).clear();
+		CacheManager.getInstance().getCache("__sys_entity_commonflow", String.class, FlowChunk.class).clear();
+		CacheManager.getInstance().getCache("__sys_entity_workflow", String.class, Workflow.class).clear();
+		
+		sysEntityCache.remove(BusinessEntityType.class);
+		sysEntityCache.remove(ConstantEntityType.class);
+		sysEntityCache.remove(ODMappingType.class);
+		sysEntityCache.remove(UIEntity.class);
+//		sysEntityCache.remove(UIPage.class);
+		sysEntityCache.remove(WebService.class);
+		sysEntityCache.remove(WebChunk.class);
+		sysEntityCache.remove(FlowChunk.class);
+		sysEntityCache.remove(TableType.class);
+		sysEntityCache.remove(ViewType.class);
+		sysEntityCache.remove(ClassMappingType.class);
+		sysEntityCache.remove(Workflow.class);
+	}
 
 }

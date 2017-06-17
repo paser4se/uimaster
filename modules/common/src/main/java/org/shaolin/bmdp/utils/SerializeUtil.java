@@ -96,7 +96,11 @@ public class SerializeUtil {
 	}
 
 	public static String estimateObjectSizeString(Object o) {
-		return StringUtil.getSizeString(estimateObjectSize(o));
+		try {
+			return StringUtil.getSizeString(estimateObjectSize(o));
+		} catch (Exception e) {
+			return "NotSerializable";
+		}
 	}
 
 	private static class BMIObjectInputStream extends ObjectInputStream {

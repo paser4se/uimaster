@@ -15,6 +15,7 @@
 */
 package org.shaolin.uimaster.page.widgets;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,7 +44,9 @@ import org.shaolin.uimaster.page.cache.UIFormObject;
  * @author wushaol
  *
  */
-public class HTMLDynamicUIItem {
+public class HTMLDynamicUIItem implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * help is not available

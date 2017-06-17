@@ -52,7 +52,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "effTime",
     "expTime",
     "passivated",
-    "priority"
+    "priority",
+    "icon"
 })
 public class ConstantValueType
     implements Serializable
@@ -65,6 +66,8 @@ public class ConstantValueType
     protected String i18NKey;
     @XmlElement(defaultValue = "-1")
     protected Integer intValue;
+    @XmlElement(name = "icon")
+    protected String icon;
     protected String description;
     @XmlSchemaType(name = "dateTime")
     protected XMLGregorianCalendar effTime;
@@ -265,5 +268,12 @@ public class ConstantValueType
     public void setPriority(Integer value) {
         this.priority = value;
     }
+    
+    public void setIcon(String icon) {
+    	this.icon = icon;
+    }
 
+    public String getIcon() {
+    	return this.icon;
+    }
 }

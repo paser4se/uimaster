@@ -238,19 +238,6 @@ public class UIFormObject implements java.io.Serializable
         loadHTMLWidgets();
     }
     
-    private void loadForPage() throws EntityNotFoundException, UIPageException
-    {
-    	UIEntity entity = (UIEntity)IServerServiceManager.INSTANCE.getEntityManager()
-    			.getEntity(this.name, UIPage.class).getUIEntity();
-        OOEEContext parsingContext = parseVariable(entity);
-        parseUI(parsingContext, entity, null);
-        HTMLUtil.includeJsFiles(name, jsIncludeMap, jsIncludeList, !WebConfig.skipCommonJs(name));
-        HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, !WebConfig.skipCommonJs(name));
-        HTMLUtil.includeMobJsFiles(name, jsMobAppIncludeMap, jsMobAppIncludeList, !WebConfig.skipCommonJs(name));
-        
-        loadHTMLWidgets();
-    }
-    
     /**
      * lazy loading required for workflow dynamic action support!
      * 

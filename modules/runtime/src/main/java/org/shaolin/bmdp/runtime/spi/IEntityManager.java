@@ -138,4 +138,9 @@ public interface IEntityManager {
 	 * @param listener
 	 */
 	void removeEventListener(IEntityEventListener<? extends EntityType, ?> listener);
+	
+	/**
+	 * clear all useless caches after running.
+	 */
+	void offUselessCaches();
 }

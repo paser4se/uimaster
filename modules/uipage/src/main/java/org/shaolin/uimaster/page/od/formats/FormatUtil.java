@@ -69,6 +69,10 @@ public class FormatUtil {
 		return FormatUtil.convertDataToUI(DATE_TIME, d, null, null);
 	}
 	
+	public static String formatDoubleNumber(double number) throws FormatException {
+		return FormatUtil.convertDataToUI(FLOAT_NUMBER, number, null, null);
+	}
+	
 	public static String convertDataToUI(String dataType, Object data,
 			String localeConfig, Map propValues)
 			throws FormatException {

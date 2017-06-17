@@ -55,6 +55,9 @@ public class ApplicationWebInitializer {
 			// bind the app context with the servlet context.
 			servletContext.setAttribute(IAppServiceManager.class.getCanonicalName(), appServiceManager);
 			
+			// initialize DB.
+	    	HibernateUtil.getSession();
+			
 			IEntityManager entityManager = appServiceManager.getEntityManager();
 			MasterInstanceListener.addEntityListeners(entityManager);
 			//TODO: load all customized entities from the application folder.
@@ -78,6 +81,8 @@ public class ApplicationWebInitializer {
 	    	
         	appServiceManager.setState(State.ACTIVE);
         	HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+        	
+        	entityManager.offUselessCaches();
 		} catch (Throwable e) {
 			logger.error("Fails to start Config server start! Error: " + e.getMessage(), e);
 			appServiceManager.setState(State.FAILURE);

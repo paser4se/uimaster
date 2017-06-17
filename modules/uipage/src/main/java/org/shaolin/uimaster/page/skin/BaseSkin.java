@@ -1,5 +1,6 @@
 package org.shaolin.uimaster.page.skin;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,7 +8,9 @@ import java.util.Map;
 import org.shaolin.uimaster.html.layout.IUISkin;
 import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 
-public abstract class BaseSkin implements IUISkin {
+public abstract class BaseSkin implements Serializable, IUISkin {
+	
+	private static final long serialVersionUID = 1L;
 	private final Map<String, String> paramMap;
 
 	public BaseSkin() {

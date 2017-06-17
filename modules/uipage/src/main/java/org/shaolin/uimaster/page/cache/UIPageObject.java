@@ -58,13 +58,15 @@ public class UIPageObject implements java.io.Serializable {
 	
 	private boolean hasCustomizedPage = false;
 	
+	private UIPage entity;
+	
 	public UIPageObject(String entityName) throws UIPageException {
 		this.entityName = entityName;
 		load();
 	}
 
 	private void load() throws UIPageException {
-		UIPage entity = IServerServiceManager.INSTANCE.getEntityManager()
+		entity = IServerServiceManager.INSTANCE.getEntityManager()
 				.getEntity(entityName, UIPage.class);
 		
 		try {
@@ -97,6 +99,10 @@ public class UIPageObject implements java.io.Serializable {
 		importCSS();
 		importMobCSS();
 		importMobAppCSS();
+	}
+	
+	public UIPage getUIPage() {
+		return entity;
 	}
 
 	private void addCSS(String locale, boolean isMobile) {
