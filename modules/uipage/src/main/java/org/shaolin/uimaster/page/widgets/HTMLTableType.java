@@ -630,8 +630,11 @@ public class HTMLTableType extends HTMLContainerType {
 						htmlAttrsSB.append("</div>");
 					} else {
 						attrsSB.append("<div class=\"di\">");
-						attrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle()));
-						attrsSB.append(":");
+						String title = UIVariableUtil.getI18NProperty(col.getTitle());
+						if (title != null && title.length() > 0) {
+							attrsSB.append(title);
+							attrsSB.append(":");
+						}
 						attrsSB.append(value);
 						attrsSB.append("</div>");
 					}

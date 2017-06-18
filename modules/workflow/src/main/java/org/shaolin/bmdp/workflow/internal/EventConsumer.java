@@ -25,6 +25,7 @@ import org.shaolin.bmdp.datamodel.workflow.Workflow;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.spi.Event;
 import org.shaolin.bmdp.workflow.exception.ExpirationException;
+import org.shaolin.bmdp.workflow.exception.WorkflowException;
 import org.shaolin.bmdp.workflow.internal.cache.FlowObject;
 import org.shaolin.bmdp.workflow.internal.type.AppInfo;
 import org.shaolin.bmdp.workflow.internal.type.FlowInfo;
@@ -75,7 +76,7 @@ public class EventConsumer {
      * @return
      */
     @SuppressWarnings("rawtypes")
-    public boolean accept(Event evt, Map oldMdc) {
+    public boolean accept(Event evt, Map oldMdc) throws WorkflowException {
         try {
         	if (!evt.getEventConsumer().equals(eventConsumerName)) {
         		logger.warn("No matched node for event {} from Consumer {}",
@@ -147,7 +148,7 @@ public class EventConsumer {
     }
 
     private Event matchEvent(Event evt, FlowRuntimeContext flowContext, 
-    		String sessionId, NodeInfo startNode, NodeInfo eventNode) {
+    		String sessionId, NodeInfo startNode, NodeInfo eventNode) throws WorkflowException {
         Event nextEvent;
         WorkflowSession session = engine.getSession(evt, sessionId);
         if (session == null && startNode != null) {
@@ -198,7 +199,7 @@ public class EventConsumer {
         return matchResponseNode;
     }
 
-    private Event handle(NodeInfo eventNode, FlowRuntimeContext flowContext, WorkflowSession session) {
+    private Event handle(NodeInfo eventNode, FlowRuntimeContext flowContext, WorkflowSession session) throws WorkflowException {
         Event event = flowContext.getEvent();
         String sessionId = session.getID();
 
@@ -215,8 +216,6 @@ public class EventConsumer {
             flowContext.setSession(session);
             engine.signal(eventNode, flowContext);
         } catch (Throwable ex) {
-            printException(flowContext, ex);
-            // Exception was not handled by application.
             // Log it and Rollback session and unlock session.
             Event nextEvent = releaseSession(flowContext, session);
             NodeInfo currentNode = flowContext.getCurrentNode();
@@ -225,7 +224,7 @@ public class EventConsumer {
                 Event requestEvent = flowContext.getRequestEvent();
                 processEventResult(requestEvent, false, ex, currentNode);
             }
-            return nextEvent;
+            throw new WorkflowException("Process node error: " + eventNode.toString(), ex);
         }
 
         if (flowContext.isWaitResponse()) {
@@ -253,7 +252,7 @@ public class EventConsumer {
         }
     }
 
-    private Event handleResponseEvent(Event evt, FlowContextImpl flowContext) {
+    private Event handleResponseEvent(Event evt, FlowContextImpl flowContext) throws WorkflowException {
         FlowRuntimeContext flowRuntime = flowContext.getFlowRuntime();
         evt.setFlowContext(null); // Clear flow context.
         if (logger.isTraceEnabled()) {
@@ -331,7 +330,7 @@ public class EventConsumer {
         return handle(flowRuntime.getCurrentNode(), flowRuntime, session);
     }
 
-    private Event handleTimeoutEvent(Event evt) {
+    private Event handleTimeoutEvent(Event evt) throws WorkflowException {
         TimeoutEvent tEvent = (TimeoutEvent) evt;
 
         FlowRuntimeContext oldContext = (FlowRuntimeContext) tEvent.getContext();
@@ -349,7 +348,7 @@ public class EventConsumer {
     }
 
     private Event processTimeoutEvent(TimeoutEvent tEvent, NodeInfo destNode,
-            FlowRuntimeContext newFlowContext) {
+            FlowRuntimeContext newFlowContext) throws WorkflowException {
         WorkflowSession session = engine.getSession(tEvent, tEvent.getSessionId());
 
         if (session == null) {
@@ -363,11 +362,6 @@ public class EventConsumer {
         }
 
         return handle(destNode, newFlowContext, session);
-    }
-
-    private void printException(FlowRuntimeContext flowContext, Throwable ex) {
-        engine.analyzeException(flowContext, ex);
-        logger.warn(flowContext.toString(), ex);
     }
 
     private Event releaseSession(FlowRuntimeContext flowContext, WorkflowSession session) {

@@ -2209,7 +2209,10 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 			var w = $($(t).parent()).width();
 			if (w > 0) {$(t).css("width",w + "px");}//ensure the root width of swiper widget for bug fix.
 			$(this).find(".swiper-slide").each(function() {
-			  $(this).unbind("click").bind("click",function() {t.clickImage($(this).children()[0]);});
+			  $(this).unbind("click").bind("click",function() {
+				  t.clickImage($(this).children()[0]);
+				  if (MobileAppMode) {_mobContext.openImage($(this).attr("img"));}
+			  });
 			  if (IS_MOBILEVIEW && t.mobheight != -1){
 			     $(this).css("height",t.mobheight);
 			  } else if (t.height != -1){

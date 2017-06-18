@@ -33,6 +33,7 @@ import org.shaolin.bmdp.runtime.spi.FlowEvent;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.shaolin.bmdp.utils.SerializeUtil;
 import org.shaolin.bmdp.workflow.dao.CoordinatorModel;
+import org.shaolin.bmdp.workflow.exception.WorkflowVarException;
 import org.shaolin.bmdp.workflow.internal.type.NodeInfo;
 import org.shaolin.bmdp.workflow.spi.IWorkflowService;
 import org.shaolin.bmdp.workflow.spi.WorkflowSession;
@@ -577,10 +578,10 @@ public final class FlowRuntimeContext extends TransOpsExecuteContext implements 
 
     public void save(ITaskEntity entity) {
     	if (entity.getId() == 0) {
-    		CoordinatorModel.INSTANCE.create(entity);
-    	} else {
-    		CoordinatorModel.INSTANCE.update(entity);
+    		//CoordinatorModel.INSTANCE.create(entity);
+    		throw new WorkflowVarException("Workflow task must be a persistent entity! " + entity.toString());
     	}
+    	
     	String sessionId = this.getSession().getID();
     	if (entity.getSessionId() != null && entity.getSessionId().length() > 0) {
 			if (!entity.getSessionId().equals(sessionId)) {
