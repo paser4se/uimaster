@@ -769,6 +769,7 @@ UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 	height:null,
 	maxHeight:false,
 	editable:true,
+	viewMode:false,
 	init:function() {
 	    if (this.initialized)
 		    return;
@@ -799,6 +800,7 @@ UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 	},
 	initHtmlContent:function() {
 	    var o = this;
+		if (this.viewMode) {return;}
 		if (this.persistable) {
 			this.saveBtn = $("<button>\u4FDD\u5B58HTML\u5185\u5BB9</button>");
 			$(this).parent().append(this.saveBtn);

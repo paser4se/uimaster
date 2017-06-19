@@ -576,7 +576,7 @@ public final class FlowRuntimeContext extends TransOpsExecuteContext implements 
         this.exception = e;
     }
 
-    public void save(ITaskEntity entity) {
+    public void bindSession(final ITaskEntity entity) {
     	if (entity.getId() == 0) {
     		//CoordinatorModel.INSTANCE.create(entity);
     		throw new WorkflowVarException("Workflow task must be a persistent entity! " + entity.toString());
