@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class HTMLWidgetType implements Serializable
 {
-    private static final Logger logger = LoggerFactory.getLogger(HTMLWidgetType.class);
+    private static final transient Logger logger = LoggerFactory.getLogger(HTMLWidgetType.class);
     private static final long serialVersionUID = -6119707922874957783L;
     
     private String entityName;

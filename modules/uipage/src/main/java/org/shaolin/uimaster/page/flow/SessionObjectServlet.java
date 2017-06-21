@@ -13,6 +13,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.shaolin.bmdp.utils.SerializeUtil;
+import org.shaolin.bmdp.utils.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * System performance turning tool.
  * 1. all stored object in current session.
@@ -24,6 +29,8 @@ import javax.servlet.http.HttpSession;
  */
 public class SessionObjectServlet extends HttpServlet {
 
+	private static Logger logger = LoggerFactory.getLogger(SessionObjectServlet.class);
+	
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 		
@@ -43,12 +50,22 @@ public class SessionObjectServlet extends HttpServlet {
 		sb.append("<html>");
 		sb.append("<body>");
 		
+		long totalSize = 0;
 		HttpSession session = request.getSession();
 		Enumeration<String> names = session.getAttributeNames();
 		while (names.hasMoreElements()) {
 			String name = names.nextElement();
 			digObjects(sb, name, session.getAttribute(name));
+			try {
+				totalSize += SerializeUtil.estimateObjectSize(session.getAttribute(name));
+			} catch (Exception e) {
+				logger.warn("Unable to serialize session item: " + name, e);
+			}
 		}
+		
+		sb.append("<div style='color:red;'>Total Size: ");
+		sb.append(StringUtil.getSizeString(totalSize));
+		sb.append("</div>");
 		sb.append("</body>");
 		sb.append("</html>");
 		

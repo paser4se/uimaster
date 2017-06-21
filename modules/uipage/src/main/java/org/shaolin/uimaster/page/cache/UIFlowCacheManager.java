@@ -41,7 +41,7 @@ public class UIFlowCacheManager implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = LoggerFactory.getLogger(UIFlowCacheManager.class);
+	private static final transient Logger logger = LoggerFactory.getLogger(UIFlowCacheManager.class);
 
     private static final String WEB_FLOW_CACHE = "__system_webflow_cache";
 

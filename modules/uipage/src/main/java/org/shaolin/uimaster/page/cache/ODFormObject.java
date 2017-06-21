@@ -51,7 +51,7 @@ public class ODFormObject extends ODObject implements java.io.Serializable
 {
     private static final long serialVersionUID = -1328112393440558300L;
     
-    private static Logger logger = LoggerFactory.getLogger(ODFormObject.class);
+    private static final transient Logger logger = LoggerFactory.getLogger(ODFormObject.class);
     
     /**
      * Declare parameters of OD.

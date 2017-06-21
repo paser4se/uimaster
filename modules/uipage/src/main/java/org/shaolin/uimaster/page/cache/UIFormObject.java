@@ -137,7 +137,7 @@ import org.slf4j.LoggerFactory;
 
 public class UIFormObject implements java.io.Serializable
 {
-	private static Logger logger = LoggerFactory.getLogger(UIFormObject.class);
+	private static transient Logger logger = LoggerFactory.getLogger(UIFormObject.class);
 	
     private static final long serialVersionUID = 4410034672313404291L;
 
