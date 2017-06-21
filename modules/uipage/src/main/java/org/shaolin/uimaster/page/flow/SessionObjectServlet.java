@@ -56,13 +56,21 @@ public class SessionObjectServlet extends HttpServlet {
 		while (names.hasMoreElements()) {
 			String name = names.nextElement();
 			digObjects(sb, name, session.getAttribute(name));
+		}
+		
+		names = session.getAttributeNames();
+		while (names.hasMoreElements()) {
+			String name = names.nextElement();
 			try {
-				totalSize += SerializeUtil.estimateObjectSize(session.getAttribute(name));
+				long size = SerializeUtil.estimateObjectSize(session.getAttribute(name));
+				totalSize += size;
+				sb.append("<div style='color:red;'>").append(name).append(" Size: ");
+				sb.append(StringUtil.getSizeString(size));
+				sb.append("</div>");
 			} catch (Exception e) {
 				logger.warn("Unable to serialize session item: " + name, e);
 			}
 		}
-		
 		sb.append("<div style='color:red;'>Total Size: ");
 		sb.append(StringUtil.getSizeString(totalSize));
 		sb.append("</div>");
