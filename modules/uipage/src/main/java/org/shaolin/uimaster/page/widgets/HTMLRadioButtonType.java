@@ -16,6 +16,8 @@
 package org.shaolin.uimaster.page.widgets;
 
 import org.shaolin.uimaster.page.UserRequestContext;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Layout;
@@ -94,19 +96,19 @@ public class HTMLRadioButtonType extends HTMLSelectComponentType
         }
     }
 
-    public Widget createAjaxWidget(VariableEvaluator ee)
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-        RadioButton radioButton = new RadioButton(getName(), Layout.NULL);
+//        RadioButton radioButton = new RadioButton(getName(), Layout.NULL);
+//
+//        radioButton.setReadOnly(isReadOnly());
+//        radioButton.setUIEntityName(getUIEntityName());
+//
+//        radioButton.setLabel(getLabel());
+//
+//        radioButton.setListened(true);
+//        radioButton.setSelected(getValue());
 
-        radioButton.setReadOnly(isReadOnly());
-        radioButton.setUIEntityName(getUIEntityName());
-
-        radioButton.setLabel(getLabel());
-
-        radioButton.setListened(true);
-        radioButton.setSelected(getValue());
-
-        return radioButton;
+        return super.createJsonModel(ee);
     }
     
     private static final long serialVersionUID = -4405215152580918889L;

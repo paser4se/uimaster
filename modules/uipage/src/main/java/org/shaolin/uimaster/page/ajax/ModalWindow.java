@@ -17,12 +17,11 @@ package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
-import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.bmdp.json.JSONObject;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 
@@ -68,25 +67,25 @@ public class ModalWindow extends Container implements Serializable
 	private String frameInfo;
     
 	public ModalWindow(String uiid, RefForm refEntity) {
-		this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, "",
-				new CellLayout(), refEntity, AjaxActionHelper.getAjaxContext()
+		this(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, "",
+				new CellLayout(), refEntity, AjaxContextHelper.getAjaxContext()
 						.getRequestData().getFrameId());
 	}
 
 	public ModalWindow(String uiid, RefForm refEntity, String frameInfo) {
-		this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, "",
+		this(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, "",
 				new CellLayout(), refEntity, frameInfo);
 	}
 
 	public ModalWindow(String uiid, String title, RefForm refEntity) {
-		this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid,
-				title, new CellLayout(), refEntity, AjaxActionHelper
+		this(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid,
+				title, new CellLayout(), refEntity, AjaxContextHelper
 						.getAjaxContext().getRequestData().getFrameId());
 	}
 
 	public ModalWindow(String uiid, String title, RefForm refEntity,
 			String frameInfo) {
-		this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid,
+		this(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid,
 				title, new CellLayout(), refEntity, frameInfo);
 	}
 
@@ -102,50 +101,29 @@ public class ModalWindow extends Container implements Serializable
         this.refEntity.setId(this.refEntity.getUiid());
         this.refEntity.setFrameInfo(frameInfo);
 
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
-        if (ajaxContext == null)
-        {
-            throw new IllegalArgumentException("Fail to add refEntity in the component tree!");
-        }
-        else
-        {
-            Map frameMap = ajaxContext.getFrameComponentMap(frameInfo);
-
-            if (frameMap == null)
-            {
-                throw new IllegalArgumentException("Wrong frame, frame \"" + frameInfo + "\" does not exist.");
-            }
-            else
-            {
-                if (frameMap.containsKey(refEntity.getId()))
-                {
-                    ((Widget)frameMap.remove(refEntity.getId())).remove();
-                }
-                if (refEntity.getUIEntityName() == null)
-                {
-                    Iterator itr = frameMap.values().iterator();
-                    Object obj = itr.next();
-                    while (!(obj instanceof Widget))
-                    {
-                        obj = itr.next();
-                    }
-                    refEntity.setUIEntityName(((Widget)obj).getUIEntityName());
-                }
-                frameMap.put(refEntity.getId(), refEntity);
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
+		if (ajaxContext == null) {
+			throw new IllegalArgumentException("Fail to add refEntity in the component tree!");
+		} else {
+			if (refEntity.getUIEntityName() == null) {
+				refEntity.setUIEntityName(ajaxContext.getEntityName());
+			}
+            if (!ajaxContext.existElement(refEntity)) {
+            	ajaxContext.addElement(refEntity);
             }
         }
     }
 
     public void open()
     {
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
-        ajaxContext.addElement(getId(), this, frameInfo);
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
+        ajaxContext.addElement(this);
         ajaxContext.addDataItem( createOpenData(ajaxContext) );
     }
 
     public void close()
     {
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         ajaxContext.removeElement(getId(), frameInfo);
         ajaxContext.addDataItem( createCloseData(ajaxContext) );
     }
@@ -235,7 +213,7 @@ public class ModalWindow extends Container implements Serializable
     
     private IDataItem createOpenData(AjaxContext ajaxContext)
     {
-        IDataItem dataItem = AjaxActionHelper.createDataItem();
+        IDataItem dataItem = AjaxContextHelper.createDataItem();
         dataItem.setUiid(refEntity.getId());
         dataItem.setJsHandler(IJSHandlerCollections.OPEN_WINDOW);
         dataItem.setSibling(genAttributes());
@@ -267,7 +245,7 @@ public class ModalWindow extends Container implements Serializable
     
     private IDataItem createCloseData(AjaxContext ajaxContext)
     {
-        IDataItem dataItem = AjaxActionHelper.createDataItem();
+        IDataItem dataItem = AjaxContextHelper.createDataItem();
         dataItem.setUiid(getId());
         dataItem.setJsHandler(IJSHandlerCollections.CLOSE_WINDOW);
         dataItem.setFrameInfo(this.frameInfo);

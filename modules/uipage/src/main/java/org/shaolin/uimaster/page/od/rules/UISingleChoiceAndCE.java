@@ -15,26 +15,30 @@
 */
 package org.shaolin.uimaster.page.od.rules;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.shaolin.bmdp.json.JSONObject;
+import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.ce.CEUtil;
 import org.shaolin.bmdp.runtime.ce.IConstantEntity;
-import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.UserRequestContext;
-import org.shaolin.uimaster.page.ajax.SingleChoice;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.od.IODMappingConverter;
 import org.shaolin.uimaster.page.widgets.HTMLChoiceType;
 import org.shaolin.uimaster.page.widgets.HTMLSingleChoiceType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UISingleChoiceAndCE implements IODMappingConverter {
 	private HTMLSingleChoiceType uisingleChoice;
 	private String uiid;
 	private IConstantEntity ceValue;
 	private String ceType;
+	private Integer expendlevels = 1; // expending hierarchy levels of a constant object.
 	private boolean containsNotSpecified = true;
 	private List excludeValue;
 	private String notSpecifiedDisplayValue;
@@ -77,7 +81,15 @@ public class UISingleChoiceAndCE implements IODMappingConverter {
 	public void setCEType(String CEType) {
 		this.ceType = CEType;
 	}
+	
+	public Integer getExpendlevels() {
+		return expendlevels;
+	}
 
+	public void setExpendlevels(Integer expendlevels) {
+		this.expendlevels = expendlevels;
+	}
+	
 	public boolean getContainsNotSpecified() {
 		return this.containsNotSpecified;
 	}
@@ -107,6 +119,7 @@ public class UISingleChoiceAndCE implements IODMappingConverter {
 
 		dataClassInfo.put("CEValue", IConstantEntity.class);
 		dataClassInfo.put("CEType", String.class);
+		dataClassInfo.put("Expendlevels", Integer.class);
 		dataClassInfo.put("ContainsNotSpecified", Boolean.TYPE);
 		dataClassInfo.put("ContainsUnknown", Boolean.TYPE);
 		dataClassInfo.put("ExcludeValue", List.class);
@@ -151,10 +164,17 @@ public class UISingleChoiceAndCE implements IODMappingConverter {
 				this.uiid = (String) paramValue.get(UI_WIDGET_ID);
 			}
 			if (paramValue.containsKey("CEValue")) {
-				this.ceValue = ((IConstantEntity) paramValue.get("CEValue"));
+				if (paramValue.get("CEValue") instanceof IConstantEntity) {
+					this.ceValue = ((IConstantEntity) paramValue.get("CEValue"));
+				} else {
+					this.ceValue = CEUtil.toCEValue(paramValue.get("CEValue").toString());
+				}
 			}
 			if (paramValue.containsKey("CEType")) {
 				this.ceType = ((String) paramValue.get("CEType"));
+			}
+			if (paramValue.containsKey("Expendlevels")) {
+				this.expendlevels = ((Integer) paramValue.get("Expendlevels"));
 			}
 			if (paramValue.containsKey("ExcludeValue")) {
 				this.excludeValue = ((List) paramValue.get("ExcludeValue"));
@@ -208,11 +228,19 @@ public class UISingleChoiceAndCE implements IODMappingConverter {
 
 	public void pushDataToWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
+			this.uisingleChoice.setCeName(this.ceType);
 			if (this.ceValue != null) {
 				this.uisingleChoice.setValue(String.valueOf(this.ceValue.getIntValue()));
 			}
-
-			callChoiceOption(true, htmlContext);
+			if (this.expendlevels <= 1) {
+				callChoiceOptionWithCE(true, htmlContext);
+			} else {
+				List<String> optionValues = new ArrayList<String>();
+				List<String> optionDisplayValues = new ArrayList<String>();
+				CEUtil.getCEItems(this.expendlevels, optionValues, optionDisplayValues, 
+						AppContext.get().getConstantService().getConstantEntity(this.ceType));
+				callChoiceOption(true, htmlContext, optionValues, optionDisplayValues);
+			}
 		} catch (Throwable t) {
 			if (t instanceof UIConvertException) {
 				throw ((UIConvertException) t);
@@ -225,9 +253,15 @@ public class UISingleChoiceAndCE implements IODMappingConverter {
 
 	public void pullDataFromWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
-			SingleChoice singleChoice = (SingleChoice) AjaxActionHelper
-					.getCachedAjaxWidget(this.uiid, htmlContext);
-			this.ceValue = CEUtil.getConstantEntity(singleChoice.getValue(), this.ceType);
+//			SingleChoice singleChoice = (SingleChoice) AjaxActionHelper
+//					.getCachedAjaxWidget(this.uiid, htmlContext);
+			JSONObject selectComp = htmlContext.getAjaxWidget(this.uiid);
+			if (selectComp == null) {
+				logger.warn(this.uiid + " does not exist for data to ui mapping!");
+				return;
+			}
+			JSONObject attrMap = selectComp.getJSONObject("attrMap");
+			this.ceValue = CEUtil.getConstantEntity(attrMap.getString("value"), this.ceType);
 			if (this.ceValue != null) {
 				this.ceType = this.ceValue.getEntityName();
 			}
@@ -240,11 +274,7 @@ public class UISingleChoiceAndCE implements IODMappingConverter {
 		}
 	}
 
-	public void callAllMappings(boolean isDataToUI, UserRequestContext htmlContext) throws UIConvertException {
-		callChoiceOption(isDataToUI, htmlContext);
-	}
-
-	public void callChoiceOption(boolean isDataToUI, UserRequestContext htmlContext) throws UIConvertException {
+	public void callChoiceOptionWithCE(boolean isDataToUI, UserRequestContext htmlContext) throws UIConvertException {
 		try {
 			Map<String, Object> converter_in_data = new HashMap<String, Object>();
 			converter_in_data.put(UI_WIDGET_TYPE, this.uisingleChoice);
@@ -307,4 +337,50 @@ public class UISingleChoiceAndCE implements IODMappingConverter {
 					new Object[] { getUIHTML().getUIID() });
 		}
 	}
+	
+	public void callChoiceOption(boolean isDataToUI, UserRequestContext htmlContext, 
+			List<String> optionValues, List<String> optionDisplayValues) throws UIConvertException {
+		try {
+			Map<String, Object> converter_in_data = new HashMap<String, Object>();
+			converter_in_data.put(UI_WIDGET_TYPE, this.uisingleChoice);
+			converter_in_data.put("OptionValues", optionValues);
+			converter_in_data.put("OptionDisplayValues", optionDisplayValues);
+
+			IODMappingConverter converter = new UIChoiceOptionValue();
+			converter.setInputData(converter_in_data);
+			if (isDataToUI) {
+				converter.pushDataToWidget(htmlContext);
+			} else {
+				converter.pullDataFromWidget(htmlContext);
+
+				Map<String, Object> converter_out_data = converter
+						.getOutputData();
+
+				HTMLChoiceType ref_UIChoice = null;
+				List ref_OptionValues = null;
+				List ref_OptionDisplayValues = null;
+
+				if (converter_out_data.containsKey(UI_WIDGET_TYPE)) {
+					ref_UIChoice = (HTMLChoiceType) converter_out_data
+							.get(UI_WIDGET_TYPE);
+				}
+				if (converter_out_data.containsKey("OptionValues")) {
+					ref_OptionValues = (List) converter_out_data
+							.get("OptionValues");
+				}
+				if (converter_out_data.containsKey("OptionDisplayValues")) {
+					ref_OptionDisplayValues = (List) converter_out_data
+							.get("OptionDisplayValues");
+				}
+			}
+		} catch (Throwable t) {
+			if (t instanceof UIConvertException) {
+				throw ((UIConvertException) t);
+			}
+			throw new UIConvertException("EBOS_ODMAPPER_074", t,
+					new Object[] { getUIHTML().getUIID() });
+		}
+	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(UIText.class);
 }

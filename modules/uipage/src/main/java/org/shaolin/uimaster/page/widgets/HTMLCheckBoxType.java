@@ -16,6 +16,8 @@
 package org.shaolin.uimaster.page.widgets;
 
 import org.shaolin.uimaster.page.UserRequestContext;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.CheckBox;
@@ -89,21 +91,21 @@ public class HTMLCheckBoxType extends HTMLSelectComponentType
         }
     }
 
-    public Widget createAjaxWidget(VariableEvaluator ee)
-    {
-        CheckBox checkBox = new CheckBox(getName(), null);
-
-        checkBox.setReadOnly(isReadOnly());
-        checkBox.setUIEntityName(getUIEntityName());
-
-        checkBox.setLabel(getLabel());
-        checkBox.setSelected(getValue());
-        setAJAXConstraints(checkBox);
-        setAJAXAttributes(UserRequestContext.UserContext.get(), checkBox);
-        
-        checkBox.setListened(true);
-
-        return checkBox;
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException {
+//        CheckBox checkBox = new CheckBox(getName(), null);
+//
+//        checkBox.setReadOnly(isReadOnly());
+//        checkBox.setUIEntityName(getUIEntityName());
+//
+//        checkBox.setLabel(getLabel());
+//        checkBox.setSelected(getValue());
+//        setAJAXConstraints(checkBox);
+//        setAJAXAttributes(UserRequestContext.UserContext.get(), checkBox);
+//        
+//        checkBox.setListened(true);
+//
+//        return checkBox;
+    	return super.createJsonModel(ee);
     }
     
     private static final long serialVersionUID = -6662073300811877694L;

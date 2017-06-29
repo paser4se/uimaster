@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
@@ -65,7 +65,7 @@ abstract public class TextWidget extends Widget<TextWidget> implements Serializa
             return;
         }
         
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         if (ajaxContext == null || !ajaxContext.existElement(this))
         {
             return;
@@ -75,7 +75,7 @@ abstract public class TextWidget extends Widget<TextWidget> implements Serializa
         sb.append("{'name':'value','value':'");
         sb.append(HTMLUtil.handleEscape(String.valueOf(value)));
         sb.append("'}");
-        IDataItem dataItem = AjaxActionHelper.updateAttrItem(this.getId(), sb.toString());
+        IDataItem dataItem = AjaxContextHelper.updateAttrItem(this.getId(), sb.toString());
         dataItem.setFrameInfo(getFrameInfo());
         ajaxContext.addDataItem(dataItem);
     }

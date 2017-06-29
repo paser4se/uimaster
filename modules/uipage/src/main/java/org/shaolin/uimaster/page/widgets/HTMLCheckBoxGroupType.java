@@ -18,11 +18,10 @@ package org.shaolin.uimaster.page.widgets;
 import java.io.IOException;
 import java.util.List;
 
-import org.shaolin.uimaster.page.UserRequestContext;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.HTMLUtil;
-import org.shaolin.uimaster.page.ajax.CheckBoxGroup;
-import org.shaolin.uimaster.page.ajax.Layout;
-import org.shaolin.uimaster.page.ajax.Widget;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.slf4j.Logger;
@@ -164,21 +163,21 @@ public class HTMLCheckBoxGroupType extends HTMLMultiChoiceType
         }
     }
 
-    public Widget createAjaxWidget(VariableEvaluator ee)
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException
     {
-        CheckBoxGroup checkBoxGroup = new CheckBoxGroup(getName(), Layout.NULL);
-        
-        checkBoxGroup.setReadOnly(isReadOnly());
-        checkBoxGroup.setUIEntityName(getUIEntityName());
+//        CheckBoxGroup checkBoxGroup = new CheckBoxGroup(getName(), Layout.NULL);
+//        
+//        checkBoxGroup.setReadOnly(isReadOnly());
+//        checkBoxGroup.setUIEntityName(getUIEntityName());
+//
+//        checkBoxGroup.setOptions(getOptionDisplayValues(), getOptionValues());
+//        checkBoxGroup.setValues(getValue());
+//
+//        setAJAXConstraints(checkBoxGroup);
+//        setAJAXAttributes(UserRequestContext.UserContext.get(), checkBoxGroup);
+//        
+//        checkBoxGroup.setListened(true);
 
-        checkBoxGroup.setOptions(getOptionDisplayValues(), getOptionValues());
-        checkBoxGroup.setValues(getValue());
-
-        setAJAXConstraints(checkBoxGroup);
-        setAJAXAttributes(UserRequestContext.UserContext.get(), checkBoxGroup);
-        
-        checkBoxGroup.setListened(true);
-
-        return checkBoxGroup;
+    	return super.createJsonModel(ee);
     }
 }

@@ -21,7 +21,7 @@ import java.util.Map;
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.javacc.context.EvaluationContext;
 import org.shaolin.javacc.exception.EvaluationException;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
@@ -46,13 +46,13 @@ public class Button extends TextWidget implements Serializable
     
     public Button(String uiid)
     {
-        this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
+        this(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
         this.setListened(true);
     }
     
     public Button(String uiid, String title)
     {
-        super(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, title, new CellLayout());
+        super(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, title, new CellLayout());
         this.setListened(true);
     }
     

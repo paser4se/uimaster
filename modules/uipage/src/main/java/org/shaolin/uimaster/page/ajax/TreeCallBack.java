@@ -15,7 +15,9 @@
 */
 package org.shaolin.uimaster.page.ajax;
 
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 
 /**
  * Due to javacc does not support the anonymous class definition in the script directly.
@@ -25,17 +27,31 @@ import org.shaolin.uimaster.page.AjaxActionHelper;
  */
 public class TreeCallBack implements CallBack {
 
-	private final String uiid;
+	private String uiid;
 	
-	private final String entityPrefix;
+	private String entityPrefix;
 	
-	public TreeCallBack(String uiid) {
-		this.entityPrefix = AjaxActionHelper.getAjaxContext().getEntityPrefix();
+	public TreeCallBack() {}//for serialization.
+	
+	public TreeCallBack(final String uiid) {
+		this.entityPrefix = AjaxContextHelper.getAjaxContext().getEntityPrefix();
 		this.uiid = uiid;
 	}
 	
 	public void execute(Object... objects) {
-		Tree tree = (Tree)AjaxActionHelper.getAjaxContext().getElementByAbsoluteId(entityPrefix + uiid);
+		Tree tree = (Tree)AjaxContextHelper.getAjaxContext().getElementByAbsoluteId(entityPrefix + uiid);
 		tree.refresh();
+	}
+	
+	public JSONObject toJSON() throws JSONException {
+		JSONObject json = new JSONObject();
+		json.put("uiid", uiid);
+		json.put("prefix", entityPrefix);
+		return json;
+	}
+	
+	public void fromJSON(JSONObject json) throws JSONException {
+		this.uiid = json.getString("uiid");
+		this.entityPrefix = json.getString("prefix");
 	}
 }

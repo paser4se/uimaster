@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.List;
 
 import org.shaolin.uimaster.page.UserRequestContext;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.AList;
@@ -135,22 +137,22 @@ public class HTMLListType extends HTMLMultiChoiceType
         }
     }
     
-    public Widget createAjaxWidget(VariableEvaluator ee)
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-        AList list = new AList(getName(), null);
+//        AList list = new AList(getName(), null);
+//
+//        list.setReadOnly(isReadOnly());
+//        list.setUIEntityName(getUIEntityName());
+//
+//        list.setOptions(getOptionDisplayValues(), getOptionValues());
+//        list.setValues(getValue());
+//
+//        setAJAXConstraints(list);
+//        setAJAXAttributes(UserRequestContext.UserContext.get(), list);
+//        
+//        list.setListened(true);
 
-        list.setReadOnly(isReadOnly());
-        list.setUIEntityName(getUIEntityName());
-
-        list.setOptions(getOptionDisplayValues(), getOptionValues());
-        list.setValues(getValue());
-
-        setAJAXConstraints(list);
-        setAJAXAttributes(UserRequestContext.UserContext.get(), list);
-        
-        list.setListened(true);
-
-        return list;
+        return super.createJsonModel(ee);
     }
 
     private static final long serialVersionUID = -7867495752450617201L;

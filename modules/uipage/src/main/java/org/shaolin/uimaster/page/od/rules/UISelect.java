@@ -19,12 +19,13 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.UserRequestContext;
-import org.shaolin.uimaster.page.ajax.SelectWidget;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.od.IODMappingConverter;
 import org.shaolin.uimaster.page.widgets.HTMLSelectComponentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UISelect implements IODMappingConverter {
 	private HTMLSelectComponentType uiSelect;
@@ -149,9 +150,18 @@ public class UISelect implements IODMappingConverter {
 
 	public void pullDataFromWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
-			SelectWidget selectComp = (SelectWidget) AjaxActionHelper
-					.getCachedAjaxWidget(this.uiid, htmlContext);
-			this.value = selectComp.isSelected();
+//			SelectWidget selectComp = (SelectWidget) AjaxActionHelper
+//					.getCachedAjaxWidget(this.uiid, htmlContext);
+//			this.value = selectComp.isSelected();
+			JSONObject selectComp = htmlContext.getAjaxWidget(this.uiid);
+			if (selectComp == null) {
+				logger.warn(this.uiid + " does not exist for data to ui mapping!");
+				return;
+			}
+			JSONObject attrMap = selectComp.getJSONObject("attrMap");
+			if (attrMap.has("selected")) {
+				this.value = attrMap.getBoolean("selected");
+			}
 		} catch (Throwable t) {
 			if (t instanceof UIConvertException) {
 				throw ((UIConvertException) t);
@@ -163,4 +173,6 @@ public class UISelect implements IODMappingConverter {
 
 	public void callAllMappings(boolean isDataToUI) throws UIConvertException {
 	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(UIText.class);
 }

@@ -17,7 +17,7 @@ package org.shaolin.uimaster.page.ajax;
 
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.bmdp.json.JSONObject;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 
@@ -74,7 +74,7 @@ public class Dialog extends Container
 
     public Dialog(String uiid)
     {
-        super(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
+        super(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
         this.title = DEF_TITLE;
         this.message = DEF_MESSAGE;
         this.optionType = DEF_OPTION_TYPE;
@@ -86,7 +86,7 @@ public class Dialog extends Container
     public Dialog(String uiid, String title, String message, int optionType, String[] options,
             int initialValue, int messageType, int dialogType)
     {
-        super(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
+        super(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
         this.title = title;
         this.message = message;
         this.optionType = optionType;
@@ -218,7 +218,7 @@ public class Dialog extends Container
         JSONObject jsono = new JSONObject(dialog);
         String jsCode = jsono.toString();
 
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         IDataItem item = createDataItem(dialog.getId(), jsCode);
         item.setFrameInfo(frameInfo);
         ajaxContext.addDataItem(item);
@@ -265,7 +265,7 @@ public class Dialog extends Container
         JSONObject jsono = new JSONObject(dialog);
         String jsCode = jsono.toString();
 
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         IDataItem item = createDataItem(dialog.getId(), jsCode);
         item.setFrameInfo(frameInfo);
         ajaxContext.addDataItem(item);
@@ -308,7 +308,7 @@ public class Dialog extends Container
         JSONObject jsono = new JSONObject(dialog);
         String jsCode = jsono.toString();
 
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         IDataItem item = createDataItem(dialog.getId(), jsCode);
         item.setFrameInfo(frameInfo);
         ajaxContext.addDataItem(item);
@@ -367,7 +367,7 @@ public class Dialog extends Container
         JSONObject jsono = new JSONObject(dialog);
         String jsCode = jsono.toString();
 
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         IDataItem item = createDataItem(dialog.getId(), jsCode);
         item.setFrameInfo(frameInfo);
         ajaxContext.addDataItem(item);
@@ -434,7 +434,7 @@ public class Dialog extends Container
         JSONObject jsono = new JSONObject(dialog);
         String jsCode = jsono.toString();
 
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         ajaxContext.addDataItem(createDataItem(dialog.getId(), jsCode));
         //ajaxContext.suspend(dialog);
         /*
@@ -479,7 +479,7 @@ public class Dialog extends Container
         JSONObject jsono = new JSONObject(dialog);
         String jsCode = jsono.toString();
 
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         ajaxContext.addDataItem(createDataItem(dialog.getId(), jsCode));
         //ajaxContext.suspend(dialog);
         /*
@@ -532,7 +532,7 @@ public class Dialog extends Container
         JSONObject jsono = new JSONObject(dialog);
         String jsCode = jsono.toString();
 
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         ajaxContext.addDataItem(createDataItem(dialog.getId(), jsCode));
         //ajaxContext.suspend(dialog);
 
@@ -588,7 +588,7 @@ public class Dialog extends Container
         JSONObject jsono = new JSONObject(dialog);
         String jsCode = jsono.toString();
 
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         ajaxContext.addDataItem(createDataItem(dialog.getId(), jsCode));
         //ajaxContext.suspend(dialog);
         /*
@@ -609,7 +609,7 @@ public class Dialog extends Container
 
     private static IDataItem createDataItem(String uiid, String data)
     {
-        IDataItem dataItem = AjaxActionHelper.createDataItem();
+        IDataItem dataItem = AjaxContextHelper.createDataItem();
         dataItem.setJsHandler(IJSHandlerCollections.OPEN_DIALOG);
         dataItem.setData(data);
         return dataItem;

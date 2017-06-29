@@ -17,18 +17,20 @@ package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
+import org.shaolin.bmdp.runtime.VariableUtil;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
-import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.IJSHandlerCollections;
@@ -84,9 +86,12 @@ public class RefForm extends Container implements Serializable
 
     private Map<String, Object> inputParams;
 
+    private ModalWindow window;
+    private CallBack callBack;
+    
     public RefForm(String uiid, String uiEntityName)
     {
-        this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, uiEntityName, new CellLayout());
+        this(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, uiEntityName, new CellLayout());
         this.uiid = uiid;
         this.setListened(true);
     }
@@ -104,7 +109,7 @@ public class RefForm extends Container implements Serializable
      */
     public RefForm(String uiid, String uiEntityName, Map<String, Object> inputParams)
     {
-        this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, uiEntityName, new CellLayout());
+        this(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, uiEntityName, new CellLayout());
 
         this.inputParams = inputParams;
         this.uiid = uiid;
@@ -172,14 +177,14 @@ public class RefForm extends Container implements Serializable
 //		this.closeIfinWindows(true);
 //		this.openInWindows(this.window.getTitle(), this.callBack, this.window.getWidth(), this.window.getHeight());
 		
-		IDataItem dataItem = AjaxActionHelper.createDataItem();
+		IDataItem dataItem = AjaxContextHelper.createDataItem();
         dataItem.setUiid(this.getId());
         dataItem.setJsHandler(IJSHandlerCollections.FROM_REFRESH);
         dataItem.setJs(this.generateJS());
         dataItem.setData(this.buildUpRefEntity());
         dataItem.setFrameInfo(this.getFrameInfo());
         
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         ajaxContext.addDataItem(dataItem);
 	}
 	
@@ -197,11 +202,11 @@ public class RefForm extends Container implements Serializable
                 logger.debug("[ui2Data] uientity: "+this.getUIEntityName());
             }
             
-            AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+            AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
             UserRequestContext htmlContext = new UserRequestContext(ajaxContext.getRequest());
             htmlContext.setCurrentFormInfo(this.getUIEntityName(), "", "");
             htmlContext.setIsDataToUI(false);//Don't set prefix in here.
-            htmlContext.setAjaxWidgetMap(AjaxActionHelper.getFrameMap(ajaxContext.getRequest()));
+            htmlContext.setAjaxWidgetMap(AjaxContextHelper.getFrameMap(ajaxContext.getRequest()));
             
             ODFormObject odEntityObject = PageCacheManager.getODFormObject(this.getUIEntityName());
             HTMLReferenceEntityType newReferObject = new HTMLReferenceEntityType(this.getId(), this.getUIEntityName());
@@ -286,8 +291,8 @@ public class RefForm extends Container implements Serializable
     	UserRequestContext orginalUserContext = UserRequestContext.UserContext.get();
         try
         {
-        	AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
-        	String frameId = AjaxActionHelper.getFrameId(ajaxContext.getRequest());
+        	AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
+        	String frameId = AjaxContextHelper.getFrameId(ajaxContext.getRequest());
         	this.setFrameInfo(frameId);
         	
             StringWriter writer = new StringWriter();
@@ -312,13 +317,12 @@ public class RefForm extends Container implements Serializable
             
             htmlContext.setFormObject(entity);
             htmlContext.setODMapperData(inputParams);
-			Map ajaxMap = AjaxActionHelper.getFrameMap(ajaxContext.getRequest());
+			Map<String, JSONObject> ajaxMap = AjaxContextHelper.getFrameMap(ajaxContext.getRequest());
 			htmlContext.setAjaxWidgetMap(ajaxMap);
 			UserRequestContext.UserContext.set(htmlContext);
             
             callODMapper(htmlContext, this.getUIEntityName());
             
-            AjaxActionHelper.updateFrameMap(ajaxContext.getRequest(), htmlContext.getPageAjaxWidgets());
             inputParams.remove(odEntityObject.getUiParamName());// cannot be serializable!
             htmlContext.setReconfigFunction(functionReconfigurationMap);
             htmlContext.setRefEntityMap(new HashMap());
@@ -340,7 +344,7 @@ public class RefForm extends Container implements Serializable
             	Map.Entry<String, Object> entry = i.next();
             	evaContext.setVariableValue(entry.getKey(), entry.getValue());
             }
-            evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+            evaContext.setVariableValue("page", AjaxContextHelper.getAjaxContext());
             ooeeContext.setDefaultEvaluationContext(evaContext);
             ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
             
@@ -353,7 +357,16 @@ public class RefForm extends Container implements Serializable
             
             PageDispatcher dispatcher = new PageDispatcher(entity, ooeeContext);
             dispatcher.forwardForm(htmlContext, 0, isReadOnly(), refEntity);
-            htmlContext.getRequest().setAttribute("_framePagePrefix",oldFrameInfo);
+            htmlContext.getRequest().setAttribute("_framePagePrefix", oldFrameInfo);
+            
+            if (logger.isDebugEnabled()) {
+                logger.debug("Created UI ajax widgets.");
+                for(Map.Entry<String, JSONObject> entry : htmlContext.getPageAjaxWidgets().entrySet())
+                {
+                    logger.debug("Ajax widget: "+ entry.getValue().toString());
+                }
+            }
+            AjaxContextHelper.updateFrameMap(ajaxContext.getRequest(), htmlContext.getPageAjaxWidgets());
             
             // append the dynamic js files.
             StringWriter jswriter = new StringWriter();
@@ -361,7 +374,7 @@ public class RefForm extends Container implements Serializable
         	UIFormObject formObject = PageCacheManager.getUIFormObject(this.getUIEntityName());
         	formObject.getJSPathSet(jsContext, Collections.emptyMap(), true);
         	String data = jswriter.getBuffer().toString();
-        	IDataItem dataItem = AjaxActionHelper.createLoadJS(getId(), data);
+        	IDataItem dataItem = AjaxContextHelper.createLoadJS(getId(), data);
             dataItem.setFrameInfo(getFrameInfo());
             ajaxContext.addDataItem(dataItem);
             htmlContext.resetCurrentFormInfo();
@@ -387,10 +400,6 @@ public class RefForm extends Container implements Serializable
         ODProcessor processor = new ODProcessor(htmlContext, odmapperName, -1);
         processor.process();
     }
-    
-    private ModalWindow window = null;
-    private CallBack callBack;
-    private List<CallBack> callBackList;
     
     /**
      * This is a very interesting API design for flying a form over the parent page.
@@ -428,10 +437,7 @@ public class RefForm extends Container implements Serializable
     }
     
     public void addWindowsClosedCallBack(CallBack caller) {
-    	if (callBackList == null) {
-    		callBackList = new ArrayList<CallBack>();
-    	}
-    	callBackList.add(caller);
+    	//TODO:
     }
     
     public void closeIfinWindows(Object... obj) {
@@ -441,13 +447,7 @@ public class RefForm extends Container implements Serializable
 			if (callBack != null) {
 				callBack.execute(obj);
 			}
-			if (callBackList != null) {
-				for (CallBack caller : callBackList) {
-					caller.execute(obj);
-				}
-			}
 			callBack = null;
-			callBackList = null;
 		}
 		
     }
@@ -459,13 +459,7 @@ public class RefForm extends Container implements Serializable
 			if (callBack != null) {
 				callBack.execute();
 			}
-			if (callBackList != null) {
-				for (CallBack caller : callBackList) {
-					caller.execute();
-				}
-			}
 			callBack = null;
-			callBackList = null;
 		}
 	}
 	
@@ -477,14 +471,8 @@ public class RefForm extends Container implements Serializable
 				if (callBack != null) {
 					callBack.execute();
 				}
-				if (callBackList != null) {
-					for (CallBack caller : callBackList) {
-						caller.execute();
-					}
-				}
 			}
 			callBack = null;
-			callBackList = null;
 		}
 		
 	}
@@ -495,45 +483,83 @@ public class RefForm extends Container implements Serializable
     
     public RefForm remove() 
     {
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         if(ajaxContext == null)
             return this;
         if(ajaxContext.existElmByAbsoluteId(getId(), getFrameInfo()))
         {
-            Map map = null;
 			try {
-				map = AjaxActionHelper.getFrameMap(ajaxContext.getRequest());
+				Map<String, JSONObject> map = AjaxContextHelper.getFrameMap(ajaxContext.getRequest());
+				Iterator<Entry<String, JSONObject>> iterator = map.entrySet().iterator();
+				while(iterator.hasNext())
+				{
+					Map.Entry<String, JSONObject> entry = iterator.next();
+					String uiid = (String) entry.getKey();
+					if(uiid.startsWith(this.getId()+"."))
+					{
+						if(logger.isDebugEnabled())
+							logger.debug("Remove component["+uiid+"] in cache of ui map.");
+						iterator.remove();
+					}
+				}
+				ajaxContext.removeElement(getId(), getFrameInfo());
+				AjaxContextHelper.updateFrameMap(ajaxContext.getRequest(), map);
+				
+				IDataItem dataItem = AjaxContextHelper.createRemoveItem("", getId());
+				dataItem.setFrameInfo(getFrameInfo());
+				ajaxContext.addDataItem(dataItem);
 			} catch (AjaxException e) {
 				logger.warn("Session maybe timeout: " + e.getMessage(), e);
 				return this;
 			}
-            Iterator iterator = map.entrySet().iterator();
-            while(iterator.hasNext())
-            {
-                Map.Entry entry = (Map.Entry)iterator.next();
-                String uiid = (String) entry.getKey();
-                if(uiid.startsWith(this.getId()+"."))
-                {
-                    if(logger.isDebugEnabled())
-                        logger.debug("Remove component["+uiid+"] in cache of ui map.");
-                    iterator.remove();
-                }
-            }
-    
-            String parentID = null;
-            if ( getHtmlLayout() != null )
-            {
-                getHtmlLayout().remove();
-                if ( getHtmlLayout().parent != null )
-                {
-                    parentID = getHtmlLayout().parent.getId();
-                }
-            }
-            IDataItem dataItem = AjaxActionHelper.createRemoveItem(parentID, getId());
-            dataItem.setFrameInfo(getFrameInfo());
-            ajaxContext.addDataItem(dataItem);
-            ajaxContext.removeElement(getId(),getFrameInfo());
         }
         return this;
     }
+    
+    public JSONObject toJSON() throws JSONException {
+    	JSONObject json = super.toJSON();
+    	if (this.copy != null) {
+    		json.put("refid", this.copy.getUIID());
+    		json.put("refcopy", this.copy.getType());
+    	} else {
+    		json.put("refid", this.getId());
+    		json.put("refcopy", this.getUIEntityName());
+    	}
+    	if (this.inputParams != null) {
+    		JSONObject inputValues = VariableUtil.convertVarToJson((HashMap)this.inputParams);
+    		inputValues.remove("UIEntity");
+    		json.put("inputParams", inputValues);
+    	}
+    	if (this.window != null) {
+    		json.put("hasWindow", 1);
+    	}
+    	if (this.callBack != null) {
+    		json.put("cbclass", callBack.getClass().getName());
+    		json.put("callBack", callBack.toJSON());
+		}
+    	return json;
+    }
+    
+    public void fromJSON(JSONObject json) throws Exception {
+    	super.fromJSON(json);
+    	this.setUIEntityName(json.getString("entity"));
+    	this.copy = new HTMLReferenceEntityType(json.getString("refid"), json.getString("refcopy"));
+    	if (json.has("inputParams")) {
+    		this.inputParams = VariableUtil.convertJsonToVar(json.getJSONObject("inputParams"));
+    	}
+    	if (json.has("hasWindow")) {
+    		this.window = new ModalWindow(this.getUiid() + "-Dialog", "", this);
+    		this.window.setId(this.getUiid() + "-Dialog");//bug fix.
+			if (json.has("callBack")) {
+				callBack = (CallBack)Class.forName(json.getString("cbclass")).newInstance();
+				callBack.fromJSON(json.getJSONObject("callBack"));
+			}
+		}
+    }
+    
+    public static HTMLReferenceEntityType getCopyType(final JSONObject json) throws JSONException {
+    	HTMLReferenceEntityType copy = new HTMLReferenceEntityType(json.getString("refid"), json.getString("refcopy"));
+    	return copy;
+    }
+    
 }

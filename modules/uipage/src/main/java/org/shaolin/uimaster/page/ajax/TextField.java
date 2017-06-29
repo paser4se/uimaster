@@ -15,7 +15,7 @@
 */
 package org.shaolin.uimaster.page.ajax;
 
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
@@ -28,14 +28,14 @@ public class TextField extends TextWidget implements java.io.Serializable
 
     public TextField(String uiid)
     {
-        this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
+        this(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
         this._setWidgetLabel(uiid);
         this.setListened(true);
     }
     
     public TextField(String uiid, String value)
     {
-        super(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, value, new CellLayout());
+        super(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, value, new CellLayout());
         this._setWidgetLabel(uiid);
         this.setListened(true);
     }

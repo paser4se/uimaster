@@ -17,9 +17,10 @@ import org.shaolin.bmdp.datamodel.page.UILayoutType;
 import org.shaolin.bmdp.datamodel.page.UIPanelType;
 import org.shaolin.bmdp.datamodel.page.UIReferenceEntityType;
 import org.shaolin.bmdp.datamodel.page.UITabPaneType;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.UserRequestContext;
-import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.exception.UIComponentNotFoundException;
 import org.shaolin.uimaster.page.widgets.HTMLLayoutType;
@@ -291,7 +292,7 @@ public abstract class HTMLLayout
 		}
     }
 
-    public void generateHidden(UserRequestContext context, int depth, HTMLLayoutType htmlLayout) throws UIComponentNotFoundException
+    public void generateHidden(UserRequestContext context, int depth, HTMLLayoutType htmlLayout) throws UIComponentNotFoundException, JSONException
     {
 		if (hiddenList == null) {
 			return;
@@ -309,9 +310,9 @@ public abstract class HTMLLayout
             {
                 String hiddenID = (String)hiddenList.get(i);
                 HTMLWidgetType htmlComponent = context.getHtmlWidget(context.getHTMLPrefix() + hiddenID);
-                Widget newWidget = htmlComponent.createAjaxWidget(null);
+                JSONObject newWidget = htmlComponent.createJsonModel(null);
 				if (newWidget != null) {
-					context.addAjaxWidget(newWidget.getId(), newWidget);
+					context.addAjaxWidget(htmlComponent.getName(), newWidget);
 				}
 				HTMLUtil.generateTab(context, depth);
             	htmlComponent.generateBeginHTML(context, this.entity, depth);

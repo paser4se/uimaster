@@ -15,6 +15,8 @@
 */
 package org.shaolin.uimaster.page.widgets;
 
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
@@ -94,12 +96,12 @@ public class HTMLMapType extends HTMLWidgetType
     }
     
     @Override
-    public Widget createAjaxWidget(VariableEvaluator ee)
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
     	Map matrix = new Map(getName(), Layout.NULL);
     	matrix.setUIEntityName(getUIEntityName());
     	matrix.setListened(true);
-		return matrix;
+		return super.createJsonModel(ee);
     }
 
 }

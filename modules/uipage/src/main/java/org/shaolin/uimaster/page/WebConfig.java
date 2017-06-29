@@ -314,9 +314,8 @@ public class WebConfig {
 
 	public static String getUserLocale(HttpServletRequest request) {
 		// read from session
-		HttpSession session = request.getSession(true);
-		String locale = (String) session
-				.getAttribute(WebflowConstants.USER_LOCALE_KEY);
+		HttpSession session = request.getSession();
+		String locale = (String) session.getAttribute(WebflowConstants.USER_LOCALE_KEY);
 		if (locale != null) {
 			return locale;
 		}

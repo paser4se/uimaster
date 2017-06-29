@@ -30,19 +30,19 @@ import org.shaolin.bmdp.datamodel.page.SimpleComponentMappingType;
 import org.shaolin.bmdp.datamodel.page.UIComponentParamType;
 import org.shaolin.bmdp.exceptions.I18NRuntimeException;
 import org.shaolin.bmdp.i18n.ExceptionConstants;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.RefForm;
 import org.shaolin.uimaster.page.cache.ODFormObject;
 import org.shaolin.uimaster.page.cache.ODObject;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
-import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.exception.ODException;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
@@ -369,13 +369,13 @@ public class SimpleComponentMapping extends ComponentMapping {
 			long start = System.currentTimeMillis();
 			if (!odContext.isDataToUI()) {
 				String uiid = odMapperData.get(IODMappingConverter.UI_WIDGET_ID).toString();
-				RefForm refEntity = null;
+				JSONObject json = null;
 				try {
-					refEntity = (RefForm)AjaxActionHelper.getCachedAjaxWidget(uiid, htmlContext);
-				} catch (AjaxException e) {
+					json = AjaxContextHelper.getCachedAjaxWidget(uiid, htmlContext);
+					odMapperData.put(uiDataParam.getParamName(), RefForm.getCopyType(json));
+				} catch (Exception e) {
 					throw new ODException("Failed to get UIform: " + e.getMessage(), e);
 				}
-				odMapperData.put(uiDataParam.getParamName(), refEntity.getCopy());
 			}
 			ODProcessor processor = new ODProcessor(htmlContext, odmapperName, odContext.getDeepLevel());
 			ODEntityContext result = processor.process();

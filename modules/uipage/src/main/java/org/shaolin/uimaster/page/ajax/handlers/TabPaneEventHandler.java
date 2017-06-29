@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.ajax.TabPane;
 
@@ -36,16 +36,16 @@ public class TabPaneEventHandler implements IAjaxHandler {
 
 	public String trigger(AjaxContext context) throws AjaxHandlerException {
 		try {
-			AjaxActionHelper.createAjaxContext(context);
+			AjaxContextHelper.createAjaxContext(context);
 			String propertyName = context.getRequest().getParameter(
 					"_valueName");
 			String index = context.getRequest().getParameter("_value");
 			if ("removePage".equals(propertyName)) {
-				AjaxActionHelper.getAjaxContext().removeFramePage(index);
+				AjaxContextHelper.getAjaxContext().removeFramePage(index);
 				return "";
 			} else if ("removeExcludedPage".equals(propertyName)) {
 				boolean isRoot = index.equals(AjaxContext.GLOBAL_PAGE);
-				List<String> list = AjaxActionHelper.getAllCachedPages(context.getRequest().getSession());
+				List<String> list = AjaxContextHelper.getAllCachedPages(context.getRequest().getSession());
 				if (list == null) {
 					return "";
 				}
@@ -55,7 +55,7 @@ public class TabPaneEventHandler implements IAjaxHandler {
 						continue;
 					}
 					if (!page.equals(index)) {
-						AjaxActionHelper.getAjaxContext().removeFramePage(page);
+						AjaxContextHelper.getAjaxContext().removeFramePage(page);
 					}
 				}
 				return "";
@@ -74,11 +74,11 @@ public class TabPaneEventHandler implements IAjaxHandler {
 				comp.syncSelectedAction(context);
 			}
 			
-			return AjaxActionHelper.getAjaxContext().getDataAsJSON();
+			return AjaxContextHelper.getAjaxContext().getDataAsJSON();
 		} catch (Exception e) {
 			throw new AjaxHandlerException("Error", e);
 		} finally {
-			AjaxActionHelper.removeAjaxContext();
+			AjaxContextHelper.removeAjaxContext();
 		}
 	}
 }

@@ -16,13 +16,19 @@
 package org.shaolin.uimaster.page.ajax;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.shaolin.bmdp.datamodel.page.OpCallAjaxType;
 import org.shaolin.bmdp.datamodel.page.OpType;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.ajax.handlers.EventHandler;
+import org.shaolin.uimaster.page.ajax.json.IRequestData;
+import org.shaolin.uimaster.page.ajax.json.RequestData;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.cache.UIPageObject;
@@ -38,17 +44,24 @@ public class FunctionCallBack implements CallBack {
 	
 	private static final long serialVersionUID = -4745513005742512534L;
 
-	private AjaxContext context;
+	private String functionName;
 	
-	private final String functionName;
+	private String uientity;
 	
-	public FunctionCallBack(AjaxContext context, String functionName) {
-		this.context = context;
+	private String uiid;
+	
+	private String frameId;
+	
+	public FunctionCallBack() {} //for serialization.
+	
+	public FunctionCallBack(final AjaxContext context, final String functionName) {
 		this.functionName = functionName;
+		this.uientity = context.getEntityName();
+		this.uiid = context.getEntityUiid();
+		this.frameId = context.getFrameId();
 	}
 	
 	public void execute(Object... objects) {
-		String uientity = context.getEntityName();
 		try {
 			List<OpType> ops = null;
 			if (PageCacheManager.isUIPage(uientity)) {
@@ -62,6 +75,17 @@ public class FunctionCallBack implements CallBack {
 				log.warn("The action name " + functionName + " can't be found from current page: " + uientity);
 				return;
 			}
+			
+			Map<String, JSONObject> uiMap = AjaxContextHelper.getFrameMap(AjaxContextHelper.getAjaxContext().getRequest());
+            IRequestData requestData = new RequestData();
+            requestData.setEntityName(uientity);
+            requestData.setFrameId(frameId);
+            requestData.setEntityUiid(uiid);
+            requestData.setUiid(uiid);
+            AjaxContext context = new AjaxContext(uiMap, requestData);
+            context.initData();
+            context.setRequest(AjaxContextHelper.getAjaxContext().getRequest(), null);
+            
 			for (OpType op : ops) {
 				if (op instanceof OpCallAjaxType) {
 					OpCallAjaxType callAjaxOp = (OpCallAjaxType) op;
@@ -74,9 +98,25 @@ public class FunctionCallBack implements CallBack {
 					break;
 				}
 			}
+			
+			AjaxContextHelper.getAjaxContext().importAnother(context);
 		} catch (Exception e) {
 			log.warn("The action name " + functionName + " can't be found from current page: " + uientity, e);
 		}
-		context = null;// must release manually!
+	}
+	
+	public JSONObject toJSON() throws JSONException {
+		JSONObject json = new JSONObject();
+		json.put("uientity", uientity);
+		json.put("fname", this.functionName);
+		json.put("uiid", this.uiid);
+		json.put("frameId", this.frameId);
+		
+		return json;
+	}
+	
+	public void fromJSON(JSONObject json) throws JSONException {
+		this.uientity = json.getString("uientity");
+		this.functionName = json.getString("fname");
 	}
 }

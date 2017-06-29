@@ -23,8 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
@@ -34,6 +33,7 @@ import org.shaolin.bmdp.datamodel.page.UITableStatsType;
 import org.shaolin.bmdp.json.JSONArray;
 import org.shaolin.bmdp.json.JSONException;
 import org.shaolin.bmdp.json.JSONObject;
+import org.shaolin.bmdp.persistence.BEEntityDaoObject;
 import org.shaolin.bmdp.runtime.be.IBusinessEntity;
 import org.shaolin.bmdp.runtime.be.IPersistentEntity;
 import org.shaolin.bmdp.runtime.security.UserContext;
@@ -44,11 +44,13 @@ import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
-import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
+import org.shaolin.uimaster.page.cache.PageCacheManager;
+import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.report.ImportTableToExcel;
@@ -65,6 +67,8 @@ public class Table extends Widget<Table> implements Serializable {
 
 	private transient List<Object> listData;
 
+	private Class persistObjectClass; //the persistent type of current row set.
+	
 	private boolean isAppendRowMode;
 	
 	private boolean isEditableCell;
@@ -99,10 +103,6 @@ public class Table extends Widget<Table> implements Serializable {
 	private UITableSelectModeType selectMode;
 	
 	private UITableStatsType stats;
-
-	public Table(String tableId, HttpServletRequest request) {
-		super(tableId, null);
-	}
 
 	public Table(String id, Layout layout) {
 		super(id, layout);
@@ -188,18 +188,50 @@ public class Table extends Widget<Table> implements Serializable {
 		}
 		List<Object> selectedRows = new ArrayList<Object>();
 		for (int i : conditions.getSelectedIndex()) {
-			selectedRows.add(listData.get(i));
+			Object v = listData.get(i);
+			if (persistObjectClass != null && v.getClass() != persistObjectClass) {
+				v = BEEntityDaoObject.DAOOBJECT.get(Long.valueOf(v.toString()), persistObjectClass);
+			}
+			selectedRows.add(v);
 		}
 		return selectedRows;
 	}
 	
+	public static List<Object> getSelectedRows(JSONObject json) throws Exception {
+		if (!json.has("conditions")) {
+			return Collections.emptyList();
+		}
+		TableConditions conditions = TableConditions.fromJson(json.getJSONObject("conditions"));
+		List<Object> listData = json.getJSONArray("allRows").toList();
+		if (conditions.getSelectedIndex() == null 
+				|| conditions.getSelectedIndex().length == 0) {
+			return Collections.emptyList();
+		}
+		Class persistObjectClass = Class.forName(json.getString("persistType"));
+		List<Object> selectedRows = new ArrayList<Object>();
+		for (int i : conditions.getSelectedIndex()) {
+			Object v = listData.get(i);
+			if (persistObjectClass != null && v.getClass() != persistObjectClass) {
+				v = BEEntityDaoObject.DAOOBJECT.get(Long.valueOf(v.toString()), persistObjectClass);
+			}
+			selectedRows.add(v);
+		}
+		return selectedRows;
+	}
+	
+	
+	@SuppressWarnings("unchecked")
 	public Object getSelectedRow() {
 		if (conditions.getCurrentSelectedIndex() < 0 
 				|| conditions.getCurrentSelectedIndex() > listData.size()) {
 			return null;
 		}
 		if (!listData.isEmpty()) {
-			return listData.get(conditions.getCurrentSelectedIndex());
+			Object v = listData.get(conditions.getCurrentSelectedIndex());
+			if (persistObjectClass != null && v.getClass() != persistObjectClass) {
+				return BEEntityDaoObject.DAOOBJECT.get(Long.valueOf(v.toString()), persistObjectClass);
+			}
+			return v;
 		} 
 		return null;
 	}
@@ -380,7 +412,7 @@ public class Table extends Widget<Table> implements Serializable {
 	public Table addRow(Object object, boolean needUpdate) {
 		this.listData.add(object);
 		if (needUpdate) {
-			IDataItem dataItem = AjaxActionHelper.createDataItem();
+			IDataItem dataItem = AjaxContextHelper.createDataItem();
 			dataItem.setUiid(this.getId());
 			dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
 			if (this.isSliderMode()) {
@@ -390,7 +422,7 @@ public class Table extends Widget<Table> implements Serializable {
 			}
 			dataItem.setFrameInfo(this.getFrameInfo());
 
-			AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+			AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
 			ajaxContext.addDataItem(dataItem);
 		}
 		return this;
@@ -402,7 +434,7 @@ public class Table extends Widget<Table> implements Serializable {
 		}
 		Object obj = this.listData.remove(index);
 		
-		IDataItem dataItem = AjaxActionHelper.createDataItem();
+		IDataItem dataItem = AjaxContextHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
 		if (this.isSliderMode()) {
@@ -412,7 +444,7 @@ public class Table extends Widget<Table> implements Serializable {
 		}
 		dataItem.setFrameInfo(this.getFrameInfo());
 
-		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+		AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
 		ajaxContext.addDataItem(dataItem);
 		
 		return obj;
@@ -432,12 +464,12 @@ public class Table extends Widget<Table> implements Serializable {
 		if (this.isSliderMode()) {
 			conditions.setPullAction("filter");
 		}
-		IDataItem dataItem = AjaxActionHelper.createDataItem();
+		IDataItem dataItem = AjaxContextHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
 		dataItem.setData(this.refresh0());
 		dataItem.setFrameInfo(this.getFrameInfo());
-        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
         return this;
 	}
 	
@@ -447,7 +479,7 @@ public class Table extends Widget<Table> implements Serializable {
 	 * @param rows
 	 */
 	public Table refresh(List rows) {
-		IDataItem dataItem = AjaxActionHelper.createDataItem();
+		IDataItem dataItem = AjaxContextHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.TABLE_UPDATE);
 		if (this.isSliderMode()) {
@@ -456,7 +488,7 @@ public class Table extends Widget<Table> implements Serializable {
 			dataItem.setData(this.refreshTable0(rows));
 		}
 		dataItem.setFrameInfo(this.getFrameInfo());
-        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
         return this;
 	}
 	
@@ -492,9 +524,9 @@ public class Table extends Widget<Table> implements Serializable {
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
 			evaContext.setVariableValue("tableCondition", conditions);
-			evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+			evaContext.setVariableValue("page", AjaxContextHelper.getAjaxContext());
 			evaContext.setVariableValue("table", this);
-			evaContext.setVariableValue("formId", AjaxActionHelper.getAjaxContext().getEntityPrefix());
+			evaContext.setVariableValue("formId", AjaxContextHelper.getAjaxContext().getEntityPrefix());
 			ooeeContext.setDefaultEvaluationContext(evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.GLOBAL_TAG, evaContext);
@@ -533,9 +565,9 @@ public class Table extends Widget<Table> implements Serializable {
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
 			evaContext.setVariableValue("tableCondition", conditions);
-			evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+			evaContext.setVariableValue("page", AjaxContextHelper.getAjaxContext());
 			evaContext.setVariableValue("table", this);
-			evaContext.setVariableValue("formId", AjaxActionHelper.getAjaxContext().getEntityPrefix());
+			evaContext.setVariableValue("formId", AjaxContextHelper.getAjaxContext().getEntityPrefix());
 			ooeeContext.setDefaultEvaluationContext(evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.GLOBAL_TAG, evaContext);
@@ -578,7 +610,7 @@ public class Table extends Widget<Table> implements Serializable {
 							value = "";
 						}
 		        		value = HTMLImageType.generateSimple(
-		        				AjaxActionHelper.getAjaxContext().getRequest(), value.toString(), 100, 100);
+		        				AjaxContextHelper.getAjaxContext().getRequest(), value.toString(), 100, 100);
 		        		imageSB.append(value);
 		        		imageSB.append("</div>");
         			} else if ("HTML".equalsIgnoreCase(col.getUiType().getType())
@@ -639,7 +671,7 @@ public class Table extends Widget<Table> implements Serializable {
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
 			evaContext.setVariableValue("tableCondition", conditions);
-			evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+			evaContext.setVariableValue("page", AjaxContextHelper.getAjaxContext());
 			evaContext.setVariableValue("table", this);
 			ooeeContext.setDefaultEvaluationContext(evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
@@ -690,7 +722,7 @@ public class Table extends Widget<Table> implements Serializable {
 	        		sb.append("\"");
 	        		if ("Image".equalsIgnoreCase(col.getUiType().getType())) {
     					sb.append(StringUtil.escapeHtmlToBytes(HTMLImageType.generateSimple(
-    							AjaxActionHelper.getAjaxContext().getRequest(), value.toString(), 60, 60)));
+    							AjaxContextHelper.getAjaxContext().getRequest(), value.toString(), 60, 60)));
 	        		} else {
 	        			sb.append(StringUtil.escapeHtmlToBytes(value.toString()));
 	        		}
@@ -722,7 +754,7 @@ public class Table extends Widget<Table> implements Serializable {
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
 			evaContext.setVariableValue("tableCondition", conditions);
-			evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+			evaContext.setVariableValue("page", AjaxContextHelper.getAjaxContext());
 			evaContext.setVariableValue("table", this);
 			ooeeContext.setDefaultEvaluationContext(evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
@@ -780,7 +812,7 @@ public class Table extends Widget<Table> implements Serializable {
 				HashMap<String, Object> input = new HashMap<String, Object>();
 				input.put("data", data);
 	            RefForm form = new RefForm("statsChartFrom", this.stats.getUiFrom(), input);
-	            AjaxActionHelper.getAjaxContext().addElement(form);
+	            AjaxContextHelper.getAjaxContext().addElement(form);
 	            
 	            form.openInWindows("Chart Analysis Report", null, 690, 400);
 			} catch (Exception e) {
@@ -790,21 +822,122 @@ public class Table extends Widget<Table> implements Serializable {
 	}
 	
 	public void show() {
-		IDataItem dataItem = AjaxActionHelper.createDataItem();
+		IDataItem dataItem = AjaxContextHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.JAVASCRIPT);
 		dataItem.setJs("{ $($(elementList['"+this.getId()+"']).parent().parent().parent()).css(\"display\",\"block\");}");
 		dataItem.setFrameInfo(this.getFrameInfo());
-        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
 	}
 	
 	public void hide() {
-		IDataItem dataItem = AjaxActionHelper.createDataItem();
+		IDataItem dataItem = AjaxContextHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.JAVASCRIPT);
 		dataItem.setJs("{ $($(elementList['"+this.getId()+"']).parent().parent().parent()).css(\"display\",\"none\");}");
 		dataItem.setFrameInfo(this.getFrameInfo());
-        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
+	}
+	
+	public JSONObject toSelfJSON(final JSONObject json) throws JSONException {
+		json.put("conditions", conditions.toJson());
+		if (isAppendRowMode) {
+			json.put("isAppendRowMode", isAppendRowMode);
+		}
+		if (isEditableCell) {
+			json.put("isEditableCell", isAppendRowMode);
+		}
+		if (isSliderMode) {
+			json.put("isSliderMode", isAppendRowMode);
+		}
+		if (disableRefreshClear) {
+			json.put("disableRefreshClear", isAppendRowMode);
+		}
+		boolean isPersistentEntity = false;
+		List<Object> rows = this.getListData();
+		List<Object> persistRows = new ArrayList<Object>(rows.size());
+		for (Object obj : rows) {
+			if (obj instanceof IPersistentEntity) {
+				isPersistentEntity = true;
+				persistRows.add(((IPersistentEntity)obj).getId());
+			} else {
+				persistRows.add(obj);
+			}
+		}
+		json.put("allRows", new JSONArray(persistRows));
+		if (isPersistentEntity) {
+			json.put("persistType", rows.get(0).getClass().getName());
+		}
+		if (json.has("attrMap") && json.getJSONObject("attrMap").has("query")) {
+			json.getJSONObject("attrMap").remove("query");
+			json.getJSONObject("attrMap").remove("totalCount");
+		}
+		return json;
+	}
+	
+	public JSONObject toJSON() throws JSONException {
+		JSONObject json = super.toJSON();
+		json.put("conditions", conditions.toJson());
+		if (isAppendRowMode) {
+			json.put("isAppendRowMode", isAppendRowMode);
+		}
+		if (isEditableCell) {
+			json.put("isEditableCell", isAppendRowMode);
+		}
+		if (isSliderMode) {
+			json.put("isSliderMode", isAppendRowMode);
+		}
+		if (disableRefreshClear) {
+			json.put("disableRefreshClear", isAppendRowMode);
+		}
+		List<Object> rows = this.getListData();
+		List<Object> persistRows = new ArrayList<Object>(rows.size());
+		for (Object obj : rows) {
+			if (obj instanceof IPersistentEntity) {
+				persistRows.add(((IPersistentEntity)obj).getId());
+			} else {
+				persistRows.add(obj);
+			}
+		}
+		json.put("allRows", new JSONArray(persistRows));
+		if (this.persistObjectClass != null) {
+			json.put("persistType", this.persistObjectClass.getName());
+		}
+		if (json.has("attrMap") && json.getJSONObject("attrMap").has("query")) {
+			json.getJSONObject("attrMap").remove("query");
+			json.getJSONObject("attrMap").remove("totalCount");
+		}
+		return json;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void fromJSON(JSONObject json) throws Exception {
+		super.fromJSON(json);
+		String entityName = json.getString("entity");
+		UIFormObject formObject = PageCacheManager.getUIForm(entityName);
+		Map<String, Object> attributes = formObject.getComponentProperty(this.getId(), true);
+		this.queryExpr = (ExpressionType)attributes.get("queryExpr");
+		this.columns = (List<UITableColumnType>)attributes.get("columns");
+		this.selectMode = (UITableSelectModeType)attributes.get("selectMode");
+		this.stats = (UITableStatsType)attributes.get("statistic");
+		
+		this.conditions = TableConditions.fromJson(json.getJSONObject("conditions"));
+		this.listData = json.getJSONArray("allRows").toList();
+		if (json.has("persistType")) {
+			persistObjectClass = Class.forName(json.getString("persistType"));
+    	}
+		if (json.has("json")) {
+    		this.isAppendRowMode = true;
+    	}
+		if (json.has("isEditableCell")) {
+    		this.isEditableCell = true;
+    	}
+		if (json.has("isSliderMode")) {
+    		this.isSliderMode = true;
+    	}
+		if (json.has("disableRefreshClear")) {
+    		this.disableRefreshClear = true;
+    	}
 	}
 
 }

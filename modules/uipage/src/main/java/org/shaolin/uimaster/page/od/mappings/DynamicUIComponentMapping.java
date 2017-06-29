@@ -27,7 +27,7 @@ import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.ajax.Panel;
 import org.shaolin.uimaster.page.cache.ODObject;
 import org.shaolin.uimaster.page.exception.ODException;
@@ -130,7 +130,7 @@ public class DynamicUIComponentMapping extends ComponentMapping {
 		uiToDataExpreContext.setDefaultEvaluationContext(odContext.getEvaluationContextObject(ODContext.LOCAL_TAG));
 		
 		String uiid = odContext.getUiEntity().getName() + '.' + this.type.getUIComponent().getComponentPath();
-		Panel ajaxPanel = AjaxActionHelper.getAjaxContext().getPanel(uiid);
+		Panel ajaxPanel = AjaxContextHelper.getAjaxContext().getPanel(uiid);
 		String data = ajaxPanel.retriveData();
 		odContext.getHtmlContext().getODMapperData().put(JSON_VALUE, data);
 		try {

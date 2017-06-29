@@ -24,13 +24,15 @@ import java.util.Map;
 import javax.servlet.jsp.JspException;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
-import org.shaolin.bmdp.datamodel.page.UITabPaneItemType;
+import org.shaolin.bmdp.json.JSONException;
 import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.javacc.exception.EvaluationException;
-import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
+import org.shaolin.uimaster.page.cache.PageCacheManager;
+import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +75,7 @@ public class PreNextPanel extends Container implements Serializable
     
     public PreNextPanel(String id, Layout layout)
     {
-        super(AjaxActionHelper.getAjaxContext().getEntityPrefix() +id, layout);
+        super(AjaxContextHelper.getAjaxContext().getEntityPrefix() +id, layout);
         this.setListened(true);
         this.uiid = this.getId();
     }
@@ -98,7 +100,7 @@ public class PreNextPanel extends Container implements Serializable
      * @param selectedIndex
      * @param layout
      */
-    public PreNextPanel(String id, List<UITabPaneItemType> tabs, int selectedIndex, Layout layout)
+    public PreNextPanel(String id, int selectedIndex, Layout layout)
     {
         super(id, layout);
         this.setListened(true);
@@ -249,14 +251,14 @@ public class PreNextPanel extends Container implements Serializable
         data.put("index",String.valueOf(index));
         data.put("title",title);
         
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         IDataItem dataItem = createData((new JSONObject(data)).toString());
         ajaxContext.addDataItem(dataItem);
     }
     
     private IDataItem createData(String data) 
     {
-        IDataItem dataItem = AjaxActionHelper.createDataItem();
+        IDataItem dataItem = AjaxContextHelper.createDataItem();
         dataItem.setUiid(uiid);
         dataItem.setJsHandler(HANDLERNAME);
         dataItem.setData(data);
@@ -353,4 +355,22 @@ public class PreNextPanel extends Container implements Serializable
         return false;
     }
 
+    public JSONObject toJSON() throws JSONException {
+		JSONObject json = super.toJSON();
+		json.put("selectedIndex", selectedIndex);
+		return json;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void fromJSON(JSONObject json) throws Exception {
+		super.fromJSON(json);
+		String entityName = json.getString("entity");
+		UIFormObject formObject = PageCacheManager.getUIForm(entityName);
+		Map<String, Object> attributes = formObject.getComponentProperty(this.getId(), true);
+		this.previousAction = (ExpressionType)attributes.get("previousAction");
+		this.nextAction = (ExpressionType)attributes.get("nextAction");
+		this.uiid = this.getId();
+		this.selectedIndex = json.getInt("selectedIndex");
+		//createdRefEntities
+	}
 }

@@ -17,7 +17,7 @@ package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
 
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
@@ -30,7 +30,7 @@ public class Link extends Label implements Serializable
 
     public Link(String uiid)
     {
-        this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
+        this(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
         this.setListened(true);
     }
     

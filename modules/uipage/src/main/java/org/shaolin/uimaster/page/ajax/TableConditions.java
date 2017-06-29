@@ -19,8 +19,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.hibernate.criterion.Order;
+import org.shaolin.bmdp.json.JSONArray;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.be.IBusinessEntity;
+import org.shaolin.bmdp.utils.StringUtil;
 
 public class TableConditions implements Serializable {
 
@@ -120,6 +125,10 @@ public class TableConditions implements Serializable {
 		return condition;
 	}
 
+	public IBusinessEntity getBECondition() {
+		return condition;
+	}
+	
 	public void setBECondition(IBusinessEntity condition) {
 		this.condition = condition;
 	}
@@ -154,6 +163,71 @@ public class TableConditions implements Serializable {
 
 	public void setPullId(long pullId) {
 		this.pullId = pullId;
+	}
+	
+	public JSONObject toJson() throws JSONException {
+		JSONObject json = new JSONObject();
+		json.put("condition", condition.toJSON());
+		json.put("condiType", condition.getClass().getName());
+		
+		json.put("currentSelectedIndex", this.currentSelectedIndex);
+		json.put("offset", this.offset);
+		json.put("count", this.count);
+		json.put("pullAction", this.pullAction);
+		json.put("pullId", this.pullId);
+		if (this.orders != null && this.orders.size() > 0) {
+			JSONArray ors = new JSONArray();
+			for (Order o : this.orders) {
+				JSONObject item = new JSONObject();
+				item.put("name", o.getPropertyName());
+				item.put("o", o.isAscending());
+				ors.put(item);
+			}
+			json.put("orders", ors);
+		}
+		if (this.selectedIndexs != null && this.selectedIndexs.length > 0) {
+			
+		}
+		return json;
+	}
+	
+	public static TableConditions fromJson(JSONObject json) throws JSONException {
+		TableConditions condition = TableConditions.createCondition();
+		try {
+			IBusinessEntity beObject = (IBusinessEntity)Class.forName(json.getString("condiType")).newInstance();
+			beObject.fromJSON(json.getJSONObject("condition"));
+			condition.setBECondition(beObject);
+		} catch (Exception e) {
+			Logger.getLogger(TableConditions.class).warn(e);
+		} 
+		condition.setCount(json.getInt("count"));
+		condition.setCurrentSelectedIndex(json.getInt("currentSelectedIndex"));
+		condition.setOffset(json.getInt("offset"));
+		condition.setPullAction(json.getString("pullAction"));
+		condition.setPullId(json.getLong("pullId"));
+		if (json.has("orders")) {
+			JSONArray items = json.getJSONArray("orders");
+			List<Order> orders = new ArrayList<Order>();
+			for (int i=0; i<items.length(); i++) {
+				String propertyName = items.getJSONObject(i).getString("name");
+				if (items.getJSONObject(i).getBoolean("o")) {
+					orders.add(Order.asc(propertyName));
+				} else {
+					orders.add(Order.desc(propertyName));
+				}
+			}
+			condition.setOrders(orders);
+		}
+		if (json.has("selectedIndex")) {
+			String v = json.getString("selectedIndex");
+			if (v != null) {
+				List<Integer> t = StringUtil.splitAsInt(v, ",");
+				Integer[] indices = new Integer[t.size()];
+				t.toArray(indices);
+				condition.setSelectedIndex(indices);
+			}
+		}
+		return condition;
 	}
 
 }

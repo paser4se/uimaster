@@ -70,7 +70,7 @@ public class PageCacheManager {
 		webServiceCache = CacheManager.getInstance().getCache(WEB_SERVICE_CACHE, String.class,
 				Map.class);
 	}
-
+	
 	public static void addWebService(WebService webService) throws ParsingException {
 		if (!webServiceCache.containsKey(webService.getEntityName())) {
 			webServiceCache.put(webService.getEntityName(), new HashMap());
@@ -154,6 +154,23 @@ public class PageCacheManager {
 	
 	public static boolean isUIPage(String entityName) {
 		return uipageCache.containsKey(entityName);
+	}
+	
+	public static Object getUICacheAttribute(String entityName, String uiid, String attrName) 
+			throws EntityNotFoundException, UIPageException {
+		if (isUIPage(entityName)) {
+			return getUIPageObject(entityName).getUIForm().getComponentProperty(uiid, true).get(attrName);
+		} else {
+			return getUIFormObject(entityName).getComponentProperty(uiid, true).get(attrName);
+		}
+	}
+	
+	public static UIFormObject getUIForm(String entityName) throws EntityNotFoundException, UIPageException {
+		if (isUIPage(entityName)) {
+			return getUIPageObject(entityName).getUIForm();
+		} else {
+			return getUIFormObject(entityName);
+		}
 	}
 	
 	public static void removeUIPageCache(String pageName) {

@@ -135,6 +135,12 @@ import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The cache object of a form.
+ * 
+ * @author wushaol
+ *
+ */
 public class UIFormObject implements java.io.Serializable
 {
 	private static transient Logger logger = LoggerFactory.getLogger(UIFormObject.class);
@@ -1846,6 +1852,18 @@ public class UIFormObject implements java.io.Serializable
     public Map<String, Object> getComponentProperty(String componentID)
     {
         return attributesMap.get(componentID);
+    }
+    
+    public Map<String, Object> getComponentProperty(String componentID, boolean needException)
+    {
+    	if (attributesMap.containsKey(componentID)) {
+    		return attributesMap.get(componentID);
+    	} else {
+    		if (needException) {
+    			throw new IllegalArgumentException(componentID + " ui-widget does not exist!");
+    		}
+    		return null;
+    	}
     }
     
     public Map<String, HTMLWidgetType> getComponents() {

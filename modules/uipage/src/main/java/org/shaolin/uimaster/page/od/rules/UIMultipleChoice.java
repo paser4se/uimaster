@@ -20,17 +20,18 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.UserRequestContext;
-import org.shaolin.uimaster.page.ajax.MultiChoice;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.od.IODMappingConverter;
 import org.shaolin.uimaster.page.widgets.HTMLMultiChoiceType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UIMultipleChoice implements IODMappingConverter {
 	private HTMLMultiChoiceType uiMultipleChoice;
 	private String uiid;
-	private List<String> value;
+	private List<String> values;
 	private List<String> optionValues;
 	private List<String> optionDisplayValues;
 
@@ -55,11 +56,11 @@ public class UIMultipleChoice implements IODMappingConverter {
 	}
 
 	public List<String> getValue() {
-		return this.value;
+		return this.values;
 	}
 
 	public void setValue(List<String> Value) {
-		this.value = Value;
+		this.values = Value;
 	}
 
 	public List<String> getOptionValues() {
@@ -125,7 +126,7 @@ public class UIMultipleChoice implements IODMappingConverter {
 				this.uiid = (String) paramValue.get(UI_WIDGET_ID);
 			}
 			if (paramValue.containsKey("Value")) {
-				this.value = ((List) paramValue.get("Value"));
+				this.values = ((List) paramValue.get("Value"));
 			}
 			if (paramValue.containsKey("OptionValues")) {
 				this.optionValues = ((List) paramValue.get("OptionValues"));
@@ -147,7 +148,7 @@ public class UIMultipleChoice implements IODMappingConverter {
 		Map<String, Object> paramValue = new HashMap<String, Object>();
 		try {
 			paramValue.put(UI_WIDGET_TYPE, this.uiMultipleChoice);
-			paramValue.put("Value", this.value);
+			paramValue.put("Value", this.values);
 			paramValue.put("OptionValues", this.optionValues);
 			paramValue.put("OptionDisplayValues", this.optionDisplayValues);
 		} catch (Throwable t) {
@@ -167,7 +168,7 @@ public class UIMultipleChoice implements IODMappingConverter {
 
 	public void pushDataToWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
-			this.uiMultipleChoice.setValue(this.value);
+			this.uiMultipleChoice.setValues(this.values);
 			callChoiceOption(true, htmlContext);
 		} catch (Throwable t) {
 			if (t instanceof UIConvertException) {
@@ -181,14 +182,24 @@ public class UIMultipleChoice implements IODMappingConverter {
 
 	public void pullDataFromWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
-			MultiChoice selectComp = (MultiChoice) AjaxActionHelper
-					.getCachedAjaxWidget(this.uiid, htmlContext);
-			this.value = selectComp.getValues();
-			if (this.value != null && "null".equals(this.value)) {
-				this.value = null;
+//			MultiChoice selectComp = (MultiChoice) AjaxActionHelper
+//					.getCachedAjaxWidget(this.uiid, htmlContext);
+//			this.value = selectComp.getValues();
+//			this.optionValues = selectComp.getOptionValues();
+//			this.optionDisplayValues = selectComp.getOptionDisplayValues();
+			JSONObject selectComp = htmlContext.getAjaxWidget(this.uiid);
+			if (selectComp == null) {
+				logger.warn(this.uiid + " does not exist for data to ui mapping!");
+				return;
 			}
-			this.optionValues = selectComp.getOptionValues();
-			this.optionDisplayValues = selectComp.getOptionDisplayValues();
+			JSONObject attrMap = selectComp.getJSONObject("attrMap");
+			this.values = (List<String>)attrMap.get("values");
+			if (selectComp.has("optValues")) {
+				this.optionValues = selectComp.getJSONArray("optValues").toList();
+			}
+			if (selectComp.has("optDvalues")) {
+				this.optionDisplayValues = selectComp.getJSONArray("optDvalues").toList();
+			}
 		} catch (Throwable t) {
 			if (t instanceof UIConvertException) {
 				throw ((UIConvertException) t);
@@ -196,10 +207,6 @@ public class UIMultipleChoice implements IODMappingConverter {
 			throw new UIConvertException("EBOS_ODMAPPER_073", t,
 					new Object[] { this.uiid });
 		}
-	}
-
-	public void callAllMappings(boolean isDataToUI, UserRequestContext htmlContext) throws UIConvertException {
-		callChoiceOption(isDataToUI, htmlContext);
 	}
 
 	private void callChoiceOption(boolean isDataToUI, UserRequestContext htmlContext) throws UIConvertException {
@@ -238,4 +245,6 @@ public class UIMultipleChoice implements IODMappingConverter {
 					new Object[] { getUIHTML().getUIID() });
 		}
 	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(UIText.class);
 }

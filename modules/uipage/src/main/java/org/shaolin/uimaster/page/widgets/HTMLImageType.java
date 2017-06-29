@@ -6,6 +6,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.UserRequestContext;
@@ -173,26 +175,35 @@ public class HTMLImageType extends HTMLTextWidgetType
         return false;
     }
     
-	public Widget createAjaxWidget(VariableEvaluator ee) {
-		Image image = new Image(getName(), Layout.NULL);
-
-		image.setReadOnly(isReadOnly());
-		image.setUIEntityName(getUIEntityName());
-
-		if (getValue() != null && !"".equals(getValue())) {
-			image.setSrc(getValue());
-		} else {
-			image.setSrc((String) getAttribute("src"));
-		}
-		image.setIsGallery(this.getAttribute("isGallery") != null && ("true".equals(String.valueOf(this.getAttribute("isGallery")))));
-		image.setListened(true);
-
-		Object expr = this.removeAttribute("selectedImageExpr");
-		if (expr != null) {
-			image.setSelectedImageExpr((ExpressionType)expr);
-		}
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
+    {
+		boolean hasGallery = this.getAttribute("isGallery") != null && ("true".equals(String.valueOf(this.getAttribute("isGallery"))));
+		if (!needAjaxSupport() && !hasGallery) {
+    		Object oneditable = this.getAttribute("oneditable");
+            if (oneditable == null || oneditable.toString().equalsIgnoreCase("false")){
+            	return null;
+            }
+    	}
+//		
+//		Image image = new Image(getName(), Layout.NULL);
+//
+//		image.setReadOnly(isReadOnly());
+//		image.setUIEntityName(getUIEntityName());
+//
+//		if (getValue() != null && !"".equals(getValue())) {
+//			image.setSrc(getValue());
+//		} else {
+//			image.setSrc((String) getAttribute("src"));
+//		}
+//		image.setIsGallery(hasGallery);
+//		image.setListened(true);
+//
+//		Object expr = this.removeAttribute("selectedImageExpr");
+//		if (expr != null) {
+//			image.setSelectedImageExpr((ExpressionType)expr);
+//		}
 		
-		return image;
+    	return super.createJsonModel(ee);
 	}
 	
 	public static String generateSimple(HttpServletRequest request, String srcs, int width, int height) {

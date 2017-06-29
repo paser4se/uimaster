@@ -24,7 +24,7 @@ import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.i18n.ResourceUtil;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.DisposableBfString;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.widgets.HTMLDynamicUIItem;
@@ -51,20 +51,18 @@ public class Panel extends Container<Panel> implements Serializable
 
     public Panel(String uiid)
     {
-        this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
+        this(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
         setUIID(uiid);
         this.addAttribute("class", "uimaster_panel");
-        this.getHtmlLayout().addAttribute("class", "uimaster_container_cell");
         this.setSize(0, 1);
         this.setListened(true);
     }
     
     public Panel(String uiid, String title)
     {
-        this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
+        this(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
         setUIID(uiid);
         this.addAttribute("class", "uimaster_panel");
-        this.getHtmlLayout().addAttribute("class", "uimaster_container_cell");
         this.setSize(0, 1);
         this.setTitle(title);
         this.setListened(true);
@@ -404,7 +402,7 @@ public class Panel extends Container<Panel> implements Serializable
         {
             throw new IllegalArgumentException("Layout widget cannot be directly added!");
         }
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         if(ajaxContext == null)
         {
             return;
@@ -414,16 +412,6 @@ public class Panel extends Container<Panel> implements Serializable
             throw new IllegalStateException("This panel is in ReadOnly mode, append method is locked!");
         }
         
-        int rIndex = layoutList.size() - 1;
-        CellLayout layout = (CellLayout)comp.getHtmlLayout();
-        String layoutID = "div-" + divPrefix + UIID + "-" + layoutSeq[rIndex] + "_" + rIndex;
-        layout.setId(layoutID);
-        layout.setX(layoutSeq[rIndex]++);
-        layout.setY(rIndex);
-        layout.setParent(this);
-        CellLayout first = layoutList.get(rIndex);
-        first.append(layout);
-
         if(!ajaxContext.existElement(this))// new panel,
         {
             if(!ajaxContext.existElement(comp))
@@ -433,7 +421,7 @@ public class Panel extends Container<Panel> implements Serializable
             return;
         }
         
-        IDataItem dataItem = AjaxActionHelper.createDataItem();
+        IDataItem dataItem = AjaxContextHelper.createDataItem();
 //        if(ajaxContext.existElement(comp))
 //        {
 //            comp.getHtmlLayout().remove();
@@ -446,7 +434,7 @@ public class Panel extends Container<Panel> implements Serializable
         {
             return;
         }
-        dataItem.setData(comp.getHtmlLayout().generateHTML());
+        dataItem.setData(comp.generateHTML());
         dataItem.setJs(comp.generateJS());
 //        }
         
@@ -454,7 +442,7 @@ public class Panel extends Container<Panel> implements Serializable
         dataItem.setParent(getId());
         dataItem.setFrameInfo(getFrameInfo());
         dataItem.setJsHandler(IJSHandlerCollections.HTML_APPEND);
-        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
     }
     
     public void newLine()
@@ -468,10 +456,10 @@ public class Panel extends Container<Panel> implements Serializable
         }
         layoutSeq[tempSeq.length] = 0;
 
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         if(ajaxContext != null && ajaxContext.existElement(this))
         {
-            IDataItem dataItem = AjaxActionHelper.createDataItem();
+            IDataItem dataItem = AjaxContextHelper.createDataItem();
             dataItem.setJsHandler(IJSHandlerCollections.HARDRETURN);
             dataItem.setUiid(this.getId());
             dataItem.setData("<div class=\"hardreturn\"></div>");

@@ -16,6 +16,8 @@
 package org.shaolin.uimaster.page.widgets;
 
 import org.shaolin.uimaster.page.UserRequestContext;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.ajax.Hidden;
 import org.shaolin.uimaster.page.ajax.Layout;
@@ -76,21 +78,22 @@ public class HTMLHiddenType extends HTMLTextWidgetType
         return false;
     }
 
-    public Widget createAjaxWidget(VariableEvaluator ee)
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-        Hidden hidden = new Hidden(getName(), Layout.NULL);
-
-        hidden.setReadOnly(isReadOnly());
-        hidden.setUIEntityName(getUIEntityName());
-
-        if (this.getAttribute("secure") != null) {
-        	hidden.setIsSecure(Boolean.valueOf(this.getAttribute("secure").toString()));
-        }
-        hidden.setValue(getValue());
-        
-        hidden.setListened(true);
-
-        return hidden;
+//        Hidden hidden = new Hidden(getName(), Layout.NULL);
+//
+//        hidden.setReadOnly(isReadOnly());
+//        hidden.setUIEntityName(getUIEntityName());
+//
+//        if (this.getAttribute("secure") != null) {
+//        	hidden.setIsSecure(Boolean.valueOf(this.getAttribute("secure").toString()));
+//        }
+//        hidden.setValue(getValue());
+//        
+//        hidden.setListened(true);
+//
+//        return hidden;
+        return super.createJsonModel(ee);
     }
     
     private static final long serialVersionUID = 1875046878985040938L;

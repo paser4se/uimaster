@@ -15,7 +15,7 @@
 */
 package org.shaolin.uimaster.page.ajax.handlers;
 
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.ajax.Tree;
 
@@ -30,7 +30,7 @@ public class TreeEventHandler implements IAjaxHandler {
 	}
 
 	public String trigger(AjaxContext context) throws AjaxHandlerException {
-		AjaxActionHelper.createAjaxContext(context);
+		AjaxContextHelper.createAjaxContext(context);
 		String uiid = context.getRequest().getParameter(AjaxContext.AJAX_UIID);
 		String actionName = context.getRequest().getParameter("_actionName");
 		Tree comp = context.getTree(uiid);

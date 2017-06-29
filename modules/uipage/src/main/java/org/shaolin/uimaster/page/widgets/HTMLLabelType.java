@@ -17,6 +17,8 @@ package org.shaolin.uimaster.page.widgets;
 
 import java.io.IOException;
 
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
@@ -195,7 +197,7 @@ public class HTMLLabelType extends HTMLTextWidgetType
         return false;
     }
 
-    public Widget createAjaxWidget(VariableEvaluator ee)
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
     	if (!needAjaxSupport()) {
     		Object oneditable = this.getAttribute("oneditable");
@@ -203,18 +205,18 @@ public class HTMLLabelType extends HTMLTextWidgetType
             	return null;
             }
     	}
-    	
-        Label label = new Label(getName(), Layout.NULL);
+//    	
+//        Label label = new Label(getName(), Layout.NULL);
+//
+//        label.setReadOnly(isReadOnly());
+//        label.setUIEntityName(getUIEntityName());
+//
+//        label.setValue(getValue());
+//        label.setDisplayValue(getDisplayValue());
+//
+//        label.setListened(true);
 
-        label.setReadOnly(isReadOnly());
-        label.setUIEntityName(getUIEntityName());
-
-        label.setValue(getValue());
-        label.setDisplayValue(getDisplayValue());
-
-        label.setListened(true);
-
-        return label;
+        return super.createJsonModel(ee);
     }
     
     private static final long serialVersionUID = 4001953636235186944L;

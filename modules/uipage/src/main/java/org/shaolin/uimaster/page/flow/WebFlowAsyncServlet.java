@@ -31,7 +31,7 @@ import org.shaolin.bmdp.runtime.spi.IAppServiceManager;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.MobilitySupport;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.cache.UIFlowCacheManager;
@@ -563,7 +563,7 @@ public class WebFlowAsyncServlet extends HttpServlet implements RejectedExecutio
 				return;
 			} 
 			try {
-				AjaxActionHelper.getAjaxWidgetMap(request.getSession(true));
+				AjaxContextHelper.getAjaxWidgetMap(request.getSession(true));
 			} catch (NullPointerException e) {
 				logger.info("Session time out or submit duplication. forward to login page");
 				WebflowErrorUtil.addError(request, "submit.error",
@@ -962,14 +962,6 @@ public class WebFlowAsyncServlet extends HttpServlet implements RejectedExecutio
         destnodename = attrAccessor.destnodename;
         String destchunkname = attrAccessor.destchunkname;
         
-        //when webmenu transferring, delete the ___webflow___cached___input cache. 
-        String menuName = request.getParameter("_menuName");
-        if (menuName != null && !"".equals(menuName))
-        {
-            HttpSession session = request.getSession(true);
-            session.removeAttribute("___webflow___cached___input");       
-        }
-
         if((srcNode != null) && (destchunkname == null || destchunkname.equals("")))
             destchunkname = srcNode.getChunk().getEntityName();
 

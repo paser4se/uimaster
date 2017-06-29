@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -30,7 +31,6 @@ import org.shaolin.uimaster.page.ajax.TextArea;
 import org.shaolin.uimaster.page.ajax.TextField;
 import org.shaolin.uimaster.page.ajax.TreeItem;
 import org.shaolin.uimaster.page.ajax.TreeItem.LinkAttribute;
-import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.ajax.json.RequestData;
 import org.shaolin.uimaster.page.cache.ODFormObject;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
@@ -93,9 +93,9 @@ public class PageTest {
         ajaxWidgetMap.put(AjaxContext.GLOBAL_PAGE, htmlContext.getPageAjaxWidgets());
         
 		RequestData requestData = new RequestData();
-        AjaxActionHelper.createAjaxContext(new AjaxContext(new HashMap(), requestData));
-        AjaxActionHelper.getAjaxContext().initData();
-        AjaxActionHelper.getAjaxContext().setRequest(request, null);
+        AjaxContextHelper.createAjaxContext(new AjaxContext(new HashMap(), requestData));
+        AjaxContextHelper.getAjaxContext().initData();
+        AjaxContextHelper.getAjaxContext().setRequest(request, null);
 		
 		TextField textField = new TextField("textField");
 		try {
@@ -172,13 +172,15 @@ public class PageTest {
         htmlContext.setCurrentFormInfo(page, "", "");
         htmlContext.setIsDataToUI(true);
 		
-        Map ajaxWidgetMap = new HashMap();
+        Map<String, JSONObject> ajaxWidgetMap = new HashMap<String, JSONObject>();
         request.getSession(true).setAttribute(AjaxContext.AJAX_COMP_MAP, ajaxWidgetMap);
-        ajaxWidgetMap.put(AjaxContext.GLOBAL_PAGE, htmlContext.getPageAjaxWidgets());
+        request.getSession(true).setAttribute(AjaxContext.GLOBAL_PAGE, htmlContext.getPageAjaxWidgets());
+        htmlContext.setAjaxWidgetMap(ajaxWidgetMap);;
         
         ICustomer customer = new CustomerImpl();
         customer.setId(1101);
         customer.setName("Shaolin Wu");
+        customer.setGender(Gender.FEMALE);
         
         Map inputParams = new HashMap();
         inputParams.put("customer", customer);
@@ -196,7 +198,6 @@ public class PageTest {
 			Assert.assertEquals(components.toString(), "[personalAccountForm]");
 			Assert.assertEquals(pageObject.getUIForm().getComponentProperty("personalAccountForm").get("referenceEntity"), "org.shaolin.uimaster.form.Customer");
 			Assert.assertEquals(pageObject.getUIForm().getComponents().size(), 25);
-			
 			
 			PageDispatcher dispatcher = new PageDispatcher(pageObject);
 			dispatcher.forwardPage(htmlContext);
@@ -240,7 +241,7 @@ public class PageTest {
             htmlContext.setFormObject(PageCacheManager.getUIFormObject(htmlContext.getFormName()));
             
             UserRequestContext.UserContext.set(htmlContext);
-            AjaxActionHelper.createAjaxContext(new AjaxContext(new HashMap(), new RequestData()));
+            AjaxContextHelper.createAjaxContext(new AjaxContext(new HashMap(), new RequestData()));
             
 			ODFormObject odEntityObject = PageCacheManager.getODFormObject(htmlContext.getFormName());
             HTMLReferenceEntityType newReferObject = new HTMLReferenceEntityType("customer", htmlContext.getFormName());
@@ -256,8 +257,8 @@ public class PageTest {
         	ODProcessor processor = new ODProcessor(htmlContext, htmlContext.getFormName(), -1);
         	ODContext odContext = processor.process();
         	VariableEvaluator ee = new VariableEvaluator(odContext);
-        	Widget refForm = newReferObject.createAjaxWidget(ee);
-        	htmlContext.addAjaxWidget(refForm.getId(), refForm);
+        	JSONObject refForm = newReferObject.createJsonModel(ee);
+        	htmlContext.addAjaxWidget(newReferObject.getName(), refForm);
         	
             Map referenceEntityMap = new HashMap();
             htmlContext.setRefEntityMap(referenceEntityMap);
@@ -272,7 +273,10 @@ public class PageTest {
 			String htmlCode = response.getHtmlCode();
 			System.out.println("HTML Code: \n" + htmlCode);
 			Assert.assertTrue(htmlCode.indexOf(customerPojo.getName()) != -1);
-            
+	        for(Map.Entry<String, JSONObject> entry : htmlContext.getPageAjaxWidgets().entrySet())
+	        {
+	        	System.out.println("Ajax widget: "+ entry.getValue().toString());
+	        }
 			
             HashMap ajaxWidgetMap = new HashMap();
             ajaxWidgetMap.put(AjaxContext.GLOBAL_PAGE, htmlContext.getPageAjaxWidgets());
@@ -308,6 +312,7 @@ public class PageTest {
 	
 	@Test
 	public void testSinglePage() throws IllegalStateException, IllegalArgumentException, IOException {
+		final CountDownLatch latch = new CountDownLatch(20);
 		for (int i=0; i<20; i++) {
 			new Thread(new Runnable(){
 				@Override
@@ -318,11 +323,12 @@ public class PageTest {
 						e.printStackTrace();
 						Assert.fail();
 					}
+					latch.countDown();
 				}
 			}).start();
 		}
 		try {
-			Thread.sleep(4000);
+			latch.await();
 		} catch (InterruptedException e) {
 		}
 		Map<String, SingleKPI> items = RestUIPerfMonitor.getKPICollector().getAllKIPs();
@@ -389,19 +395,19 @@ public class PageTest {
         ArrayList result = new ArrayList();
         for (int i=0;i<1;i++) {
             TreeItem item = new TreeItem();
-            item.setId("id" + i);
+            item.setNodeId("id" + i);
             item.setText("Node" + i);
             item.setA_attr(new LinkAttribute("#"));
             item.setIcon(null);
             
             TreeItem child = new TreeItem();
-            child.setId("id" + i);
+            child.setNodeId("id" + i);
             child.setText("Node" + i);
             child.setA_attr(new LinkAttribute("#"));
             child.setIcon(null);
             
             TreeItem child1 = new TreeItem();
-            child1.setId("id" + i);
+            child1.setNodeId("id" + i);
             child1.setText("Node" + i);
             child1.setA_attr(new LinkAttribute("#"));
             child1.setIcon(null);

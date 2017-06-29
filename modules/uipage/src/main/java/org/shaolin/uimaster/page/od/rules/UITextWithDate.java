@@ -20,16 +20,14 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.UserRequestContext;
-import org.shaolin.uimaster.page.ajax.Calendar;
-import org.shaolin.uimaster.page.ajax.Label;
-import org.shaolin.uimaster.page.ajax.TextWidget;
-import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.od.IODMappingConverter;
 import org.shaolin.uimaster.page.od.formats.FormatUtil;
 import org.shaolin.uimaster.page.widgets.HTMLTextWidgetType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UITextWithDate implements IODMappingConverter {
 	private HTMLTextWidgetType uiDate;
@@ -230,18 +228,24 @@ public class UITextWithDate implements IODMappingConverter {
 
 	public void pullDataFromWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
-			Widget calendar = AjaxActionHelper
-					.getCachedAjaxWidget(this.uiid, htmlContext);
-			String value = null;
-			if (calendar instanceof Calendar) {
-				value = ((Calendar)calendar).getValue();
-			} else if (calendar instanceof Label) {
-				return;//no need UI to Data operation.
-			} else if (calendar instanceof TextWidget) {
-				value = ((TextWidget)calendar).getValue();
-			} else {
-				throw new UnsupportedOperationException("unsupported ui widget for date type mapping: " + calendar);
+//			Widget calendar = AjaxActionHelper
+//					.getCachedAjaxWidget(this.uiid, htmlContext);
+//			String value = null;
+//			if (calendar instanceof Calendar) {
+//				value = ((Calendar)calendar).getValue();
+//			} else if (calendar instanceof Label) {
+//				return;//no need UI to Data operation.
+//			} else if (calendar instanceof TextWidget) {
+//				value = ((TextWidget)calendar).getValue();
+//			} else {
+//				throw new UnsupportedOperationException("unsupported ui widget for date type mapping: " + calendar);
+//			}
+			JSONObject textComp = htmlContext.getAjaxWidget(this.uiid);
+			if (textComp == null) {
+				logger.warn(this.uiid + " does not exist for data to ui mapping!");
+				return;
 			}
+			String value = textComp.getJSONObject("attrMap").getString("value");
 			this.stringData = value != null ? value.trim() : "";
 			if ("".equals(stringData)) {
 				this.date = null;
@@ -275,4 +279,6 @@ public class UITextWithDate implements IODMappingConverter {
 
 	public void callAllMappings(boolean isDataToUI) throws UIConvertException {
 	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(UIText.class);
 }

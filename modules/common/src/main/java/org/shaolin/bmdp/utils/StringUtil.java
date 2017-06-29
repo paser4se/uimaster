@@ -1251,6 +1251,39 @@ public class StringUtil
 
         return splitList;
     }
+    
+    public static List<Integer> splitAsInt(final String str, final String delim)
+    {
+        List<Integer> splitList = null;
+        StringTokenizer st = null;
+        if (str == null)
+        {
+            return Collections.emptyList();
+        }
+        String realStr = str;
+        if (str.startsWith("[") && str.endsWith("]")) {
+        	//remove wrapper.
+        	realStr = str.substring(1, str.length() - 1);
+        }
+
+		if (isValid(delim)) {
+			st = new StringTokenizer(realStr, delim);
+		} else {
+			st = new StringTokenizer(realStr);
+		}
+
+        if ((st != null) && st.hasMoreTokens())
+        {
+            splitList = new ArrayList<Integer>();
+
+            while (st.hasMoreTokens())
+            {
+                splitList.add(Integer.parseInt(st.nextToken().trim()));
+            }
+        }
+
+        return splitList;
+    }
 
     /**
      * Remove all matched prefix <code>prefix</code> at the head of given

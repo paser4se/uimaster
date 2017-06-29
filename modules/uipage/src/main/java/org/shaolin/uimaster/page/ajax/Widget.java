@@ -16,22 +16,48 @@
 package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.shaolin.bmdp.datamodel.page.StringPropertyType;
 import org.shaolin.bmdp.datamodel.page.ValidatorPropertyType;
 import org.shaolin.bmdp.datamodel.page.ValidatorsPropertyType;
 import org.shaolin.bmdp.json.JSONArray;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.security.ComponentPermission;
+import org.shaolin.uimaster.page.widgets.HTMLButtonType;
+import org.shaolin.uimaster.page.widgets.HTMLChartSuper;
+import org.shaolin.uimaster.page.widgets.HTMLCheckBoxGroupType;
+import org.shaolin.uimaster.page.widgets.HTMLCheckBoxType;
+import org.shaolin.uimaster.page.widgets.HTMLComboBoxType;
+import org.shaolin.uimaster.page.widgets.HTMLDateType;
+import org.shaolin.uimaster.page.widgets.HTMLEmptyType;
+import org.shaolin.uimaster.page.widgets.HTMLHiddenType;
+import org.shaolin.uimaster.page.widgets.HTMLImageType;
+import org.shaolin.uimaster.page.widgets.HTMLLabelType;
+import org.shaolin.uimaster.page.widgets.HTMLListType;
+import org.shaolin.uimaster.page.widgets.HTMLMatrixType;
+import org.shaolin.uimaster.page.widgets.HTMLPanelType;
+import org.shaolin.uimaster.page.widgets.HTMLPasswordFieldType;
+import org.shaolin.uimaster.page.widgets.HTMLRadioButtonGroupType;
+import org.shaolin.uimaster.page.widgets.HTMLRadioButtonType;
+import org.shaolin.uimaster.page.widgets.HTMLReferenceEntityType;
+import org.shaolin.uimaster.page.widgets.HTMLTabPaneType;
+import org.shaolin.uimaster.page.widgets.HTMLTableType;
+import org.shaolin.uimaster.page.widgets.HTMLTextAreaType;
+import org.shaolin.uimaster.page.widgets.HTMLTextFieldType;
+import org.shaolin.uimaster.page.widgets.HTMLWebTreeType;
 
 /**
  * <p>
@@ -126,8 +152,6 @@ abstract public class Widget<T> implements Serializable
 
     private List<Widget<?>> listeners;
     
-    private Layout htmlLayout;
-
     private String widgetLabel;
 
     private String widgetLabelColor;
@@ -144,18 +168,13 @@ abstract public class Widget<T> implements Serializable
     private boolean valueMask = false;
     
     private boolean FLSEnabled = false;
-
+    
     public Widget(String id, Layout layout)
     {
         this.id = id;
-        htmlLayout = layout;
-        if (layout instanceof CellLayout)
-        {
-            ((CellLayout)layout).addComponent(this);
-        }
         attributeMap = new HashMap<String, Object>();
         
-        AjaxContext context = AjaxActionHelper.getAjaxContext();
+        AjaxContext context = AjaxContextHelper.getAjaxContext();
         if(context != null)
         {
             this.frameInfo = context.getRequestData().getFrameId();
@@ -361,25 +380,6 @@ abstract public class Widget<T> implements Serializable
     public void setFrameInfo(String frameInfo)
     {
         this.frameInfo = frameInfo;
-    }
-
-    public void setHtmlLayout(Layout htmlLayout)
-    {
-        this.htmlLayout = htmlLayout;
-    }
-
-    public Layout getHtmlLayout()
-    {
-        return htmlLayout;
-    }
-    
-    /**
-     * same to getHtmlLayout();
-     * @return
-     */
-    public Layout getLayout()
-    {
-        return htmlLayout;
     }
 
     /**
@@ -830,7 +830,7 @@ abstract public class Widget<T> implements Serializable
         {
     		return (T) this;
         }
-    	AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+    	AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         if (ajaxContext == null) {
         	return (T) this;
         }
@@ -1274,10 +1274,6 @@ abstract public class Widget<T> implements Serializable
 	public T setListened(boolean isListened)
     {
         this.isListened = isListened;
-        if (this.getHtmlLayout() != null)
-        {
-            this.getHtmlLayout().setListened(isListened);
-        }
         return (T) this;
     }
 
@@ -1294,22 +1290,13 @@ abstract public class Widget<T> implements Serializable
         	return (T) this;
         }
         
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         if (ajaxContext == null)
         	return (T) this;
 
         if (ajaxContext.existElmByAbsoluteId(id, frameInfo))
         {
-            String parentID = null;
-            if (htmlLayout != null)
-            {
-                htmlLayout.remove();
-                if (htmlLayout.parent != null)
-                {
-                    parentID = htmlLayout.parent.id;
-                }
-            }
-            IDataItem dataItem = AjaxActionHelper.createRemoveItem(parentID, id);
+            IDataItem dataItem = AjaxContextHelper.createRemoveItem("", id);
             dataItem.setFrameInfo(frameInfo);
             ajaxContext.addDataItem(dataItem);
             ajaxContext.removeElement(id, frameInfo);
@@ -1328,7 +1315,7 @@ abstract public class Widget<T> implements Serializable
             comp.setUIEntityName(ajaxContext.getEntityName());
         }
         comp.setFrameInfo(frameInfo);
-        boolean success = ajaxContext.addElement(comp.getId(), comp, frameInfo);
+        boolean success = ajaxContext.addElement(comp);
         // This code is only for system level edit control of FLS
         if (!ajaxContext.isPageEditable())
         {
@@ -1345,24 +1332,16 @@ abstract public class Widget<T> implements Serializable
         {
         	return (T) this;
         }
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         if (ajaxContext == null || (!ajaxContext.existElement(this) && !(this instanceof Layout)))
         {
         	return (T) this;
         }
-        if (htmlLayout != null && htmlLayout != Layout.NULL)
-        {
-            IDataItem dataItem = AjaxActionHelper.createReadOnlyItem(id);
-            dataItem.setJs(generateJS());
-            dataItem.setFrameInfo(getFrameInfo());
-            dataItem.addItem("readonly", String.valueOf(readonly));
-            if(htmlLayout.getParent() != null)
-            {
-                dataItem.setParent(htmlLayout.getParent().getId());
-            }
-            dataItem.setData(htmlLayout.generateHTML());
-            AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
-        }
+        IDataItem dataItem = AjaxContextHelper.createReadOnlyItem(id);
+        dataItem.setJs(generateJS());
+        dataItem.setFrameInfo(getFrameInfo());
+        dataItem.addItem("readonly", String.valueOf(readonly));
+        AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
         return (T) this;
     }
 
@@ -1561,7 +1540,7 @@ abstract public class Widget<T> implements Serializable
         {
             return false;
         }
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         if (ajaxContext == null || (!ajaxContext.existElement(this) && !(this instanceof Layout)))
         {
             return false;
@@ -1599,13 +1578,13 @@ abstract public class Widget<T> implements Serializable
         sb.append("','value':'");
         sb.append(HTMLUtil.handleEscape(String.valueOf(value)));
         sb.append("'}");
-        IDataItem dataItem = AjaxActionHelper.updateCssItem(id, sb.toString());
+        IDataItem dataItem = AjaxContextHelper.updateCssItem(id, sb.toString());
         dataItem.setFrameInfo(getFrameInfo());
         if(this instanceof Layout)
         {
             dataItem.setLayout(true);
         }
-        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
     }
     
     protected void _removeCSS(String name)
@@ -1615,13 +1594,13 @@ abstract public class Widget<T> implements Serializable
             return;
         }
         
-        IDataItem dataItem = AjaxActionHelper.removeCssItem(id, name);
+        IDataItem dataItem = AjaxContextHelper.removeCssItem(id, name);
         dataItem.setFrameInfo(getFrameInfo());
         if(this instanceof Layout)
         {
             dataItem.setLayout(true);
         }
-        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
     }
     
     /**
@@ -1640,14 +1619,14 @@ abstract public class Widget<T> implements Serializable
         sb.append("','value':'");
         sb.append(HTMLUtil.handleEscape(String.valueOf(value)));
         sb.append("'}");
-        IDataItem dataItem = AjaxActionHelper.updateAttrItem(id, sb.toString());
+        IDataItem dataItem = AjaxContextHelper.updateAttrItem(id, sb.toString());
         dataItem.setFrameInfo(getFrameInfo());
         if(this instanceof Layout)
         {
             dataItem.setLayout(true);
         }
         //dataItem.addItem("visible", String.valueOf(this.isVisible()));
-        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
     }
 
     protected void _removeAttribute(String name)
@@ -1657,13 +1636,13 @@ abstract public class Widget<T> implements Serializable
             return;
         }
         
-        IDataItem dataItem = AjaxActionHelper.removeAttrItem(id, name);
+        IDataItem dataItem = AjaxContextHelper.removeAttrItem(id, name);
         dataItem.setFrameInfo(getFrameInfo());
         if(this instanceof Layout)
         {
             dataItem.setLayout(true);
         }
-        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
     }
     
     protected void _updateConstraint()
@@ -1683,10 +1662,10 @@ abstract public class Widget<T> implements Serializable
             script = script.substring(1);//remove comma symbol at the beginning of this string
             sb.append("{").append(script).append("}");// make it as JSON object.
         }
-        IDataItem dataItem = AjaxActionHelper.updateConstraintItem(id, sb.toString());
+        IDataItem dataItem = AjaxContextHelper.updateConstraintItem(id, sb.toString());
         dataItem.setFrameInfo(getFrameInfo());
         dataItem.addItem("readonly", String.valueOf(this.isReadOnly()));
-        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
     }
     
     protected void _removeValidators()
@@ -1699,10 +1678,10 @@ abstract public class Widget<T> implements Serializable
         {
             return;
         }
-        IDataItem dataItem = AjaxActionHelper.updateConstraintItem(id, "{validators:[]}");
+        IDataItem dataItem = AjaxContextHelper.updateConstraintItem(id, "{validators:[]}");
         dataItem.setFrameInfo(getFrameInfo());
         dataItem.addItem("readonly", String.valueOf(this.isReadOnly()));
-        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
     }
     
     protected void _removeConstraint(String data)
@@ -1712,24 +1691,24 @@ abstract public class Widget<T> implements Serializable
             return;
         }
         
-        IDataItem dataItem = AjaxActionHelper.updateConstraintItem(id, data);
+        IDataItem dataItem = AjaxContextHelper.updateConstraintItem(id, data);
         dataItem.setFrameInfo(getFrameInfo());
         dataItem.addItem("readonly", String.valueOf(this.isReadOnly()));
-        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
     }
     
     public T showConstraint(String message) {
-    	IDataItem dataItem = AjaxActionHelper.showConstraint(id, message);
+    	IDataItem dataItem = AjaxContextHelper.showConstraint(id, message);
         dataItem.setFrameInfo(getFrameInfo());
-        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
         
         return (T) this;
     }
     
     public T removeConstraint() {
-    	IDataItem dataItem = AjaxActionHelper.removeConstraint(id);
+    	IDataItem dataItem = AjaxContextHelper.removeConstraint(id);
         dataItem.setFrameInfo(getFrameInfo());
-        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
         
         return (T) this;
     }
@@ -1748,13 +1727,13 @@ abstract public class Widget<T> implements Serializable
         }
         
         String str = "{'name':'"+ name +"','value':'"+ HTMLUtil.handleEscape(String.valueOf(value)) +"'}";
-        IDataItem dataItem = AjaxActionHelper.updateEventItem(id, str);
+        IDataItem dataItem = AjaxContextHelper.updateEventItem(id, str);
         if(this instanceof Layout)
         {
             dataItem.setLayout(true);
         }
         dataItem.setFrameInfo(getFrameInfo());
-        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
     }
     
     protected void _removeEvent(String name)
@@ -1764,17 +1743,189 @@ abstract public class Widget<T> implements Serializable
             return;
         }
         
-        IDataItem dataItem = AjaxActionHelper.removeEventItem(id, name);
+        IDataItem dataItem = AjaxContextHelper.removeEventItem(id, name);
         dataItem.setFrameInfo(getFrameInfo());
         if(this instanceof Layout)
         {
             dataItem.setLayout(true);
         }
-        AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+        AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
     }
     
     @Override
     public String toString() {
-		return this.getId() + "[" + this.getClass().getSimpleName() + "]" + this.hashCode();
+		try {
+			return toJSON().toString();
+		} catch (JSONException e) {
+			return  this.getId() + "[" + this.getClass().getSimpleName() + "]" + this.hashCode();
+		}
 	}
+    
+    public JSONObject toJSON() throws JSONException {
+    	JSONObject json = new JSONObject();
+    	json.put("type", this.getClass().getSimpleName());
+    	json.put("entity", this.getUIEntityName());
+    	json.put("uiid", this.id);
+    	json.put("finfo", this.frameInfo);
+    	if (readOnly != null && readOnly.booleanValue()) {
+    		json.put("readOnly", true);
+    	}
+    	if (!visible) {
+    		json.put("visible", false);
+    	}
+    	if (this.attributeMap != null && this.attributeMap.size() > 0) {
+    		json.put("attrMap", new JSONObject(this.attributeMap));
+    	}
+    	if (this.styleMap != null && this.styleMap.size() > 0) {
+    		json.put("styleMap", new JSONObject(this.styleMap));
+    	}
+    	if (this.constraintMap != null && this.constraintMap.size() > 0) {
+    		json.put("constrMap", new JSONObject(this.constraintMap));
+    	}
+    	return json;
+    }
+    
+    public void fromJSON(JSONObject json) throws Exception {
+    	this.setUIEntityName(json.getString("entity"));
+    	this.frameInfo = json.getString("finfo");
+    	if (json.has("readOnly")) {
+    		this.readOnly = true;
+    	}
+    	if (json.has("visible")) {
+    		this.visible = false;
+    	}
+    	if (json.has("attrMap")) {
+    		JSONObject items = json.getJSONObject("attrMap");
+    		this.attributeMap = items.toMap();
+    		
+    		if (attributeMap.containsKey("secure")) {
+    			isSecure = Boolean.valueOf(attributeMap.get("secure").toString());
+        	}
+    	}
+    	if (json.has("styleMap")) {
+    		JSONObject items = json.getJSONObject("styleMap");
+    		this.styleMap = items.toMap();
+    	}
+    	if (json.has("constrMap")) {
+    		JSONObject items = json.getJSONObject("constrMap");
+    		this.constraintMap = items.toMap();
+    	}
+    }
+    
+    /**
+     * For JSON model to UI Widget model solution.
+     * 
+     * @param jsonStr
+     * @return
+     * @throws JSONException
+     * @throws ClassNotFoundException 
+     * @throws SecurityException 
+     * @throws NoSuchMethodException 
+     * @throws InvocationTargetException 
+     * @throws IllegalArgumentException 
+     * @throws IllegalAccessException 
+     * @throws InstantiationException 
+     */
+    public static Widget<?> covertFromJSON(final JSONObject json) throws Exception {
+    	String type = json.getString("type");
+		if (!WIDGET_CLASS.containsKey(type)) {
+    		WIDGET_CLASS.put(type, Class.forName("org.shaolin.uimaster.page.ajax." + type));
+    	} 
+		Widget<?> w = null;
+		if (type.equals(RefForm.class.getSimpleName())) {
+			w = (Widget<?>)WIDGET_CLASS.get(type).getConstructor(new Class[]{String.class, String.class})
+		    		.newInstance(new Object[]{ json.getString("uiid"), json.getString("entity") });
+		} else {
+	    	w = (Widget<?>)WIDGET_CLASS.get(type).getConstructor(new Class[]{String.class, Layout.class})
+	    		.newInstance(new Object[]{ json.getString("uiid"), Layout.NULL });
+		}
+    	w.fromJSON(json);
+    	if (json.has("attrMap")) {
+			Set<Map.Entry<String, Object>> set = json.getJSONObject("attrMap").toMap().entrySet();
+			for (Map.Entry<String, Object> entry : set) {
+				w.addAttribute(entry.getKey(), entry.getValue(), false);
+			}
+		}
+    	w.setListened(true);
+    	w.checkConstraint();
+    	return w;
+    }
+    
+    public static String mappingAjaxWidgetName(Class htmlClass) {
+    	if (HTMLListType.class == htmlClass) {
+    		return AList.class.getSimpleName();
+    	} else if (HTMLCheckBoxGroupType.class == htmlClass) {
+    		return CheckBoxGroup.class.getSimpleName();
+    	} else if (HTMLComboBoxType.class == htmlClass) {
+    		return ComboBox.class.getSimpleName();
+    	} else if (HTMLRadioButtonGroupType.class == htmlClass) {
+    		return RadioButtonGroup.class.getSimpleName();
+    	} else if (HTMLPanelType.class == htmlClass) {
+    		return Panel.class.getSimpleName();
+    	} else if (HTMLReferenceEntityType.class == htmlClass) {
+    		return RefForm.class.getSimpleName();
+    	} else if (HTMLTabPaneType.class == htmlClass) {
+    		return TabPane.class.getSimpleName();
+    	} else if (HTMLEmptyType.class == htmlClass) {
+    		return Empty.class.getSimpleName();
+    	} else if (HTMLMatrixType.class == htmlClass) {
+    		return Matrix.class.getSimpleName();
+    	} else if (HTMLCheckBoxType.class == htmlClass) {
+    		return CheckBox.class.getSimpleName();
+    	} else if (HTMLRadioButtonType.class == htmlClass) {
+    		return RadioButton.class.getSimpleName();
+    	} else if (HTMLTableType.class == htmlClass) {
+    		return Table.class.getSimpleName();
+    	} else if (HTMLButtonType.class == htmlClass) {
+    		return Button.class.getSimpleName();
+    	} else if (HTMLLabelType.class == htmlClass) {
+    		return Label.class.getSimpleName();
+    	} else if (HTMLPasswordFieldType.class == htmlClass) {
+    		return PasswordField.class.getSimpleName();
+    	} else if (HTMLHiddenType.class == htmlClass) {
+    		return Hidden.class.getSimpleName();
+    	} else if (HTMLImageType.class == htmlClass) {
+    		return Image.class.getSimpleName();
+    	} else if (HTMLTextAreaType.class == htmlClass) {
+    		return TextArea.class.getSimpleName();
+    	} else if (HTMLTextFieldType.class == htmlClass) {
+    		return TextField.class.getSimpleName();
+    	} else if (HTMLDateType.class == htmlClass) {
+    		return Calendar.class.getSimpleName();
+    	} else if (HTMLWebTreeType.class == htmlClass) {
+    		return Tree.class.getSimpleName();
+    	} else if (htmlClass.isAssignableFrom(HTMLChartSuper.class)) {
+    		return Chart.class.getSimpleName();
+    	} else {
+    		return htmlClass.getSimpleName();
+    	}
+    }
+    
+    private static final HashMap<String, Class<?>> WIDGET_CLASS = new HashMap<String, Class<?>>();
+    static {
+    	WIDGET_CLASS.put("AList", AList.class);
+    	WIDGET_CLASS.put("AFile", AFile.class);
+    	WIDGET_CLASS.put("CheckBoxGroup", CheckBoxGroup.class);
+    	WIDGET_CLASS.put("ComboBox", ComboBox.class);
+    	WIDGET_CLASS.put("RadioButtonGroup", RadioButtonGroup.class);
+    	WIDGET_CLASS.put("Panel", Panel.class);
+    	WIDGET_CLASS.put("PreNextPanel", PreNextPanel.class);
+    	WIDGET_CLASS.put("RefForm", RefForm.class);
+    	WIDGET_CLASS.put("TabPane", TabPane.class);
+    	WIDGET_CLASS.put("Empty", Empty.class);
+    	WIDGET_CLASS.put("Matrix", Matrix.class);
+    	WIDGET_CLASS.put("CheckBox", CheckBox.class);
+    	WIDGET_CLASS.put("RadioButton", RadioButton.class);
+    	WIDGET_CLASS.put("Table", Table.class);
+    	WIDGET_CLASS.put("Button", Button.class);
+    	WIDGET_CLASS.put("Hidden", Hidden.class);
+    	WIDGET_CLASS.put("Image", Image.class);
+    	WIDGET_CLASS.put("Label", Label.class);
+    	WIDGET_CLASS.put("PasswordField", PasswordField.class);
+    	WIDGET_CLASS.put("Calendar", Calendar.class);
+    	WIDGET_CLASS.put("TextArea", TextArea.class);
+    	WIDGET_CLASS.put("TextField", TextField.class);
+    	WIDGET_CLASS.put("Tree", Tree.class);
+    	WIDGET_CLASS.put("Chart", Chart.class);
+    }
 }

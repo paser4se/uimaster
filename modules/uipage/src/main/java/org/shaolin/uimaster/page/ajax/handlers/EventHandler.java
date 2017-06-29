@@ -65,13 +65,15 @@ public class EventHandler implements IAjaxHandler {
 			}
 			context.getRequest().getSession().setAttribute(UI_INACTION_FLAG, "true");
 			return trigger0(context, actionName);
+		} catch (Exception e) {
+			throw new AjaxHandlerException(e.getMessage(), e);
 		} finally {
 			context.getRequest().getSession().removeAttribute(UI_INACTION_FLAG);
 		}
 	}
 	
 	public String trigger0(AjaxContext context, String actionName)
-			throws AjaxHandlerException {
+			throws Exception {
 		Widget w = context.getElement(context.getRequestData().getUiid());
 		if (w == null) {
 			Dialog.showMessageDialog("\u4E8B\u4EF6\u6E90\u4E0D\u5B58\u5728\uFF01", "", Dialog.WARNING_MESSAGE, null);

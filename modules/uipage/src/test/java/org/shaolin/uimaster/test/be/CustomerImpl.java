@@ -6,10 +6,8 @@
     
 package org.shaolin.uimaster.test.be;
         
-import java.util.ArrayList;
-import java.util.List;
-
-import org.shaolin.bmdp.datamodel.bediagram.MemberType;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.be.BEExtensionInfo;
 import org.shaolin.uimaster.test.ce.Gender;
 
@@ -166,54 +164,7 @@ public class CustomerImpl  implements org.shaolin.uimaster.test.be.ICustomer
      * @return String the business entity in String format.
      */
     public  String  toString() {
-        StringBuffer aBuf = new StringBuffer();
-        aBuf.append("org.shaolin.uimaster.test.be.Customer");
-    
-        aBuf.append(" : ");
-        
-        aBuf.append("id");
-        aBuf.append("=");
-        aBuf.append(id);
-        aBuf.append(", ");
-        
-        aBuf.append("name");
-        aBuf.append("=");
-        aBuf.append(name);
-        aBuf.append(", ");
-        
-        return aBuf.toString();
-    }
-    
-    
-     /**
-     * Gets list of MemberType.
-     *
-     * @return List     the list of MemberType.
-     */
-    public List<MemberType> getMemberList() {
-        List<MemberType> memberTypeList = new ArrayList<MemberType>();
-        
-        MemberType member = null;
-        
-        org.shaolin.bmdp.datamodel.bediagram.LongType idBEType = new org.shaolin.bmdp.datamodel.bediagram.LongType();
-    
-        //MemberType Define for id
-        member = new MemberType();
-        member.setName("id");
-        member.setDescription("null");
-        member.setType(idBEType);
-        memberTypeList.add(member);
-            
-        org.shaolin.bmdp.datamodel.bediagram.StringType nameBEType = new org.shaolin.bmdp.datamodel.bediagram.StringType();
-    
-        //MemberType Define for name
-        member = new MemberType();
-        member.setName("name");
-        member.setDescription("null");
-        member.setType(nameBEType);
-        memberTypeList.add(member);
-            
-        return memberTypeList;
+    	return (new JSONObject(this)).toString();
     }
     
     public ICustomer createEntity ()
@@ -229,6 +180,16 @@ public class CustomerImpl  implements org.shaolin.uimaster.test.be.ICustomer
 	@Override
 	public IAddress getAddress() {
 		return address;
+	}
+
+	@Override
+	public JSONObject toJSON() throws JSONException {
+		return new JSONObject(this);
+	}
+
+	@Override
+	public void fromJSON(JSONObject json) throws JSONException {
+		
 	}
     
 }

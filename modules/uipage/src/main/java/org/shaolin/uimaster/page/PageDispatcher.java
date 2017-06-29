@@ -30,6 +30,7 @@ import javax.servlet.jsp.JspException;
 
 import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.i18n.ResourceUtil;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
@@ -241,14 +242,6 @@ public class PageDispatcher {
             String actionPath = getActionPath(context);
             context.getRequest().setAttribute(WebflowConstants.FORM_URL, actionPath);
             
-//            String prefix = context.getHTMLPrefix();
-//            if ( prefix != null ) {
-//                while ( prefix.indexOf(".") >= 0 ) {
-//                    prefix = prefix.replace('.', '-');
-//                }
-//                context.setDIVPrefix(prefix);
-//            }
-            
             //prepare the static values for client javascript
             Calendar currentDate = Calendar.getInstance();
             Map constraintStyleMap = FormatUtil.getConstraintFormat(null,null);
@@ -454,20 +447,19 @@ public class PageDispatcher {
                     //Nothing to do.
                 }
             }
-            Map ajaxWidgetMap = AjaxActionHelper.getAjaxWidgetMap(session);
-            Map pageComponentMap = context.getPageAjaxWidgets();
+            Map ajaxWidgetMap = AjaxContextHelper.getAjaxWidgetMap(session);
+            Map<String, JSONObject> pageComponentMap = context.getPageAjaxWidgets();
             if(ajaxWidgetMap == null)
             {
                 ajaxWidgetMap = new HashMap();
-                session.setAttribute(AjaxContext.AJAX_COMP_MAP, ajaxWidgetMap);
                 if (superPrefix == null)
                 {
-                	AjaxActionHelper.addCachePage(session, AjaxContext.GLOBAL_PAGE);
+                	AjaxContextHelper.addCachePage(session, AjaxContext.GLOBAL_PAGE);
                     ajaxWidgetMap.put(AjaxContext.GLOBAL_PAGE, pageComponentMap);
                 }
                 else
                 {
-                	AjaxActionHelper.addCachePage(session, superPrefix);
+                	AjaxContextHelper.addCachePage(session, superPrefix);
                     ajaxWidgetMap.put(superPrefix, pageComponentMap);
                 }
             }
@@ -485,16 +477,16 @@ public class PageDispatcher {
                     ajaxWidgetMap.clear();
                     
                     ajaxWidgetMap.put(AjaxContext.GLOBAL_PAGE, pageComponentMap);
-                    AjaxActionHelper.removeAllCachedPages(session);
-                    AjaxActionHelper.addCachePage(session, AjaxContext.GLOBAL_PAGE);
+                    AjaxContextHelper.removeAllCachedPages(session);
+                    AjaxContextHelper.addCachePage(session, AjaxContext.GLOBAL_PAGE);
                 }
                 else
                 {
-                	AjaxActionHelper.addCachePage(session, frameTarget);
+                	AjaxContextHelper.addCachePage(session, frameTarget);
                 	ajaxWidgetMap.put(frameTarget, pageComponentMap);
                 }
             }
-            
+            session.setAttribute(AjaxContext.AJAX_COMP_MAP, ajaxWidgetMap);
             if (superPrefix != null)
             {
                 context.getRequest().setAttribute("_framePagePrefix", superPrefix);
@@ -502,6 +494,7 @@ public class PageDispatcher {
             AjaxContext.registerPageAjaxContext(entityName, pageComponentMap, context.getRequest());
             PageDispatcher dispatcher = new PageDispatcher(pageObject.getUIFormObject(), evaContext);
             dispatcher.forwardForm(context, 0);
+            session.setAttribute(AjaxContext.AJAX_COMP_MAP, ajaxWidgetMap);//sync again!
             
             context.generateHTML("\n</form>");
             if (!frameMode)
@@ -634,27 +627,12 @@ public class PageDispatcher {
         return sb;
     }
     
-    private void debugEnableToSerializable(Map ajaxComponentMap) 
+    private void debugEnableToSerializable(Map<String, JSONObject> ajaxComponentMap) 
     {
         logger.debug("Created UI ajax widgets.");
-        Iterator iterator = ajaxComponentMap.entrySet().iterator();
-        while(iterator.hasNext())
+        for(Map.Entry<String, JSONObject> entry : ajaxComponentMap.entrySet())
         {
-            Map.Entry entry = (Map.Entry)iterator.next();
-            Object value = entry.getValue();
-            if(value instanceof Map)
-            {
-                Iterator iterator1 = ((Map)value).entrySet().iterator();
-                while(iterator1.hasNext())
-                {
-                    Map.Entry compEntry = (Map.Entry)iterator1.next();
-                    logger.debug("Ajax widget: "+compEntry.getValue());
-                }
-            }
-            else
-            {
-                logger.debug("Ajax widget: "+((Widget)value).getId() + ":" + value);
-            }
+            logger.debug("Ajax widget: "+ entry.getValue().toString());
         }
     }
     

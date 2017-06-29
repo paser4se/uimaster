@@ -32,7 +32,10 @@ import org.shaolin.bmdp.datamodel.page.TableLayoutConstraintType;
 import org.shaolin.bmdp.datamodel.page.UIFrameType;
 import org.shaolin.bmdp.datamodel.page.UIReferenceEntityType;
 import org.shaolin.bmdp.datamodel.page.UITabPaneItemType;
+import org.shaolin.bmdp.json.JSONArray;
+import org.shaolin.bmdp.json.JSONException;
 import org.shaolin.bmdp.json.JSONObject;
+import org.shaolin.bmdp.runtime.VariableUtil;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
@@ -42,13 +45,14 @@ import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.html.layout.HTMLPanelLayout;
-import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.PageDispatcher;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
+import org.shaolin.uimaster.page.cache.PageCacheManager;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.exception.UIPageException;
@@ -89,20 +93,18 @@ public class TabPane extends Container implements Serializable
     private static final String CMD_SETSELECTEDINDEX = "setSelectedIndex";
     private static final String HANDLERNAME = "tabPaneHandler";
     //List of titles(String)
-    private List titles=new ArrayList();
+    private List<String> titles = new ArrayList<String>();
     //List of entities(RefEntity)
-    private List entities=new ArrayList();
-    //
-    private Map<Integer, Boolean> loadedTabs = new HashMap<Integer, Boolean>();
+    //List<RefEntity> entities = new ArrayList<String>();
+    private List<Integer> loadedTabs = new ArrayList<Integer>();
     {
-    	loadedTabs.put(0, true);
+    	loadedTabs.add(0);
     }
     /**
      * ajax loading objects.
      */
     private List<UITabPaneItemType> tabs;
-    private UIFormObject ownerEntity;
-    private OOEEContext evalContext;
+    private Map<String, Object> inputParams;//OOEEContext evalContext;
     // clean the ajax loading objects if all tabs loaded.
     private AtomicInteger accessedIndex = new AtomicInteger();
     
@@ -126,7 +128,7 @@ public class TabPane extends Container implements Serializable
     
     public TabPane(String id, Layout layout)
     {
-        super(AjaxActionHelper.getAjaxContext().getEntityPrefix() +id, layout);
+        super(AjaxContextHelper.getAjaxContext().getEntityPrefix() + id, layout);
         this.setListened(true);
         this.uiid = this.getId();
     }
@@ -172,10 +174,6 @@ public class TabPane extends Container implements Serializable
     	this.selectedAction = selectedAction;
     }
 
-    public void setOwnerEntity(UIFormObject ownerEntity) {
-    	this.ownerEntity = ownerEntity;
-    }
-    
     public void setODMapperContext(VariableEvaluator ee) {
     	DefaultEvaluationContext cloneContext = null;
     	EvaluationContext eContext = ee.getExpressionContext();
@@ -183,12 +181,12 @@ public class TabPane extends Container implements Serializable
     		DefaultEvaluationContext localContext = (DefaultEvaluationContext)
     					((ODContext)eContext).getEvaluationContextObject("$");
     		if (localContext.getVariableObjects() != null) {
-    			cloneContext = new DefaultEvaluationContext(new HashMap(localContext.getVariableObjects()));
+    			cloneContext = new DefaultEvaluationContext(localContext.getVariableObjects());
     		}
 		} else if (eContext instanceof DefaultEvaluationContext) {
 			DefaultEvaluationContext localContext = (DefaultEvaluationContext)eContext;
 			if (localContext.getVariableObjects() != null) {
-				cloneContext = new DefaultEvaluationContext(new HashMap(localContext.getVariableObjects()));
+				cloneContext = new DefaultEvaluationContext(localContext.getVariableObjects());
 			}
 		} else {
 			cloneContext = (DefaultEvaluationContext)eContext;
@@ -196,18 +194,18 @@ public class TabPane extends Container implements Serializable
     	if (cloneContext == null) {
     		cloneContext = new DefaultEvaluationContext();
     	}
-    	OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
-    	ooeeContext.setDefaultEvaluationContext(cloneContext);
-    	ooeeContext.setEvaluationContextObject("$", cloneContext);
-    	// tableCondition must be not kept in ajax context!
-    	if (cloneContext.hasVariable("tableCondition")) {
-    		try {
-				cloneContext.setVariableValue("tableCondition", null);
-			} catch (EvaluationException e) {
-			}
-    	}
+//    	OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+//    	ooeeContext.setDefaultEvaluationContext(cloneContext);
+//    	ooeeContext.setEvaluationContextObject("$", cloneContext);
+//    	// tableCondition must be not kept in ajax context!
+//    	if (cloneContext.hasVariable("tableCondition")) {
+//    		try {
+//				cloneContext.setVariableValue("tableCondition", null);
+//			} catch (EvaluationException e) {
+//			}
+//    	}
     	
-    	this.evalContext = ooeeContext;
+    	this.inputParams = cloneContext.getVariableObjects();
     }
     
     public String generateHTML()
@@ -245,28 +243,29 @@ public class TabPane extends Container implements Serializable
     }
     public String generateJS()
     {
-        StringBuffer js = new StringBuffer(300);
-        js.append("defaultname.");
-        js.append(uiid);
-        js.append("=new UIMaster.ui.tab({");
-        js.append("uiid:\"").append(uiid).append("\",");
-        js.append("ui:elementList[\"");
-        js.append(uiid);
-        js.append("\"]");
-        js.append(super.generateJS());
-        js.append("});");
-        for ( int i = 0; i < entities.size(); i++ )
-        {
-            RefForm entity = ((RefForm)entities.get(i));
-            if (entity != null )
-            {
-                js.append(entity.generateJS());
-            }
-        }
-        return js.toString();
+    	throw new UnsupportedOperationException();
+//        StringBuffer js = new StringBuffer(300);
+//        js.append("defaultname.");
+//        js.append(uiid);
+//        js.append("=new UIMaster.ui.tab({");
+//        js.append("uiid:\"").append(uiid).append("\",");
+//        js.append("ui:elementList[\"");
+//        js.append(uiid);
+//        js.append("\"]");
+//        js.append(super.generateJS());
+//        js.append("});");
+//        for ( int i = 0; i < entities.size(); i++ )
+//        {
+//            RefForm entity = ((RefForm)entities.get(i));
+//            if (entity != null )
+//            {
+//                js.append(entity.generateJS());
+//            }
+//        }
+//        return js.toString();
     }
     
-    public boolean loadContent(int index) throws UIPageException, EvaluationException, ParsingException {
+    public boolean loadContent(int index) throws UIPageException, EvaluationException, ParsingException, JSONException {
     	if (!this.ajaxLoad) {
     		return false;
     	}
@@ -274,24 +273,25 @@ public class TabPane extends Container implements Serializable
     		throw new IllegalStateException("Please enable the ajax loading for this tab panel.");
     	}
     	this.selectedIndex = index;
-    	if (this.tabs.size() <= index || loadedTabs.containsKey(index)) {
+    	if (this.tabs.size() <= index || loadedTabs.contains(index)) {
     		//prevent the dynamic frame tab or loaded tab.
     		return false;
     	}
-    	loadedTabs.put(index, true);
+    	loadedTabs.add(index);
     	this.accessedIndex.incrementAndGet();
     	
     	
-    	AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
-    	Map ajaxMap = null;
+    	AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
+    	Map<String, JSONObject> ajaxMap = null;
 		try {
-			ajaxMap = AjaxActionHelper.getFrameMap(ajaxContext.getRequest());
+			ajaxMap = AjaxContextHelper.getFrameMap(ajaxContext.getRequest());
 		} catch (AjaxException e1) {
 			logger.warn("Session maybe timeout: " + e1.getMessage(), e1);
 			return false;
 		}
 		UserRequestContext orginalUserContext = UserRequestContext.UserContext.get();
     	try {
+    		UIFormObject ownerEntity = PageCacheManager.getUIForm(this.getUIEntityName());
     		StringWriter htmlWriter = new StringWriter();
 	    	UserRequestContext htmlContext = new UserRequestContext(ajaxContext.getRequest(), htmlWriter);
 	        htmlContext.setCurrentFormInfo(this.getUIEntityName(), ajaxContext.getEntityPrefix(), ajaxContext.getEntityPrefix().replace(".", "-"));
@@ -303,12 +303,16 @@ public class TabPane extends Container implements Serializable
 	        
 	    	UITabPaneItemType tab = tabs.get(index);
 	        String entityPrefix = ajaxContext.getEntityPrefix();
-	        if (this.evalContext == null) {
+	        if (this.inputParams == null) {
 	        	throw new UIPageException("Evaluation Context is missing for TabPane lazyloading form! " + tab.getUiid());
 	        }
 	        
 		if (tab.getPanel() != null) {
-			VariableEvaluator ee = new VariableEvaluator(this.evalContext);
+			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+			DefaultEvaluationContext cloneContext = new DefaultEvaluationContext(this.inputParams);
+	    	ooeeContext.setDefaultEvaluationContext(cloneContext);
+	    	ooeeContext.setEvaluationContextObject("$", cloneContext);
+			VariableEvaluator ee = new VariableEvaluator(ooeeContext);
 			List<String> componentIds = ownerEntity.getAllComponentID(this.getId() + "."+ tab.getUiid());
     		for(String compId : componentIds) {
     			Map propMap = ownerEntity.getComponentProperty(compId);
@@ -332,16 +336,16 @@ public class TabPane extends Container implements Serializable
 		        	((HTMLPanelType)htmlWidget).setDynamicItems(dynamicItems);
 		        } 
 				
-    			Widget newAjax = htmlWidget.createAjaxWidget(ee);
+    			JSONObject newAjax = htmlWidget.createJsonModel(ee);
                 if (newAjax != null) {
-                	htmlContext.addAjaxWidget(newAjax.getId(), newAjax);
-                	if (newAjax.getClass() == Button.class) {
+                	htmlContext.addAjaxWidget(htmlWidget.getName(), newAjax);
+                	if (newAjax.getString("type").equals(Button.class.getSimpleName())) {
                     	// all express must be re-calculate when click button in every time.
-                		((Button)newAjax).setExpressMap(expMap);
+                		//((Button)newAjax).setExpressMap(expMap);
                 	}
                 }
     		}
-    		AjaxActionHelper.updateFrameMap(ajaxContext.getRequest(), htmlContext.getPageAjaxWidgets());
+    		AjaxContextHelper.updateFrameMap(ajaxContext.getRequest(), htmlContext.getPageAjaxWidgets());
     		
         	//ui panel support
         	String id = entityPrefix + tab.getPanel().getUIID();
@@ -363,11 +367,11 @@ public class TabPane extends Container implements Serializable
 	            }
 	            js.append("Form.items.push(elementList['").append(tab.getPanel().getUIID()).append("']);");
 	            
-	            IDataItem dataItem = AjaxActionHelper.createAppendItemToTab(this.getId(), id);
+	            IDataItem dataItem = AjaxContextHelper.createAppendItemToTab(this.getId(), id);
 	            dataItem.setData(htmlWriter.getBuffer().toString());
 	            dataItem.setJs(js.toString());
 	            dataItem.setFrameInfo(this.getFrameInfo());
-	            AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+	            AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
             } finally {
     			DisposableBfString.release(js);
     		}
@@ -377,7 +381,11 @@ public class TabPane extends Container implements Serializable
 			if (tab.getOdmappings() != null && tab.getOdmappings().size() > 0) {
 				// we assume only one SimpleComponentMappingType defined for referenced form.
 				// the panel mappings can be multiple supported.
-				ODContext odObject = new ODTabPaneContext(htmlContext, this.evalContext);
+				OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
+				DefaultEvaluationContext cloneContext = new DefaultEvaluationContext(this.inputParams);
+		    	ooeeContext.setDefaultEvaluationContext(cloneContext);
+		    	ooeeContext.setEvaluationContextObject("$", cloneContext);
+				ODContext odObject = new ODTabPaneContext(htmlContext, ooeeContext);
 				for (SimpleComponentMappingType mapping : tab.getOdmappings()) {
 					SimpleComponentMapping scMapping = new SimpleComponentMapping(mapping);
 					scMapping.parse(odObject, null);
@@ -386,7 +394,7 @@ public class TabPane extends Container implements Serializable
 						refFormContext = result;
 					}
 				}
-				AjaxActionHelper.updateFrameMap(ajaxContext.getRequest(), htmlContext.getPageAjaxWidgets());
+				AjaxContextHelper.updateFrameMap(ajaxContext.getRequest(), htmlContext.getPageAjaxWidgets());
 			}
         	if (refFormContext == null) {
         		throw new UIPageException("OD Mapping Evaluation Context is missing for TabPane lazyloading form! " + tab.getUiid());
@@ -397,8 +405,8 @@ public class TabPane extends Container implements Serializable
             String type = itemRef.getReferenceEntity().getEntityName();
 			RefForm form = new RefForm(UIID, type, inputContext.getVariableObjects());
 			htmlContext.addAjaxWidget(form.getId(), form);
-			AjaxActionHelper.updateFrameMap(ajaxContext.getRequest(), htmlContext.getPageAjaxWidgets());
-			AjaxActionHelper.getAjaxContext().addAJAXComponent(form.getId(), form);
+			AjaxContextHelper.updateFrameMap(ajaxContext.getRequest(), htmlContext.getPageAjaxWidgets());
+			AjaxContextHelper.getAjaxContext().addAJAXComponent(form.getId(), form);
 			htmlContext.setCurrentFormInfo(type, UIID + ".", "");
 			try {
 				PageDispatcher dispatcher = new PageDispatcher(refFormContext.getUIFormObject(), inputContext);
@@ -409,16 +417,16 @@ public class TabPane extends Container implements Serializable
 	            UserRequestContext jsContext = new UserRequestContext(ajaxContext.getRequest(), jswriter1);
 	            refFormContext.getUIFormObject().getJSPathSet(jsContext, Collections.emptyMap(), true);
 	        	String data = jswriter1.getBuffer().toString();
-	        	IDataItem dataItem = AjaxActionHelper.createLoadJS(form.getId(), data);
+	        	IDataItem dataItem = AjaxContextHelper.createLoadJS(form.getId(), data);
 	            dataItem.setFrameInfo(getFrameInfo());
 	            ajaxContext.addDataItem(dataItem);
-				AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+				AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
 				
-		    	IDataItem dataItem1 = AjaxActionHelper.createAppendItemToTab(this.getId(), UIID);
+		    	IDataItem dataItem1 = AjaxContextHelper.createAppendItemToTab(this.getId(), UIID);
 	            dataItem1.setData(htmlWriter.getBuffer().toString());
 		        dataItem1.setJs(form.generateJS());
 	            dataItem1.setFrameInfo(this.getFrameInfo());
-	            AjaxActionHelper.getAjaxContext().addDataItem(dataItem1);
+	            AjaxContextHelper.getAjaxContext().addDataItem(dataItem1);
 			} finally {
 				htmlContext.resetCurrentFormInfo();
 			}
@@ -453,18 +461,28 @@ public class TabPane extends Container implements Serializable
         	frame.generateEndHTML(htmlContext, ownerEntity, 0);
         	
         	String UIID = entityPrefix + tab.getUiid();
-        	IDataItem dataItem = AjaxActionHelper.createAppendItemToTab(this.getId(), UIID);
+        	IDataItem dataItem = AjaxContextHelper.createAppendItemToTab(this.getId(), UIID);
             dataItem.setData(htmlContext.getHtmlString());
             dataItem.setFrameInfo(this.getFrameInfo());
-            AjaxActionHelper.getAjaxContext().addDataItem(dataItem);
+            AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
         } 
+		
+		if (logger.isDebugEnabled()) {
+            logger.debug("Created UI ajax widgets.");
+            for(Map.Entry<String, JSONObject> entry : htmlContext.getPageAjaxWidgets().entrySet())
+            {
+                logger.debug("Ajax widget: "+ entry.getValue().toString());
+            }
+        }
 		return true;
     	} finally {
     		UserRequestContext.UserContext.set(orginalUserContext);
     		if (this.accessedIndex.get() >= this.tabs.size()) {
     			this.tabs = null;
-    			this.ownerEntity = null;
     			this.accessedIndex = null;
+    		}
+    		if (tabs.size() == loadedTabs.size()) {
+    			this.inputParams = null;
     		}
     	}
     }
@@ -494,15 +512,14 @@ public class TabPane extends Container implements Serializable
     public void addTabAt(int index, String title, RefForm component)
     {
         titles.add(title);
-        entities.add(component);
-        if(index > entities.size() || index < 0)
+        if(index > titles.size() || index < 0)
         {
             throw new IllegalArgumentException("Fail to add tab in TabPane at " + index);
         }
         this.selectedIndex = index;
         
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
-        IDataItem dataItem = AjaxActionHelper.createDataItem();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
+        IDataItem dataItem = AjaxContextHelper.createDataItem();
         dataItem.setJs(component.generateJS());
         dataItem.setUiid(uiid);
         dataItem.setJsHandler(HANDLERNAME);
@@ -523,11 +540,10 @@ public class TabPane extends Container implements Serializable
      */
     public void removeTabAt(int index)
     {
-        if(index >= entities.size() || index < 0)
+        if(index >= titles.size() || index < 0)
         {
             return;
         }
-        entities.remove(index);
         titles.remove(index);
         if(getSelectedIndex() == index)
         {
@@ -537,7 +553,7 @@ public class TabPane extends Container implements Serializable
         Map data = new HashMap();
         data.put("cmd",CMD_REMOVETAB);
         data.put("index",String.valueOf(index));
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         IDataItem dataItem = createData((new JSONObject(data)).toString());
         ajaxContext.addDataItem(dataItem);
     }
@@ -549,18 +565,17 @@ public class TabPane extends Container implements Serializable
      */
     public void setTabComponentAt(int index, RefForm component)
     {
-        if(index >= entities.size() || index < 0)
+        if(index >= titles.size() || index < 0)
         {
             return;
         }
-        entities.set(index, component);
         
         Map data = new HashMap();
         data.put("cmd",CMD_SETBODY);
         data.put("index",String.valueOf(index));
         data.put("entity",component.generateHTML());
         
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         IDataItem dataItem = createData((new JSONObject(data)).toString());
         dataItem.setJs(component.generateJS());
         ajaxContext.addDataItem(dataItem);
@@ -584,32 +599,19 @@ public class TabPane extends Container implements Serializable
         data.put("index",String.valueOf(index));
         data.put("title",title);
         
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         IDataItem dataItem = createData((new JSONObject(data)).toString());
         ajaxContext.addDataItem(dataItem);
     }
     
     private IDataItem createData(String data) 
     {
-        IDataItem dataItem = AjaxActionHelper.createDataItem();
+        IDataItem dataItem = AjaxContextHelper.createDataItem();
         dataItem.setUiid(uiid);
         dataItem.setJsHandler(HANDLERNAME);
         dataItem.setData(data);
         dataItem.setFrameInfo(getFrameInfo());
         return dataItem;
-    }
-    /**
-     * Returns the component at index.
-     * @param index
-     * @return
-     */
-    public RefForm getComponentAt(int index)
-    {
-        if(index >= entities.size() || index < 0)
-        {
-            return null;
-        }
-        return (RefForm)entities.get(index);
     }
        
     /**
@@ -632,26 +634,6 @@ public class TabPane extends Container implements Serializable
     }
       
     /**
-     * Returns the index of the tab for the specified component.
-     * @param component
-     * @return
-     */
-    public int indexOfComponent(RefForm component)
-    {
-        return entities.indexOf(component);
-    }
-
-    public List getEntities()
-    {
-        return entities;
-    }
-
-    public void setEntities(List entities)
-    {
-        this.entities = entities;
-    }
-
-    /**
      * Return the index of the selected tab.
      * @return
      */
@@ -671,7 +653,7 @@ public class TabPane extends Container implements Serializable
         data.put("cmd",CMD_SETSELECTEDINDEX);
         data.put("index",String.valueOf(selectedIndex));
         
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         IDataItem dataItem = createData((new JSONObject(data)).toString());
         ajaxContext.addDataItem(dataItem);
     }
@@ -694,5 +676,40 @@ public class TabPane extends Container implements Serializable
     {
         return false;
     }
+    
+    public JSONObject toJSON() throws JSONException {
+		JSONObject json = super.toJSON();
+		json.put("selectedIndex", selectedIndex);
+		json.put("ajaxLoad", ajaxLoad);
+		json.put("titles", new JSONArray(this.titles));
+		json.put("loadedTabs", new JSONArray(this.loadedTabs));
+		if (inputParams != null) {
+			inputParams.remove("inputParams");
+			JSONObject inputValues = VariableUtil.convertVarToJson((HashMap)this.inputParams);
+			inputValues.remove("UIEntity");
+			json.put("inputParams", inputValues);
+		}
+		return json;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void fromJSON(JSONObject json) throws Exception {
+		super.fromJSON(json);
+		String entityName = json.getString("entity");
+		UIFormObject formObject = PageCacheManager.getUIForm(entityName);
+		Map<String, Object> attributes = formObject.getComponentProperty(this.getId(), true);
+		this.tabs = (List<UITabPaneItemType>)attributes.get("tabPaneItems");
+		this.selectedAction = (ExpressionType)attributes.get("selectedAction");
+		
+		this.uiid = this.getId();
+		this.selectedIndex = json.has("selectedIndex") ? json.getInt("selectedIndex") : 0;
+		this.ajaxLoad = json.has("ajaxLoad") ? json.getBoolean("ajaxLoad") : false;
+		this.titles = json.has("titles") ? json.getJSONArray("titles").toList() : new ArrayList<String>();
+		this.loadedTabs = json.has("loadedTabs") ? json.getJSONArray("loadedTabs").toList() : new ArrayList<Integer>();
+		if (json.has("inputParams")) {
+			this.inputParams = VariableUtil.convertJsonToVar(json.getJSONObject("inputParams"));
+			this.inputParams.remove("inputParams");
+		}
+	}
 
 }

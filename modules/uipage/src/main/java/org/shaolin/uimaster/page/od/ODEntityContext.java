@@ -28,7 +28,7 @@ import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.context.EvaluationContext;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.cache.ODFormObject;
 import org.shaolin.uimaster.page.cache.ODObject;
@@ -149,7 +149,7 @@ public class ODEntityContext extends ODContext
     		globalContext.setVariableValue("odContext", this);
     		String uiid = requestContext.getHTMLPrefix() + uiEntity.getUIID();
     		globalContext.setVariableValue(AJAX_UICOMP_NAME, 
-    				AjaxActionHelper.createUI2DataAjaxContext(uiid, 
+    				AjaxContextHelper.createUI2DataAjaxContext(uiid, 
 					uiEntityName, requestContext.getRequest()));
     		this.setEvaluationContextObject(GLOBAL_TAG, globalContext);
     	}

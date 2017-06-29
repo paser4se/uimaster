@@ -21,9 +21,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.shaolin.bmdp.runtime.AppContext;
-import org.shaolin.uimaster.page.UIPermissionManager;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.UIPermissionManager;
 import org.shaolin.uimaster.page.security.ComponentPermission;
 
 public class CellLayout extends Layout implements Serializable
@@ -82,7 +82,7 @@ public class CellLayout extends Layout implements Serializable
     public void addComponent(Widget component)
     {
         compList.add(component);
-        component.setHtmlLayout(this);
+        //component.setHtmlLayout(this);
         this.setListened(true);
     }
 
@@ -195,34 +195,6 @@ public class CellLayout extends Layout implements Serializable
             front.next = null;
         }
         front = next = null;
-        return this;
-    }
-
-    public CellLayout before(Widget comp)
-    {
-        CellLayout layout = (CellLayout)comp.getHtmlLayout();
-        layout.setFront(front);
-        layout.setNext(this);
-        layout.setY(y);
-        if(parent != null)
-        {
-            layout.setParent(parent);
-            ((Panel)parent).setIDForNewLayout(layout);
-        }
-        return this;
-    }
-
-    public CellLayout after(Widget comp)
-    {
-        CellLayout layout = (CellLayout)comp.getHtmlLayout();
-        layout.setNext(next);
-        layout.setFront(this);
-        layout.setY(y);
-        if(parent != null)
-        {
-            layout.setParent(parent);
-            ((Panel)parent).setIDForNewLayout(layout);
-        }
         return this;
     }
 

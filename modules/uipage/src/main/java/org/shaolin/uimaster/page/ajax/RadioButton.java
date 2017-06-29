@@ -17,7 +17,7 @@ package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
 
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
@@ -36,7 +36,7 @@ public class RadioButton extends SelectWidget implements Serializable
         if ("selected".equals(name))
         {
             super.addAttribute(name, value, update);
-            if ("true".equals(value) && AjaxActionHelper.getAjaxContext() != null)
+            if ("true".equals(value) && AjaxContextHelper.getAjaxContext() != null)
             {
                 int startIndex = this.getId().lastIndexOf("[");
                 if (startIndex != -1 && this.getId().endsWith("]"))
@@ -44,9 +44,8 @@ public class RadioButton extends SelectWidget implements Serializable
                     String startId = this.getId().substring(0, startIndex);
                     int count = 0;
                     RadioButton radio = null;
-                    while ((radio = (RadioButton)AjaxActionHelper.getAjaxContext()
-                            .getElementByAbsoluteId(startId + "[" + count + "]",
-                                    this.getFrameInfo())) != null)
+                    while ((radio = (RadioButton)AjaxContextHelper.getAjaxContext()
+                            .getElementByAbsoluteId(startId + "[" + count + "]")) != null)
                     {
                         if (!radio.getId().equals(this.getId()))
                         {

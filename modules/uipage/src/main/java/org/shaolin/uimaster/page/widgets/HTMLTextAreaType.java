@@ -23,6 +23,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.function.Consumer;
 
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.utils.FileUtil;
 import org.shaolin.uimaster.page.HTMLUtil;
@@ -181,31 +183,31 @@ public class HTMLTextAreaType extends HTMLTextWidgetType implements Consumer<Str
         }
     }
 
-    public Widget createAjaxWidget(VariableEvaluator ee)
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-        TextArea textArea = new TextArea(getName(), Layout.NULL);
+//        TextArea textArea = new TextArea(getName(), Layout.NULL);
+//
+//        textArea.setReadOnly(isReadOnly());
+//        textArea.setUIEntityName(getUIEntityName());
+//
+//        // we don't expect to anything except the pure value 
+//        // what we really need in the backend.
+//        textArea.setValue(getValue());
+//        if (this.getAttribute("htmlSupport") != null && 
+//        		"true".equals(this.getAttribute("htmlSupport").toString())) {
+//        	textArea.setHtmlSupport(true);
+//        	if (this.getAttribute("viewMode") != null && 
+//            		"true".equals(this.getAttribute("viewMode").toString())) {
+//        		textArea.setHtmlSupport(false);
+//        	}
+//        }
+//        
+//        setAJAXConstraints(textArea);
+//        setAJAXAttributes(UserRequestContext.UserContext.get(), textArea);
+//        
+//        textArea.setListened(true);
 
-        textArea.setReadOnly(isReadOnly());
-        textArea.setUIEntityName(getUIEntityName());
-
-        // we don't expect to anything except the pure value 
-        // what we really need in the backend.
-        textArea.setValue(getValue());
-        if (this.getAttribute("htmlSupport") != null && 
-        		"true".equals(this.getAttribute("htmlSupport").toString())) {
-        	textArea.setHtmlSupport(true);
-        	if (this.getAttribute("viewMode") != null && 
-            		"true".equals(this.getAttribute("viewMode").toString())) {
-        		textArea.setHtmlSupport(false);
-        	}
-        }
-        
-        setAJAXConstraints(textArea);
-        setAJAXAttributes(UserRequestContext.UserContext.get(), textArea);
-        
-        textArea.setListened(true);
-
-        return textArea;
+    	return super.createJsonModel(ee);
     }
     
 }

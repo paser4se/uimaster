@@ -18,6 +18,8 @@ package org.shaolin.uimaster.page.widgets;
 import java.util.List;
 
 import org.shaolin.uimaster.page.UserRequestContext;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.ajax.ComboBox;
 import org.shaolin.uimaster.page.ajax.Layout;
@@ -188,22 +190,23 @@ public class HTMLComboBoxType extends HTMLSingleChoiceType
         }
     }
     
-    public Widget createAjaxWidget(VariableEvaluator ee)
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-        ComboBox comboBox = new ComboBox(getName(), Layout.NULL, this.getRealValueDataType());
-
-        comboBox.setReadOnly(isReadOnly());
-        comboBox.setUIEntityName(getUIEntityName());
-
-        comboBox.setOptions(getOptionDisplayValues(), getOptionValues());
-        comboBox.setValue(getValue());
-
-        setAJAXConstraints(comboBox);
-        setAJAXAttributes(UserRequestContext.UserContext.get(), comboBox);
-        
-        comboBox.setListened(true);
-
-        return comboBox;
+//        ComboBox comboBox = new ComboBox(getName(), Layout.NULL);
+//        comboBox.setRealValueType(this.getRealValueDataType());
+//        comboBox.setReadOnly(isReadOnly());
+//        comboBox.setUIEntityName(getUIEntityName());
+//
+//        comboBox.setOptions(getOptionDisplayValues(), getOptionValues());
+//        comboBox.setValue(getValue());
+//
+//        setAJAXConstraints(comboBox);
+//        setAJAXAttributes(UserRequestContext.UserContext.get(), comboBox);
+//        
+//        comboBox.setListened(true);
+//
+//        return comboBox;
+    	return super.createJsonModel(ee);
     }
     
     private static final long serialVersionUID = -7717716729284638113L;

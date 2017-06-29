@@ -19,10 +19,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.UserRequestContext;
-import org.shaolin.uimaster.page.ajax.TextWidget;
-import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.od.IODMappingConverter;
 import org.shaolin.uimaster.page.widgets.HTMLLabelType;
@@ -186,10 +185,16 @@ public class UIText implements IODMappingConverter {
 
 	public void pullDataFromWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
-			TextWidget textComp = (TextWidget) AjaxActionHelper.getCachedAjaxWidget(this.uiid, htmlContext);
-			String value = textComp.getValue();
+//			TextWidget textComp = (TextWidget) AjaxActionHelper.getCachedAjaxWidget(this.uiid, htmlContext);
+//			String value = textComp.getValue();
+			JSONObject textComp = htmlContext.getAjaxWidget(this.uiid);
+			if (textComp == null) {
+				logger.warn(this.uiid + " does not exist for data to ui mapping!");
+				return;
+			}
+			String value = textComp.getJSONObject("attrMap").getString("value");
 			this.stringData = (value != null && !"null".equals(value))? value.trim() : "";
-		} catch (AjaxException e) {
+		} catch (JSONException e) {
 			logger.warn("Failed to get data from ui widget: " + this.uiid + ", message: " + e.getMessage());
 			this.stringData = "";
 		} catch (Throwable t) {

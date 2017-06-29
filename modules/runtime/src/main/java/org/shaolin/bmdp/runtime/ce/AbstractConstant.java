@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.shaolin.bmdp.i18n.ResourceUtil;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 
 public abstract class AbstractConstant implements IConstantEntity {
 
@@ -466,6 +468,16 @@ public abstract class AbstractConstant implements IConstantEntity {
 
 	public void setBigIcon(String bigIcon) {
 		this.bigIcon = bigIcon;
+	}
+	
+	@Override
+	public JSONObject toJSON() throws JSONException{
+		JSONObject json = new JSONObject();
+		json.put("intValue", intValue);
+		json.put("strValue", value);
+		json.put("entity", this.getI18nEntityName());
+		json.put("display", this.getDisplayName());
+		return json;
 	}
 	
 	public abstract String getI18nBundle();

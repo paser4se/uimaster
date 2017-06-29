@@ -53,7 +53,7 @@ public class PageUtil {
         	Workflow workflow = allWorkflows.get(i);
             
             TreeItem gitem = new TreeItem();
-            gitem.setId(workflow.getEntityName().replace(' ', '_'));
+            gitem.setNodeId(workflow.getEntityName().replace(' ', '_'));
             gitem.setText(workflow.getDescription() != null? workflow.getDescription():workflow.getEntityName());
             gitem.setState(new org.shaolin.uimaster.page.ajax.TreeItem.State());
             gitem.setA_attr(new org.shaolin.uimaster.page.ajax.TreeItem.LinkAttribute("#"));
@@ -64,7 +64,7 @@ public class PageUtil {
 	        for (FlowType flow : flows) {
 	            TreeItem item = new TreeItem();
 	            //TODO: make unique id here.
-	            item.setId(gitem.getId() + "." + flow.getName());
+	            item.setNodeId(gitem.getId() + "." + flow.getName());
 	            item.setText(flow.getName());
 	            item.setA_attr(new org.shaolin.uimaster.page.ajax.TreeItem.LinkAttribute("#"));
 	            

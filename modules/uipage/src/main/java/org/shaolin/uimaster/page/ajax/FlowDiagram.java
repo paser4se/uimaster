@@ -37,7 +37,7 @@ import org.shaolin.bmdp.runtime.entity.EntityUtil;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.od.ODContext;
@@ -198,8 +198,8 @@ public class FlowDiagram extends Widget<FlowDiagram> implements Serializable {
 		node.setY(0);
 		flow.getNodes().add(node);
 		
-		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
-        IDataItem dataItem = AjaxActionHelper.createDataItem();
+		AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
+        IDataItem dataItem = AjaxContextHelper.createDataItem();
         dataItem.setUiid(this.getId());
         dataItem.setJsHandler("uiflowhandler");
         
@@ -231,8 +231,8 @@ public class FlowDiagram extends Widget<FlowDiagram> implements Serializable {
 			}
 		}
 		
-		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
-		IDataItem dataItem = AjaxActionHelper.createDataItem();
+		AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
+		IDataItem dataItem = AjaxContextHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler("uiflowhandler");
 		
@@ -279,8 +279,8 @@ public class FlowDiagram extends Widget<FlowDiagram> implements Serializable {
 	}
 	
 	public void saveSuccess() {
-		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
-        IDataItem dataItem = AjaxActionHelper.createDataItem();
+		AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
+        IDataItem dataItem = AjaxContextHelper.createDataItem();
         dataItem.setUiid(this.getId());
         dataItem.setJsHandler("uiflowhandler");
         
@@ -292,8 +292,8 @@ public class FlowDiagram extends Widget<FlowDiagram> implements Serializable {
 	}
 	
 	public void saveFailure() {
-		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
-        IDataItem dataItem = AjaxActionHelper.createDataItem();
+		AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
+        IDataItem dataItem = AjaxContextHelper.createDataItem();
         dataItem.setUiid(this.getId());
         dataItem.setJsHandler("uiflowhandler");
         

@@ -19,14 +19,15 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.UserRequestContext;
-import org.shaolin.uimaster.page.ajax.TextWidget;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.od.IODMappingConverter;
 import org.shaolin.uimaster.page.od.formats.FormatUtil;
 import org.shaolin.uimaster.page.widgets.HTMLLabelType;
 import org.shaolin.uimaster.page.widgets.HTMLTextWidgetType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UITextWithCurrency implements IODMappingConverter {
 	private HTMLTextWidgetType uiText;
@@ -236,9 +237,15 @@ public class UITextWithCurrency implements IODMappingConverter {
 
 	public void pullDataFromWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
-			TextWidget textComp = (TextWidget) AjaxActionHelper
-					.getCachedAjaxWidget(this.uiid, htmlContext);
-			String value = textComp.getValue();
+//			TextWidget textComp = (TextWidget) AjaxActionHelper
+//					.getCachedAjaxWidget(this.uiid, htmlContext);
+//			String value = textComp.getValue();
+			JSONObject textComp = htmlContext.getAjaxWidget(this.uiid);
+			if (textComp == null) {
+				logger.warn(this.uiid + " does not exist for data to ui mapping!");
+				return;
+			}
+			String value = textComp.getJSONObject("attrMap").getString("value");
 			if (value == null || "".equals(value.trim())) {
 				this.currency = 0.0D;
 			} else {
@@ -257,4 +264,6 @@ public class UITextWithCurrency implements IODMappingConverter {
 
 	public void callAllMappings(boolean isDataToUI) throws UIConvertException {
 	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(UIText.class);
 }

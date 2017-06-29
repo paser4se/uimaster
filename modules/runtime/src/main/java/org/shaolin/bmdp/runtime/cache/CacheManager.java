@@ -19,19 +19,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.shaolin.bmdp.exceptions.I18NRuntimeException;
+import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.utils.SerializeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import redis.clients.jedis.Jedis;
+
 public class CacheManager 
 {
-	private static final Logger logger = LoggerFactory.getLogger(CacheManager.class);
+	private static final transient Logger logger = LoggerFactory.getLogger(CacheManager.class);
 	
 	private static final CacheManager instance = new CacheManager();
 
@@ -40,8 +44,17 @@ public class CacheManager
     private static final ConcurrentMap<String, Timer> timerMap = new ConcurrentHashMap<String, Timer>();
 
     private static int anonymousCacheCount = 1;
+    
+    private Jedis jedis;
 
 	private CacheManager() {
+		String serverInfo = Registry.getInstance().getValue("/System/DistributedCache/serverInfo");
+		String password = Registry.getInstance().getValue("/System/DistributedCache/password");
+		if (serverInfo != null && serverInfo.trim().length() > 0) {
+			jedis = new Jedis(serverInfo);
+			jedis.auth(password);
+			jedis.connect();
+		}
 	}
 	
 	public static CacheManager getInstance() {
@@ -76,6 +89,42 @@ public class CacheManager
 			return createCache(cacheName, maxSize, needSynchronize, keyType, valueType);
 		}
         return (ICache<K, V>) cacheMap.get(cacheName);
+    }
+	
+	/**
+	 * Get a distributed cache based on Redis.
+	 * 
+	 * @param cacheName
+	 * @return
+	 */
+	public ICache<String, String> getDistributedStringCache(String cacheName)
+    {
+		if (!cacheMap.containsKey(cacheName)) {
+			RedisCache cache = new RedisCache(cacheName, jedis);
+			cacheMap.put(cacheName, cache);
+		}
+        return (ICache<String, String>) cacheMap.get(cacheName);
+    }
+	
+	public ICache<String, List<String>> getDistributedListCache(String cacheName)
+    {
+		if (!cacheMap.containsKey(cacheName)) {
+			RedisListCache cache = new RedisListCache(cacheName, jedis);
+			cacheMap.put(cacheName, cache);
+		}
+        return (ICache<String, List<String>>) cacheMap.get(cacheName);
+    }
+	
+	public ICache<String, Map<String, String>> getDistributedMapCache(String cacheName)
+    {
+		if (jedis == null) {
+			throw new IllegalStateException("Redis client is not started!");
+		}
+		if (!cacheMap.containsKey(cacheName)) {
+			RedisMapCache cache = new RedisMapCache(cacheName, jedis);
+			cacheMap.put(cacheName, cache);
+		}
+        return (ICache<String, Map<String, String>>) cacheMap.get(cacheName);
     }
 	
 	/**

@@ -28,6 +28,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.shaolin.bmdp.json.JSONException;
 import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.utils.CloseUtil;
@@ -61,7 +62,7 @@ public class UserRequestContext implements Serializable
     private transient UIFormObject currentUIForm;
     private java.util.Stack<RefEntityInfo> refEntityStack = new java.util.Stack<RefEntityInfo>();
     
-    private static class RefEntityInfo {
+    private static class RefEntityInfo implements Serializable {
     	String htmlPrefix = "";
     	String divPrefix = "";
     	String formName = null;
@@ -78,7 +79,7 @@ public class UserRequestContext implements Serializable
     private final Map<String, Map<String, Object>> uicompAttributes = new HashMap<String, Map<String, Object>>();
     private final Map<String, Map<String, String>> uicompStyles = new HashMap<String, Map<String, String>>();
     private final Map<String, Map<String, String>> reconfigurationMap = new HashMap<String, Map<String, String>>();
-    private final Map<String, Widget<?>> ajaxWidgetMap = new HashMap<String, Widget<?>>();
+    private final Map<String, JSONObject> ajaxJsonMap = new HashMap<String, JSONObject>();
     private transient Map<String, ComponentPermission> componentPermissions;
     private transient Map<String, UIFormObject> refEntityMap;
     private List<String> resourceBundles;
@@ -96,6 +97,8 @@ public class UserRequestContext implements Serializable
     private boolean isDataToUI = true;
     
     private int valueMaskCounter;
+    
+    private String frameInfo;
     
     public UserRequestContext(HttpServletRequest request, HttpServletResponse response) 
     {
@@ -122,24 +125,34 @@ public class UserRequestContext implements Serializable
 		this.out = writer;
 	}
 
-    public Map<String, Widget<?>> getPageAjaxWidgets()
+    public Map<String, JSONObject> getPageAjaxWidgets()
     {
-        return ajaxWidgetMap;
+        return ajaxJsonMap;
     }
     
     // this is designed for Ajax operation.
-    public void setAjaxWidgetMap(final Map<String, Widget<?>> map) {
-    	this.ajaxWidgetMap.putAll(map);
+    public void setAjaxWidgetMap(final Map<String, JSONObject> map) {
+    	this.ajaxJsonMap.putAll(map);
     }
     
-    public void addAjaxWidget(final String compID, final Widget<?> component)
+    public void addAjaxWidget(final String compID, final Widget<?> component) throws JSONException
     {
-        ajaxWidgetMap.put(compID, component);
+        ajaxJsonMap.put(compID, component.toJSON());
     }
     
-    public Widget<?> getAjaxWidget(String compID)
+    public void addAjaxWidget(final String compID, JSONObject component) throws JSONException
     {
-        return ajaxWidgetMap.get(compID);
+        ajaxJsonMap.put(compID, component);
+    }
+    
+    public void updateAjaxWidget(final String compID, final Widget<?> component) throws JSONException
+    {
+        ajaxJsonMap.put(compID, component.toJSON());
+    }
+    
+    public JSONObject getAjaxWidget(String compID)
+    {
+        return ajaxJsonMap.get(compID);
     }
     
     public void addAttribute(String uiid, Map<String, Object> items) {
@@ -219,16 +232,19 @@ public class UserRequestContext implements Serializable
 
     public String getFrameInfo()
     {
-        String frameInfo = (String)request.getAttribute("_framePagePrefix");
-        if (frameInfo == null)
-        {
-            String framePrefix = (String)request.getParameter("_framePrefix");
-            if (framePrefix != null && !framePrefix.equals("null"))
-            {
-                frameInfo = framePrefix;
-            }
-        }
-        return frameInfo == null ? "" : frameInfo;
+    	if (frameInfo == null) {
+	        String v = (String)request.getAttribute("_framePagePrefix");
+	        if (v == null)
+	        {
+	            String framePrefix = (String)request.getParameter("_framePrefix");
+	            if (framePrefix != null && !framePrefix.equals("null"))
+	            {
+	                v = framePrefix;
+	            }
+	        }
+	        frameInfo = (v == null ? "" : v);
+    	}
+    	return frameInfo;
     }
 
     public void setRequest(HttpServletRequest request)

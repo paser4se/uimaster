@@ -24,6 +24,8 @@ import org.shaolin.bmdp.datamodel.flowdiagram.NodeType;
 import org.shaolin.bmdp.datamodel.page.UITableActionGroupType;
 import org.shaolin.bmdp.datamodel.page.UITableActionType;
 import org.shaolin.bmdp.datamodel.workflow.Workflow;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.uimaster.page.UserRequestContext;
@@ -192,37 +194,39 @@ public class HTMLFlowDiagramType extends HTMLWidgetType
     {
     }
     
-    public Widget createAjaxWidget(VariableEvaluator ee)
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-    	FlowChunk flow = null;
-    	String flowName = (String)this.getAttribute("flowName");
-    	if (flowName != null) {
-	    	flow = IServerServiceManager.INSTANCE.getEntityManager().getEntity(flowName, FlowChunk.class);
-    	}
-    	Object data = this.getAttribute("loadFlow");
-    	if (data != null) {
-    		flow = (FlowChunk)data;
-    	}
-    	Object dataModel = this.removeAttribute("loadDateModel");
-    	if (dataModel instanceof List) {
-	    	FlowDiagram t = new FlowDiagram(getName(), Layout.NULL, flow, (List)dataModel);
-	    	t.setLoadFlowExpr((ExpressionType)this.removeAttribute("loadFlowExpr"));
-	    	t.setLoadDataModelExpr((ExpressionType)this.removeAttribute("loadDateModelExpr"));
-	        t.setReadOnly(isReadOnly());
-	        t.setUIEntityName(getUIEntityName());
-	        t.setListened(true);
-	        return t;
-    	} else if (dataModel instanceof Workflow) {
-    		this.removeAttribute("loadDataModelExpr");
-    		this.removeAttribute("loadFlowExpr");
-    		WorkFlowDiagram t = new WorkFlowDiagram(getName(), Layout.NULL, flow, (Workflow)dataModel);
-	        t.setReadOnly(isReadOnly());
-	        t.setUIEntityName(getUIEntityName());
-	        t.setListened(true);
-	        return t;
-    	} else {
-    		throw new IllegalStateException("Unsupported object for flow diagram: " + dataModel);
-    	}
+//    	FlowChunk flow = null;
+//    	String flowName = (String)this.getAttribute("flowName");
+//    	if (flowName != null) {
+//	    	flow = IServerServiceManager.INSTANCE.getEntityManager().getEntity(flowName, FlowChunk.class);
+//    	}
+//    	Object data = this.getAttribute("loadFlow");
+//    	if (data != null) {
+//    		flow = (FlowChunk)data;
+//    	}
+//    	Object dataModel = this.removeAttribute("loadDateModel");
+//    	if (dataModel instanceof List) {
+//	    	FlowDiagram t = new FlowDiagram(getName(), Layout.NULL, flow, (List)dataModel);
+//	    	t.setLoadFlowExpr((ExpressionType)this.removeAttribute("loadFlowExpr"));
+//	    	t.setLoadDataModelExpr((ExpressionType)this.removeAttribute("loadDateModelExpr"));
+//	        t.setReadOnly(isReadOnly());
+//	        t.setUIEntityName(getUIEntityName());
+//	        t.setListened(true);
+//	        return t;
+//    	} else if (dataModel instanceof Workflow) {
+//    		this.removeAttribute("loadDataModelExpr");
+//    		this.removeAttribute("loadFlowExpr");
+//    		WorkFlowDiagram t = new WorkFlowDiagram(getName(), Layout.NULL, flow, (Workflow)dataModel);
+//	        t.setReadOnly(isReadOnly());
+//	        t.setUIEntityName(getUIEntityName());
+//	        t.setListened(true);
+//	        return t;
+//    	} else {
+//    		throw new IllegalStateException("Unsupported object for flow diagram: " + dataModel);
+//    	}
+    	
+    	return super.createJsonModel(ee);
     }
     
 }

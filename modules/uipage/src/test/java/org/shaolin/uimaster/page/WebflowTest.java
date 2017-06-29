@@ -244,7 +244,7 @@ public class WebflowTest {
 			
 			System.out.println("HTML Code: \n" + response.getHtmlCode());
 			
-			Assert.assertEquals(10, ((Map)AjaxActionHelper.getAjaxWidgetMap(
+			Assert.assertEquals(10, ((Map)AjaxContextHelper.getAjaxWidgetMap(
 					request.getSession()).get(AjaxContext.GLOBAL_PAGE)).size());
 			ICustomer customer = (ICustomer)context.
 					getEvaluationContextObject("$").getVariableValue("customer");

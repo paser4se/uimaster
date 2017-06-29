@@ -17,6 +17,9 @@ package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
 
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
+
 /**
  * This interface is purposed for all the ajax call back actions.
  * Refer to RefForm.openInWindows and closeIfinWindows as an example.
@@ -27,4 +30,8 @@ import java.io.Serializable;
 public interface CallBack extends Serializable {
 
 	void execute(Object... objects);
+	
+	JSONObject toJSON() throws JSONException;
+	
+	void fromJSON(JSONObject json) throws JSONException;
 }

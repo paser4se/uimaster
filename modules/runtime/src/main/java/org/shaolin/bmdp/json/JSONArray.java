@@ -17,11 +17,13 @@ package org.shaolin.bmdp.json;
  */
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,13 +66,13 @@ import java.util.Map;
  * @author JSON.org
  * @version 2008-09-18
  */
-public class JSONArray
+public class JSONArray implements Serializable
 {
 
     /**
      * The arrayList where the JSONArray's properties are kept.
      */
-    private ArrayList myArrayList;
+    private final ArrayList myArrayList;
 
     /**
      * Construct an empty JSONArray.
@@ -78,6 +80,11 @@ public class JSONArray
     public JSONArray()
     {
         this.myArrayList = new ArrayList();
+    }
+    
+    public JSONArray(int size)
+    {
+        this.myArrayList = new ArrayList(size);
     }
 
     /**
@@ -843,6 +850,10 @@ public class JSONArray
         return jo;
     }
 
+    public List toList() {
+    	return myArrayList;
+    }
+    
     /**
      * Make a JSON text of this JSONArray. For compactness, no unnecessary whitespace is added. If
      * it is not possible to produce a syntactically correct JSON text then null will be returned

@@ -8,6 +8,9 @@ import java.util.Map;
 
 import org.shaolin.bmdp.exceptions.I18NRuntimeException;
 import org.shaolin.bmdp.i18n.ExceptionConstants;
+import org.shaolin.bmdp.json.JSONArray;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.runtime.spi.IConstantService;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 
 public class CEUtil {
@@ -155,7 +158,66 @@ public class CEUtil {
 		}
 		return m;
 	}
+	
+	public static Map<Integer, String> getAllConstants(String ceName) throws Exception {
+		Map<Integer, String> m = new HashMap<Integer, String>();
+		List<IConstantEntity> items = getConstantEntities(ceName, true, null);
+		for (IConstantEntity item: items) {
+			m.put(item.getIntValue(), item.getValue());
+		}
+		return m;
+	}
 
+	public static void getCEItems(int openLevel, List<String> values, List<String> displayItems, 
+			IConstantEntity ce) {
+		if (ce == null) {
+			return;
+		}
+		// ce node.
+		String nodeId = ce.getEntityName();
+		
+		IConstantService cs = IServerServiceManager.INSTANCE.getConstantService();
+		String space = "--";
+		List<IConstantEntity> items = ce.getConstantList();
+		for (IConstantEntity item: items) {
+			if (item.getIntValue() == -1) {
+				continue;
+			}
+			values.add(nodeId + "," + item.getIntValue());
+			displayItems.add(item.getDisplayName());
+			IConstantEntity kid = cs.getChildren(item);
+			if (kid != null){
+				getCEItems0(--openLevel, space, values, displayItems, kid);
+			}
+		}
+		
+	}
+	
+	private static void getCEItems0(int openLevel, String space, List<String> values, List<String> displayItems, 
+			IConstantEntity ce) {
+		if (ce == null) {
+			return;
+		}
+		// ce node.
+		String nodeId = ce.getEntityName();
+		
+		IConstantService cs = IServerServiceManager.INSTANCE.getConstantService();
+		List<IConstantEntity> items = ce.getConstantList();
+		for (IConstantEntity item: items) {
+			if (item.getIntValue() == -1) {
+				continue;
+			}
+			values.add(nodeId + "," + item.getIntValue());
+			displayItems.add(space + item.getDisplayName());
+			if (openLevel > 1) {
+				IConstantEntity kid = cs.getChildren(item);
+				if (kid != null){
+					getCEItems0(--openLevel, space + "--", values, displayItems, kid);
+				}
+			}
+		}
+	}
+	
 	public static List<String> listCEValues(
 			List<IConstantEntity> constantEntities) {
 		List<String> constantEntityValues = new ArrayList<String>();
@@ -322,4 +384,34 @@ public class CEUtil {
 		return item.getEntityName() + "," + item.getIntValue();
 	}
 	
+	public static List<Integer> convertInteger(List<? extends IConstantEntity> items) {
+		if (items == null || items.size() ==0) {
+			return null;
+		}
+		List<Integer> result = new ArrayList<Integer>();
+		for (IConstantEntity i : items) {
+			result.add(i.getIntValue());
+		}
+		return result;
+	}
+	
+	public static <T> List<T> convertToList(Class<? extends IConstantEntity> T, String ceType, JSONArray json) throws JSONException {
+		if (json == null || "null".equals(json)) {
+			return null;
+		}
+		IConstantEntity ceEntity = IServerServiceManager.INSTANCE.getConstantService().getConstantEntity(ceType);
+
+		List<T> result = new ArrayList<T>();
+		for (int i=0; i<json.length(); i++) {
+			int v = json.getInt(i);
+			List<IConstantEntity> items = ceEntity.getConstantList();
+			for (IConstantEntity item : items) {
+				if (item.getIntValue() == v) {
+					result.add((T) item);
+					break;
+				}
+			}
+		}
+		return result;
+	}
 }

@@ -15,7 +15,9 @@
 */
 package org.shaolin.uimaster.page.ajax;
 
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 
 /**
@@ -26,26 +28,40 @@ import org.shaolin.uimaster.page.ajax.json.IDataItem;
  */
 public class TableCallBack implements CallBack {
 
-	private final String uiid;
+	private String uiid;
 	
-	private final String entityPrefix;
+	private String entityPrefix;
 	
-	public TableCallBack(String uiid) {
-		this.entityPrefix = AjaxActionHelper.getAjaxContext().getEntityPrefix();
+	public TableCallBack() {}//for serialization.
+	
+	public TableCallBack(final String uiid) {
+		this.entityPrefix = AjaxContextHelper.getAjaxContext().getEntityPrefix();
 		this.uiid = uiid;
 	}
 	
 	public void execute(Object... objects) {
-        Table table = (Table)AjaxActionHelper.getAjaxContext().getElementByAbsoluteId(entityPrefix + uiid);
+        Table table = (Table)AjaxContextHelper.getAjaxContext().getElementByAbsoluteId(entityPrefix + uiid);
         if (table == null) {
-        	table = (Table)AjaxActionHelper.getAjaxContext().getElementByAbsoluteId(uiid);
+        	table = (Table)AjaxContextHelper.getAjaxContext().getElementByAbsoluteId(uiid);
         }
         if (table != null) {
 	        if (table.isSliderMode()) {
 	        	table.getConditions().setPullAction("filter");
 	        }
-	        IDataItem item = AjaxActionHelper.updateTableItem(entityPrefix + uiid, table.refresh0());
-	        AjaxActionHelper.getAjaxContext().addDataItem(item);
+	        IDataItem item = AjaxContextHelper.updateTableItem(entityPrefix + uiid, table.refresh0());
+	        AjaxContextHelper.getAjaxContext().addDataItem(item);
         }
+	}
+	
+	public JSONObject toJSON() throws JSONException {
+		JSONObject json = new JSONObject();
+		json.put("uiid", uiid);
+		json.put("prefix", entityPrefix);
+		return json;
+	}
+	
+	public void fromJSON(JSONObject json) throws JSONException {
+		this.uiid = json.getString("uiid");
+		this.entityPrefix = json.getString("prefix");
 	}
 }

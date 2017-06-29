@@ -28,13 +28,14 @@ import org.shaolin.bmdp.datamodel.page.UIReferenceEntityType;
 import org.shaolin.bmdp.datamodel.page.UITabPaneItemType;
 import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.i18n.ResourceUtil;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.uimaster.html.layout.HTMLPanelLayout;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.CellLayout;
 import org.shaolin.uimaster.page.ajax.PreNextPanel;
-import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.slf4j.Logger;
@@ -256,19 +257,19 @@ public class HTMLPreNextPanelType extends HTMLContainerType
         return false;
     }
     
-    public Widget createAjaxWidget(VariableEvaluator ee)
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
     	ExpressionType previousAction = (ExpressionType)this.removeAttribute("previousAction");
     	ExpressionType nextAction = (ExpressionType)this.removeAttribute("nextAction");
     	
-    	List<UITabPaneItemType> tabs = (List<UITabPaneItemType>)this.getAttribute("tabPaneItems");
-    	PreNextPanel panel = new PreNextPanel(getName(), tabs, selectedIndex, new CellLayout());
+    	PreNextPanel panel = new PreNextPanel(getName(), selectedIndex, new CellLayout());
     	panel.setPreviousAction(previousAction);
     	panel.setNextAction(nextAction);
-        panel.setReadOnly(isReadOnly());
+        //panel.setReadOnly(isReadOnly());
         panel.setUIEntityName(getUIEntityName());
         
         List<HTMLReferenceEntityType> createdRefEntities = new ArrayList<HTMLReferenceEntityType>();
+        List<UITabPaneItemType> tabs = (List<UITabPaneItemType>)this.getAttribute("tabPaneItems");
         for(int i = 0, n = tabs.size(); i < n; i++){
         	UITabPaneItemType tab = tabs.get(i);
             if (tab.getRefEntity() != null) {
@@ -277,16 +278,20 @@ public class HTMLPreNextPanelType extends HTMLContainerType
                 String type = itemRef.getReferenceEntity().getEntityName();
                 HTMLReferenceEntityType refEntity = new HTMLReferenceEntityType(UIID, type);
                 
-                Widget newWidget = refEntity.createAjaxWidget(ee);
-                UserRequestContext.UserContext.get().addAjaxWidget(newWidget.getId(), newWidget);
+                JSONObject newWidget = refEntity.createJsonModel(ee);
+                try {
+					UserRequestContext.UserContext.get().addAjaxWidget(refEntity.getName(), newWidget);
+				} catch (JSONException e) {
+					logger.warn(e.getMessage(), e);
+				}
                 createdRefEntities.add(refEntity);
             } else {
             	createdRefEntities.add(HTMLReferenceEntityType.EMPTY);
             }
         }
         this.addAttribute("createdRefEntities", createdRefEntities);
-        panel.setListened(true);
-        return panel;
+        //panel.setListened(true);
+        return super.createJsonModel(ee);
 
     }
 

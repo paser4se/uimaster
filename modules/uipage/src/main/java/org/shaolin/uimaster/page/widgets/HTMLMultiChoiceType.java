@@ -19,11 +19,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.UserRequestContext;
+import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 
 public abstract class HTMLMultiChoiceType extends HTMLChoiceType 
 {
-
+	private static final long serialVersionUID = 8008004105287717253L;
+    
 	public HTMLMultiChoiceType(String id)
 	{
 	    super(id);
@@ -42,7 +46,7 @@ public abstract class HTMLMultiChoiceType extends HTMLChoiceType
     
 	protected boolean equal(String str)
 	{
-		List<String> value = getValue();
+		List<String> value = getValues();
 		for (int i = 0; i<value.size(); i++)
 		{
 			if (value.get(i).toString().equalsIgnoreCase(str))
@@ -53,16 +57,19 @@ public abstract class HTMLMultiChoiceType extends HTMLChoiceType
 		return false;
 	}
 
-	public List getValue() {
-		List values = (List) getAttribute("value");
+	public List getValues() {
+		List values = (List) getAttribute("values");
 		return values == null ? new ArrayList() : values;
 	}
 
 
-	public void setValue(List<String> value)
+	public void setValues(List<String> value)
 	{
-        addAttribute("value", value);
+        addAttribute("values", value);
 	}
 
-    private static final long serialVersionUID = 8008004105287717253L;
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
+	{
+    	return super.createJsonModel(ee);
+	}
 }

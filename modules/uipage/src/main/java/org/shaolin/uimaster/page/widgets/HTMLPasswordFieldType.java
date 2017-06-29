@@ -16,6 +16,8 @@
 package org.shaolin.uimaster.page.widgets;
 
 import org.shaolin.uimaster.page.UserRequestContext;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Layout;
@@ -70,18 +72,18 @@ public class HTMLPasswordFieldType extends HTMLTextFieldType
     }
     
     @Override
-    public Widget createAjaxWidget(VariableEvaluator ee)
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-        PasswordField password = new PasswordField(getName(), Layout.NULL);
+//        PasswordField password = new PasswordField(getName(), Layout.NULL);
+//
+//        password.setReadOnly(isReadOnly());
+//        password.setUIEntityName(getUIEntityName());
+//
+//        password.setValue(getValue());
+//
+//        password.setListened(true);
 
-        password.setReadOnly(isReadOnly());
-        password.setUIEntityName(getUIEntityName());
-
-        password.setValue(getValue());
-
-        password.setListened(true);
-
-        return password;
+        return super.createJsonModel(ee);
     }
 
 }

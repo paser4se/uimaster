@@ -18,7 +18,7 @@ package org.shaolin.uimaster.page.ajax;
 import java.io.Serializable;
 import java.util.List;
 
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
@@ -29,7 +29,7 @@ public class CheckBoxGroup extends MultiChoice implements Serializable
 
     public CheckBoxGroup(String uiid)
     {
-        this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
+        this(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
         this.setListened(true);
     }
 

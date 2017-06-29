@@ -30,6 +30,8 @@ import org.shaolin.bmdp.datamodel.page.UITableSelectModeType;
 import org.shaolin.bmdp.datamodel.page.UITableStatsType;
 import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.i18n.ResourceUtil;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.be.BEUtil;
 import org.shaolin.bmdp.runtime.be.IBusinessEntity;
 import org.shaolin.bmdp.runtime.ce.CEUtil;
@@ -48,7 +50,6 @@ import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Layout;
 import org.shaolin.uimaster.page.ajax.Table;
 import org.shaolin.uimaster.page.ajax.TableConditions;
-import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.exception.AttributeSetAlreadyException;
 import org.shaolin.uimaster.page.javacc.UIVariableUtil;
@@ -392,7 +393,7 @@ public class HTMLTableType extends HTMLContainerType {
 		// generate tbody.
 		HTMLUtil.generateTab(context, depth + 2);
 		context.generateHTML("<tbody id=\"\" >");
-		if (!listData.isEmpty()) {
+		if (listData != null && !listData.isEmpty()) {
 			generateTableBody0(context, isEditableCell, depth, selectMode, listData, columns);
 		}
 		HTMLUtil.generateTab(context, depth + 2);
@@ -675,7 +676,7 @@ public class HTMLTableType extends HTMLContainerType {
 		return true;
 	}
 
-	public Widget<Table> createAjaxWidget(VariableEvaluator ee)
+	public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
 		String beElement =  (String)this.getAttribute("beElememt");;
 		Class beClass = null;
@@ -693,7 +694,7 @@ public class HTMLTableType extends HTMLContainerType {
 		} catch (Exception e1) {
 		}
         Table t = new Table(getName(), Layout.NULL);
-        t.setReadOnly(isReadOnly());
+        //t.setReadOnly(isReadOnly());
         t.setUIEntityName(getUIEntityName());
         try {
 	        if (ee.getExpressionContext() != null && ee.getExpressionContext().getVariableValue("tableCondition") != null) {
@@ -824,6 +825,7 @@ public class HTMLTableType extends HTMLContainerType {
 			}
 			this.addAttribute("comboxFilters", comboxfilters);
 			
+			//TODO save record id into table only. IBusinessEntity
 			t.setListData((List)result);
 			t.setConditions((TableConditions)expressionContext.getVariableValue("tableCondition"));
 			t.setColumns((List)this.getAttribute("columns"));
@@ -841,8 +843,9 @@ public class HTMLTableType extends HTMLContainerType {
 			} catch (Exception e) { }
 		}
 		
-        t.setListened(true);
-        return t;
+		JSONObject json = super.createJsonModel(ee);
+		t.toSelfJSON(json);
+		return json;
     }
 	
 }

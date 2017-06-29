@@ -18,7 +18,7 @@ package org.shaolin.uimaster.page.ajax;
 import java.io.Serializable;
 import java.util.List;
 
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
@@ -29,13 +29,13 @@ public class RadioButtonGroup extends SingleChoice<RadioButtonGroup> implements 
 
     public RadioButtonGroup(String uiid)
     {
-        this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout(), String.class);
+        this(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
         this.setListened(true);
     }
 
-    public RadioButtonGroup(String id, Layout layout, Class realValueDataType)
+    public RadioButtonGroup(String id, Layout layout)
     {
-        super(id, layout, realValueDataType);
+        super(id, layout);
     }
     
     public boolean isHorizontalLayout()

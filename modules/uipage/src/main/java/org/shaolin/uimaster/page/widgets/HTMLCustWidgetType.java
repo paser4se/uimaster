@@ -17,6 +17,8 @@ package org.shaolin.uimaster.page.widgets;
 
 import java.lang.reflect.Constructor;
 
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
@@ -66,18 +68,18 @@ public class HTMLCustWidgetType extends HTMLWidgetType
         }
     }
 
-	public Widget createAjaxWidget(VariableEvaluator ee) {
-		type = (String)this.getAttribute("custType");
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException {
 		try {
+			type = (String)this.getAttribute("custType");
 			Constructor<HTMLWidgetType> constructor = (Constructor<HTMLWidgetType>)
 					Class.forName(type).getConstructor(String.class);
 			custWidget = constructor.newInstance(this.getUIID());
 			custWidget.setReadOnly(isReadOnly());
-			return custWidget.createAjaxWidget(ee);
+			return custWidget.createJsonModel(ee);
 		} catch (Exception e) {
 			logger.error("error generating ui the customized widget. in entity: " + getUIEntityName() +"."+ type, e);
+			return null;
 		}
-		return null;
 	}
 
 }

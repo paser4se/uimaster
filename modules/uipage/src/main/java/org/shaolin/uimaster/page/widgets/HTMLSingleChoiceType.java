@@ -17,7 +17,10 @@ package org.shaolin.uimaster.page.widgets;
 
 import java.io.IOException;
 
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.UserRequestContext;
+import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +29,8 @@ public abstract class HTMLSingleChoiceType extends HTMLChoiceType
     private static final Logger logger = LoggerFactory.getLogger(HTMLSingleChoiceType.class);
 
     private Class realValueDataType = String.class;
+    
+    private static final long serialVersionUID = 9069902870270456324L;
     
 	public HTMLSingleChoiceType(String id)
 	{
@@ -61,6 +66,12 @@ public abstract class HTMLSingleChoiceType extends HTMLChoiceType
 	public Class getRealValueDataType() {
 		return this.realValueDataType;
 	}
+	
+	public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
+    {
+		JSONObject json = super.createJsonModel(ee);
+		json.put("realVType", realValueDataType.getName());
+		return json;
+    }
 
-    private static final long serialVersionUID = 9069902870270456324L;
 }

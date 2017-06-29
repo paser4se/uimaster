@@ -16,10 +16,17 @@
 package org.shaolin.uimaster.page.ajax;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import org.shaolin.bmdp.json.JSONArray;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
+import org.shaolin.bmdp.runtime.AppContext;
+import org.shaolin.bmdp.runtime.ce.CEUtil;
 import org.shaolin.uimaster.page.AjaxContext;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 
@@ -33,7 +40,11 @@ abstract public class Choice<T> extends Widget<T>
 
     protected List<String> optionDisplayValues = new ArrayList<String>();
     
-    public Choice(String id, Layout layout)
+    protected String ceName;
+    
+    protected int expendlevels = 1;
+    
+	public Choice(String id, Layout layout)
     {
         super(id, layout);
         this._setWidgetLabel(id);
@@ -59,14 +70,14 @@ abstract public class Choice<T> extends Widget<T>
             {
                 return;
             }
-            AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+            AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
             if (ajaxContext == null || !ajaxContext.existElement(this))
             {
                 return;
             }
             
             String str = "{'item':'true','name':'"+ itemName +"','value':'"+ HTMLUtil.handleEscape(String.valueOf(itemValue)) +"'}";
-            IDataItem dataItem = AjaxActionHelper.updateAttrItem(this.getId(), str);
+            IDataItem dataItem = AjaxContextHelper.updateAttrItem(this.getId(), str);
             dataItem.setFrameInfo(getFrameInfo());
             ajaxContext.addDataItem(dataItem);
         }
@@ -158,7 +169,7 @@ abstract public class Choice<T> extends Widget<T>
         {
             return;
         }
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         if (ajaxContext == null || !ajaxContext.existElement(this))
         {
             return;
@@ -175,12 +186,12 @@ abstract public class Choice<T> extends Widget<T>
             String value = this.optionValues.get(i).toString();
             
             String str = "{'item':'true','name':'"+ name +"','value':'"+ HTMLUtil.handleEscape(String.valueOf(value)) +"'}";
-            IDataItem dataItem = AjaxActionHelper.updateAttrItem(this.getId(), str);
+            IDataItem dataItem = AjaxContextHelper.updateAttrItem(this.getId(), str);
             dataItem.setFrameInfo(getFrameInfo());
             ajaxContext.addDataItem(dataItem);
         }
         String str = "{'finish':'true'}";
-        IDataItem dataItem = AjaxActionHelper.updateAttrItem(this.getId(), str);
+        IDataItem dataItem = AjaxContextHelper.updateAttrItem(this.getId(), str);
         dataItem.setFrameInfo(getFrameInfo());
         ajaxContext.addDataItem(dataItem);
     }
@@ -213,4 +224,59 @@ abstract public class Choice<T> extends Widget<T>
     	return "";
     }
     
+    public String getCeName() {
+  		return ceName;
+  	}
+
+  	public void setCeName(String ceName) {
+  		this.ceName = ceName;
+  	}
+    
+  	public int getExpendlevels() {
+ 		return expendlevels;
+ 	}
+
+ 	public void setExpendlevels(int expendlevels) {
+ 		this.expendlevels = expendlevels;
+ 	}
+  	
+    public JSONObject toJSON() throws JSONException {
+		JSONObject json = super.toJSON();
+		if (json.has("attrMap") && json.getJSONObject("attrMap").has("optionValue")) {
+			json.getJSONObject("attrMap").remove("optionValue");
+		}
+		if (this.ceName != null && this.ceName.length() > 0) {
+			json.put("ce", this.ceName);
+			json.put("expLevel", this.expendlevels);
+		} else {
+			// normal list
+			json.put("optValues", new JSONArray(this.getOptionValues()));
+			//json.put("optDvalues", new JSONArray(this.getOptionDisplayValues()));
+		}
+		return json;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void fromJSON(JSONObject json) throws Exception {
+		super.fromJSON(json);
+		if (json.has("ce")) {
+			this.expendlevels = json.getInt("expLevel");
+			if (this.expendlevels <= 1) {
+				//set the optValues and Display Values from CE
+				Map<Integer, String> items = CEUtil.getAllConstants(json.getString("ce"));
+				Iterator<Map.Entry<Integer,String>> i = items.entrySet().iterator();
+				while (i.hasNext()) {
+					Map.Entry<Integer,String> entry = i.next();
+					this.optionValues.add(entry.getKey() + "");
+					this.optionDisplayValues.add(entry.getValue());
+				}
+			} else {
+				CEUtil.getCEItems(this.expendlevels, this.optionValues, this.optionDisplayValues, 
+						AppContext.get().getConstantService().getConstantEntity(json.getString("ce")));
+			}
+		} else {
+			this.optionValues = json.getJSONArray("optValues").toList();
+			this.optionDisplayValues = this.optionValues;
+		}
+	}
 }

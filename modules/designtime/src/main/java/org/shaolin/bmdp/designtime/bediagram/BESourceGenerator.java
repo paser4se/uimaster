@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.shaolin.bmdp.datamodel.bediagram.BECollectionType;
 import org.shaolin.bmdp.datamodel.bediagram.BEComplexType;
 import org.shaolin.bmdp.datamodel.bediagram.BEDiagram;
 import org.shaolin.bmdp.datamodel.bediagram.BEListType;
@@ -327,7 +328,11 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			out.write("\n    ");
 			generateToStringMethod(businessEntity, out);
 			out.write("\n    ");
-			generateGetMemberListMethod(businessEntity, out);
+			generateToJsonMethod(businessEntity, out);
+			out.write("\n    ");
+			generateFromJsonMethod(businessEntity, out);
+			out.write("\n    ");
+//			generateGetMemberListMethod(businessEntity, out);
 			out.write("\n    public ");
 			out.print(intfClsName);
 			out.write(" createEntity ()\n    {\n");
@@ -382,6 +387,11 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 		out.write("import org.shaolin.bmdp.runtime.spi.IConstantService;\n\n");
 		out.write("import org.shaolin.bmdp.runtime.AppContext;\n\n");
 		out.write("import org.shaolin.bmdp.runtime.ce.CEUtil;\n\n");
+		out.write("import org.shaolin.bmdp.runtime.be.BEUtil;\n\n");
+		out.write("import org.shaolin.bmdp.json.JSONObject;\n\n");
+		out.write("import org.shaolin.bmdp.json.JSONArray;\n\n");
+		out.write("import org.shaolin.bmdp.json.JSONException;\n\n");
+		
 		List<MemberType> members = businessEntity.getMembers();
 		for (MemberType m : members) {
 			if (m.getType().getClass() == CEObjRefType.class) {
@@ -1118,9 +1128,310 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 		out.write("     * @return String the business entity in String format.\n");
 		out.write("     */\n");
 		out.write("    public  String  toString() {\n");
-		out.write("        org.shaolin.bmdp.json.JSONObject json = new org.shaolin.bmdp.json.JSONObject(this);\n");
-		out.write("        json.remove(\"memberList\");\n");
+		out.write("        JSONObject json = new JSONObject(this);\n");
 		out.write("        return json.toString();\n    }\n    ");
+
+	}
+	
+	private void generateToJsonMethod(BusinessEntityType businessEntity, PumpWriter out) {
+
+		out.write("\n    /**\n");
+		out.write("     *\n");
+		out.write("     * @return JSONObject\n");
+		out.write("     */\n");
+		out.write("    public JSONObject toJSON() throws JSONException {\n");
+		if (getParentBusinessEntityName(businessEntity) != null) {
+			out.write("        JSONObject json = super.toJSON();\n        ");
+		} else {
+			out.write("        JSONObject json = new JSONObject();\n        ");
+		}
+
+		if (isSelfNeedPersist(businessEntity) || isSelfNeedHistory(businessEntity)) {
+			out.write("\n        json.put(\"_enable\", this._enable);");
+			out.write("\n        json.put(\"_cas\", this._cas);");
+			if (businessEntity.isNeedTask()) {
+				out.write("\n        json.put(\"_taskId\", this._taskId);");
+				out.write("\n        if (this._sessionId != null) { json.put(\"_sessionId\", this._sessionId); }");
+			}
+		}
+		if (businessEntity.isNeedOrgId()) {
+			out.write("\n        json.put(\"orgId\", this.orgId); ");
+		}
+		
+		List<MemberType> members = businessEntity.getMembers();
+		for (MemberType member: members) {
+			out.write("\n        json.put(\"");
+			out.print(member.getName());
+			out.write("\", ");
+			if (member.getType().getClass() == BEObjRefType.class) {
+				out.write(" \"\");\n        if(");
+				out.print(member.getName());
+				out.write(" != null) {");
+				out.write("\n           json.put(\"");
+				out.print(member.getName());
+				out.write("\", ");
+				out.print(member.getName());
+				out.write(".toJSON());");
+				out.write("\n        } else {");
+				out.write("\n           json.remove(\"");
+				out.print(member.getName());
+				out.write("\");");
+				out.write("\n        }");
+			} else if (member.getType().getClass() == CEObjRefType.class) {
+				out.print(member.getName());
+				out.write(".getIntValue());");
+			} else if (member.getType().getClass() == JavaObjRefType.class) {
+				out.write(" \"\");\n        if(");
+				out.print(member.getName());
+				out.write(" != null) {");
+				out.write("\n           json.put(\"");
+				out.print(member.getName());
+				out.write("\", ");
+				out.write("org.shaolin.bmdp.utils.SerializeUtil.serializeData2((java.io.Serializable)");
+				out.print(member.getName());
+				out.write("));");
+				out.write("\n        } else {");
+				out.write("\n           json.remove(\"");
+				out.print(member.getName());
+				out.write("\");");
+				out.write("\n        }");
+			} else if (member.getType().getClass() == BEListType.class
+						|| member.getType().getClass() == BEMapType.class
+						|| member.getType().getClass() == BESetType.class) {
+				BEType type = ((BECollectionType)member.getType()).getElementType();
+				out.write(" \"\");\n        if(");
+				out.print(member.getName());
+				out.write(" != null) {");
+				if (type instanceof CEObjRefType) {
+					out.write("\n           json.put(\"");
+					out.print(member.getName());
+					out.write("\", CEUtil.convertInteger(");
+					out.print(member.getName());
+					out.write(");");
+				} else {
+					out.write("\n           json.put(\"");
+					out.print(member.getName());
+					out.write("\", new JSONArray(");
+					out.print(member.getName());
+					out.write("));");
+				}
+				out.write("\n        } else {");
+				out.write("\n           json.remove(\"");
+				out.print(member.getName());
+				out.write("\");");
+				out.write("\n        }");
+			} else if (member.getType() instanceof DateTimeType
+					|| member.getType() instanceof TimeType) {
+				out.write(" \"\");\n        if(");
+				out.print(member.getName());
+				out.write(" != null) {");
+				out.write("\n           json.put(\"");
+				out.print(member.getName());
+				out.write("\", ");
+				out.print(member.getName());
+				out.write(".getTime());");
+				out.write("\n        } else {");
+				out.write("\n           json.remove(\"");
+				out.print(member.getName());
+				out.write("\");");
+				out.write("\n        }");
+			} else {
+				out.print(member.getName());
+				out.write(");");
+			}
+		}
+		out.write("\n        return json;\n    }\n    ");
+
+	}
+	
+	private void generateFromJsonMethod(BusinessEntityType businessEntity, PumpWriter out) {
+
+		out.write("\n    /**\n");
+		out.write("     * Retrieves json object.\n");
+		out.write("     */\n");
+		out.write("    public void fromJSON(JSONObject json) throws JSONException {\n");
+		if (getParentBusinessEntityName(businessEntity) != null) {
+			out.write("        super.fromJSON(json);\n        ");
+		} 
+
+		if (isSelfNeedPersist(businessEntity) || isSelfNeedHistory(businessEntity)) {
+			out.write("\n        this._enable = json.getBoolean(\"_enable\");");
+			out.write("\n        this._cas = json.getLong(\"_cas\");");
+			if (businessEntity.isNeedTask()) {
+				out.write("\n        this._taskId = json.getLong(\"_taskId\");");
+				out.write("\n        if (json.has(\"_sessionId\")) { this._sessionId = json.getString(\"_sessionId\"); }");
+			}
+		}
+		if (businessEntity.isNeedOrgId()) {
+			out.write("\n        this.orgId = json.getLong(\"orgId\");");
+		}
+		
+		List<MemberType> members = businessEntity.getMembers();
+		for (MemberType member: members) {
+			out.write("\n        this.");
+			out.print(member.getName());
+			out.write(" = ");
+			if (member.getType().getClass() == BEObjRefType.class) {
+				out.write(" null;");
+				out.write("\n        if(json.has(\"");
+				out.print(member.getName());
+				out.write("\")) {");
+				out.write("\n           this.");
+				out.print(member.getName());
+				out.write(" = ");
+				TargetEntityType be = ((BEObjRefType) member.getType()).getTargetEntity();
+				out.write("new ");
+				out.print(be.getEntityName());
+				out.write("Impl();");
+				out.write("\n           this.");
+				out.print(member.getName());
+				out.write(".fromJSON(json.getJSONObject(\"");
+				out.print(member.getName());
+				out.write("\"));\n        }");
+				
+			} else if (member.getType().getClass() == CEObjRefType.class) {
+				out.write("(");
+				out.print(((CEObjRefType)member.getType()).getTargetEntity().getEntityName());
+				out.write(")CEUtil.getConstantEntity(");
+				out.print(((CEObjRefType)member.getType()).getTargetEntity().getEntityName());
+				out.write(".ENTITY_NAME, json.getInt(\"");
+				out.print(member.getName());
+				out.write("\"));");
+			} else if (member.getType().getClass() == JavaObjRefType.class) {
+				TargetJavaType targetJava = ((JavaObjRefType) member.getType())
+						.getTargetJava();
+
+				out.write("json.has(\"");
+				out.print(member.getName());
+				out.write("\") ? org.shaolin.bmdp.utils.SerializeUtil.readData2(json.getBytes(\"");
+				out.print(member.getName());
+				out.write("\"), "+targetJava.getName()+".class) : null;");
+			} else if (member.getType().getClass() == BEListType.class
+					|| member.getType().getClass() == BEMapType.class
+					|| member.getType().getClass() == BESetType.class) {
+				BEType type = ((BECollectionType)member.getType()).getElementType();
+				if (type instanceof BEObjRefType) {
+					BEObjRefType beType = (BEObjRefType)type;
+					out.write("json.has(\"");
+					out.print(member.getName());
+					out.write("\") ? BEUtil.convertToList(");
+					out.print(BEUtil.getBEInterfaceClassName(beType.getTargetEntity().getEntityName()));
+					out.write(".class, ");
+					out.print(BEUtil.getBEImplementClassName(beType.getTargetEntity().getEntityName()));
+					out.write(".class, json.getJSONArray(\"");
+					out.print(member.getName());
+					out.write("\")) : null;");
+				} else if (type instanceof CEObjRefType) {
+					CEObjRefType ceType = (CEObjRefType)type;
+					out.write("json.has(\"");
+					out.print(member.getName());
+					out.write("\") ? CEUtil.convertToList(");
+					out.print(ceType.getTargetEntity().getEntityName());
+					out.write(".class, \"");
+					out.print(BEUtil.getBEInterfaceClassName(ceType.getTargetEntity().getEntityName()));
+					out.write("\", json.getJSONArray(\"");
+					out.print(member.getName());
+					out.write("\")) : null;");
+				} else if (type instanceof BooleanType) {
+					out.write("json.has(\"");
+					out.print(member.getName());
+					out.write("\") ? BEUtil.convertToBooleanList(json.getJSONArray(\"");
+					out.print(member.getName());
+					out.write("\")) : null;");
+				} else if (type instanceof DateTimeType) {
+					out.write("json.has(\"");
+					out.print(member.getName());
+					out.write("\") ? BEUtil.convertToBooleanList(json.getJSONArray(\"");
+					out.print(member.getName());
+					out.write("\")) : null;");
+				} else if (type instanceof TimeType) {
+					out.write("json.has(\"");
+					out.print(member.getName());
+					out.write("\") ? BEUtil.convertToBooleanList(json.getJSONArray(\"");
+					out.print(member.getName());
+					out.write("\")) : null;");
+				} else if (type instanceof DoubleType) {
+					out.write("json.has(\"");
+					out.print(member.getName());
+					out.write("\") ? BEUtil.convertToDoubleList(json.getJSONArray(\"");
+					out.print(member.getName());
+					out.write("\")) : null;");
+				} else if (type instanceof IntType) {
+					out.write("json.has(\"");
+					out.print(member.getName());
+					out.write("\") ? BEUtil.convertToIntegerList(json.getJSONArray(\"");
+					out.print(member.getName());
+					out.write("\")) : null;");
+				} else if (type instanceof LongType) {
+					out.write("json.has(\"");
+					out.print(member.getName());
+					out.write("\") ? BEUtil.convertToLongList(json.getJSONArray(\"");
+					out.print(member.getName());
+					out.write("\")) : null;");
+				} else if (type instanceof StringType) {
+					out.write("json.has(\"");
+					out.print(member.getName());
+					out.write("\") ? BEUtil.convertToStringList(json.getJSONArray(\"");
+					out.print(member.getName());
+					out.write("\")) : null;");
+				} else {
+					out.write("json.has(\"");
+					out.print(member.getName());
+					out.write("\") ? json.getJSONArray(\"");
+					out.print(member.getName());
+					out.write("\") : null;");
+				}
+			} else if (member.getType().getClass() == BooleanType.class) {
+				out.write("json.has(\"");
+				out.print(member.getName());
+				out.write("\") ? json.getBoolean(\"");
+				out.print(member.getName());
+				out.write("\") : false;");
+			} else if (member.getType().getClass() == DateTimeType.class) {
+				out.write("json.has(\"");
+				out.print(member.getName());
+				out.write("\") ? new java.util.Date(json.getLong(\"");
+				out.print(member.getName());
+				out.write("\")) : null;");
+			} else if (member.getType().getClass() == TimeType.class) {
+				out.write("json.has(\"");
+				out.print(member.getName());
+				out.write("\") ? new java.util.Date(json.getLong(\"");
+				out.print(member.getName());
+				out.write("\")) : null;");
+			} else if (member.getType().getClass() == DoubleType.class) {
+				out.write("json.has(\"");
+				out.print(member.getName());
+				out.write("\") ? json.getDouble(\"");
+				out.print(member.getName());
+				out.write("\") : 0.0d;");
+			} else if (member.getType().getClass() == IntType.class) {
+				out.write("json.has(\"");
+				out.print(member.getName());
+				out.write("\") ? json.getInt(\"");
+				out.print(member.getName());
+				out.write("\") : 0;");
+			} else if (member.getType().getClass() == LongType.class) {
+				out.write("json.has(\"");
+				out.print(member.getName());
+				out.write("\") ? json.getLong(\"");
+				out.print(member.getName());
+				out.write("\") : 0l;");
+			} else if (member.getType().getClass() == BinaryType.class) {
+				out.write("json.has(\"");
+				out.print(member.getName());
+				out.write("\") ? json.getBytes(\"");
+				out.print(member.getName());
+				out.write("\") : null;");
+			} else {
+				out.write("json.has(\"");
+				out.print(member.getName());
+				out.write("\") ? json.getString(\"");
+				out.print(member.getName());
+				out.write("\") : null;");
+			}
+		}
+		out.write("\n       }\n    ");
 
 	}
 

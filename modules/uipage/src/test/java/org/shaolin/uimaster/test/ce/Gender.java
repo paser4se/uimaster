@@ -54,7 +54,7 @@ public final class Gender extends AbstractConstant
     private Gender(String value, int intValue, String i18nKey,
         String description, Date effTime, Date expTime)
     {
-        super(value, intValue, i18nKey, description, effTime, expTime);
+        super(value, intValue, i18nKey, description, effTime, expTime, "");
     }
 
     private Gender(String value, int intValue, String i18nKey,

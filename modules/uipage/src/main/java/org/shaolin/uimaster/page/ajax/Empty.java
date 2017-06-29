@@ -17,7 +17,7 @@ package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
 
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 
 public class Empty extends Widget implements Serializable
 {
@@ -27,13 +27,13 @@ public class Empty extends Widget implements Serializable
     
     public Empty(String uiid)
     {
-        this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
+        this(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
         this.setListened(true);
     }
 
     public Empty(String uiid, String html)
     {
-        this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
+        this(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
         this.setListened(true);
         this.html = html;
     }

@@ -7,6 +7,7 @@ import java.io.Writer;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -14,6 +15,8 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import org.shaolin.bmdp.runtime.be.IBusinessEntity;
+import org.shaolin.bmdp.runtime.ce.CEUtil;
+import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 
 /**
  * A JSONObject is an unordered collection of name/value pairs. Its external form is a string
@@ -70,7 +73,7 @@ public class JSONObject implements Serializable
      * JSONObject.NULL is equivalent to the value that JavaScript calls null, whilst Java's null is
      * equivalent to the value that JavaScript calls undefined.
      */
-    private static final class Null
+    private static final class Null implements Serializable
     {
 
         /**
@@ -109,7 +112,7 @@ public class JSONObject implements Serializable
     /**
      * The map where the JSONObject's properties are kept.
      */
-    private Map map;
+    private Map<String, Object> map;
 
     /**
      * It is sometimes more convenient and less ambiguous to have a <code>NULL</code> object than to
@@ -123,7 +126,7 @@ public class JSONObject implements Serializable
      */
     public JSONObject()
     {
-        this.map = new HashMap();
+        this.map = new HashMap<String, Object>();
     }
 
     /**
@@ -238,7 +241,7 @@ public class JSONObject implements Serializable
             for (Iterator i = map.entrySet().iterator(); i.hasNext();)
             {
                 Map.Entry e = (Map.Entry)i.next();
-                this.map.put(e.getKey(), new JSONObject(e.getValue(), includeSuperClass));
+                this.map.put(e.getKey().toString(), new JSONObject(e.getValue(), includeSuperClass));
             }
         }
     }
@@ -482,6 +485,10 @@ public class JSONObject implements Serializable
         return this;
     }
 
+    public void join(JSONObject json) throws JSONException {
+    	this.map.putAll(json.map);
+    }
+    
     /**
      * Produce a string from a double. The string "null" will be returned if the number is not
      * finite.
@@ -624,6 +631,43 @@ public class JSONObject implements Serializable
         throw new JSONException("JSONObject[" + quote(key) + "] is not a JSONObject.");
     }
 
+    public IBusinessEntity getBEntity(String key) throws JSONException
+    {
+        Object o = get(key);
+        if (o instanceof JSONObject)
+        {
+        	JSONObject json = (JSONObject)o;
+        	if (json.has("_beClass")) {
+        		try {
+        			IBusinessEntity beObject = (IBusinessEntity)Class.forName(json.getString("_beClass")).newInstance();
+        			beObject.fromJSON(json);
+        			return beObject;
+        		} catch (Exception e) {
+        			throw new JSONException("Error to convert JSON to BE: " + e.getMessage(), e);
+        		} 
+        	} else {
+        		throw new JSONException("Unsupported converting this JSON to BE: " + json.toString());
+        	}
+        }
+        throw new JSONException("JSONObject[" + quote(key) + "] is not a JSONObject.");
+    }
+    
+    public IConstantEntity getCEntity(String key) throws JSONException
+    {
+        Object o = get(key);
+        if (o instanceof JSONObject)
+        {
+        	JSONObject json = (JSONObject)o;
+        	if (json.has("_ceClass")) {
+        		return CEUtil.getConstantEntity(json.getString("_ceClass"), json.getInt("intv"));
+        		//CEUtil.convertToList(T, ceType, json.getJSONArray("items"));
+        	} else {
+        		throw new JSONException("Unsupported converting this JSON to BE: " + json.toString());
+        	}
+        }
+        throw new JSONException("JSONObject[" + quote(key) + "] is not a JSONObject.");
+    }
+    
     /**
      * Get the long value associated with a key. If the number value is too long for a long, it will
      * be clipped.
@@ -638,6 +682,20 @@ public class JSONObject implements Serializable
         return o instanceof Number ? ((Number)o).longValue() : (long)getDouble(key);
     }
 
+    /**
+     * Get the long value associated with a key. If the number value is too long for a long, it will
+     * be clipped.
+     * 
+     * @param key A key string.
+     * @return The bytes value.
+     * @throws JSONException if the key is not found or if the value cannot be converted to a long.
+     */
+    public byte[] getBytes(String key) throws JSONException
+    {
+        Object o = get(key);
+        return o.toString().getBytes(Charset.defaultCharset());
+    }
+    
     /**
      * Get an array of field names from a JSONObject.
      * 
@@ -727,7 +785,7 @@ public class JSONObject implements Serializable
      * 
      * @return An iterator of the keys.
      */
-    public Iterator keys()
+    public Iterator<String> keys()
     {
         return this.map.keySet().iterator();
     }
@@ -1005,6 +1063,39 @@ public class JSONObject implements Serializable
     }
 
     /**
+     * Put a key/IBusinessEntity pair in the JSONObject.
+     * 
+     * @param key A key string.
+     * @param value A IBusinessEntity which is the value.
+     * @return this.
+     * @throws JSONException If the key is null.
+     */
+    public JSONObject put(String key, IBusinessEntity value) throws JSONException
+    {
+    	JSONObject v = value.toJSON();
+    	v.put("_beClass", value.getClass().getName());
+        put(key, v);
+        return this;
+    }
+    
+    /**
+     * Put a key/IConstantEntity pair in the JSONObject.
+     * 
+     * @param key A key string.
+     * @param value A IBusinessEntity which is the value.
+     * @return this.
+     * @throws JSONException If the key is null.
+     */
+    public JSONObject put(String key, IConstantEntity value) throws JSONException
+    {
+    	JSONObject v = value.toJSON();
+    	v.put("_ceClass", value.getEntityName());
+    	v.put("intv", value.getIntValue());
+        put(key, v);
+        return this;
+    }
+    
+    /**
      * Put a key/boolean pair in the JSONObject.
      * 
      * @param key A key string.
@@ -1045,7 +1136,21 @@ public class JSONObject implements Serializable
         put(key, Integer.valueOf(value));
         return this;
     }
-
+    
+    /**
+     * Put a key/int pair in the JSONObject.
+     * 
+     * @param key A key string.
+     * @param value An int which is the value.
+     * @return this.
+     * @throws JSONException If the key is null.
+     */
+    public JSONObject put(String key, byte[] values) throws JSONException
+    {
+        put(key, new String(values, Charset.defaultCharset()));
+        return this;
+    }
+    
     /**
      * Put a key/long pair in the JSONObject.
      * 
@@ -1373,6 +1478,11 @@ public class JSONObject implements Serializable
             ja.put(this.opt(names.getString(i)));
         }
         return ja;
+    }
+
+    public Map toMap() throws JSONException
+    {
+        return this.map;
     }
 
     /**

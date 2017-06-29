@@ -29,7 +29,7 @@ import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.ce.CEUtil;
 import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 import org.shaolin.bmdp.runtime.spi.IConstantService;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.CheckBoxGroup;
@@ -180,18 +180,18 @@ public class HTMLDynamicUIItem implements Serializable {
 			list.setOptionValues(new ArrayList(avps.keySet()));
 			list.setOptionDisplayValues(new ArrayList(avps.values()));
 			
-			Widget newWidget = list.createAjaxWidget(null);
+			JSONObject newWidget = list.createJsonModel(null);
 			if (newWidget != null) {
-	        	context.addAjaxWidget(newWidget.getId(), newWidget);
-	        	newWidget.removeAttribute("value");//remove the default selected.
+	        	context.addAjaxWidget(list.getName(), newWidget);
+	        	//newWidget.removeAttribute("value");//remove the default selected.
 	        }
 			
 			list.generateBeginHTML(context, ownerEntity, depth);
 			list.generateEndHTML(context, ownerEntity, depth);
 			
-			String jsvar = "defaultname." + newWidget.getId();
+			String jsvar = "defaultname." + list.getName();
 			jssb.append(jsvar).append(" = new UIMaster.ui.combobox({ui: elementList[\"");
-			jssb.append(newWidget.getId()).append("\"]});\n");
+			jssb.append(list.getName()).append("\"]});\n");
 			jssb.append(jsvar).append(".init();\n");
 			
 		} else if (this.getCeSelectMode() == HTMLDynamicUIItem.RADIOBUTTONGROUP) {
@@ -203,18 +203,18 @@ public class HTMLDynamicUIItem implements Serializable {
 			list.setOptionValues(new ArrayList(avps.keySet()));
 			list.setOptionDisplayValues(new ArrayList(avps.values()));
 			
-			Widget newWidget = list.createAjaxWidget(null);
+			JSONObject newWidget = list.createJsonModel(null);
 			if (newWidget != null) {
-	        	context.addAjaxWidget(newWidget.getId(), newWidget);
-	        	newWidget.removeAttribute("value");//remove the default selected.
+	        	context.addAjaxWidget(list.getName(), newWidget);
+	        	//newWidget.removeAttribute("value");//remove the default selected.
 	        }
 			
 			list.generateBeginHTML(context, ownerEntity, depth);
 			list.generateEndHTML(context, ownerEntity, depth);
 			
-			String jsvar = "defaultname." + newWidget.getId();
+			String jsvar = "defaultname." + list.getName();
 			jssb.append(jsvar).append(" = new UIMaster.ui.radiobuttongroup({ui: elementList[\"");
-			jssb.append(newWidget.getId()).append("\"]});\n");
+			jssb.append(list.getName()).append("\"]});\n");
 			jssb.append(jsvar).append(".init();\n");
 			
 		} else if (this.getCeSelectMode() == HTMLDynamicUIItem.CHECKBOXGROUP) {
@@ -226,21 +226,21 @@ public class HTMLDynamicUIItem implements Serializable {
 			for (IConstantEntity v : value) {
 				temp.add(v.getIntValue() + "");
 			}
-			list.setValue(temp);
+			list.setValues(temp);
 			list.setOptionValues(new ArrayList(avps.keySet()));
 			list.setOptionDisplayValues(new ArrayList(avps.values()));
 			
-			Widget newWidget = list.createAjaxWidget(null);
+			JSONObject newWidget = list.createJsonModel(null);
 			if (newWidget != null) {
-	        	context.addAjaxWidget(newWidget.getId(), newWidget);
+	        	context.addAjaxWidget(list.getName(), newWidget);
 	        }
 			
 			list.generateBeginHTML(context, ownerEntity, depth);
 			list.generateEndHTML(context, ownerEntity, depth);
 			
-			String jsvar = "defaultname." + newWidget.getId();
+			String jsvar = "defaultname." + list.getName();
 			jssb.append(jsvar).append(" = new UIMaster.ui.checkboxgroup({ui: elementList[\"");
-			jssb.append(newWidget.getId()).append("\"]});\n");
+			jssb.append(list.getName()).append("\"]});\n");
 			jssb.append(jsvar).append(".init();\n");
 			
 		} 
@@ -258,21 +258,21 @@ public class HTMLDynamicUIItem implements Serializable {
 	public String retriveData(String uiid) {
 		String jsvar = uiid;
 		if (this.getCeSelectMode() == HTMLDynamicUIItem.LIST) {
-			ComboBox box = AjaxActionHelper.getAjaxContext().getComboBox(jsvar);
+			ComboBox box = AjaxContextHelper.getAjaxContext().getComboBox(jsvar);
 			String v = box.getValue();
 			if (v.length() == 0 || "null".equals(v)) {
 				return "";
 			}
 			return "{\"name\":\""+this.getCeName()+"\",\"value\":\""+v+"\"}"; 
 		} else if (this.getCeSelectMode() == HTMLDynamicUIItem.RADIOBUTTONGROUP) {
-			RadioButtonGroup group = AjaxActionHelper.getAjaxContext().getRadioBtnGroup(jsvar);
+			RadioButtonGroup group = AjaxContextHelper.getAjaxContext().getRadioBtnGroup(jsvar);
 			String v = group.getValue();
 			if (v.length() == 0 || "null".equals(v)) {
 				return "";
 			}
 			return "{\"name\":\""+this.getCeName()+"\",\"value\":\""+v+"\"}"; 
 		} else if (this.getCeSelectMode() == HTMLDynamicUIItem.CHECKBOXGROUP) {
-			CheckBoxGroup group = AjaxActionHelper.getAjaxContext().getCheckBoxGroup(jsvar);
+			CheckBoxGroup group = AjaxContextHelper.getAjaxContext().getCheckBoxGroup(jsvar);
 			List<String> values = group.getValues();
 			StringBuilder sb = new StringBuilder();
 			if (values != null && values.size() > 0) {

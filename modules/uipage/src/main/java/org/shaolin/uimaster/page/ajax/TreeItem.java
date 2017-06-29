@@ -19,7 +19,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.shaolin.bmdp.datamodel.bediagram.MemberType;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.be.BEExtensionInfo;
 import org.shaolin.bmdp.runtime.be.IBusinessEntity;
 
@@ -39,11 +40,15 @@ public class TreeItem implements IBusinessEntity, Serializable {
 	private List<TreeItem> children;
 	private boolean hasChildren = false;
 	
-	public String getId() {
+	public long getId() {
+		return 0;
+	}
+	
+	public String getNodeId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setNodeId(String id) {
 		this.id = id;
 	}
 
@@ -113,11 +118,6 @@ public class TreeItem implements IBusinessEntity, Serializable {
 	public boolean isHasChildren() {
 		return hasChildren;
 	}
-	
-	@Override
-	public List<MemberType> getMemberList() {
-		return null;
-	}
 
 	@Override
 	public IBusinessEntity createEntity() {
@@ -185,5 +185,15 @@ public class TreeItem implements IBusinessEntity, Serializable {
 	@Override
 	public BEExtensionInfo get_extField() {
 		return null;
+	}
+
+	@Override
+	public JSONObject toJSON() throws JSONException {
+		return new JSONObject(this);
+	}
+
+	@Override
+	public void fromJSON(JSONObject json) throws JSONException {
+		//TODO:
 	}
 }

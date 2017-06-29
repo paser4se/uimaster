@@ -15,10 +15,13 @@
 */
 package org.shaolin.uimaster.page.widgets;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.ce.CEUtil;
 import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 import org.shaolin.javacc.exception.EvaluationException;
@@ -174,7 +177,7 @@ public class HTMLMatrixType extends HTMLTextWidgetType
         return new String(sb);
     }
     
-    public Widget createAjaxWidget(VariableEvaluator ee)
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
     	if (this.containsAttribute("initExpr")) {
 	    	try {
@@ -186,14 +189,15 @@ public class HTMLMatrixType extends HTMLTextWidgetType
 				throw new IllegalStateException(e);
 			}
     	}
-    	
-    	Matrix matrix = new Matrix(getName(), Layout.NULL);
-    	matrix.setUIEntityName(getUIEntityName());
-    	matrix.setListened(true);
-		return matrix;
+//    	
+//    	Matrix matrix = new Matrix(getName(), Layout.NULL);
+//    	matrix.setUIEntityName(getUIEntityName());
+//    	matrix.setListened(true);
+		JSONObject json = super.createJsonModel(ee);
+		return json;
     }
 
-    public static class DataMode {
+    public static class DataMode implements Serializable {
     	public String id;
     	public String name;
     	public String description;

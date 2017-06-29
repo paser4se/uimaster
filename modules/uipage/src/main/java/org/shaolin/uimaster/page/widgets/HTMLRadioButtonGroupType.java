@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.List;
 
 import org.shaolin.uimaster.page.UserRequestContext;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Layout;
@@ -205,22 +207,23 @@ public class HTMLRadioButtonGroupType extends HTMLSingleChoiceType
         }
     }
     
-    public Widget createAjaxWidget(VariableEvaluator ee)
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-        RadioButtonGroup radioButtonGroup = new RadioButtonGroup(getName(), Layout.NULL, this.getRealValueDataType());
-
-        radioButtonGroup.setReadOnly(isReadOnly());
-        radioButtonGroup.setUIEntityName(getUIEntityName());
-
-        radioButtonGroup.setOptions(getOptionDisplayValues(), getOptionValues());
-        radioButtonGroup.setValue(getValue());
-
-        setAJAXConstraints(radioButtonGroup);
-        setAJAXAttributes(UserRequestContext.UserContext.get(), radioButtonGroup);
-        
-        radioButtonGroup.setListened(true);
-
-        return radioButtonGroup;
+//        RadioButtonGroup radioButtonGroup = new RadioButtonGroup(getName(), Layout.NULL);
+//        radioButtonGroup.setRealValueType(this.getRealValueDataType());
+//        radioButtonGroup.setReadOnly(isReadOnly());
+//        radioButtonGroup.setUIEntityName(getUIEntityName());
+//
+//        radioButtonGroup.setOptions(getOptionDisplayValues(), getOptionValues());
+//        radioButtonGroup.setValue(getValue());
+//
+//        setAJAXConstraints(radioButtonGroup);
+//        setAJAXAttributes(UserRequestContext.UserContext.get(), radioButtonGroup);
+//        
+//        radioButtonGroup.setListened(true);
+//
+//        return radioButtonGroup;
+        return super.createJsonModel(ee);
     }
 
     private static final long serialVersionUID = 7005909032482454931L;

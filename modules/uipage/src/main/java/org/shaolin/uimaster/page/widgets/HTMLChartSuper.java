@@ -15,11 +15,14 @@
 */
 package org.shaolin.uimaster.page.widgets;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.ExpressionPropertyType;
 import org.shaolin.bmdp.datamodel.page.UITableColumnType;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.EvaluationContext;
@@ -31,7 +34,6 @@ import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Chart;
 import org.shaolin.uimaster.page.ajax.Layout;
-import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
@@ -146,7 +148,14 @@ public abstract class HTMLChartSuper extends HTMLWidgetType
     {
     }
 
-	public Widget createAjaxWidget(VariableEvaluator ee) {
+	public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
+	{
+		if (!needAjaxSupport()) {
+    		Object oneditable = this.getAttribute("oneditable");
+            if (oneditable == null || oneditable.toString().equalsIgnoreCase("false")){
+            	return null;
+            }
+    	}
 		try {
 			EvaluationContext expressionContext = ee.getExpressionContext(ODContext.LOCAL_TAG);
 			expressionContext.setVariableValue("condition", null);
@@ -158,17 +167,17 @@ public abstract class HTMLChartSuper extends HTMLWidgetType
 				this.addAttribute("labels", labels);
 			}
 			this.addAttribute("query", result);
-			Chart chart = new Chart(getName(), Layout.NULL, this.getClass());
-			chart.setColumns((List)this.getAttribute("columns"), queryExpr, expressionContext.getVariableValue("condition"));
-			chart.setReadOnly(isReadOnly());
-			chart.setUIEntityName(getUIEntityName());
-
-			chart.setListened(true);
-
-			return chart;
+//			Chart chart = new Chart(getName(), Layout.NULL, this.getClass());
+//			chart.setColumns((List)this.getAttribute("columns"), queryExpr, 
+//					(Serializable)expressionContext.getVariableValue("condition"));
+//			chart.setReadOnly(isReadOnly());
+//			chart.setUIEntityName(getUIEntityName());
+//
+//			chart.setListened(true);
 		} catch (EvaluationException e) {
 			throw new IllegalStateException(e);
 		}
+		return super.createJsonModel(ee);
 	}
 
     

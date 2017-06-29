@@ -16,6 +16,8 @@
 package org.shaolin.uimaster.page.widgets;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
@@ -95,7 +97,7 @@ public class HTMLFileType extends HTMLTextWidgetType
         return false;
     }
     
-    public Widget createAjaxWidget(VariableEvaluator ee)
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
         AFile file = new AFile(getName(), Layout.NULL);
 
@@ -134,7 +136,7 @@ public class HTMLFileType extends HTMLTextWidgetType
         
         file.setListened(true);
 
-        return file;
+    	return file.toJSON();
     }
 
 }

@@ -22,17 +22,21 @@ import java.util.Set;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.UITableColumnType;
+import org.shaolin.bmdp.datamodel.page.UITableSelectModeType;
+import org.shaolin.bmdp.datamodel.page.UITableStatsType;
 import org.shaolin.bmdp.json.JSONArray;
 import org.shaolin.bmdp.json.JSONException;
 import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
+import org.shaolin.uimaster.page.cache.PageCacheManager;
+import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.widgets.HTMLChartBarType;
 import org.shaolin.uimaster.page.widgets.HTMLChartDoughnutType;
@@ -52,44 +56,48 @@ public class Chart extends Widget<Chart> implements Serializable {
 	
 	private static final Logger logger = LoggerFactory.getLogger(Chart.class);
 	
-	private final Class type;
+	private Class type;
 	
-	private Object condition;
+	private Serializable condition;
 	
 	private ExpressionType queryExpr;
 	
 	private List<UITableColumnType> columns;
+	
+	public Chart(String id, Layout layout) {
+		super(id, layout);
+	}
 	
 	public Chart(String id, Layout layout, Class type) {
 		super(id, layout);
 		this.type = type;
 	}
 	
-	public void setColumns(List<UITableColumnType> columns, ExpressionType queryExpr, Object condition) {
+	public void setColumns(List<UITableColumnType> columns, ExpressionType queryExpr, Serializable condition) {
 		this.columns = columns;
 		this.queryExpr = queryExpr;
 		this.condition = condition;
 	}
 	
 	public void refresh() {
-		IDataItem dataItem = AjaxActionHelper.createDataItem();
+		IDataItem dataItem = AjaxContextHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.CHART_ADDDATA);
 		dataItem.setData(this.refresh0());
 		dataItem.setFrameInfo(this.getFrameInfo());
 
-		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+		AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
 		ajaxContext.addDataItem(dataItem);
 	}
 	
 	public void revert(int popCount) {
-		IDataItem dataItem = AjaxActionHelper.createDataItem();
+		IDataItem dataItem = AjaxContextHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler(IJSHandlerCollections.CHART_REMOVEDATA);
 		dataItem.setData("{popCount: "+popCount+"}");
 		dataItem.setFrameInfo(this.getFrameInfo());
 
-		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+		AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
 		ajaxContext.addDataItem(dataItem);
 	}
 
@@ -141,7 +149,7 @@ public class Chart extends Widget<Chart> implements Serializable {
 		try {
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
-			evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+			evaContext.setVariableValue("page", AjaxContextHelper.getAjaxContext());
 			evaContext.setVariableValue("condition", condition);
 			
 			ooeeContext.setDefaultEvaluationContext(evaContext);
@@ -204,4 +212,22 @@ public class Chart extends Widget<Chart> implements Serializable {
 		}
 		return "";
 	}
+	
+	public JSONObject toJSON() throws JSONException {
+    	JSONObject json = super.toJSON();
+    	json.put("classType", this.type);
+    	return json;
+    }
+	
+	@SuppressWarnings("unchecked")
+	public void fromJSON(JSONObject json) throws Exception {
+		super.fromJSON(json);
+		String entityName = json.getString("entityName");
+		UIFormObject formObject = PageCacheManager.getUIForm(entityName);
+		Map<String, Object> attributes = formObject.getComponentProperty(this.getId(), true);
+		this.queryExpr = (ExpressionType)attributes.get("queryExpr");
+		this.columns = (List<UITableColumnType>)attributes.get("columns");
+		this.type = Class.forName(json.getString("classType"));
+	}
+	
 }

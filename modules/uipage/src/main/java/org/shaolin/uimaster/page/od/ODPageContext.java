@@ -28,7 +28,7 @@ import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.cache.ODObject;
@@ -120,10 +120,10 @@ public class ODPageContext extends ODContext
 		this.setEvaluationContextObject(LOCAL_TAG, localEContext);
 		this.setEvaluationContextObject(GLOBAL_TAG, defaultEContext);
 		if (!this.isDataToUI()) {
-			if (AjaxActionHelper.getAjaxContext() == null) {
+			if (AjaxContextHelper.getAjaxContext() == null) {
 				AjaxContext.registerPageAjaxContext(uiEntityName, requestContext.getRequest());
 			}
-			defaultEContext.setVariableValue(AJAX_UICOMP_NAME, AjaxActionHelper.getAjaxContext());
+			defaultEContext.setVariableValue(AJAX_UICOMP_NAME, AjaxContextHelper.getAjaxContext());
 			this.outName = requestContext.getRequest().getParameter(ODPageContext.OUT_NAME);
 		}
     }
@@ -167,15 +167,6 @@ public class ODPageContext extends ODContext
 		if (pageOutType.getServerOperation() != null 
 				&& pageOutType.getServerOperation().getExpressionString() != null) {
 			pageOutType.getServerOperation().evaluate(this);
-			if (!processedOdMapping) {
-				try {
-					this.executeAllMappings();
-				} catch (ODException e) {
-					throw new EvaluationException(e);
-				} finally {
-					processedOdMapping = false;
-				}
-			}
 		} else {
 			executeAllMappings();
 		}

@@ -16,15 +16,20 @@
 package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
+import org.shaolin.uimaster.page.cache.PageCacheManager;
+import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.od.ODContext;
 
 public class AFile extends TextWidget implements Serializable
@@ -47,14 +52,14 @@ public class AFile extends TextWidget implements Serializable
 	
 	public AFile(String uiid)
     {
-        this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
+        this(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
         this._setWidgetLabel(uiid);
         this.setListened(true);
     }
     
     public AFile(String uiid, String path)
     {
-        super(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, path, new CellLayout());
+        super(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, path, new CellLayout());
         this._setWidgetLabel(uiid);
         this.setListened(true);
     }
@@ -173,7 +178,7 @@ public class AFile extends TextWidget implements Serializable
 		try {
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
-			evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+			evaContext.setVariableValue("page", AjaxContextHelper.getAjaxContext());
 			ooeeContext.setDefaultEvaluationContext(evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.GLOBAL_TAG, evaContext);
@@ -191,5 +196,27 @@ public class AFile extends TextWidget implements Serializable
 		this.refreshExpr = refreshExpr;
 	}
 
-	
+	public JSONObject toJSON() throws JSONException {
+    	JSONObject json = super.toJSON();
+    	json.put("storedPath", this.storedPath);
+    	json.put("allowNbs", this.allowedNumbers);
+    	json.put("contentSize", this.contentSize);
+    	json.put("width", this.width);
+    	json.put("height", this.height);
+    	return json;
+    }
+    
+    public void fromJSON(JSONObject json) throws Exception {
+    	super.fromJSON(json);
+    	this.storedPath = json.getString("storedPath");
+    	this.allowedNumbers = json.getInt("allowNbs");
+    	this.contentSize = json.getInt("contentSize");
+    	this.width = json.getInt("width");
+    	this.height = json.getInt("height");
+    	
+    	String entityName = json.getString("entity");
+    	UIFormObject formObject = PageCacheManager.getUIForm(entityName);
+		Map<String, Object> attributes = formObject.getComponentProperty(this.getId(), true);
+		this.refreshExpr = (ExpressionType)attributes.get("refreshExpr");
+    }
 }

@@ -18,11 +18,10 @@ package org.shaolin.uimaster.page.widgets;
 import java.io.IOException;
 import java.util.List;
 
-import org.shaolin.uimaster.page.UserRequestContext;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.HTMLUtil;
-import org.shaolin.uimaster.page.ajax.Layout;
-import org.shaolin.uimaster.page.ajax.Panel;
-import org.shaolin.uimaster.page.ajax.Widget;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.shaolin.uimaster.page.od.mappings.DynamicUIComponentMapping;
@@ -190,25 +189,25 @@ public class HTMLPanelType extends HTMLContainerType
         }
     }
 
-    public Widget<Panel> createAjaxWidget(VariableEvaluator ee)
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
     	if (!needAjaxSupport()) {
     		return null;
     	}
     	
-        Panel panel = new Panel(getName(), Layout.NULL);
+//        Panel panel = new Panel(getName(), Layout.NULL);
+//        
+//        panel.setDivPrefix(UserRequestContext.UserContext.get().getDIVPrefix());
+//        
+//        panel.setReadOnly(isReadOnly());
+//        panel.setUIEntityName(getUIEntityName());
+//        panel.setListened(true);
+//        if (this.hasDynamicUI()) {
+//        	List<HTMLDynamicUIItem> items = (List<HTMLDynamicUIItem>)this.getAttribute("dynamicItems");
+//        	panel.setDynamicUI(items);
+//        }
         
-        panel.setDivPrefix(UserRequestContext.UserContext.get().getDIVPrefix());
-        
-        panel.setReadOnly(isReadOnly());
-        panel.setUIEntityName(getUIEntityName());
-        panel.setListened(true);
-        if (this.hasDynamicUI()) {
-        	List<HTMLDynamicUIItem> items = (List<HTMLDynamicUIItem>)this.getAttribute("dynamicItems");
-        	panel.setDynamicUI(items);
-        }
-        
-        return panel;
+        return super.createJsonModel(ee);
     }
     
 }

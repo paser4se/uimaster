@@ -26,6 +26,12 @@ public class JSONException extends Exception
         super(t.getMessage());
         this.cause = t;
     }
+    
+    public JSONException(String message, Throwable t)
+    {
+        super(message);
+        this.cause = t;
+    }
 
     public Throwable getCause()
     {

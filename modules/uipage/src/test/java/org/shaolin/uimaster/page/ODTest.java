@@ -42,18 +42,15 @@ import org.shaolin.bmdp.runtime.internal.AppServiceManagerImpl;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IEntityManager;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
-import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.ajax.Label;
 import org.shaolin.uimaster.page.ajax.SelectWidget;
 import org.shaolin.uimaster.page.ajax.SingleChoice;
 import org.shaolin.uimaster.page.ajax.TextField;
+import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.ajax.json.RequestData;
 import org.shaolin.uimaster.page.cache.ODFormObject;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
-import org.shaolin.uimaster.page.exception.AjaxException;
-import org.shaolin.uimaster.page.exception.AttributeSetAlreadyException;
 import org.shaolin.uimaster.page.exception.ODProcessException;
-import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.od.IODMappingConverter;
 import org.shaolin.uimaster.page.od.ODProcessor;
 import org.shaolin.uimaster.page.od.PageODProcessor;
@@ -123,7 +120,7 @@ public class ODTest {
 	}
 	
 	@Test
-	public void testTextComponentBaseRule() throws UIConvertException, EvaluationException, AjaxException, AttributeSetAlreadyException {
+	public void testTextComponentBaseRule() throws Exception{
 		MockHttpRequest request = new MockHttpRequest();
         UserRequestContext htmlContext = new UserRequestContext(request);
         htmlContext.setIsDataToUI(true);
@@ -131,15 +128,16 @@ public class ODTest {
         UserRequestContext.UserContext.set(htmlContext);
         
         RequestData requestData = new RequestData();
-        AjaxActionHelper.createAjaxContext(new AjaxContext(new HashMap(), requestData));
-        AjaxActionHelper.getAjaxContext().initData();
-        AjaxActionHelper.getAjaxContext().setRequest(request, null);
+        AjaxContextHelper.createAjaxContext(new AjaxContext(new HashMap(), requestData));
+        AjaxContextHelper.getAjaxContext().initData();
+        AjaxContextHelper.getAjaxContext().setRequest(request, null);
         
         Map ajaxWidgetMap = new HashMap();
         request.getSession(true).setAttribute(AjaxContext.AJAX_COMP_MAP, ajaxWidgetMap);
         ajaxWidgetMap.put(AjaxContext.GLOBAL_PAGE, htmlContext.getPageAjaxWidgets());
 		
         HTMLLabelType label = new HTMLLabelType("labelWidget");
+        label.setUIEntityName("Test");
         Map<String, Object> attributeMap = new HashMap<String, Object>();
         attributeMap.put("needAjaxSupport", true);
         label.setAttribute(attributeMap);
@@ -148,7 +146,7 @@ public class ODTest {
 		inputData.put(IODMappingConverter.UI_WIDGET_ID, label.getUIID());
 		inputData.put("StringData", "hello");
 		inputData.put("DisplayStringData", "display hello");
-		htmlContext.addAjaxWidget(label.getUIID(), label.createAjaxWidget(null));
+		htmlContext.addAjaxWidget(label.getUIID(), label.createJsonModel(null));
 		
 		UIText uiTextRule = new UIText();
 		uiTextRule.setInputData(inputData);
@@ -157,25 +155,30 @@ public class ODTest {
 		Map<String, Object> output = uiTextRule.getOutputData();
 		Assert.assertEquals("hello", ((HTMLLabelType)output.get(IODMappingConverter.UI_WIDGET_TYPE)).getValue());
 		Assert.assertEquals("display hello", ((HTMLLabelType)output.get(IODMappingConverter.UI_WIDGET_TYPE)).getDisplayValue());
-		((Label)AjaxActionHelper.getCachedAjaxWidget(label.getUIID(), htmlContext)).setValue("how are you?");
+		Label l = (Label)Widget.covertFromJSON(AjaxContextHelper.getCachedAjaxWidget(label.getUIID(), htmlContext));
+		l.setValue("how are you?");
+		htmlContext.updateAjaxWidget(l.getId(), l);
 		uiTextRule.pullDataFromWidget(htmlContext);
 		output = uiTextRule.getOutputData();
 		Assert.assertEquals("how are you?", output.get("StringData"));
 		
 		inputData.clear();
 		HTMLTextFieldType textField = new HTMLTextFieldType("testWidget");
+		textField.setUIEntityName("Test");
 		inputData.put(IODMappingConverter.UI_WIDGET_TYPE, textField);
 		inputData.put(IODMappingConverter.UI_WIDGET_ID, textField.getUIID());
 		inputData.put("CEType", Gender.class.getName());
 		inputData.put("CEValue", Gender.MALE);
-		htmlContext.addAjaxWidget(textField.getUIID(), textField.createAjaxWidget(null));
+		htmlContext.addAjaxWidget(textField.getUIID(), textField.createJsonModel(null));
 		UITextWithCE uiTextCERule = new UITextWithCE();
 		uiTextCERule.setInputData(inputData);
 		uiTextCERule.pushDataToWidget(htmlContext);
 		
 		output = uiTextCERule.getOutputData();
 		Assert.assertEquals("Male", ((HTMLTextFieldType)output.get(IODMappingConverter.UI_WIDGET_TYPE)).getValue());
-		((TextField)AjaxActionHelper.getCachedAjaxWidget(textField.getUIID(), htmlContext)).setValue("Female");
+		TextField f = (TextField)Widget.covertFromJSON(AjaxContextHelper.getCachedAjaxWidget(textField.getUIID(), htmlContext));
+		f.setValue("Female");
+		htmlContext.updateAjaxWidget(f.getId(), f);
 		uiTextCERule.pullDataFromWidget(htmlContext);
 		output = uiTextCERule.getOutputData();
 		Assert.assertEquals(Gender.FEMALE, output.get("CEValue"));
@@ -191,12 +194,15 @@ public class ODTest {
 		output = uiTextCurrencyRule.getOutputData();
 		Assert.assertEquals("100", ((HTMLTextFieldType)output.get(IODMappingConverter.UI_WIDGET_TYPE)).getValue());
 		Assert.assertNotNull(((HTMLTextFieldType)output.get(IODMappingConverter.UI_WIDGET_TYPE)).getCurrencySymbol());
-		((TextField)AjaxActionHelper.getCachedAjaxWidget(textField.getUIID(), htmlContext)).setValue("120");
+		f = (TextField)Widget.covertFromJSON(AjaxContextHelper.getCachedAjaxWidget(textField.getUIID(), htmlContext));
+		f.setValue("120");
+		htmlContext.updateAjaxWidget(f.getId(), f);
 		uiTextCurrencyRule.pullDataFromWidget(htmlContext);
 		output = uiTextCurrencyRule.getOutputData();
 		Assert.assertEquals(120d, output.get("Currency"));
 		
 		HTMLDateType date = new HTMLDateType("dateWidget");
+		date.setUIEntityName("Test");
 		inputData.clear();
 		inputData.put(IODMappingConverter.UI_WIDGET_TYPE, date);
 		inputData.put(IODMappingConverter.UI_WIDGET_ID, date.getUIID());
@@ -204,11 +210,13 @@ public class ODTest {
 		UITextWithDate uiDateRule = new UITextWithDate();
 		uiDateRule.setInputData(inputData);
 		uiDateRule.pushDataToWidget(htmlContext);
-		htmlContext.addAjaxWidget(date.getUIID(), date.createAjaxWidget(null));
+		htmlContext.addAjaxWidget(date.getUIID(), date.createJsonModel(null));
 		
 		output = uiDateRule.getOutputData();
 		Assert.assertEquals("2014-06-22/19:17:28", ((HTMLDateType)output.get(IODMappingConverter.UI_WIDGET_TYPE)).getValue());
-		((TextField)AjaxActionHelper.getCachedAjaxWidget(date.getUIID(), htmlContext)).setValue("2014-06-22/19:17:28");
+		f = (TextField)Widget.covertFromJSON(AjaxContextHelper.getCachedAjaxWidget(date.getUIID(), htmlContext));
+		f.setValue("2014-06-22/19:17:28");
+		htmlContext.updateAjaxWidget(f.getId(), f);
 		uiDateRule.pullDataFromWidget(htmlContext);
 		output = uiDateRule.getOutputData();
 		Assert.assertEquals("Sun Jun 22 19:17:28 CST 2014", ((Date)output.get("Date")).toString());
@@ -237,7 +245,9 @@ public class ODTest {
 		
 		output = uiTextFloatRule.getOutputData();
 		Assert.assertEquals("100", ((HTMLTextFieldType)output.get(IODMappingConverter.UI_WIDGET_TYPE)).getValue());
-		((TextField)AjaxActionHelper.getCachedAjaxWidget(textField.getUIID(), htmlContext)).setValue("120");
+		f = (TextField)Widget.covertFromJSON(AjaxContextHelper.getCachedAjaxWidget(textField.getUIID(), htmlContext));
+		f.setValue("120");
+		htmlContext.updateAjaxWidget(f.getId(), f);
 		uiTextFloatRule.pullDataFromWidget(htmlContext);
 		output = uiTextFloatRule.getOutputData();
 		Assert.assertEquals(120.0d, output.get("FloatNumber"));
@@ -252,14 +262,16 @@ public class ODTest {
 		
 		output = uiTextNumberRule.getOutputData();
 		Assert.assertEquals("100", ((HTMLTextFieldType)output.get(IODMappingConverter.UI_WIDGET_TYPE)).getValue());
-		((TextField)AjaxActionHelper.getCachedAjaxWidget(textField.getUIID(), htmlContext)).setValue("120");
+		f = (TextField)Widget.covertFromJSON(AjaxContextHelper.getCachedAjaxWidget(textField.getUIID(), htmlContext));
+		f.setValue("120");
+		htmlContext.updateAjaxWidget(f.getId(), f);
 		uiTextNumberRule.pullDataFromWidget(htmlContext);
 		output = uiTextNumberRule.getOutputData();
 		Assert.assertEquals(120L, output.get("Number"));
 	}
 	
 	@Test
-	public void testChioceComponentBaseRule() throws UIConvertException, EvaluationException, AjaxException {
+	public void testChioceComponentBaseRule() throws Exception {
 		MockHttpRequest request = new MockHttpRequest();
         UserRequestContext htmlContext = new UserRequestContext(request);
         htmlContext.setIsDataToUI(true);
@@ -267,15 +279,16 @@ public class ODTest {
         UserRequestContext.UserContext.set(htmlContext);
         
         RequestData requestData = new RequestData();
-        AjaxActionHelper.createAjaxContext(new AjaxContext(new HashMap(), requestData));
-        AjaxActionHelper.getAjaxContext().initData();
-        AjaxActionHelper.getAjaxContext().setRequest(request, null);
+        AjaxContextHelper.createAjaxContext(new AjaxContext(new HashMap(), requestData));
+        AjaxContextHelper.getAjaxContext().initData();
+        AjaxContextHelper.getAjaxContext().setRequest(request, null);
         
         Map ajaxWidgetMap = new HashMap();
         request.getSession(true).setAttribute(AjaxContext.AJAX_COMP_MAP, ajaxWidgetMap);
         ajaxWidgetMap.put(AjaxContext.GLOBAL_PAGE, htmlContext.getPageAjaxWidgets());
         
         HTMLListType listWidget = new HTMLListType("chioceWidget");
+        listWidget.setUIEntityName("Test");
         List<String> values = new ArrayList<String>();
         values.add("item0");
         values.add("item1");
@@ -297,9 +310,9 @@ public class ODTest {
 		uiMultipleChoiceRule.pushDataToWidget(htmlContext);
 		
 		Map<String, Object> output = uiMultipleChoiceRule.getOutputData();
-		Assert.assertEquals(2, ((HTMLMultiChoiceType)output.get(IODMappingConverter.UI_WIDGET_TYPE)).getValue().size());
+		Assert.assertEquals(2, ((HTMLMultiChoiceType)output.get(IODMappingConverter.UI_WIDGET_TYPE)).getValues().size());
 		Assert.assertEquals(3, ((HTMLMultiChoiceType)output.get(IODMappingConverter.UI_WIDGET_TYPE)).getOptionValues().size());
-		htmlContext.addAjaxWidget(listWidget.getUIID(), listWidget.createAjaxWidget(null));
+		htmlContext.addAjaxWidget(listWidget.getUIID(), listWidget.createJsonModel(null));
 		uiMultipleChoiceRule.pullDataFromWidget(htmlContext);
 		output = uiMultipleChoiceRule.getOutputData();
 		Assert.assertEquals(3, ((List)output.get("OptionValues")).size());
@@ -315,7 +328,7 @@ public class ODTest {
 		uiMultipleCERule.pushDataToWidget(htmlContext);
 		
 		output = uiMultipleCERule.getOutputData();
-		Assert.assertEquals(2, ((HTMLListType)output.get(IODMappingConverter.UI_WIDGET_TYPE)).getValue().size());
+		Assert.assertEquals(2, ((HTMLListType)output.get(IODMappingConverter.UI_WIDGET_TYPE)).getValues().size());
 		Assert.assertEquals(3, ((HTMLListType)output.get(IODMappingConverter.UI_WIDGET_TYPE)).getOptionValues().size());
 		List<Gender> options1 = new ArrayList<Gender>();
 		options1.add(Gender.FEMALE);
@@ -326,12 +339,13 @@ public class ODTest {
 		uiMultipleCERule.pushDataToWidget(htmlContext);//write date to widget.
 		
 		//refresh data.
-		htmlContext.addAjaxWidget(listWidget.getUIID(), listWidget.createAjaxWidget(null));
+		htmlContext.addAjaxWidget(listWidget.getUIID(), listWidget.createJsonModel(null));
 		uiMultipleCERule.pullDataFromWidget(htmlContext);
 		output = uiMultipleCERule.getOutputData();
-		Assert.assertEquals(1, ((List)output.get("CEValues")).size());
+		Assert.assertEquals(3, ((List)output.get("CEValues")).size());
 		
 		HTMLComboBoxType combobox = new HTMLComboBoxType("combobox");
+		combobox.setUIEntityName("Test");
         options = new ArrayList<String>();
         options.add("item0");
         options.add("item1");
@@ -345,12 +359,14 @@ public class ODTest {
 		UISingleChoice uiSingleChoiceRule = new UISingleChoice();
 		uiSingleChoiceRule.setInputData(inputData);
 		uiSingleChoiceRule.pushDataToWidget(htmlContext);
-		htmlContext.addAjaxWidget(combobox.getUIID(), combobox.createAjaxWidget(null));
+		htmlContext.addAjaxWidget(combobox.getUIID(), combobox.createJsonModel(null));
 		
 		output = uiSingleChoiceRule.getOutputData();
 		Assert.assertEquals("item1", ((HTMLComboBoxType)output.get(IODMappingConverter.UI_WIDGET_TYPE)).getValue());
 		Assert.assertEquals(3, ((HTMLComboBoxType)output.get(IODMappingConverter.UI_WIDGET_TYPE)).getOptionValues().size());
-		((SingleChoice)AjaxActionHelper.getCachedAjaxWidget(combobox.getUIID(), htmlContext)).setValue("item0");
+		SingleChoice sc = (SingleChoice)Widget.covertFromJSON(AjaxContextHelper.getCachedAjaxWidget(combobox.getUIID(), htmlContext));
+		sc.setValue("item0");
+		htmlContext.updateAjaxWidget(sc.getId(), sc);
 		uiSingleChoiceRule.pullDataFromWidget(htmlContext);
 		output = uiSingleChoiceRule.getOutputData();
 		Assert.assertEquals(3, ((List)output.get("OptionValues")).size());
@@ -358,6 +374,7 @@ public class ODTest {
 		
 		
 		combobox = new HTMLComboBoxType("combobox");
+		combobox.setUIEntityName("Test");
 		inputData = new HashMap<String, Object>();
 		inputData.put(IODMappingConverter.UI_WIDGET_TYPE, combobox);
 		inputData.put(IODMappingConverter.UI_WIDGET_ID, combobox.getUIID());
@@ -369,13 +386,16 @@ public class ODTest {
 		
 		output = uiSingleCERule.getOutputData();
 		Assert.assertEquals(3, ((HTMLComboBoxType)output.get(IODMappingConverter.UI_WIDGET_TYPE)).getOptionValues().size());
-		htmlContext.addAjaxWidget(combobox.getUIID(), combobox.createAjaxWidget(null));
-		((SingleChoice)AjaxActionHelper.getCachedAjaxWidget(combobox.getUIID(), htmlContext)).setValue("1");
+		htmlContext.addAjaxWidget(combobox.getUIID(), combobox.createJsonModel(null));
+		sc = (SingleChoice)Widget.covertFromJSON(AjaxContextHelper.getCachedAjaxWidget(combobox.getUIID(), htmlContext));
+		sc.setValue("1");
+		htmlContext.updateAjaxWidget(sc.getId(), sc);
 		uiSingleCERule.pullDataFromWidget(htmlContext);
 		output = uiSingleCERule.getOutputData();
 		Assert.assertEquals(Gender.MALE, output.get("CEValue"));
 		
 		HTMLCheckBoxType checkBox = new HTMLCheckBoxType("checkBox");
+		checkBox.setUIEntityName("Test");
 		inputData = new HashMap<String, Object>();
 		inputData.put(IODMappingConverter.UI_WIDGET_TYPE, checkBox);
 		inputData.put(IODMappingConverter.UI_WIDGET_ID, checkBox.getUIID());		
@@ -383,11 +403,13 @@ public class ODTest {
 		UISelect uiSelectRule = new UISelect();
 		uiSelectRule.setInputData(inputData);
 		uiSelectRule.pushDataToWidget(htmlContext);
-		htmlContext.addAjaxWidget(checkBox.getUIID(), checkBox.createAjaxWidget(null));
+		htmlContext.addAjaxWidget(checkBox.getUIID(), checkBox.createJsonModel(null));
 		
 		output = uiSelectRule.getOutputData();
 		Assert.assertEquals(false, ((HTMLSelectComponentType)output.get(IODMappingConverter.UI_WIDGET_TYPE)).getValue());
-		((SelectWidget)AjaxActionHelper.getCachedAjaxWidget(checkBox.getUIID(), htmlContext)).setSelected(true);
+		SelectWidget sw= (SelectWidget)Widget.covertFromJSON(AjaxContextHelper.getCachedAjaxWidget(checkBox.getUIID(), htmlContext));
+		sw.setSelected(true);
+		htmlContext.updateAjaxWidget(sw.getId(), sw);
 		uiSelectRule.pullDataFromWidget(htmlContext);
 		output = uiSelectRule.getOutputData();
 		Assert.assertEquals(true, ((Boolean)output.get("Value")).booleanValue());
@@ -557,7 +579,7 @@ public class ODTest {
             htmlContext.setFormObject(PageCacheManager.getUIFormObject(htmlContext.getFormName()));
             
             UserRequestContext.UserContext.set(htmlContext);
-            AjaxActionHelper.createAjaxContext(new AjaxContext(new HashMap(), new RequestData()));
+            AjaxContextHelper.createAjaxContext(new AjaxContext(new HashMap(), new RequestData()));
             
 			ODFormObject odEntityObject = PageCacheManager.getODFormObject(htmlContext.getFormName());
             HTMLReferenceEntityType newReferObject = new HTMLReferenceEntityType("customer", htmlContext.getFormName());

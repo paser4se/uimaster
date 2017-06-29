@@ -22,10 +22,10 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.shaolin.bmdp.i18n.ExceptionConstants;
 import org.shaolin.bmdp.i18n.LocaleContext;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.Button;
-import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.exception.ODEntityProcessException;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
@@ -119,12 +119,12 @@ public class ODProcessor
 			        	((HTMLPanelType)htmlWidget).setDynamicItems(dynamicItems);
 			        } 
 					
-	    			Widget newAjax = htmlWidget.createAjaxWidget(ee);
+	    			JSONObject newAjax = htmlWidget.createJsonModel(ee);
 	                if (newAjax != null) {
-	                	requestContext.addAjaxWidget(newAjax.getId(), newAjax);
-	                	if (newAjax.getClass() == Button.class) {
+	                	requestContext.addAjaxWidget(htmlWidget.getName(), newAjax);
+	                	if (newAjax.getString("type").equals(Button.class.getSimpleName())) {
 	                    	// all express must be re-calculate when click button in every time.
-	                		((Button)newAjax).setExpressMap(expMap);
+	                		//((Button)newAjax).setExpressMap(expMap);
 	                	}
 	                }
 	    		}

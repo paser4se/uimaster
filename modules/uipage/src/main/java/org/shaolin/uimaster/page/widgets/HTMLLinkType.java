@@ -18,6 +18,8 @@ package org.shaolin.uimaster.page.widgets;
 import java.io.IOException;
 
 import org.shaolin.uimaster.page.UserRequestContext;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Link;
@@ -135,21 +137,28 @@ public class HTMLLinkType extends HTMLLabelType
         return false;
     }
     
-    public Widget createAjaxWidget(VariableEvaluator ee)
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-        Link link = new Link(getName(), null);
+    	if (!needAjaxSupport()) {
+    		Object oneditable = this.getAttribute("oneditable");
+            if (oneditable == null || oneditable.toString().equalsIgnoreCase("false")){
+            	return null;
+            }
+    	}
+    	
+//        Link link = new Link(getName(), null);
+//
+//        link.setReadOnly(isReadOnly());
+//        link.setUIEntityName(getUIEntityName());
+//
+//        link.setValue(getValue());
+//        link.setDisplayValue(getDisplayValue());
+//
+//        link.setHref(getHref());
+//
+//        link.setListened(true);
 
-        link.setReadOnly(isReadOnly());
-        link.setUIEntityName(getUIEntityName());
-
-        link.setValue(getValue());
-        link.setDisplayValue(getDisplayValue());
-
-        link.setHref(getHref());
-
-        link.setListened(true);
-
-        return link;
+        return super.createJsonModel(ee);
     }
 
     private static final long serialVersionUID = 8101449149686235427L;

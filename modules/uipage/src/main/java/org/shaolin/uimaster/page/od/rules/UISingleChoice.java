@@ -20,13 +20,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.SingleChoice;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.od.IODMappingConverter;
 import org.shaolin.uimaster.page.widgets.HTMLChoiceType;
 import org.shaolin.uimaster.page.widgets.HTMLSingleChoiceType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UISingleChoice implements IODMappingConverter {
 	private HTMLSingleChoiceType uisingleChoice;
@@ -213,9 +215,15 @@ public class UISingleChoice implements IODMappingConverter {
 
 	public void pullDataFromWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
-			SingleChoice singleChoice = (SingleChoice) AjaxActionHelper
-					.getCachedAjaxWidget(this.uiid, htmlContext);
-			this.value = singleChoice.getRealValue();
+//			SingleChoice singleChoice = (SingleChoice) AjaxActionHelper
+//					.getCachedAjaxWidget(this.uiid, htmlContext);
+			JSONObject selectComp = htmlContext.getAjaxWidget(this.uiid);
+			if (selectComp == null) {
+				logger.warn(this.uiid + " does not exist for data to ui mapping!");
+				return;
+			}
+			JSONObject attrMap = selectComp.getJSONObject("attrMap");
+			this.value = SingleChoice.getRealValue(attrMap, selectComp.getString("realVType"));
 			if (this.value != null && "null".equals(this.value)) {
 				this.value = null;
 			}
@@ -226,10 +234,6 @@ public class UISingleChoice implements IODMappingConverter {
 			throw new UIConvertException("EBOS_ODMAPPER_073", t,
 					new Object[] { this.uiid });
 		}
-	}
-
-	public void callAllMappings(boolean isDataToUI, UserRequestContext htmlContext) throws UIConvertException {
-		callChoiceOption(isDataToUI, htmlContext);
 	}
 
 	public void callChoiceOption(boolean isDataToUI, UserRequestContext htmlContext) throws UIConvertException {
@@ -277,4 +281,6 @@ public class UISingleChoice implements IODMappingConverter {
 					new Object[] { getUIHTML().getUIID() });
 		}
 	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(UIText.class);
 }

@@ -23,12 +23,12 @@ import org.apache.log4j.Logger;
 import org.shaolin.bmdp.datamodel.page.PageOutType;
 import org.shaolin.bmdp.i18n.ExceptionConstants;
 import org.shaolin.bmdp.i18n.LocaleContext;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.EvaluationContext;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.Button;
-import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.cache.UIPageObject;
@@ -149,12 +149,12 @@ public class PageODProcessor
 				        	List<HTMLDynamicUIItem> dynamicItems = formObject.getDynamicItems(compId, filter);
 				        	((HTMLPanelType)htmlWidget).setDynamicItems(dynamicItems);
 				        }
-		    			Widget newAjax = htmlWidget.createAjaxWidget(ee);
+		    			JSONObject newAjax = htmlWidget.createJsonModel(ee);
     	                if (newAjax != null) {
-    	                	requestContext.addAjaxWidget(newAjax.getId(), newAjax);
-    	                	if (newAjax.getClass() == Button.class) {
+    	                	requestContext.addAjaxWidget(htmlWidget.getName(), newAjax);
+    	                	if (newAjax.getString("type").equals(Button.class.getSimpleName())) {
     	                    	// all express must be re-calculate when click button in every time.
-    	                		((Button)newAjax).setExpressMap(expMap);
+//    	                		((Button)newAjax).setExpressMap(expMap);
     	                	}
     	                }
     	    		}

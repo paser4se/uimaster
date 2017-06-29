@@ -108,9 +108,9 @@ public class AjaxFactory
 				HttpServletResponse response) throws Exception {
 			String frameId = request.getParameter("_framePrefix");
 			logger.info("Close the frame page: " + frameId);
-	    	Map ajaxComponentMap = AjaxActionHelper.getAjaxWidgetMap(request.getSession());
+	    	Map ajaxComponentMap = AjaxContextHelper.getAjaxWidgetMap(request.getSession());
 	    	ajaxComponentMap.remove(frameId);
-	    	AjaxActionHelper.removeCachedPage(request.getSession(), frameId);
+	    	AjaxContextHelper.removeCachedPage(request.getSession(), frameId);
 			return "1";
 		}
 		

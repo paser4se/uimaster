@@ -51,11 +51,15 @@ public class SessionObjectServlet extends HttpServlet {
 		sb.append("<body>");
 		
 		long totalSize = 0;
-		HttpSession session = request.getSession();
+		HttpSession session = request.getSession(false);
 		Enumeration<String> names = session.getAttributeNames();
 		while (names.hasMoreElements()) {
 			String name = names.nextElement();
-			digObjects(sb, name, session.getAttribute(name));
+			try {
+				digObjects(sb, name, session.getAttribute(name));
+			} catch (Throwable e) {
+				logger.warn("Unable to show data of item: " + name, e);
+			}
 		}
 		
 		names = session.getAttributeNames();
@@ -67,7 +71,7 @@ public class SessionObjectServlet extends HttpServlet {
 				sb.append("<div style='color:red;'>").append(name).append(" Size: ");
 				sb.append(StringUtil.getSizeString(size));
 				sb.append("</div>");
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.warn("Unable to serialize session item: " + name, e);
 			}
 		}

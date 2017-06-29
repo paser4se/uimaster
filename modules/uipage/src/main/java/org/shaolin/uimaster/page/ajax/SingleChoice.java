@@ -18,17 +18,23 @@ package org.shaolin.uimaster.page.ajax;
 import java.io.Serializable;
 import java.util.List;
 
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
+
 abstract public class SingleChoice<T> extends Choice<T> implements Serializable
 {
     private static final long serialVersionUID = 329245687316770737L;
 
-    private final Class realValueDataType;
+    private Class realValueDataType = String.class;
     
-	public SingleChoice(String id, Layout layout, Class realValueDataType)
+	public SingleChoice(String id, Layout layout)
     {
         super(id, layout);
-        this.realValueDataType = realValueDataType;
     }
+	
+	public void setRealValueType(Class realValueDataType) {
+		this.realValueDataType = realValueDataType;
+	}
 
     public T generateAttribute(String name, Object value, StringBuilder sb)
     {
@@ -106,5 +112,32 @@ abstract public class SingleChoice<T> extends Choice<T> implements Serializable
     		return value;
     	}
     }
+    
+    public static Object getRealValue(JSONObject json, String clazz0) throws JSONException, ClassNotFoundException {
+    	String value = json.getString("value");
+    	Class clazz = Class.forName(clazz0);
+    	if (clazz == Long.class || clazz == long.class) {
+			return Long.valueOf(value.equals("") ? "0" : value);
+    	} else if (clazz == Integer.class || clazz == int.class) {
+    		return Integer.valueOf(value.equals("") ? "0" : value);
+    	} else if (clazz == Double.class || clazz == double.class) {
+    		return Double.valueOf(value.equals("") ? "0" : value);
+    	} else if (clazz == Float.class || clazz == float.class) {
+    		return Float.valueOf(value.equals("") ? "0" : value);
+    	} else {
+    		return value;
+    	}
+    }
+    
+    public JSONObject toJSON() throws JSONException {
+		JSONObject json = super.toJSON();
+		json.put("realVType", realValueDataType.getName());
+		return json;
+	}
+	
+	public void fromJSON(JSONObject json) throws Exception {
+		super.fromJSON(json);
+		this.realValueDataType = Class.forName(json.getString("realVType"));
+	}
 
 }

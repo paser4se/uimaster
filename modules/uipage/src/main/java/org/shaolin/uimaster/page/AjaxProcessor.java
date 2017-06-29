@@ -26,7 +26,6 @@ import org.shaolin.bmdp.json.JSONException;
 import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.javacc.exception.EvaluationException;
-import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.ajax.handlers.AjaxHandlerException;
 import org.shaolin.uimaster.page.ajax.handlers.ChartEventHandler;
 import org.shaolin.uimaster.page.ajax.handlers.CheckPropertyHandler;
@@ -87,7 +86,7 @@ public class AjaxProcessor implements Serializable
     public AjaxProcessor(UserRequestContext htmlContext) throws AjaxException
     {
         this.context = createAjaxContext(htmlContext);
-        AjaxActionHelper.createAjaxContext(this.context);
+        AjaxContextHelper.createAjaxContext(this.context);
         
         updateParam(htmlContext);
     }
@@ -95,7 +94,7 @@ public class AjaxProcessor implements Serializable
     private IRequestData getRequestData(HttpServletRequest request) throws AjaxInitializedException
     {
         eventType = request.getParameter(AjaxContext.AJAX_USER_EVENT);
-        IRequestData requestData = AjaxActionHelper.createRequestData();
+        IRequestData requestData = AjaxContextHelper.createRequestData();
 
         String framePrefix = request.getParameter(AjaxContext.AJAX_FRAME_PREFIX);
         if(framePrefix == null || framePrefix.equals("null"))
@@ -140,12 +139,12 @@ public class AjaxProcessor implements Serializable
             AjaxContext context;
             if (EVENT_TYPE_CHECK_PROPERTY.equals(eventType))
             {
-            	Map uiMap = AjaxActionHelper.getFrameMap(request);
+            	Map<String, JSONObject> uiMap = AjaxContextHelper.getFrameMap(request);
                 context = new AjaxContext(uiMap, requestData);
             } 
             else if (EVENT_WEBSERVICE.equals(eventType))
             {
-                context = new AjaxContext(new HashMap(), requestData);
+                context = new AjaxContext(new HashMap<String, JSONObject>(), requestData);
                 context.initData();
             }
             else
@@ -155,21 +154,20 @@ public class AjaxProcessor implements Serializable
 				} else {
 					htmlContext.setCurrentFormInfo(requestData.getEntityName(), "", "");
 				}
-                Map uiMap = AjaxActionHelper.getFrameMap(request);
-                Widget comp = (Widget)uiMap.get(requestData.getUiid());
+                Map<String, JSONObject> uiMap = AjaxContextHelper.getFrameMap(request);
+                JSONObject comp = uiMap.get(requestData.getUiid());
                 if (comp == null)
                     throw new AjaxInitializedException("Can not find this component["
                             + requestData.getUiid() + "] in the UI map!");
-                if (comp.getUIEntityName() == null)
+                if (!comp.has("entity"))
                 {
-                    Widget entityComp = (Widget)uiMap.get(requestData.getEntityUiid());
-                    if (entityComp == null)
-                    {
-                        entityComp = (Widget)uiMap.get("Form");
+                	JSONObject entityComp = (JSONObject)uiMap.get(requestData.getEntityUiid());
+                    if (entityComp == null) {
+                        entityComp = (JSONObject)uiMap.get("Form");
                     }
-                    comp.setUIEntityName(entityComp.getUIEntityName());
+                    comp.put("entity", entityComp.getString("entity"));
                 }
-                String entityName = comp.getUIEntityName();
+                String entityName = comp.getString("entity");
                 if (EVENT_TYPE_FUNCTION.equals(eventType))
                 {
                     entityName = requestData.getEntityName();
@@ -179,6 +177,11 @@ public class AjaxProcessor implements Serializable
                 context.initData();
             }
             return context;
+        }
+        catch (JSONException e)
+        {
+            throw new AjaxInitializedException("Fail to load uiid[" + requestData.getUiid()
+                    + "], exception cause: " + e.getMessage());
         }
         catch (EvaluationException e)
         {

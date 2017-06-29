@@ -224,4 +224,5 @@ abstract public class MultiChoice extends Choice<MultiChoice> implements Seriali
         }
         return false;
     }
+    
 }

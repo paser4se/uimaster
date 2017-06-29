@@ -19,8 +19,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.shaolin.bmdp.json.JSONArray;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.WebConfig;
+import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +36,11 @@ public abstract class HTMLChoiceType extends HTMLWidgetType
 
     public static final String OPTIONDISPLAYVALUE_KEY = "optionDisplayValue";
 
-    public HTMLChoiceType(String id)
+    protected String ceName;
+    
+    protected int expendlevels = 1;
+    
+	public HTMLChoiceType(String id)
     {
         super(id);
     }
@@ -105,4 +113,35 @@ public abstract class HTMLChoiceType extends HTMLWidgetType
         addAttribute(OPTIONDISPLAYVALUE_KEY, optionDisplayValues);
     }
 
+    public String getCeName() {
+  		return ceName;
+  	}
+
+  	public void setCeName(String ceName) {
+  		this.ceName = ceName;
+  	}
+    
+  	public int getExpendlevels() {
+ 		return expendlevels;
+ 	}
+
+ 	public void setExpendlevels(int expendlevels) {
+ 		this.expendlevels = expendlevels;
+ 	}
+  	
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
+    {
+		JSONObject json = super.createJsonModel(ee);
+		if (json.has("attrMap") && json.getJSONObject("attrMap").has("optionValue")) {
+			json.getJSONObject("attrMap").remove("optionValue");
+			json.getJSONObject("attrMap").remove("optionDisplayValue");
+		}
+		if (this.ceName != null && this.ceName.length() > 0) {
+			json.put("ce", this.ceName);
+			json.put("expLevel", this.expendlevels);
+		} else {
+			json.put("optValues", new JSONArray(this.getOptionValues()));
+		}
+		return json;
+	}
 }

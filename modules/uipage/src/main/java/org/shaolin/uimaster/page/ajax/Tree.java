@@ -27,7 +27,7 @@ import org.shaolin.bmdp.json.JSONArray;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
@@ -126,20 +126,20 @@ public class Tree extends Widget<Tree> implements Serializable {
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
 			evaContext.setVariableValue("treeCondition", conditions);
-			evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+			evaContext.setVariableValue("page", AjaxContextHelper.getAjaxContext());
 			evaContext.setVariableValue("selectedNode", this.getSelectedItemId());
 			ooeeContext.setDefaultEvaluationContext(evaContext);
 			ooeeContext.setEvaluationContextObject(ODContext.LOCAL_TAG, evaContext);
 			List<TreeItem> result = (List<TreeItem>)expandExpr.evaluate(ooeeContext);
 			
 			JSONArray jsonArray = new JSONArray(result);
-			IDataItem dataItem = AjaxActionHelper.createDataItem();
+			IDataItem dataItem = AjaxContextHelper.createDataItem();
 			dataItem.setUiid(this.getId());
 			dataItem.setJsHandler(IJSHandlerCollections.TREE_REFRESH);
 			dataItem.setData(jsonArray.toString());
 			dataItem.setFrameInfo(this.getFrameInfo());
 
-			AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+			AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
 			ajaxContext.addDataItem(dataItem);
 		} catch (Exception e) {
 			logger.error("error occurrs while refreshing tree: " + this.getId(), e);
@@ -159,7 +159,7 @@ public class Tree extends Widget<Tree> implements Serializable {
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
 			evaContext.setVariableValue("treeCondition", conditions);
-			evaContext.setVariableValue("page", AjaxActionHelper.getAjaxContext());
+			evaContext.setVariableValue("page", AjaxContextHelper.getAjaxContext());
 			evaContext.setVariableValue("tree", this);
 			evaContext.setVariableValue("selectedNode", this.getSelectedItemId());
 			ooeeContext.setDefaultEvaluationContext(evaContext);

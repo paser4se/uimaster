@@ -39,6 +39,7 @@ import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.uimaster.page.ajax.Table;
+import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.ajax.handlers.ErrorHelper;
 import org.shaolin.uimaster.page.ajax.handlers.IAjaxCommand;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
@@ -140,7 +141,7 @@ public class AjaxServlet extends HttpServlet implements RejectedExecutionHandler
 					HttpSession httpSession = request.getSession(false);
 					if (httpSession == null || httpSession.getAttribute(AjaxContext.AJAX_COMP_MAP) == null) {
 						PrintWriter out = response.getWriter();
-						IDataItem dataItem = AjaxActionHelper
+						IDataItem dataItem = AjaxContextHelper
 								.createSessionTimeOut(WebConfig.replaceWebContext(WebConfig.getTimeoutPage()));
 						JSONArray array = new JSONArray();
 						array.put(new JSONObject(dataItem));
@@ -166,7 +167,7 @@ public class AjaxServlet extends HttpServlet implements RejectedExecutionHandler
 				PrintWriter out = response.getWriter();
 				out.print(sb.toString());
 			} finally {
-				AjaxActionHelper.removeAjaxContext();
+				AjaxContextHelper.removeAjaxContext();
 				UserContext.unregister();
 				LocaleContext.clearLocaleContext();
 			}
@@ -177,7 +178,7 @@ public class AjaxServlet extends HttpServlet implements RejectedExecutionHandler
 		if (!AjaxProcessor.EVENT_WEBSERVICE.equals(request.getParameter(AjaxContext.AJAX_USER_EVENT)) && 
 				(httpSession == null || httpSession.getAttribute(AjaxContext.AJAX_COMP_MAP) == null)) {
 			PrintWriter out = response.getWriter();
-			IDataItem dataItem = AjaxActionHelper
+			IDataItem dataItem = AjaxContextHelper
 					.createSessionTimeOut(WebConfig.replaceWebContext(WebConfig.getTimeoutPage()));
 			JSONArray array = new JSONArray();
 			array.put(new JSONObject(dataItem));
@@ -210,9 +211,10 @@ public class AjaxServlet extends HttpServlet implements RejectedExecutionHandler
 				if (actionName != null && "exportTable".equals(actionName)) {
 					response.setContentType("application/x-download");    
 				    response.addHeader("Content-Disposition","attachment;filename=TableReport.xls");
-				    Map uiMap = AjaxActionHelper.getFrameMap(request);
-				    Table comp = (Table)uiMap.get(request.getParameter("_uiid"));
-				    comp.exportAsExcel(response.getOutputStream());
+				    Map<String, JSONObject> uiMap = AjaxContextHelper.getFrameMap(request);
+				    JSONObject json = uiMap.get(request.getParameter("_uiid"));
+				    Table table = (Table)Widget.covertFromJSON(json);
+				    table.exportAsExcel(response.getOutputStream());
 				} else {
 		            ProcessHelper.processSyncValues(request);
 		            
@@ -253,7 +255,7 @@ public class AjaxServlet extends HttpServlet implements RejectedExecutionHandler
 				if (error) {
 					RestUIPerfMonitor.updateKPI(RestUIPerfMonitor.AJAX_DATA_TO_UI_ERROR_COUNT, end);
 				}
-				AjaxActionHelper.removeAjaxContext();
+				AjaxContextHelper.removeAjaxContext();
 				UserContext.unregister();
 				LocaleContext.clearLocaleContext();
 			}

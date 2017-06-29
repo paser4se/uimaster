@@ -17,7 +17,7 @@ package org.shaolin.uimaster.page.ajax.handlers;
 
 import org.apache.log4j.Logger;
 import org.shaolin.uimaster.page.AjaxContext;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.ajax.Widget;
 
 /**
@@ -33,7 +33,7 @@ public class PropertyChangeHandler implements IAjaxHandler {
 
 	public String trigger(AjaxContext context) throws AjaxHandlerException {
 		try {
-			AjaxActionHelper.createAjaxContext(context);
+			AjaxContextHelper.createAjaxContext(context);
 			String uiid = context.getRequest().getParameter(
 					AjaxContext.AJAX_UIID);
 			String propertyName = context.getRequest().getParameter(
@@ -50,7 +50,7 @@ public class PropertyChangeHandler implements IAjaxHandler {
 						+ context.getRequest().getParameter("_value"));
 			}
 		} finally {
-			AjaxActionHelper.removeAjaxContext();
+			AjaxContextHelper.removeAjaxContext();
 		}
 		return "{}";
 	}

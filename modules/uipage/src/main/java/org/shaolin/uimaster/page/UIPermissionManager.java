@@ -85,7 +85,7 @@ public class UIPermissionManager implements IServiceProvider
     {
         ExpressionType securityExpression = new ExpressionType();
         securityExpression.setExpressionString(expression);
-        Map accessibleVars = AjaxActionHelper.getAjaxContext().getVariables(prefixEntity);
+        Map accessibleVars = AjaxContextHelper.getAjaxContext().getVariables(prefixEntity);
 
         DefaultParsingContext parsingContext = new DefaultParsingContext();
         Iterator it = accessibleVars.entrySet().iterator();

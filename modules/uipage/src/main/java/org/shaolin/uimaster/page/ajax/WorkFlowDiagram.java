@@ -52,7 +52,7 @@ import org.shaolin.bmdp.json.JSONArray;
 import org.shaolin.bmdp.json.JSONException;
 import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.entity.EntityUtil;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.slf4j.Logger;
@@ -411,8 +411,8 @@ public class WorkFlowDiagram extends Widget<WorkFlowDiagram> implements Serializ
 		viewNode.setDescription(node.getDescription());
 		flowView.getNodes().add(viewNode);
 		
-		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
-        IDataItem dataItem = AjaxActionHelper.createDataItem();
+		AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
+        IDataItem dataItem = AjaxContextHelper.createDataItem();
         dataItem.setUiid(this.getId());
         dataItem.setJsHandler("uiflowhandler");
         
@@ -465,8 +465,8 @@ public class WorkFlowDiagram extends Widget<WorkFlowDiagram> implements Serializ
 			}
 		}
 		
-		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
-		IDataItem dataItem = AjaxActionHelper.createDataItem();
+		AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
+		IDataItem dataItem = AjaxContextHelper.createDataItem();
 		dataItem.setUiid(this.getId());
 		dataItem.setJsHandler("uiflowhandler");
 		
@@ -615,8 +615,8 @@ public class WorkFlowDiagram extends Widget<WorkFlowDiagram> implements Serializ
 	    		jsonArray.put(new JSONObject(conn));
 	    	}
 			
-	        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
-	        IDataItem dataItem = AjaxActionHelper.createDataItem();
+	        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
+	        IDataItem dataItem = AjaxContextHelper.createDataItem();
 	        dataItem.setUiid(this.getId());
 	        dataItem.setJsHandler("uiflowhandler");
 	        
@@ -633,8 +633,8 @@ public class WorkFlowDiagram extends Widget<WorkFlowDiagram> implements Serializ
 	}
 	
 	public void saveSuccess() {
-		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
-        IDataItem dataItem = AjaxActionHelper.createDataItem();
+		AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
+        IDataItem dataItem = AjaxContextHelper.createDataItem();
         dataItem.setUiid(this.getId());
         dataItem.setJsHandler("uiflowhandler");
         
@@ -646,8 +646,8 @@ public class WorkFlowDiagram extends Widget<WorkFlowDiagram> implements Serializ
 	}
 	
 	public void saveFailure() {
-		AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
-        IDataItem dataItem = AjaxActionHelper.createDataItem();
+		AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
+        IDataItem dataItem = AjaxContextHelper.createDataItem();
         dataItem.setUiid(this.getId());
         dataItem.setJsHandler("uiflowhandler");
         

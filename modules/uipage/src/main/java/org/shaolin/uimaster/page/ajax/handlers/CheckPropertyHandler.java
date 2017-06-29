@@ -17,7 +17,7 @@ package org.shaolin.uimaster.page.ajax.handlers;
 
 import org.apache.log4j.Logger;
 import org.shaolin.uimaster.page.AjaxContext;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 
 /**
  * Check Property handler.
@@ -32,7 +32,7 @@ public class CheckPropertyHandler implements IAjaxHandler {
 
 	public String trigger(AjaxContext context) throws AjaxHandlerException {
 		try {
-			AjaxActionHelper.createAjaxContext(context);
+			AjaxContextHelper.createAjaxContext(context);
 
 			String chunkName = context.getRequest().getParameter("_chunkName");
 			String nodeName = context.getRequest().getParameter("_nodeName");
@@ -48,7 +48,7 @@ public class CheckPropertyHandler implements IAjaxHandler {
 
 			return "{'value':'" + String.valueOf(isNeed) + "'}";
 		} finally {
-			AjaxActionHelper.removeAjaxContext();
+			AjaxContextHelper.removeAjaxContext();
 		}
 	}
 }

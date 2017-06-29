@@ -5,6 +5,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
+
 /**
  * this interface is the base class of all ConstantEntity, every constant entity must
  * implement it.
@@ -208,4 +211,6 @@ public interface IConstantEntity extends Serializable
 	public IConstantEntity getByIntValue(int _intValue);
 	
 	public IConstantEntity getByDisplayName(String description);
+	
+	public JSONObject toJSON() throws JSONException;
 }

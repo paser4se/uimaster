@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,8 @@ import org.shaolin.bmdp.datamodel.page.StringPropertyType;
 import org.shaolin.bmdp.datamodel.page.ValidatorPropertyType;
 import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.i18n.ResourceUtil;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.html.layout.IUISkin;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.UserRequestContext;
@@ -41,8 +44,9 @@ import org.slf4j.LoggerFactory;
 /**
  * The top of all HTML widgets. 
  * 
- * Be aware of these HTML* classes are the static structure which shared for all user requests. 
- * Each user requested data stores in {@link UserRequestContext} only.
+ * Be aware of all these HTML* classes are the static/cached structure which shared for all user requests. 
+ * You can find the cache map is in {@link UIFormObject}.htmlWidgets. Every user requested data stores in 
+ * {@link UserRequestContext} while running only.
  * 
  * @author wushaol
  *
@@ -755,8 +759,8 @@ public abstract class HTMLWidgetType implements Serializable
     
     public boolean isVisible()
     {
-        String visible = (String) getAttribute("visible");
-        return visible == null ? true : "true".equals(visible);
+        Object visible = getAttribute("visible");
+        return visible == null ? true : "true".equalsIgnoreCase(visible.toString());
     }
 
     public void setVisible(boolean visible)
@@ -811,8 +815,36 @@ public abstract class HTMLWidgetType implements Serializable
 		return context.getRequest().getParameterValues(this.getUIID());
 	}
 	
-	public Widget createAjaxWidget(VariableEvaluator ee) {
-		return null;
+	public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException {
+		JSONObject json = new JSONObject();
+    	json.put("type", Widget.mappingAjaxWidgetName(this.getClass()));
+    	json.put("entity", this.getUIEntityName());
+    	json.put("uiid", this.getName());
+    	json.put("finfo", UserRequestContext.UserContext.get().getFrameInfo());
+    	Boolean readOnly = isReadOnly();
+    	if (readOnly != null && readOnly.booleanValue()) {
+    		json.put("readOnly", true);
+    	}
+    	if (!isVisible()) {
+    		json.put("visible", false);
+    	}
+    	if (UserRequestContext.UserContext.get().hasAttribute(this.getName())) {
+    		JSONObject attrJson = new JSONObject(new HashMap(UserRequestContext.UserContext.get().getAttribute(this.getName())));
+    		if (attrJson.has("layout")) {
+    			attrJson.remove("layout");
+    		}
+    		if (attrJson.has("UIStyle")) {
+    			attrJson.remove("UIStyle");
+    		}
+    		if (attrJson.has("readOnly")) {
+    			attrJson.remove("readOnly");
+    		}
+    		json.put("attrMap", attrJson);
+    	}
+    	if (UserRequestContext.UserContext.get().hasStyle(this.getName())) {
+    		json.put("styleMap", new JSONObject(new HashMap(UserRequestContext.UserContext.get().getStyle(this.getName()))));
+    	}
+    	return json;
 	}
 	
 	public String toString() {

@@ -23,8 +23,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.javacc.exception.EvaluationException;
-import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.ajax.json.DataItem;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.IRequestData;
@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author wushaol
  */
-public class AjaxActionHelper {
+public class AjaxContextHelper {
 
 	private static final ThreadLocal<AjaxContext> threadLocal = new ThreadLocal<AjaxContext>();
 
@@ -65,13 +65,13 @@ public class AjaxActionHelper {
 
 	public static AjaxContext createUI2DataAjaxContext(String entityUiid, String uiform, HttpServletRequest request) 
 			throws AjaxException  {
-		Map uiMap = AjaxActionHelper.getFrameMap(request);
-		IRequestData requestData = AjaxActionHelper.createRequestData();
+		Map<String, JSONObject> uiMap = AjaxContextHelper.getFrameMap(request);
+		IRequestData requestData = AjaxContextHelper.createRequestData();
 		requestData.setUiid(entityUiid);
 		requestData.setEntityName(uiform);
 		requestData.setEntityUiid(entityUiid);
         requestData.setFrameId("");
-		Widget comp = (Widget)uiMap.get(requestData.getUiid());
+        JSONObject comp = uiMap.get(requestData.getUiid());
         if (comp == null) {
             throw new AjaxException("Can not find this component[" + requestData.getUiid() + "] in the UI map!");
         }
@@ -126,28 +126,28 @@ public class AjaxActionHelper {
 	 * @param request
 	 * @return the frame map
 	 */
-	public static Map<String, Widget<?>> getFrameMap(HttpServletRequest request) throws AjaxException {
+	public static Map<String, JSONObject> getFrameMap(HttpServletRequest request) throws AjaxException {
 		String framePrefix = request.getParameter("_framePrefix");
-		Map ajaxComponentMap = (Map) request.getSession().getAttribute(AjaxContext.AJAX_COMP_MAP);
+		Map<String, ?> ajaxComponentMap = (Map<String, ?>) request.getSession().getAttribute(AjaxContext.AJAX_COMP_MAP);
 		if (ajaxComponentMap == null) {
 			throw new AjaxException("Please re-initialize the whole page.");
 		}
-		Map<String, Widget<?>> pageComponentMap;
+		Map<String, JSONObject> pageComponentMap;
 		if (framePrefix == null || "null".equalsIgnoreCase(framePrefix)
 				|| framePrefix.length() == 0) {
-			pageComponentMap = (Map<String, Widget<?>>) ajaxComponentMap.get(AjaxContext.GLOBAL_PAGE);
+			pageComponentMap = (Map<String, JSONObject>) ajaxComponentMap.get(AjaxContext.GLOBAL_PAGE);
 		} else {
-			pageComponentMap = (Map<String, Widget<?>>) ajaxComponentMap.get(framePrefix);
+			pageComponentMap = (Map<String, JSONObject>) ajaxComponentMap.get(framePrefix);
 		}
 		if (pageComponentMap == null) {
-			LoggerFactory.getLogger(AjaxActionHelper.class).warn(
+			LoggerFactory.getLogger(AjaxContextHelper.class).warn(
 					"Cannot found frame map by this frame prefix["
 							+ framePrefix + "].");
 		}
 		return pageComponentMap;
 	}
 	
-	public static void updateFrameMap(HttpServletRequest request, Map<String, Widget<?>> pageComponentMap) throws AjaxException {
+	public static void updateFrameMap(HttpServletRequest request, Map<String, JSONObject> pageComponentMap) throws AjaxException {
 		String framePrefix = request.getParameter("_framePrefix");
 		Map ajaxComponentMap = (Map) request.getSession().getAttribute(AjaxContext.AJAX_COMP_MAP);
 		if (ajaxComponentMap == null) {
@@ -159,30 +159,8 @@ public class AjaxActionHelper {
 		} else {
 			ajaxComponentMap.put(framePrefix, pageComponentMap);
 		}
-	}
-
-	/**
-	 * get frame map which is decide to the '_framePrefix' parameter.
-	 * 
-	 * @param framePrefix
-	 * @param ajaxComponentMap
-	 * @return
-	 */
-	public static Map<?, ?> getFrameMap(String framePrefix,
-			Map<?, ?> ajaxComponentMap) {
-		Map<?, ?> pageComponentMap;
-		if (framePrefix == null || "null".equalsIgnoreCase(framePrefix)
-				|| framePrefix.length() == 0) {
-			pageComponentMap = (Map<?, ?>) ajaxComponentMap.get(AjaxContext.GLOBAL_PAGE);
-		} else {
-			pageComponentMap = (Map<?, ?>) ajaxComponentMap.get(framePrefix);
-		}
-		if (pageComponentMap == null) {
-			LoggerFactory.getLogger(AjaxActionHelper.class).warn(
-					"Cannot found frame map by this frame prefix["
-							+ framePrefix + "].");
-		}
-		return pageComponentMap;
+		// mark as session changed.
+		request.getSession().setAttribute(AjaxContext.AJAX_COMP_MAP, ajaxComponentMap);
 	}
 
 	/**
@@ -191,22 +169,22 @@ public class AjaxActionHelper {
 	 * @param session
 	 * @return ui map which is in the whole page.
 	 */
-	public static Map<?, ?> getAjaxWidgetMap(HttpSession session) {
+	public static Map<String, ?> getAjaxWidgetMap(HttpSession session) {
 		if (session != null) {
-			return (Map<?, ?>) session.getAttribute(AjaxContext.AJAX_COMP_MAP);
+			return (Map<String, ?>) session.getAttribute(AjaxContext.AJAX_COMP_MAP);
 		}
 		return Collections.EMPTY_MAP;
 	}
 	
-	public static Widget getCachedAjaxWidget(String name,
+	public static JSONObject getCachedAjaxWidget(String name,
 			UserRequestContext htmlContext) throws AjaxException {
-		Map uiMap = AjaxActionHelper.getFrameMap(htmlContext.getRequest());
-		Object obj = uiMap.get(name);
+		Map<String, JSONObject> uiMap = AjaxContextHelper.getFrameMap(htmlContext.getRequest());
+		JSONObject obj = uiMap.get(name);
 		if (obj == null) {
 			throw new AjaxException("Can not be found this uiid["
 					+ name + "] in UI map! make sure this widget is needAjaxSupported!");
 		}
-		return (Widget) obj;
+		return obj;
 	}
 
 	public static String getFrameId(HttpServletRequest request) {

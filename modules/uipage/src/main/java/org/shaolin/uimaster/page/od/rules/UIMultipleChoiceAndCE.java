@@ -21,20 +21,23 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.shaolin.bmdp.json.JSONObject;
+import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.ce.CEUtil;
 import org.shaolin.bmdp.runtime.ce.IConstantEntity;
-import org.shaolin.uimaster.page.AjaxActionHelper;
 import org.shaolin.uimaster.page.UserRequestContext;
-import org.shaolin.uimaster.page.ajax.MultiChoice;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.od.IODMappingConverter;
 import org.shaolin.uimaster.page.widgets.HTMLMultiChoiceType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UIMultipleChoiceAndCE implements IODMappingConverter {
 	private HTMLMultiChoiceType uiMultipleChoice;
 	private String uiid;
 	private List<IConstantEntity> ceValues;
 	private String ceType;
+	private Integer expendlevels = 1; // expending hierarchy levels of a constant object.
 	private boolean containsNotSpecified = true;
 	private List excludeValue;
 	private String notSpecifiedDisplayValue;
@@ -78,6 +81,14 @@ public class UIMultipleChoiceAndCE implements IODMappingConverter {
 		this.ceType = CEType;
 	}
 
+	public Integer getExpendlevels() {
+		return expendlevels;
+	}
+
+	public void setExpendlevels(Integer expendlevels) {
+		this.expendlevels = expendlevels;
+	}
+	
 	public boolean getContainsNotSpecified() {
 		return this.containsNotSpecified;
 	}
@@ -107,9 +118,10 @@ public class UIMultipleChoiceAndCE implements IODMappingConverter {
 
 		dataClassInfo.put("CEValues", List.class);
 		dataClassInfo.put("CEType", String.class);
+		dataClassInfo.put("Expendlevels", Integer.class);
 		dataClassInfo.put("ContainsNotSpecified", Boolean.TYPE);
 		dataClassInfo.put("ContainsUnknown", Boolean.TYPE);
-		dataClassInfo.put("excludeValue", List.class);
+		dataClassInfo.put("ExcludeValue", List.class);
 		dataClassInfo.put("NotSpecifiedDisplayValue", String.class);
 
 		return dataClassInfo;
@@ -150,14 +162,17 @@ public class UIMultipleChoiceAndCE implements IODMappingConverter {
 			if (paramValue.containsKey(UI_WIDGET_ID)) {
 				this.uiid = (String) paramValue.get(UI_WIDGET_ID);
 			}
-			if (paramValue.containsKey("excludeValue")) {
-				this.excludeValue = ((List) paramValue.get("excludeValue"));
+			if (paramValue.containsKey("ExcludeValue")) {
+				this.excludeValue = ((List) paramValue.get("ExcludeValue"));
 			}
 			if (paramValue.containsKey("CEType")) {
 				this.ceType = ((String) paramValue.get("CEType"));
 			}
 			if (paramValue.containsKey("CEValues")) {
 				this.ceValues = ((List) paramValue.get("CEValues"));
+			}
+			if (paramValue.containsKey("Expendlevels")) {
+				this.expendlevels = ((Integer) paramValue.get("Expendlevels"));
 			}
 			if (paramValue.containsKey("ContainsNotSpecified")) {
 				this.containsNotSpecified = ((Boolean) paramValue
@@ -180,7 +195,7 @@ public class UIMultipleChoiceAndCE implements IODMappingConverter {
 		Map<String, Object> paramValue = new HashMap<String, Object>();
 		try {
 			paramValue.put(UI_WIDGET_TYPE, this.uiMultipleChoice);
-			paramValue.put("excludeValue", this.excludeValue);
+			paramValue.put("ExcludeValue", this.excludeValue);
 			paramValue.put("CEType", this.ceType);
 			paramValue.put("CEValues", this.ceValues);
 			paramValue.put("ContainsNotSpecified", Boolean.valueOf(this.containsNotSpecified));
@@ -201,14 +216,23 @@ public class UIMultipleChoiceAndCE implements IODMappingConverter {
 
 	public void pushDataToWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
+			this.uiMultipleChoice.setCeName(this.ceType);
 			if (this.ceValues != null) {
 				List<String> values = new ArrayList<String>();
 				for (IConstantEntity item : this.ceValues) {
 					values.add(item.getValue());
 				}
-				this.uiMultipleChoice.setValue(values);
+				this.uiMultipleChoice.setValues(values);
 			}
-			callChoiceOption(true, htmlContext);
+			if (this.expendlevels <= 1) {
+				callChoiceOptionWithCE(true, htmlContext);
+			} else {
+				List<String> optionValues = new ArrayList<String>();
+				List<String> optionDisplayValues = new ArrayList<String>();
+				CEUtil.getCEItems(this.expendlevels, optionValues, optionDisplayValues, 
+						AppContext.get().getConstantService().getConstantEntity(this.ceType));
+				callChoiceOption(true, htmlContext, optionValues, optionDisplayValues);
+			}
 		} catch (Throwable t) {
 			if (t instanceof UIConvertException) {
 				throw ((UIConvertException) t);
@@ -220,10 +244,16 @@ public class UIMultipleChoiceAndCE implements IODMappingConverter {
 
 	public void pullDataFromWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
-			MultiChoice selectComp = (MultiChoice) AjaxActionHelper
-					.getCachedAjaxWidget(this.uiid, htmlContext);
+//			MultiChoice selectComp = (MultiChoice) AjaxActionHelper
+//					.getCachedAjaxWidget(this.uiid, htmlContext);
+			JSONObject selectComp = htmlContext.getAjaxWidget(this.uiid);
+			if (selectComp == null) {
+				logger.warn(this.uiid + " does not exist for data to ui mapping!");
+				return;
+			}
+			JSONObject attrMap = selectComp.getJSONObject("attrMap");
 			this.ceValues = CEUtil.getConstantEntities(this.ceType,
-					selectComp.getValues());
+					(List<String>)attrMap.get("values"));
 		} catch (Throwable t) {
 			if (t instanceof UIConvertException) {
 				throw ((UIConvertException) t);
@@ -233,11 +263,7 @@ public class UIMultipleChoiceAndCE implements IODMappingConverter {
 		}
 	}
 
-	public void callAllMappings(boolean isDataToUI, UserRequestContext htmlContext) throws UIConvertException {
-		callChoiceOption(isDataToUI, htmlContext);
-	}
-
-	private void callChoiceOption(boolean isDataToUI, UserRequestContext htmlContext) throws UIConvertException {
+	private void callChoiceOptionWithCE(boolean isDataToUI, UserRequestContext htmlContext) throws UIConvertException {
 		try {
 			Map<String, Object> converter_in_data = new HashMap<String, Object>();
 
@@ -245,7 +271,7 @@ public class UIMultipleChoiceAndCE implements IODMappingConverter {
 			converter_in_data.put("CEType", this.ceType);
 			converter_in_data.put("ContainsNotSpecified",
 					Boolean.valueOf(this.containsNotSpecified));
-			converter_in_data.put("excludeValue", this.excludeValue);
+			converter_in_data.put("ExcludeValue", this.excludeValue);
 			converter_in_data.put("NotSpecifiedDisplayValue",
 					this.notSpecifiedDisplayValue);
 
@@ -292,4 +318,42 @@ public class UIMultipleChoiceAndCE implements IODMappingConverter {
 					new Object[] { getUIHTML().getUIID() });
 		}
 	}
+	
+	private void callChoiceOption(boolean isDataToUI, UserRequestContext htmlContext, 
+			List<String> optionValues, List<String> optionDisplayValues) throws UIConvertException {
+		try {
+			Map<String, Object> converter_in_data = new HashMap<String, Object>();
+			converter_in_data.put(UI_WIDGET_TYPE, this.uiMultipleChoice);
+			converter_in_data.put("OptionValues", optionValues);
+			converter_in_data.put("OptionDisplayValues", optionDisplayValues);
+
+			IODMappingConverter converter = new UIChoiceOptionValue();
+			converter.setInputData(converter_in_data);
+			if (isDataToUI) {
+				converter.pushDataToWidget(htmlContext);
+			} else {
+				converter.pullDataFromWidget(htmlContext);
+
+				List<String> ref_OptionValues = null;
+				List<String> ref_OptionDisplayValues = null;
+				Map output = converter.getOutputData();
+				if (output.containsKey("OptionValues")) {
+					ref_OptionValues = (List) output
+							.get("OptionValues");
+				}
+				if (output.containsKey("OptionDisplayValues")) {
+					ref_OptionDisplayValues = (List) output
+							.get("OptionDisplayValues");
+				}
+			}
+		} catch (Throwable t) {
+			if (t instanceof UIConvertException) {
+				throw ((UIConvertException) t);
+			}
+			throw new UIConvertException("EBOS_ODMAPPER_074", t,
+					new Object[] { getUIHTML().getUIID() });
+		}
+	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(UIText.class);
 }

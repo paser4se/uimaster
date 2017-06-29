@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.shaolin.bmdp.i18n.ResourceUtil;
 import org.shaolin.bmdp.json.JSONArray;
+import org.shaolin.bmdp.json.JSONException;
 import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
@@ -36,7 +36,6 @@ import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.ajax.AFile;
 import org.shaolin.uimaster.page.ajax.AList;
 import org.shaolin.uimaster.page.ajax.Button;
-import org.shaolin.uimaster.page.ajax.CellLayout;
 import org.shaolin.uimaster.page.ajax.CheckBox;
 import org.shaolin.uimaster.page.ajax.CheckBoxGroup;
 import org.shaolin.uimaster.page.ajax.ComboBox;
@@ -55,12 +54,12 @@ import org.shaolin.uimaster.page.ajax.TextArea;
 import org.shaolin.uimaster.page.ajax.TextField;
 import org.shaolin.uimaster.page.ajax.Tree;
 import org.shaolin.uimaster.page.ajax.Widget;
-import org.shaolin.uimaster.page.ajax.handlers.AjaxHandlerException;
 import org.shaolin.uimaster.page.ajax.handlers.EventHandler;
 import org.shaolin.uimaster.page.ajax.json.DataItem;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.ajax.json.IRequestData;
 import org.shaolin.uimaster.page.ajax.json.RequestData;
+import org.shaolin.uimaster.page.exception.AjaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,13 +123,16 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
     //TODO: Whether the current page can be edited. support for security.
     private boolean pageEditableFlag = true;
 
-    private Widget parentComp;
-
-    private Map<String, Widget> ajaxComponentMap;
+    /**
+     * UI JSON Model which is a user session scope.
+     */
+    private final Map<String, JSONObject> ajaxJsonMap;
     
-    private final List<IRequestData> ajaxContextParams;
-
-    private Map eventSourceUIMap;
+    /**
+     * UI Widget Model which lazy created for every ajax operation!
+     */
+    private final Map<String, Widget> ajaxWidgetMap = new HashMap<String, Widget>();
+    
     
     /**
      * request parameters.
@@ -150,89 +152,40 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
      * only for serialization support.
      */
     public AjaxContext() {
-    	this.eventSourceUIMap = null;
+    	this.ajaxJsonMap = null;
         this.dataItems = null;
         this.requestData = null;
-        this.ajaxContextParams = null;
     }
     
-    public AjaxContext(Map<?, ?> uiMap, IRequestData requestData)
+    public AjaxContext(final Map<String, JSONObject> uiMap, final IRequestData requestData)
     {
-        this.eventSourceUIMap = uiMap;
+        this.ajaxJsonMap = uiMap;
         this.dataItems = new ArrayList<JSONObject>();
         this.requestData = requestData;
-        this.ajaxContextParams = new ArrayList<IRequestData>();
+        
+        if (requestData != null) {
+	        this.entityUiid = requestData.getEntityUiid();
+	        if (entityUiid != null && entityUiid.length() > 0)
+	            this.entityPrefix = entityUiid + ".";
+        }
     }
 
-    public void setAJAXComponentMap(Map<String, Widget> ajaxComponentMap)
+    public void addAJAXComponent(String compID, Widget component) throws JSONException
     {
-        this.ajaxComponentMap = ajaxComponentMap;
-    }
-
-    public Map<String, Widget> getAJAXComponentMap()
-    {
-    	if (ajaxComponentMap != null) {
-    		return ajaxComponentMap;
-    	} else {
-    		return eventSourceUIMap;
-    	}
-    }
-
-    public void addAJAXComponent(String compID, Widget component)
-    {
-    	if (ajaxComponentMap != null) {
-    		ajaxComponentMap.put(compID, component);
-    	} else if (eventSourceUIMap != null) {
-    		eventSourceUIMap.put(compID, component);
-    	}
-    	
+		ajaxWidgetMap.put(compID, component);
+		ajaxJsonMap.put(compID, component.toJSON());
     }
 
     public Widget getAJAXComponent(String compID)
     {
-        return (Widget)ajaxComponentMap.get(compID);
+        return (Widget)ajaxWidgetMap.get(compID);
     }
 
-    public void setParentComp(Widget parentComp)
-    {
-        this.parentComp = parentComp;
-    }
-
-    public Widget getParentComp()
-    {
-        return parentComp;
-    }
-
-    public void appendAJAXComponent(Widget component)
-    {
-        if (parentComp instanceof CellLayout)
-        {
-            ((CellLayout)parentComp).addComponent(component);
-        }
-        else if (parentComp instanceof Panel)
-        {
-            if (component instanceof CellLayout)
-            {
-                ((Panel)parentComp).addLayout((CellLayout)component);
-            }
-            else
-            {
-                CellLayout tempLayout = new CellLayout(); // TODO: need to make sure!
-                tempLayout.addComponent(component);
-                ((Panel)parentComp).addLayout(tempLayout);
-            }
-        }
-        else if (parentComp instanceof RefForm)
-        {
-            ((RefForm)parentComp).setForm((Panel)component);
-        }
-    }
-    
     public static void registerPageAjaxContext(String pageName, HttpServletRequest request)
     {
         try
         {
-            Map<?, ?> uiMap = AjaxActionHelper.getFrameMap(request);
+            Map<String, JSONObject> uiMap = AjaxContextHelper.getFrameMap(request);
             IRequestData requestData = new RequestData();
             requestData.setEntityName(pageName);
             requestData.setFrameId(request.getParameter("_framePrefix"));
@@ -241,7 +194,7 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
             AjaxContext context = new AjaxContext(uiMap, requestData);
             context.initData();
             context.setRequest(request, null);
-            AjaxActionHelper.createAjaxContext(context);
+            AjaxContextHelper.createAjaxContext(context);
         }
         catch (Exception e)
         {
@@ -249,7 +202,7 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
         }
     }
     
-    public static void registerPageAjaxContext(String pageName, Map<?, ?> uiMap, HttpServletRequest request)
+    public static void registerPageAjaxContext(String pageName, Map<String, JSONObject> uiMap, HttpServletRequest request)
     {
         try
         {
@@ -261,39 +214,18 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
             AjaxContext context = new AjaxContext(uiMap, requestData);
             context.initData();
             context.setRequest(request, null);
-            AjaxActionHelper.createAjaxContext(context);
+            AjaxContextHelper.createAjaxContext(context);
         }
-        catch (EvaluationException e)
-        {
+        catch (EvaluationException e) {
             logger.warn("Fail to register Page Ajax Context: " + e.getMessage(), e);
         }
     }
 
     public void removePageAjaxContext()
     {
-        AjaxActionHelper.removeAjaxContext();
+        AjaxContextHelper.removeAjaxContext();
     }
 
-    /**
-     * only for support UI customization.
-     * 
-     * @param requestData
-     */
-    public void addAJAXContextParams(IRequestData requestData)
-    {
-        ajaxContextParams.add(requestData);
-    }
-
-    public List getAJAXContextParams()
-    {
-        return ajaxContextParams;
-    }
-
-    public void clearAJAXContextParams()
-    {
-        ajaxContextParams.clear();
-    }
-    
     public HttpServletRequest getRequest()
     {
         return request;
@@ -306,12 +238,8 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
     
     public void initData() throws EvaluationException
     {
-        this.entityUiid = requestData.getEntityUiid();
-        if (entityUiid != null && entityUiid.length() > 0)
-            this.entityPrefix = entityUiid + ".";
-
         DefaultEvaluationContext globalEContext = new DefaultEvaluationContext();
-        Map accessibleVars = (Map)eventSourceUIMap
+        Map accessibleVars = (Map)ajaxJsonMap
                 .get(AjaxContext.CURRENT_ACCESS_VARIABLE + this.entityPrefix);
         if (accessibleVars != null && !accessibleVars.isEmpty())
         {
@@ -325,9 +253,6 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
         this.setEvaluationContextObject("@", globalEContext);
         globalEContext.setVariableValue("request", request);
         globalEContext.setVariableValue("page", this);
-        if (requestData.getUiid() != null && requestData.getUiid().length() > 0) {
-        	globalEContext.setVariableValue("eventsource", this.getElement(requestData.getUiid()));
-        }
     }
 
     public void setRequest(HttpServletRequest request, HttpServletResponse response) throws EvaluationException
@@ -383,7 +308,14 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
         dataItems.add( new JSONObject(dataItem) );
     }
 
-    public void invokeEventHander(String actionName) throws AjaxHandlerException {
+    public void importAnother(AjaxContext another)
+    {
+    	if (another.dataItems != null) {
+    		dataItems.addAll(another.dataItems);
+    	}
+    }
+    
+    public void invokeEventHander(String actionName) throws Exception {
     	EventHandler handler = new EventHandler();
     	handler.trigger0(this, actionName);
     }
@@ -407,9 +339,19 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
 
     /**
      * This method not only generate JSON, also clear all the items.
+     * @throws AjaxException 
      */
-    public String getDataAsJSON()
+    public String getDataAsJSON() throws Exception
     {
+    	Map<String, JSONObject> ajaxMap = AjaxContextHelper.getFrameMap(this.getRequest());
+    	// sync json model.
+    	for (Map.Entry<String, Widget> entries: ajaxWidgetMap.entrySet()) {
+    		ajaxMap.put(entries.getKey(), entries.getValue().toJSON());
+    	}
+    	ajaxWidgetMap.clear();
+    	
+    	AjaxContextHelper.updateFrameMap(this.getRequest(), ajaxMap);
+    	
         JSONArray json = new JSONArray();
         for (int i = 0; i < dataItems.size(); i++)
         {
@@ -425,7 +367,7 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
      */
     public void synchVariables() throws EvaluationException
     {
-        Map accessibleVars = (Map)eventSourceUIMap
+        Map accessibleVars = (Map)ajaxJsonMap
                 .get(AjaxContext.CURRENT_ACCESS_VARIABLE + this.entityPrefix);
         if (accessibleVars != null && !accessibleVars.isEmpty())
         {
@@ -482,7 +424,7 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
     		return false;
     	}
     	if (uiid.equals(this.getEntityUiid())) {
-    		return eventSourceUIMap.containsKey(uiid);
+    		return ajaxJsonMap.containsKey(uiid);
     	}
     	String realUiid = uiid;
     	if (this.entityPrefix != null && !this.entityPrefix.isEmpty()) {
@@ -490,7 +432,7 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
     			realUiid = this.entityPrefix + uiid;
     		}
     	}
-        return eventSourceUIMap.containsKey(realUiid);
+        return ajaxJsonMap.containsKey(realUiid);
     }
 
     /**
@@ -499,13 +441,21 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
      * 
      * @param comp
      * @return uiMap.containsKey(comp.getId()) && comp == uiMap.get(comp.getId())
+     * @throws JSONException 
      */
-    public boolean existElement(Widget comp)
+    public boolean existElement(Widget<?> comp)
     {
     	if (comp == null) {
     		return false;
     	}
-        return eventSourceUIMap.containsKey(comp.getId()) && comp == eventSourceUIMap.get(comp.getId());
+//    	if (eventSourceUIMap.containsKey(comp.getId())) {
+//	        try {
+//				return comp.getClass().getSimpleName().equals(eventSourceUIMap.get(comp.getId()).getString("type"));
+//			} catch (JSONException e) {
+//				return false;
+//			}
+//    	}
+    	return ajaxJsonMap.containsKey(comp.getId());
     }
 
     public boolean existElmByAbstId(String absoluteUiid)
@@ -525,14 +475,9 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
      * @param frameName
      * @return
      */
-    public boolean existElmByAbsoluteId(String absoluteUiid, String frameName)
+    public boolean existElmByAbsoluteId(final String absoluteUiid, final String frameName)
     {
-		Map frameMap = getFrameComponentMap(frameName);
-		if (frameMap == null) {
-			return false;
-		} else {
-			return frameMap.containsKey(absoluteUiid);
-		}
+		return ajaxJsonMap.containsKey(absoluteUiid);
     }
 
     /**
@@ -540,6 +485,7 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
      * 
      * @param uiid
      * @return Component
+     * @throws JSONException 
      */
     public Widget getElement(String uiid)
     {
@@ -554,102 +500,68 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
     			}
     		}
     	}
-        Widget comp = (Widget)eventSourceUIMap.get(realUiid);
+        JSONObject comp = ajaxJsonMap.get(realUiid);
         if (comp == null) {
             logger.debug("The ui widget can not be found by this " + realUiid + " id. try to use the original id: "+uiid);
-            comp = (Widget)eventSourceUIMap.get(uiid);
+            comp = ajaxJsonMap.get(uiid);
             if (comp == null) {
             	logger.warn("The ui widget can not be found by either " + realUiid + " or "+ uiid);
             }
         }
-        return comp;
+        if (comp != null) {
+        	try {
+	        	String id = comp.getString("uiid");
+				if (!ajaxWidgetMap.containsKey(id)) {
+	        		try {
+	        			ajaxWidgetMap.put(id, Widget.covertFromJSON(comp));
+					} catch (Exception e) {
+						logger.warn("The ui widget can not be created by " + comp, e);
+					}
+	        	}
+	        	return ajaxWidgetMap.get(id);
+        	} catch (Exception e) {
+        		logger.warn("The ui widget can not be created by " + comp, e);
+        	}
+        }
+        return null;
     }
 
-    /**
-     * Get an element from a frame
-     * 
-     * @param absoluteUiid
-     * @param frameName
-     * @return Component
-     */
-    public Widget getElementByAbsoluteId(String absoluteUiid, String frameName)
-    {
-        Map frameMap = getFrameComponentMap(frameName);
-		if (frameMap == null) {
-			return null;
-		} else {
-			return (Widget) frameMap.get(absoluteUiid);
-		}
-    }
-    
     public Widget getElementByAbsoluteId(String absoluteUiid)
     {
-    	Widget comp = (Widget)eventSourceUIMap.get(absoluteUiid);
-        if (comp == null) {
-        	logger.warn("The ui widget can not be found by absolute id: " + absoluteUiid);
-        }
-        return comp;
-    }
-
-    /**
-     * Get a frame component map from a given frame name
-     * 
-     * @param frameName
-     * @return
-     */
-    public Map getFrameComponentMap(String frameName)
-    {
-        if (frameName == null)
-        {
-            logger.debug("No frame name specified, use this context's default frame.");
-            return eventSourceUIMap;
-        }
-        Map ajaxComponentMap = AjaxActionHelper.getAjaxWidgetMap(request.getSession(true));	
-        if (frameName.equals(""))
-        {
-            frameName = "#GLOBAL#";
-        }
-        Map frameMap;
-        frameMap = (Map)ajaxComponentMap.get(frameName);
-        if (frameMap == null)
-        {
-            logger.error("Cannot find a specific frame. Frame name: " + frameName);
-            return null;
-        }
-        return frameMap;
+    	if (!ajaxJsonMap.containsKey(absoluteUiid)) {
+    		logger.warn("The ui widget can not be found by absolute id: " + absoluteUiid);
+    		return null;
+    	}
+		if (!ajaxWidgetMap.containsKey(absoluteUiid)) {
+    		try {
+    			ajaxWidgetMap.put(absoluteUiid, Widget.covertFromJSON(ajaxJsonMap.get(absoluteUiid)));
+			} catch (Exception e) {
+				logger.warn("The ui widget can not be created by " + ajaxJsonMap.get(absoluteUiid));
+			}
+    	}
+    	return ajaxWidgetMap.get(absoluteUiid);
     }
     
     public boolean addElement(Widget comp)
     {
-        return addElement(comp.getId(), comp, comp.getFrameInfo());
-    }
-
-    /**
-     * add an element.
-     * 
-     * @param absoluteUiid
-     * @param comp
-     * @return if returned true, input component added into the component tree.
-     */
-    public boolean addElement(String absoluteUiid, Widget comp, String frameName)
-    {
-        Map frameMap = getFrameComponentMap(frameName);
-		if (frameMap == null) {
-			logger.warn("addElement operation failed: frame not found");
-			return false;
+        try {
+			addAJAXComponent(comp.getId(), comp);
+		} catch (JSONException e) {
+			//must not have any exception.
+			logger.warn(e.getMessage(), e);
 		}
-		if (frameMap.containsKey(absoluteUiid)) {
-			logger.warn("addElement[" + absoluteUiid + "]: it has existed, override it!");
-		}
-        comp.setFrameInfo(frameName);
-        frameMap.put(absoluteUiid, comp);
         return true;
     }
-    
+
+    public Widget removeElement(String uiid, String frameId)
+    {
+    	return removeElement(uiid);
+    }
     public Widget removeElement(String uiid)
     {
     	if (uiid.equals(this.getEntityUiid())) {
-    		return (Widget)eventSourceUIMap.remove(uiid);
+    		ajaxJsonMap.remove(uiid);
+    		return (Widget)ajaxWidgetMap.remove(uiid);
     	}
     	String realUiid = uiid;
     	if (this.entityPrefix != null && !this.entityPrefix.isEmpty()) {
@@ -657,33 +569,23 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
     			realUiid = this.entityPrefix + uiid;
     		}
     	}
-        return (Widget)eventSourceUIMap.remove(realUiid);
+    	if (ajaxJsonMap.containsKey(realUiid)) {
+	    	ajaxJsonMap.remove(realUiid);
+	        return (Widget)ajaxWidgetMap.remove(realUiid);
+    	}
+    	// final check
+        if (ajaxJsonMap.containsKey(uiid)) { 
+    		ajaxJsonMap.remove(uiid);
+            return (Widget)ajaxWidgetMap.remove(uiid);
+    	}
+        return null;
     }
 
-    /**
-     * @param absoluteUiid
-     */
-    public void removeElement(String absoluteUiid, String frameName)
-    {
-        Map frameMap = getFrameComponentMap(frameName);
-        if (frameMap == null)
-        {
-            logger.warn("removeElement failed: frame not found");
-        }
-        else
-        {
-            if (frameMap.containsKey(absoluteUiid))
-            {
-                frameMap.remove(absoluteUiid);
-            }
-        }
-    }
-   
     public void removeFramePage(String frameId) {
     	logger.info("Close the frame page: " + frameId);
-    	Map ajaxComponentMap = AjaxActionHelper.getAjaxWidgetMap(request.getSession());
+    	Map ajaxComponentMap = AjaxContextHelper.getAjaxWidgetMap(request.getSession());
     	ajaxComponentMap.remove(frameId);
-    	AjaxActionHelper.removeCachedPage(request.getSession(), frameId);
+    	AjaxContextHelper.removeCachedPage(request.getSession(), frameId);
     }
     
     public RefForm removeForm(String uiid) {
@@ -809,7 +711,7 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
         {
             entityPrefix = "";
         }
-        return (Map)eventSourceUIMap.get(AjaxContext.CURRENT_ACCESS_VARIABLE + entityPrefix);
+        return (Map)ajaxJsonMap.get(AjaxContext.CURRENT_ACCESS_VARIABLE + entityPrefix);
     }
 
     /**
@@ -849,7 +751,7 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
 	
 	public void loadJs(final String js) {
 		String resource = UserContext.isAppClient()? WebConfig.getAppContextRoot(this.getRequest()) + js : WebConfig.getWebContextRoot() + js;
-		IDataItem dataItem = AjaxActionHelper.createLoadJS("", resource);
+		IDataItem dataItem = AjaxContextHelper.createLoadJS("", resource);
         dataItem.setFrameInfo(this.getFrameId());
         this.addDataItem(dataItem);
 	}

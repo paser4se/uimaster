@@ -1,15 +1,13 @@
 package org.shaolin.uimaster.page.flow.nodes;
 
-import java.io.IOException;
+import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.shaolin.bmdp.datamodel.common.NameExpressionType;
 import org.shaolin.bmdp.datamodel.common.ParamType;
@@ -24,9 +22,11 @@ import org.shaolin.bmdp.runtime.spi.IEntityManager;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
-import org.shaolin.uimaster.page.UserRequestContext;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.MobilitySupport;
+import org.shaolin.uimaster.page.UserRequestContext;
+import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.exception.ODProcessException;
 import org.shaolin.uimaster.page.exception.WebFlowException;
 import org.shaolin.uimaster.page.flow.ProcessHelper;
@@ -48,8 +48,6 @@ import org.slf4j.LoggerFactory;
 public class UIPageNode extends WebNode {
 
 	private static final long serialVersionUID = 1L;
-
-	public static final String WEBFLOW_CACHED_INPUT = "___webflow___cached___input";
 
 	private static Logger logger = LoggerFactory.getLogger(UIPageNode.class);
 
@@ -140,20 +138,44 @@ public class UIPageNode extends WebNode {
 			// prepare input data
 			prepareInputData(inContext);
 
-			if (!processDirectForward(inContext.getRequest(), inContext.getResponse())) {
-				// forward error
-				return null;
-			}
-			try {
+			ProcessHelper.processPreForward(this, inContext.getRequest());
+	        String uipageName = type.getSourceEntity().getEntityName();
+	        try
+	        {
+	        	if (UserContext.isMobileRequest() && this.hasMobilePage) {
+	            	uipageName += MobilitySupport.MOB_PAGE_SUFFIX;
+	            } 
+	        	UserRequestContext context = new UserRequestContext(inContext.getRequest(), inContext.getResponse());
+	        	context.setCurrentFormInfo(uipageName, "", "");
+	        	context.setIsDataToUI(true);
+	        	if (inputVars != null && inputVars.size() > 0) {
+		        	Map<String, Object> data = new HashMap<String, Object>();
+	        		for (ParamType var : inputVars) {
+	        			data.put(var.getName(), inContext.getRequest().getAttribute(var.getName()));
+		        	}
+		        	context.setODMapperData(data);
+	        	}
+	        	HTMLUtil.forward(context, uipageName);
 				if (type.getOperation() != null) {
-					// begine transaction if needed
+					// begin transaction if needed
 					type.getOperation().evaluate(inContext);
 				}
-			} catch (Exception ex) {
-				rollbackTransaction(inContext);
-				throw new WebFlowException("Error when execute operations of display node {0}",
-						ex, new Object[] { toString() });
-			}
+	        }
+	        catch ( Exception e )
+	        {
+	        	rollbackTransaction(inContext);
+	            String msg = "Exception occurs when forward to the uipage: " + uipageName;
+	            if ( e instanceof ServletException )
+	            {
+	                e = ProcessHelper.transformServletException((ServletException)e);
+	            }
+	            logger.error(msg, e);
+	            
+	            WebflowErrorUtil.addError(inContext.getRequest(), type.getName() + ".uipage.error", 
+	                    new WebflowError(e.getMessage(), e));
+	            ProcessHelper.processForwardError(this, inContext.getRequest(), inContext.getResponse());
+	            return null;
+	        }
 		} catch (ParsingException ex1) {
 			throw new WebFlowException("ParsingException when execute display node {0}", ex1,
 					new Object[] { toString() });
@@ -228,8 +250,8 @@ public class UIPageNode extends WebNode {
         }
         if (!cachedInput.isEmpty())
         {
-            HttpSession session = inContext.getRequest().getSession(true);
-            session.setAttribute(WEBFLOW_CACHED_INPUT, cachedInput);
+//            HttpSession session = inContext.getRequest().getSession(true);
+//            session.setAttribute(WEBFLOW_CACHED_INPUT, cachedInput);
         }
     }
 
@@ -264,7 +286,7 @@ public class UIPageNode extends WebNode {
 			try {
 				convertResult = processUI2DataConvert(inContext.getRequest(), inContext.getResponse(), out,
 						outContext);
-			} catch (ODProcessException e) {
+			} catch (Exception e) {
 				throw new EvaluationException(e);
 			}
             //4. set/init  the OutputData for this node
@@ -327,9 +349,10 @@ public class UIPageNode extends WebNode {
      * @param out
      * @param request
      * @return
+     * @throws AjaxException 
      */
     private Map processUI2DataConvert(HttpServletRequest request, HttpServletResponse response,
-            DisplayOutType out, WebFlowContext outContext) throws EvaluationException, ODProcessException
+            DisplayOutType out, WebFlowContext outContext) throws EvaluationException, ODProcessException, AjaxException
     {
         if (logger.isDebugEnabled())
         {
@@ -339,21 +362,6 @@ public class UIPageNode extends WebNode {
         }
         
         Map datas = ProcessHelper.evaluateNameExpressions(outContext, out.getMappings());
-        HttpSession session = request.getSession(true);
-        Map cachedInput = (Map)session.getAttribute(WEBFLOW_CACHED_INPUT);
-        if (cachedInput != null)
-        {
-            for (Iterator it = cachedInput.entrySet().iterator(); it.hasNext();)
-            {
-                Map.Entry entry = (Map.Entry)it.next();
-                String varName = (String)entry.getKey();
-                if (datas.get(varName) == null)
-                {
-                    datas.put(varName, entry.getValue());
-                }
-            }
-            session.removeAttribute(WEBFLOW_CACHED_INPUT);
-        }
         
         UserRequestContext requestContext = new UserRequestContext(request);
         requestContext.resetRepository();
@@ -363,6 +371,7 @@ public class UIPageNode extends WebNode {
         	uipageName += MobilitySupport.MOB_PAGE_SUFFIX;
         } 
         requestContext.setCurrentFormInfo(uipageName, "", "");
+        requestContext.setAjaxWidgetMap(AjaxContextHelper.getFrameMap(request));
         requestContext.setODMapperData(datas);
         requestContext.setIsDataToUI(false);
         try
@@ -421,51 +430,6 @@ public class UIPageNode extends WebNode {
 		} else {
 			request.setAttribute(WebflowConstants.OUTDATA_MAPPING2CHUNK_KEY, datas);
 		}
-    }
-
-    /**
-     * Forward to the specified path directly
-     *
-     * @param path the path that should be forwarded
-     * @param request The servlet request we are processing
-     * @param response The servlet response we are creating
-     *
-     * @exception IOException if an input/output error occurs
-     * @exception ServletException if a servlet exception occurs
-     */
-    public boolean processDirectForward(HttpServletRequest request, HttpServletResponse response)//throws IOException, ServletException
-    {
-        ProcessHelper.processPreForward(this, request);
-        String uipageName = type.getSourceEntity().getEntityName();
-        try
-        {
-        	if (UserContext.isMobileRequest() && this.hasMobilePage) {
-            	uipageName += MobilitySupport.MOB_PAGE_SUFFIX;
-            } 
-        	UserRequestContext context = new UserRequestContext(request, response);
-        	context.setCurrentFormInfo(uipageName, "", "");
-        	context.setIsDataToUI(true);
-        	Map inputParams = (Map)request.getSession(true).getAttribute(WEBFLOW_CACHED_INPUT);
-        	if (inputParams != null) {
-        		context.setODMapperData(inputParams);
-        	}
-        	HTMLUtil.forward(context, uipageName);
-        	return true;
-        }
-        catch ( Exception e )
-        {
-            String msg = "Exception occurs when forward to the uipage: " + uipageName;
-            if ( e instanceof ServletException )
-            {
-                e = ProcessHelper.transformServletException((ServletException)e);
-            }
-            logger.error(msg, e);
-            
-            WebflowErrorUtil.addError(request, type.getName() + ".uipage.error", 
-                    new WebflowError(e.getMessage(), e));
-            ProcessHelper.processForwardError(this, request, response);
-            return false;
-        }
     }
 
     //private String str = null;cache

@@ -15,12 +15,11 @@
 */
 package org.shaolin.uimaster.page.widgets;
 
-import org.shaolin.uimaster.page.UserRequestContext;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.WebConfig;
-import org.shaolin.uimaster.page.ajax.Button;
-import org.shaolin.uimaster.page.ajax.Layout;
-import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.slf4j.Logger;
@@ -99,22 +98,22 @@ public class HTMLButtonType extends HTMLTextWidgetType
         return buttonType;
     }
     
-    public Widget createAjaxWidget(VariableEvaluator ee)
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException
     {
-      Button button = new Button(getName(), Layout.NULL);
-
-      button.setButtonType(getButtonType());
-
-      button.setReadOnly(isReadOnly());
-      button.setUIEntityName(getUIEntityName());
-
-      button.setValue(getValue());
-
-      setAJAXAttributes(UserRequestContext.UserContext.get(), button);
-
-      button.setListened(true);
-
-      return button;
+//      Button button = new Button(getName(), Layout.NULL);
+//
+//      button.setButtonType(getButtonType());
+//
+//      button.setReadOnly(isReadOnly());
+//      button.setUIEntityName(getUIEntityName());
+//
+//      button.setValue(getValue());
+//
+//      setAJAXAttributes(UserRequestContext.UserContext.get(), button);
+//
+//      button.setListened(true);
+    	
+    	return super.createJsonModel(ee);
     }
 
 }

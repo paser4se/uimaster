@@ -34,11 +34,10 @@ import org.shaolin.javacc.context.MultipleEvaluationContext;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.javacc.util.ExpressionUtil;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.TransOpsExecuteContext;
 import org.shaolin.uimaster.page.WebConfig;
-import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.exception.WebFlowException;
 import org.shaolin.uimaster.page.flow.nodes.WebNode;
@@ -681,10 +680,10 @@ public class ProcessHelper
         if (syncData != null && !syncData.trim().isEmpty())
         {
             try{
-            	Map map = AjaxActionHelper.getFrameMap(request);
+            	Map<String, JSONObject> map = AjaxContextHelper.getFrameMap(request);
                 AjaxContext ajaxContext = new AjaxContext(map, null);
                 ajaxContext.setHttpRequest(request);
-                AjaxActionHelper.createAjaxContext(ajaxContext);
+                AjaxContextHelper.createAjaxContext(ajaxContext);
                 JSONArray syncSets = new JSONArray(syncData);
                 for (int i = 0; i < syncSets.length(); i++)
                 {
@@ -694,19 +693,19 @@ public class ProcessHelper
                     String value = attr.getString("_value");
                     String framePrefix = attr.getString("_framePrefix");
                     framePrefix = (framePrefix == null || framePrefix.equals("null")) ? "" : framePrefix;
-                    Widget component = ajaxContext.getElementByAbsoluteId(uiid,framePrefix);
-                    if (component == null) {
+                    if (map.containsKey(uiid)) {
+                    	JSONObject attrMap = map.get(uiid).getJSONObject("attrMap");
+                    	if (!attrMap.has("disabled") || "false".equals(attrMap.getString("disabled"))) {
+                    		attrMap.put(valueName, value);
+                    		//TODO: constraint check is necessary.
+                    		// component.checkConstraint();
+                    	}
+                    } else {
                     	if (uiid != null && uiid.toLowerCase().indexOf("label") == -1) { //hide label log.
                     		if (logger.isDebugEnabled()) {
                     			logger.debug("Component not found while synchronizing values: uiid=" + uiid +
                     				", framePrefix=" + framePrefix + ", ignored the value!");
                     		}
-                    	}
-                    } else {
-                    	if (component.isEditable()) {
-	                        component.addAttribute(valueName,value,false);
-	                        // constraint check is necessary.
-	                        component.checkConstraint();
                     	}
                     }
                 }
@@ -717,7 +716,7 @@ public class ProcessHelper
             }
             finally
             {
-                AjaxActionHelper.removeAjaxContext();
+                AjaxContextHelper.removeAjaxContext();
             }
         }
     }

@@ -17,7 +17,7 @@ package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
 
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
@@ -28,7 +28,7 @@ public class PasswordField extends TextField implements Serializable
 
     public PasswordField(String uiid)
     {
-        this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
+        this(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
         this._setWidgetLabel(uiid);
         this.setListened(true);
     }

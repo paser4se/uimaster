@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 import org.shaolin.bmdp.utils.FileUtil;
 import org.shaolin.bmdp.utils.StringUtil;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
@@ -43,14 +43,14 @@ public class TextArea extends TextWidget implements Serializable
 
 	public TextArea(String uiid)
     {
-        this(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
+        this(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
         this._setWidgetLabel(uiid);
         this.setListened(true);
     }
     
     public TextArea(String uiid, String value)
     {
-        super(AjaxActionHelper.getAjaxContext().getEntityPrefix() + uiid, value, new CellLayout());
+        super(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, value, new CellLayout());
         this._setWidgetLabel(uiid);
         this.setListened(true);
     }
@@ -121,7 +121,7 @@ public class TextArea extends TextWidget implements Serializable
             return;
         }
         
-        AjaxContext ajaxContext = AjaxActionHelper.getAjaxContext();
+        AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         if (ajaxContext == null || !ajaxContext.existElement(this))
         {
             return;
@@ -131,7 +131,7 @@ public class TextArea extends TextWidget implements Serializable
         sb.append("{'name':'value','value':'");
         sb.append(StringUtil.escapeHtmlToBytes(String.valueOf(value)));
         sb.append("'}");
-        IDataItem dataItem = AjaxActionHelper.updateAttrItem(this.getId(), sb.toString());
+        IDataItem dataItem = AjaxContextHelper.updateAttrItem(this.getId(), sb.toString());
         dataItem.setFrameInfo(getFrameInfo());
         ajaxContext.addDataItem(dataItem);
         
@@ -149,7 +149,7 @@ public class TextArea extends TextWidget implements Serializable
         try {
         	sb.append(StringUtil.escapeHtmlToBytes(FileUtil.readFile(new FileInputStream(file))));
         	sb.append("'}");
-        	IDataItem dataItem1 = AjaxActionHelper.updateAttrItem(this.getId(), sb.toString());
+        	IDataItem dataItem1 = AjaxContextHelper.updateAttrItem(this.getId(), sb.toString());
         	dataItem1.setFrameInfo(getFrameInfo());
         	ajaxContext.addDataItem(dataItem1);
         } catch (IOException e) {

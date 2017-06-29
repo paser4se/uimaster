@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -39,8 +38,8 @@ import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.utils.ImageUtil;
 import org.shaolin.uimaster.page.ajax.AFile;
+import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
-import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +64,7 @@ public class UploadFileServlet extends HttpServlet {
 		HttpSession httpSession = request.getSession(false);
 		if (httpSession == null
 				|| httpSession.getAttribute(AjaxContext.AJAX_COMP_MAP) == null) {
-			IDataItem dataItem = AjaxActionHelper
+			IDataItem dataItem = AjaxContextHelper
 					.createSessionTimeOut(WebConfig.replaceWebContext(WebConfig.getTimeoutPage()));
 			JSONArray array = new JSONArray();
 			array.put(new JSONObject(dataItem));
@@ -73,20 +72,22 @@ public class UploadFileServlet extends HttpServlet {
 			return;
 		}
 		
-		Map uiMap = null;
+		AFile file = null;
 		try {
-			uiMap = AjaxActionHelper.getFrameMap(request);
-		} catch (AjaxException e1) {
-			logger.warn("Session maybe timeout: " + e1.getMessage(), e1);
-			return;
-		}
-		String uiid = request.getParameter("_uiid");
-		if (!uiMap.containsKey(uiid)) {
-			//User does not have the permission to upload the file.
-			IDataItem dataItem = AjaxActionHelper.createNoPermission("\u6CA1\u6709\u8BBF\u95EE\u6743\u9650\uFF01");
-			JSONArray array = new JSONArray();
-			array.put(new JSONObject(dataItem));
-			response.getWriter().print(array.toString());
+			Map<String, JSONObject> uiMap = AjaxContextHelper.getFrameMap(request);
+			String uiid = request.getParameter("_uiid");
+			if (!uiMap.containsKey(uiid)) {
+				//User does not have the permission to upload the file.
+				IDataItem dataItem = AjaxContextHelper.createNoPermission("\u6CA1\u6709\u8BBF\u95EE\u6743\u9650\uFF01");
+				JSONArray array = new JSONArray();
+				array.put(new JSONObject(dataItem));
+				response.getWriter().print(array.toString());
+				return;
+			}
+			JSONObject json = uiMap.get(uiid);
+			file = (AFile)Widget.covertFromJSON(json);
+		} catch (Exception e1) {
+			logger.warn("Error to get the file ui widget: " + e1.getMessage(), e1);
 			return;
 		}
 		
@@ -107,10 +108,9 @@ public class UploadFileServlet extends HttpServlet {
         AppContext.register(IServerServiceManager.INSTANCE.getApplication(orgCode));
 		
 		// move the file to the real path.
-		AFile file = (AFile)uiMap.get(uiid);
-		if (file.getStoredPath() == null || file.getStoredPath().isEmpty()) {
+		if (file == null || file.getStoredPath() == null || file.getStoredPath().isEmpty()) {
 			// The file stored path is null
-			IDataItem dataItem = AjaxActionHelper.createErrorDataItem("\u4E0A\u4F20\u6587\u4EF6\u6CA1\u6709\u6307\u5B9A\u8DEF\u5B58\u653E\u5F84\uFF01");
+			IDataItem dataItem = AjaxContextHelper.createErrorDataItem("\u4E0A\u4F20\u6587\u4EF6\u6CA1\u6709\u6307\u5B9A\u8DEF\u5B58\u653E\u5F84\uFF01");
 			JSONArray array = new JSONArray();
 			array.put(new JSONObject(dataItem));
 			response.getWriter().print(array.toString());
@@ -127,7 +127,7 @@ public class UploadFileServlet extends HttpServlet {
 		if (root.isDirectory() && file.getAllowedNumbers() > 0 
 				&& root.list().length >= file.getAllowedNumbers()) {
 			// exceeded.
-			IDataItem dataItem = AjaxActionHelper.createErrorDataItem("\u8D85\u51FA\u6700\u5927\u4E2A\u6570\u4E86\u3002");
+			IDataItem dataItem = AjaxContextHelper.createErrorDataItem("\u8D85\u51FA\u6700\u5927\u4E2A\u6570\u4E86\u3002");
 			JSONArray array = new JSONArray();
 			array.put(new JSONObject(dataItem));
 			response.getWriter().print(array.toString());
@@ -161,7 +161,7 @@ public class UploadFileServlet extends HttpServlet {
 					if ((file.getContentSize() > 0 && item.getSize() > file.getContentSize()) 
 							|| (item.getSize() > DEFAULT_CONTENTSIZE)) {
 						logger.warn("the size of the uploading file is exceeded! size: " + item.getSize());
-						IDataItem dataItem = AjaxActionHelper.createErrorDataItem("\u4E0A\u4F20\u6587\u4EF6\u5FC5\u987B\u5C0F\u4E8E2M");
+						IDataItem dataItem = AjaxContextHelper.createErrorDataItem("\u4E0A\u4F20\u6587\u4EF6\u5FC5\u987B\u5C0F\u4E8E2M");
 						JSONArray array = new JSONArray();
 						array.put(new JSONObject(dataItem));
 						response.getWriter().print(array.toString());
@@ -209,7 +209,7 @@ public class UploadFileServlet extends HttpServlet {
 				file.refresh();
 			} catch (Exception e) {
 				logger.warn("Failed to receive the uploading file: " + e.getMessage(), e);
-				IDataItem dataItem = AjaxActionHelper.createErrorDataItem("Failed to receive the uploading file: " + e.getMessage());
+				IDataItem dataItem = AjaxContextHelper.createErrorDataItem("Failed to receive the uploading file: " + e.getMessage());
 				JSONArray array = new JSONArray();
 				array.put(new JSONObject(dataItem));
 				response.getWriter().print(array.toString());

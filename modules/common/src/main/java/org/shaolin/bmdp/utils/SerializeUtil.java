@@ -26,6 +26,8 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.io.StreamCorruptedException;
 
+import org.apache.log4j.Logger;
+
 /**
  * Provide Serialization utilities
  */
@@ -60,6 +62,21 @@ public class SerializeUtil {
 		}
 		return byteOut.toByteArray();
 	}
+	
+	public static byte[] serializeData2(Serializable o) {
+		ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+		ObjectOutputStream out = null;
+		try {
+			out = new ObjectOutputStream(byteOut);
+			out.writeObject(o);
+		} catch (Exception e) {
+			Logger.getLogger(SerializeUtil.class).warn(e.getMessage(), e);
+			return null;
+		} finally {
+			CloseUtil.close(out);
+		}
+		return byteOut.toByteArray();
+	}
 
 	/**
 	 * Constructs a serializable object from serialized byte data
@@ -79,6 +96,20 @@ public class SerializeUtil {
 			CloseUtil.close(in);
 		}
 	}
+	
+	public static <T> T readData2(byte[] data, Class<T> c){
+		BMIObjectInputStream in = null;
+		try {
+			in = new BMIObjectInputStream(new ByteArrayInputStream(data));
+			return (T) in.readObject();
+		} catch (Exception e) {
+			Logger.getLogger(SerializeUtil.class).warn(e.getMessage(), e);
+			return null;
+		} finally {
+			CloseUtil.close(in);
+		}
+	}
+
 
 	public static long estimateObjectSize(Object o) {
 		EstimateOutputStream eOut = new EstimateOutputStream();

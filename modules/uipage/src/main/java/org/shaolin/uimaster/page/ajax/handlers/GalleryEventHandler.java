@@ -15,7 +15,7 @@
 */
 package org.shaolin.uimaster.page.ajax.handlers;
 
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.ajax.Image;
 
@@ -30,7 +30,7 @@ public class GalleryEventHandler implements IAjaxHandler {
 	}
 
 	public String trigger(AjaxContext context) throws AjaxHandlerException {
-		AjaxActionHelper.createAjaxContext(context);
+		AjaxContextHelper.createAjaxContext(context);
 		String uiid = context.getRequest().getParameter(AjaxContext.AJAX_UIID);
 		String actionName = context.getRequest().getParameter("_actionName");
 		Image comp = context.getImage(uiid);
@@ -40,6 +40,10 @@ public class GalleryEventHandler implements IAjaxHandler {
 		if (actionName.endsWith("createAlbum")) {
 			comp.createAlbum(context.getRequest().getParameter("_value"));
 		} 
-		return AjaxActionHelper.getAjaxContext().getDataAsJSON();
+		try {
+			return AjaxContextHelper.getAjaxContext().getDataAsJSON();
+		} catch (Exception e) {
+			throw new AjaxHandlerException(e.getMessage(), e);
+		}
 	}
 }

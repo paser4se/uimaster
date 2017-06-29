@@ -20,13 +20,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.Table;
 import org.shaolin.uimaster.page.ajax.TableConditions;
 import org.shaolin.uimaster.page.exception.UIConvertException;
 import org.shaolin.uimaster.page.od.IODMappingConverter;
 import org.shaolin.uimaster.page.widgets.HTMLTableType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UITable implements IODMappingConverter {
 	private HTMLTableType uiTable;
@@ -136,10 +138,15 @@ public class UITable implements IODMappingConverter {
 
 	public void pullDataFromWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
-			Table textComp = (Table) AjaxActionHelper
-					.getCachedAjaxWidget(this.uiid, htmlContext);
-			this.selectedRows = textComp.getSelectedRows();
-			this.allRows = textComp.getListData();
+//			Table textComp = (Table) AjaxActionHelper
+//					.getCachedAjaxWidget(this.uiid, htmlContext);
+			JSONObject table = htmlContext.getAjaxWidget(this.uiid);
+			if (table == null) {
+				logger.warn(this.uiid + " does not exist for data to ui mapping!");
+				return;
+			}
+			this.selectedRows = Table.getSelectedRows(table);
+			this.allRows = table.getJSONArray("allRows").toList();
 		} catch (Throwable t) {
 			if (t instanceof UIConvertException) {
 				throw ((UIConvertException) t);
@@ -152,4 +159,6 @@ public class UITable implements IODMappingConverter {
 
 	public void callAllMappings(boolean isDataToUI) throws UIConvertException {
 	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(UIText.class);
 }

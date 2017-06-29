@@ -17,6 +17,8 @@ package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
 
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 
 /**
@@ -76,4 +78,21 @@ public class Matrix extends Widget<Matrix> implements Serializable {
 		return selectedNodeId;
 	}
 	
+	public JSONObject toJSON() throws JSONException {
+    	JSONObject json = super.toJSON();
+    	json.put("selectedNode", this.selectedNode);
+    	json.put("selectedNodeId", this.selectedNodeId);
+    	json.put("selectedX", this.selectedX);
+    	json.put("selectedY", this.selectedY);
+    	return json;
+    }
+    
+    public void fromJSON(JSONObject json) throws Exception {
+    	super.fromJSON(json);
+    	this.setUIEntityName(json.getString("entity"));
+    	this.selectedNode = json.getString("selectedNode");
+    	this.selectedNodeId = json.getString("selectedNodeId");
+    	this.selectedX = json.getInt("selectedX");
+    	this.selectedY = json.getInt("selectedY");
+    }
 }

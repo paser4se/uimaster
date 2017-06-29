@@ -24,16 +24,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.UITableActionType;
 import org.shaolin.bmdp.json.JSONArray;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.security.UserContext;
-import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
-import org.shaolin.uimaster.page.ajax.Layout;
-import org.shaolin.uimaster.page.ajax.Tree;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.TreeItem;
-import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
@@ -165,25 +163,31 @@ public class HTMLWebTreeType extends HTMLWidgetType {
 		}
 	}
 	
-	public Widget createAjaxWidget(VariableEvaluator ee)
+	public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-        Tree tree = new Tree(getName(), Layout.NULL, 
-        		(ExpressionType) this.removeAttribute("initExpr"),
-        		(ExpressionType) this.removeAttribute("expandExpr"));
-
-        tree.setReadOnly(isReadOnly());
-        tree.setUIEntityName(getUIEntityName());
-
-        tree.setListened(true);
-
-        List result = (List)this.getAttribute("initValue");
-        Object lastObject = result.get(result.size()-1);
-        if (lastObject instanceof Map) {
-        	tree.setDataModel((Map)lastObject);
-        	result.remove(result.size()-1);
-        }
+		if (!needAjaxSupport()) {
+    		Object oneditable = this.getAttribute("oneditable");
+            if (oneditable == null || oneditable.toString().equalsIgnoreCase("false")){
+            	return null;
+            }
+    	}
+//        Tree tree = new Tree(getName(), Layout.NULL, 
+//        		(ExpressionType) this.removeAttribute("initExpr"),
+//        		(ExpressionType) this.removeAttribute("expandExpr"));
+//
+//        tree.setReadOnly(isReadOnly());
+//        tree.setUIEntityName(getUIEntityName());
+//
+//        tree.setListened(true);
+//
+//        List result = (List)this.getAttribute("initValue");
+//        Object lastObject = result.get(result.size()-1);
+//        if (lastObject instanceof Map) {
+//        	tree.setDataModel((Map)lastObject);
+//        	result.remove(result.size()-1);
+//        }
         
-        return tree;
+		return super.createJsonModel(ee);
     }
 
 	

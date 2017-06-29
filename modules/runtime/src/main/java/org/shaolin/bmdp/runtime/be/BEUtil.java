@@ -1,6 +1,8 @@
 package org.shaolin.bmdp.runtime.be;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.shaolin.bmdp.datamodel.bediagram.BEListType;
 import org.shaolin.bmdp.datamodel.bediagram.BEMapType;
@@ -21,6 +23,9 @@ import org.shaolin.bmdp.datamodel.bediagram.TimeType;
 import org.shaolin.bmdp.datamodel.common.TargetJavaType;
 import org.shaolin.bmdp.datamodel.common.VariableCategoryType;
 import org.shaolin.bmdp.i18n.ExceptionConstants;
+import org.shaolin.bmdp.json.JSONArray;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
 import org.shaolin.bmdp.utils.ClassUtil;
 
@@ -403,5 +408,86 @@ public class BEUtil {
 //			return "<java.util.Date>";
 //		} 
 		return VariableCategoryType.JAVA_PRIMITIVE;
+	}
+	
+	public static <T> List<T> convertToList(Class<T> interClass, Class<? extends IBusinessEntity> implClass, 
+			JSONArray json) throws JSONException {
+		if (json == null || "null".equals(json)) {
+			return null;
+		}
+		List<T> result = new ArrayList<T>();
+		for (int i=0; i<json.length(); i++) {
+			try {
+				if (json.get(i) instanceof JSONObject) {
+					IBusinessEntity be = (IBusinessEntity)implClass.newInstance();
+					be.fromJSON(json.getJSONObject(i));
+					result.add((T)be);
+				} else {
+					result.add((T)json.get(i));
+				}
+			} catch (Exception e) {
+				if (e instanceof JSONException) {
+					throw (JSONException)e;
+				} else {
+					throw new JSONException(e);
+				}
+			} 
+		}
+		return result;
+	}
+	
+	public static List<Integer> convertToIntList( JSONArray json) throws JSONException {
+		if (json == null || "null".equals(json)) {
+			return null;
+		}
+		List<Integer> result = new ArrayList<Integer>();
+		for (int i=0; i<json.length(); i++) {
+			result.add(json.getInt(i));
+		}
+		return result;
+	}
+	
+	public static List<Long> convertToLongList( JSONArray json) throws JSONException {
+		if (json == null || "null".equals(json)) {
+			return null;
+		}
+		List<Long> result = new ArrayList<Long>();
+		for (int i=0; i<json.length(); i++) {
+			result.add(json.getLong(i));
+		}
+		return result;
+	}
+	
+	public static List<Boolean> convertToBooleanList( JSONArray json) throws JSONException {
+		if (json == null || "null".equals(json)) {
+			return null;
+		}
+		List<Boolean> result = new ArrayList<Boolean>();
+		for (int i=0; i<json.length(); i++) {
+			result.add(json.getBoolean(i));
+		}
+		return result;
+	}
+	
+	public static List<Double> convertToDoubleList( JSONArray json) throws JSONException {
+		if (json == null || "null".equals(json)) {
+			return null;
+		}
+		List<Double> result = new ArrayList<Double>();
+		for (int i=0; i<json.length(); i++) {
+			result.add(json.getDouble(i));
+		}
+		return result;
+	}
+	
+	public static List<String> convertToStringList( JSONArray json) throws JSONException {
+		if (json == null || "null".equals(json)) {
+			return null;
+		}
+		List<String> result = new ArrayList<String>();
+		for (int i=0; i<json.length(); i++) {
+			result.add(json.getString(i));
+		}
+		return result;
 	}
 }

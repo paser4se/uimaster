@@ -16,7 +16,7 @@
 package org.shaolin.uimaster.page.ajax.handlers;
 
 import org.apache.log4j.Logger;
-import org.shaolin.uimaster.page.AjaxActionHelper;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.ajax.Chart;
 
@@ -33,7 +33,7 @@ public class ChartEventHandler implements IAjaxHandler {
 
 	public String trigger(AjaxContext context) throws AjaxHandlerException {
 		try {
-			AjaxActionHelper.createAjaxContext(context);
+			AjaxContextHelper.createAjaxContext(context);
 			String uiid = context.getRequest().getParameter(
 					AjaxContext.AJAX_UIID);
 			String propertyName = context.getRequest().getParameter(
@@ -44,7 +44,7 @@ public class ChartEventHandler implements IAjaxHandler {
 				log.debug("uiid: " + uiid + ",propertyName: "
 						+ propertyName + ",newValue: " + index);
 			if ("".equals(propertyName)) {
-				AjaxActionHelper.getAjaxContext().removeFramePage(index);
+				AjaxContextHelper.getAjaxContext().removeFramePage(index);
 				return "";
 			} 
 			if ("refresh".equals(propertyName)) {
@@ -53,11 +53,11 @@ public class ChartEventHandler implements IAjaxHandler {
 				comp.revert(1);
 			}
 			
-			return AjaxActionHelper.getAjaxContext().getDataAsJSON();
+			return AjaxContextHelper.getAjaxContext().getDataAsJSON();
 		} catch (Exception e) {
 			throw new AjaxHandlerException("Error", e);
 		} finally {
-			AjaxActionHelper.removeAjaxContext();
+			AjaxContextHelper.removeAjaxContext();
 		}
 	}
 }

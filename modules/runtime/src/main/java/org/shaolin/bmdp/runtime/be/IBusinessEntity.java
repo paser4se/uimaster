@@ -1,9 +1,9 @@
 package org.shaolin.bmdp.runtime.be;
 
 import java.io.Serializable;
-import java.util.List;
 
-import org.shaolin.bmdp.datamodel.bediagram.MemberType;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 
 /**
  * Interface of Business Entity. All Business Entity must implement this
@@ -13,15 +13,13 @@ import org.shaolin.bmdp.datamodel.bediagram.MemberType;
  */
 public interface IBusinessEntity extends Serializable {
 	
-	/**
-	 * Gets list of MemberType.
-	 * 
-	 * @return List the list of MemberType.
-	 */
-	public List<MemberType> getMemberList();
+	public long getId();
 	
 	public IBusinessEntity createEntity();
 	
 	public BEExtensionInfo get_extField();
 	
+	public JSONObject toJSON() throws JSONException;
+	
+	public void fromJSON(JSONObject json) throws JSONException;
 }

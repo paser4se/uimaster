@@ -15,9 +15,6 @@
 */
 package org.shaolin.bmdp.runtime.cache;
 
-import org.shaolin.bmdp.runtime.ddc.client.DDCFacade;
-import org.shaolin.bmdp.runtime.ddc.client.sample.CacheNodeListener;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -53,7 +50,6 @@ abstract class AbstractCache<K, V> implements ICache<K, V> {
     private static final Object READ_LOCK = new Object();
 
     private static final Object WRITE_LOCK = new Object();
-    private DDCFacade ddcFacade;
 
     private static final long serialVersionUID = 5756695363194673927L;
 
@@ -61,13 +57,13 @@ abstract class AbstractCache<K, V> implements ICache<K, V> {
         this.name = name;
         this.needSynchronize = needSynchronize;
         if (needSynchronize) {
-            ddcFacade = new DDCFacade();
-            ddcFacade.setCache(this);
+//            ddcFacade = new DDCFacade();
+//            ddcFacade.setCache(this);
         }
     }
 
     public void init() {
-        ddcFacade.initCache(this);
+//        ddcFacade.initCache(this);
     }
 
     public String getName() {
@@ -228,17 +224,17 @@ abstract class AbstractCache<K, V> implements ICache<K, V> {
 
     private void syncOnPut(Object key, Object value, Object oldValue) {
         // TODO:
-        if (ddcFacade != null) {
-            ddcFacade.put(DDCFacade.newData(key, value, name));
-        }
+//        if (ddcFacade != null) {
+//            ddcFacade.put(DDCFacade.newData(key, value, name));
+//        }
 
     }
 
     private void syncOnRemove(Object key, Object oldValue) {
         // TODO:
-        if (ddcFacade != null) {
-            ddcFacade.remove(DDCFacade.newData(key, oldValue, name));
-        }
+//        if (ddcFacade != null) {
+//            ddcFacade.remove(DDCFacade.newData(key, oldValue, name));
+//        }
     }
 
     @Override
@@ -249,9 +245,9 @@ abstract class AbstractCache<K, V> implements ICache<K, V> {
     @Override
     public void setValueType(Class valueType) {
         this.valueType = valueType;
-        if (ddcFacade != null) {
-            ddcFacade.initCache(this);
-        }
+//        if (ddcFacade != null) {
+//            ddcFacade.initCache(this);
+//        }
     }
 
 }

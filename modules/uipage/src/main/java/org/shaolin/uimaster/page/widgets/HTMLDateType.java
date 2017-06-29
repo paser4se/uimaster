@@ -18,6 +18,8 @@ package org.shaolin.uimaster.page.widgets;
 import java.io.IOException;
 
 import org.shaolin.uimaster.page.UserRequestContext;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.ajax.Calendar;
 import org.shaolin.uimaster.page.ajax.Layout;
@@ -159,24 +161,24 @@ public class HTMLDateType extends HTMLTextWidgetType
         }
     }
 
-    public Widget createAjaxWidget(VariableEvaluator ee)
-    {
-        Calendar calendar = new Calendar(getName(), Layout.NULL);
-
-        calendar.setReadOnly(isReadOnly());
-        calendar.setUIEntityName(getUIEntityName());
-
-        // we don't expect to anything except the pure value 
-        // what we really need in the backend.
-        calendar.setValue(getValue());
-
-        // add necessary attribute especially the server side constraint check.
-        setAJAXConstraints(calendar);
-        setAJAXAttributes(UserRequestContext.UserContext.get(), calendar);
-        
-        calendar.setListened(true);
-
-        return calendar;
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException {
+//        Calendar calendar = new Calendar(getName(), Layout.NULL);
+//
+//        calendar.setReadOnly(isReadOnly());
+//        calendar.setUIEntityName(getUIEntityName());
+//
+//        // we don't expect to anything except the pure value 
+//        // what we really need in the backend.
+//        calendar.setValue(getValue());
+//
+//        // add necessary attribute especially the server side constraint check.
+//        setAJAXConstraints(calendar);
+//        setAJAXAttributes(UserRequestContext.UserContext.get(), calendar);
+//        
+//        calendar.setListened(true);
+//
+//        return calendar;
+        return super.createJsonModel(ee);
     }
 
 }

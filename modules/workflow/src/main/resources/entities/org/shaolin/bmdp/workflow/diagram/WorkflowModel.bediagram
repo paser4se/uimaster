@@ -60,6 +60,10 @@
 	-->
 	<bediagram:beEntity needPersist="false" needUIEntity="true" needUITableEditor="true">
 		<common:entityName>SessionVarDefinition</common:entityName>
+		<bediagram:member pk="true">
+			<bediagram:name>id</bediagram:name>
+			<bediagram:type xsi:type="bediagram:LongType" />
+		</bediagram:member>
 		<bediagram:member>
 			<bediagram:name>name</bediagram:name>
 			<bediagram:type xsi:type="bediagram:StringType" />
@@ -76,6 +80,10 @@
 	
 	<bediagram:beEntity needPersist="false" needUIEntity="true" needUITableEditor="true">
 		<common:entityName>VariableDefinition</common:entityName>
+		<bediagram:member pk="true">
+			<bediagram:name>id</bediagram:name>
+			<bediagram:type xsi:type="bediagram:LongType" />
+		</bediagram:member>
 		<bediagram:member>
 			<bediagram:name>name</bediagram:name>
 			<bediagram:type xsi:type="bediagram:StringType" />
@@ -92,6 +100,10 @@
 	
 	<bediagram:beEntity needPersist="false" needUIEntity="true">
 		<common:entityName>CreateWorkflow</common:entityName>
+		<bediagram:member pk="true">
+			<bediagram:name>id</bediagram:name>
+			<bediagram:type xsi:type="bediagram:LongType" />
+		</bediagram:member>
 		<bediagram:member>
 			<bediagram:name>workflowName</bediagram:name>
 			<bediagram:type xsi:type="bediagram:StringType" />
@@ -112,6 +124,10 @@
 	
 	<bediagram:beEntity needPersist="false" needUIEntity="true">
 		<common:entityName>CreateFlow</common:entityName>
+		<bediagram:member pk="true">
+			<bediagram:name>id</bediagram:name>
+			<bediagram:type xsi:type="bediagram:LongType" />
+		</bediagram:member>
 		<bediagram:member>
 			<bediagram:name>flowName</bediagram:name>
 			<bediagram:type xsi:type="bediagram:StringType" />
@@ -128,6 +144,10 @@
 	
 	<bediagram:beEntity needPersist="false" needUIEntity="true">
 		<common:entityName>CreateNode</common:entityName>
+		<bediagram:member pk="true">
+			<bediagram:name>id</bediagram:name>
+			<bediagram:type xsi:type="bediagram:LongType" />
+		</bediagram:member>
 		<bediagram:member>
 			<bediagram:name>name</bediagram:name>
 			<bediagram:type xsi:type="bediagram:StringType" />

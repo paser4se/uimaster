@@ -17,12 +17,11 @@ package org.shaolin.uimaster.page.widgets;
 
 import java.io.IOException;
 
-import org.shaolin.uimaster.page.UserRequestContext;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.WebConfig;
-import org.shaolin.uimaster.page.ajax.Layout;
-import org.shaolin.uimaster.page.ajax.TextField;
-import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.slf4j.Logger;
@@ -157,26 +156,26 @@ public class HTMLTextFieldType extends HTMLTextWidgetType
         }
     }
 
-    public Widget createAjaxWidget(VariableEvaluator ee)
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException
     {
-        TextField textField = new TextField(getName(), Layout.NULL);
+//        TextField textField = new TextField(getName(), Layout.NULL);
+//
+//        textField.setReadOnly(isReadOnly());
+//        textField.setUIEntityName(getUIEntityName());
+//
+//        // we don't expect to anything except the pure value 
+//        // what we really need in the backend.
+//        textField.setValue(getValue());
+//        if (this.getAttribute("secure") != null) {
+//        	textField.setIsSecure(Boolean.valueOf(this.getAttribute("secure").toString()));
+//        }
+//        // add necessary attribute especially the server side constraint check.
+//        setAJAXConstraints(textField);
+//        setAJAXAttributes(UserRequestContext.UserContext.get(), textField);
+//        
+//        textField.setListened(true);
 
-        textField.setReadOnly(isReadOnly());
-        textField.setUIEntityName(getUIEntityName());
-
-        // we don't expect to anything except the pure value 
-        // what we really need in the backend.
-        textField.setValue(getValue());
-        if (this.getAttribute("secure") != null) {
-        	textField.setIsSecure(Boolean.valueOf(this.getAttribute("secure").toString()));
-        }
-        // add necessary attribute especially the server side constraint check.
-        setAJAXConstraints(textField);
-        setAJAXAttributes(UserRequestContext.UserContext.get(), textField);
-        
-        textField.setListened(true);
-
-        return textField;
+        return super.createJsonModel(ee);
     }
 
     

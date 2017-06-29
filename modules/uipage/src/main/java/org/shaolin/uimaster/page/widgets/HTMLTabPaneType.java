@@ -28,13 +28,14 @@ import org.shaolin.bmdp.datamodel.page.UIReferenceEntityType;
 import org.shaolin.bmdp.datamodel.page.UITabPaneItemType;
 import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.i18n.ResourceUtil;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.uimaster.html.layout.HTMLPanelLayout;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.CellLayout;
 import org.shaolin.uimaster.page.ajax.TabPane;
-import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.slf4j.Logger;
@@ -72,10 +73,6 @@ public class HTMLTabPaneType extends HTMLContainerType
                 tabSelected = Integer.parseInt((String)this.getAttribute("tabSelected"));
             }
             boolean ajaxLoad = (boolean)this.getAttribute("ajaxLoad");
-            if (ajaxLoad) {
-            	TabPane tabPane = ((TabPane)context.getPageAjaxWidgets().get(this.getName()));
-            	tabPane.setOwnerEntity(ownerEntity);
-            }
             List<HTMLReferenceEntityType> createdRefEntities = (List<HTMLReferenceEntityType>)this.removeAttribute("createdRefEntities");
             
             //Generate the titles of the tabpane
@@ -264,7 +261,7 @@ public class HTMLTabPaneType extends HTMLContainerType
         return false;
     }
     
-    public Widget createAjaxWidget(VariableEvaluator ee)
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
     	ExpressionType selectedAction = (ExpressionType)this.removeAttribute("selectedAction");
     	List<UITabPaneItemType> tabs = (List<UITabPaneItemType>)this.getAttribute("tabPaneItems");
@@ -272,7 +269,7 @@ public class HTMLTabPaneType extends HTMLContainerType
     	panel.setOriginalUIID(this.getUIID());
     	panel.setAjaxLoad((boolean)this.getAttribute("ajaxLoad"));
     	panel.setSelectedAction(selectedAction);
-        panel.setReadOnly(isReadOnly());
+        //panel.setReadOnly(isReadOnly());
         panel.setUIEntityName(getUIEntityName());
         panel.setListened(true);
         if ((boolean)this.getAttribute("ajaxLoad")) {
@@ -294,15 +291,25 @@ public class HTMLTabPaneType extends HTMLContainerType
 	                String type = itemRef.getReferenceEntity().getEntityName();
 	                HTMLReferenceEntityType refEntity = new HTMLReferenceEntityType(UIID, type);
 	                
-	                Widget newWidget = refEntity.createAjaxWidget(ee);
-	                UserRequestContext.UserContext.get().addAjaxWidget(newWidget.getId(), newWidget);
+	                JSONObject newWidget = refEntity.createJsonModel(ee);
+	                try {
+						UserRequestContext.UserContext.get().addAjaxWidget(refEntity.getName(), newWidget);
+					} catch (JSONException e) {
+						logger.warn(e.getMessage(), e);
+					}
 	                createdRefEntities.add(refEntity);
                 }
         	}
         }
         this.addAttribute("createdRefEntities", createdRefEntities);
-        return panel;
-
+        this.addAttribute("selectedIndex", "0");
+        panel.addAttribute("createdRefEntities", createdRefEntities);
+        panel.addAttribute("selectedIndex", "0");
+        
+        JSONObject superJson = super.createJsonModel(ee);
+        JSONObject panelJson = panel.toJSON();
+        panelJson.join(superJson);
+    	return panelJson;
     }
 
 }
