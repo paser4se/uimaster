@@ -57,6 +57,7 @@ public class LeaderJobScheduler implements IJobDispatcher {
     public static final String PATH = "path";
     public static final String STAT2 = "Stat";
 
+    // TODO: set properties configuration.
     private final SchedulerFactory scheduleFactory = new StdSchedulerFactory();
 
     private final Queue<IJavaCCJob> jobQueue = new ConcurrentLinkedQueue<IJavaCCJob>();

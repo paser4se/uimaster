@@ -60,6 +60,11 @@ public class AjaxServlet extends HttpServlet implements RejectedExecutionHandler
 	
 	private ThreadPoolExecutor msgExecutor;
 	
+	/**
+     * Redis session manager integration
+     */
+    private static java.util.function.Function redisSession;
+	
 	public void init() throws ServletException {
     	this.msgExecutor = WebConfig.getAjaxThreadPool(this);
 
@@ -79,6 +84,10 @@ public class AjaxServlet extends HttpServlet implements RejectedExecutionHandler
                 }
             }
         }
+        
+        if (System.getProperties().containsKey("REDIS_SESSION")) {
+        	this.redisSession = (java.util.function.Function)System.getProperties().get("REDIS_SESSION");
+    	}
 	}
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -112,7 +121,11 @@ public class AjaxServlet extends HttpServlet implements RejectedExecutionHandler
         		//must not have this exception.
 				logger.warn(e.getMessage(), e);
 			} finally {
-        		aCtx.complete();
+	        	String sessionId = request.getSession().getId();
+	        	aCtx.complete();
+	        	if (redisSession != null) {
+	        		redisSession.apply(sessionId);
+	        	}
         	}
 		}
 	}

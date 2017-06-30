@@ -83,6 +83,11 @@ public class WebFlowServlet extends HttpServlet
      */
     protected boolean nocache = false;
 
+    /**
+     * Redis session manager integration
+     */
+    private static java.util.function.Function redisSession;
+    
     public static class AttributesAccessor {
     	
     	private final transient HttpServletRequest request;
@@ -196,6 +201,9 @@ public class WebFlowServlet extends HttpServlet
         initClassLoader();
         initChunks();
         
+        if (System.getProperties().containsKey("REDIS_SESSION")) {
+        	this.redisSession = (java.util.function.Function)System.getProperties().get("REDIS_SESSION");
+    	}
         if (logger.isInfoEnabled()) {
             logger.info("Web application {} is ready.", appName);
         }
@@ -415,6 +423,10 @@ public class WebFlowServlet extends HttpServlet
         }
         finally
         {
+        	if (redisSession != null) {
+        		String sessionId = request.getSession().getId();
+        		redisSession.apply(sessionId);
+        	}
         }
     }
     
