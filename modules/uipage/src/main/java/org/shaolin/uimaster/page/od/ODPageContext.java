@@ -18,8 +18,6 @@ package org.shaolin.uimaster.page.od;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.shaolin.bmdp.datamodel.page.PageInType;
 import org.shaolin.bmdp.datamodel.page.PageOutType;
@@ -28,8 +26,8 @@ import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
-import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.cache.ODObject;
 import org.shaolin.uimaster.page.cache.ODPageObject;
@@ -109,11 +107,13 @@ public class ODPageContext extends ODContext
 		localEContext.setVariableValue(UIPageEntity_MARK, uiEntity);
 		Map<String, Object> inputData = requestContext.getODMapperData();
 		if (inputData != null && !inputData.isEmpty()) {
-			Set<Entry<String, Object>> entries = inputData.entrySet();
-			for (Entry<String, Object> entry: entries) {
-				localEContext.setVariableValue(entry.getKey(), entry.getValue());
+			for (String varKey : odPageEntityObject.getLocalKeys() ) {
+				if (!inputData.containsKey(varKey) || inputData.get(varKey) == null) {
+					continue;
+				}
+				localEContext.setVariableValue(varKey, inputData.get(varKey));
 				if(logger.isDebugEnabled()) {
-		            logger.debug("Pass the input value into page od variable: " + entry.getKey());  
+					logger.debug("Pass the input value into page od variable: " + varKey);  
 				}
 			}
 		}

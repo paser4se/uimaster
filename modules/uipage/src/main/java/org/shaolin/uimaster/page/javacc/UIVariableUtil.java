@@ -1,5 +1,11 @@
 package org.shaolin.uimaster.page.javacc;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.apache.log4j.Logger;
 import org.shaolin.bmdp.datamodel.common.VariableCategoryType;
 import org.shaolin.bmdp.datamodel.common.VariableType;
@@ -10,8 +16,14 @@ import org.shaolin.bmdp.datamodel.page.StringPropertyType;
 import org.shaolin.bmdp.i18n.ExceptionConstants;
 import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.i18n.ResourceUtil;
+import org.shaolin.bmdp.json.JSONArray;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
+import org.shaolin.bmdp.persistence.BEEntityDaoObject;
 import org.shaolin.bmdp.runtime.be.BEUtil;
+import org.shaolin.bmdp.runtime.be.IBusinessEntity;
 import org.shaolin.bmdp.runtime.ce.CEUtil;
+import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.DefaultParsingContext;
@@ -115,4 +127,70 @@ public final class UIVariableUtil {
 		return "";
 	}
 
+	public static HashMap<String, Object> convertJsonToVar(JSONObject json) throws JSONException {
+    	HashMap<String, Object> inputParams = new HashMap<String, Object>(json.length());
+		Iterator<String> keys = json.keys();
+		while (keys.hasNext()) {
+			String k = keys.next();
+			if (json.has(k+"_t")) {
+				String type = json.getString(k+"_t");
+				if ("be".equals(type)) {
+					if (json.has(k+"_c")) {
+						try {
+							inputParams.put(k, BEEntityDaoObject.DAOOBJECT.get(json.getLong(k), Class.forName(json.getString(k+"_c"))));
+						} catch (ClassNotFoundException e) {
+							throw new JSONException(e);
+						}
+					} else {
+						inputParams.put(k, json.getBEntity(k));
+					}
+				} else if ("ce".equals(type)) {
+					inputParams.put(k, json.getCEntity(k));
+				} else if ("map".equals(type)) {
+					inputParams.put(k, json.getJSONObject(k));
+				} else if ("list".equals(type)) {
+					inputParams.put(k, json.getJSONArray(k));
+				} else {
+					inputParams.put(k, json.get(k));
+				}
+			} else {
+				inputParams.put(k, json.get(k));
+			}
+		}
+		return inputParams;
+    }
+    
+    public static JSONObject convertVarToJson(HashMap<String, Object> inputParams) throws JSONException {
+    	JSONObject json = new JSONObject();
+		for (Entry<String, Object> var : inputParams.entrySet()) {
+			if (var.getValue() == null) {
+				continue;
+			}
+			if (var.getValue() instanceof IBusinessEntity) {
+				IBusinessEntity be = (IBusinessEntity)var.getValue();
+				if (be.getId() > 0) {
+					// only save key.
+					json.put(var.getKey(), be.getId());
+					json.put(var.getKey()+"_c", var.getValue().getClass().getName());
+				} else {
+					// save the whole if it's not persistent.
+					json.put(var.getKey(), be);
+				}
+				json.put(var.getKey()+"_t", "be");
+			} else if (var.getValue() instanceof IConstantEntity) {
+				json.put(var.getKey(), (IConstantEntity)var.getValue());
+				json.put(var.getKey()+"_t", "ce");
+			} else if (var.getValue() instanceof Map) {
+				json.put(var.getKey(), (Map)var.getValue());
+				json.put(var.getKey()+"_t", "map");
+			} else if (var.getValue() instanceof List) {
+				json.put(var.getKey(), new JSONArray((List)var.getValue()));
+				json.put(var.getKey()+"_t", "list");
+			} else {
+				json.put(var.getKey(), var.getValue());
+			}
+		}
+		json.remove("UIEntity");
+		return json;
+    }
 }

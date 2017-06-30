@@ -16,21 +16,14 @@
 package org.shaolin.bmdp.runtime;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.shaolin.bmdp.datamodel.common.VariableCategoryType;
 import org.shaolin.bmdp.datamodel.common.VariableType;
 import org.shaolin.bmdp.i18n.ExceptionConstants;
-import org.shaolin.bmdp.json.JSONArray;
-import org.shaolin.bmdp.json.JSONException;
-import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.be.BEUtil;
-import org.shaolin.bmdp.runtime.be.IBusinessEntity;
 import org.shaolin.bmdp.runtime.ce.CEUtil;
-import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
 import org.shaolin.bmdp.utils.StringUtil;
 import org.shaolin.javacc.StatementEvaluator;
@@ -279,51 +272,4 @@ public final class VariableUtil {
 		return value;
 	}
 	
-	public static HashMap<String, Object> convertJsonToVar(JSONObject json) throws JSONException {
-    	HashMap<String, Object> inputParams = new HashMap<String, Object>(json.length());
-		Iterator<String> keys = json.keys();
-		while (keys.hasNext()) {
-			String k = keys.next();
-			if (json.has(k+"_t")) {
-				String type = json.getString(k+"_t");
-				if ("be".equals(type)) {
-					inputParams.put(k, json.getBEntity(k));
-				} else if ("ce".equals(type)) {
-					inputParams.put(k, json.getCEntity(k));
-				} else if ("map".equals(type)) {
-					inputParams.put(k, json.getJSONObject(k));
-				} else if ("list".equals(type)) {
-					inputParams.put(k, json.getJSONArray(k));
-				} else {
-					inputParams.put(k, json.get(k));
-				}
-			} else {
-				inputParams.put(k, json.get(k));
-			}
-		}
-		return inputParams;
-    }
-    
-    public static JSONObject convertVarToJson(HashMap<String, Object> inputParams) throws JSONException {
-    	JSONObject json = new JSONObject();
-		for (Entry<String, Object> var : inputParams.entrySet()) {
-			if (var.getValue() instanceof IBusinessEntity) {
-				json.put(var.getKey(), (IBusinessEntity)var.getValue());
-				json.put(var.getKey()+"_t", "be");
-			} else if (var.getValue() instanceof IConstantEntity) {
-				json.put(var.getKey(), (IConstantEntity)var.getValue());
-				json.put(var.getKey()+"_t", "ce");
-			} else if (var.getValue() instanceof Map) {
-				json.put(var.getKey(), (Map)var.getValue());
-				json.put(var.getKey()+"_t", "map");
-			} else if (var.getValue() instanceof List) {
-				json.put(var.getKey(), new JSONArray((List)var.getValue()));
-				json.put(var.getKey()+"_t", "list");
-			} else {
-				json.put(var.getKey(), var.getValue());
-			}
-		}
-		json.remove("UIEntity");
-		return json;
-    }
 }

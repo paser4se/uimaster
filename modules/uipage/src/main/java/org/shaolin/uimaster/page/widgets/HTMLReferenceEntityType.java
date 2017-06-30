@@ -28,7 +28,9 @@ import org.shaolin.uimaster.page.PageDispatcher;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.exception.UIPageException;
+import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
+import org.shaolin.uimaster.page.od.ODContext;
 
 public class HTMLReferenceEntityType extends HTMLWidgetType implements Serializable
 {
@@ -170,7 +172,6 @@ public class HTMLReferenceEntityType extends HTMLWidgetType implements Serializa
     	HTMLReferenceEntityType copy = new HTMLReferenceEntityType(this.getId());
     	copy.refEntityName = this.refEntityName;
     	
-//    	DefaultEvaluationContext evalContext = (DefaultEvaluationContext)ee.getExpressionContext(ODContext.LOCAL_TAG);
 //        String refEntityName = this.refEntityName;
 //        RefForm referenceEntity = new RefForm(getName(), refEntityName, Layout.NULL, new HashMap(evalContext.getVariableObjects()));
 //        referenceEntity.setCopy(copy);
@@ -183,11 +184,11 @@ public class HTMLReferenceEntityType extends HTMLWidgetType implements Serializa
 		json.put("refid", copy.getUIID());
 		json.put("refcopy", copy.getType());
 		
-		// does not necessary.
-//		HashMap<String, Object> vars = (HashMap<String, Object>)evalContext.getVariableObjects();
-//		JSONObject inputValues = VariableUtil.convertVarToJson(vars);
-//		inputValues.remove("UIEntity");
-//		json.put("inputParams", inputValues);
+		DefaultEvaluationContext evalContext = (DefaultEvaluationContext)ee.getExpressionContext(ODContext.LOCAL_TAG);
+		HashMap<String, Object> vars = (HashMap<String, Object>)evalContext.getVariableObjects();
+		JSONObject inputValues = UIVariableUtil.convertVarToJson(vars);
+		inputValues.remove("UIEntity");
+		json.put("inputParams", inputValues);
         
         return json;
     }

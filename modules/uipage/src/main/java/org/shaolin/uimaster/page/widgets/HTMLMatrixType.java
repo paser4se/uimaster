@@ -194,6 +194,7 @@ public class HTMLMatrixType extends HTMLTextWidgetType
 //    	matrix.setUIEntityName(getUIEntityName());
 //    	matrix.setListened(true);
 		JSONObject json = super.createJsonModel(ee);
+		json.getJSONObject("attrMap").remove("init");
 		return json;
     }
 

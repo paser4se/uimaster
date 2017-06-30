@@ -35,7 +35,6 @@ import org.shaolin.bmdp.datamodel.page.UITabPaneItemType;
 import org.shaolin.bmdp.json.JSONArray;
 import org.shaolin.bmdp.json.JSONException;
 import org.shaolin.bmdp.json.JSONObject;
-import org.shaolin.bmdp.runtime.VariableUtil;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
@@ -56,6 +55,7 @@ import org.shaolin.uimaster.page.cache.PageCacheManager;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.exception.UIPageException;
+import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.od.ODEntityContext;
@@ -685,7 +685,7 @@ public class TabPane extends Container implements Serializable
 		json.put("loadedTabs", new JSONArray(this.loadedTabs));
 		if (inputParams != null) {
 			inputParams.remove("inputParams");
-			JSONObject inputValues = VariableUtil.convertVarToJson((HashMap)this.inputParams);
+			JSONObject inputValues = UIVariableUtil.convertVarToJson((HashMap)this.inputParams);
 			inputValues.remove("UIEntity");
 			json.put("inputParams", inputValues);
 		}
@@ -707,7 +707,7 @@ public class TabPane extends Container implements Serializable
 		this.titles = json.has("titles") ? json.getJSONArray("titles").toList() : new ArrayList<String>();
 		this.loadedTabs = json.has("loadedTabs") ? json.getJSONArray("loadedTabs").toList() : new ArrayList<Integer>();
 		if (json.has("inputParams")) {
-			this.inputParams = VariableUtil.convertJsonToVar(json.getJSONObject("inputParams"));
+			this.inputParams = UIVariableUtil.convertJsonToVar(json.getJSONObject("inputParams"));
 			this.inputParams.remove("inputParams");
 		}
 	}

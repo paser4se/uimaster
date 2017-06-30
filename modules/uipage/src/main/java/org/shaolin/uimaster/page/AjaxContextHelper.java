@@ -67,8 +67,8 @@ public class AjaxContextHelper {
 			throws AjaxException  {
 		Map<String, JSONObject> uiMap = AjaxContextHelper.getFrameMap(request);
 		IRequestData requestData = AjaxContextHelper.createRequestData();
-		requestData.setUiid(entityUiid);
 		requestData.setEntityName(uiform);
+		requestData.setUiid(entityUiid);
 		requestData.setEntityUiid(entityUiid);
         requestData.setFrameId("");
         JSONObject comp = uiMap.get(requestData.getUiid());

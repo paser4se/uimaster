@@ -1851,7 +1851,18 @@ public class UIFormObject implements java.io.Serializable
     
     public Map<String, Object> getComponentProperty(String componentID)
     {
-        return attributesMap.get(componentID);
+    	if (attributesMap.containsKey(componentID)) {
+    		return attributesMap.get(componentID);
+    	} else {
+    		if (componentID.indexOf('.') != -1) {
+    			//remove parent prefix.
+    			String uiid = componentID.substring(componentID.indexOf('.') + 1);
+    			if (attributesMap.containsKey(componentID)) {
+    	    		return attributesMap.get(componentID);
+    	    	} 
+    		}
+    		return null;
+    	}
     }
     
     public Map<String, Object> getComponentProperty(String componentID, boolean needException)
@@ -1859,6 +1870,13 @@ public class UIFormObject implements java.io.Serializable
     	if (attributesMap.containsKey(componentID)) {
     		return attributesMap.get(componentID);
     	} else {
+    		if (componentID.indexOf('.') != -1) {// bug fix.
+    			//remove parent prefix.
+    			String uiid = componentID.substring(componentID.indexOf('.') + 1);
+    			if (attributesMap.containsKey(uiid)) {
+    	    		return attributesMap.get(uiid);
+    	    	} 
+    		}
     		if (needException) {
     			throw new IllegalArgumentException(componentID + " ui-widget does not exist!");
     		}

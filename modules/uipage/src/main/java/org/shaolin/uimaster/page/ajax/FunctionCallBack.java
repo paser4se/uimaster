@@ -81,7 +81,7 @@ public class FunctionCallBack implements CallBack {
             requestData.setEntityName(uientity);
             requestData.setFrameId(frameId);
             requestData.setEntityUiid(uiid);
-            requestData.setUiid(uiid);
+            requestData.setUiid("");
             AjaxContext context = new AjaxContext(uiMap, requestData);
             context.initData();
             context.setRequest(AjaxContextHelper.getAjaxContext().getRequest(), null);

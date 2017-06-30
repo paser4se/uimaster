@@ -15,7 +15,9 @@
 */
 package org.shaolin.uimaster.page.od;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -58,6 +60,7 @@ public class ODEntityContext extends ODContext
     {
         super( htmlContext, false );
         this.odEntityName = odEntityName;
+        
     }
     
     /**
@@ -84,7 +87,10 @@ public class ODEntityContext extends ODContext
 		this.isODBaseRule = odEntityObject.isODBaseRule();
 		this.isODBaseType = odEntityObject.isODBaseType();
 		this.odDescriptor = odEntityObject.getODEntity();
-    	
+		Map<String, Object> inputParamValues = requestContext.getODMapperData();
+		if (inputParamValues == null) {
+			inputParamValues = Collections.emptyMap();
+		}
     	int debugCount = 0;
     	DefaultEvaluationContext localEContext = odEntityObject.getLocalEContext();
     	if( !inputParamValues.isEmpty() )
@@ -92,11 +98,8 @@ public class ODEntityContext extends ODContext
     		if(logger.isDebugEnabled())
     			logger.info("----->The 'page in' is receiving values from web flow parameters:");
     		String[] keys = odEntityObject.getParamKeys();
-    		for (int i = 0; i < keys.length; i++)
-    		{
-    			String keyName = keys[i];
-    			if( inputParamValues.containsKey(keyName) && inputParamValues.get(keyName) != null )
-    			{
+			for (String keyName : keys) {
+				if (inputParamValues.containsKey(keyName) && inputParamValues.get(keyName) != null) {
     				localEContext.setVariableValue(keyName, inputParamValues.get(keyName));
     				if(logger.isDebugEnabled())
     				{
@@ -148,9 +151,14 @@ public class ODEntityContext extends ODContext
     		globalContext.setVariableValue("context", requestContext);
     		globalContext.setVariableValue("odContext", this);
     		String uiid = requestContext.getHTMLPrefix() + uiEntity.getUIID();
-    		globalContext.setVariableValue(AJAX_UICOMP_NAME, 
-    				AjaxContextHelper.createUI2DataAjaxContext(uiid, 
-					uiEntityName, requestContext.getRequest()));
+    		if (AjaxContextHelper.getAjaxContext() != null) {
+    			globalContext.setVariableValue(AJAX_UICOMP_NAME, 
+    					AjaxContextHelper.getAjaxContext());
+    		} else {
+    			globalContext.setVariableValue(AJAX_UICOMP_NAME, 
+    					AjaxContextHelper.createUI2DataAjaxContext(uiid, 
+    							uiEntityName, requestContext.getRequest()));
+    		}
     		this.setEvaluationContextObject(GLOBAL_TAG, globalContext);
     	}
     	if(logger.isInfoEnabled())

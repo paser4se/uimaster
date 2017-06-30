@@ -25,7 +25,6 @@ import java.util.Map.Entry;
 
 import org.shaolin.bmdp.json.JSONException;
 import org.shaolin.bmdp.json.JSONObject;
-import org.shaolin.bmdp.runtime.VariableUtil;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
@@ -42,6 +41,7 @@ import org.shaolin.uimaster.page.cache.PageCacheManager;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.exception.ODException;
+import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.od.ODEntityContext;
 import org.shaolin.uimaster.page.od.ODProcessor;
@@ -89,9 +89,15 @@ public class RefForm extends Container implements Serializable
     private ModalWindow window;
     private CallBack callBack;
     
+    /**
+     * For deserializable only!
+     * 
+     * @param uiid
+     * @param uiEntityName
+     */
     public RefForm(String uiid, String uiEntityName)
     {
-        this(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, uiEntityName, new CellLayout());
+        this(uiid, uiEntityName, new CellLayout());
         this.uiid = uiid;
         this.setListened(true);
     }
@@ -526,12 +532,13 @@ public class RefForm extends Container implements Serializable
     		json.put("refcopy", this.getUIEntityName());
     	}
     	if (this.inputParams != null) {
-    		JSONObject inputValues = VariableUtil.convertVarToJson((HashMap)this.inputParams);
+    		JSONObject inputValues = UIVariableUtil.convertVarToJson((HashMap)this.inputParams);
     		inputValues.remove("UIEntity");
     		json.put("inputParams", inputValues);
     	}
     	if (this.window != null) {
     		json.put("hasWindow", 1);
+    		json.put("windowId", this.window.getId());
     	}
     	if (this.callBack != null) {
     		json.put("cbclass", callBack.getClass().getName());
@@ -545,11 +552,11 @@ public class RefForm extends Container implements Serializable
     	this.setUIEntityName(json.getString("entity"));
     	this.copy = new HTMLReferenceEntityType(json.getString("refid"), json.getString("refcopy"));
     	if (json.has("inputParams")) {
-    		this.inputParams = VariableUtil.convertJsonToVar(json.getJSONObject("inputParams"));
+    		this.inputParams = UIVariableUtil.convertJsonToVar(json.getJSONObject("inputParams"));
     	}
     	if (json.has("hasWindow")) {
     		this.window = new ModalWindow(this.getUiid() + "-Dialog", "", this);
-    		this.window.setId(this.getUiid() + "-Dialog");//bug fix.
+			this.window.setId(json.getString("windowId"));//bug fix.
 			if (json.has("callBack")) {
 				callBack = (CallBack)Class.forName(json.getString("cbclass")).newInstance();
 				callBack.fromJSON(json.getJSONObject("callBack"));

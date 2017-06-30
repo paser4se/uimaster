@@ -76,11 +76,6 @@ public abstract class ODContext extends TransOpsExecuteContext {
 	protected String uiEntityName;
 
 	/**
-	 * the parameter values were inputed by outside page.
-	 */
-	protected Map inputParamValues;
-
-	/**
 	 * is data to ui operation.
 	 */
 	protected boolean isDataToUI = true;
@@ -110,12 +105,6 @@ public abstract class ODContext extends TransOpsExecuteContext {
 		this.isPageOD = isPageOD;
 		this.request = htmlContext.getRequest();
 		this.isDataToUI = htmlContext.getIsDataToUI();
-		this.inputParamValues = htmlContext.getODMapperData();
-		if (inputParamValues == null) {
-			if (logger.isDebugEnabled())
-				logger.debug("Web flow put parameters is empty into page.");
-			inputParamValues = Collections.EMPTY_MAP;
-		}
 	}
 
 	public UserRequestContext getHtmlContext() {
