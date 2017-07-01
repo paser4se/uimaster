@@ -122,10 +122,6 @@ public class ODProcessor
 	    			JSONObject newAjax = htmlWidget.createJsonModel(ee);
 	                if (newAjax != null) {
 	                	requestContext.addAjaxWidget(htmlWidget.getName(), newAjax);
-	                	if (newAjax.getString("type").equals(Button.class.getSimpleName())) {
-	                    	// all express must be re-calculate when click button in every time.
-	                		//((Button)newAjax).setExpressMap(expMap);
-	                	}
 	                }
 	    		}
 			}

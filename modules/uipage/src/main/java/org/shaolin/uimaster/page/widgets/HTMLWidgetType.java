@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.shaolin.bmdp.datamodel.page.StringPropertyType;
 import org.shaolin.bmdp.datamodel.page.ValidatorPropertyType;
@@ -828,8 +829,29 @@ public abstract class HTMLWidgetType implements Serializable
     	if (!isVisible()) {
     		json.put("visible", false);
     	}
+    	
+    	JSONObject attrJson = null;
+    	if (this.attributeMap != null) {
+    		attrJson = new JSONObject();
+    		// only get value for json model;
+    		if (this.attributeMap.containsKey("value")) {
+    			attrJson.put("value", this.attributeMap.get("value"));
+    		}
+    		if (this.attributeMap.containsKey("values")) {
+    			attrJson.put("values", this.attributeMap.get("values"));
+    		}
+    	}
     	if (UserRequestContext.UserContext.get().hasAttribute(this.getName())) {
-    		JSONObject attrJson = new JSONObject(new HashMap(UserRequestContext.UserContext.get().getAttribute(this.getName())));
+    		if (attrJson == null) {
+    			attrJson = new JSONObject();
+    		}
+    		Map<String, Object> dyanmicValues = UserRequestContext.UserContext.get().getAttribute(this.getName());
+    		Set<Map.Entry<String, Object>> entries = dyanmicValues.entrySet();
+    		for (Map.Entry<String, Object> entry : entries) {
+    			if (entry.getValue() != null) {
+    				attrJson.put(entry.getKey(), entry.getValue());
+    			}
+    		}
     		if (attrJson.has("layout")) {
     			attrJson.remove("layout");
     		}

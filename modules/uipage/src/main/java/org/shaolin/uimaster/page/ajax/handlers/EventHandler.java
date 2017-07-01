@@ -84,10 +84,10 @@ public class EventHandler implements IAjaxHandler {
 			context.setEventSource((Button)w);
 		}
 		if (!w.isVisible()) {
-			return "{'value': 'event source does not have privilege.'}"; 
+			return "{'value': 'event source does not have the privilege.'}"; 
 		}
 		if (w.getAttribute("disabled") != null && "true".equals(w.getAttribute("disabled"))) {
-			return "{'value': 'event source does not have privilege.'}"; 
+			return "{'value': 'event source does not have the privilege.'}"; 
 		}
 		if (log.isDebugEnabled()) {
 			log.debug("executing the function of ajax call: " + actionName);

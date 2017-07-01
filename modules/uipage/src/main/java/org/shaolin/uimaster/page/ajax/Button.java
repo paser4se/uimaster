@@ -19,12 +19,16 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.javacc.context.EvaluationContext;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
+import org.shaolin.uimaster.page.cache.PageCacheManager;
+import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -157,4 +161,15 @@ public class Button extends TextWidget implements Serializable
 		}
     }
 
+    public JSONObject toJSON() throws JSONException {
+    	return super.toJSON();
+    }
+	
+	@SuppressWarnings("unchecked")
+	public void fromJSON(JSONObject json) throws Exception {
+		super.fromJSON(json);
+		String entityName = json.getString("entity");
+		UIFormObject formObject = PageCacheManager.getUIForm(entityName);
+		this.expMap = formObject.getComponentExpression(this.getId());
+	}
 }

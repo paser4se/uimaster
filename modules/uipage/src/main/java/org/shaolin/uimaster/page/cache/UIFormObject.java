@@ -1940,7 +1940,18 @@ public class UIFormObject implements java.io.Serializable
     
     public Map<String, ExpressionType> getComponentExpression(String componentID)
     {
-        return expressionMap.get(componentID);
+    	if (expressionMap.containsKey(componentID)) {
+    		return expressionMap.get(componentID);
+    	} else {
+    		if (componentID.indexOf('.') != -1) {// bug fix.
+    			//remove parent prefix.
+    			String uiid = componentID.substring(componentID.indexOf('.') + 1);
+    			if (expressionMap.containsKey(uiid)) {
+    	    		return expressionMap.get(uiid);
+    	    	} 
+    		}
+    		return null;
+    	}
     }
     
 	public void addWorkflowAction(String eventConsumer, MissionNodeType node, String nodeInfo) throws ParsingException, EntityNotFoundException, UIPageException {

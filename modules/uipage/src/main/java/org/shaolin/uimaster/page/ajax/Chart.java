@@ -222,7 +222,7 @@ public class Chart extends Widget<Chart> implements Serializable {
 	@SuppressWarnings("unchecked")
 	public void fromJSON(JSONObject json) throws Exception {
 		super.fromJSON(json);
-		String entityName = json.getString("entityName");
+		String entityName = json.getString("entity");
 		UIFormObject formObject = PageCacheManager.getUIForm(entityName);
 		Map<String, Object> attributes = formObject.getComponentProperty(this.getId(), true);
 		this.queryExpr = (ExpressionType)attributes.get("queryExpr");

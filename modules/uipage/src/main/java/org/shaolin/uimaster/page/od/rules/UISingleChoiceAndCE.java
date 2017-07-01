@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 public class UISingleChoiceAndCE implements IODMappingConverter {
 	private HTMLSingleChoiceType uisingleChoice;
 	private String uiid;
-	private IConstantEntity ceValue;
+	private IConstantEntity ceValue = IConstantEntity.CONSTANT_DEFAULT;
 	private String ceType;
 	private Integer expendlevels = 1; // expending hierarchy levels of a constant object.
 	private boolean containsNotSpecified = true;
@@ -163,7 +163,7 @@ public class UISingleChoiceAndCE implements IODMappingConverter {
 			if (paramValue.containsKey(UI_WIDGET_ID)) {
 				this.uiid = (String) paramValue.get(UI_WIDGET_ID);
 			}
-			if (paramValue.containsKey("CEValue")) {
+			if (paramValue.containsKey("CEValue") && paramValue.get("CEValue") != null) {
 				if (paramValue.get("CEValue") instanceof IConstantEntity) {
 					this.ceValue = ((IConstantEntity) paramValue.get("CEValue"));
 				} else {
