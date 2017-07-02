@@ -126,6 +126,8 @@ import org.shaolin.uimaster.page.widgets.HTMLWebTreeType;
  */
 abstract public class Widget<T> implements Serializable
 {
+	private static final String AJAX_WIDGET_PACKAGE = "org.shaolin.uimaster.page.ajax.";
+
 	protected final transient Logger logger = Logger.getLogger(this.getClass());
 
     private static final long serialVersionUID = 6011414203344569865L;
@@ -1763,7 +1765,11 @@ abstract public class Widget<T> implements Serializable
     
     public JSONObject toJSON() throws JSONException {
     	JSONObject json = new JSONObject();
-    	json.put("type", this.getClass().getSimpleName());
+    	if (this.getClass().getName().startsWith(AJAX_WIDGET_PACKAGE)) {
+    		json.put("type", this.getClass().getSimpleName());
+    	} else {
+    		json.put("type", this.getClass().getName());
+    	}
     	json.put("entity", this.getUIEntityName());
     	json.put("uiid", this.id);
     	json.put("finfo", this.frameInfo);
@@ -1829,7 +1835,11 @@ abstract public class Widget<T> implements Serializable
     public static Widget<?> covertFromJSON(final JSONObject json) throws Exception {
     	String type = json.getString("type");
 		if (!WIDGET_CLASS.containsKey(type)) {
-    		WIDGET_CLASS.put(type, Class.forName("org.shaolin.uimaster.page.ajax." + type));
+			if (type.indexOf('.') != -1) {//full package class
+				WIDGET_CLASS.put(type, Class.forName(type));
+			} else {
+				WIDGET_CLASS.put(type, Class.forName(AJAX_WIDGET_PACKAGE + type));
+			}
     	} 
 		Widget<?> w = null;
 		if (type.equals(RefForm.class.getSimpleName())) {
@@ -1911,6 +1921,7 @@ abstract public class Widget<T> implements Serializable
     	WIDGET_CLASS.put("Panel", Panel.class);
     	WIDGET_CLASS.put("PreNextPanel", PreNextPanel.class);
     	WIDGET_CLASS.put("RefForm", RefForm.class);
+    	WIDGET_CLASS.put("ModalWindow", ModalWindow.class);
     	WIDGET_CLASS.put("TabPane", TabPane.class);
     	WIDGET_CLASS.put("Empty", Empty.class);
     	WIDGET_CLASS.put("Matrix", Matrix.class);
