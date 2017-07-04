@@ -512,18 +512,14 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
         	try {
 	        	String id = comp.getString("uiid");
 				if (!ajaxWidgetMap.containsKey(id)) {
-	        		try {
-	        			ajaxWidgetMap.put(id, Widget.covertFromJSON(comp));
-					} catch (Exception e) {
-						logger.warn("The ui widget can not be created by " + comp, e);
-					}
+        			ajaxWidgetMap.put(id, Widget.covertFromJSON(comp));
 	        	}
 	        	return ajaxWidgetMap.get(id);
         	} catch (Exception e) {
-        		logger.warn("The ui widget can not be created by " + comp, e);
+        		throw new IllegalArgumentException("The ui widget can not be created by " + comp, e);
         	}
         }
-        return null;
+        throw new IllegalArgumentException("The ui widget can not be created by " + realUiid);
     }
 
     public Widget getElementByAbsoluteId(String absoluteUiid)

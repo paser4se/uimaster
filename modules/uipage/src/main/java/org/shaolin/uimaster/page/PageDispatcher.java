@@ -129,7 +129,8 @@ public class PageDispatcher {
             HTMLWidgetType htmlComponent = null;
             if (parent != null) {
             	try {
-            		htmlComponent = context.getHtmlWidget(context.getHTMLPrefix() + formObject.getBodyName());
+            		//context.getHTMLPrefix() + 
+            		htmlComponent = context.getHtmlWidget(formObject.getBodyName());
             	} catch (UIComponentNotFoundException e) {
             		String formId = parent.getName() + "." + formObject.getBodyName();
             		throw new IllegalStateException("Make sure the od mapping is invoked for this form: " + formId, e);

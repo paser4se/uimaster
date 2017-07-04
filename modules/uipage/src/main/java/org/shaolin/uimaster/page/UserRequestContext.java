@@ -559,19 +559,25 @@ public class UserRequestContext implements Serializable
     	if (currentUIForm == null) {
     		throw new UIComponentNotFoundException("Please set the correspodent UIFormObject for current request context!");
     	}
-    	if (currentUIForm.getComponents().containsKey(uiid)) {
+    	HTMLWidgetType widget = null;
+    	if (currentUIForm.hasHTMLComponent(uiid)) {
     		// page access
-			return currentUIForm.getComponents().get(uiid);
+    		widget = currentUIForm.getHTMLComponent(uiid);
 		} else if (uiid.startsWith(this.getHTMLPrefix())) {
 			// single form access such as new refform.
 			String actualUIID = uiid;
-			// remove the top level only.
-			actualUIID = actualUIID.substring(actualUIID.indexOf('.') + 1); 
-			return currentUIForm.getComponents().get(actualUIID);
-		} else {
+			while (widget == null && actualUIID.indexOf(".") != -1) {
+				// remove the top level only.
+				actualUIID = actualUIID.substring(actualUIID.indexOf('.') + 1); 
+				widget = currentUIForm.getHTMLComponent(actualUIID);
+			}
+		} 
+		
+		if (widget == null) {
 			throw new UIComponentNotFoundException(
-					"the component does not exist in the cache. uiid: " + uiid );
+					"this component does not exist in the cache. uiid: " + uiid );
 		}
+		return widget;
 	}
 
 	public void setFormObject(UIFormObject uiform) {

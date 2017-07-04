@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
@@ -219,6 +218,7 @@ public class Table extends Widget<Table> implements Serializable {
 		return selectedRows;
 	}
 	
+	private HashMap<Long, Object> selectedRowLocalBECache = null;
 	
 	@SuppressWarnings("unchecked")
 	public Object getSelectedRow() {
@@ -227,9 +227,19 @@ public class Table extends Widget<Table> implements Serializable {
 			return null;
 		}
 		if (!listData.isEmpty()) {
+			if (selectedRowLocalBECache == null) {
+				selectedRowLocalBECache = new HashMap<Long, Object>();
+			}
+			
 			Object v = listData.get(conditions.getCurrentSelectedIndex());
 			if (persistObjectClass != null && v.getClass() != persistObjectClass) {
-				return BEEntityDaoObject.DAOOBJECT.get(Long.valueOf(v.toString()), persistObjectClass);
+				Long recordId = (Long)v;
+				if (selectedRowLocalBECache.containsKey(recordId)) {
+					return selectedRowLocalBECache.get(recordId);
+				}
+				Object be = BEEntityDaoObject.DAOOBJECT.get(recordId, persistObjectClass);
+				selectedRowLocalBECache.put(recordId, be);
+				return be;
 			}
 			return v;
 		} 
@@ -560,7 +570,10 @@ public class Table extends Widget<Table> implements Serializable {
 		}
 	}
 	
-	private String refreshPull0(List rows) {
+	private String refreshPull0(final List rows) {
+		if (rows == null || rows.size() == 0) {
+			return "";
+		}
 		try {
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
@@ -573,15 +586,20 @@ public class Table extends Widget<Table> implements Serializable {
 			ooeeContext.setEvaluationContextObject(ODContext.GLOBAL_TAG, evaContext);
 			
 			long totalCount = 0;
-			if (rows != null && rows.size() > 0) {
-				Object firstItem = rows.get(0);
-				if (firstItem instanceof IBusinessEntity) {
-					Object v = ((IBusinessEntity)firstItem).get_extField().get("count");
-					totalCount = (v == null? 0 : (long)v);
-				} else {
-					totalCount = rows.size();
+			List realRows = new ArrayList(rows);
+			for (Object id : rows) {
+				// get records from DB.
+				if (id instanceof Long) {
+					realRows.add(BEEntityDaoObject.DAOOBJECT.get((Long)id, persistObjectClass));
 				}
-			} 
+			}
+			Object firstItem = realRows.get(0);
+			if (firstItem instanceof IBusinessEntity) {
+				Object v = ((IBusinessEntity)firstItem).get_extField().get("count");
+				totalCount = (v == null? 0 : (long)v);
+			} else {
+				totalCount = rows.size();
+			}
 			if (totalCount == 0) {
 				totalCount = rows.size();
 			}
@@ -593,7 +611,7 @@ public class Table extends Widget<Table> implements Serializable {
 	        sb.append(",");
 	        sb.append("\"rows\":[");
 	        int count = 0;
-	        for (Object be : rows) {
+	        for (Object be : realRows) {
 	        	evaContext.setVariableValue("rowBE", be);
 	        	evaContext.setVariableValue("index", count);
         		StringBuilder imageSB = new StringBuilder();
@@ -647,7 +665,7 @@ public class Table extends Widget<Table> implements Serializable {
 	        	
 	        	count++;
 	        }
-	        if (rows.size() > 0) {
+	        if (realRows.size() > 0) {
 	        	sb.deleteCharAt(sb.length()-1);
 	        }
 	        sb.append("]}");
@@ -666,7 +684,10 @@ public class Table extends Widget<Table> implements Serializable {
 	 * After when called addRow,removeRow,removeAll,updateRow, we have to call
 	 * this method refreshing data set.
 	 */
-	private String refreshTable0(List rows) {
+	private String refreshTable0(final List rows) {
+		if (rows == null || rows.size() == 0) {
+			return "";
+		}
 		try {
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
@@ -678,15 +699,21 @@ public class Table extends Widget<Table> implements Serializable {
 			ooeeContext.setEvaluationContextObject(ODContext.GLOBAL_TAG, evaContext);
 			
 			long totalCount = 0;
-			if (rows != null && rows.size() > 0) {
-				Object firstItem = rows.get(0);
-				if (firstItem instanceof IBusinessEntity) {
-					Object v = ((IBusinessEntity)firstItem).get_extField().get("count");
-					totalCount = (v == null? 0 : (long)v);
-				} else {
-					totalCount = rows.size();
+			List realRows = new ArrayList(rows);
+			for (Object id : rows) {
+				// get records from DB.
+				if (id instanceof Long) {
+					realRows.add(BEEntityDaoObject.DAOOBJECT.get((Long)id, persistObjectClass));
 				}
-			} 
+			}
+			
+			Object firstItem = rows.get(0);
+			if (firstItem instanceof IBusinessEntity) {
+				Object v = ((IBusinessEntity)firstItem).get_extField().get("count");
+				totalCount = (v == null? 0 : (long)v);
+			} else {
+				totalCount = rows.size();
+			}
 			
 			StringBuilder sb = DisposableBfString.getBuffer();
 			try {
@@ -701,7 +728,7 @@ public class Table extends Widget<Table> implements Serializable {
 	        sb.append(",");
 	        sb.append("\"data\":[");
 	        int count = 0;
-	        for (Object be : rows) {
+	        for (Object be : realRows) {
 	        	evaContext.setVariableValue("rowBE", be);
 	        	evaContext.setVariableValue("index", count);
 	        	
@@ -733,7 +760,7 @@ public class Table extends Widget<Table> implements Serializable {
 	        	
 	        	count++;
 	        }
-	        if (rows.size() > 0) {
+	        if (realRows.size() > 0) {
 	        	sb.deleteCharAt(sb.length()-1);
 	        }
 	        sb.append("]}");
@@ -857,7 +884,7 @@ public class Table extends Widget<Table> implements Serializable {
 		List<Object> rows = this.getListData();
 		List<Object> persistRows = new ArrayList<Object>(rows.size());
 		for (Object obj : rows) {
-			if (obj instanceof IPersistentEntity) {
+			if (obj instanceof IPersistentEntity && ((IPersistentEntity)obj).getId() > 0) {
 				isPersistentEntity = true;
 				persistRows.add(((IPersistentEntity)obj).getId());
 			} else {
@@ -893,7 +920,7 @@ public class Table extends Widget<Table> implements Serializable {
 		List<Object> rows = this.getListData();
 		List<Object> persistRows = new ArrayList<Object>(rows.size());
 		for (Object obj : rows) {
-			if (obj instanceof IPersistentEntity) {
+			if (obj instanceof IPersistentEntity && ((IPersistentEntity)obj).getId() > 0) {
 				persistRows.add(((IPersistentEntity)obj).getId());
 			} else {
 				persistRows.add(obj);

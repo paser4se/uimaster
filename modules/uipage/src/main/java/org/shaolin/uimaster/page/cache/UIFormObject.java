@@ -1856,7 +1856,7 @@ public class UIFormObject implements java.io.Serializable
     	} else {
     		if (componentID.indexOf('.') != -1) {
     			//remove parent prefix.
-    			String uiid = componentID.substring(componentID.indexOf('.') + 1);
+    			String uiid = componentID.substring(componentID.lastIndexOf('.') + 1);
     			if (attributesMap.containsKey(componentID)) {
     	    		return attributesMap.get(componentID);
     	    	} 
@@ -1872,7 +1872,7 @@ public class UIFormObject implements java.io.Serializable
     	} else {
     		if (componentID.indexOf('.') != -1) {// bug fix.
     			//remove parent prefix.
-    			String uiid = componentID.substring(componentID.indexOf('.') + 1);
+    			String uiid = componentID.substring(componentID.lastIndexOf('.') + 1);
     			if (attributesMap.containsKey(uiid)) {
     	    		return attributesMap.get(uiid);
     	    	} 
@@ -1885,17 +1885,38 @@ public class UIFormObject implements java.io.Serializable
     }
     
     public Map<String, HTMLWidgetType> getComponents() {
-    	if (componentIds == null) {
+    	if (htmlWidgets == null) {
 			logger.warn("Form " + this.name + " is refreshing, please wait.");
     	}
     	return htmlWidgets;
     }
     
-    public HTMLWidgetType getHTMLComponent(String componentID) {
-    	if (componentIds == null) {
+    public boolean hasHTMLComponent(String componentID) {
+    	if (htmlWidgets == null) {
     		logger.warn("Form " + this.name + " is refreshing, please wait.");
     	}
-    	return htmlWidgets.get(componentID);
+    	return htmlWidgets.containsKey(componentID);
+//    	Collection<HTMLWidgetType> values = htmlWidgets.values();
+//    	for (HTMLWidgetType widget : values) {
+//    		if (widget.getName().equals(componentID)) {
+//    			return true;
+//    		}
+//    	}
+//    	return false;
+    }
+    
+    public HTMLWidgetType getHTMLComponent(String componentID) {
+    	if (htmlWidgets == null) {
+    		logger.warn("Form " + this.name + " is refreshing, please wait.");
+    	}
+		return htmlWidgets.get(componentID);
+//    	Collection<HTMLWidgetType> values = htmlWidgets.values();
+//    	for (HTMLWidgetType widget : values) {
+//    		if (widget.getName().equals(componentID)) {
+//    			return widget;
+//    		}
+//    	}
+//    	throw null; 
     }
     
     /**

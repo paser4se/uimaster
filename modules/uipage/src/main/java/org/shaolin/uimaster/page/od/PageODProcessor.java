@@ -141,7 +141,7 @@ public class PageODProcessor
     	    			// so, we can access these value through HTMLWidgetType.getAttribute(name);
     	    			String uiid = requestContext.getHTMLPrefix() + compId;
 						requestContext.addAttribute(uiid, tempMap);
-						HTMLWidgetType htmlWidget = formObject.getComponents().get(uiid);
+						HTMLWidgetType htmlWidget = formObject.getHTMLComponent(uiid);
 						if (htmlWidget.getClass() == HTMLPanelType.class && ((HTMLPanelType)htmlWidget).hasDynamicUI()) {
 				        	String filter = (String)requestContext.getAttribute(htmlWidget.getName(), "dynamicUIFilter");
 				    		if (filter == null)

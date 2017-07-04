@@ -327,7 +327,7 @@ public class TabPane extends Container implements Serializable
     			}
     			String uiid = htmlContext.getHTMLPrefix() + compId;
     			htmlContext.addAttribute(uiid, tempMap);
-				HTMLWidgetType htmlWidget = ownerEntity.getComponents().get(compId);
+				HTMLWidgetType htmlWidget = ownerEntity.getHTMLComponent(compId);
 				if (htmlWidget.getClass() == HTMLPanelType.class && ((HTMLPanelType)htmlWidget).hasDynamicUI()) {
 		        	String filter = (String)htmlContext.getAttribute(htmlWidget.getName(), "dynamicUIFilter");
 		    		if (filter == null)

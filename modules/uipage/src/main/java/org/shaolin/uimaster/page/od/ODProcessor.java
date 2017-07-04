@@ -25,7 +25,6 @@ import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.UserRequestContext;
-import org.shaolin.uimaster.page.ajax.Button;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.exception.ODEntityProcessException;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
@@ -110,7 +109,7 @@ public class ODProcessor
 	    			// so, we can access these value through HTMLWidgetType.getAttribute(name);
 	    			String uiid = requestContext.getHTMLPrefix() + compId;
 					requestContext.addAttribute(uiid, tempMap);
-					HTMLWidgetType htmlWidget = formObject.getComponents().get(compId);
+					HTMLWidgetType htmlWidget = formObject.getHTMLComponent(compId);
 					if (htmlWidget.getClass() == HTMLPanelType.class && ((HTMLPanelType)htmlWidget).hasDynamicUI()) {
 			        	String filter = (String)requestContext.getAttribute(htmlWidget.getName(), "dynamicUIFilter");
 			    		if (filter == null)
