@@ -1297,6 +1297,11 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 				out.write(".ENTITY_NAME, json.getInt(\"");
 				out.print(member.getName());
 				out.write("\"));");
+				out.write("\n        this.");
+				out.print(member.getName());
+				out.write("Int = json.getInt(\"");
+				out.print(member.getName());
+				out.write("\");");
 			} else if (member.getType().getClass() == JavaObjRefType.class) {
 				TargetJavaType targetJava = ((JavaObjRefType) member.getType())
 						.getTargetJava();
