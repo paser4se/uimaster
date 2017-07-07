@@ -155,33 +155,29 @@ public class AjaxProcessor implements Serializable
 					htmlContext.setCurrentFormInfo(requestData.getEntityName(), "", "");
 				}
                 Map<String, JSONObject> uiMap = AjaxContextHelper.getFrameMap(request);
-                JSONObject comp = uiMap.get(requestData.getUiid());
-                if (comp == null)
-                    throw new AjaxInitializedException("Can not find this component["
-                            + requestData.getUiid() + "] in the UI map!");
-                if (!comp.has("entity"))
-                {
-                	JSONObject entityComp = (JSONObject)uiMap.get(requestData.getEntityUiid());
-                    if (entityComp == null) {
-                        entityComp = (JSONObject)uiMap.get("Form");
-                    }
-                    comp.put("entity", entityComp.getString("entity"));
+                if (requestData.getEntityName() == null || requestData.getEntityName().trim().length() == 0) {
+                	throw new AjaxException(eventType + " event does not specified the page name!");
                 }
-                String entityName = comp.getString("entity");
-                if (EVENT_TYPE_FUNCTION.equals(eventType))
-                {
-                    entityName = requestData.getEntityName();
-                }
-                requestData.setEntityName(entityName);
-                context = new AjaxContext(uiMap,requestData);
+//              Don't check the event source here.
+//                JSONObject comp = uiMap.get(requestData.getUiid());
+//                if (comp == null)
+//                    throw new AjaxInitializedException("Can not find this component["
+//                            + requestData.getUiid() + "] in the UI map!");
+//                if (!comp.has("entity"))
+//                {
+//                	JSONObject entityComp = (JSONObject)uiMap.get(requestData.getEntityUiid());
+//                    if (entityComp == null) {
+//                        entityComp = (JSONObject)uiMap.get("Form");
+//                    }
+//                    comp.put("entity", entityComp.getString("entity"));
+//                }
+//                String entityName = comp.getString("entity");
+//                entityName = requestData.getEntityName();
+//                requestData.setEntityName(entityName);
+                context = new AjaxContext(uiMap, requestData);
                 context.initData();
             }
             return context;
-        }
-        catch (JSONException e)
-        {
-            throw new AjaxInitializedException("Fail to load uiid[" + requestData.getUiid()
-                    + "], exception cause: " + e.getMessage());
         }
         catch (EvaluationException e)
         {

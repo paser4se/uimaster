@@ -1805,7 +1805,7 @@ abstract public class Widget<T> implements Serializable
     		this.attributeMap = items.toMap();
     		
     		if (attributeMap.containsKey("secure")) {
-    			isSecure = Boolean.valueOf(attributeMap.get("secure").toString());
+    			this.isSecure = Boolean.valueOf(attributeMap.get("secure").toString());
         	}
     	}
     	if (json.has("styleMap")) {

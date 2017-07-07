@@ -15,7 +15,6 @@
 */
 package org.shaolin.uimaster.page.widgets;
 
-import java.io.Serializable;
 import java.util.List;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
@@ -32,8 +31,6 @@ import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.WebConfig;
-import org.shaolin.uimaster.page.ajax.Chart;
-import org.shaolin.uimaster.page.ajax.Layout;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.UIVariableUtil;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;

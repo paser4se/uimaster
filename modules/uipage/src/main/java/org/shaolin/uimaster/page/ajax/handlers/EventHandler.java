@@ -35,7 +35,8 @@ import org.shaolin.uimaster.page.ajax.Dialog;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
 import org.shaolin.uimaster.page.cache.UIFormObject;
-import org.shaolin.uimaster.page.cache.UIPageObject;
+import org.shaolin.uimaster.page.widgets.HTMLButtonType;
+import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 
 public class EventHandler implements IAjaxHandler {
 	private static Class<?> WF_PROCESSOR = null;
@@ -74,12 +75,30 @@ public class EventHandler implements IAjaxHandler {
 	
 	public String trigger0(AjaxContext context, String actionName)
 			throws Exception {
-		Widget w = context.getElement(context.getRequestData().getUiid());
+		UIFormObject currentUIForm = PageCacheManager.getUIForm(context.getEntityName());
+		String eventSourceId = context.getRequestData().getUiid();
+		Widget w = context.getEventSource(eventSourceId);
 		if (w == null) {
-			Dialog.showMessageDialog("\u4E8B\u4EF6\u6E90\u4E0D\u5B58\u5728\uFF01", "", Dialog.WARNING_MESSAGE, null);
-			return context.getDataAsJSON();
+			// the event source could not be found from session 
+			// if it's Button, Link, Panel and any unbind session widgets.
+			HTMLWidgetType htmlWidget = null;
+			if (eventSourceId.indexOf('.') != -1) {
+				htmlWidget = currentUIForm.getHTMLComponent(eventSourceId.substring(eventSourceId.lastIndexOf('.') + 1));
+			} else {
+				htmlWidget = currentUIForm.getHTMLComponent(eventSourceId);
+			}
+			if (htmlWidget == null) {
+				Dialog.showMessageDialog("\u4E8B\u4EF6\u6E90\u4E0D\u5B58\u5728\uFF01", "", Dialog.WARNING_MESSAGE, null);
+				return context.getDataAsJSON();
+			} else {
+				// the event source object is temporary on request scope now.
+				if (htmlWidget instanceof HTMLButtonType) {
+					w = Widget.covertFromJSON(((HTMLButtonType)htmlWidget).createJsonEventSource());
+				} else{
+					w = Widget.covertFromJSON(htmlWidget.createJsonModel(null));
+				}
+			}
 		}
-		//TODO: prevent duplication click.
 		if (w.getClass() == Button.class) {
 			context.setEventSource((Button)w);
 		}
@@ -93,15 +112,8 @@ public class EventHandler implements IAjaxHandler {
 			log.debug("executing the function of ajax call: " + actionName);
 		}
 		try {
-		List<OpType> ops = null;
+		List<OpType> ops = currentUIForm.getEventHandler(actionName);
 		Object value = null;
-		if (PageCacheManager.isUIPage(context.getEntityName())) {
-			UIPageObject uipage = PageCacheManager.getUIPageObject(context.getEntityName());
-			ops = uipage.getUIForm().getEventHandler(actionName);
-		} else {
-			UIFormObject uiEntity = PageCacheManager.getUIFormObject(context.getEntityName());
-			ops = uiEntity.getEventHandler(actionName);
-		}
 		if (ops == null) {
 			Dialog.showMessageDialog("\u5F53\u524D\u4E8B\u4EF6\u5F02\u5E38\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\uFF01", "", Dialog.WARNING_MESSAGE, null);
 			log.warn("The action name " + actionName + " can't be found from current page!");

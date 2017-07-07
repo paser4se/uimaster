@@ -32,6 +32,7 @@ import org.shaolin.bmdp.i18n.ResourceUtil;
 import org.shaolin.bmdp.json.JSONException;
 import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.html.layout.IUISkin;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.WebConfig;
@@ -187,7 +188,8 @@ public abstract class HTMLWidgetType implements Serializable
     {
     	Object v = null;
     	String uiid = this.getName();
-		if (UserRequestContext.UserContext.get().hasAttribute(uiid)) {
+		if (UserRequestContext.UserContext.get() != null 
+				&& UserRequestContext.UserContext.get().hasAttribute(uiid)) {
     		v = UserRequestContext.UserContext.get().getAttribute(uiid).get(name);
     	}
     	if (v != null) {
@@ -199,7 +201,8 @@ public abstract class HTMLWidgetType implements Serializable
     public Object removeAttribute(String name)
     {
     	String uiid = this.getName();
-    	if (UserRequestContext.UserContext.get().hasAttribute(uiid)) {
+    	if (UserRequestContext.UserContext.get() != null 
+				&& UserRequestContext.UserContext.get().hasAttribute(uiid)) {
     		Object v = UserRequestContext.UserContext.get().getAttribute(uiid).remove(name);
     		if (v != null) {
     			return v;
@@ -212,7 +215,8 @@ public abstract class HTMLWidgetType implements Serializable
     public boolean containsAttribute(String name)
     {
     	String uiid = this.getName();
-		if (UserRequestContext.UserContext.get().hasAttribute(uiid)) {
+		if (UserRequestContext.UserContext.get() != null 
+				&& UserRequestContext.UserContext.get().hasAttribute(uiid)) {
 			return true;
 		}
     	return attributeMap == null ? false : attributeMap.containsKey(name);
@@ -227,7 +231,8 @@ public abstract class HTMLWidgetType implements Serializable
     {
     	String v = null;
     	String uiid = this.getName();
-		if (UserRequestContext.UserContext.get().hasAttribute(uiid)) {
+		if (UserRequestContext.UserContext.get() != null 
+				&& UserRequestContext.UserContext.get().hasAttribute(uiid)) {
     		v = UserRequestContext.UserContext.get().getStyle(uiid, name);
     	}
 		return v;
@@ -821,7 +826,11 @@ public abstract class HTMLWidgetType implements Serializable
     	json.put("type", Widget.mappingAjaxWidgetName(this.getClass()));
     	json.put("entity", this.getUIEntityName());
     	json.put("uiid", this.getName());
-    	json.put("finfo", UserRequestContext.UserContext.get().getFrameInfo());
+    	if (UserRequestContext.UserContext.get() != null) {
+    		json.put("finfo", UserRequestContext.UserContext.get().getFrameInfo());
+    	} else if (AjaxContextHelper.getAjaxContext() != null){
+    		json.put("finfo", AjaxContextHelper.getAjaxContext().getFrameId());
+    	}
     	Boolean readOnly = isReadOnly();
     	if (readOnly != null && readOnly.booleanValue()) {
     		json.put("readOnly", true);
@@ -841,7 +850,8 @@ public abstract class HTMLWidgetType implements Serializable
     			attrJson.put("values", this.attributeMap.get("values"));
     		}
     	}
-    	if (UserRequestContext.UserContext.get().hasAttribute(this.getName())) {
+    	if (UserRequestContext.UserContext.get() != null 
+    			&& UserRequestContext.UserContext.get().hasAttribute(this.getName())) {
     		if (attrJson == null) {
     			attrJson = new JSONObject();
     		}
@@ -863,7 +873,8 @@ public abstract class HTMLWidgetType implements Serializable
     		}
     		json.put("attrMap", attrJson);
     	}
-    	if (UserRequestContext.UserContext.get().hasStyle(this.getName())) {
+    	if (UserRequestContext.UserContext.get() != null 
+    			&& UserRequestContext.UserContext.get().hasStyle(this.getName())) {
     		json.put("styleMap", new JSONObject(new HashMap(UserRequestContext.UserContext.get().getStyle(this.getName()))));
     	}
     	return json;

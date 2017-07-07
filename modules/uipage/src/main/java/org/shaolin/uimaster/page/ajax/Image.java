@@ -333,6 +333,16 @@ public class Image extends TextWidget implements Serializable
 		this.selectedImageExpr = selectedImageExpr;
 	}
 	
+	public void toJSON(JSONObject json) throws JSONException {
+    	if (this.src != null) {
+    		json.put("src", this.src);
+    	}
+    	json.put("isgallery", this.isgallery);
+    	if (this.selectedImage != null) {
+    		json.put("selectedImage", this.selectedImage);
+    	}
+    }
+	
 	public JSONObject toJSON() throws JSONException {
     	JSONObject json = super.toJSON();
     	if (this.src != null) {
@@ -348,7 +358,7 @@ public class Image extends TextWidget implements Serializable
     public void fromJSON(JSONObject json) throws Exception {
     	super.fromJSON(json);
     	this.src = json.has("src") ? json.getString("src") : null;
-    	this.isgallery = json.getBoolean("isgallery");
+    	this.isgallery = json.has("isgallery") ? json.getBoolean("isgallery") : false;
     	this.selectedImage = json.has("selectedImage") ? json.getString("selectedImage") : null;
     	
     	String entityName = json.getString("entity");

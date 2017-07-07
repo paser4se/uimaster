@@ -5,17 +5,15 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.json.JSONException;
 import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.uimaster.page.DisposableBfString;
-import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.HTMLUtil;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.ajax.Image;
 import org.shaolin.uimaster.page.ajax.Layout;
-import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.slf4j.Logger;
@@ -184,26 +182,27 @@ public class HTMLImageType extends HTMLTextWidgetType
             	return null;
             }
     	}
-//		
-//		Image image = new Image(getName(), Layout.NULL);
-//
-//		image.setReadOnly(isReadOnly());
-//		image.setUIEntityName(getUIEntityName());
-//
-//		if (getValue() != null && !"".equals(getValue())) {
-//			image.setSrc(getValue());
-//		} else {
-//			image.setSrc((String) getAttribute("src"));
-//		}
-//		image.setIsGallery(hasGallery);
-//		image.setListened(true);
-//
+		
+		Image image = new Image(getName(), Layout.NULL);
+
+		image.setReadOnly(isReadOnly());
+		image.setUIEntityName(getUIEntityName());
+
+		if (getValue() != null && !"".equals(getValue())) {
+			image.setSrc(getValue());
+		} else {
+			image.setSrc((String) getAttribute("src"));
+		}
+		image.setIsGallery(hasGallery);
+		image.setListened(true);
+
 //		Object expr = this.removeAttribute("selectedImageExpr");
 //		if (expr != null) {
 //			image.setSelectedImageExpr((ExpressionType)expr);
 //		}
-		
-    	return super.createJsonModel(ee);
+		JSONObject json = super.createJsonModel(ee);
+		image.toJSON(json);
+		return json;
 	}
 	
 	public static String generateSimple(HttpServletRequest request, String srcs, int width, int height) {

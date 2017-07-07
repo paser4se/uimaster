@@ -88,6 +88,9 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
      */
     public static final String AJAX_USER_EVENT = "_ajaxUserEvent";
 
+    /**
+     * the event source.
+     */
     public static final String AJAX_UIID = "_uiid";
 
     public static final String AJAX_DATA = "_data";
@@ -480,6 +483,37 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
 		return ajaxJsonMap.containsKey(absoluteUiid);
     }
 
+    public Widget getEventSource(String uiid)
+    {
+    	if (uiid == null) {
+    		throw new IllegalArgumentException("The ui widget id can be null.");
+    	}
+    	String realUiid = uiid;
+    	if (!uiid.equals(this.getEntityUiid())) {
+    		if (this.entityPrefix != null && !this.entityPrefix.isEmpty()) {
+    			if (!uiid.startsWith(this.entityPrefix)) {
+    				realUiid = this.entityPrefix + uiid;
+    			}
+    		}
+    	}
+        JSONObject comp = ajaxJsonMap.get(realUiid);
+        if (comp == null) {
+            comp = ajaxJsonMap.get(uiid);
+        }
+        if (comp != null) {
+        	try {
+	        	String id = comp.getString("uiid");
+				if (!ajaxWidgetMap.containsKey(id)) {
+        			ajaxWidgetMap.put(id, Widget.covertFromJSON(comp));
+	        	}
+	        	return ajaxWidgetMap.get(id);
+        	} catch (Exception e) {
+        		throw new IllegalArgumentException("The ui widget can not be created by " + comp, e);
+        	}
+        }
+        return null;
+    }
+    
     /**
      * get element by id.
      * 

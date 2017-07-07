@@ -69,11 +69,19 @@ public class TableEventHandler implements IAjaxHandler {
 				}
 			}
 			UserContext.getUserContext().setPullAction("filter");
-			return comp.refresh0();
+			try {
+				return comp.refresh0();
+			} finally {
+				try {
+					context.getDataAsJSON();
+				} catch (Exception e) {
+					throw new AjaxHandlerException(e.getMessage(), e);
+				}
+			}
 		} else if (actionName.endsWith("chart")) {
 			comp.showStatistic();
 			try {
-				return AjaxContextHelper.getAjaxContext().getDataAsJSON();
+				return context.getDataAsJSON();
 			} catch (Exception e) {
 				throw new AjaxHandlerException(e.getMessage(), e);
 			}

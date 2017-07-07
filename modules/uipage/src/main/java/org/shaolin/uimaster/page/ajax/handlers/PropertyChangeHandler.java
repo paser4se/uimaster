@@ -49,6 +49,11 @@ public class PropertyChangeHandler implements IAjaxHandler {
 						+ ",newValue: "
 						+ context.getRequest().getParameter("_value"));
 			}
+			try {
+				context.getDataAsJSON();
+			} catch (Exception e) {
+				throw new AjaxHandlerException(e.getMessage(), e);
+			}
 		} finally {
 			AjaxContextHelper.removeAjaxContext();
 		}
