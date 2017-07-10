@@ -154,10 +154,6 @@ public class AjaxProcessor implements Serializable
 				} else {
 					htmlContext.setCurrentFormInfo(requestData.getEntityName(), "", "");
 				}
-                Map<String, JSONObject> uiMap = AjaxContextHelper.getFrameMap(request);
-                if (requestData.getEntityName() == null || requestData.getEntityName().trim().length() == 0) {
-                	throw new AjaxException(eventType + " event does not specified the page name!");
-                }
 //              Don't check the event source here.
 //                JSONObject comp = uiMap.get(requestData.getUiid());
 //                if (comp == null)
@@ -174,6 +170,7 @@ public class AjaxProcessor implements Serializable
 //                String entityName = comp.getString("entity");
 //                entityName = requestData.getEntityName();
 //                requestData.setEntityName(entityName);
+				Map<String, JSONObject> uiMap = AjaxContextHelper.getFrameMap(request);
                 context = new AjaxContext(uiMap, requestData);
                 context.initData();
             }

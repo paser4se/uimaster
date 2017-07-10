@@ -66,6 +66,8 @@ public class EventHandler implements IAjaxHandler {
 			}
 			context.getRequest().getSession().setAttribute(UI_INACTION_FLAG, "true");
 			return trigger0(context, actionName);
+		} catch (AjaxHandlerException e1) {
+			throw e1;
 		} catch (Exception e) {
 			throw new AjaxHandlerException(e.getMessage(), e);
 		} finally {
@@ -75,6 +77,9 @@ public class EventHandler implements IAjaxHandler {
 	
 	public String trigger0(AjaxContext context, String actionName)
 			throws Exception {
+		if (context.getEntityName() == null || context.getEntityName().trim().length() == 0) {
+        	throw new AjaxHandlerException(actionName + " event does not specified the page name!");
+        }
 		UIFormObject currentUIForm = PageCacheManager.getUIForm(context.getEntityName());
 		String eventSourceId = context.getRequestData().getUiid();
 		Widget w = context.getEventSource(eventSourceId);
