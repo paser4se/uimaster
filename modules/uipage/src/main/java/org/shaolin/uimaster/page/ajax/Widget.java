@@ -136,7 +136,7 @@ abstract public class Widget<T> implements Serializable
 
     private Boolean readOnly;
 
-    private String UIEntityName;
+    private String formName;
 
     private String frameInfo = "";
     
@@ -364,14 +364,14 @@ abstract public class Widget<T> implements Serializable
         return this.editPermissions;
     }
 
-    public void setUIEntityName(String uIEntityName)
+    public void setUIEntityName(String formName)
     {
-        UIEntityName = uIEntityName;
+        this.formName = formName;
     }
 
     public String getUIEntityName()
     {
-        return UIEntityName;
+        return formName;
     }
 
     public String getFrameInfo()
@@ -1792,6 +1792,7 @@ abstract public class Widget<T> implements Serializable
     }
     
     public void fromJSON(JSONObject json) throws Exception {
+    	this.id = json.getString("uiid");
     	this.setUIEntityName(json.getString("entity"));
     	this.frameInfo = json.getString("finfo");
     	if (json.has("readOnly")) {

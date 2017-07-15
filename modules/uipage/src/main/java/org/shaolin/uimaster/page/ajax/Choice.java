@@ -260,6 +260,7 @@ abstract public class Choice<T> extends Widget<T>
 	public void fromJSON(JSONObject json) throws Exception {
 		super.fromJSON(json);
 		if (json.has("ce")) {
+			this.ceName = json.getString("ce");
 			this.expendlevels = json.getInt("expLevel");
 			if (this.expendlevels <= 1) {
 				//set the optValues and Display Values from CE

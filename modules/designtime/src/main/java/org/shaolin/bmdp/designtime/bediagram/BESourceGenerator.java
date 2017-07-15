@@ -524,7 +524,14 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 				out.write(" get");
 				out.print(beanName);
 				out.write("();\n");
-
+//				if (attrType instanceof BEObjRefType) {
+//					out.write("\n     public ");
+//					TargetEntityType be = ((BEObjRefType) attrType).getTargetEntity();
+//					out.print(getBEInterfaceClassName(be.getEntityName()));
+//					out.write(" get");
+//					out.print(beanName);
+//					out.write("();\n");
+//				}
 			}
 		}
 	}
@@ -548,6 +555,16 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 				out.write(" ");
 				out.print(attrName);
 				out.write(");\n");
+				if (attrType instanceof BEObjRefType) {
+					out.write("\n    public void set");
+					out.print(beanName);
+					out.write("(");
+					TargetEntityType be = ((BEObjRefType) attrType).getTargetEntity();
+					out.print(getBEInterfaceClassName(be.getEntityName()));
+					out.write(" ");
+					out.print(attrName);
+					out.write(");\n");
+				}
 			}
 		}
 	}
@@ -713,7 +730,16 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 				out.write("() {\n        return ");
 				out.print(attrName);
 				out.write(";\n    }\n");
-				
+//				if (attrType instanceof BEObjRefType) {
+//					out.write("\n     public ");
+//					TargetEntityType be = ((BEObjRefType) attrType).getTargetEntity();
+//					out.print(getBEInterfaceClassName(be.getEntityName()));
+//					out.write(" get");
+//					out.print(beanName);
+//					out.write("() {\n        return ");
+//					out.print(attrName);
+//					out.write(";\n    }\n");
+//				}
 				if (member.getType() instanceof CEObjRefType)  {
 					String intAttrName = attrName + "Int";
 					out.write("\n    /**\n     *  get ");
@@ -905,6 +931,23 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 					out.write("IntValues = CEUtil.parseCEIntValues2String("+attrName+");\n");
 				}
 				out.write("    }\n");
+				if (attrType instanceof BEObjRefType) {
+					out.write("\n    public void set");
+					out.print(beanName);
+					out.write("(");
+					TargetEntityType be = ((BEObjRefType) attrType).getTargetEntity();
+					out.print(getBEInterfaceClassName(be.getEntityName()));
+					out.write(" ");
+					out.print(attrName);
+					out.write(") {");
+					
+					out.write("\n        this.");
+					out.print(attrName);
+					out.write(" = ("+getBEImplementClassName(be.getEntityName())+")");
+					out.print(attrName);
+					out.write(";\n");
+					out.write("    }\n");
+				}
 
 				if (member.getType() instanceof CEObjRefType)  {
 					String intAttrName = attrName + "Int";
@@ -1660,7 +1703,7 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 				TargetEntityType be = ((BEObjRefType) dataType)
 						.getTargetEntity();
 				if (be != null) {
-					//due to hibernate engine needs the concrete class mapping.
+					//FIXED: due to hibernate engine needs the concrete class mapping.
 					//the interface won't work for that mapping. so, we decide 
 					//always return the implementation class.
 //					if (isPersistent) {

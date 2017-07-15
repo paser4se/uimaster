@@ -2,10 +2,13 @@ package org.shaolin.uimaster.page.flow;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -15,6 +18,7 @@ import javax.servlet.http.HttpSession;
 
 import org.shaolin.bmdp.utils.SerializeUtil;
 import org.shaolin.bmdp.utils.StringUtil;
+import org.shaolin.uimaster.page.AjaxContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,12 +59,18 @@ public class SessionObjectServlet extends HttpServlet {
 		Enumeration<String> names = session.getAttributeNames();
 		while (names.hasMoreElements()) {
 			String name = names.nextElement();
+			if (name.equals(AjaxContext.AJAX_COMP_MAP)) {
+				continue;
+			}
 			try {
 				digObjects(sb, name, session.getAttribute(name));
 			} catch (Throwable e) {
 				logger.warn("Unable to show data of item: " + name, e);
 			}
 		}
+		sb.append("<div><br/><span>UI Ajax Widgets</span>");
+		digObjects(sb, AjaxContext.AJAX_COMP_MAP, session.getAttribute(AjaxContext.AJAX_COMP_MAP));
+		sb.append("</div>");
 		
 		names = session.getAttributeNames();
 		while (names.hasMoreElements()) {
@@ -88,7 +98,7 @@ public class SessionObjectServlet extends HttpServlet {
 	private void digObjects(StringBuffer sb, Object attrName, Object obj) {
 		if (obj instanceof Map) {
 			sb.append("<ul>").append(attrName).append(" Map Elements: ");
-			Set<Map.Entry> entries = ((Map)obj).entrySet();
+			Set<Map.Entry> entries = new TreeMap(((Map)obj)).entrySet();
 			for (Map.Entry e : entries) {
 				if (!(obj instanceof Map || obj instanceof List)) {
 					sb.append("<li>");
@@ -103,6 +113,11 @@ public class SessionObjectServlet extends HttpServlet {
 		} else if (obj instanceof List) {
 			sb.append("<ul>").append(attrName).append(" List Elements: ");
 			List elements = ((List)obj);
+			Collections.sort(elements,new Comparator(){  
+	            public int compare(Object arg0, Object arg1) {  
+	                return (arg0.hashCode() > arg1.hashCode()) ? 1 : -1;  
+	            }  
+	        });  
 			for (Object e : elements) {
 				if (obj instanceof Map || obj instanceof List) {
 					digObjects(sb, "list internal element", e);

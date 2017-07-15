@@ -38,7 +38,7 @@ public class UISingleChoiceAndCE implements IODMappingConverter {
 	private String uiid;
 	private IConstantEntity ceValue = IConstantEntity.CONSTANT_DEFAULT;
 	private String ceType;
-	private Integer expendlevels = 1; // expending hierarchy levels of a constant object.
+	private Integer expendlevels = 0; // expending hierarchy levels of a constant object.
 	private boolean containsNotSpecified = true;
 	private List excludeValue;
 	private String notSpecifiedDisplayValue;
@@ -232,7 +232,7 @@ public class UISingleChoiceAndCE implements IODMappingConverter {
 			if (this.ceValue != null) {
 				this.uisingleChoice.setValue(String.valueOf(this.ceValue.getIntValue()));
 			}
-			if (this.expendlevels <= 1) {
+			if (this.expendlevels < 1) {
 				callChoiceOptionWithCE(true, htmlContext);
 			} else {
 				List<String> optionValues = new ArrayList<String>();

@@ -37,7 +37,7 @@ public class UIMultipleChoiceAndCE implements IODMappingConverter {
 	private String uiid;
 	private List<IConstantEntity> ceValues;
 	private String ceType;
-	private Integer expendlevels = 1; // expending hierarchy levels of a constant object.
+	private Integer expendlevels = 0; // expending hierarchy levels of a constant object.
 	private boolean containsNotSpecified = true;
 	private List excludeValue;
 	private String notSpecifiedDisplayValue;
@@ -168,7 +168,7 @@ public class UIMultipleChoiceAndCE implements IODMappingConverter {
 			if (paramValue.containsKey("CEType")) {
 				this.ceType = ((String) paramValue.get("CEType"));
 			}
-			if (paramValue.containsKey("CEValues")) {
+			if (paramValue.get("CEValues") != null) {
 				this.ceValues = ((List) paramValue.get("CEValues"));
 			}
 			if (paramValue.containsKey("Expendlevels")) {
@@ -224,7 +224,7 @@ public class UIMultipleChoiceAndCE implements IODMappingConverter {
 				}
 				this.uiMultipleChoice.setValues(values);
 			}
-			if (this.expendlevels <= 1) {
+			if (this.expendlevels < 1) {
 				callChoiceOptionWithCE(true, htmlContext);
 			} else {
 				List<String> optionValues = new ArrayList<String>();
