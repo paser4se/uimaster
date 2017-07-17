@@ -153,8 +153,8 @@ public class HibernateMappingGenerator implements IEntityEventListener<TableType
 						// Specifying unique="true", changes the multiplicity from many-to-many to one-to-many.
 						String targetBEClass =  BEUtil.getBEImplementClassName(listMapping.getCollectionElement());
 						JoinTableType joinTable = getJoinTable(diagram, listMapping.getAssociationName());
-						out.write("    <list name=\"");
-						out.print(listMapping.getBeFieldName());
+						out.write("    <set name=\"");
+						out.print(joinTable.getSrcCollection());
 						out.write("\" table=\"");
 						out.print(joinTable.getName());
 						//cascade="all|none|save-update|delete|all-delete-orphan|(6)delete-orphan"
@@ -162,13 +162,14 @@ public class HibernateMappingGenerator implements IEntityEventListener<TableType
 						//TODO: cascading decision is difficult here.
 						out.write("\" cascade=\"all-delete-orphan\" lazy=\"true\" fetch=\"select\">\n");
 						out.write("        <key column=\"");
-						out.print(joinTable.getTarPKColumn());
+						out.print(joinTable.getSrcPKColumn());
 						out.write("\"/>\n");
-						out.write("        <index column=\"_index\"/>\n");
-						out.write("        <many-to-many unique=\"true\" class=\"");
+						out.write("        <many-to-many column=\"");
+						out.print(joinTable.getTarPKColumn());
+						out.write("\" unique=\"true\" class=\"");
 						out.print(targetBEClass);
 						out.write("\"/>\n");
-						out.write("    </list>\n");
+						out.write("    </set>\n");
 					} else if ("Many-to-Many".equals(listMapping.getMappingType())) {
 						String targetBEClass =  BEUtil.getBEImplementClassName(listMapping.getCollectionElement());
 						JoinTableType joinTable = getJoinTable(diagram, listMapping.getAssociationName());

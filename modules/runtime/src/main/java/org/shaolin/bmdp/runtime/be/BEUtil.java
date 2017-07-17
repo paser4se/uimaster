@@ -2,7 +2,9 @@ package org.shaolin.bmdp.runtime.be;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.shaolin.bmdp.datamodel.bediagram.BEListType;
 import org.shaolin.bmdp.datamodel.bediagram.BEMapType;
@@ -416,6 +418,32 @@ public class BEUtil {
 			return null;
 		}
 		List<T> result = new ArrayList<T>();
+		for (int i=0; i<json.length(); i++) {
+			try {
+				if (json.get(i) instanceof JSONObject) {
+					IBusinessEntity be = (IBusinessEntity)implClass.newInstance();
+					be.fromJSON(json.getJSONObject(i));
+					result.add((T)be);
+				} else {
+					result.add((T)json.get(i));
+				}
+			} catch (Exception e) {
+				if (e instanceof JSONException) {
+					throw (JSONException)e;
+				} else {
+					throw new JSONException(e);
+				}
+			} 
+		}
+		return result;
+	}
+	
+	public static <T> Set<T> convertToSet(Class<T> interClass, Class<? extends IBusinessEntity> implClass, 
+			JSONArray json) throws JSONException {
+		if (json == null || "null".equals(json)) {
+			return null;
+		}
+		Set<T> result = new HashSet<T>();
 		for (int i=0; i<json.length(); i++) {
 			try {
 				if (json.get(i) instanceof JSONObject) {

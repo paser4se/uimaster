@@ -280,7 +280,7 @@ flush privileges;
         pkCol.setPrecision(38);
         pkCol.setIsNull(false);
         ColumnType elt = new ColumnType();
-        elt.setName("ELT");
+        elt.setName("ELT");// collection/many.
         elt.setType("BIGINT");
         elt.setPrecision(38);
         elt.setIsNull(false);

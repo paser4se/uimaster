@@ -31,6 +31,7 @@
 		<xs:attribute name="name" type="xs:string" use="required"/>
 		<xs:attribute name="srcTable" type="xs:string" use="required"/>
 		<xs:attribute name="srcPKColumn" type="xs:string" use="required"/>
+		<xs:attribute name="srcCollection" type="xs:string" use="required"/>
 		<xs:attribute name="tarTable" type="xs:string" use="required"/>
 		<xs:attribute name="tarPKColumn" type="xs:string" use="required"/>
 	</xs:complexType>
