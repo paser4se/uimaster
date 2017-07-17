@@ -1,0 +1,13 @@
+server:
+  port: 8700
+spring:
+  application:
+    name: uimaster-service    # 项目名称尽量用小写
+  profiles:
+    active: uimaster-service
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${CONFIG_SERVER_URL:http://localhost:8761/eureka}
+  instance:
+    preferIpAddress: true
