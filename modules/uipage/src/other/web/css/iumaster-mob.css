@@ -49,6 +49,11 @@
     cursor: pointer;
 }
 
+.uimaster_link {
+	text-decoration: underline;
+    color: blue;
+}
+
 .uimaster_dynamicitem_leftform_cell {
 }
 .uimaster_dynamicitem_rightform_cell {

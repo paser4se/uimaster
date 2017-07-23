@@ -37,8 +37,8 @@ app.locals.email = '';
 var https = require('https');
 var fs = require('fs');
 var bodyParser = require('body-parser');
-var multer = require('multer'); // v1.0.5
-var upload = multer(); // for parsing multipart/form-data
+var frouter = express.Router();
+var multer  = require('multer');
 
 var caOptions = {
     key: fs.readFileSync('/opt/uimaster/apache-tomcat-8.0.9/conf/aliyu/vogerp.key'),
@@ -220,10 +220,14 @@ io.on('connection', function(socket){
 		    }
 			if(!onlineUsers.hasOwnProperty(obj.toPartyId)) { 
 			   // leave a word.
-	           var desc = "<div><span>"+obj.content+"</span><button onclick=\"javascript:defaultname.showHelp(defaultname.helpIcon,'"+obj.fromPartyId+"','"+obj.sessionId+"');\">\u9A6C\u4E0A\u8054\u7CFB</button></div>";
-	           var msg = {"subject": "\u60A8\u6709\u65B0\u7684\u6D88\u606F!", "description": desc, "partyId": obj.toPartyId, "sessionid": obj.sessionId};
+			   var hint = obj.content;
+			   if(obj.content.indexOf("[/audio]:") != -1) {
+				   hint = "\u8BED\u97F3\u7559\u8A00";
+			   }
+	           var desc = "<div><span>"+hint+"</span><button onclick=\"javascript:defaultname.showHelp(defaultname.helpIcon,'"+obj.fromPartyId+"','"+obj.sessionId+"');\">\u9A6C\u4E0A\u8054\u7CFB</button></div>";
+	           var msg0 = {"subject": "\u60A8\u6709\u65B0\u7684\u6D88\u606F!", "description": desc, "partyId": obj.toPartyId, "sessionid": obj.sessionId};
 	           pool.getConnection(function(err, connection) {
-		           connection.query('INSERT INTO WF_NOTIFICATION SET ?', msg, function(err, result) {
+		           connection.query('INSERT INTO WF_NOTIFICATION SET ?', msg0, function(err, result) {
 		            connection.release();
 					if (err) {
 						if (err.code === 'PROTOCOL_CONNECTION_LOST') {
@@ -233,7 +237,7 @@ io.on('connection', function(socket){
 						}
 					} else {
 						if (DEBUG) {
-						  console.log("WF_NOTIFICATION inserted: " + JSON.stringify(msg));
+						  console.log("WF_NOTIFICATION inserted: " + JSON.stringify(msg0));
 						}
 					}
 				   });
@@ -260,16 +264,16 @@ io.on('connection', function(socket){
 			   }
 			   return;
 			}
-			var msg = {"sentpartyid":obj.fromPartyId, "receivedpartyid":obj.toPartyId,
+			var msg1 = {"sentpartyid":obj.fromPartyId, "receivedpartyid":obj.toPartyId,
 						"message":obj.content, "sessionid": obj.sessionId};
 			pool.getConnection(function(err, connection) {
-			    connection.query('INSERT INTO WF_CHATHISTORY SET ?', msg, function(err, result) {
+			    connection.query('INSERT INTO WF_CHATHISTORY SET ?', msg1, function(err, result) {
 		           connection.release();
 			       if (err) {
 			          console.error(err.stack || err);
 			       } else {
 					   if (DEBUG) {
-						  console.log("WF_CHATHISTORY inserted: " + JSON.stringify(msg));
+						  console.log("WF_CHATHISTORY inserted: " + JSON.stringify(msg1));
 					   }
 				   }
 			    });
@@ -436,7 +440,72 @@ app.get('/', function(req, res){
 });
 app.get('/uimaster/notify', notifyHandler); 
 app.post('/uimaster/notify', notifyHandler);
-app.get('/uimaster/onlineinfo', onlineInfoHandler);  
+app.get('/uimaster/onlineinfo', onlineInfoHandler); 
+
+var createFolder = function(folder){  
+   try{   
+      fs.accessSync(folder);    
+   }catch(e){   
+      fs.mkdirSync(folder, 0777);  
+   }
+};  
+var audioRoot = process.cwd() + '/upload/audio/';     
+createFolder(audioRoot);
+   
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+	    var params = reqparams(req);
+		var savePath = audioRoot + params.uid;
+		if (!fs.existsSync(savePath)) {
+           fs.mkdirSync(savePath, 0777);
+		}
+		//it's unsupported recursive folder.
+		savePath = savePath +"/"+ params.sid;
+        if (!fs.existsSync(savePath)) {
+           fs.mkdirSync(savePath, 0777);
+		}		
+        cb(null, savePath);  
+		console.log('savePath：%s', savePath);
+    },   
+    filename: function(req, file, cb) { 
+	    if (DEBUG) {
+		console.log('file.mimetype：%s', file.mimetype);
+	    console.log('file.filename%s', file.filename);
+		console.log('file.originalname：%s', file.originalname);
+	    console.log('file.size：%s', file.size);
+		}
+	    req.originalname = file.originalname;
+        cb(null, file.originalname); 
+    },
+	fileFilter: function(req, file, cb) {
+	  if (file.originalname.indexOf(".amr") == -1) {  
+	    // To reject this file pass `false`, like so:
+	    cb(null, false);
+	  } else {
+		cb(null, true);
+	  }
+	},
+	limits: {"files": 1}
+}); 
+
+var audioupload = multer({ storage: storage });
+//var audioupload = multer({ dest: 'upload/audio/'}); 
+app.post('/audio/add', audioupload.any(), function(req, res, next){  
+   var params = reqparams(req);
+   var savePath = audioRoot + params.uid +"/"+ params.sid + "/" + req.originalname;
+   var savePath1 = audioRoot + params.uid +"/"+ params.sid + "/" + req.originalname.replace(".amr",".mp3");
+   var exec = require('child_process').exec; 
+   var cmdStr = "ffmpeg -i " + savePath + " " + savePath1;
+   console.log(cmdStr);
+   exec(cmdStr, function(err,stdout,stderr){
+	   if(err) {
+		   console.log('execute command error:'+stderr);
+	   } else {
+		   //console.log('executed command:'+stdout);
+	   }
+   }); 	
+   res.send({ret_code: '1'});
+}); 
 
 server.listen(8090, function(){ 
     console.log('listening on *:8090'); 

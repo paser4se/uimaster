@@ -183,6 +183,7 @@ public class HTMLReferenceEntityType extends HTMLWidgetType implements Serializa
         json.put("entity", this.refEntityName);
 		json.put("refid", copy.getUIID());
 		json.put("refcopy", copy.getType());
+		json.put("refcopy", copy.getType());
 		
 		DefaultEvaluationContext evalContext = (DefaultEvaluationContext)ee.getExpressionContext(ODContext.LOCAL_TAG);
 		HashMap<String, Object> vars = (HashMap<String, Object>)evalContext.getVariableObjects();

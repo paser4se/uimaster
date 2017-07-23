@@ -176,7 +176,6 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
     public void addAJAXComponent(String compID, Widget component) throws JSONException
     {
 		ajaxWidgetMap.put(compID, component);
-		ajaxJsonMap.put(compID, component.toJSON());
     }
 
     public Widget getAJAXComponent(String compID)
@@ -341,7 +340,7 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
     }
 
     /**
-     * This method not only generate JSON, also clear all the items.
+     * This method does not only generate JSON, also clear all the items.
      * @throws AjaxException 
      */
     public String getDataAsJSON() throws Exception

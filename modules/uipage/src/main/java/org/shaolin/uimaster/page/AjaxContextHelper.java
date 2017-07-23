@@ -189,7 +189,7 @@ public class AjaxContextHelper {
 
 	public static String getFrameId(HttpServletRequest request) {
 		String frameName = request.getParameter(WebflowConstants.FRAME_NAME);
-        String superPrefix = null;
+        String superPrefix = "";
         String framePrefix = request.getParameter("_framePrefix");
         String frameTarget = request.getParameter("_frameTarget");
 		if (frameTarget != null && !frameTarget.equals("null")) {

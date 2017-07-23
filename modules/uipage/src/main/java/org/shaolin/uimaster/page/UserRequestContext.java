@@ -306,6 +306,9 @@ public class UserRequestContext implements Serializable
 
     public String getHTMLPrefix()
     {
+    	if (this.refEntityStack.isEmpty()) {
+    		return "";
+    	}
         return this.refEntityStack.peek().htmlPrefix;
     }
 

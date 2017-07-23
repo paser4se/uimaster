@@ -46,6 +46,7 @@ import org.shaolin.uimaster.page.widgets.HTMLEmptyType;
 import org.shaolin.uimaster.page.widgets.HTMLHiddenType;
 import org.shaolin.uimaster.page.widgets.HTMLImageType;
 import org.shaolin.uimaster.page.widgets.HTMLLabelType;
+import org.shaolin.uimaster.page.widgets.HTMLLinkType;
 import org.shaolin.uimaster.page.widgets.HTMLListType;
 import org.shaolin.uimaster.page.widgets.HTMLMatrixType;
 import org.shaolin.uimaster.page.widgets.HTMLPanelType;
@@ -1889,6 +1890,8 @@ abstract public class Widget<T> implements Serializable
     		return Table.class.getSimpleName();
     	} else if (HTMLButtonType.class == htmlClass) {
     		return Button.class.getSimpleName();
+    	} else if (HTMLLinkType.class == htmlClass) {
+    		return Link.class.getSimpleName();
     	} else if (HTMLLabelType.class == htmlClass) {
     		return Label.class.getSimpleName();
     	} else if (HTMLPasswordFieldType.class == htmlClass) {

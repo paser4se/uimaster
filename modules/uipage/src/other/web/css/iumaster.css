@@ -34,6 +34,11 @@
     cursor: pointer;
 }
 
+.uimaster_link {
+	text-decoration: underline;
+    color: blue;
+}
+
 .width_full {
     width: 100%
 }

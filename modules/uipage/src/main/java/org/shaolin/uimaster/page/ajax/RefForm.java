@@ -298,8 +298,6 @@ public class RefForm extends Container implements Serializable
         try
         {
         	AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
-        	String frameId = AjaxContextHelper.getFrameId(ajaxContext.getRequest());
-        	this.setFrameInfo(frameId);
         	
             StringWriter writer = new StringWriter();
             UserRequestContext htmlContext = new UserRequestContext(ajaxContext.getRequest(), writer);

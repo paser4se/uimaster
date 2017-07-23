@@ -256,10 +256,11 @@ UIMaster.browser = {
     opera: /opera/.test(userAgent),
     msie: /msie/.test(userAgent) && !/opera/.test(userAgent),
     mozilla: /mozilla/.test(userAgent) && !/(compatible|webkit)/.test(userAgent),
-	mobile: !!userAgent.match(/AppleWebKit.*Mobile.*/) || !!userAgent.match(/AppleWebKit/),
-    ios: !!userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/),
-	android: (userAgent.indexOf('Android') > -1 || userAgent.indexOf('Linux') > -1),
-	iPad: (userAgent.indexOf('iPad') > -1)
+	mobile: !!userAgent.match(/applewebKit.*mobile.*/) || !!userAgent.match(/applewebKit/),
+    ios: !!userAgent.match(/\(i[^;]+;( u;)? cup.+mac os x/),
+	iphone: userAgent.indexOf('iphone') > -1 || userAgent.indexOf('mac') > -1,
+	android: (userAgent.indexOf('android') > -1 || userAgent.indexOf('linux') > -1),
+	iPad: (userAgent.indexOf('ipad') > -1)
 };
 /**
  * @description Initialize some variables and functions in the system.

@@ -27,6 +27,7 @@ import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.DisposableBfString;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.WebConfig;
+import org.shaolin.uimaster.page.ajax.json.IDataItem;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.slf4j.Logger;
@@ -97,7 +98,12 @@ public class Button extends TextWidget implements Serializable
     
     public void setAsEnabled() {
     	if (this.getAttribute("skipSetAsEnabled") == null) {
-    		this._updateAttribute("disabled", "false");
+    		StringBuilder sb = new  StringBuilder();
+            sb.append("{'name':'disabled','value':'false'}");
+            IDataItem dataItem = AjaxContextHelper.updateAttrItem(
+            		AjaxContextHelper.getAjaxContext().getEntityPrefix() + this.getId(), sb.toString());
+            dataItem.setFrameInfo(getFrameInfo());
+            AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
     	}
     }
     

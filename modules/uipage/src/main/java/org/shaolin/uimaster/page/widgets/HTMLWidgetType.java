@@ -99,7 +99,7 @@ public abstract class HTMLWidgetType implements Serializable
     {
         String name = id;
         UserRequestContext context = UserRequestContext.UserContext.get();
-        if (context != null && context.getHTMLPrefix() != null && context.getHTMLPrefix().length() > 0)
+        if (context != null)
         {
         	name = UserRequestContext.UserContext.get().getHTMLPrefix() + id;
         }
@@ -181,7 +181,8 @@ public abstract class HTMLWidgetType implements Serializable
 	}
 
 	public boolean needAjaxSupport() {
-    	return (attributeMap == null) ? false : attributeMap.containsKey("needAjaxSupport");
+    	Object v = this.getAttribute("needAjaxSupport");
+    	return v == null ? false : "true".equalsIgnoreCase(v.toString());
     }
     
     public Object getAttribute(String name)
@@ -826,10 +827,13 @@ public abstract class HTMLWidgetType implements Serializable
     	json.put("type", Widget.mappingAjaxWidgetName(this.getClass()));
     	json.put("entity", this.getUIEntityName());
     	json.put("uiid", this.getName());
-    	if (UserRequestContext.UserContext.get() != null) {
-    		json.put("finfo", UserRequestContext.UserContext.get().getFrameInfo());
-    	} else if (AjaxContextHelper.getAjaxContext() != null){
+    	if (AjaxContextHelper.getAjaxContext() != null){
     		json.put("finfo", AjaxContextHelper.getAjaxContext().getFrameId());
+    	} else if (UserRequestContext.UserContext.get() != null) {
+    		json.put("finfo", UserRequestContext.UserContext.get().getFrameInfo());
+    	}
+    	if (!json.has("finfo")) {
+    		json.put("finfo", "");
     	}
     	Boolean readOnly = isReadOnly();
     	if (readOnly != null && readOnly.booleanValue()) {

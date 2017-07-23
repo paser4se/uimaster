@@ -30,6 +30,7 @@ import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.spi.EventProcessor;
 import org.shaolin.bmdp.runtime.spi.FlowEvent;
 import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.ajax.Button;
 import org.shaolin.uimaster.page.ajax.Dialog;
 import org.shaolin.uimaster.page.ajax.Widget;
@@ -65,6 +66,10 @@ public class EventHandler implements IAjaxHandler {
 				return context.getDataAsJSON();
 			}
 			context.getRequest().getSession().setAttribute(UI_INACTION_FLAG, "true");
+			UserRequestContext userRequest = new UserRequestContext(context.getRequest());
+			userRequest.setJSONStyle(true);
+			UserRequestContext.UserContext.set(userRequest);
+			
 			return trigger0(context, actionName);
 		} catch (AjaxHandlerException e1) {
 			throw e1;
@@ -72,6 +77,7 @@ public class EventHandler implements IAjaxHandler {
 			throw new AjaxHandlerException(e.getMessage(), e);
 		} finally {
 			context.getRequest().getSession().removeAttribute(UI_INACTION_FLAG);
+			UserRequestContext.UserContext.set(null);
 		}
 	}
 	
@@ -97,11 +103,8 @@ public class EventHandler implements IAjaxHandler {
 				return context.getDataAsJSON();
 			} else {
 				// the event source object is temporary on request scope now.
-				if (htmlWidget instanceof HTMLButtonType) {
-					w = Widget.covertFromJSON(((HTMLButtonType)htmlWidget).createJsonEventSource());
-				} else{
-					w = Widget.covertFromJSON(htmlWidget.createJsonModel(null));
-				}
+				htmlWidget.addAttribute("needAjaxSupport", true);
+				w = Widget.covertFromJSON(htmlWidget.createJsonModel(null));
 			}
 		}
 		if (w.getClass() == Button.class) {
@@ -227,7 +230,7 @@ public class EventHandler implements IAjaxHandler {
 			String message = "Ajax executor has interrupted when execute " + actionName
 					+ " ajax calling: " + ex.getMessage();
 			throw new AjaxHandlerException(message, ex);
-		} 
+		}
 	}
 
 }
