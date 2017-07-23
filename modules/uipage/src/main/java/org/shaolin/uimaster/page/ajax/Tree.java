@@ -16,7 +16,7 @@
 package org.shaolin.uimaster.page.ajax;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,13 +24,17 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.json.JSONArray;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
-import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.AjaxContext;
+import org.shaolin.uimaster.page.AjaxContextHelper;
 import org.shaolin.uimaster.page.IJSHandlerCollections;
 import org.shaolin.uimaster.page.ajax.json.IDataItem;
+import org.shaolin.uimaster.page.cache.PageCacheManager;
+import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.od.ODContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,37 +49,30 @@ public class Tree extends Widget<Tree> implements Serializable {
 
 	private final TreeConditions conditions = new TreeConditions();
 
-	private transient Map<String, Object> dataModel = new HashMap<String, Object>();
+	private transient List<String> dataModel = new ArrayList<String>();
 	
 	private String selectedParentNode;
 	
 	private String selectedNodeName;
 	
-	private transient final ExpressionType expandExpr;
+	private transient ExpressionType expandExpr;
 	
 	public Tree(String tableId, HttpServletRequest request) {
 		super(tableId, null);
 		this.expandExpr = null;
 	}
 
-	public Tree(String id, Layout layout, ExpressionType initExpr, ExpressionType expandExpr) {
+	public Tree(String id, Layout layout, ExpressionType expandExpr) {
 		super(id, layout);
 		this._setWidgetLabel(id);
 		this.expandExpr = expandExpr;
 	}
 
-	public void setDataModel(Map<String, Object> newModel) {
-		if (this.dataModel == null) {
-			this.dataModel = new HashMap<String, Object>();
-		}
+	public void setDataModel(List<String> newModel) {
 		this.dataModel.clear();
-		this.dataModel.putAll(newModel);
+		this.dataModel.addAll(newModel);
 	}
 	
-	public void addItem(String key, Object object) {
-		this.dataModel.put(key, object);
-	}
-
 	public Tree addAttribute(String name, Object value, boolean update) {
 		if ("selectedNode".equals(name)) {
 			conditions.setSelectedId(value.toString());
@@ -97,13 +94,6 @@ public class Tree extends Widget<Tree> implements Serializable {
 		return selectedParentNode;
 	}
 
-	public Object getSelectedObject() {
-		if (this.dataModel == null) {
-			return null;
-		}
-		return this.dataModel.get(this.getSelectedItemId());
-	}
-	
 	public String getSelectedItemId() {
 		return conditions.getSelectedId();
 	}
@@ -174,4 +164,27 @@ public class Tree extends Widget<Tree> implements Serializable {
 		return "[]";
 	}
 
+	public JSONObject toJSON() throws JSONException {
+		JSONObject json = super.toJSON();
+		json.put("dataModel", dataModel);
+		if (this.selectedNodeName != null) {
+			json.put("selectedNode", selectedNodeName);
+		}
+		if (this.selectedParentNode != null) {
+			json.put("selectedPNode", selectedParentNode);
+		}
+		return json;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void fromJSON(JSONObject json) throws Exception {
+		super.fromJSON(json);
+		String entityName = json.getString("entity");
+		UIFormObject formObject = PageCacheManager.getUIForm(entityName);
+		Map<String, Object> attributes = formObject.getComponentProperty(this.getId(), true);
+		this.expandExpr = (ExpressionType)attributes.get("expandExpr");
+		this.dataModel = json.getJSONArray("dataModel").toList();
+		this.selectedNodeName = json.has("selectedNode") ? json.getString("selectedNode") : null;
+		this.selectedParentNode = json.has("selectedPNode") ? json.getString("selectedPNode") : null;
+	}
 }

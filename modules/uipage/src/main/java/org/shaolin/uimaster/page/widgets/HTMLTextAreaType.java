@@ -30,9 +30,6 @@ import org.shaolin.bmdp.utils.FileUtil;
 import org.shaolin.uimaster.page.HTMLUtil;
 import org.shaolin.uimaster.page.UserRequestContext;
 import org.shaolin.uimaster.page.WebConfig;
-import org.shaolin.uimaster.page.ajax.Layout;
-import org.shaolin.uimaster.page.ajax.TextArea;
-import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.slf4j.Logger;
@@ -185,6 +182,7 @@ public class HTMLTextAreaType extends HTMLTextWidgetType implements Consumer<Str
 
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
+    	JSONObject json = super.createJsonModel(ee);
 //        TextArea textArea = new TextArea(getName(), Layout.NULL);
 //
 //        textArea.setReadOnly(isReadOnly());
@@ -193,21 +191,21 @@ public class HTMLTextAreaType extends HTMLTextWidgetType implements Consumer<Str
 //        // we don't expect to anything except the pure value 
 //        // what we really need in the backend.
 //        textArea.setValue(getValue());
-//        if (this.getAttribute("htmlSupport") != null && 
-//        		"true".equals(this.getAttribute("htmlSupport").toString())) {
-//        	textArea.setHtmlSupport(true);
-//        	if (this.getAttribute("viewMode") != null && 
-//            		"true".equals(this.getAttribute("viewMode").toString())) {
-//        		textArea.setHtmlSupport(false);
-//        	}
-//        }
+        if (this.getAttribute("htmlSupport") != null && 
+        		"true".equals(this.getAttribute("htmlSupport").toString())) {
+        	json.put("htmlSupport", true);
+        	if (this.getAttribute("viewMode") != null && 
+            		"true".equals(this.getAttribute("viewMode").toString())) {
+        		json.put("viewMode", true);
+        	}
+        }
 //        
 //        setAJAXConstraints(textArea);
 //        setAJAXAttributes(UserRequestContext.UserContext.get(), textArea);
 //        
 //        textArea.setListened(true);
 
-    	return super.createJsonModel(ee);
+    	return json;
     }
     
 }

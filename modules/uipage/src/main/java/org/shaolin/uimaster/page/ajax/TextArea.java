@@ -20,6 +20,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.utils.FileUtil;
 import org.shaolin.bmdp.utils.StringUtil;
 import org.shaolin.uimaster.page.AjaxContextHelper;
@@ -40,7 +42,9 @@ public class TextArea extends TextWidget implements Serializable
     private String cssClass;
     
     private boolean htmlSupport;
-
+    
+    private boolean viewMode;
+    
 	public TextArea(String uiid)
     {
         this(AjaxContextHelper.getAjaxContext().getEntityPrefix() + uiid, new CellLayout());
@@ -271,4 +275,19 @@ public class TextArea extends TextWidget implements Serializable
 		}
     }
 
+    public JSONObject toJSON() throws JSONException {
+    	JSONObject json = super.toJSON();
+    	if (htmlSupport) {
+    		json.put("htmlSupport", htmlSupport);
+    	}
+    	json.put("viewMode", viewMode);
+    	return json;
+    }
+    
+    public void fromJSON(JSONObject json) throws Exception {
+    	super.fromJSON(json);
+    	this.htmlSupport = json.has("htmlSupport") ? json.getBoolean("htmlSupport") : false;
+    	this.viewMode = json.has("viewMode") ? json.getBoolean("viewMode") : false;
+    }
+    
 }
