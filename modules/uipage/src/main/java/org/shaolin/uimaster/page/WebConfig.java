@@ -18,8 +18,6 @@ package org.shaolin.uimaster.page;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +44,9 @@ import org.shaolin.bmdp.runtime.spi.IConstantService;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.utils.HttpSender;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
+import org.springframework.beans.factory.annotation.Autowired;
 
-public class WebConfig {
+public final class WebConfig {
 
 	private static final String UIMASTER = "/uimaster";
 	public static final String DEFAULT_LOGIN_PATH = "/login.do";
@@ -65,224 +64,18 @@ public class WebConfig {
 	
 	private static String servletContextPath = "";
 	
-	private static final String commonCompressedJS = "/common.js";
-	private static final String commonCompressedCss = "/common.css";
-	private static final String commonCompressedMobJS = "/common-mob.js";
-	private static final String commonCompressedMobCss = "/common-mob.css";
-	
 	public static final String WebContextRoot = UIMASTER;
-	private static String resourceContextRoot;
-	private static String uploadFileContextRoot;
-	private static String resourcePath;
 	
 	// make sure cleaning the js cache after restart server in every time.
 	private static int jsversion = (int)(Math.random() * 1000); 
 	
-	public static class WebConfigFastCache {
-		final String runningMode;
-		final boolean isHTTPs;
-		final boolean customizedMode;
-		final String hiddenValueMask;
-		final String cssRootPath;
-		final String jsRootPath;
-		final String ajaxServiceURL;
-		final String frameWrap;
-		final boolean isJAAS;
-		final boolean isFormatHTML;
-		final boolean hotdeployeable;
-		final String loginPath;
-		final String actionPath;
-		final String indexPage;
-		final String loginPage;
-		final String iloginPage;
-		final String mainPage;
-		final String errorPage;
-		final String nopermissionPage;
-		final String timeoutPage;
-		final String hasAjaxErrorHandler;
-		final String ipLocationURL;
-		final String mapwebkey;
-		final String mapappkey;
-		
-		final String[] commoncss;
-		final String[] commonjs;
-		final String[] commonMobcss;
-		final String[] commonMobAppcss;
-		final String[] commonMobjs;
-		final String[] commonMobAppjs;
-		final String[] syncLoadJs;
-		final Map<String, String[]> singleCommonCss;
-		final Map<String, String[]> singleCommonJs;
-		final Map<String, String[]> singleCommonAppCss;
-		final Map<String, String[]> singleCommonAppJs;
-		
-		final List<String> singleCustJs = new ArrayList<String>();
-		final List<String> singleCustCss = new ArrayList<String>();
-		final List<String> skipBackButtonPages;
-		
-		public WebConfigFastCache() {
-			Registry.getAppRunningMode();
-			Registry instance = Registry.getInstance();
-			runningMode = instance.getValue("/System/webConstant/runningMode");
-			resourceContextRoot = instance.getValue(
-					"/System/webConstant/resourceServer");
-			uploadFileContextRoot = instance.getValue(
-					"/System/webConstant/uploadServer");
-			String resourcePath0 = instance.getValue(
-					"/System/webConstant/resourcePath");
-			if (resourcePath0 != null && resourcePath0.trim().length() > 0) {
-				resourcePath = resourcePath0;
-			}
-			isHTTPs = Boolean.valueOf(instance.getValue(
-					"/System/webConstant/isHTTPs"));
-			customizedMode = Boolean.valueOf(instance.getValue(
-					"/System/webConstant/customizedMode"));
-			hiddenValueMask = instance.getValue(
-					"/System/webConstant/hiddenValueMask");
-			cssRootPath = resourceContextRoot + "/css";
-			jsRootPath = resourceContextRoot + "/js";
-			ajaxServiceURL = WebContextRoot + instance.getValue(
-					"/System/webConstant/ajaxServiceURL");
-			frameWrap = WebContextRoot + instance.getValue(
-					"/System/webConstant/frameWrap");
-			isJAAS = "true".equals(instance.getValue(
-					"/System/webConstant/isJAAS"));
-			isFormatHTML = "true".equals(instance.getValue(
-					"/System/webConstant/formatHTML"));
-			hotdeployeable = "true".equals(instance.getValue(
-					"/System/webConstant/hotdeployeable"));
-			loginPath = WebContextRoot + instance.getValue(
-					"/System/webConstant/loginPath");
-			actionPath = WebContextRoot + instance.getValue(
-					"/System/webConstant/actionPath");
-			indexPage = WebContextRoot + instance.getValue(
-					"/System/webConstant/indexPage");
-			loginPage = WebContextRoot + instance.getValue(
-					"/System/webConstant/loginPage");
-			iloginPage = WebContextRoot + instance.getValue(
-					"/System/webConstant/iloginPage");
-			mainPage = WebContextRoot + instance.getValue(
-					"/System/webConstant/mainPage");
-			errorPage = instance.getValue(
-					"/System/webConstant/errorPage");
-			nopermissionPage = instance.getValue(
-					"/System/webConstant/nopermissionPage");
-			timeoutPage = instance.getValue(
-					"/System/webConstant/timeoutPage");
-			hasAjaxErrorHandler = instance.getValue(
-					"/System/webConstant/ajaxHandlingError");
-			syncLoadJs = instance.getValue(
-					"/System/webConstant/syncLoadJs").split(";");
-			ipLocationURL = instance.getValue(
-					"/System/webConstant/ipLocationURL");
-			mapwebkey = instance.getValue(
-					"/System/webConstant/mapwebkey");
-			mapappkey = instance.getValue(
-					"/System/webConstant/mapappkey");
-			
-			Collection<String> values = (Collection<String>)
-					instance.getNodeItems("/System/webConstant/commoncss").values();
-			commoncss = values.toArray(new String[values.size()]);
-			for (int i=0; i<commoncss.length; i++) {
-				if (!commoncss[i].startsWith("http")
-						&& !commoncss[i].startsWith("https")) {
-					commoncss[i] = resourceContextRoot + commoncss[i];
-				}
-			}
-			values = instance.getNodeItems("/System/webConstant/commonjs").values();
-			commonjs = values.toArray(new String[values.size()]);
-			for (int i=0; i<commonjs.length; i++) {
-				if (!commonjs[i].startsWith("http")
-						&& !commonjs[i].startsWith("https")) {
-					commonjs[i] = resourceContextRoot + commonjs[i];
-				}
-			}
-			
-			values = (Collection<String>)
-					instance.getNodeItems("/System/webConstant/commoncss-mob").values();
-			commonMobcss = values.toArray(new String[values.size()]);
-			commonMobAppcss = values.toArray(new String[values.size()]);
-			for (int i=0; i<commonMobcss.length; i++) {
-				if (!commonMobcss[i].startsWith("http")) {
-					commonMobAppcss[i] = APP_ROOT_VAR + commonMobcss[i];
-					commonMobcss[i] = resourceContextRoot + commonMobcss[i];
-				}
-			}
-			values = instance.getNodeItems("/System/webConstant/commonjs-mob").values();
-			commonMobjs = values.toArray(new String[values.size()]);
-			commonMobAppjs = values.toArray(new String[values.size()]);
-			for (int i=0; i<commonMobjs.length; i++) {
-				if (!commonMobjs[i].startsWith("http")
-						&& !commonMobjs[i].startsWith("https")) {
-					commonMobAppjs[i] = APP_ROOT_VAR + commonMobjs[i];
-					commonMobjs[i] = resourceContextRoot + commonMobjs[i];
-				}
-			}
-			
-			singleCommonCss = new HashMap<String, String[]>();
-			singleCommonAppCss = new HashMap<String, String[]>();
-			String commonssPath = "/System/webConstant/commoncss";
-			List<String> children = instance.getNodeChildren(commonssPath);
-			if (children != null && children.size() > 0) {
-				for (String child: children) {
-					values = (Collection<String>)instance.getNodeItems(commonssPath + "/" + child).values();
-					String[] items = values.toArray(new String[values.size()]);
-					String[] itemsApp = values.toArray(new String[values.size()]);
-					for (int i=0; i<items.length; i++) {
-						if (items[i].equals("skipCommonCss")) {
-							// the common js files will be skipped if specified.
-							singleCustCss.add(child);
-							items[i] = "/uimaster/js/emtpy.js";
-							itemsApp[i] = "/uimaster/js/emtpy.js";
-						} else if (!items[i].startsWith("http")
-								&& !items[i].startsWith("https")) {
-							items[i] = resourceContextRoot + items[i];
-							itemsApp[i] = APP_ROOT_VAR + itemsApp[i];
-						}
-					}
-					singleCommonCss.put(child, items);
-					singleCommonAppCss.put(child, itemsApp);
-				}
-			}
-			
-			singleCommonJs = new HashMap<String, String[]>();
-			singleCommonAppJs = new HashMap<String, String[]>();
-			String commonjsPath = "/System/webConstant/commonjs";
-			children = instance.getNodeChildren(commonjsPath);
-			if (children != null && children.size() > 0) {
-				for (String child: children) {
-					values = (Collection<String>)instance.getNodeItems(commonjsPath + "/" + child).values();
-					String[] items = values.toArray(new String[values.size()]);
-					String[] itemsApp = values.toArray(new String[values.size()]);
-					for (int i=0; i<items.length; i++) {
-						if (items[i].equals("skipCommonJs")) {
-							// the common js files will be skipped if specified.
-							singleCustJs.add(child);
-							items[i] = "/uimaster/js/emtpy.js";
-							itemsApp[i] = "/uimaster/js/emtpy.js";
-						} else if (!items[i].startsWith("http")
-								&& !items[i].startsWith("https")) {
-							//skip http, https, www, 
-							items[i] = resourceContextRoot + items[i];
-							itemsApp[i] = APP_ROOT_VAR + itemsApp[i];
-						}
-					}
-					singleCommonJs.put(child, items);
-					singleCommonAppJs.put(child, itemsApp);
-				}
-			}
-			
-			skipBackButtonPages = new ArrayList<String>(instance.getNodeItems("/System/webConstant/skipBackButton").values());
-		}
+	private static WebConfigSpringInstance instance;
+	
+	public WebConfig() {
 	}
 	
-	private static WebConfigFastCache getCacheObject() {
-		Registry instance = Registry.getInstance();
-		if(!instance.existInFastCache("webconfig")) {
-			WebConfigFastCache fastCache = new WebConfigFastCache();
-			instance.putInFastCache("webconfig", fastCache);
-		}
-		return (WebConfigFastCache)instance.readFromFastCache("webconfig");
+	public static void setSpringInstance(final WebConfigSpringInstance instance0) {
+		instance = instance0;
 	}
 	
 	public static boolean isProductMode() {
@@ -290,7 +83,7 @@ public class WebConfig {
 	}
 	
 	public static boolean isCustomizedMode() {
-		return getCacheObject().customizedMode;
+		return instance.isCustomizedMode();
 	}
 	
 	public static void updateJsVersion(int version) {
@@ -302,7 +95,7 @@ public class WebConfig {
 	}
 	
 	public static String getHiddenValueMask() {
-		return getCacheObject().hiddenValueMask;
+		return instance.getHiddenValueMask();
 	}
 
 	public static Hashtable<?, ?> getInitialContext() {
@@ -348,7 +141,7 @@ public class WebConfig {
 	}
 	
 	public static String getUploadFileRoot() {
-		return uploadFileContextRoot;
+		return instance.getUploadServer();
 	}
 	
 	public static String getWebRoot() {
@@ -370,7 +163,7 @@ public class WebConfig {
 	}
 	
 	public static String getResourceContextRoot() {
-		return resourceContextRoot;
+		return instance.getResourceServer();
 	}
 	
 	public static String getAppResourceContextRoot(HttpServletRequest request) {
@@ -380,78 +173,78 @@ public class WebConfig {
 
 	public static String getAppImageContextRoot(HttpServletRequest request) {
 		if (UserContext.isAppClient()) {
-			return resourceContextRoot;
+			return instance.getResourceServer();
 		}
 		return getResourceContextRoot();
 	}
 	
 	public static String getResourcePath() {
-		return resourcePath;
+		return instance.getResourcePath();
 	}
 	
 	public static String getTempResourcePath() {
-		return resourcePath + "/temp";
+		return instance.getResourcePath() + "/temp";
 	}
 	
 	public static void setResourcePath(String path) {
-		if (resourcePath == null || resourcePath.trim().length() == 0) {
-			resourcePath = path;
+		if (instance.getResourcePath() == null || instance.getResourcePath().trim().length() == 0) {
+			instance.setResourcePath(path);
 		}
 	}
 	
 	public static String getCssRootPath() {
-		return getCacheObject().cssRootPath;
+		return instance.getCssRootPath();
 	}
 	
 	public static String getJsRootPath() {
-		return getCacheObject().jsRootPath;
+		return instance.getJsRootPath();
 	}
 	
 	public static String getAjaxServiceURI() {
 		if (UserContext.isAppClient()) {
-			return getCacheObject().ajaxServiceURL + "?_appclient=" + UserContext.getAppClientType();
+			return instance.getAjaxServiceURL() + "?_appclient=" + UserContext.getAppClientType();
 		}
-		return getCacheObject().ajaxServiceURL;
+		return instance.getAjaxServiceURL();
 	}
 
 	public static String getFrameWrap() {
-		return getCacheObject().frameWrap;
+		return instance.getFrameWrap();
 	}
 
 	public static String getActionPath() {
-		return getCacheObject().actionPath;
+		return instance.getActionPath();
 	}
 
 	public static String getLoginPath() {
-		return getCacheObject().loginPath;
+		return instance.getLoginPath();
 	}
 
 	public static String getIndexPage() {
-		return getCacheObject().indexPage;
+		return instance.getIndexPage();
 	}
 
 	public static String getLoginPage() {
-		return getCacheObject().loginPage;
+		return instance.getLoginPage();
 	}
 
 	public static String getILoginPage() {
-		return getCacheObject().iloginPage;
+		return instance.getIloginPage();
 	}
 
 	public static String getMainPage() {
-		return getCacheObject().mainPage;
+		return instance.getMainPage();
 	}
 
 	public static String getErrorPage() {
-		return getCacheObject().errorPage;
+		return instance.getErrorPage();
 	}
 
 	public static String getNoPermissionPage() {
-		return getCacheObject().nopermissionPage;
+		return instance.getNopermissionPage();
 	}
 	
 	public static String getTimeoutPage() {
-		return getCacheObject().timeoutPage;
+		return instance.getTimeoutPage();
 	}
 
 	public static String getTimeStamp() {
@@ -459,22 +252,22 @@ public class WebConfig {
 	}
 	
 	public static boolean hasAjaxErrorHandler() {
-		return "true".equals(getCacheObject().hasAjaxErrorHandler);
+		return "true".equals(instance.getHasAjaxErrorHandler());
 	}
 
 	public static boolean isHttps() {
-		return getCacheObject().isHTTPs;
+		return instance.isHTTPs();
 	}
 	
 	public static boolean isJAAS() {
-		return getCacheObject().isJAAS;
+		return instance.isJAAS();
 	}
 	
 	public static String isSyncLoadingJs(String url) {
 		if (UserContext.isAppClient()) {
 			return "";
 		}
-		String[] list = getCacheObject().syncLoadJs;
+		String[] list = instance.getSyncLoadJs();
 		for (String js : list) {
 			if (url.indexOf(js) != -1) {
 				return "";
@@ -484,15 +277,15 @@ public class WebConfig {
 	}
 	
 	public static boolean isFormatHTML() {
-		return getCacheObject().isFormatHTML;
+		return instance.isFormatHTML();
 	}
 	
 	public static boolean enableHotDeploy() {
-		return getCacheObject().hotdeployeable;
+		return instance.isHotdeployeable();
 	}
 	
 	public static boolean skipBackButton(String pageName) {
-		return getCacheObject().skipBackButtonPages.contains(pageName);
+		return instance.getSkipBackButtonPages().contains(pageName);
 	}
 	
 	/**
@@ -502,16 +295,16 @@ public class WebConfig {
 	 */
 	public static String getImportCSS(String entityName) {
 		String name = entityName.replace('.', '/');//firefox only support '/'
-		return resourceContextRoot + "/css/" + name + ".css";
+		return getResourceContextRoot() + "/css/" + name + ".css";
 	}
 	
 	public static String getImportMobCSS(String entityName) {
 		String name = entityName.replace('.', '/');//firefox only support '/'
 		File f = new File(WebConfig.getRealPath("/css/" + name + "_mob.css"));
 		if (f.exists()) {
-			return resourceContextRoot + "/css/" + name + "_mob.css";
+			return getResourceContextRoot() + "/css/" + name + "_mob.css";
 		}
-		return resourceContextRoot + "/css/" + name + ".css";
+		return getResourceContextRoot() + "/css/" + name + ".css";
 	}
 	
 	public static String getImportAppMobCSS(String entityName) {
@@ -530,7 +323,7 @@ public class WebConfig {
 	 */
 	public static String getImportJS(String entityName) {
 		String name = entityName.replace('.', '/');//firefox only support '/'
-		return resourceContextRoot + "/js/" + name + ".js";
+		return getResourceContextRoot() + "/js/" + name + ".js";
 	}
 	
 	public static String getImportAppJS(String entityName) {
@@ -565,56 +358,40 @@ public class WebConfig {
 	}
 	
 	public static String[] getCommonCss() {
-		return getCacheObject().commoncss;
+		return instance.getCommoncss();
 	}
 
 	public static String[] getCommonJs() {
-		return getCacheObject().commonjs;
+		return instance.getCommonjs();
 	}
 	
 	public static String[] getCommonMobCss() {
-		return getCacheObject().commonMobcss;
+		return instance.getCommonMobcss();
 	}
 
 	public static String[] getCommonMobJs() {
-		return getCacheObject().commonMobjs;
+		return instance.getCommonMobjs();
 	}
 	
 	public static String[] getCommonMobAppCss() {
-		return getCacheObject().commonMobAppcss;
+		return instance.getCommonMobAppcss();
 	}
 
 	public static String[] getCommonMobAppJs() {
-		return getCacheObject().commonMobAppjs;
+		return instance.getCommonMobAppjs();
 	}
 	
 	public static boolean skipCommonJs(String pageName) {
-		return getCacheObject().singleCustJs.contains(pageName);
+		return instance.getSkipCommonJsPages().contains(pageName);
 	}
 	
 	public static boolean skipCommonCss(String pageName) {
-		return getCacheObject().singleCustCss.contains(pageName);
-	}
-	
-	public static String getCommoncompressedjs() {
-		return commonCompressedJS;
-	}
-
-	public static String getCommoncompressedcss() {
-		return commonCompressedCss;
-	}
-
-	public static String getCommoncompressedmobjs() {
-		return commonCompressedMobJS;
-	}
-
-	public static String getCommoncompressedmobcss() {
-		return commonCompressedMobCss;
+		return instance.getSkipCommonCssPages().contains(pageName);
 	}
 	
 	public static String[] getSingleCommonJS(String entityName) {
 		String pack = entityName.substring(0, entityName.lastIndexOf('.'));
-		Set<String> keys = getCacheObject().singleCommonJs.keySet();
+		Set<String> keys = instance.getSingleCommonJs().keySet();
 		List<String> results = new ArrayList<String>();
 		for (String key : keys) {
 			if (key.startsWith("*")) {
@@ -622,14 +399,14 @@ public class WebConfig {
 				if (keyA.endsWith(".*")) {
 					keyA = keyA.substring(0, keyA.length() - 2);
 					if (pack.indexOf(keyA) != -1) {
-						String[] vs = getCacheObject().singleCommonJs.get(key);
+						String[] vs = instance.getSingleCommonJs().get(key);
 						for (String v: vs) {
 							results.add(v);
 						}
 					}
 				} else {
 					if (pack.lastIndexOf(keyA) != -1) {
-						String[] vs = getCacheObject().singleCommonJs.get(key);
+						String[] vs = instance.getSingleCommonJs().get(key);
 						for (String v: vs) {
 							results.add(v);
 						}
@@ -638,13 +415,13 @@ public class WebConfig {
 			} else if (key.endsWith(".*")) {
 				String keyPack = key.substring(0, key.length() - 2);
 				if (pack.startsWith(keyPack)) {
-					String[] vs = getCacheObject().singleCommonJs.get(key);
+					String[] vs = instance.getSingleCommonJs().get(key);
 					for (String v: vs) {
 						results.add(v);
 					}
 				}
 			} else if (key.equals(entityName)) {
-				String[] vs = getCacheObject().singleCommonJs.get(entityName);
+				String[] vs = instance.getSingleCommonJs().get(entityName);
 				for (String v: vs) {
 					results.add(v);
 				}
@@ -661,7 +438,7 @@ public class WebConfig {
 	
 	public static String[] getSingleCommonAppJS(String entityName) {
 		String pack = entityName.substring(0, entityName.lastIndexOf('.'));
-		Set<String> keys = getCacheObject().singleCommonAppJs.keySet();
+		Set<String> keys = instance.getSingleCommonAppJs().keySet();
 		List<String> results = new ArrayList<String>();
 		for (String key : keys) {
 			if (key.startsWith("*")) {
@@ -669,14 +446,14 @@ public class WebConfig {
 				if (keyA.endsWith(".*")) {
 					keyA = keyA.substring(0, keyA.length() - 2);
 					if (pack.indexOf(keyA) != -1) {
-						String[] vs = getCacheObject().singleCommonAppJs.get(key);
+						String[] vs = instance.getSingleCommonAppJs().get(key);
 						for (String v: vs) {
 							results.add(v);
 						}
 					}
 				} else {
 					if (pack.lastIndexOf(keyA) != -1) {
-						String[] vs = getCacheObject().singleCommonAppJs.get(key);
+						String[] vs = instance.getSingleCommonAppJs().get(key);
 						for (String v: vs) {
 							results.add(v);
 						}
@@ -685,13 +462,13 @@ public class WebConfig {
 			} else if (key.endsWith(".*")) {
 				String keyPack = key.substring(0, key.length() - 2);
 				if (pack.startsWith(keyPack)) {
-					String[] vs = getCacheObject().singleCommonAppJs.get(key);
+					String[] vs = instance.getSingleCommonAppJs().get(key);
 					for (String v: vs) {
 						results.add(v);
 					}
 				}
 			} else if (key.equals(entityName)) {
-				String[] vs = getCacheObject().singleCommonAppJs.get(entityName);
+				String[] vs = instance.getSingleCommonAppJs().get(entityName);
 				for (String v: vs) {
 					results.add(v);
 				}
@@ -708,19 +485,19 @@ public class WebConfig {
 	
 	public static String[] getSingleCommonCSS(String entityName) {
 		String pack = entityName.substring(0, entityName.lastIndexOf('.'));
-		Set<String> keys = getCacheObject().singleCommonCss.keySet();
+		Set<String> keys = instance.getSingleCommonCss().keySet();
 		List<String> results = new ArrayList<String>();
 		for (String key : keys) {
 			if (key.endsWith(".*")) {
 				String keyPack = key.substring(0, key.length() - 2);
 				if (pack.startsWith(keyPack)) {
-					String[] vs = getCacheObject().singleCommonCss.get(key);
+					String[] vs = instance.getSingleCommonCss().get(key);
 					for (String v: vs) {
 						results.add(v);
 					}
 				}
 			} else if (key.equals(entityName)) {
-				String[] vs = getCacheObject().singleCommonCss.get(entityName);
+				String[] vs = instance.getSingleCommonCss().get(entityName);
 				for (String v: vs) {
 					results.add(v);
 				}
@@ -737,19 +514,19 @@ public class WebConfig {
 	
 	public static String[] getSingleCommonAppCSS(String entityName) {
 		String pack = entityName.substring(0, entityName.lastIndexOf('.'));
-		Set<String> keys = getCacheObject().singleCommonAppCss.keySet();
+		Set<String> keys = instance.getSingleCommonAppCss().keySet();
 		List<String> results = new ArrayList<String>();
 		for (String key : keys) {
 			if (key.endsWith(".*")) {
 				String keyPack = key.substring(0, key.length() - 2);
 				if (pack.startsWith(keyPack)) {
-					String[] vs = getCacheObject().singleCommonAppCss.get(key);
+					String[] vs = instance.getSingleCommonAppCss().get(key);
 					for (String v: vs) {
 						results.add(v);
 					}
 				}
 			} else if (key.equals(entityName)) {
-				String[] vs = getCacheObject().singleCommonAppCss.get(entityName);
+				String[] vs = instance.getSingleCommonAppCss().get(entityName);
 				for (String v: vs) {
 					results.add(v);
 				}
@@ -864,8 +641,8 @@ public class WebConfig {
 	 */
 	public static double[] getUserLocation(String ipAddress) throws Exception{
 		StringBuffer sb = new StringBuffer();
-		sb.append(getCacheObject().ipLocationURL).append("?key=");
-		sb.append(getCacheObject().mapwebkey);
+		sb.append(instance.getIpLocationURL()).append("?key=");
+		sb.append(instance.getMapwebkey());
 		sb.append("&output=JSON").append("&ip=").append(ipAddress);
 		
 		JSONObject json1 = new JSONObject(sender.get(sb.toString()));

@@ -61,6 +61,7 @@ import org.shaolin.bmdp.runtime.spi.IEntityManager;
 import org.shaolin.bmdp.utils.CloseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * Here is only one entity manager while running multiple applications.
@@ -68,6 +69,7 @@ import org.slf4j.LoggerFactory;
  * 
  * Shaolin Wu
  */
+@Service
 public final class EntityManager implements IEntityManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(EntityManager.class);

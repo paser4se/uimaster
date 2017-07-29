@@ -7,12 +7,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.shaolin.bmdp.runtime.internal.CustThreadFactory;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ISchedulerService implements IServiceProvider, ILifeCycleProvider {
 
 	// it must be static list that we made for whole system.
 	private static final ConcurrentHashMap<String, ExecutorService> poolList = 
 			new ConcurrentHashMap<String, ExecutorService>();
+	
+	public ISchedulerService() {}
 	
 	@Override
 	public Class getServiceInterface() {

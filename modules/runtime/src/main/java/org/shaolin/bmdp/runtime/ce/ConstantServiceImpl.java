@@ -19,6 +19,7 @@ import org.shaolin.bmdp.runtime.spi.IConstantService;
 import org.shaolin.bmdp.runtime.spi.ILifeCycleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * Constant Runtime Service for every single application.
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
  * @author wushaol
  *
  */
+@Service
 public class ConstantServiceImpl implements Serializable, IConstantService, IEntityEventListener<ConstantEntityType, BEDiagram>, ILifeCycleProvider {
 
 	private static final long serialVersionUID = 7967098596510060235L;

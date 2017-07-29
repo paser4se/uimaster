@@ -25,10 +25,14 @@ import org.shaolin.bmdp.runtime.spi.IEntityManager;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.WebConfig;
+import org.shaolin.uimaster.page.WebConfigSpringInstance;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
 import org.shaolin.uimaster.page.cache.UIFlowCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * The master instance is responsible for reading all entities from the whole
@@ -37,12 +41,19 @@ import org.slf4j.LoggerFactory;
  * @author wushaol
  * 
  */
+@SpringBootApplication
+@EnableAutoConfiguration
 public class MasterInstanceListener implements ServletContextListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(MasterInstanceListener.class);
 
+	@Autowired
+	private WebConfigSpringInstance instance;
+	
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
+		//SpringApplication.run(MasterInstanceListener.class, new String[0]);
+		
 		((ServerServiceManagerImpl)IServerServiceManager.INSTANCE).setMasterNodeName(
 				sce.getServletContext().getInitParameter("AppName"));
 		
@@ -75,16 +86,13 @@ public class MasterInstanceListener implements ServletContextListener {
     		cache.setRefreshInterval(minutes);
     		cache.setDescription(description);
     	}
-    	try {
-			WebConfig.setResourcePath(sce.getServletContext().getRealPath("/"));
-		} catch (Exception e) {
-			throw new IllegalStateException("Error to initialize UI Master online system!!!!!", e);
-		}
+		WebConfig.setSpringInstance(instance);
+		WebConfig.setResourcePath(sce.getServletContext().getRealPath("/"));
+		
 		// load all entities from applications. only load once if there were many web instances.
 		IEntityManager entityManager = IServerServiceManager.INSTANCE.getEntityManager();
 		addEntityListeners(entityManager);
 		((EntityManager)entityManager).initRuntime();
-
 	}
 	
 	static void addEntityListeners(IEntityManager entityManager) {

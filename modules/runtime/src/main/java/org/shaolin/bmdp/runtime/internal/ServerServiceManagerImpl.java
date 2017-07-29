@@ -20,7 +20,6 @@ import java.util.Map;
 
 import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.ce.ConstantServiceImpl;
-import org.shaolin.bmdp.runtime.entity.EntityManager;
 import org.shaolin.bmdp.runtime.spi.IAppServiceManager;
 import org.shaolin.bmdp.runtime.spi.IConstantService;
 import org.shaolin.bmdp.runtime.spi.IEntityManager;
@@ -30,12 +29,15 @@ import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Here is only one server service manager while running on multiple
  * applications. To reduce our cost of memory consuming.
  * 
  */
+@Service("serviceManager")
 public class ServerServiceManagerImpl implements IServerServiceManager {
 
 	private static Logger logger = LoggerFactory.getLogger(ServerServiceManagerImpl.class);
@@ -44,15 +46,18 @@ public class ServerServiceManagerImpl implements IServerServiceManager {
 	
 	private final Registry registry;
 
-	private final EntityManager entityManager;
-
 	private final Map<Class<?>, IServiceProvider> services = new HashMap<Class<?>, IServiceProvider>();
 
 	private IAppServiceManager appService;
 	
-	private final ConstantServiceImpl constantService;
+	@Autowired
+	private IEntityManager entityManager;
 	
-	private final ISchedulerService schedulerService;
+	@Autowired
+	private IConstantService constantService;
+	
+	@Autowired
+	private ISchedulerService schedulerService;
 	
 	private Object hibernateSessionFactory;
 	
@@ -60,9 +65,6 @@ public class ServerServiceManagerImpl implements IServerServiceManager {
 	
 	public ServerServiceManagerImpl() {
 		this.registry = Registry.getInstance();
-		this.entityManager = new EntityManager();
-		this.constantService = new ConstantServiceImpl();
-		this.schedulerService = new ISchedulerService();
 	}
 	
 	@Override
@@ -157,7 +159,7 @@ public class ServerServiceManagerImpl implements IServerServiceManager {
 	
 	public void shutdown() {
 		this.schedulerService.stopService();
-		this.constantService.stopService();
+		((ConstantServiceImpl)this.constantService).stopService();
 	}
 
 }

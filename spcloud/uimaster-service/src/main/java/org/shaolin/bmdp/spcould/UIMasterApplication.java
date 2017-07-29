@@ -36,9 +36,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
 @EnableDiscoveryClient
+@RestController
 public class UIMasterApplication {
 	private static final Logger logger = LoggerFactory.getLogger(UIMasterApplication.class);
 	
@@ -289,4 +292,15 @@ public class UIMasterApplication {
 		});
 	}
 
+	
+	@RequestMapping("/")
+    public String greeting() {
+        return "Welcome to UIMaster + Spring Cloud!";
+    }
+	
+	@RequestMapping("/index")
+    public String index() {
+        return "UIMaster Index Pages: ";
+    }
+	
 }
