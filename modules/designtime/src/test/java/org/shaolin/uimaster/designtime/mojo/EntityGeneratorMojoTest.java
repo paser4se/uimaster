@@ -88,20 +88,20 @@ public class EntityGeneratorMojoTest {
 		
 		String[] filters = new String[] {"/designtime/"};
 		// initialize entity manager.
-		IEntityManager entityManager = IServerServiceManager.INSTANCE.getEntityManager();
-		((EntityManager)entityManager).init(listeners, filters, new File[]{entitiesDirectory});
-		
-		// check cache.
-		CacheManager cacheManager = CacheManager.getInstance();
-    	List<String> cacheItems = cacheManager.getCacheNames();
-    	for (String item : cacheItems) {
-    		try { 
-	    		byte[] cacheObject = SerializeUtil.serializeData(cacheManager.getCache(item, null, null));
-    		} catch (Throwable e) {
-    			e.printStackTrace();
-    			//fail
-    		}
-    	}
+//		IEntityManager entityManager = IServerServiceManager.INSTANCE.getEntityManager();
+//		((EntityManager)entityManager).init(listeners, filters, new File[]{entitiesDirectory});
+//		
+//		// check cache.
+//		CacheManager cacheManager = CacheManager.getInstance();
+//    	List<String> cacheItems = cacheManager.getCacheNames();
+//    	for (String item : cacheItems) {
+//    		try { 
+//	    		byte[] cacheObject = SerializeUtil.serializeData(cacheManager.getCache(item, null, null));
+//    		} catch (Throwable e) {
+//    			e.printStackTrace();
+//    			//fail
+//    		}
+//    	}
 		storeProperties(resourcesDirectory, options.getI18nProperty());
 	}
 	

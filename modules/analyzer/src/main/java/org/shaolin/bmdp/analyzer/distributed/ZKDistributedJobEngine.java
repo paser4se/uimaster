@@ -79,6 +79,11 @@ public class ZKDistributedJobEngine implements DistributedJobEngine, ILifeCycleP
     }
 
     @Override
+	public void configService() {
+		
+	}
+    
+    @Override
     public void startService() {
         // elect
         elect();

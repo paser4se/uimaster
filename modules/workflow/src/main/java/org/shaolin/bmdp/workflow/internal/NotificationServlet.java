@@ -97,8 +97,7 @@ public class NotificationServlet extends HttpServlet {
 		}
 		
 		// only add notification to the master node.
-		IAppServiceManager serviceManager= IServerServiceManager.INSTANCE.getApplication(
-				IServerServiceManager.INSTANCE.getMasterNodeName());
+		IAppServiceManager serviceManager= IServerServiceManager.INSTANCE;
 		ICoordinatorService coordinator = serviceManager.getService(ICoordinatorService.class);
 		if (coordinator != null) {
 			coordinator.addNotification(notification, false);

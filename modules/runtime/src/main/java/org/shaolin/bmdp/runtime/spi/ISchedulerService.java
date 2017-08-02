@@ -24,6 +24,11 @@ public class ISchedulerService implements IServiceProvider, ILifeCycleProvider {
 	}
 	
 	@Override
+	public void configService() {
+		
+	}
+	
+	@Override
 	public void startService() {
 		//Runtime.getRuntime().availableProcessors() * 2
 	}

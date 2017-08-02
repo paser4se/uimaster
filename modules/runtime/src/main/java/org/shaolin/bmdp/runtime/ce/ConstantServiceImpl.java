@@ -182,6 +182,11 @@ public class ConstantServiceImpl implements Serializable, IConstantService, IEnt
 	}
 
 	@Override
+	public void configService() {
+		
+	}
+	
+	@Override
 	public void startService() {
 	}
 
@@ -205,7 +210,7 @@ public class ConstantServiceImpl implements Serializable, IConstantService, IEnt
 
 	@Override
 	public int getRunLevel() {
-		return 0;
+		return 1;
 	}
 
 	@Override

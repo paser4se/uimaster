@@ -27,7 +27,6 @@ import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 import org.shaolin.bmdp.runtime.security.IPermissionService;
 import org.shaolin.bmdp.runtime.security.UserContext;
-import org.shaolin.bmdp.runtime.spi.IAppServiceManager;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
@@ -59,11 +58,6 @@ public class WebFlowAsyncServlet extends HttpServlet implements RejectedExecutio
 
     private boolean initialized = false;
     
-    /**
-     * if this is a central node.
-     */
-    private ApplicationWebInitializer appInitializer;
-
     /**
      * page url for session timeout
      */
@@ -192,13 +186,6 @@ public class WebFlowAsyncServlet extends HttpServlet implements RejectedExecutio
     	if (this.appName == null || this.appName.trim().length() == 0) {
     		throw new IllegalArgumentException("AppName must be configured for each web instance!");
     	}
-    	// all the listeners must be added before
-    	// starting the config server.
-    	// the application listeners must be made
-    	// before this flow servlet.
-    	this.appInitializer = new ApplicationWebInitializer(this.appName);
-    	this.appInitializer.start(this.getServletContext());
-        
         if (logger.isInfoEnabled()) {
             logger.info("Initialize ui flow engine...");
         }
@@ -227,10 +214,7 @@ public class WebFlowAsyncServlet extends HttpServlet implements RejectedExecutio
             logger.info("\n\n\n\nDestroying and Finalizing this controller servlet....");
         }
         this.initialized = false;
-        if (appInitializer != null) {
-        	AppContext.register((IAppServiceManager)this.getServletContext().getAttribute(IAppServiceManager.class.getCanonicalName()));
-        	appInitializer.stop(this.getServletContext());
-        }
+    	AppContext.register(IServerServiceManager.INSTANCE);
         this.msgExecutor.shutdown();
         if (logger.isInfoEnabled()) {
             logger.info("Destroyed this controller servlet\n\n\n\n");
@@ -413,7 +397,7 @@ public class WebFlowAsyncServlet extends HttpServlet implements RejectedExecutio
 		            if (orgCode == null) {
 		            	orgCode = IServerServiceManager.INSTANCE.getMasterNodeName();
 		            }
-		            AppContext.register(IServerServiceManager.INSTANCE.getApplication(orgCode));
+		            AppContext.register(IServerServiceManager.INSTANCE);
 		            
 		            if (!webflow.checkAccessPermission(attrAccessor, request)) {
 						ProcessHelper.processDirectForward(webflow.permissionDenyPage, request, response);

@@ -28,19 +28,14 @@ public class AppContext {
 
     private static ThreadLocal<IAppServiceManager> appContext = new ThreadLocal<IAppServiceManager>();
 
-    private static IAppServiceManager appServiceManager;
-
     public static void register(IAppServiceManager appContext0) {
         appContext.set(appContext0);
-        if (appServiceManager == null) {
-            appServiceManager = appContext0;
-        }
     }
 
     public static IAppServiceManager get() {
         IAppServiceManager serviceManager = appContext.get();
         if (serviceManager == null) {
-            return appServiceManager;
+            return IServerServiceManager.INSTANCE;
         }
         return serviceManager;
     }
@@ -50,6 +45,6 @@ public class AppContext {
     }
 
     public IAppServiceManager getMasterAppContext() {
-        return IServerServiceManager.INSTANCE.getApplication(IServerServiceManager.INSTANCE.getMasterNodeName());
+        return IServerServiceManager.INSTANCE;
     }
 }

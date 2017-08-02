@@ -2,8 +2,6 @@ package org.shaolin.uimaster.page.flow;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -13,26 +11,31 @@ import org.shaolin.bmdp.datamodel.page.UIEntity;
 import org.shaolin.bmdp.datamodel.page.UIPage;
 import org.shaolin.bmdp.datamodel.page.WebService;
 import org.shaolin.bmdp.datamodel.pagediagram.WebChunk;
+import org.shaolin.bmdp.persistence.HibernateUtil;
+import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.Registry;
-import org.shaolin.bmdp.runtime.cache.CacheManager;
-import org.shaolin.bmdp.runtime.cache.ICache;
+import org.shaolin.bmdp.runtime.ce.ConstantServiceImpl;
 import org.shaolin.bmdp.runtime.entity.EntityAddedEvent;
 import org.shaolin.bmdp.runtime.entity.EntityManager;
 import org.shaolin.bmdp.runtime.entity.EntityUpdatedEvent;
 import org.shaolin.bmdp.runtime.entity.IEntityEventListener;
-import org.shaolin.bmdp.runtime.internal.ServerServiceManagerImpl;
+import org.shaolin.bmdp.runtime.spi.IAppServiceManager;
 import org.shaolin.bmdp.runtime.spi.IEntityManager;
+import org.shaolin.bmdp.runtime.spi.ILifeCycleProvider;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
+import org.shaolin.bmdp.runtime.spi.IAppServiceManager.State;
+import org.shaolin.javacc.StatementParser;
+import org.shaolin.javacc.context.OOEEContext;
+import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.javacc.exception.ParsingException;
+import org.shaolin.javacc.statement.CompilationUnit;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.WebConfigSpringInstance;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
 import org.shaolin.uimaster.page.cache.UIFlowCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.stereotype.Service;
 
 /**
  * The master instance is responsible for reading all entities from the whole
@@ -41,62 +44,78 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author wushaol
  * 
  */
-@SpringBootApplication
-@EnableAutoConfiguration
-public class MasterInstanceListener implements ServletContextListener {
+@Service
+public class MasterInstanceListener implements ServletContextListener, ILifeCycleProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(MasterInstanceListener.class);
 
-	@Autowired
-	private WebConfigSpringInstance instance;
-	
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
-		//SpringApplication.run(MasterInstanceListener.class, new String[0]);
+		logger.info("Initializing application instance " + sce.getServletContext().getContextPath() + "...");
+		IServerServiceManager serverManager = IServerServiceManager.INSTANCE;
+		if (serverManager == null) {
+			return;
+		}
+		if (serverManager.getState() == State.FAILURE) {
+			logger.error("The state of the master node is failed, please check the master node!");
+			return;
+		}
 		
-		((ServerServiceManagerImpl)IServerServiceManager.INSTANCE).setMasterNodeName(
-				sce.getServletContext().getInitParameter("AppName"));
-		
-		// initial system configuration.
-		Registry registry = Registry.getInstance();
-		registry.initRegistry();
-		
-		List<String> cacheItems = registry.getNodeChildren("/System/caches");
-    	for (String cacheName: cacheItems) {
-    		Map<String, String> config = registry.getNodeItems("/System/caches/" + cacheName);
-    		String maxSizeStr = config.get("maxSize");
-    		String minutesStr = config.get("refreshTimeInMinutes");
-    		String description = config.get("description");
-    		int maxSize;
-    		long minutes;
-			try {
-				maxSize = Integer.parseInt(maxSizeStr);
-			} catch (NumberFormatException e) {
-				maxSize = -1;
-				logger.warn("maxSize format error, now use the default -1");
-			}
-			try {
-				minutes = Long.parseLong(minutesStr);
-			} catch (NumberFormatException e) {
-				minutes = -1;
-				logger.warn("refresh interval error, now use the default -1");
-			}
-    		ICache<String, ConcurrentHashMap> cache = CacheManager.getInstance().getCache(
-    						cacheName, maxSize, false, String.class, ConcurrentHashMap.class);
-    		cache.setRefreshInterval(minutes);
-    		cache.setDescription(description);
-    	}
-		WebConfig.setSpringInstance(instance);
-		WebConfig.setResourcePath(sce.getServletContext().getRealPath("/"));
-		
-		// load all entities from applications. only load once if there were many web instances.
-		IEntityManager entityManager = IServerServiceManager.INSTANCE.getEntityManager();
-		addEntityListeners(entityManager);
-		((EntityManager)entityManager).initRuntime();
+		try {
+			AppContext.register(IServerServiceManager.INSTANCE);
+			// add application to the server manager.
+			serverManager.setAppClassLoader(sce.getServletContext().getClassLoader());
+			// bind the app context with the servlet context.
+			sce.getServletContext().setAttribute(IAppServiceManager.class.getCanonicalName(), IServerServiceManager.INSTANCE);
+			
+			// configure all life-cycled services.
+			serverManager.configureLifeCycleProviders();
+	    	
+			// load all entities from applications. only load once if there were many web instances.
+			IEntityManager entityManager = serverManager.getEntityManager();
+			((EntityManager)entityManager).initRuntime();
+			
+			// initialize DB.
+	    	HibernateUtil.getSession();
+	    	// wire all services.
+	    	OOEEContext context = OOEEContextFactory.createOOEEContext();
+	    	List<String> serviceNodes = Registry.getInstance().getNodeChildren("/System/services");
+        	for (String path: serviceNodes) {
+        		String expression = Registry.getInstance().getExpression("/System/services/" + path);
+        		logger.debug("Evaluate module initial expression: " + expression);
+        		CompilationUnit compliedUnit = StatementParser.parse(expression, context);
+        		compliedUnit.execute(context);
+        	}
+        	serverManager.startLifeCycleProviders();
+        	logger.info("{} is ready for request.", sce.getServletContext().getContextPath());
+	    	
+        	serverManager.setState(State.ACTIVE);
+        	HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+        	
+        	entityManager.offUselessCaches();
+		} catch (Throwable e) {
+			logger.error("Fails to start Config server start! Error: " + e.getMessage(), e);
+			serverManager.setState(State.FAILURE);
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
+		} 
 	}
 	
-	static void addEntityListeners(IEntityManager entityManager) {
-		
+	@Override
+	public void contextDestroyed(ServletContextEvent sce) {
+		if (IServerServiceManager.INSTANCE != null) {
+			IServerServiceManager.INSTANCE.stopLifeCycleProviders();
+		}
+	}
+
+	@Override
+	public void configService() {
+		IEntityManager entityManager = IServerServiceManager.INSTANCE.getEntityManager();
+		WebConfigSpringInstance instance = IServerServiceManager.INSTANCE.getSpringContext().getBean(WebConfigSpringInstance.class);
+    	logger.info("UIMaster contextRoot: " + instance.getContextRoot());
+		WebConfig.setSpringInstance(instance);
+		//WebConfig.setResourcePath(servletContext.getRealPath("/"));
+		//load all customized constant items from DB table.
+		entityManager.addEventListener((ConstantServiceImpl)IServerServiceManager.INSTANCE.getConstantService());
 		entityManager.addEventListener(new IEntityEventListener<WebChunk, DiagramType>() {
 			@Override
 			public void setEntityManager(EntityManager entityManager) {
@@ -267,7 +286,28 @@ public class MasterInstanceListener implements ServletContextListener {
 	}
 
 	@Override
-	public void contextDestroyed(ServletContextEvent sce) {
+	public void startService() {
+		
+	}
+	
+	@Override
+	public boolean readyToStop() {
+		return true;
+	}
+
+	@Override
+	public void stopService() {
+		
+	}
+
+	@Override
+	public void reload() {
+		
+	}
+
+	@Override
+	public int getRunLevel() {
+		return 0;
 	}
 
 }

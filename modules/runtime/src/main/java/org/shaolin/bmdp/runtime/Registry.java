@@ -135,6 +135,7 @@ public final class Registry implements IRegistry, Serializable {
 	public void initRegistry() {
 		if (initialized) {
 			logger.warn("The registry has already initialized!");
+			return;
 		}
 		this.initialized = true;
 		

@@ -55,7 +55,9 @@ import org.shaolin.bmdp.workflow.dao.CustCoordinatorModel;
 import org.shaolin.bmdp.workflow.ws.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
+@Service
 public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorService, IServiceProvider {
 	
 	private static final Logger logger = LoggerFactory.getLogger(CoordinatorServiceImpl.class);
@@ -72,6 +74,8 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	private boolean testCaseFlag = false;
 	
 	private IAppServiceManager appService;
+	
+	public CoordinatorServiceImpl() {}
 	
 	public void setAppService(IAppServiceManager appService) {
 		this.appService = appService;
@@ -594,11 +598,15 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 	
 	@Override
+	public void configService() {
+		
+	}
+	
+	@Override
 	public void startService() {
 		this.futures.clear();
 		
-		String masterNode = IServerServiceManager.INSTANCE.getMasterNodeName();
-		this.setAppService(IServerServiceManager.INSTANCE.getApplication(masterNode));
+		this.setAppService(IServerServiceManager.INSTANCE);
 		AppContext.get().register(this);
 		IServerServiceManager.INSTANCE.register(this);
 		

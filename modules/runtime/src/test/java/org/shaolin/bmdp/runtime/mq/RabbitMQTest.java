@@ -1,5 +1,6 @@
 package org.shaolin.bmdp.runtime.mq;
 
+import org.junit.Test;
 import org.shaolin.bmdp.runtime.mq.RabbitMQReceiver.ReceivingHandler;
 
 import com.rabbitmq.client.BuiltinExchangeType;
@@ -7,6 +8,9 @@ import com.rabbitmq.client.MessageProperties;
 
 public class RabbitMQTest {
 
+	@Test
+    public void testEmpty() {}
+	
 	public void testExFanoutSending() throws Exception {
 		
 		RabbitMQExchanger exchanger = new RabbitMQExchanger("127.0.0.1", 5672, "order1", BuiltinExchangeType.FANOUT);

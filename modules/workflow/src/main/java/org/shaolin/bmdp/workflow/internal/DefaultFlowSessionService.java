@@ -26,7 +26,9 @@ import org.shaolin.bmdp.workflow.spi.SessionService;
 import org.shaolin.bmdp.workflow.spi.WorkflowSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
+@Service
 public class DefaultFlowSessionService implements SessionService, IServiceProvider {
 	
     private static final Logger logger = LoggerFactory.getLogger(DefaultFlowSessionService.class);

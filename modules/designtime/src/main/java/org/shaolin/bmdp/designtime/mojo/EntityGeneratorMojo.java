@@ -19,9 +19,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.apache.maven.model.Dependency;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.shaolin.bmdp.datamodel.common.EntityType;
 import org.shaolin.bmdp.designtime.bediagram.BESourceGenerator;
@@ -36,11 +33,9 @@ import org.shaolin.bmdp.designtime.page.UIPageJSGenerator;
 import org.shaolin.bmdp.designtime.tools.GeneratorOptions;
 import org.shaolin.bmdp.persistence.provider.DBMSProviderFactory;
 import org.shaolin.bmdp.runtime.AppContext;
-import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.entity.EntityManager;
 import org.shaolin.bmdp.runtime.entity.IEntityEventListener;
 import org.shaolin.bmdp.runtime.internal.AppServiceManagerImpl;
-import org.shaolin.bmdp.runtime.spi.IEntityManager;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.utils.CloseUtil;
 
@@ -50,7 +45,7 @@ import org.shaolin.bmdp.utils.CloseUtil;
  * @author Shaolin
  *
  */
-public class EntityGeneratorMojo extends AbstractMojo {
+public class EntityGeneratorMojo extends SpringBootstrapperMojo {
 	
 	// read-only parameters ---------------------------------------------------
     /**
@@ -154,7 +149,8 @@ public class EntityGeneratorMojo extends AbstractMojo {
         return project;
     }
     
-    public void execute() throws MojoExecutionException, MojoFailureException  {
+    @Override
+	public void invoke() throws Exception {
     	if (!entitiesDirectory.exists()) {
     		return;
     	}
@@ -172,9 +168,6 @@ public class EntityGeneratorMojo extends AbstractMojo {
     	this.getLog().info("EntitiesDirectory: " + entitiesDirectory.getAbsolutePath());
     	this.getLog().info("WebDirectory: " + webDirectory.getAbsolutePath());
     	this.getLog().info("SqlDirectory: " + sqlDirectory.getAbsolutePath());
-    	
-    	// initialize registry
-		Registry.getInstance().initRegistry();
     	
 		GeneratorOptions options = new GeneratorOptions(project.getGroupId(),
 				project.getArtifactId(), entitiesDirectory, resourcesDir,
@@ -239,9 +232,9 @@ public class EntityGeneratorMojo extends AbstractMojo {
 		ClassLoader loader = Thread.currentThread().getContextClassLoader();
 		try {
 	    	AppContext.register(new AppServiceManagerImpl("build_app", loader));
-			
+	    	//IServerServiceManager.INSTANCE = IServerServiceManager.createMockServiceManager();
 			// Classloader will be switched in designtime
-			IEntityManager entityManager = IServerServiceManager.INSTANCE.getEntityManager();
+	    	EntityManager entityManager = (EntityManager)IServerServiceManager.INSTANCE.getEntityManager();
 			if (systemEntityPath != null) {
 				ArrayList<File> files = new ArrayList<File>();
 				if (systemEntityPath.indexOf(";") != -1) {
@@ -253,9 +246,9 @@ public class EntityGeneratorMojo extends AbstractMojo {
 					files.add(new File(systemEntityPath));
 				}
 				files.add(entitiesDirectory);
-				((EntityManager)entityManager).init(listeners, filters, files.toArray(new File[files.size()]));
+				entityManager.init(listeners, filters, files.toArray(new File[files.size()]));
 			} else {
-				((EntityManager)entityManager).init(listeners, filters, new File[]{entitiesDirectory});
+				entityManager.init(listeners, filters, new File[]{entitiesDirectory});
 			}
 		} finally {
 			storeProperties(options.getI18nProperty(), options);

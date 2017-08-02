@@ -23,7 +23,6 @@ import javax.xml.bind.JAXBException;
 
 import org.shaolin.bmdp.datamodel.common.DiagramType;
 import org.shaolin.bmdp.datamodel.workflow.Workflow;
-import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.entity.EntityAddedEvent;
 import org.shaolin.bmdp.runtime.entity.EntityManager;
 import org.shaolin.bmdp.runtime.entity.EntityUpdatedEvent;
@@ -40,35 +39,25 @@ import org.shaolin.bmdp.workflow.internal.cache.FlowObject;
 import org.shaolin.bmdp.workflow.spi.IWorkflowService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
+@Service
 public class WorkflowLifecycleServiceImpl implements ILifeCycleProvider, IServiceProvider, IWorkflowService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(WorkflowLifecycleServiceImpl.class);
 	
-	private final FlowContainer flowContainer;
+	private FlowContainer flowContainer;
+	
+	private List<Workflow> allFlows = new ArrayList<Workflow>();
 
 	public WorkflowLifecycleServiceImpl() {
-		this.flowContainer = new FlowContainer(IServerServiceManager.INSTANCE.getMasterNodeName());
 	}
 	
 	@Override
-	public void startService() {
+	public void configService() {
+		//move the logic from constructor which prevents the NPE while initializing spring context.
+		this.flowContainer = new FlowContainer(IServerServiceManager.INSTANCE.getMasterNodeName());
 		IEntityManager entityManager = IServerServiceManager.INSTANCE.getEntityManager();
-
-		FlowEntityImpl searchCriteria = new FlowEntityImpl();
-		List<IFlowEntity> allFlowEntities = WorkflowModel.INSTANCE.searchFlowEntities(searchCriteria, null, 0, -1);
-		for (IFlowEntity wf : allFlowEntities) {
-			try {
-				Workflow workflow = EntityUtil.unmarshaller(Workflow.class, new StringReader(wf.getContent()));
-				// add the customized workflow to current application entity manager.
-				entityManager.appendEntity(workflow);
-			} catch (JAXBException e) {
-				e.printStackTrace();
-				continue;
-			}
-		}
-		
-		final List<Workflow> allFlows = new ArrayList<Workflow>();
 		// for workflow component update.
 		entityManager.addEventListener(new IEntityEventListener<Workflow, DiagramType>() {
 			@Override
@@ -128,9 +117,23 @@ public class WorkflowLifecycleServiceImpl implements ILifeCycleProvider, IServic
 				return Workflow.class;
 			}
 		});
-		
-		AppContext.get().register(this);
-		
+	}
+	
+	@Override
+	public void startService() {
+		IEntityManager entityManager = IServerServiceManager.INSTANCE.getEntityManager();
+		FlowEntityImpl searchCriteria = new FlowEntityImpl();
+		List<IFlowEntity> allFlowEntities = WorkflowModel.INSTANCE.searchFlowEntities(searchCriteria, null, 0, -1);
+		for (IFlowEntity wf : allFlowEntities) {
+			try {
+				Workflow workflow = EntityUtil.unmarshaller(Workflow.class, new StringReader(wf.getContent()));
+				// add the customized workflow to current application entity manager.
+				entityManager.appendEntity(workflow);
+			} catch (JAXBException e) {
+				e.printStackTrace();
+				continue;
+			}
+		}
 		flowContainer.startService(allFlows);
 		allFlows.clear();
 	}
@@ -157,7 +160,7 @@ public class WorkflowLifecycleServiceImpl implements ILifeCycleProvider, IServic
 	
 	@Override
 	public Workflow getWorkflowEntity(String name) {
-		IEntityManager entityManager = AppContext.get().getEntityManager();
+		IEntityManager entityManager = IServerServiceManager.INSTANCE.getEntityManager();
 		return entityManager.getEntity(name, Workflow.class);
 	}
 	

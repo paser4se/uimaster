@@ -1,19 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <registry xmlns="http://bmdp.shaolin.org/datamodel/Registry">
     <node name="System">
-    	<node name="services">
-    	   <node name="workflow_service">
-	   	       <expression><![CDATA[
-	   	       import org.shaolin.bmdp.runtime.AppContext;
-	   	       import org.shaolin.bmdp.workflow.internal.WorkflowLifecycleServiceImpl;
-	   	       import org.shaolin.bmdp.workflow.internal.CoordinatorServiceImpl;
-	   	       {
-	   	           AppContext.get().registerLifeCycleProvider(new WorkflowLifecycleServiceImpl());
-	   	           AppContext.get().registerLifeCycleProvider(new CoordinatorServiceImpl());
-	   	       }
-	   	       ]]></expression>
-   	       </node>
-        </node>
         <node name="webConstant">
             <node name="commonjs">
                 <node name="org.shaolin.bmdp.workflow.page.TasksManager">

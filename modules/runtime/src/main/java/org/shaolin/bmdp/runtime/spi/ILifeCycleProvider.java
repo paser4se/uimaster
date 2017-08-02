@@ -35,6 +35,12 @@ package org.shaolin.bmdp.runtime.spi;
  */
 public interface ILifeCycleProvider {
 
+	/**
+	 * Config the service
+	 * 
+	 */
+	void configService();
+	
     /**
      * Start service.
      * 

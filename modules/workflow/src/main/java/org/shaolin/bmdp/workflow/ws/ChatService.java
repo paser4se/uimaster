@@ -88,8 +88,7 @@ public class ChatService {
 			logger.debug("Received a message: {}", jsonMsg);
 		}
 		try {
-			AppContext.register(IServerServiceManager.INSTANCE.getApplication(
-					IServerServiceManager.INSTANCE.getMasterNodeName()));
+			AppContext.register(IServerServiceManager.INSTANCE);
 			
 			JSONObject data = new JSONObject(jsonMsg);
 			String action = data.getString("action");

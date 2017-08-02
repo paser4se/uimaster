@@ -56,11 +56,6 @@ public class WebFlowServlet extends HttpServlet
     private boolean initialized = false;
     
     /**
-     * if this is a central node.
-     */
-    private ApplicationWebInitializer appInitializer;
-
-    /**
      * page url for session timeout
      */
     protected String sessionTimeoutPage;
@@ -188,10 +183,6 @@ public class WebFlowServlet extends HttpServlet
     	// starting the config server.
     	// the application listeners must be made
     	// before this flow servlet.
-    	int port = Integer.valueOf(this.getInitParameter("ConfigServerPort"));
-    	this.appInitializer = new ApplicationWebInitializer(this.appName);
-    	this.appInitializer.start(this.getServletContext());
-        
         if (logger.isInfoEnabled()) {
             logger.info("Initialize ui flow engine...");
         }
@@ -219,10 +210,7 @@ public class WebFlowServlet extends HttpServlet
             logger.info("\n\n\n\nDestroying and Finalizing this controller servlet....");
         }
         this.initialized = false;
-        if (appInitializer != null) {
-        	AppContext.register((IAppServiceManager)this.getServletContext().getAttribute(IAppServiceManager.class.getCanonicalName()));
-        	appInitializer.stop(this.getServletContext());
-        }
+    	AppContext.register((IAppServiceManager)this.getServletContext().getAttribute(IAppServiceManager.class.getCanonicalName()));
         if (logger.isInfoEnabled()) {
             logger.info("Destroyed this controller servlet\n\n\n\n");
         }
@@ -402,7 +390,7 @@ public class WebFlowServlet extends HttpServlet
 	            if (orgCode == null) {
 	            	orgCode = IServerServiceManager.INSTANCE.getMasterNodeName();
 	            }
-	            AppContext.register(IServerServiceManager.INSTANCE.getApplication(orgCode));
+	            AppContext.register(IServerServiceManager.INSTANCE);
 	            
 	            if (!checkAccessPermission(attrAccessor, request)) {
 					ProcessHelper.processDirectForward(permissionDenyPage, request, response);

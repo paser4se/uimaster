@@ -44,8 +44,9 @@ import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
-
+@Service
 public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider, IAnalyzerService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(AnalyzerServiceImpl.class);
@@ -133,6 +134,11 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 		return type;
 	}
 
+	@Override
+	public void configService() {
+		
+	}
+	
 	@Override
 	public void startService() {
 		this.reload();

@@ -134,7 +134,8 @@ public class EntityValidationMojo extends AbstractMojo {
         return project;
     }
     
-    public void execute() throws MojoExecutionException, MojoFailureException  {
+    @Override
+    public void execute() throws MojoExecutionException, MojoFailureException {
     	if (!entitiesDirectory.exists()) {
     		return;
     	}

@@ -91,6 +91,11 @@ public class LeaderJobScheduler implements IJobDispatcher {
     public void init() {
         workerNodeListener.init();
     }
+    
+    @Override
+	public void configService() {
+		
+	}
 
     @Override
     public void startService() {

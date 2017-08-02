@@ -8,7 +8,9 @@ import org.shaolin.bmdp.runtime.spi.Event;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.shaolin.bmdp.workflow.spi.SessionService;
 import org.shaolin.bmdp.workflow.spi.WorkflowSession;
+import org.springframework.stereotype.Service;
 
+@Service
 public class MockSessionService implements SessionService, IServiceProvider {
 	
     public static final String SESSION_ID = "SessionId";

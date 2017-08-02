@@ -142,8 +142,7 @@ public class AjaxServlet extends HttpServlet implements RejectedExecutionHandler
 		response.setCharacterEncoding(charset);
 		request.setCharacterEncoding(charset);
 
-		AppContext.register(IServerServiceManager.INSTANCE.getApplication(
-        		IServerServiceManager.INSTANCE.getMasterNodeName()));
+		AppContext.register(IServerServiceManager.INSTANCE);
 		
 		String serviceName = request.getParameter("serviceName");
 		if (serviceName != null && serviceName.trim().length() > 0) {

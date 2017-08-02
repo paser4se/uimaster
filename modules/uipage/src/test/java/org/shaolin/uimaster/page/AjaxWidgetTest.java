@@ -1,17 +1,7 @@
 package org.shaolin.uimaster.page;
 
-import java.util.ArrayList;
-
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.shaolin.bmdp.i18n.LocaleContext;
-import org.shaolin.bmdp.json.JSONException;
-import org.shaolin.bmdp.runtime.AppContext;
-import org.shaolin.bmdp.runtime.Registry;
-import org.shaolin.bmdp.runtime.entity.EntityManager;
-import org.shaolin.bmdp.runtime.internal.AppServiceManagerImpl;
-import org.shaolin.bmdp.runtime.spi.IEntityManager;
-import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
+import org.shaolin.bmdp.runtime.SpringBootTestRoot;
 import org.shaolin.bmdp.utils.SerializeUtil;
 import org.shaolin.uimaster.page.ajax.Layout;
 import org.shaolin.uimaster.page.ajax.TextField;
@@ -19,27 +9,8 @@ import org.shaolin.uimaster.page.ajax.Widget;
 
 import junit.framework.Assert;
 
-public class AjaxWidgetTest {
+public class AjaxWidgetTest extends SpringBootTestRoot {
 
-	@BeforeClass
-	public static void setup() {
-		LocaleContext.createLocaleContext("default");
-		// initialize registry
-		Registry.getInstance().initRegistry();
-		String[] filters = new String[] {};
-		// initialize entity manager.
-		IEntityManager entityManager = IServerServiceManager.INSTANCE.getEntityManager();
-		((EntityManager)entityManager).init(new ArrayList(), filters);
-		WebConfig.setServletContextPath("E:/test/web/");
-		
-		AppContext.register(new AppServiceManagerImpl("test", ODTest.class.getClassLoader()));
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		}
-	}
-	
 	@Test
 	public void testToJson() throws Exception {
 		MockHttpRequest request = new MockHttpRequest();
@@ -53,7 +24,7 @@ public class AjaxWidgetTest {
 		text.setUIEntityName("TestEntity");
 		text.addAttribute("alt", "fdsfdsfs");
 		text.addStyle("color", "red");
-		text.addConstraint("allowBlank", "false", "this is not allowed to be emtpy!");
+		//text.addConstraint("allowBlank", "false", "this is not allowed to be emtpy!");
 		String json = text.toJSON().toString();
 		System.out.println("JSON: " + json);
 		

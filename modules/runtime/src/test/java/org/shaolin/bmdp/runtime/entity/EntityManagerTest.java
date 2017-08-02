@@ -3,8 +3,6 @@ package org.shaolin.bmdp.runtime.entity;
 import java.io.StringWriter;
 import java.util.Map;
 
-import junit.framework.Assert;
-
 import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.shaolin.bmdp.datamodel.bediagram.BusinessEntityType;
@@ -12,16 +10,18 @@ import org.shaolin.bmdp.datamodel.bediagram.ConstantEntityType;
 import org.shaolin.bmdp.datamodel.registry.ItemConfigType;
 import org.shaolin.bmdp.datamodel.registry.NodeConfigType;
 import org.shaolin.bmdp.runtime.Registry;
+import org.shaolin.bmdp.runtime.SpringBootTestRoot;
 import org.shaolin.bmdp.runtime.spi.IEntityManager;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 
-public class EntityManagerTest {
+import junit.framework.Assert;
+
+public class EntityManagerTest extends SpringBootTestRoot {
 
 	@Test
 	public void test() {
 		try {
 			Registry registry = Registry.getInstance();
-			registry.initRegistry();
 			Assert.assertEquals("UTF-8", registry.getEncoding());
 			Map<String, String> pairs = registry.getNodeItems(
 					"/System/security/LDAPSecurity");

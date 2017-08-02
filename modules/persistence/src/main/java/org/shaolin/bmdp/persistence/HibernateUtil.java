@@ -12,7 +12,7 @@ import org.hibernate.TransactionException;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.exception.JDBCConnectionException;
 import org.shaolin.bmdp.runtime.AppContext;
-import org.shaolin.bmdp.runtime.internal.AppServiceManagerImpl;
+import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +50,7 @@ public class HibernateUtil {
 				}
 			}
 			config.configure(MASTER_DB);
-			((AppServiceManagerImpl)AppContext.get()).setHibernateConfiguration(config);
+			IServerServiceManager.INSTANCE.setHibernateConfiguration(config);
 			// Create the SessionFactory from hibernate.cfg.xml
 			return config.buildSessionFactory();
 		} catch (Throwable ex) {
@@ -104,7 +104,7 @@ public class HibernateUtil {
 			session.beginTransaction();
 		} catch (JDBCConnectionException e1) {
 			// unable to resolve the re-connect DB problem. rebuild session here!
-			((AppServiceManagerImpl)AppContext.get()).setHibernateSessionFactory(buildSessionFactory());
+			IServerServiceManager.INSTANCE.setHibernateSessionFactory(buildSessionFactory());
 			sessionFactoryTL.set(null);
 			throw e1;
 		}
@@ -143,7 +143,7 @@ public class HibernateUtil {
 				if ("rollback failed".equals(e.getMessage())) {
 					if (e.getCause() != null && "unable to rollback against JDBC connection".equals(e.getCause().getMessage())) {
 						// unable to resolve the re-connect DB problem. rebuild session here!
-						((AppServiceManagerImpl)AppContext.get()).setHibernateSessionFactory(buildSessionFactory());
+						IServerServiceManager.INSTANCE.setHibernateSessionFactory(buildSessionFactory());
 						sessionFactoryTL.set(null);
 					}
 				}
@@ -154,7 +154,7 @@ public class HibernateUtil {
 	
 	public static SessionFactory getSessionFactory() {
 		if (AppContext.get().getHibernateSessionFactory() == null) {
-			((AppServiceManagerImpl)AppContext.get()).setHibernateSessionFactory(buildSessionFactory());
+			IServerServiceManager.INSTANCE.setHibernateSessionFactory(buildSessionFactory());
 		}
 		return (SessionFactory)AppContext.get().getHibernateSessionFactory();
 	}

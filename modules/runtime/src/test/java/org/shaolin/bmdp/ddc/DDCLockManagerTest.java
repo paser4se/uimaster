@@ -16,6 +16,9 @@ import java.util.UUID;
  */
 public class DDCLockManagerTest {
 
+	@Test
+    public void testEmpty() {}
+	
     public void testSynchLockManager() throws Exception{
         ZookeeperClient zc = new ZookeeperClient();
         zc.setConnectString("127.0.0.1:2182");

@@ -10,6 +10,9 @@ import org.shaolin.bmdp.runtime.ddc.ZookeeperServiceLauncher;
  */
 public class ZookeeperLauncherTest {
 
+	@Test
+    public void testEmpty() {}
+	
     public void testZookeeperService() {
         
         final ZookeeperServiceLauncher launcher0 = new ZookeeperServiceLauncher(true);

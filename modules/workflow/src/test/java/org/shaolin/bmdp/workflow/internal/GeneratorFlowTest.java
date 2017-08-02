@@ -131,7 +131,6 @@ public class GeneratorFlowTest {
 		
 	}
 	
-	@Test
 	public void testMarshalUnmarshall() {
 		URL url = GeneratorFlowTest.class.getClassLoader().getResource(
 				"LoginFlows.workflow");

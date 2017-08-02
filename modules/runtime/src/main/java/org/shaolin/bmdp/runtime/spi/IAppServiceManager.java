@@ -58,6 +58,8 @@ public interface IAppServiceManager {
 	 */
 	<T> T getService(Class<T> serviceClass);
 	
+	boolean hasService(Class<?> serviceClass);
+	
 	/**
 	 * Get the name of all life cycle service.
 	 * 

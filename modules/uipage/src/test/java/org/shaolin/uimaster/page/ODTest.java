@@ -9,8 +9,6 @@ import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.common.ParamType;
@@ -33,15 +31,9 @@ import org.shaolin.bmdp.datamodel.page.UIPage;
 import org.shaolin.bmdp.datamodel.page.UIPanelType;
 import org.shaolin.bmdp.datamodel.page.UISkinType;
 import org.shaolin.bmdp.datamodel.page.UITextFieldType;
-import org.shaolin.bmdp.i18n.LocaleContext;
-import org.shaolin.bmdp.runtime.AppContext;
-import org.shaolin.bmdp.runtime.Registry;
-import org.shaolin.bmdp.runtime.entity.EntityManager;
+import org.shaolin.bmdp.runtime.SpringBootTestRoot;
 import org.shaolin.bmdp.runtime.entity.EntityUtil;
-import org.shaolin.bmdp.runtime.internal.AppServiceManagerImpl;
 import org.shaolin.bmdp.runtime.security.UserContext;
-import org.shaolin.bmdp.runtime.spi.IEntityManager;
-import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.uimaster.page.ajax.Label;
 import org.shaolin.uimaster.page.ajax.SelectWidget;
 import org.shaolin.uimaster.page.ajax.SingleChoice;
@@ -80,31 +72,8 @@ import org.shaolin.uimaster.test.ce.Gender;
 
 import junit.framework.Assert;
 
-public class ODTest {
+public class ODTest extends SpringBootTestRoot {
 
-	@BeforeClass
-	public static void setup() {
-		LocaleContext.createLocaleContext("default");
-		// initialize registry
-		Registry.getInstance().initRegistry();
-		String[] filters = new String[] {"/uipage/"};
-		// initialize entity manager.
-		IEntityManager entityManager = IServerServiceManager.INSTANCE.getEntityManager();
-		((EntityManager)entityManager).init(new ArrayList(), filters);
-		
-		AppContext.register(new AppServiceManagerImpl("test", ODTest.class.getClassLoader()));
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		}
-	}
-	
-	@AfterClass
-	public static void teardown() {
-		
-	}
-	
 	@Test
 	public void testUserContext() {
 		System.out.println(UserContext.isMobileRequest());
@@ -580,6 +549,8 @@ public class ODTest {
             
             UserRequestContext.UserContext.set(htmlContext);
             AjaxContextHelper.createAjaxContext(new AjaxContext(new HashMap(), new RequestData()));
+            AjaxContextHelper.getAjaxContext().initData();
+            AjaxContextHelper.getAjaxContext().setHttpRequest(request);
             
 			ODFormObject odEntityObject = PageCacheManager.getODFormObject(htmlContext.getFormName());
             HTMLReferenceEntityType newReferObject = new HTMLReferenceEntityType("customer", htmlContext.getFormName());

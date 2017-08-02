@@ -3,13 +3,11 @@ package org.shaolin.uimaster.page;
 import java.io.File;
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.common.NameExpressionType;
@@ -24,13 +22,8 @@ import org.shaolin.bmdp.datamodel.pagediagram.LogicNodeType;
 import org.shaolin.bmdp.datamodel.pagediagram.NextType;
 import org.shaolin.bmdp.datamodel.pagediagram.PageNodeType;
 import org.shaolin.bmdp.i18n.LocaleContext;
-import org.shaolin.bmdp.runtime.AppContext;
-import org.shaolin.bmdp.runtime.Registry;
-import org.shaolin.bmdp.runtime.entity.EntityManager;
+import org.shaolin.bmdp.runtime.SpringBootTestRoot;
 import org.shaolin.bmdp.runtime.entity.EntityUtil;
-import org.shaolin.bmdp.runtime.internal.AppServiceManagerImpl;
-import org.shaolin.bmdp.runtime.spi.IEntityManager;
-import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.exception.WebFlowException;
@@ -41,27 +34,8 @@ import org.shaolin.uimaster.test.be.ICustomer;
 
 import junit.framework.Assert;
 
-public class WebflowTest {
+public class WebflowTest extends SpringBootTestRoot {
 
-	@BeforeClass
-	public static void setup() {
-		LocaleContext.createLocaleContext("default");
-		// initialize registry
-		Registry.getInstance().initRegistry();
-		String[] filters = new String[] {"/uipage/"};
-		// initialize entity manager.
-		IEntityManager entityManager = IServerServiceManager.INSTANCE.getEntityManager();
-		((EntityManager)entityManager).init(new ArrayList(), filters);
-		WebConfig.setServletContextPath("E:/test/web/");
-		AppContext.register(new AppServiceManagerImpl("test", ODTest.class.getClassLoader()));
-		
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		}
-	}
-	
 	@Test
 	public void testCreateWebflow() {
 		System.out.println("File.separator:" + File.separator);

@@ -105,7 +105,7 @@ public class UploadFileServlet extends HttpServlet {
         if (orgCode == null) {
         	orgCode = IServerServiceManager.INSTANCE.getMasterNodeName();
         }
-        AppContext.register(IServerServiceManager.INSTANCE.getApplication(orgCode));
+        AppContext.register(IServerServiceManager.INSTANCE);
 		
 		// move the file to the real path.
 		if (file == null || file.getStoredPath() == null || file.getStoredPath().isEmpty()) {

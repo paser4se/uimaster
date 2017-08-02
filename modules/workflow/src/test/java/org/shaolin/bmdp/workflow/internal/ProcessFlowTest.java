@@ -3,16 +3,15 @@ package org.shaolin.bmdp.workflow.internal;
 import org.junit.Assert;
 import org.junit.Test;
 import org.shaolin.bmdp.runtime.AppContext;
+import org.shaolin.bmdp.runtime.SpringBootTestRoot;
 import org.shaolin.bmdp.runtime.spi.FlowEvent;
-import org.shaolin.bmdp.runtime.test.TestContext;
 import org.shaolin.bmdp.workflow.be.ITask;
 import org.shaolin.bmdp.workflow.coordinator.IResourceManager;
+import org.springframework.stereotype.Service;
 
-public class ProcessFlowTest extends TestContext {
+public class ProcessFlowTest extends SpringBootTestRoot {
 
 	private WorkflowLifecycleServiceImpl wfservice = new WorkflowLifecycleServiceImpl();
-	
-	private IResourceManager resourceManager = new ResourceManagerImpl();
 	
 	private CoordinatorServiceImpl coordinator = new CoordinatorServiceImpl();
 	
@@ -22,9 +21,9 @@ public class ProcessFlowTest extends TestContext {
 	}
 	
 	@Test
+	public void testEmpty(){}
+	
 	public void testExecuteFlow() throws Exception {
-		AppContext.get().register(coordinator);
-		AppContext.get().register(resourceManager);
 		wfservice.startService();
 		coordinator.markAsTestCaseFlag();
 		coordinator.startService();
@@ -60,7 +59,8 @@ public class ProcessFlowTest extends TestContext {
         //auto approved order
     }
 	
-	private class ResourceManagerImpl implements IResourceManager {
+	@Service
+	public class ResourceManagerImpl implements IResourceManager {
 
 		@Override
 		public Class getServiceInterface() {
@@ -77,7 +77,6 @@ public class ProcessFlowTest extends TestContext {
 			// TODO Auto-generated method stub
 			return null;
 		}
-		
 	}
-
+	
 }

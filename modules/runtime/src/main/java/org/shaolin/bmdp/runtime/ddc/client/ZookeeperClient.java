@@ -11,6 +11,7 @@ import org.shaolin.bmdp.runtime.ddc.client.sample.SampleLoggerListener;
 import org.shaolin.bmdp.runtime.spi.ILifeCycleProvider;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.shaolin.bmdp.utils.SerializeUtil;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -18,9 +19,15 @@ import java.util.List;
 
 /**
  * Created by lizhiwe on 4/6/2016.
+ * 
+ * ZookeeperClient zkClient = new ZookeeperClient();
+   zkClient.setConnectString(Registry.getInstance().getValue("/System/zookeeper_client/serverInfo"));//"127.0.0.1:2182"
+   zkClient.setTimeout(Registry.getInstance().getValue("/System/zookeeper_client/timeout", 30000));
+   AppContext.get().registerLifeCycleProvider(zkClient);
+   AppContext.get().register(zkClient);
  */
 public class ZookeeperClient implements ILifeCycleProvider, IZookeeperClient, IServiceProvider {
-    private Logger logger = Logger.getLogger(getClass());
+    private static Logger logger = Logger.getLogger(ZookeeperClient.class);
     private ZooKeeper zooKeeper;
 
     private String connectString;
@@ -28,6 +35,13 @@ public class ZookeeperClient implements ILifeCycleProvider, IZookeeperClient, IS
 
     private GlobalWatcher globalWatcher = new GlobalWatcher(null);
 
+    public ZookeeperClient() {}
+    
+    @Override
+	public void configService() {
+		
+	}
+    
     /**
      * Start service.
      * <p/>
@@ -35,7 +49,10 @@ public class ZookeeperClient implements ILifeCycleProvider, IZookeeperClient, IS
      */
     @Override
     public void startService() {
-
+    	if (connectString == null || connectString.trim().length() == 0) {
+    		return;
+    	}
+    	
         try {
             zooKeeper = ZooKeeperFactory.getInstance().getZooKeeper(connectString, timeout, globalWatcher);
             globalWatcher.setZooKeeper(zooKeeper);
@@ -55,7 +72,7 @@ public class ZookeeperClient implements ILifeCycleProvider, IZookeeperClient, IS
      */
     @Override
     public boolean readyToStop() {
-        return false;
+        return true;
     }
 
     /**
@@ -65,7 +82,12 @@ public class ZookeeperClient implements ILifeCycleProvider, IZookeeperClient, IS
      */
     @Override
     public void stopService() {
-        //
+    	if (zooKeeper != null) {
+    		try {
+				zooKeeper.close();
+			} catch (InterruptedException e) {
+			}
+    	}
     }
 
     /**

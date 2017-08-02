@@ -44,7 +44,6 @@ import org.shaolin.bmdp.runtime.spi.IConstantService;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.utils.HttpSender;
 import org.shaolin.uimaster.page.flow.WebflowConstants;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public final class WebConfig {
 

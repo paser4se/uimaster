@@ -17,6 +17,10 @@ import java.util.UUID;
  */
 public class DDCCacheTest {
     private Logger logger = Logger.getLogger(getClass());
+    
+    @Test
+    public void testEmpty() {}
+    
     public void testDDCCache() throws Exception{
         ZookeeperClient zc = new ZookeeperClient();
         zc.setConnectString("127.0.0.1:2182");

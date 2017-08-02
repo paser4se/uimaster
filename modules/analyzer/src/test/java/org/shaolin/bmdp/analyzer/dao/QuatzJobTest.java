@@ -21,6 +21,11 @@ public class QuatzJobTest {
 	    
 	    IJobDispatcher dispatcher = new IJobDispatcher() {
 
+	    	@Override
+	    	public void configService() {
+	    		
+	    	}
+	    	
             @Override
             public int getRunLevel() {
                 // TODO Auto-generated method stub
@@ -132,7 +137,7 @@ public class QuatzJobTest {
 
 		scheduler.start();
 		logger.info("-----------start running schedule");
-		Thread.sleep(40000);
+		Thread.sleep(4000);
 		logger.info("-----------clear schedule");
 		scheduler.clear();
 
@@ -141,7 +146,7 @@ public class QuatzJobTest {
 		scheduler.start();
 		scheduler.scheduleJob(jobDetail, trigger);
 
-		Thread.sleep(100000);
+		Thread.sleep(4000);
 
 	}
 }

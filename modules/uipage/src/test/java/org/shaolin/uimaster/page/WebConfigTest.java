@@ -2,34 +2,13 @@ package org.shaolin.uimaster.page;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.shaolin.uimaster.page.flow.MasterInstanceListener;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.env.Environment;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.shaolin.bmdp.runtime.SpringBootTestRoot;
+import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes=MasterInstanceListener.class)
-@ContextConfiguration(classes=WebConfigSpringInstance.class)
-@EnableAutoConfiguration
-public class WebConfigTest {
-	
-	@Autowired
-	private WebConfigSpringInstance instance;
-	
-	@Autowired
-    private Environment env;
-	
-	@Autowired
-	private TestServiceAnnotation testService;
-	
+public class WebConfigTest extends SpringBootTestRoot {
 	@Test
 	public void testConfig() {
-		System.out.println(env.getClass());
-		System.out.println(testService.getClass());
+		WebConfigSpringInstance instance = IServerServiceManager.INSTANCE.getService(WebConfigSpringInstance.class);
 		
 		Assert.assertEquals("http://127.0.0.1:8080/uimaster", instance.getResourceServer());
 		Assert.assertEquals("/uimaster/webflow.do", instance.getActionPath());

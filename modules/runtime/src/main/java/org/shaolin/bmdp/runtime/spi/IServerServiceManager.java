@@ -15,93 +15,289 @@
 */
 package org.shaolin.bmdp.runtime.spi;
 
-import org.shaolin.bmdp.runtime.internal.ServerServiceManagerImpl;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
+import org.shaolin.bmdp.runtime.Registry;
+import org.shaolin.bmdp.runtime.ce.ConstantServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.stereotype.Service;
 
 /**
+ * Here is only one server service manager while running on multiple
+ * applications. To reduce our cost of memory consuming.
  * 
- * @author wushaol
  */
-public interface IServerServiceManager {
+@Service("serviceManager")
+public class IServerServiceManager implements IAppServiceManager, Serializable {
 
-	public static final IServerServiceManager INSTANCE = new ServerServiceManagerImpl();
+	private static final long serialVersionUID = 1L;
+
+	private static Logger logger = LoggerFactory.getLogger(IServerServiceManager.class);
+
+	private String masterNodeName = "uimaster";
+	
+	private State state = State.START;
+	
+	private final Registry registry;
+
+	// use spring service instead.
+	// private final Map<Class<?>, IServiceProvider> services = new HashMap<Class<?>, IServiceProvider>();
+
+	public static IServerServiceManager INSTANCE;
+	
+	private static ApplicationContext springContext;
+	
+	private transient ClassLoader appClassLoader;
+	
+	@Autowired
+	private IEntityManager entityManager;
+	
+	@Autowired
+	private IConstantService constantService;
+	
+	@Autowired
+	private ISchedulerService schedulerService;
+	
+	private Object hibernateSessionFactory;
+	
+	private Object hibernateConfiguration;
+	
+	public IServerServiceManager() {
+		this.registry = Registry.getInstance();
+	}
+	
+	// for entity generator only which could not rely on Spring boot container.
+//	public static IServerServiceManager createMockServiceManager() {
+//		IServerServiceManager instance = new IServerServiceManager();
+//		instance.entityManager = new EntityManager();
+//		instance.constantService = new ConstantServiceImpl();
+//		instance.schedulerService = new ISchedulerService();
+//		return instance;
+//	}
+	
+	public static void setSpringContext(ApplicationContext springContext) {
+		IServerServiceManager.springContext = springContext;
+		INSTANCE = IServerServiceManager.springContext.getBean(IServerServiceManager.class);
+	}
+	
+	public ApplicationContext getSpringContext() {
+		return IServerServiceManager.springContext;
+	}
+	
+	public String getMasterNodeName() {
+		return masterNodeName;
+	}
+
+	public void setMasterNodeName(String masterNodeName) {
+		this.masterNodeName = masterNodeName;
+	}
+
+	public IRegistry getRegistry() {
+		return registry;
+	}
+
+	public IEntityManager getEntityManager() {
+		return entityManager;
+	}
+	
+	public IConstantService getConstantService() {
+		return constantService;
+	}
+	
+	public ISchedulerService getSchedulerService() {
+		return schedulerService;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void register(IServiceProvider service) {
+		//BeanFactoryPostProcessor 
+		logger.info("Register service: " + service.getServiceInterface());
+		ConfigurableListableBeanFactory beanFactory = ((ConfigurableApplicationContext) 
+				IServerServiceManager.INSTANCE.getSpringContext()).getBeanFactory();
+		beanFactory.registerSingleton(service.getServiceInterface().getCanonicalName(), service);
+	}
+
+	public boolean hasService(Class<?> serviceClass) {
+		try {
+			Object o = IServerServiceManager.INSTANCE.getSpringContext().getBean(serviceClass);
+			return o != null;
+		} catch (NoSuchBeanDefinitionException e) {
+			return false;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> T getService(Class<T> serviceClass) {
+		T t= IServerServiceManager.INSTANCE.getSpringContext().getBean(serviceClass);
+		if (t == null) {
+			logger.warn("The service " + serviceClass.getName() 
+					+ " is not existed! Are you sure it has registed or made a mistake while registering this service?");
+			return null;
+		}
+		return t;
+	}
+	
+	public int getServiceSize() {
+		Map<String, IServiceProvider> services = IServerServiceManager.INSTANCE.getSpringContext()
+				.getBeansOfType(IServiceProvider.class);
+		return services.size();
+	}
+
+	public Object getHibernateConfiguration() {
+		return hibernateConfiguration;
+	}
+
+	public void setHibernateConfiguration(Object hibernateConfiguration) {
+		this.hibernateConfiguration = hibernateConfiguration;
+	}
+
+	public Object getHibernateSessionFactory() {
+		return hibernateSessionFactory;
+	}
+
+	public void setHibernateSessionFactory(Object sessionFactory) {
+		this.hibernateSessionFactory = sessionFactory;
+	}
+	
+	public void shutdown() {
+		this.schedulerService.stopService();
+		((ConstantServiceImpl)this.constantService).stopService();
+	}
+
+	@Override
+	public String getAppName() {
+		return "uimaster";
+	}
+
+	public void setState(State s) {
+		this.state = s;
+	}
+	
+	@Override
+	public State getState() {
+		return state;
+	}
+
+	@Override
+	public void registerLifeCycleProvider(ILifeCycleProvider provider) {
+		logger.info("Register life cycle service: {0}, this: {1}", new Object[]{provider, this.hashCode()});
+		ConfigurableListableBeanFactory beanFactory = ((ConfigurableApplicationContext) 
+				IServerServiceManager.INSTANCE.getSpringContext()).getBeanFactory();
+		beanFactory.registerSingleton(provider.getClass().getCanonicalName(), provider);
+		
+		if (provider instanceof IServiceProvider) {
+			register((IServiceProvider)provider);
+		}
+	}
+
+	@Override
+	public List<String> getLifeCycleServiceList() {
+		Map<String, ILifeCycleProvider> lifeCycleProviders = IServerServiceManager.INSTANCE.getSpringContext()
+				.getBeansOfType(ILifeCycleProvider.class);
+		Collection<ILifeCycleProvider> values = lifeCycleProviders.values();
+		List<String> temp = new ArrayList<String>();
+		for (ILifeCycleProvider provider : values) {
+			temp.add(provider.getClass().toString());
+		}
+		return temp;
+	}
+
+	@Override
+	public void reloadLifeCycleService(String serviceName) {
+		Map<String, ILifeCycleProvider> lifeCycleProviders = IServerServiceManager.INSTANCE.getSpringContext()
+				.getBeansOfType(ILifeCycleProvider.class);
+		Collection<ILifeCycleProvider> values = lifeCycleProviders.values();
+		for (ILifeCycleProvider provider : values) {
+			if (serviceName.equals(provider.getClass().toString())) {
+				provider.reload();
+				return;
+			}
+		}
+	}
 
 	/**
-	 * Get the name of the master node.
+	 * The configuration of life-cycled service happens before IEntityManager.initRuntime
 	 * 
-	 * @return
 	 */
-	public String getMasterNodeName();
+	public void configureLifeCycleProviders() {
+		Map<String, ILifeCycleProvider> lifeCycleProviders = IServerServiceManager.INSTANCE.getSpringContext()
+				.getBeansOfType(ILifeCycleProvider.class);
+		Collection<ILifeCycleProvider> values = lifeCycleProviders.values();
+		List<ILifeCycleProvider> temp = new ArrayList<ILifeCycleProvider>(values);
+		temp.sort(new Comparator<ILifeCycleProvider>() {
+			@Override
+			public int compare(ILifeCycleProvider o1, ILifeCycleProvider o2) {
+				return (o1.getRunLevel() > o2.getRunLevel()) ? 1 : -1;
+			}
+		});
+		for (ILifeCycleProvider p : temp) {
+			logger.info("Configure life cycle service: {0} with running level {1}", new Object[]{p.getClass(), p.getRunLevel()});
+			p.configService();
+		}
+	}
 	
 	/**
-	 * Get registry
+	 * The start stage of life-cycled service happens after a web context initialized event is fired.
 	 * 
-	 * @return
 	 */
-	IRegistry getRegistry();
+	public void startLifeCycleProviders() {
+		Map<String, ILifeCycleProvider> lifeCycleProviders = IServerServiceManager.INSTANCE.getSpringContext()
+				.getBeansOfType(ILifeCycleProvider.class);
+		Collection<ILifeCycleProvider> values = lifeCycleProviders.values();
+		List<ILifeCycleProvider> temp = new ArrayList<ILifeCycleProvider>(values);
+		temp.sort(new Comparator<ILifeCycleProvider>() {
+			@Override
+			public int compare(ILifeCycleProvider o1, ILifeCycleProvider o2) {
+				return (o1.getRunLevel() > o2.getRunLevel()) ? 1 : -1;
+			}
+		});
+		for (ILifeCycleProvider p : temp) {
+			logger.info("Start life cycle service: {0} with running level {1}", new Object[]{p.getClass(), p.getRunLevel()});
+			p.startService();
+		}
+	}
 
 	/**
-	 * Get the shared entity manager.
+	 * The stop stage of life-cycled service happens after a web context distroyed event is fired.
 	 * 
-	 * @return
 	 */
-	IEntityManager getEntityManager();
-
-	/**
-	 * Get system constant service.
-	 * 
-	 * @return
-	 */
-	IConstantService getConstantService();
+	public void stopLifeCycleProviders() {
+		logger.info("Stopping UIMaster Application...");
+		Map<String, ILifeCycleProvider> lifeCycleProviders = IServerServiceManager.INSTANCE.getSpringContext()
+				.getBeansOfType(ILifeCycleProvider.class);
+		Collection<ILifeCycleProvider> values = lifeCycleProviders.values();
+		List<ILifeCycleProvider> temp = new ArrayList<ILifeCycleProvider>(values);
+		temp.sort(new Comparator<ILifeCycleProvider>() {
+			@Override
+			public int compare(ILifeCycleProvider o1, ILifeCycleProvider o2) {
+				return (o1.getRunLevel() > o2.getRunLevel()) ? 1 : -1;
+			}
+		});
+		for (ILifeCycleProvider p : temp) {
+			logger.info("Stop life cycle service: {0} with running level {1}", new Object[]{p.getClass(), p.getRunLevel()});
+			p.stopService();
+		}
+		logger.info("Stopped UIMaster Application!");
+	}
 	
-	/**
-	 * Get system scheduler service.
-	 * 
-	 * @return
-	 */
-	ISchedulerService getSchedulerService();
-	
-	/**
-	 * Register a normal service.
-	 * 
-	 * @param service
-	 */
-	void register(IServiceProvider service);
+	@Override
+	public ClassLoader getAppClassLoader() {
+		return appClassLoader;
+	}
 
-	/**
-	 * Get service.
-	 * 
-	 * @param serviceClass
-	 * @return
-	 */
-	<T> T getService(Class<T> serviceClass);
+	public void setAppClassLoader(ClassLoader loader) {
+		appClassLoader = loader;
+	}
 
-	/**
-	 * Add an application.
-	 * 
-	 * @param name
-	 * @param app
-	 */
-	void addApplication(String name, IAppServiceManager app);
-
-	/**
-	 * Get an application.
-	 * 
-	 * @param name
-	 * @return
-	 */
-	IAppServiceManager getApplication(String name);
-
-	/**
-	 * This method is only invoked while stutting down the server.
-	 * 
-	 * @param name
-	 * @return
-	 */
-	IAppServiceManager removeApplication(String name);
-	
-	/********DB access APIs*********/
-	Object getHibernateConfiguration();
-
-
-	Object getHibernateSessionFactory();
 }

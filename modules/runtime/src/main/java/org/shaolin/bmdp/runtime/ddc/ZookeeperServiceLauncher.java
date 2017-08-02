@@ -12,9 +12,19 @@ import org.apache.zookeeper.server.quorum.QuorumPeerConfig.ConfigException;
 import org.apache.zookeeper.server.quorum.QuorumPeerMain;
 import org.shaolin.bmdp.runtime.spi.ILifeCycleProvider;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by lizhiwe on 4/6/2016.
+ * 
+ * //zookeeper server node is better be independent from app server.
+   ZookeeperServiceLauncher zkLauncher = new ZookeeperServiceLauncher(false);
+   //custom attributes here
+   zkLauncher.getProperties().setProperty(ZookeeperServiceLauncher.CLIENT_PORT,"2182");
+   zkLauncher.getProperties().setProperty(ZookeeperServiceLauncher.DATADIR, "/tmp/zookeeper");
+   //
+   AppContext.get().registerLifeCycleProvider(zkLauncher);
+ * 
  */
 public class ZookeeperServiceLauncher implements IServiceProvider, ILifeCycleProvider, IZookeeperServiceLauncher {
     // private static final String DEFAULT_CFG = "/opt/uimaster/zkcfg/zookeeper.cfg";
@@ -32,18 +42,20 @@ public class ZookeeperServiceLauncher implements IServiceProvider, ILifeCyclePro
 
     private boolean isClusterNode = false;
 
+    public ZookeeperServiceLauncher() {
+    	this(false);
+    }
+    
     public ZookeeperServiceLauncher(boolean isClusterNode) {
         super();
         this.isClusterNode = isClusterNode;
-        InputStream in = getClass().getResourceAsStream("default_zookeeper.cfg");
-        try {
-            properties.load(in);
-        } catch (IOException e) {
-            logger.error("Error loading default properties", e);
-        }
-
     }
 
+    @Override
+	public void configService() {
+		
+	}
+    
     /**
      * Start service.
      * <p/>
@@ -54,6 +66,12 @@ public class ZookeeperServiceLauncher implements IServiceProvider, ILifeCyclePro
         if (started) {
             return;
         }
+        InputStream in = getClass().getResourceAsStream("default_zookeeper.cfg");
+        try {
+            properties.load(in);
+        } catch (IOException e) {
+            logger.error("Error loading default properties", e);
+        }
         final QuorumPeerConfig qCfg = new QuorumPeerConfig();
         try {
             qCfg.parseProperties(properties);
@@ -63,21 +81,17 @@ public class ZookeeperServiceLauncher implements IServiceProvider, ILifeCyclePro
 
         if (isClusterNode) {
             final QuorumPeerMain peer = new QuorumPeerMain();
-
             new Thread(new Runnable() {
 
                 @Override
                 public void run() {
-
                     try {
-
                         peer.runFromConfig(qCfg);
 
                         started = true;
                     } catch (IOException e) {
                         logger.error("Error starting Zookeeper server serivce", e);
                     }
-
                 }
 
             }).start();

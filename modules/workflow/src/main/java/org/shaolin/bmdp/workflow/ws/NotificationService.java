@@ -93,8 +93,7 @@ public class NotificationService {
 			logger.info("Received a message: {0}", jsonMsg);
 		}
 		try {
-			AppContext.register(IServerServiceManager.INSTANCE.getApplication(
-					IServerServiceManager.INSTANCE.getMasterNodeName()));
+			AppContext.register(IServerServiceManager.INSTANCE);
 			
 			JSONObject data = new JSONObject(jsonMsg);
 			String action = data.getString("action");

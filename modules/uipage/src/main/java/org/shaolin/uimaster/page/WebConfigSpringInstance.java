@@ -25,16 +25,16 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
 
-@Validated
-@Configuration
-@EnableConfigurationProperties
-@ConfigurationProperties("webConstant")
 /**
  * use Springboot typed bean annotation.
  * 
  * @author wushaol
  *
  */
+@Validated
+@Configuration
+@EnableConfigurationProperties
+@ConfigurationProperties("webConstant")
 public class WebConfigSpringInstance {
 	
 	private String resourceServer;

@@ -29,6 +29,7 @@ import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.security.ComponentPermission;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * This method is used to load all the security configs configured on the higher layer of RefEntity into HTMLGenerationContext
@@ -46,6 +47,7 @@ public class UIPermissionManager implements IServiceProvider
     
     private final IPermissionService permissionService;
     
+    @Autowired
     public UIPermissionManager(IPermissionService permissionService) {
     	this.permissionService = permissionService;
     }

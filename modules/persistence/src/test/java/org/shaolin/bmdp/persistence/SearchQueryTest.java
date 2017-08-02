@@ -12,13 +12,16 @@ import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.ce.CEUtil;
 import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 import org.shaolin.bmdp.runtime.internal.AppServiceManagerImpl;
+import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 
 public class SearchQueryTest {
 
 	@Test
+	public void testEmpty() {}
+	
 	public void testSingleQuery() {
 		
-		AppContext.register(new AppServiceManagerImpl("test", SearchQueryTest.class.getClassLoader()));
+		AppContext.register(IServerServiceManager.INSTANCE);
 		
 		HibernateUtil.getSession();
 		
@@ -38,13 +41,12 @@ public class SearchQueryTest {
     	System.out.println(list);
     }
 	
-	@Test
 	public void testMultipleQuery() {
 		
 		System.out.println("\n\n\n");
 		System.out.println("-----------------testTransaction--------------");
 		
-		AppContext.register(new AppServiceManagerImpl("test", SearchQueryTest.class.getClassLoader()));
+		AppContext.register(IServerServiceManager.INSTANCE);
 		
 		for (int i =0; i<10; i++) {
 			new Thread(new Runnable(){
@@ -65,9 +67,8 @@ public class SearchQueryTest {
 		}
 	}
 	
-	@Test
 	public void testTransactionTimeout() {
-		AppContext.register(new AppServiceManagerImpl("test", SearchQueryTest.class.getClassLoader()));
+		AppContext.register(IServerServiceManager.INSTANCE);
 		Session session = HibernateUtil.getSession();
 		getProductTypeGroup();
 		System.out.println("Hibernate Session Info: collections-{"+session.getStatistics().getCollectionCount()+

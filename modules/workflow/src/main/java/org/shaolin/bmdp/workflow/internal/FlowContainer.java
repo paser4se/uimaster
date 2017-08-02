@@ -160,8 +160,8 @@ public class FlowContainer {
             allEngines.put(engine.getEngineName(), engine);
         }
 
-        WorkFlowEventProcessor processor = AppContext.get().getService(WorkFlowEventProcessor.class);
-        if (processor != null) {
+        if (AppContext.get().hasService(WorkFlowEventProcessor.class)) {
+        	WorkFlowEventProcessor processor = AppContext.get().getService(WorkFlowEventProcessor.class);
 	        processor.addConsumers(tempProcessors);
         } else {
         	WorkFlowEventProcessor eventProcessor = new WorkFlowEventProcessor(tempProcessors);

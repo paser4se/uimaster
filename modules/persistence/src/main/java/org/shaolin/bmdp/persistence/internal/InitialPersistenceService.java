@@ -2,8 +2,6 @@ package org.shaolin.bmdp.persistence.internal;
 
 import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.AppContext;
-import org.shaolin.bmdp.runtime.internal.AppServiceManagerImpl;
-import org.shaolin.bmdp.runtime.internal.ServerServiceManagerImpl;
 import org.shaolin.bmdp.runtime.spi.ILifeCycleProvider;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.slf4j.Logger;
@@ -14,15 +12,20 @@ public class InitialPersistenceService implements ILifeCycleProvider {
 	private static final Logger logger = LoggerFactory.getLogger(InitialPersistenceService.class);
 	
 	@Override
+	public void configService() {
+		
+	}
+	
+	@Override
 	public void startService() {
 		HibernateUtil.getSessionFactory();
 		HibernateUtil.getConfiguration();
 		
 		// share the session object of the master node to all applications.
 		if (IServerServiceManager.INSTANCE.getMasterNodeName().equals(AppContext.get().getAppName())) {
-			((ServerServiceManagerImpl)IServerServiceManager.INSTANCE).setHibernateSessionFactory(
+			IServerServiceManager.INSTANCE.setHibernateSessionFactory(
 					HibernateUtil.getSessionFactory());
-			((ServerServiceManagerImpl)IServerServiceManager.INSTANCE).setHibernateConfiguration(
+			IServerServiceManager.INSTANCE.setHibernateConfiguration(
 					HibernateUtil.getConfiguration());
 			logger.info("The session object of the master node is ready for sharing.");
 		}

@@ -4,12 +4,13 @@ import org.junit.Test;
 import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.Registry;
+import org.shaolin.bmdp.runtime.SpringBootTestRoot;
 import org.shaolin.bmdp.runtime.internal.AppServiceManagerImpl;
 import org.shaolin.bmdp.utils.HttpSender;
 import org.shaolin.bmdp.workflow.be.NotificationImpl;
 
 
-public class CoordinatorModelTest {
+public class CoordinatorModelTest extends SpringBootTestRoot {
 
     @Test
     public void testsearchTasks() throws Exception {
@@ -24,9 +25,6 @@ public class CoordinatorModelTest {
 
 	@Test
 	public void testsearchPendingTasks() throws Exception {
-		Registry.getInstance().initRegistry();
-		AppContext.register(new AppServiceManagerImpl("test", CoordinatorModelTest.class.getClassLoader()));
-		
 		NotificationImpl message = new NotificationImpl();
 		message.setPartyId(1);
 		message.setSubject("interface test");

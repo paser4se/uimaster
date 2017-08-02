@@ -7,22 +7,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.shaolin.bmdp.datamodel.flowdiagram.RectangleNodeType;
 import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.json.JSONArray;
 import org.shaolin.bmdp.json.JSONException;
 import org.shaolin.bmdp.json.JSONObject;
-import org.shaolin.bmdp.runtime.AppContext;
-import org.shaolin.bmdp.runtime.Registry;
-import org.shaolin.bmdp.runtime.entity.EntityManager;
+import org.shaolin.bmdp.runtime.SpringBootTestRoot;
 import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
-import org.shaolin.bmdp.runtime.internal.AppServiceManagerImpl;
 import org.shaolin.bmdp.runtime.perf.SingleKPI;
-import org.shaolin.bmdp.runtime.spi.IEntityManager;
-import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.ajax.AList;
 import org.shaolin.uimaster.page.ajax.CheckBox;
@@ -52,32 +45,8 @@ import org.shaolin.uimaster.test.ce.Gender;
 
 import junit.framework.Assert;
 
-public class PageTest {
+public class PageTest extends SpringBootTestRoot {
 
-	@BeforeClass
-	public static void setup() {
-		LocaleContext.createLocaleContext("default");
-		// initialize registry
-		Registry.getInstance().initRegistry();
-		String[] filters = new String[] {"/uipage/"};
-		// initialize entity manager.
-		IEntityManager entityManager = IServerServiceManager.INSTANCE.getEntityManager();
-		((EntityManager)entityManager).init(new ArrayList(), filters);
-		WebConfig.setServletContextPath("E:/test/web/");
-		
-		AppContext.register(new AppServiceManagerImpl("test", ODTest.class.getClassLoader()));
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		}
-	}
-	
-	@AfterClass
-	public static void teardown() {
-		
-	}
-	
 	@Test
 	public void testConstraint() throws EvaluationException {
 		MockHttpRequest request = new MockHttpRequest();
@@ -242,6 +211,8 @@ public class PageTest {
             
             UserRequestContext.UserContext.set(htmlContext);
             AjaxContextHelper.createAjaxContext(new AjaxContext(new HashMap(), new RequestData()));
+            AjaxContextHelper.getAjaxContext().initData();
+            AjaxContextHelper.getAjaxContext().setHttpRequest(request);
             
 			ODFormObject odEntityObject = PageCacheManager.getODFormObject(htmlContext.getFormName());
             HTMLReferenceEntityType newReferObject = new HTMLReferenceEntityType("customer", htmlContext.getFormName());
