@@ -94,12 +94,5 @@ public interface IAppServiceManager {
 	 * @return
 	 */
 	ClassLoader getAppClassLoader();
-	
-	
-	/********DB access APIs*********/
-	Object getHibernateConfiguration();
-
-
-	Object getHibernateSessionFactory();
 
 }

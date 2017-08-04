@@ -69,10 +69,6 @@ public class IServerServiceManager implements IAppServiceManager, Serializable {
 	@Autowired
 	private ISchedulerService schedulerService;
 	
-	private Object hibernateSessionFactory;
-	
-	private Object hibernateConfiguration;
-	
 	public IServerServiceManager() {
 		this.registry = Registry.getInstance();
 	}
@@ -152,22 +148,6 @@ public class IServerServiceManager implements IAppServiceManager, Serializable {
 		Map<String, IServiceProvider> services = IServerServiceManager.INSTANCE.getSpringContext()
 				.getBeansOfType(IServiceProvider.class);
 		return services.size();
-	}
-
-	public Object getHibernateConfiguration() {
-		return hibernateConfiguration;
-	}
-
-	public void setHibernateConfiguration(Object hibernateConfiguration) {
-		this.hibernateConfiguration = hibernateConfiguration;
-	}
-
-	public Object getHibernateSessionFactory() {
-		return hibernateSessionFactory;
-	}
-
-	public void setHibernateSessionFactory(Object sessionFactory) {
-		this.hibernateSessionFactory = sessionFactory;
 	}
 	
 	public void shutdown() {
@@ -286,7 +266,11 @@ public class IServerServiceManager implements IAppServiceManager, Serializable {
 		});
 		for (ILifeCycleProvider p : temp) {
 			logger.info("Stop life cycle service: {} with running level {}", new Object[]{p.getClass(), p.getRunLevel()});
-			p.stopService();
+			try {
+				p.stopService();
+			} catch (Exception e) {
+				logger.warn("failed to stop this service!", e);
+			}
 		}
 		logger.info("Stopped UIMaster Application!");
 	}

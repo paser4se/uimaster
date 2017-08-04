@@ -610,7 +610,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		
 		// make this shared
 		scheduler = IServerServiceManager.INSTANCE.getSchedulerService()
-				.createScheduler("system", "wf-coordinator", Runtime.getRuntime().availableProcessors() * 2);
+				.createScheduler("system", "wf-coordinator", Runtime.getRuntime().availableProcessors());
 		
 		if (testCaseFlag) {
 			return;

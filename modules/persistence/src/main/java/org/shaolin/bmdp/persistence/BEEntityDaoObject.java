@@ -9,6 +9,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.transaction.Transactional;
+
 import org.hibernate.Criteria;
 import org.hibernate.NonUniqueObjectException;
 import org.hibernate.SQLQuery;
@@ -25,7 +27,10 @@ import org.shaolin.bmdp.runtime.be.IPersistentEntity;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
+@Repository
+@Transactional
 public class BEEntityDaoObject {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -42,7 +47,7 @@ public class BEEntityDaoObject {
 	}
 	
 	public void addResource(String hbmMapping) {
-		HibernateUtil.getConfiguration().addResource(hbmMapping);
+		//HibernateUtil.getConfiguration().addResource(hbmMapping);
 	}
 
 	/**
@@ -63,9 +68,6 @@ public class BEEntityDaoObject {
 		
 		Session session = HibernateUtil.getSession();
 		session.save(entity);
-		if (commit) {
-			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
-		}
 	}
 	
 	public void create(IPersistentEntity entity) {
@@ -98,9 +100,6 @@ public class BEEntityDaoObject {
 
 		Session session = HibernateUtil.getSession();
 		session.delete(entity);
-		if (commit) {
-			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
-		}
 	}
 
 	/**
@@ -147,13 +146,8 @@ public class BEEntityDaoObject {
 			session.update(entity);
 		} catch (NonUniqueObjectException e) {
 			// try committing session again.
-			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
-
 			Session session = HibernateUtil.getSession();
 			session.update(entity);
-		}
-		if (commit) {
-			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
 	}
 
@@ -191,7 +185,6 @@ public class BEEntityDaoObject {
 		}
 		Session session = HibernateUtil.getSession();
 		session.load(entity, entity.getId());
-		HibernateUtil.releaseSession(session, true);
 	}
 
 	public void cascadingUpdate(IPersistentEntity entity) {
@@ -206,7 +199,6 @@ public class BEEntityDaoObject {
 		}
 		Session session = HibernateUtil.getSession();
 		session.merge(entity);
-		HibernateUtil.releaseSession(session, true);
 	}
 
 	public void batchInsert(List<IPersistentEntity> entities) {
@@ -240,9 +232,6 @@ public class BEEntityDaoObject {
 				session.save(entity);
 			}
 		}
-		if (commit) {
-			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
-		}
 	}
 
 	public void batchUpdate(List<IPersistentEntity> entities) {
@@ -272,9 +261,6 @@ public class BEEntityDaoObject {
 				session.update(entity);
 			}
 		}
-		if (commit) {
-			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
-		}
 	}
 
 	public void batchDelete(List<IPersistentEntity> entities) {
@@ -302,9 +288,6 @@ public class BEEntityDaoObject {
 				session.delete(entity);
 			}
 		}
-		if (commit) {
-			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
-		}
 	}
 
 	/**
@@ -322,8 +305,6 @@ public class BEEntityDaoObject {
 		Session session = HibernateUtil.getSession();
 		entity.setEnabled(false);
 		session.update(entity);
-
-		HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 	}
 
 	/**
@@ -342,8 +323,6 @@ public class BEEntityDaoObject {
 
 		entity.setEnabled(true);
 		session.update(entity);
-
-		HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 	}
 
 	/**
@@ -357,52 +336,34 @@ public class BEEntityDaoObject {
 	@SuppressWarnings("unchecked")
 	public <T> List<T> listStatistic(String table, int offset, int count,
 			Map<String, Object> conditions) {
-		try {
-			Session session = HibernateUtil.getReadOnlySession();
-			return session.createSQLQuery("select * from " + table).list();
-		} finally {
-			// release session ASAP. but it's an issue for transaction
-			// manipulation.
-			HibernateUtil.releaseSession(HibernateUtil.getReadOnlySession(), true);
-		}
+		Session session = HibernateUtil.getReadOnlySession();
+		return session.createSQLQuery("select * from " + table).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	public <T> List<T> statsPerDayByOrgId(String table) {
-		try {
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			String day = simpleDateFormat.format(new Date());
-			StringBuilder sb = new StringBuilder();
-	
-			sb.append("SELECT ORGID, COUNT(1) FROM " + table
-					+ " WHERE CREATEDATE between '" + day + " 00-00-00' and '"
-					+ day + " 23:59:59' GROUP BY ORGID");
-			Session session = HibernateUtil.getReadOnlySession();
-			return session.createSQLQuery(sb.toString()).list();
-		} finally {
-			// release session ASAP. but it's an issue for transaction
-			// manipulation.
-			HibernateUtil.releaseSession(HibernateUtil.getReadOnlySession(), true);
-		}
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		String day = simpleDateFormat.format(new Date());
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("SELECT ORGID, COUNT(1) FROM " + table
+				+ " WHERE CREATEDATE between '" + day + " 00-00-00' and '"
+				+ day + " 23:59:59' GROUP BY ORGID");
+		Session session = HibernateUtil.getReadOnlySession();
+		return session.createSQLQuery(sb.toString()).list();
 	}
 	
 	@SuppressWarnings("unchecked")
 	public <T> List<T> statsPerDay(String table) {
-		try {
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY-MM-DD");
-			String day = simpleDateFormat.format(new Date());
-			StringBuilder sb = new StringBuilder();
-	
-			sb.append("SELECT COUNT(1) FROM " + table
-					+ " WHERE CREATEDATE between '" + day + " 00-00-00' and '"
-					+ day + " 23:59:59' GROUP BY DAY(CREATEDATE)");
-			Session session = HibernateUtil.getReadOnlySession();
-			return session.createSQLQuery(sb.toString()).list();
-		} finally {
-			// release session ASAP. but it's an issue for transaction
-			// manipulation.
-			HibernateUtil.releaseSession(HibernateUtil.getReadOnlySession(), true);
-		}
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY-MM-DD");
+		String day = simpleDateFormat.format(new Date());
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("SELECT COUNT(1) FROM " + table
+				+ " WHERE CREATEDATE between '" + day + " 00-00-00' and '"
+				+ day + " 23:59:59' GROUP BY DAY(CREATEDATE)");
+		Session session = HibernateUtil.getReadOnlySession();
+		return session.createSQLQuery(sb.toString()).list();
 	}
 
 	public <T> T get(long id, Class<T> persistentClass) {
@@ -503,9 +464,6 @@ public class BEEntityDaoObject {
 
 			return criteria.list();
 		} finally {
-			// release session ASAP. but it's an issue for transaction
-			// manipulation.
-			HibernateUtil.releaseSession(HibernateUtil.getReadOnlySession(), true);
 			long end = (System.currentTimeMillis() - start);
 			PerfMonitor.updateKPI(PerfMonitor.SQLQUERY, end);
 			PerfMonitor.updateKPI(PerfMonitor.SQLQUERY_TIME, end);
@@ -594,10 +552,8 @@ public class BEEntityDaoObject {
 					be.get_extField().put("count", _count(criteria, result.size()));
 				}
 			}
-			HibernateUtil.releaseSession(HibernateUtil.getReadOnlySession(), true);
 			return result;
 		} catch (Exception e) {
-			HibernateUtil.releaseSession(HibernateUtil.getReadOnlySession(), false);
 			logger.warn(criteria.toString() + " " + e.getMessage(), e);
 			return Collections.emptyList();
 		} finally {
