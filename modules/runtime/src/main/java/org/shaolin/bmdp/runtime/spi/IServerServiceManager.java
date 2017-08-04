@@ -47,7 +47,7 @@ public class IServerServiceManager implements IAppServiceManager, Serializable {
 
 	private String masterNodeName = "uimaster";
 	
-	private State state = State.START;
+	private State state = State.NONE;
 	
 	private final Registry registry;
 
@@ -191,7 +191,7 @@ public class IServerServiceManager implements IAppServiceManager, Serializable {
 
 	@Override
 	public void registerLifeCycleProvider(ILifeCycleProvider provider) {
-		logger.info("Register life cycle service: {0}, this: {1}", new Object[]{provider, this.hashCode()});
+		logger.info("Register life cycle service: {} with running level: {}", new Object[]{provider, provider.getRunLevel()});
 		ConfigurableListableBeanFactory beanFactory = ((ConfigurableApplicationContext) 
 				IServerServiceManager.INSTANCE.getSpringContext()).getBeanFactory();
 		beanFactory.registerSingleton(provider.getClass().getCanonicalName(), provider);
@@ -242,7 +242,7 @@ public class IServerServiceManager implements IAppServiceManager, Serializable {
 			}
 		});
 		for (ILifeCycleProvider p : temp) {
-			logger.info("Configure life cycle service: {0} with running level {1}", new Object[]{p.getClass(), p.getRunLevel()});
+			logger.info("Configure life cycle service: {} with running level {}", new Object[]{p.getClass(), p.getRunLevel()});
 			p.configService();
 		}
 	}
@@ -263,7 +263,7 @@ public class IServerServiceManager implements IAppServiceManager, Serializable {
 			}
 		});
 		for (ILifeCycleProvider p : temp) {
-			logger.info("Start life cycle service: {0} with running level {1}", new Object[]{p.getClass(), p.getRunLevel()});
+			logger.info("Start life cycle service: {} with running level {}", new Object[]{p.getClass(), p.getRunLevel()});
 			p.startService();
 		}
 	}
@@ -285,7 +285,7 @@ public class IServerServiceManager implements IAppServiceManager, Serializable {
 			}
 		});
 		for (ILifeCycleProvider p : temp) {
-			logger.info("Stop life cycle service: {0} with running level {1}", new Object[]{p.getClass(), p.getRunLevel()});
+			logger.info("Stop life cycle service: {} with running level {}", new Object[]{p.getClass(), p.getRunLevel()});
 			p.stopService();
 		}
 		logger.info("Stopped UIMaster Application!");

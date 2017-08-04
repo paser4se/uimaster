@@ -25,7 +25,7 @@ import java.util.List;
  */
 public interface IAppServiceManager {
 
-	enum State {START, ACTIVE, FAILURE}
+	enum State {NONE, START, ACTIVE, FAILURE}
 	
 	/**
 	 * the name of current application.

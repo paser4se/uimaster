@@ -200,7 +200,7 @@ public class WebFlowAsyncServlet extends HttpServlet implements RejectedExecutio
     	}
         
         if (logger.isInfoEnabled()) {
-            logger.info("Web application {} is ready.", appName);
+            logger.info("==============UIMaster Web application {} is ready for work.==============", appName);
         }
     }
 

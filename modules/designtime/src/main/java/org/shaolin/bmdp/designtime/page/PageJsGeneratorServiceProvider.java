@@ -15,6 +15,7 @@ import org.shaolin.bmdp.datamodel.page.UIReferenceEntityType;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.shaolin.uimaster.page.spi.IJsGenerator;
+import org.springframework.stereotype.Service;
 
 /**
  * Dynamic js generator for ajax loading the static UI widget.
@@ -22,6 +23,7 @@ import org.shaolin.uimaster.page.spi.IJsGenerator;
  * @author wushaol
  *
  */
+@Service
 public class PageJsGeneratorServiceProvider implements IServiceProvider,
 		IJsGenerator {
 

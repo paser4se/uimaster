@@ -40,15 +40,7 @@ public class UIPageObject implements java.io.Serializable {
 
 	private UIFormObject ui = null;
 
-	private Map<String, String> cssCodeMap = new HashMap<String, String>();
-
-	private Map<String, List<String>> importCSSCodeMap = new HashMap<String, List<String>>();
-
 	private final StringBuffer pageCSS = new StringBuffer();
-	
-	private Map<String, List<String>> importMobCSSCodeMap = new HashMap<String, List<String>>();
-
-	private Map<String, List<String>> importAppMobCSSCodeMap = new HashMap<String, List<String>>();
 	
 	private final StringBuffer mobPageCSS = new StringBuffer();
 	
@@ -87,25 +79,24 @@ public class UIPageObject implements java.io.Serializable {
 		
 		ui = new UIFormObject(entityName, entity);
 
-		addCSS(DEFAULT_LOCALE, false);
-		addCSS(DEFAULT_LOCALE, true);
-		addMobAppCSS(DEFAULT_LOCALE);
+		Map<String, List<String>> importCSSCodeMap = new HashMap<String, List<String>>();
+		Map<String, List<String>> importMobCSSCodeMap = new HashMap<String, List<String>>();
+		Map<String, List<String>> importAppMobCSSCodeMap = new HashMap<String, List<String>>();
 		
-		String importCSS = WebConfig.getImportCSS(entityName);
-		String cssCode = "<link rel=\"stylesheet\" href=\"" + importCSS
-				+ "\" type=\"text/css\">\n";
-		cssCodeMap.put(DEFAULT_LOCALE, cssCode);
-
-		importCSS();
-		importMobCSS();
-		importMobAppCSS();
+		addCSS(DEFAULT_LOCALE, false, importCSSCodeMap);
+		addCSS(DEFAULT_LOCALE, true, importMobCSSCodeMap);
+		addMobAppCSS(DEFAULT_LOCALE, importAppMobCSSCodeMap);
+		
+		importCSS(importCSSCodeMap);
+		importMobCSS(importMobCSSCodeMap);
+		importMobAppCSS(importAppMobCSSCodeMap);
 	}
 	
 	public UIPage getUIPage() {
 		return entity;
 	}
 
-	private void addCSS(String locale, boolean isMobile) {
+	private void addCSS(String locale, boolean isMobile, Map<String, List<String>> importCSSCodeMap) {
 		List<String> importCSSCode = new ArrayList<String>();
 		String[] css = WebConfig.getSingleCommonCSS(entityName);
 		if (css != null) {
@@ -120,18 +111,14 @@ public class UIPageObject implements java.io.Serializable {
 				common = WebConfig.getCommonMobCss();
 			}
 			for (int i = 0; common != null && i < common.length; i++) {
-				importCSSCode.add("<link rel=\"stylesheet\" href=\"" + common[i]
+				importCSSCode.add("<link rel=\"stylesheet\" href=\"" + WebConfig.getResourceContextRoot() + common[i]
 						+ "\" type=\"text/css\">\n");
 			}
 		}
-		if (isMobile) {
-			importMobCSSCodeMap.put(locale, importCSSCode);
-		} else {
-			importCSSCodeMap.put(locale, importCSSCode);
-		}
+		importCSSCodeMap.put(locale, importCSSCode);
 	}
 	
-	private void addMobAppCSS(String locale) {
+	private void addMobAppCSS(String locale, Map<String, List<String>> importAppMobCSSCodeMap) {
 		List<String> importCSSCode = new ArrayList<String>();
 		String[] css = WebConfig.getSingleCommonAppCSS(entityName);
 		if (css != null) {
@@ -150,7 +137,7 @@ public class UIPageObject implements java.io.Serializable {
 		importAppMobCSSCodeMap.put(locale, importCSSCode);
 	}
 
-	private void importCSS() {
+	private void importCSS(Map<String, List<String>> importCSSCodeMap) {
 //		String userLocale = LocaleContext.getUserLocale();
 //		if (userLocale != null && !userLocale.trim().equals(DEFAULT_LOCALE)) {
 //			if (!importCSSCodeMap.containsKey(userLocale)) {
@@ -167,10 +154,13 @@ public class UIPageObject implements java.io.Serializable {
 			String code = iterator.next();
 			pageCSS.append(code);
 		}
-		pageCSS.append((String) cssCodeMap.get(DEFAULT_LOCALE));
+		String importCSS = WebConfig.getImportCSS(entityName);
+		String cssCode = "<link rel=\"stylesheet\" href=\"" + importCSS
+				+ "\" type=\"text/css\">\n";
+		pageCSS.append(cssCode);
 	}
 	
-	private void importMobCSS() {
+	private void importMobCSS(Map<String, List<String>> importMobCSSCodeMap) {
 		List<String> importCSSCode = (List<String>) importMobCSSCodeMap.get(DEFAULT_LOCALE);
 		Iterator<String> iterator = importCSSCode.iterator();
 		while (iterator.hasNext()) {
@@ -183,7 +173,7 @@ public class UIPageObject implements java.io.Serializable {
 		mobPageCSS.append(cssCode);
 	}
 	
-	private void importMobAppCSS() {
+	private void importMobAppCSS(Map<String, List<String>> importAppMobCSSCodeMap) {
 		List<String> importCSSCode = (List<String>) importAppMobCSSCodeMap.get(DEFAULT_LOCALE);
 		Iterator<String> iterator = importCSSCode.iterator();
 		while (iterator.hasNext()) {

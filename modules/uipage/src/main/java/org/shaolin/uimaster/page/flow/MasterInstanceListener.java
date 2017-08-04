@@ -1,7 +1,6 @@
 package org.shaolin.uimaster.page.flow;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -13,22 +12,17 @@ import org.shaolin.bmdp.datamodel.page.WebService;
 import org.shaolin.bmdp.datamodel.pagediagram.WebChunk;
 import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.AppContext;
-import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.ce.ConstantServiceImpl;
 import org.shaolin.bmdp.runtime.entity.EntityAddedEvent;
 import org.shaolin.bmdp.runtime.entity.EntityManager;
 import org.shaolin.bmdp.runtime.entity.EntityUpdatedEvent;
 import org.shaolin.bmdp.runtime.entity.IEntityEventListener;
 import org.shaolin.bmdp.runtime.spi.IAppServiceManager;
+import org.shaolin.bmdp.runtime.spi.IAppServiceManager.State;
 import org.shaolin.bmdp.runtime.spi.IEntityManager;
 import org.shaolin.bmdp.runtime.spi.ILifeCycleProvider;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
-import org.shaolin.bmdp.runtime.spi.IAppServiceManager.State;
-import org.shaolin.javacc.StatementParser;
-import org.shaolin.javacc.context.OOEEContext;
-import org.shaolin.javacc.context.OOEEContextFactory;
 import org.shaolin.javacc.exception.ParsingException;
-import org.shaolin.javacc.statement.CompilationUnit;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.WebConfigSpringInstance;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
@@ -49,22 +43,27 @@ public class MasterInstanceListener implements ServletContextListener, ILifeCycl
 
 	private static final Logger logger = LoggerFactory.getLogger(MasterInstanceListener.class);
 
+	private boolean initialized = false;
+	
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
-		logger.info("Initializing application instance " + sce.getServletContext().getContextPath() + "...");
+		if (initialized) {
+			return;
+		}
+		if (!sce.getServletContext().getContextPath().equals("/uimaster")) {
+			return;
+		}
 		IServerServiceManager serverManager = IServerServiceManager.INSTANCE;
-		if (serverManager == null) {
+		if (serverManager.getState() != State.NONE) {
 			return;
 		}
-		if (serverManager.getState() == State.FAILURE) {
-			logger.error("The state of the master node is failed, please check the master node!");
-			return;
-		}
-		
+		// only one time initialization will be ok.
+		initialized = true;
+		logger.info("Initializing application instance " + sce.getServletContext().getContextPath() + "...");
 		try {
-			AppContext.register(IServerServiceManager.INSTANCE);
+			AppContext.register(serverManager);
 			// add application to the server manager.
-			serverManager.setAppClassLoader(sce.getServletContext().getClassLoader());
+			serverManager.setAppClassLoader(this.getClass().getClassLoader());
 			// bind the app context with the servlet context.
 			sce.getServletContext().setAttribute(IAppServiceManager.class.getCanonicalName(), IServerServiceManager.INSTANCE);
 			
@@ -77,22 +76,22 @@ public class MasterInstanceListener implements ServletContextListener, ILifeCycl
 			
 			// initialize DB.
 	    	HibernateUtil.getSession();
+//	    	// @Deprecated 
 	    	// wire all services.
-	    	OOEEContext context = OOEEContextFactory.createOOEEContext();
-	    	List<String> serviceNodes = Registry.getInstance().getNodeChildren("/System/services");
-        	for (String path: serviceNodes) {
-        		String expression = Registry.getInstance().getExpression("/System/services/" + path);
-        		logger.debug("Evaluate module initial expression: " + expression);
-        		CompilationUnit compliedUnit = StatementParser.parse(expression, context);
-        		compliedUnit.execute(context);
-        	}
+//	    	OOEEContext context = OOEEContextFactory.createOOEEContext();
+//	    	List<String> serviceNodes = Registry.getInstance().getNodeChildren("/System/services");
+//        	for (String path: serviceNodes) {
+//        		String expression = Registry.getInstance().getExpression("/System/services/" + path);
+//        		logger.debug("Evaluate module initial expression: " + expression);
+//        		CompilationUnit compliedUnit = StatementParser.parse(expression, context);
+//        		compliedUnit.execute(context);
+//        	}
         	serverManager.startLifeCycleProviders();
-        	logger.info("{} is ready for request.", sce.getServletContext().getContextPath());
-	    	
         	serverManager.setState(State.ACTIVE);
-        	HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
-        	
         	entityManager.offUselessCaches();
+	    	
+        	HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+        	logger.info("=============={} is initialized successfully.==============", sce.getServletContext().getContextPath());
 		} catch (Throwable e) {
 			logger.error("Fails to start Config server start! Error: " + e.getMessage(), e);
 			serverManager.setState(State.FAILURE);

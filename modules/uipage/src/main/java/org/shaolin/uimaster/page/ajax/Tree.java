@@ -86,6 +86,15 @@ public class Tree extends Widget<Tree> implements Serializable {
 		return this;
 	}
 	
+	/**
+	 * Unsupported!
+	 * 
+	 * @return
+	 */
+	public Object getSelectedObject() {
+		return null;
+	}
+	
 	public String getSelectedNodeName() {
 		return selectedNodeName;
 	}

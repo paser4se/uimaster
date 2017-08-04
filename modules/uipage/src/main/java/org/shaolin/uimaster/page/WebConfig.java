@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
@@ -388,9 +387,11 @@ public final class WebConfig {
 		return instance.getSkipCommonCssPages().contains(pageName);
 	}
 	
-	public static String[] getSingleCommonJS(String entityName) {
-		String pack = entityName.substring(0, entityName.lastIndexOf('.'));
-		Set<String> keys = instance.getSingleCommonJs().keySet();
+	public static String[] getSingleCommonJS(final String entityName) {
+		String pack = entityName.substring(0, entityName.lastIndexOf('.')).replace('.', '_');
+		String entityName0 = entityName.replace('.', '_');
+		Map<String, String[]> singleCommonJs = instance.getSingleCommonJs();
+		Set<String> keys = singleCommonJs.keySet();
 		List<String> results = new ArrayList<String>();
 		for (String key : keys) {
 			if (key.startsWith("*")) {
@@ -398,14 +399,14 @@ public final class WebConfig {
 				if (keyA.endsWith(".*")) {
 					keyA = keyA.substring(0, keyA.length() - 2);
 					if (pack.indexOf(keyA) != -1) {
-						String[] vs = instance.getSingleCommonJs().get(key);
+						String[] vs = singleCommonJs.get(key);
 						for (String v: vs) {
 							results.add(v);
 						}
 					}
 				} else {
 					if (pack.lastIndexOf(keyA) != -1) {
-						String[] vs = instance.getSingleCommonJs().get(key);
+						String[] vs = singleCommonJs.get(key);
 						for (String v: vs) {
 							results.add(v);
 						}
@@ -414,13 +415,13 @@ public final class WebConfig {
 			} else if (key.endsWith(".*")) {
 				String keyPack = key.substring(0, key.length() - 2);
 				if (pack.startsWith(keyPack)) {
-					String[] vs = instance.getSingleCommonJs().get(key);
+					String[] vs = singleCommonJs.get(key);
 					for (String v: vs) {
 						results.add(v);
 					}
 				}
-			} else if (key.equals(entityName)) {
-				String[] vs = instance.getSingleCommonJs().get(entityName);
+			} else if (key.equals(entityName0)) {
+				String[] vs = singleCommonJs.get(entityName0);
 				for (String v: vs) {
 					results.add(v);
 				}
@@ -435,9 +436,11 @@ public final class WebConfig {
 		return results.toArray(new String[results.size()]);
 	}
 	
-	public static String[] getSingleCommonAppJS(String entityName) {
-		String pack = entityName.substring(0, entityName.lastIndexOf('.'));
-		Set<String> keys = instance.getSingleCommonAppJs().keySet();
+	public static String[] getSingleCommonAppJS(final String entityName) {
+		String pack = entityName.substring(0, entityName.lastIndexOf('.')).replace('.', '_');
+		String entityName0 = entityName.replace('.', '_');
+		Map<String, String[]> singleCommonAppJs = instance.getSingleCommonAppJs();
+		Set<String> keys = singleCommonAppJs.keySet();
 		List<String> results = new ArrayList<String>();
 		for (String key : keys) {
 			if (key.startsWith("*")) {
@@ -445,14 +448,14 @@ public final class WebConfig {
 				if (keyA.endsWith(".*")) {
 					keyA = keyA.substring(0, keyA.length() - 2);
 					if (pack.indexOf(keyA) != -1) {
-						String[] vs = instance.getSingleCommonAppJs().get(key);
+						String[] vs = singleCommonAppJs.get(key);
 						for (String v: vs) {
 							results.add(v);
 						}
 					}
 				} else {
 					if (pack.lastIndexOf(keyA) != -1) {
-						String[] vs = instance.getSingleCommonAppJs().get(key);
+						String[] vs = singleCommonAppJs.get(key);
 						for (String v: vs) {
 							results.add(v);
 						}
@@ -461,13 +464,13 @@ public final class WebConfig {
 			} else if (key.endsWith(".*")) {
 				String keyPack = key.substring(0, key.length() - 2);
 				if (pack.startsWith(keyPack)) {
-					String[] vs = instance.getSingleCommonAppJs().get(key);
+					String[] vs = singleCommonAppJs.get(key);
 					for (String v: vs) {
 						results.add(v);
 					}
 				}
-			} else if (key.equals(entityName)) {
-				String[] vs = instance.getSingleCommonAppJs().get(entityName);
+			} else if (key.equals(entityName0)) {
+				String[] vs = singleCommonAppJs.get(entityName0);
 				for (String v: vs) {
 					results.add(v);
 				}
@@ -483,20 +486,22 @@ public final class WebConfig {
 	}
 	
 	public static String[] getSingleCommonCSS(String entityName) {
-		String pack = entityName.substring(0, entityName.lastIndexOf('.'));
-		Set<String> keys = instance.getSingleCommonCss().keySet();
+		String pack = entityName.substring(0, entityName.lastIndexOf('.')).replace('.', '_');
+		String entityName0 = entityName.replace('.', '_');
+		Map<String, String[]> singleCommonCss = instance.getSingleCommonCss();
+		Set<String> keys = singleCommonCss.keySet();
 		List<String> results = new ArrayList<String>();
 		for (String key : keys) {
 			if (key.endsWith(".*")) {
 				String keyPack = key.substring(0, key.length() - 2);
 				if (pack.startsWith(keyPack)) {
-					String[] vs = instance.getSingleCommonCss().get(key);
+					String[] vs = singleCommonCss.get(key);
 					for (String v: vs) {
 						results.add(v);
 					}
 				}
-			} else if (key.equals(entityName)) {
-				String[] vs = instance.getSingleCommonCss().get(entityName);
+			} else if (key.equals(entityName0)) {
+				String[] vs = singleCommonCss.get(entityName0);
 				for (String v: vs) {
 					results.add(v);
 				}
@@ -512,20 +517,22 @@ public final class WebConfig {
 	}
 	
 	public static String[] getSingleCommonAppCSS(String entityName) {
-		String pack = entityName.substring(0, entityName.lastIndexOf('.'));
-		Set<String> keys = instance.getSingleCommonAppCss().keySet();
+		String pack = entityName.substring(0, entityName.lastIndexOf('.')).replace('.', '_');
+		String entityName0 = entityName.replace('.', '_');
+		Map<String, String[]> singleCommonAppCss = instance.getSingleCommonAppCss();
+		Set<String> keys = singleCommonAppCss.keySet();
 		List<String> results = new ArrayList<String>();
 		for (String key : keys) {
 			if (key.endsWith(".*")) {
 				String keyPack = key.substring(0, key.length() - 2);
 				if (pack.startsWith(keyPack)) {
-					String[] vs = instance.getSingleCommonAppCss().get(key);
+					String[] vs = singleCommonAppCss.get(key);
 					for (String v: vs) {
 						results.add(v);
 					}
 				}
-			} else if (key.equals(entityName)) {
-				String[] vs = instance.getSingleCommonAppCss().get(entityName);
+			} else if (key.equals(entityName0)) {
+				String[] vs = singleCommonAppCss.get(entityName0);
 				for (String v: vs) {
 					results.add(v);
 				}
@@ -539,8 +546,6 @@ public final class WebConfig {
 		} 
 		return results.toArray(new String[results.size()]);
 	}
-
-	private static Map skinSettingMap = new ConcurrentHashMap();
 
 	/**
 	 * get css root path
@@ -559,12 +564,11 @@ public final class WebConfig {
 	 * suffix: UIENTITY_JSP_SUFFIX,ODMAPPER_JSP_SUFFIX,UIPAGE_HTML_JSP_SUFFIX
 	 */
 	public static String getJspUrl(String entityName, String componentType) {
-		// TODO:
 		return "";
 	}
 
 	public static String getSystemUISkin(String componentTypeName) {
-		return (String) skinSettingMap.get(componentTypeName);
+		return null;
 	}
 
 	public static String getDefaultJspName(String entityName) {

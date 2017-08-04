@@ -32,6 +32,14 @@ public class HibernateUtil {
 			Configuration config = new Configuration();
 			List<String> loadedPaths = new ArrayList<String>();
 			Enumeration<URL> urls1 = AppContext.get().getAppClassLoader().getResources("hbm/");
+			PersistentConfig pconfig = AppContext.get().getService(PersistentConfig.class);
+			if (!urls1.hasMoreElements() && pconfig.getHbmRoot() != null) {
+				File path = new File(pconfig.getHbmRoot());
+				final String files[] = path.list();
+				for (final String file : files) {
+					config.addResource("hbm/" + file);
+				}
+			}
 			while (urls1.hasMoreElements()) {
 				URL url = urls1.nextElement();
 				String strPath = url.toString();

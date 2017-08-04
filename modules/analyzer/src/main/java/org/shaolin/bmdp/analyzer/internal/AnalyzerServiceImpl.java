@@ -96,9 +96,7 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 	@Override
 	public void reload() {
 	    logger.debug("-------------------------------starting Analyzer--------------------------------------");
-		if (AppContext.isMasterNode()) {
-		    getJavaCCJobEngine().startService();
-		}
+//	    getJavaCCJobEngine().startService();
 		
 		this.tables.clear();
 		IServerServiceManager.INSTANCE.getEntityManager().executeListener(new IEntityEventListener<TableType, DiagramType>() {
@@ -146,7 +144,7 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 
 	@Override
 	public void stopService() {
-	    getJavaCCJobEngine().stopService();
+//	    getJavaCCJobEngine().stopService();
 	}
 	
 	@Override
@@ -156,7 +154,7 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 		}
         
     	job.setStatus(JavaCCJobStatusType.START);
-    	getJavaCCJobEngine().startJob(job);
+//    	getJavaCCJobEngine().startJob(job);
     	AanlysisModel.INSTANCE.update(job, true);
 	}
 
@@ -164,7 +162,7 @@ public class AnalyzerServiceImpl implements ILifeCycleProvider, IServiceProvider
 	public void stopJob(IJavaCCJob job) {
 		if (job.getStatus() != JavaCCJobStatusType.STOP) {
 			job.setStatus(JavaCCJobStatusType.STOP);
-			getJavaCCJobEngine().stopJob(job);
+//			getJavaCCJobEngine().stopJob(job);
             AanlysisModel.INSTANCE.update(job, true);
 		}
 	}

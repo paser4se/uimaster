@@ -37,7 +37,7 @@ webConstant:
    - api.map.baidu.com/api
    - coupon-common.js
   commoncss:
-   - /uimaster/js/controls/swiper/swiper.css
+   - ${webConstant.resourceServer}/uimaster/js/controls/swiper/swiper.css
    - /uimaster/css/jquery-dataTable.css
    - /uimaster/css/jquery-jstree.css
    - /uimaster/css/jquery-ui.css
@@ -79,17 +79,18 @@ webConstant:
    - $APPROOT/js/uimaster.js
    - $APPROOT/js/uimaster-widget.js
   singleCommonCss: 
+   org_shaolin_CustomerManagementTest: /uimaster/css/test1.css
+  singleCommonAppCss: 
+   org_shaolin_CustomerManagementTest_mob: /uimaster/css/test1.css
   singleCommonJs:
-   org.shaolin.vogerp.commonmodel.page.CustomerManagementTest: 
-    - https://api.map.baidu.com/api?v=2.0&amp;ak=kT8czcw0fydHdXiGPGBOckX1
-   org.shaolin.vogerp.commonmodel.page.GlobalStatisticTest: 
-    - /uimaster/js/controls/map/raphael-min.js
-    - /uimaster/js/controls/map/chinaMapConfig.js
-    - /uimaster/js/controls/map/map.js
+   org_shaolin_CustomerManagementTest: https://api.map.baidu.com/api?v=2.0&amp;ak=kT8czcw0fydHdXiGPGBOckX1
+   org_shaolin_GlobalStatisticTest: 
+    /uimaster/js/controls/map/raphael-min.js,
+    /uimaster/js/controls/map/chinaMapConfig.js,
+    /uimaster/js/controls/map/map.js
   singleCommonAppJs:
-   org.shaolin.vogerp.commonmodel.page.CustomerManagementTest: 
-    - https://api.map.baidu.com/api?v=2.0&amp;ak=kT8czcw0fydHdXiGPGBOckX1
-   org.shaolin.vogerp.commonmodel.page.GlobalStatisticTest: 
-    - $APPROOT/js/controls/map/raphael-min.js
-    - $APPROOT/js/controls/map/chinaMapConfig.js
-    - $APPROOT/js/controls/map/map.js
+   org_shaolin_CustomerManagementTest_mob: https://api.map.baidu.com/api?v=2.0&amp;ak=kT8czcw0fydHdXiGPGBOckX1
+   org_shaolin_GlobalStatisticTest_mob: 
+     $APPROOT/js/controls/map/raphael-min.js,
+     $APPROOT/js/controls/map/chinaMapConfig.js,
+     $APPROOT/js/controls/map/map.js

@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.servlet.jsp.JspException;
-
 import org.shaolin.bmdp.datamodel.common.ExpressionType;
 import org.shaolin.bmdp.datamodel.page.ExpressionPropertyType;
 import org.shaolin.bmdp.datamodel.page.PropertyType;
@@ -346,8 +344,14 @@ public class HTMLUtil
 	        String[] commons = WebConfig.getCommonJs();
 	        for (String common: commons)
 	        {
-	            String importJSCode = "<script type=\"text/javascript\" src=\"" + common
-	                    + "?_timestamp=";
+	        	String importJSCode = null;
+	        	if (common.startsWith("http") || common.startsWith("https")) {
+	        		importJSCode = "<script type=\"text/javascript\" src=\"" + common;
+	        	} else {
+	        		importJSCode = "<script type=\"text/javascript\" src=\"" + WebConfig.getResourceContextRoot() + common
+		                    + "?_timestamp=";
+	        	}
+	            
 	            jsIncludeMap.put(common, importJSCode);
 	            jsIncludeList.add(common);
 	        }
@@ -355,8 +359,13 @@ public class HTMLUtil
         String[] singleCommons = WebConfig.getSingleCommonJS(entityName);
         for (String single: singleCommons)
         {
-            String importJSCode = "<script type=\"text/javascript\" src=\"" + single
-                    + "?_timestamp=";
+        	String importJSCode = null;
+        	if (single.startsWith("http") || single.startsWith("https")) {
+        		importJSCode = "<script type=\"text/javascript\" src=\"" + single;
+        	} else {
+        		importJSCode = "<script type=\"text/javascript\" src=\"" + WebConfig.getResourceContextRoot() + single
+        				+ "?_timestamp=";
+        	}
             jsIncludeMap.put(single, importJSCode);
             jsIncludeList.add(single);
         }
@@ -374,17 +383,27 @@ public class HTMLUtil
 	        String[] commons = WebConfig.getCommonMobJs();
 	        for (String common: commons)
 	        {
-	            String importJSCode = "<script type=\"text/javascript\" src=\"" + common
-	                    + "?_timestamp=";
+	        	String importJSCode = null;
+	        	if (common.startsWith("http") || common.startsWith("https")) {
+	        		importJSCode = "<script type=\"text/javascript\" src=\"" + common;
+	        	} else {
+	        		importJSCode = "<script type=\"text/javascript\" src=\"" + WebConfig.getResourceContextRoot() + common
+		                    + "?_timestamp=";
+	        	}
 	            jsIncludeMap.put(common, importJSCode);
 	            jsIncludeList.add(common);
 	        }
     	}
-        String[] singleCommons = WebConfig.getSingleCommonJS(entityName);
+        String[] singleCommons = WebConfig.getSingleCommonAppJS(entityName);
         for (String single: singleCommons)
         {
-            String importJSCode = "<script type=\"text/javascript\" src=\"" + single
-                    + "?_timestamp=";
+        	String importJSCode = null;
+        	if (single.startsWith("http") || single.startsWith("https")) {
+        		importJSCode = "<script type=\"text/javascript\" src=\"" + single;
+        	} else {
+        		importJSCode = "<script type=\"text/javascript\" src=\"" + WebConfig.getResourceContextRoot() + single
+        				+ "?_timestamp=";
+        	}
             jsIncludeMap.put(single, importJSCode);
             jsIncludeList.add(single);
         }

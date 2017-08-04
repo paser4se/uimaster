@@ -607,8 +607,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		this.futures.clear();
 		
 		this.setAppService(IServerServiceManager.INSTANCE);
-		AppContext.get().register(this);
-		IServerServiceManager.INSTANCE.register(this);
 		
 		// make this shared
 		scheduler = IServerServiceManager.INSTANCE.getSchedulerService()

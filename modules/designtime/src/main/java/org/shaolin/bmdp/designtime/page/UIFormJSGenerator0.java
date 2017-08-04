@@ -1,6 +1,7 @@
 
 package org.shaolin.bmdp.designtime.page;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +69,8 @@ import org.shaolin.bmdp.datamodel.page.ValidatorsPropertyType;
 import org.shaolin.bmdp.designtime.tools.GeneratorOptions;
 import org.shaolin.bmdp.designtime.tools.PumpWriter;
 import org.shaolin.bmdp.runtime.Registry;
+import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
+import org.shaolin.uimaster.page.spi.IJsGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -660,12 +663,18 @@ public class UIFormJSGenerator0 {
         	} else {
         		tabs = ((UIPreNextPanelType) component).getTabs();
         	}
+        	int index = 0;
 			for (UITabPaneItemType t : tabs) {
+				if ((component instanceof UITabPaneType) && ((UITabPaneType)component).isAjaxLoad() && index > 0) { 
+					genAjaxUITabPaneJS(((UITabPaneType)component), t);
+				}
+				
 				if (t.getRefEntity() != null) {
 					genRefComponentJS(out, t.getRefEntity(), uiEntity);
 				} else if (t.getPanel() != null) {
 					dynamicGenUIContainer(out, uiEntity, t.getPanel());
 				}
+				index ++;
 			}
         }
     
@@ -1345,5 +1354,32 @@ public class UIFormJSGenerator0 {
         }
     }
     
+	protected void genAjaxUITabPaneJS(UITabPaneType tabPane, UITabPaneItemType tab) {
+		if (tab.getPanel() == null) {
+			return;
+		}
+		IJsGenerator jsGenerator = IServerServiceManager.INSTANCE.getService(IJsGenerator.class);
+		String entityPrefix = tab.getPanel().getUIID();
+		StringBuffer sb = new StringBuffer();
+		sb.append(jsGenerator.gen(this.entityName, "", tab.getPanel()));
+		sb.append("\ndefaultname.");
+        if (entityPrefix != null && entityPrefix.length() > 0) {
+        	sb.append(entityPrefix).append('.');
+        }
+        sb.append("Form.items.push(elementList['").append(tab.getPanel().getUIID()).append("']);");
+        //save it to file.
+        File dest = new File(option.getWebDir() + File.separator + "js", 
+        		this.entityName.replace('.', File.separatorChar) + "_" + entityPrefix + ".js");
+        PumpWriter out1 = new PumpWriter();
+        out1.setOutputDir(dest);
+        out1.setEncoding(Registry.getInstance().getEncoding());
+        out1.write("!!!!file ");
+        out1.print(dest.getAbsolutePath());
+        out1.write("\n\n");
+        out1.print(sb.toString());
+        out1.write("\n\n");
+        out1.finish();
+        out1.close();
+	}
 
 }

@@ -36,7 +36,6 @@ import org.shaolin.bmdp.json.JSONArray;
 import org.shaolin.bmdp.json.JSONException;
 import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.security.UserContext;
-import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 import org.shaolin.javacc.context.EvaluationContext;
 import org.shaolin.javacc.context.OOEEContext;
@@ -61,7 +60,6 @@ import org.shaolin.uimaster.page.od.ODContext;
 import org.shaolin.uimaster.page.od.ODEntityContext;
 import org.shaolin.uimaster.page.od.ODTabPaneContext;
 import org.shaolin.uimaster.page.od.mappings.SimpleComponentMapping;
-import org.shaolin.uimaster.page.spi.IJsGenerator;
 import org.shaolin.uimaster.page.widgets.HTMLCellLayoutType;
 import org.shaolin.uimaster.page.widgets.HTMLDynamicUIItem;
 import org.shaolin.uimaster.page.widgets.HTMLFrameType;
@@ -357,25 +355,11 @@ public class TabPane extends Container implements Serializable
             HTMLCellLayoutType layout = new HTMLCellLayoutType(id);
             panelLayout.generateComponentHTML(htmlContext, 0, false, layout);
             
-            IJsGenerator jsGenerator = IServerServiceManager.INSTANCE.getService(IJsGenerator.class);
-            StringBuilder js = DisposableBfString.getBuffer();
-            try {
-	            js.append(jsGenerator.gen(this.getUIEntityName(), entityPrefix, tab.getPanel()));
-	            js.append("\ndefaultname.");
-	            if (entityPrefix != null && entityPrefix.length() > 0) {
-	            	js.append(entityPrefix).append('.');
-	            }
-	            js.append("Form.items.push(elementList['").append(tab.getPanel().getUIID()).append("']);");
-	            
-	            IDataItem dataItem = AjaxContextHelper.createAppendItemToTab(this.getId(), id);
-	            dataItem.setData(htmlWriter.getBuffer().toString());
-	            dataItem.setJs(js.toString());
-	            dataItem.setFrameInfo(this.getFrameInfo());
-	            AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
-            } finally {
-    			DisposableBfString.release(js);
-    		}
-			
+            IDataItem dataItem = AjaxContextHelper.createAppendItemToTab(this.getId(), id);
+            dataItem.setData(htmlWriter.getBuffer().toString());
+            dataItem.setJs(ownerEntity.getLazyloadingJS(tab.getPanel().getUIID()));
+            dataItem.setFrameInfo(this.getFrameInfo());
+            AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
         } else if (tab.getRefEntity() != null) {
         	ODEntityContext refFormContext = null;
 			if (tab.getOdmappings() != null && tab.getOdmappings().size() > 0) {

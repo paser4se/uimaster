@@ -15,6 +15,9 @@
 */
 package org.shaolin.uimaster.page.cache;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -107,6 +110,7 @@ import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.utils.ClassLoaderUtil;
+import org.shaolin.bmdp.utils.FileUtil;
 import org.shaolin.javacc.context.DefaultParsingContext;
 import org.shaolin.javacc.context.OOEEContext;
 import org.shaolin.javacc.context.OOEEContextFactory;
@@ -163,7 +167,7 @@ public class UIFormObject implements java.io.Serializable
     private List<String> componentIds = null;
     // tabpaneIdpanelId includes all ajax/lazy loading components.
     private final Map<String, List<String>> lazyloadingComponentIds = new HashMap<String, List<String>>();
-    
+    private final Map<String, String> lazyloadingJsList = new HashMap<String, String>();
     // ui attributes
     private Map<String, Map<String, Object>> attributesMap = new HashMap<String, Map<String, Object>>();
     private Map<String, Object> bundleMap = new HashMap<String, Object>();
@@ -766,6 +770,18 @@ public class UIFormObject implements java.io.Serializable
 				            }
 				            nestedComponentIds.add(tab.getPanel().getUIID());
 				            lazyloadingComponentIds.put(tabPane.getUIID() +"."+ tab.getUiid(), nestedComponentIds);
+				            File f = new File(WebConfig.getResourcePath() + File.separator + "js" 
+				            		+ File.separator + this.name.replace('.', File.separatorChar) + "_" + tab.getPanel().getUIID() + ".js");
+				            if (f.exists()) {
+				            	//read ajax js from file.
+				            	try {
+									lazyloadingJsList.put(tab.getPanel().getUIID(), FileUtil.readFile(new FileInputStream(f)));
+								} catch (FileNotFoundException e) {
+									//impossible.
+								}
+				            } else {
+				            	lazyloadingJsList.put(tab.getPanel().getUIID(), "");
+				            }
 						} 
 					}
 					index ++;
@@ -1944,6 +1960,11 @@ public class UIFormObject implements java.io.Serializable
     	return lazyloadingComponentIds.get(tabpaneIdpanelId);
     }
     
+    public String getLazyloadingJS(String tabpaneIdpanelId)
+    {
+    	return lazyloadingJsList.get(tabpaneIdpanelId);
+    }
+    
     public Map getComponentEvent(String componentID)
     {
         return (Map)funcMap.get(componentID);
@@ -2420,7 +2441,7 @@ public class UIFormObject implements java.io.Serializable
             	} else {
                     importJSCode = (String)this.jsIncludeMap.get(jsFileName);
             	}
-            	if (jsFileName.startsWith(WebConfig.getResourceContextRoot())) {
+            	if (importJSCode.contains(WebConfig.getResourceContextRoot())) {
             		context.generateJS(importJSCode + timestamp + "\" ");
             		context.generateJS(syncLoadJs ? "" : WebConfig.isSyncLoadingJs(jsFileName));
             		context.generateJS("></script>");

@@ -786,6 +786,10 @@ public final class EntityManager implements IEntityManager {
 		listeners.remove(listener);
 	}
 	
+	/**
+	 * Release the useless caches after startup.
+	 * 
+	 */
 	public void offUselessCaches() {
 		CacheManager.getInstance().getCache("__sys_entity_be", String.class, BusinessEntityType.class).clear();
 		CacheManager.getInstance().getCache("__sys_entity_ce", String.class, ConstantEntityType.class).clear();
