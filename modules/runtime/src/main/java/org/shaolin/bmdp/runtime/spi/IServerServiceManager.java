@@ -49,6 +49,8 @@ public class IServerServiceManager implements IAppServiceManager, Serializable {
 	
 	private State state = State.NONE;
 	
+	private Env env = Env.Production;
+	
 	private final Registry registry;
 
 	// use spring service instead.
@@ -169,6 +171,15 @@ public class IServerServiceManager implements IAppServiceManager, Serializable {
 		return state;
 	}
 
+	public void setRunningEnv(Env s) {
+		this.env = s;
+	}
+	
+	@Override
+	public Env getRunningEnv() {
+		return env;
+	}
+	
 	@Override
 	public void registerLifeCycleProvider(ILifeCycleProvider provider) {
 		logger.info("Register life cycle service: {} with running level: {}", new Object[]{provider, provider.getRunLevel()});

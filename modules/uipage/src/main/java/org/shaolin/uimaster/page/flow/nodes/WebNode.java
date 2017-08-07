@@ -87,14 +87,11 @@ public abstract class WebNode implements java.io.Serializable {
 	 * 
 	 * @param chunk
 	 *            the WebChunk reference which contains this WebNode.
+	 * @throws ParsingException 
 	 */
-	public void initWebNode(WebChunk chunk) {
+	public void initWebNode(WebChunk chunk) throws ParsingException {
 		this.chunk = chunk;
-		try {
-			parse();
-		} catch (Throwable t) {
-			logger.error("Error when parse node " + toString(), t);
-		}
+		parse();
 	}
 
 	/**

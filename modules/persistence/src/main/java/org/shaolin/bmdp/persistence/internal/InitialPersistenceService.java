@@ -1,18 +1,8 @@
 package org.shaolin.bmdp.persistence.internal;
 
-import java.util.Properties;
-
-import org.shaolin.bmdp.persistence.PersistentConfig;
 import org.shaolin.bmdp.runtime.spi.ILifeCycleProvider;
-import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.orm.hibernate4.HibernateTransactionManager;
-import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.stereotype.Service;
 
 @Service

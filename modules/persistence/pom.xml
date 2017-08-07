@@ -24,6 +24,10 @@
 	       <groupId>org.springframework.boot</groupId>
 	       <artifactId>spring-boot-starter-data-jpa</artifactId>
 	    </dependency>
+	    <dependency>
+	       <groupId>org.springframework.boot</groupId>
+	       <artifactId>spring-boot-starter-jta-bitronix</artifactId>
+	    </dependency>
         <dependency>
 			<groupId>org.shaolin.bmdp</groupId>
 			<artifactId>common</artifactId>
@@ -84,7 +88,6 @@
 		<dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

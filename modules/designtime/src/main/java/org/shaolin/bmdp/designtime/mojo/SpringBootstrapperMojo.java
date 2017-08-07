@@ -5,6 +5,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.shaolin.bmdp.runtime.Registry;
+import org.shaolin.bmdp.runtime.spi.IAppServiceManager;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.WebConfigSpringInstance;
@@ -13,6 +14,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.JndiDataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.XADataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -23,8 +30,20 @@ import org.springframework.context.annotation.Profile;
  * 
  * @author Shaolin
  */
-@SpringBootApplication(scanBasePackages={"org.shaolin.*"})
-@EnableAutoConfiguration
+@SpringBootApplication(scanBasePackages={"org.shaolin.*"}, 
+		exclude={HibernateJpaAutoConfiguration.class,
+				XADataSourceAutoConfiguration.class,
+				JdbcTemplateAutoConfiguration.class,
+				JndiDataSourceAutoConfiguration.class,
+				DataSourceAutoConfiguration.class, 
+				DataSourceTransactionManagerAutoConfiguration.class})
+@EnableAutoConfiguration(
+		exclude={HibernateJpaAutoConfiguration.class,
+				XADataSourceAutoConfiguration.class,
+				JdbcTemplateAutoConfiguration.class,
+				JndiDataSourceAutoConfiguration.class,
+				DataSourceAutoConfiguration.class, 
+				DataSourceTransactionManagerAutoConfiguration.class})
 @ComponentScan(basePackages = {"org.shaolin.*"})
 @Profile("default")
 public abstract class SpringBootstrapperMojo extends AbstractMojo implements CommandLineRunner {
@@ -54,7 +73,7 @@ public abstract class SpringBootstrapperMojo extends AbstractMojo implements Com
     public void execute() throws MojoExecutionException, MojoFailureException {
     	contextObject.set(this);
     	
-    	SpringApplication app = new SpringApplication(this.getClass());
+    	SpringApplication app = new SpringApplication(SpringBootstrapperMojo.class);
     	app.setWebEnvironment(false);
     	app.setBannerMode(Banner.Mode.CONSOLE);
         app.run(new String[0]);
@@ -71,6 +90,7 @@ public abstract class SpringBootstrapperMojo extends AbstractMojo implements Com
     	// initialize registry
 		Registry.getInstance().initRegistry();
 		IServerServiceManager.setSpringContext(this.ctx);
+		IServerServiceManager.INSTANCE.setRunningEnv(IAppServiceManager.Env.Testing);
 		WebConfigSpringInstance instance = ctx.getBean(WebConfigSpringInstance.class);
 		this.getLog().info("UIMaster contextRoot: " + instance.getContextRoot());
 		WebConfig.setSpringInstance(instance);

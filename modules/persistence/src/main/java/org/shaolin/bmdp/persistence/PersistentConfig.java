@@ -2,14 +2,22 @@ package org.shaolin.bmdp.persistence;
 
 import java.util.Properties;
 
+import javax.persistence.EntityManagerFactory;
+
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
@@ -20,8 +28,10 @@ public class PersistentConfig {
 
 	private String hbmRoot;
 
+	@NestedConfigurationProperty
 	private DataSource dataSource = new DataSource();
 	
+	@NestedConfigurationProperty
 	private HibernateProperties hibernate = new HibernateProperties();
 	
 	public String getHbmRoot() {
@@ -59,6 +69,24 @@ public class PersistentConfig {
 	}
 
 	@Bean
+	@ConditionalOnBean(name = "dataSource")
+	public EntityManagerFactory entityManagerFactory() {
+		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+		vendorAdapter.setGenerateDdl(true);
+
+		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+		factory.setJpaVendorAdapter(vendorAdapter);
+		factory.setPackagesToScan("org.shaolin");
+		factory.setDataSource(dataSource());
+//		factory.setPersistenceUnitManager(persistenceUnitManager);
+//		factory.setMappingResources(mappingResources);
+		factory.afterPropertiesSet();
+
+		return factory.getObject();
+	}
+	
+	@Bean
+	@ConditionalOnBean(name = "dataSource")
 	public LocalSessionFactoryBean sessionFactory() {
 		LocalSessionFactoryBean sessionFactoryBean = new LocalSessionFactoryBean();
 		sessionFactoryBean.setDataSource(this.dataSource());
@@ -70,7 +98,14 @@ public class PersistentConfig {
 		hibernateProperties.put("hibernate.hbm2ddl.auto", this.getHibernate().getHbm2ddlauto());
 		
 		hibernateProperties.put("hibernate.connection.pool_size", this.getHibernate().getConnection_pool_size());
-		hibernateProperties.put("hibernate.current_session_context_class", this.getHibernate().getCurrent_session_context_class());
+		//Spring + Bitronix manages the transaction by default!
+		//sessionFactoryBean.setJtaTransactionManager(jtaTransactionManager);
+		//org.hibernate.engine.transaction.internal.jta.CMTTransactionFactory
+		//org.hibernate.engine.transaction.internal.jta.JtaTransactionFactory
+		hibernateProperties.put("hibernate.transaction.factory_class", "org.hibernate.engine.transaction.internal.jta.JtaTransactionFactory");
+		hibernateProperties.put("hibernate.transaction.jta.platform", "org.hibernate.service.jta.platform.internal.BitronixJtaPlatform");
+		hibernateProperties.put("hibernate.current_session_context_class", "jta"); //or thread binding.
+		
 		hibernateProperties.put("hibernate.cache.provider_class", this.getHibernate().getCache_provider_class());
 		hibernateProperties.put("hibernate.enable_lazy_load_no_trans", this.getHibernate().isEnable_lazy_load_no_trans());
 		hibernateProperties.put("hibernate.generate_statistics", this.getHibernate().isGenerate_statistics());
@@ -80,25 +115,44 @@ public class PersistentConfig {
 		hibernateProperties.put("hibernate.connection.validationQuery", this.getHibernate().getValidationQuery());
 		
 		sessionFactoryBean.setHibernateProperties(hibernateProperties);
-		sessionFactoryBean.setMappingDirectoryLocations(new FileSystemResource(this.getHbmRoot()));
+		if (this.getHbmRoot() != null && this.getHbmRoot().length() > 0) {
+			sessionFactoryBean.setMappingDirectoryLocations(new FileSystemResource(this.getHbmRoot()));
+		}
 		return sessionFactoryBean;
 	}
 
 	@Bean
-	public HibernateTransactionManager transactionManager() {
+	@ConditionalOnBean(name = "sessionFactory")
+	@Autowired
+	public HibernateTransactionManager transactionManager(SessionFactory sessionFactory) {
 		HibernateTransactionManager transactionManager = new HibernateTransactionManager();
-		transactionManager.setSessionFactory(sessionFactory().getObject());
+		transactionManager.setSessionFactory(sessionFactory);
+		transactionManager.setDataSource(this.dataSource());
+		transactionManager.setNestedTransactionAllowed(false);
+		transactionManager.afterPropertiesSet();
 		return transactionManager;
 	}
-
+	
+	@Bean
+	@ConditionalOnBean(name = "sessionFactory")
+	@Autowired
+	public HibernateTransactionManager txManager(SessionFactory sessionFactory) {
+		HibernateTransactionManager transactionManager = new HibernateTransactionManager();
+		transactionManager.setSessionFactory(sessionFactory);
+		transactionManager.setDataSource(this.dataSource());
+		transactionManager.setNestedTransactionAllowed(false);
+		transactionManager.afterPropertiesSet();
+		return transactionManager;
+	}
+	
 	public static class DataSource {
-		private String driver;
+		private String driver = "com.mysql.jdbc.Driver";
 
-		private String password;
+		private String password = "uimaster";
 
-		private String url;
+		private String url = "jdbc:mysql://localhost:3306/uimaster";
 
-		private String username;
+		private String username = "uimaster";
 
 		public String getDriver() {
 			return driver;

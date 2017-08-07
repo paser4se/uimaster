@@ -9,8 +9,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import javax.transaction.Transactional;
-
 import org.hibernate.Criteria;
 import org.hibernate.NonUniqueObjectException;
 import org.hibernate.SQLQuery;
@@ -28,6 +26,7 @@ import org.shaolin.bmdp.runtime.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional
@@ -43,13 +42,15 @@ public class BEEntityDaoObject {
 	
 	static {
 		Registry instance = Registry.getInstance();
-		PERQUERY_MAXRECORD = Integer.valueOf(instance.getValue("/System/Persistence/PerQueryMaxRecord"));
+		PERQUERY_MAXRECORD = Integer.valueOf(instance.getValue("/System/Persistence/PerQueryMaxRecord", 100));
 	}
+	
+	public BEEntityDaoObject() {}
 	
 	public void addResource(String hbmMapping) {
 		//HibernateUtil.getConfiguration().addResource(hbmMapping);
 	}
-
+	
 	/**
 	 * Insert a business entity record to database.
 	 * 

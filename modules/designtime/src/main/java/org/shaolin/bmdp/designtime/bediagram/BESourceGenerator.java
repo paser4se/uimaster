@@ -41,6 +41,7 @@ import org.shaolin.bmdp.datamodel.common.VariableType;
 import org.shaolin.bmdp.designtime.immocompiler.MemoryCompiler;
 import org.shaolin.bmdp.designtime.tools.GeneratorOptions;
 import org.shaolin.bmdp.designtime.tools.PumpWriter;
+import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.VariableUtil;
 import org.shaolin.bmdp.runtime.be.BEUtil;
@@ -304,7 +305,6 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			out.write(" implements ");
 			out.print(interfaceJava);
 			out.write("\n{\n    private static final long serialVersionUID = 0x90B1123CE87B50FFL;");
-			out.write("\n\n    private final transient IConstantService ceService = AppContext.get().getConstantService();");
 			out.write("\n\n    protected String getBusinessEntityName()\n    {\n        return \"");
 			out.print(businessEntity.getEntityName());
 			out.write("\";\n    }\n\n    public ");
@@ -385,6 +385,7 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 		out.write("import org.shaolin.bmdp.runtime.be.ITaskEntity;\n");
 		out.write("import org.shaolin.bmdp.runtime.be.BEExtensionInfo;\n\n");
 		out.write("import org.shaolin.bmdp.runtime.spi.IConstantService;\n\n");
+		out.write("import org.shaolin.bmdp.runtime.spi.IServerServiceManager;\n\n");
 		out.write("import org.shaolin.bmdp.runtime.AppContext;\n\n");
 		out.write("import org.shaolin.bmdp.runtime.ce.CEUtil;\n\n");
 		out.write("import org.shaolin.bmdp.runtime.be.BEUtil;\n\n");
@@ -968,7 +969,7 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 					out.print(attrName);
 					out.write(" = (");
 					out.print(attrTypeString);
-					out.write(")ceService.getConstantEntity("+attrTypeString+".ENTITY_NAME).getByIntValue(");
+					out.write(")IServerServiceManager.INSTANCE.getConstantService().getConstantEntity("+attrTypeString+".ENTITY_NAME).getByIntValue(");
 					out.print(intAttrName);
 					out.write(");\n");
 		        	out.write("        }\n");

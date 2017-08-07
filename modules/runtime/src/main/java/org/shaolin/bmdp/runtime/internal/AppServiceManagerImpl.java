@@ -171,4 +171,10 @@ public class AppServiceManagerImpl implements IAppServiceManager, Serializable {
 				.getBeansOfType(IServiceProvider.class);
 		return services.size();
 	}
+
+	@Override
+	public Env getRunningEnv() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

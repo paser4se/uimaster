@@ -91,7 +91,7 @@ public class MasterInstanceListener implements ServletContextListener, ILifeCycl
         	entityManager.offUselessCaches();
 	    	
         	HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
-        	logger.info("=============={} is initialized successfully.==============", sce.getServletContext().getContextPath());
+        	logger.info("\n=============={} is initialized successfully.==============", sce.getServletContext().getContextPath());
 		} catch (Throwable e) {
 			logger.error("Fails to start Config server start! Error: " + e.getMessage(), e);
 			serverManager.setState(State.FAILURE);

@@ -27,6 +27,8 @@ public interface IAppServiceManager {
 
 	enum State {NONE, START, ACTIVE, FAILURE}
 	
+	enum Env {Testing, Production}
+	
 	/**
 	 * the name of current application.
 	 * 
@@ -35,6 +37,8 @@ public interface IAppServiceManager {
 	String getAppName();
 	
 	State getState();
+	
+	Env getRunningEnv();
 	
 	/**
 	 * The life cycle provider only invokes when the system is up.

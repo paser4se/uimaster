@@ -17,6 +17,7 @@ import org.shaolin.bmdp.datamodel.pagediagram.LogicNodeType;
 import org.shaolin.bmdp.datamodel.pagediagram.PageNodeType;
 import org.shaolin.bmdp.datamodel.pagediagram.WebNodeType;
 import org.shaolin.bmdp.runtime.be.BEUtil;
+import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.javacc.exception.ParsingException;
 import org.shaolin.uimaster.page.TransOpsExecuteContext;
@@ -93,19 +94,15 @@ public class WebChunk implements java.io.Serializable {
 
     /**
      *  init all the WebNodes in this WebChunk and parse the chunk
+     * @throws ParsingException 
      *
      */
-    public void initChunk()
+    public void initChunk() throws ParsingException
     {
 		if (logger.isInfoEnabled()) {
 			logger.info("Load page flow:" + type.getEntityName());
 		}
-		try {
-			parse(); // parse the chunk
-		} catch (ParsingException ex) {
-			logger.error("ParsingError when parse global variables in chunk"
-					+ type.getEntityName(), ex);
-		}
+		parse(); // parse the chunk
 
 		for (WebNode chunk : webNodes) {
 			chunk.initWebNode(this);

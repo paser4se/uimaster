@@ -1,0 +1,10 @@
+
+persistentConstant:
+  hbmRoot: C:\uimaster\deploy\apache-tomcat-8.0.9\webapps\uimaster\WEB-INF\classes\hbm  
+  datasource:
+   url: jdbc:mysql://localhost:3306/uimaster
+   username: test
+   password: test
+   driver: com.mysql.jdbc.Driver
+  hibernate:
+   dialect: org.hibernate.dialect.MySQLInnoDBDialect
