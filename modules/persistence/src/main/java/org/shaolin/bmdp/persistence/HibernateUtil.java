@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * We use Springboot + Hibernate solution.
+ * We use JTA Solution: Springboot + Hibernate + Bitronix.
  * 
  * @author wushaol
  * 
@@ -17,7 +17,7 @@ public class HibernateUtil {
 
 	private static final Logger logger = LoggerFactory.getLogger(HibernateUtil.class);
 	
-	// thread control session factory by out side.
+	// we used sessionFactoryTL to improve the 'CurrentSession' behaviours.
 	private static final ThreadLocal<Session> sessionFactoryTL = new ThreadLocal<Session>();
 	
 	/**
@@ -29,18 +29,27 @@ public class HibernateUtil {
 		return getSession();
 	}
 	
+	/**
+	 * Open session without transaction directly.
+	 * 
+	 * @return
+	 */
+	public static Session openSession() {
+		SessionFactory sessionFactory = IServerServiceManager.INSTANCE.getService(SessionFactory.class);
+		return sessionFactory.openSession(); 
+	}
+	
+	
 	@Transactional
 	public static Session getSession() {
 		if (sessionFactoryTL.get() != null) {
 			return sessionFactoryTL.get();
 		}
 		SessionFactory sessionFactory = IServerServiceManager.INSTANCE.getService(SessionFactory.class);
-		// openSession is recommended in JTA mode instead of using sessionFactory.getCurrentSession();
-		// we used sessionFactoryTL to simulate 'CurrentSession' behaviour.
-		Session session = sessionFactory.openSession(); 
+		Session session = sessionFactory.getCurrentSession(); 
 		sessionFactoryTL.set(session);
-		if (logger.isInfoEnabled()) {
-			logger.info("Start Hibernate Transaction: collections-{},entities-{}", 
+		if (logger.isDebugEnabled()) {
+			logger.debug("Start Hibernate Transaction: collections-{},entities-{}", 
 					new Object[] { session.getStatistics().getCollectionCount(), 
 									session.getStatistics().getEntityCount()});
 		}
@@ -57,12 +66,13 @@ public class HibernateUtil {
 		if (sessionFactoryTL.get() != null) {
 			 sessionFactoryTL.set(null);
 		}
-		if (logger.isInfoEnabled()) {
-			logger.info("End Hibernate Transaction: isCommit-{},collections-{},entities-{}", 
+		if (logger.isDebugEnabled()) {
+			logger.debug("End Hibernate Transaction: isCommit-{},collections-{},entities-{}", 
 					new Object[] { isCommit, session.getStatistics().getCollectionCount(), 
 									session.getStatistics().getEntityCount()});
 		}
 		if (isCommit) {
+			// JTASessionContext being used with JDBCTransactionFactory; auto-flush will not operate correctly with getCurrentSession()
 			session.flush();
 		}
 		session.close();

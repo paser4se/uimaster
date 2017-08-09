@@ -28,6 +28,10 @@
 	       <groupId>org.springframework.boot</groupId>
 	       <artifactId>spring-boot-starter-jta-bitronix</artifactId>
 	    </dependency>
+	    <dependency>
+		   <groupId>org.codehaus.btm</groupId>
+		   <artifactId>btm</artifactId>
+		</dependency>
         <dependency>
 			<groupId>org.shaolin.bmdp</groupId>
 			<artifactId>common</artifactId>

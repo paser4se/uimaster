@@ -22,3 +22,5 @@ hbm
 *.iml
 */target/*
 
+/modules/persistence/btm1.tlog
+/modules/persistence/btm2.tlog

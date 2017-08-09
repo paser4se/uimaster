@@ -56,6 +56,7 @@ public class BEEntityDaoObject {
 	 * 
 	 * @param entity
 	 */
+	@Transactional
 	public void create(IPersistentEntity entity, boolean commit) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Insert an entity: {}", entity);
@@ -69,6 +70,8 @@ public class BEEntityDaoObject {
 		
 		Session session = HibernateUtil.getSession();
 		session.save(entity);
+		//session.persiste(entity) does not save immediately.
+		//this will cause the issue with generated PK entity dependencies.
 	}
 	
 	public void create(IPersistentEntity entity) {
@@ -88,6 +91,7 @@ public class BEEntityDaoObject {
 	 * 
 	 * @param entity
 	 */
+	@Transactional
 	public void delete(IPersistentEntity entity, boolean commit) {
 		if (entity.getId() == 0) {
 			return;
@@ -124,6 +128,7 @@ public class BEEntityDaoObject {
 	 * 
 	 * @param entity
 	 */
+	@Transactional
 	public void update(IPersistentEntity entity, boolean commit) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Update an entity: {}", entity);

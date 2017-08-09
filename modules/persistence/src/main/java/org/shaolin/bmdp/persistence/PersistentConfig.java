@@ -4,8 +4,6 @@ import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
 
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -13,12 +11,15 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.jta.JtaTransactionManager;
+
+import bitronix.tm.BitronixTransactionManager;
+import bitronix.tm.TransactionManagerServices;
+import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 @Configuration
 @ConfigurationProperties("persistentConstant")
@@ -60,11 +61,27 @@ public class PersistentConfig {
 
 	@Bean
 	public javax.sql.DataSource dataSource() {
-		DriverManagerDataSource dataSource0 = new DriverManagerDataSource();
-		dataSource0.setDriverClassName(this.getDataSource().getDriver());
-		dataSource0.setUrl(this.getDataSource().getUrl());
-		dataSource0.setUsername(this.getDataSource().getUsername());
-		dataSource0.setPassword(this.getDataSource().getPassword());
+		// TODO: make it as configurable
+		PoolingDataSource dataSource0 = new PoolingDataSource();
+		dataSource0.setClassName("com.mysql.jdbc.jdbc2.optional.MysqlXADataSource");
+		dataSource0.setUniqueName("dataSource");
+		dataSource0.setAutomaticEnlistingEnabled(true);
+		dataSource0.setAllowLocalTransactions(true);
+		dataSource0.setShareTransactionConnections(true);
+		dataSource0.setUseTmJoin(true);
+		dataSource0.setMinPoolSize(1);
+		dataSource0.setMaxPoolSize(100);
+		
+		Properties driverProperties = new Properties();
+		driverProperties.put("url", this.getDataSource().getUrl());
+		driverProperties.put("user", this.getDataSource().getUsername());
+		driverProperties.put("password", this.getDataSource().getPassword());
+//		driverProperties.put("journal", this.getDataSource().getPassword());
+//		driverProperties.put("log-part1-filename", "btm1.tlog");
+//		driverProperties.put("log-part2-filename", "btm2.tlog");
+		
+		dataSource0.setDriverProperties(driverProperties);
+		dataSource0.init();
 		return dataSource0;
 	}
 
@@ -90,6 +107,7 @@ public class PersistentConfig {
 	public LocalSessionFactoryBean sessionFactory() {
 		LocalSessionFactoryBean sessionFactoryBean = new LocalSessionFactoryBean();
 		sessionFactoryBean.setDataSource(this.dataSource());
+		sessionFactoryBean.setJtaTransactionManager(txManager());
 		sessionFactoryBean.setPackagesToScan(this.getHibernate().getPackagesToScan());
 		Properties hibernateProperties = new Properties();
 		hibernateProperties.put("hibernate.dialect", this.getHibernate().getDialect());
@@ -102,6 +120,7 @@ public class PersistentConfig {
 		//sessionFactoryBean.setJtaTransactionManager(jtaTransactionManager);
 		//org.hibernate.engine.transaction.internal.jta.CMTTransactionFactory
 		//org.hibernate.engine.transaction.internal.jta.JtaTransactionFactory
+		hibernateProperties.put("hibernate.jndi.class", "bitronix.tm.jndi.BitronixInitialContextFactory");
 		hibernateProperties.put("hibernate.transaction.factory_class", "org.hibernate.engine.transaction.internal.jta.JtaTransactionFactory");
 		hibernateProperties.put("hibernate.transaction.jta.platform", "org.hibernate.service.jta.platform.internal.BitronixJtaPlatform");
 		hibernateProperties.put("hibernate.current_session_context_class", "jta"); //or thread binding.
@@ -121,28 +140,30 @@ public class PersistentConfig {
 		return sessionFactoryBean;
 	}
 
-	@Bean
-	@ConditionalOnBean(name = "sessionFactory")
-	@Autowired
-	public HibernateTransactionManager transactionManager(SessionFactory sessionFactory) {
-		HibernateTransactionManager transactionManager = new HibernateTransactionManager();
-		transactionManager.setSessionFactory(sessionFactory);
-		transactionManager.setDataSource(this.dataSource());
-		transactionManager.setNestedTransactionAllowed(false);
-		transactionManager.afterPropertiesSet();
-		return transactionManager;
-	}
+//	@Bean
+//	@ConditionalOnBean(name = "sessionFactory")
+//	@Autowired
+//	public HibernateTransactionManager transactionManager(SessionFactory sessionFactory) {
+//		HibernateTransactionManager transactionManager = new HibernateTransactionManager();
+//		transactionManager.setSessionFactory(sessionFactory);
+//		transactionManager.setDataSource(this.dataSource());
+//		transactionManager.setNestedTransactionAllowed(false);
+//		transactionManager.afterPropertiesSet();
+//		return transactionManager;
+//	}
 	
+	/**
+	 * create Bitronix transaction manager.
+	 * @param sessionFactory
+	 * @return
+	 */
 	@Bean
-	@ConditionalOnBean(name = "sessionFactory")
-	@Autowired
-	public HibernateTransactionManager txManager(SessionFactory sessionFactory) {
-		HibernateTransactionManager transactionManager = new HibernateTransactionManager();
-		transactionManager.setSessionFactory(sessionFactory);
-		transactionManager.setDataSource(this.dataSource());
-		transactionManager.setNestedTransactionAllowed(false);
-		transactionManager.afterPropertiesSet();
-		return transactionManager;
+	public JtaTransactionManager txManager() {
+		JtaTransactionManager txManager = new JtaTransactionManager();
+		BitronixTransactionManager bitxManager = TransactionManagerServices.getTransactionManager();
+		txManager.setTransactionManager(bitxManager);
+		txManager.setUserTransaction(bitxManager);
+		return txManager;
 	}
 	
 	public static class DataSource {

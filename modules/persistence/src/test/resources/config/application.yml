@@ -1,10 +1,24 @@
+spring.jta.enabled: true
+spring.jta.log-dir: C:\uimaster\deploy\apache-tomcat-8.0.9\logs
+spring.jta.transaction-manager-id: uimaster0
 
 persistentConstant:
-  hbmRoot: C:\uimaster\deploy\apache-tomcat-8.0.9\webapps\uimaster\WEB-INF\classes\hbm  
+  hbmRoot: C:\uimaster\uimaster\modules\persistence\src\test\resources\hbm
   datasource:
    url: jdbc:mysql://localhost:3306/uimaster
-   username: test
-   password: test
+   username: uimaster
+   password: uimaster
    driver: com.mysql.jdbc.Driver
+   className: com.mysql.jdbc.jdbc2.optional.MysqlXADataSource
   hibernate:
    dialect: org.hibernate.dialect.MySQLInnoDBDialect
+  bitronix:
+   datasource:
+     max-idle-time: 60 # The time, in seconds, after which connections are cleaned up from the pool.
+     max-pool-size: 10 # The maximum size of the pool. 0 denotes no limit.
+     min-pool-size: 1 # The minimum size of the pool.
+     unique-name: dataSource # The unique name used to identify the resource during recovery.
+   properties:
+     journal: disk # Name of the journal. Can be 'disk', 'null' or a class name.
+     log-part1-filename: btm1.tlog # Name of the first fragment of the journal.
+     log-part2-filename: btm2.tlog # Name of the second fragment of the journal.

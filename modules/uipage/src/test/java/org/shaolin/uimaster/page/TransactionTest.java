@@ -2,12 +2,10 @@ package org.shaolin.uimaster.page;
 
 import org.junit.Test;
 import org.shaolin.bmdp.exceptions.BusinessOperationException;
+import org.shaolin.bmdp.runtime.SpringBootTestRoot;
 import org.shaolin.javacc.exception.EvaluationException;
 
-public class TransactionTest {
-	
-	public void setup() {
-	}
+public class TransactionTest extends SpringBootTestRoot {
 	
 	@Test
 	public void test() {}
