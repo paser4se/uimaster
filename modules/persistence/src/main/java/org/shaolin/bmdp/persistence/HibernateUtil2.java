@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  * @author wushaol
- * @Deprecated we use Springboot + Hibernate solution.
+ * @Deprecated we used JTA solution: Springboot + Hibernate.
  */
 @Deprecated
 public class HibernateUtil2 {

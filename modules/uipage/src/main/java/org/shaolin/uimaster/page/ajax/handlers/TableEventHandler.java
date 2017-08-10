@@ -16,6 +16,7 @@
 package org.shaolin.uimaster.page.ajax.handlers;
 
 import org.hibernate.criterion.Order;
+import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.security.UserContext;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.AjaxContextHelper;
@@ -72,6 +73,7 @@ public class TableEventHandler implements IAjaxHandler {
 			try {
 				return comp.refresh0();
 			} finally {
+				HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 				try {
 					context.getDataAsJSON();
 				} catch (Exception e) {

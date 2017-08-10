@@ -12,10 +12,6 @@ import org.shaolin.bmdp.runtime.be.BEExtensionInfo;
 
 
 /**
- * null
- * 
- * This code is generated automatically, any change will be replaced after rebuild.
- * 
  *
  */
 
@@ -31,7 +27,6 @@ public class OrganizationImpl
 
     public OrganizationImpl()
     {
-        
         _extField = new BEExtensionInfo();
         
     }

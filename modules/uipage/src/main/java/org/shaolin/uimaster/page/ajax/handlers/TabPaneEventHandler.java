@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.shaolin.uimaster.page.AjaxContextHelper;
+import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.uimaster.page.AjaxContext;
 import org.shaolin.uimaster.page.ajax.TabPane;
 
@@ -78,6 +79,7 @@ public class TabPaneEventHandler implements IAjaxHandler {
 		} catch (Exception e) {
 			throw new AjaxHandlerException("Error", e);
 		} finally {
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 			AjaxContextHelper.removeAjaxContext();
 		}
 	}

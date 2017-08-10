@@ -89,7 +89,7 @@ public class DefaultFlowSessionService implements SessionService, IServiceProvid
 
     @Override
     public void rollbackSession(WorkflowSession session) {
-    	logger.info("Rollback " + session.getID());
+    	logger.warn("Rollback " + session.getID());
     	HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
     }
 

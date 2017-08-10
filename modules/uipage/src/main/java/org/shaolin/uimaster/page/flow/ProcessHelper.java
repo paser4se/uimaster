@@ -490,8 +490,6 @@ public class ProcessHelper
         if (logger.isDebugEnabled())
             logger.debug("processForwardError()");
 
-        HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
-        
         //set some attributes
         ProcessHelper.processPreForward(srcNode, request);
 

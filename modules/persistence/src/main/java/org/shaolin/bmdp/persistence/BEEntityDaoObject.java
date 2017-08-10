@@ -72,6 +72,9 @@ public class BEEntityDaoObject {
 		session.save(entity);
 		//session.persiste(entity) does not save immediately.
 		//this will cause the issue with generated PK entity dependencies.
+		if (commit) {
+	        HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+		}
 	}
 	
 	public void create(IPersistentEntity entity) {
@@ -105,6 +108,10 @@ public class BEEntityDaoObject {
 
 		Session session = HibernateUtil.getSession();
 		session.delete(entity);
+		
+		if (commit) {
+	        HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+		}
 	}
 
 	/**
@@ -154,6 +161,10 @@ public class BEEntityDaoObject {
 			// try committing session again.
 			Session session = HibernateUtil.getSession();
 			session.update(entity);
+		}
+		
+		if (commit) {
+	        HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
 	}
 
@@ -238,6 +249,10 @@ public class BEEntityDaoObject {
 				session.save(entity);
 			}
 		}
+		
+		if (commit) {
+	        HibernateUtil.releaseSession(session, true);
+		}
 	}
 
 	public void batchUpdate(List<IPersistentEntity> entities) {
@@ -267,6 +282,9 @@ public class BEEntityDaoObject {
 				session.update(entity);
 			}
 		}
+		if (commit) {
+	        HibernateUtil.releaseSession(session, true);
+		}
 	}
 
 	public void batchDelete(List<IPersistentEntity> entities) {
@@ -293,6 +311,9 @@ public class BEEntityDaoObject {
 			if (entity.getId() > 0) {
 				session.delete(entity);
 			}
+		}
+		if (commit) {
+	        HibernateUtil.releaseSession(session, true);
 		}
 	}
 

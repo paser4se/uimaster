@@ -85,7 +85,9 @@ public class TransOpsExecuteContext extends OOEEContext implements Serializable 
 
 	public static UserTransaction getUserTransaction()
 			throws NamingException {
-		Hashtable<?, ?> prop = WebConfig.getInitialContext();
+		Hashtable<String, String> prop = new Hashtable<String, String>();
+		prop.put(Context.INITIAL_CONTEXT_FACTORY, "bitronix.tm.jndi.BitronixInitialContextFactory");
+		prop.put(Context.URL_PKG_PREFIXES, "bitronix.tm.jndi");
 		Context context = new InitialContext(prop);
 		return (UserTransaction) context.lookup(JNDI_USERTRANSACTION);
 	}

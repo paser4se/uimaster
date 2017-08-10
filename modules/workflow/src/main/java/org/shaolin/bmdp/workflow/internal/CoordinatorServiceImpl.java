@@ -342,7 +342,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		schedule(task);
 		if (!testCaseFlag) {
 			CoordinatorModel.INSTANCE.update(task);
-			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
 	}
 
@@ -425,8 +424,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 			schedule(task);
 		}
 		if (!testCaseFlag) {
-			CoordinatorModel.INSTANCE.update(task);
-	        HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+			CoordinatorModel.INSTANCE.update(task, true);
 		}
 	}
 	
@@ -450,8 +448,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		if (!testCaseFlag) {
 			// only update the task that give the customer change to make the decision.
 			CoordinatorModel.INSTANCE.update(task);
-			// commit DB session once task completed.
-			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		}
         
 		if (task.getListener() != null) {
@@ -561,9 +557,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	        htask.setCreateDate(new Date());
 	        htask.setStatus(TaskStatusType.COMPLETED);
 	        htask.setCompleteRate(100);
-	        CoordinatorModel.INSTANCE.create(htask);
-	        
-	        HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+	        CoordinatorModel.INSTANCE.create(htask, true);
 	        return true;
 		} catch (Throwable e) {
 			logger.warn("" + e.getMessage(), e);

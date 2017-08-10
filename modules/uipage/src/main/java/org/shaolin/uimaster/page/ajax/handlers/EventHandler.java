@@ -26,6 +26,7 @@ import org.shaolin.bmdp.datamodel.page.OpInvokeWorkflowType;
 import org.shaolin.bmdp.datamodel.page.OpType;
 import org.shaolin.bmdp.json.JSONArray;
 import org.shaolin.bmdp.json.JSONObject;
+import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.spi.EventProcessor;
 import org.shaolin.bmdp.runtime.spi.FlowEvent;
@@ -36,7 +37,6 @@ import org.shaolin.uimaster.page.ajax.Dialog;
 import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.PageCacheManager;
 import org.shaolin.uimaster.page.cache.UIFormObject;
-import org.shaolin.uimaster.page.widgets.HTMLButtonType;
 import org.shaolin.uimaster.page.widgets.HTMLWidgetType;
 
 public class EventHandler implements IAjaxHandler {
@@ -73,7 +73,7 @@ public class EventHandler implements IAjaxHandler {
 			return trigger0(context, actionName);
 		} catch (AjaxHandlerException e1) {
 			throw e1;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new AjaxHandlerException(e.getMessage(), e);
 		} finally {
 			context.getRequest().getSession().removeAttribute(UI_INACTION_FLAG);
@@ -132,7 +132,10 @@ public class EventHandler implements IAjaxHandler {
 					OpCallAjaxType callAjaxOp = (OpCallAjaxType) op;
 					try {
 						value = callAjaxOp.getExp().evaluate(context);
+						// the user transaction could happen in JAVACC expression.
+						HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 					} catch (Throwable ex) {
+						HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
 						if (context.isInvalidEventSource()) {
 							break;
 						}
@@ -178,7 +181,10 @@ public class EventHandler implements IAjaxHandler {
 								log.debug("Workflow action failed result: " + obj);
 							}
 						}
+						// the user transaction could happen in JAVACC expression.
+						HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 					} catch (Throwable ex) {
+						HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
 						if (context.isInvalidEventSource()) {
 							break;
 						}

@@ -15,7 +15,6 @@
 */
 package org.shaolin.bmdp.workflow.internal;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -156,38 +155,20 @@ public class FlowEngine {
     }
 
     public void signal(NodeInfo node, FlowRuntimeContext flowContext) throws Throwable {
-        NodeInfo nextNode = node;
-        NodeInfo lastExpNode = null;
-        List<NodeInfo> visitedExceptionNodes = null;
         try {
-            executeNode(nextNode, flowContext);
+            executeNode(node, flowContext);
         } catch (Throwable e) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("Exception when execute {} on {}",
-                        new Object[] { flowContext.getEvent(), nextNode });
-                logger.trace("Detail trace: " + e.getMessage(), e);
+            logger.warn("Exception when execute {} on {}",
+                        new Object[] { flowContext.getEvent(), node });
+            if (logger.isDebugEnabled()) {
+                logger.debug("Detail trace: " + e.getMessage(), e);
             }
             flowContext.setException(e);
             try {
-                nextNode = handleException(flowContext, e);
+                handleException(flowContext, e);
             } catch (Throwable ex) {
                 logger.warn("Fail to handle exception for " + flowContext + ", " + e.getMessage(), ex);
                 flowContext.setException(e);
-            }
-            if (nextNode != null) {
-                if (visitedExceptionNodes != null && visitedExceptionNodes.contains(nextNode)) {
-                    flowContext.setException(e);
-                    logger.warn("Inifnit loop detected when handle exception, the loop node is {}.", nextNode);
-                } else {
-                    lastExpNode = nextNode;
-                    if (visitedExceptionNodes == null) {
-                        visitedExceptionNodes = new ArrayList<NodeInfo>();
-                    }
-                    visitedExceptionNodes.add(lastExpNode);
-                }
-            } else {
-            	// roll back all commits.
-            	HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
             }
         }
                 

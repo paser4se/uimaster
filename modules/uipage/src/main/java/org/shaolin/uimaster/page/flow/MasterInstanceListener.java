@@ -74,10 +74,8 @@ public class MasterInstanceListener implements ServletContextListener, ILifeCycl
 			IEntityManager entityManager = serverManager.getEntityManager();
 			((EntityManager)entityManager).initRuntime();
 			
-			// initialize DB.
-	    	HibernateUtil.getSession();
 //	    	// @Deprecated 
-	    	// wire all services.
+	    	// wire all services by spring automatically.
 //	    	OOEEContext context = OOEEContextFactory.createOOEEContext();
 //	    	List<String> serviceNodes = Registry.getInstance().getNodeChildren("/System/services");
 //        	for (String path: serviceNodes) {
@@ -90,13 +88,13 @@ public class MasterInstanceListener implements ServletContextListener, ILifeCycl
         	serverManager.setState(State.ACTIVE);
         	entityManager.offUselessCaches();
 	    	
-        	HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
         	logger.info("\n=============={} is initialized successfully.==============", sce.getServletContext().getContextPath());
 		} catch (Throwable e) {
 			logger.error("Fails to start Config server start! Error: " + e.getMessage(), e);
 			serverManager.setState(State.FAILURE);
-			HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
-		} 
+		} finally {
+			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+		}
 	}
 	
 	@Override

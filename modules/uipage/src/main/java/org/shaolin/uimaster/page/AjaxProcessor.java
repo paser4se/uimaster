@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 import org.shaolin.bmdp.json.JSONException;
 import org.shaolin.bmdp.json.JSONObject;
-import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.ajax.handlers.AjaxHandlerException;
 import org.shaolin.uimaster.page.ajax.handlers.ChartEventHandler;
@@ -303,12 +302,6 @@ public class AjaxProcessor implements Serializable
         {
         	errorFlag = true;
             throw ex;
-        } finally {
-			if (errorFlag) {
-				HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
-			} else {
-				HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
-			}
-        }
+        } 
     }
 }

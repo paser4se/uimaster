@@ -33,7 +33,6 @@ import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.json.JSONArray;
 import org.shaolin.bmdp.json.JSONException;
 import org.shaolin.bmdp.json.JSONObject;
-import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.security.UserContext;
@@ -170,7 +169,6 @@ public class AjaxServlet extends HttpServlet implements RejectedExecutionHandler
 			} 
 			catch (Throwable ex) 
 			{
-				HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
 				logger.error(ex.getMessage(), ex);
 
 				StringBuilder sb = new StringBuilder();
@@ -240,7 +238,6 @@ public class AjaxServlet extends HttpServlet implements RejectedExecutionHandler
 			catch (Throwable ex) 
 			{
 				error = true;
-				HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
 				logger.error(ex.getMessage(), ex);
 //				JSONException json = new JSONException(ex);			
 //				IDataItem dataItem = AjaxActionHelper.createErrorDataItem(json.toString());

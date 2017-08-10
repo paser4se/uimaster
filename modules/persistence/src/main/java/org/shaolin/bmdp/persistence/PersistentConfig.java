@@ -1,5 +1,7 @@
 package org.shaolin.bmdp.persistence;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
@@ -64,7 +66,11 @@ public class PersistentConfig {
 		// TODO: make it as configurable
 		PoolingDataSource dataSource0 = new PoolingDataSource();
 		dataSource0.setClassName("com.mysql.jdbc.jdbc2.optional.MysqlXADataSource");
-		dataSource0.setUniqueName("dataSource");
+		try {
+			//Each datasource must be assigned a unique name. This is required for distributed crash recovery.
+			dataSource0.setUniqueName(InetAddress.getLocalHost().getHostAddress());
+		} catch (UnknownHostException e) {
+		}
 		dataSource0.setAutomaticEnlistingEnabled(true);
 		dataSource0.setAllowLocalTransactions(true);
 		dataSource0.setShareTransactionConnections(true);
@@ -75,6 +81,7 @@ public class PersistentConfig {
 		Properties driverProperties = new Properties();
 		driverProperties.put("url", this.getDataSource().getUrl());
 		driverProperties.put("user", this.getDataSource().getUsername());
+		driverProperties.put("password", this.getDataSource().getPassword());
 		driverProperties.put("password", this.getDataSource().getPassword());
 //		driverProperties.put("journal", this.getDataSource().getPassword());
 //		driverProperties.put("log-part1-filename", "btm1.tlog");
@@ -140,6 +147,9 @@ public class PersistentConfig {
 		return sessionFactoryBean;
 	}
 
+	/**
+	 * Hibernate transaction manager.
+	 */
 //	@Bean
 //	@ConditionalOnBean(name = "sessionFactory")
 //	@Autowired

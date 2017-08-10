@@ -2,7 +2,6 @@ package org.shaolin.bmdp.persistence;
 
 import java.util.Hashtable;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -70,12 +69,11 @@ public class TransactionTest extends SpringBootTestRoot {
 	
 	private UserTransaction getUserTransaction() throws NamingException {
 		Hashtable<String, String> prop = new Hashtable<String, String>();
-		prop.put("java.naming.factory.initial", "bitronix.tm.jndi.BitronixInitialContextFactory");
+		prop.put(Context.INITIAL_CONTEXT_FACTORY, "bitronix.tm.jndi.BitronixInitialContextFactory");
+		prop.put(Context.URL_PKG_PREFIXES, "bitronix.tm.jndi");
 		Context context = new InitialContext(prop);
 		return (UserTransaction) context.lookup("java:comp/UserTransaction");
 	}
-	
-	ReentrantLock lock = new ReentrantLock();
 	
 	@Test
 	public void testNoTransaction() {
@@ -100,14 +98,57 @@ public class TransactionTest extends SpringBootTestRoot {
 		} catch (NotSupportedException e) {
 			System.out.println(e.getMessage());
 		}
+		System.out.println("before commit: " + tx.getStatus());
 		tx.commit();
+		System.out.println("after commit: " + tx.getStatus());
+		
+		// again.
+		tx.begin();
+		System.out.println("before commit: " + tx.getStatus());
+		tx.commit();
+		System.out.println("after commit: " + tx.getStatus());
+		
+		// again.
+		tx.begin();
+		System.out.println("before commit: " + tx.getStatus());
+		tx.commit();
+		System.out.println("after commit: " + tx.getStatus());
+		
+		// again.
+		tx.begin();
+		System.out.println("before rollback: " + tx.getStatus());
+		tx.rollback();
+		System.out.println("after rollback: " + tx.getStatus());
+		
+		// again.
+		tx.begin();
+		System.out.println("before rollback: " + tx.getStatus());
+		tx.rollback();
+		System.out.println("after rollback: " + tx.getStatus());
+	}
+	
+	@Test
+	public void testOnlyBeginTx() throws Exception {
+		try {
+			BEEntityDaoObject daoService = new BEEntityDaoObject();
+			
+			OrganizationImpl org = new OrganizationImpl();
+			org.setName("test" + (int)(Math.random()*1000));
+			org.setDescription("test org for testOnlyBeginTx()!");
+			daoService.create(org);
+			
+			Assert.assertTrue(org.getId() > 0);
+			Assert.assertNull(daoService.get(org.getId(), OrganizationImpl.class));
+		} catch (Exception e) {
+			throw e;
+		} finally {
+		}
 	}
 	
 	@Test
 	public void testMultiStepsForCommit() throws Exception {
-		UserTransaction tx = getUserTransaction();
+		UserTransaction tx = HibernateUtil.getUserTransaction();
 		try {
-			tx.begin();
 			BEEntityDaoObject daoService = new BEEntityDaoObject();
 			
 			OrganizationImpl org = new OrganizationImpl();
@@ -143,9 +184,8 @@ public class TransactionTest extends SpringBootTestRoot {
 	
 	@Test
 	public void testMultiStepsForRollback() throws Exception {
-		UserTransaction tx = getUserTransaction();
+		UserTransaction tx = HibernateUtil.getUserTransaction();
 		try {
-			tx.begin();
 			BEEntityDaoObject daoService = new BEEntityDaoObject();
 			
 			OrganizationImpl org = new OrganizationImpl();
