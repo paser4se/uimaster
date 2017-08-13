@@ -98,15 +98,53 @@ public class HibernateUtil {
 	}
 
 	/**
-	 * the session must be released manually with JTA support.
+	 * the session must be flushed with JTA support.
 	 * 
 	 * @param session
 	 * @param isCommit
 	 */
-	public static void releaseSession(Session session, boolean isCommit) {
-		if (sessionFactoryTL.get() != null) {
-			 sessionFactoryTL.set(null);
+	public static void releaseSession(boolean isCommit) {
+		if (sessionFactoryTL.get() == null) {
+			if (userTransactionTL.get() != null) {
+				try {
+					userTransactionTL.get().rollback();
+				} catch (Exception e) {
+				}
+				userTransactionTL.set(null);
+			}
+			return;
 		}
+		if (userTransactionTL.get() == null) {
+			sessionFactoryTL.set(null);
+			return;
+		}
+		Session session = sessionFactoryTL.get();
+		if (logger.isDebugEnabled()) {
+			logger.debug("End Hibernate Transaction: isCommit-{},collections-{},entities-{}", 
+					new Object[] { isCommit, session.getStatistics().getCollectionCount(), 
+									session.getStatistics().getEntityCount()});
+		}
+		try {
+			if (userTransactionTL.get() != null 
+					&& userTransactionTL.get().getStatus() != Status.STATUS_NO_TRANSACTION) {
+				if (isCommit) {
+					// JTASessionContext being used with JDBCTransactionFactory; 
+					// auto-flush will not operate correctly with getCurrentSession()
+					session.flush();
+					userTransactionTL.get().commit();
+				} else {
+					userTransactionTL.get().rollback();
+				}
+			}
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		} finally {
+			sessionFactoryTL.set(null);
+			userTransactionTL.set(null);
+		}
+	}
+	
+	public static void releaseSession(Session session, boolean isCommit) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("End Hibernate Transaction: isCommit-{},collections-{},entities-{}", 
 					new Object[] { isCommit, session.getStatistics().getCollectionCount(), 
@@ -127,6 +165,7 @@ public class HibernateUtil {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
+			sessionFactoryTL.set(null);
 			userTransactionTL.set(null);
 		}
 	}

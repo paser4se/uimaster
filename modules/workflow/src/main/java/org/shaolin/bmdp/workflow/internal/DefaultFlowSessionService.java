@@ -84,19 +84,19 @@ public class DefaultFlowSessionService implements SessionService, IServiceProvid
     @Override
     public void commitSession(WorkflowSession session) {
         sessionMap.put(session.getID(), session);
-        HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+        HibernateUtil.releaseSession(true);
     }
 
     @Override
     public void rollbackSession(WorkflowSession session) {
     	logger.warn("Rollback " + session.getID());
-    	HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
+    	HibernateUtil.releaseSession(false);
     }
 
     @Override
     public void destroySession(WorkflowSession session) {
         sessionMap.remove(session.getID());
-        HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+        HibernateUtil.releaseSession(true);
     }
 
     @Override

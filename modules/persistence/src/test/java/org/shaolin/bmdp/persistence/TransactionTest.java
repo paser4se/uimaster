@@ -125,6 +125,38 @@ public class TransactionTest extends SpringBootTestRoot {
 		System.out.println("before rollback: " + tx.getStatus());
 		tx.rollback();
 		System.out.println("after rollback: " + tx.getStatus());
+		
+		//case 1
+		HibernateUtil.getSession();
+		HibernateUtil.releaseSession(true);
+		//again.
+		HibernateUtil.releaseSession(true);
+		
+		//case 2
+		HibernateUtil.getSession();
+		HibernateUtil.releaseSession(false);
+		//again.
+		HibernateUtil.releaseSession(false);
+		
+		//case 3
+		HibernateUtil.getSession();
+		HibernateUtil.getSession();
+		HibernateUtil.releaseSession(true);
+	}
+	
+	/**
+	 * Caused by: bitronix.tm.internal.BitronixRollbackException: transaction timed out and has been rolled back
+		at bitronix.tm.BitronixTransaction.commit(BitronixTransaction.java:250)
+		at bitronix.tm.BitronixTransactionManager.commit(BitronixTransactionManager.java:143)
+		at org.shaolin.bmdp.persistence.HibernateUtil.releaseSession(HibernateUtil.java:135)
+		... 26 more
+	 * @throws InterruptedException
+	 */
+	public void testTransactionTimeOut() throws InterruptedException {
+		HibernateUtil.getSession();
+		Thread.sleep(12000);
+		HibernateUtil.releaseSession(true);
+		HibernateUtil.releaseSession(true);
 	}
 	
 	@Test
@@ -213,4 +245,8 @@ public class TransactionTest extends SpringBootTestRoot {
 		}
 	}
 	
+	@Test
+	public void testCascadeLoading() throws Exception {
+		//TODO:
+	}
 }

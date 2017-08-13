@@ -561,7 +561,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	        return true;
 		} catch (Throwable e) {
 			logger.warn("" + e.getMessage(), e);
-			HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
+			HibernateUtil.releaseSession(false);
 			return false;
 		} 
 	}

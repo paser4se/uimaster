@@ -93,7 +93,7 @@ public class MasterInstanceListener implements ServletContextListener, ILifeCycl
 			logger.error("Fails to start Config server start! Error: " + e.getMessage(), e);
 			serverManager.setState(State.FAILURE);
 		} finally {
-			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+			HibernateUtil.releaseSession(true);
 		}
 	}
 	

@@ -605,11 +605,11 @@ public class WebFlowAsyncServlet extends HttpServlet implements RejectedExecutio
                 	//validate and convert the output data of DisplayNode srcNode
                     srcNode.prepareOutputData(flowContext);
                     
-                    HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+                    HibernateUtil.releaseSession(true);
                 }
                 catch (Throwable ex)
                 {
-                	HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
+                	HibernateUtil.releaseSession(false);
                     if (ex instanceof ParsingException)
                     {
                         logger.error("ParsingException when  prepare OutputData for node "
@@ -686,11 +686,11 @@ public class WebFlowAsyncServlet extends HttpServlet implements RejectedExecutio
                     destNode = nextNode;
                 }
                 
-                HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+                HibernateUtil.releaseSession(true);
             }
             catch (Throwable ex)
             {
-            	HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
+            	HibernateUtil.releaseSession(false);
                 if(ex instanceof NoWebflowAPException)
                 {
                     String key = destNode.getChunk().getEntityName() + ".access.error";

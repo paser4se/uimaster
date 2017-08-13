@@ -73,7 +73,7 @@ public class BEEntityDaoObject {
 		//session.persiste(entity) does not save immediately.
 		//this will cause the issue with generated PK entity dependencies.
 		if (commit) {
-	        HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+	        HibernateUtil.releaseSession(session, true);
 		}
 	}
 	
@@ -110,7 +110,7 @@ public class BEEntityDaoObject {
 		session.delete(entity);
 		
 		if (commit) {
-	        HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+	        HibernateUtil.releaseSession(session, true);
 		}
 	}
 
@@ -153,18 +153,17 @@ public class BEEntityDaoObject {
 			throw new RuntimeException("A dirty record found! update failed: " + entity.toString());
 		}
 		
+		Session session = HibernateUtil.getSession();
 		try {
-			Session session = HibernateUtil.getSession();
 			entity.setCas(System.currentTimeMillis());
 			session.update(entity);
 		} catch (NonUniqueObjectException e) {
 			// try committing session again.
-			Session session = HibernateUtil.getSession();
 			session.update(entity);
 		}
 		
 		if (commit) {
-	        HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+	        HibernateUtil.releaseSession(session, true);
 		}
 	}
 
