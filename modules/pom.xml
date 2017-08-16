@@ -21,8 +21,8 @@
 		<module>runtime</module>
 		<module>persistence</module>
 		<module>uipage</module>
-		<module>workflow</module>
 		<module>designtime</module>
+		<module>workflow</module>
 		<module>analyzer</module>
 	</modules>
 	

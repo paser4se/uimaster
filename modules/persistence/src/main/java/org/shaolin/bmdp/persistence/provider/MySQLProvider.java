@@ -99,11 +99,6 @@ public final class MySQLProvider extends AbstractDBMSProvider {
 			return "DATETIME";
 		}
 		if (type.equals("TIMESTAMP")) {
-			// TIMESTAMP列用于INSERT或UPDATE操作时记录日期和时间。
-			// 如果你不分配一个值，表中的第一个TIMESTAMP列自动设置
-			// 为最近操作的日期和时间。也可以通过分配一个NULL值，
-			// 将TIMESTAMP列设置为当前的日期和时间。
-			// TIMESTAMP[(M)]
 			if (column.getLength() != null) {
 				return "TIMESTAMP("+column.getLength()+")";
 			}
