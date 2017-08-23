@@ -1362,11 +1362,7 @@ public class UIFormJSGenerator0 {
 		String entityPrefix = tab.getPanel().getUIID();
 		StringBuffer sb = new StringBuffer();
 		sb.append(jsGenerator.gen(this.entityName, "", tab.getPanel()));
-		sb.append("\ndefaultname.");
-        if (entityPrefix != null && entityPrefix.length() > 0) {
-        	sb.append(entityPrefix).append('.');
-        }
-        sb.append("Form.items.push(elementList['").append(tab.getPanel().getUIID()).append("']);");
+		sb.append("\ndefaultname.Form.items.push(elementList['").append(tab.getPanel().getUIID()).append("']);");
         //save it to file.
         File dest = new File(option.getWebDir() + File.separator + "js", 
         		this.entityName.replace('.', File.separatorChar) + "_" + entityPrefix + ".js");

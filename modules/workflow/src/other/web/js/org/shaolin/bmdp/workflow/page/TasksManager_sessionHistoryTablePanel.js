@@ -14,5 +14,5 @@
 defaultname.sessionHistoryTablePanel = sessionHistoryTablePanel;
 defaultname.sessionHistoryTablePanel.init();
 
-defaultname.sessionHistoryTablePanel.Form.items.push(elementList['sessionHistoryTablePanel']);
+defaultname.Form.items.push(elementList['sessionHistoryTablePanel']);
 
