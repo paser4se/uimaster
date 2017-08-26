@@ -89,7 +89,7 @@ public class DaoGenerator implements IEntityEventListener<TableType, RDBDiagram>
 		
 		String realPackage = diagram.getDaoPackage().replace('.', File.separatorChar);
 		String javaName = diagram.getName();
-		File path = new File(options.getSrcDir() + "\\" + realPackage, 
+		File path = new File(options.getSrcDir() + File.separator + realPackage, 
 				javaName + ".java");
 		out.write("\n!!!!file ");
 		out.print(path.getAbsolutePath());
@@ -299,7 +299,7 @@ public class DaoGenerator implements IEntityEventListener<TableType, RDBDiagram>
 	private void generateTestCase(RDBDiagram diagram) {
 		String realPackage = diagram.getDaoPackage().replace('.', File.separatorChar);
 		String javaName = diagram.getName();
-		File path = new File(options.getTestDir() + "\\" + realPackage, 
+		File path = new File(options.getTestDir() + File.separator + realPackage, 
 				javaName + "Test.java");
 		
 		if (path.exists()) {

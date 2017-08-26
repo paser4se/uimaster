@@ -19,7 +19,6 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.shaolin.bmdp.persistence.query.operator.Operator;
-import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.be.IBusinessEntity;
 import org.shaolin.bmdp.runtime.be.IPersistentEntity;
 import org.shaolin.bmdp.runtime.security.UserContext;
@@ -36,14 +35,9 @@ public class BEEntityDaoObject {
 
 	public static final BEEntityDaoObject DAOOBJECT = new BEEntityDaoObject();
 
-	public static final int PERQUERY_MAXRECORD;
+	public static final int PERQUERY_MAXRECORD = 100; //configurable supported.
 	
 	public static boolean testMode = false;
-	
-	static {
-		Registry instance = Registry.getInstance();
-		PERQUERY_MAXRECORD = Integer.valueOf(instance.getValue("/System/Persistence/PerQueryMaxRecord", 100));
-	}
 	
 	public BEEntityDaoObject() {}
 	

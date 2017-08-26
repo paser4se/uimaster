@@ -102,7 +102,7 @@ public class RbdDiagramGenerator implements
 		rdbdiagram.setName(bediagram.getName());
 
 		File entityDir = options.getEntitiesDirectory();
-		File formDir = new File(entityDir, rdbdiagram.getDiagramPackage().replace('.', '/'));
+		File formDir = new File(entityDir, rdbdiagram.getDiagramPackage().replace('.', File.separatorChar));
 		if (!formDir.exists()) {
 			formDir.mkdirs();
 		} 

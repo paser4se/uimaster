@@ -61,7 +61,7 @@ public class MySQLSchemaGenerator implements IEntityEventListener<RDBType, RDBDi
     	this.option = option;
     	this.provider = DBMSProviderFactory.getProvider(option.getSqlVendorType());
     	this.sqlFileName = BuilderUtil.getSqlFileName(option.getSqlDir()
-    						+ "/" + option.getProjectName());
+    						+ File.separator + option.getProjectName());
     	
     	out.setOutputDir(option.getSqlDir());
 		out.setEncoding(Registry.getInstance().getEncoding());

@@ -14,5 +14,5 @@
 defaultname.chartStatsPanel = chartStatsPanel;
 defaultname.chartStatsPanel.init();
 
-defaultname.chartStatsPanel.Form.items.push(elementList['chartStatsPanel']);
+defaultname.Form.items.push(elementList['chartStatsPanel']);
 

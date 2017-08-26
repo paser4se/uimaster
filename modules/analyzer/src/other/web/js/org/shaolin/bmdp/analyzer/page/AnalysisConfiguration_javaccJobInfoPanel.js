@@ -14,5 +14,5 @@
 defaultname.javaccJobInfoPanel = javaccJobInfoPanel;
 defaultname.javaccJobInfoPanel.init();
 
-defaultname.javaccJobInfoPanel.Form.items.push(elementList['javaccJobInfoPanel']);
+defaultname.Form.items.push(elementList['javaccJobInfoPanel']);
 
