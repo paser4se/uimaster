@@ -181,7 +181,6 @@ public class MasterInstanceListener implements ServletContextListener, ILifeCycl
 			@Override
 			public void notifyAllLoadFinish() {
 				for (String uipage: uipages) {
-					PageCacheManager.removeUIPageCache(uipage);
 					try {
 						PageCacheManager.getODPageEntityObject(uipage);
 						PageCacheManager.getUIPageObject(uipage);
@@ -207,13 +206,13 @@ public class MasterInstanceListener implements ServletContextListener, ILifeCycl
 			@Override
 			public void notify(
 					EntityAddedEvent<UIEntity, DiagramType> event) {
-				uiforms.add(event.getEntity().getEntityName());
+				//uiforms.add(event.getEntity().getEntityName());
 			}
 
 			@Override
 			public void notify(
 					EntityUpdatedEvent<UIEntity, DiagramType> event) {
-				uiforms.add(event.getNewEntity().getEntityName());
+				//uiforms.add(event.getNewEntity().getEntityName());
 			}
 
 			@Override
@@ -222,16 +221,16 @@ public class MasterInstanceListener implements ServletContextListener, ILifeCycl
 
 			@Override
 			public void notifyAllLoadFinish() {
-				for (String uiform: uiforms) {
-					PageCacheManager.removeUIFormCache(uiform);
-					try {
-						PageCacheManager.getODFormObject(uiform);
-						PageCacheManager.getUIFormObject(uiform);
-					} catch (Exception e) {
-						logger.error(
-								"Parse ui page error: " + e.getMessage(), e);
-					}
-				}
+				// lazy loading all ui-forms.
+//				for (String uiform: uiforms) {
+//					try {
+//						PageCacheManager.getODFormObject(uiform);
+//						PageCacheManager.getUIFormObject(uiform);
+//					} catch (Exception e) {
+//						logger.error(
+//								"Parse ui page error: " + e.getMessage(), e);
+//					}
+//				}
 				uiforms.clear();
 			}
 

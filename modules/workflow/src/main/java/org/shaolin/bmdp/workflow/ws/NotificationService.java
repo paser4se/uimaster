@@ -32,12 +32,12 @@ import javax.websocket.server.ServerEndpoint;
 
 import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.AppContext;
-import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.spi.IServerServiceManager;
 import org.shaolin.bmdp.utils.HttpSender;
 import org.shaolin.bmdp.workflow.be.INotification;
 import org.shaolin.bmdp.workflow.coordinator.ICoordinatorService;
 import org.shaolin.bmdp.workflow.internal.CoordinatorServiceImpl;
+import org.shaolin.uimaster.page.WebConfig;
 import org.shaolin.uimaster.page.od.formats.FormatUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,9 +165,11 @@ public class NotificationService {
 			json.put("longitude", message.getLongitude());
 			json.put("partyType", message.getPartyType());
 			
-			Registry instance = Registry.getInstance();
-			String websocketServer = instance.getValue("/System/webConstant/websocketServer");
-			
+			String websocketServer = WebConfig.getWebSocketServer();
+			if (websocketServer == null || websocketServer.trim().length() == 0) {
+				logger.info("Websocket server is not configured! print locally: " + json.toString());
+				return true;
+			}
 			if (websocketServer.startsWith("https")) {
 				sender.doPostSSLWithJson(websocketServer + "/uimaster/notify", json.toString(), "utf-8");
 			} else {

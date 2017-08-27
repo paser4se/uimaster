@@ -150,6 +150,10 @@ public final class WebConfig {
 		return getWebRoot();
 	}
 	
+	public static String getWebSocketServer() {
+		return instance.getWebsocketServer();
+	}
+	
 	/**
 	 * Andriod or IOS app context root.
 	 * 

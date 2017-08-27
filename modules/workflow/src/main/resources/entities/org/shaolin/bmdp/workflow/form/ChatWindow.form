@@ -59,11 +59,14 @@
            <ns2:value xsi:type="ns2:ExpressionPropertyType">
 	         <ns2:expression>
 	           <expressionString><![CDATA[
-	           import org.shaolin.bmdp.runtime.Registry;
-	           { 
-	               Registry instance = Registry.getInstance();
-	               return instance.getValue("/System/webConstant/websocketServer"); 
-	           }]]></expressionString>
+	           import org.shaolin.uimaster.page.WebConfig;
+			   { 
+		          String websocketServer = WebConfig.getWebSocketServer();
+			      if (websocketServer == null || websocketServer.trim().length() == 0) {
+				   	  return "";
+				   }
+				   return websocketServer;
+			    }]]></expressionString>
 	         </ns2:expression>
            </ns2:value>
         </ns2:Property>

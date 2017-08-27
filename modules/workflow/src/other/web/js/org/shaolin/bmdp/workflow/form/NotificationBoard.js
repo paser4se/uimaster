@@ -85,6 +85,9 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
        if (this.skipLoadSIOjsUI.value != "true") {
        	  UIMaster.require("/js/socket.io.js");
        }
+       if (o.serverURLUI.value == "") {
+          return;
+       }
        o.nodesocket = io.connect(o.serverURLUI.value);
        o.nodesocket.on('connect', function(e) {
             var msg = {partyId: partyId};
