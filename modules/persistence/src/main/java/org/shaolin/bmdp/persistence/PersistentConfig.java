@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -31,11 +32,11 @@ public class PersistentConfig {
 
 	private String hbmRoot;
 
-	@NestedConfigurationProperty
-	private DataSource dataSource = new DataSource();
+	@Autowired
+	private DataSource dataSource;
 	
-	@NestedConfigurationProperty
-	private HibernateProperties hibernate = new HibernateProperties();
+	@Autowired
+	private HibernateProperties hibernate;
 	
 	public String getHbmRoot() {
 		return hbmRoot;
@@ -176,12 +177,14 @@ public class PersistentConfig {
 		return txManager;
 	}
 	
+	@Configuration
+	@ConfigurationProperties("persistentConstant.datasource")
 	public static class DataSource {
 		private String driver = "com.mysql.jdbc.Driver";
 
 		private String password = "uimaster";
 
-		private String url = "jdbc:mysql://localhost:3306/uimaster";
+		private String url;
 
 		private String username = "uimaster";
 
@@ -219,6 +222,8 @@ public class PersistentConfig {
 
 	}
 	
+	@Configuration
+	@ConfigurationProperties("persistentConstant.hibernate")
 	public static class HibernateProperties {
 
 		private String dialect = "org.hibernate.dialect.MySQLInnoDBDialect";
