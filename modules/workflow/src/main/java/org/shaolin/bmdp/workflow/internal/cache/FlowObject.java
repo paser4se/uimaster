@@ -31,7 +31,6 @@ import org.shaolin.bmdp.datamodel.workflow.StartNodeType;
 import org.shaolin.bmdp.datamodel.workflow.TimeoutNodeType;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.VariableUtil;
-import org.shaolin.bmdp.runtime.entity.EntityNotFoundException;
 import org.shaolin.bmdp.runtime.spi.Event;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.shaolin.bmdp.workflow.exception.ConfigException;
@@ -416,17 +415,13 @@ public class FlowObject implements java.io.Serializable {
 	            		logger.debug("register {} Dyanmic workflow action to UI: {}", n.toString(), actionPage);
 	            	}
 	            	try {
-	        			UIFormObject uiCache = PageCacheManager.getUIFormObject(actionPage);
-	        			uiCache.addWorkflowAction(n.getFlow().getEventConsumer(), m, n.toString());
-	        		} catch (EntityNotFoundException e0) {
-	        			try {
+		            	if (PageCacheManager.isUIPage(actionPage)) {
 	        				UIPageObject uiCache = PageCacheManager.getUIPageObject(actionPage);
 	        				uiCache.getUIForm().addWorkflowAction(n.getFlow().getEventConsumer(), m, n.toString());
-	        			} catch (Exception e1) {
-	        				logger.error("Error to load the workflow action: " + e1.getMessage() 
-	            					+ ",ActionPage: " + actionPage
-	            					+ ",Node Info: " + n.toString(), e1);
-	        			} 
+	            		} else {
+	            			UIFormObject uiCache = PageCacheManager.getUIFormObject(actionPage);
+		        			uiCache.addWorkflowAction(n.getFlow().getEventConsumer(), m, n.toString());
+	            		}
 	        		} catch (ParsingException e1) {
 	        			logger.error("Error to load the workflow action: " + e1.getMessage() 
 	        					+ ",ActionPage: " + actionPage

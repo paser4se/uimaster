@@ -237,7 +237,7 @@ public class UIFormObject implements java.io.Serializable
 
     private void load() throws EntityNotFoundException, UIPageException
     {
-    	UIEntity entity = IServerServiceManager.INSTANCE.getEntityManager()
+    		UIEntity entity = IServerServiceManager.INSTANCE.getEntityManager()
     			.getEntity(this.name, UIEntity.class);
         OOEEContext parsingContext = parseVariable(entity);
         parseUI(parsingContext, entity, null);

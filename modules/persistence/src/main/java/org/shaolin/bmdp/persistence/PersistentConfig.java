@@ -142,7 +142,7 @@ public class PersistentConfig {
 		hibernateProperties.put("hibernate.connection.validationQuery", this.getHibernate().getValidationQuery());
 		
 		sessionFactoryBean.setHibernateProperties(hibernateProperties);
-		if (this.getHbmRoot() != null && this.getHbmRoot().length() > 0) {
+		if (this.getHbmRoot() != null && this.getHbmRoot().trim().length() > 0) {
 			sessionFactoryBean.setMappingDirectoryLocations(new FileSystemResource(this.getHbmRoot()));
 		}
 		return sessionFactoryBean;

@@ -272,7 +272,7 @@ public class IServerServiceManager implements IAppServiceManager, Serializable {
 		temp.sort(new Comparator<ILifeCycleProvider>() {
 			@Override
 			public int compare(ILifeCycleProvider o1, ILifeCycleProvider o2) {
-				return (o1.getRunLevel() > o2.getRunLevel()) ? 1 : -1;
+				return (o1.getRunLevel() < o2.getRunLevel()) ? 1 : -1;
 			}
 		});
 		for (ILifeCycleProvider p : temp) {
