@@ -18,7 +18,7 @@ webConstant:
   hotdeployeable: true
   hiddenValueMask: '***'
   defaultOrgCode: jounioruser
-  actionPath: /uimaster/webflow.do
+  actionPath: /uimaster/webflow.post
   loginPath: /uimaster/login.do
   frameWrap: /uimaster
   loginPage: /uimaster/jsp/login.jsp

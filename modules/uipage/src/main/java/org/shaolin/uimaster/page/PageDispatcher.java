@@ -566,16 +566,6 @@ public class PageDispatcher {
 
         boolean hasParams = ( actionPath.indexOf("?") != -1 );
         HttpSession session = request.getSession(false);
-        if ( session != null )
-        {
-            if ( logger.isDebugEnabled() )
-            {
-                logger.debug("Append param timestamp to action path");
-            }
-            appendParam(results, "_timestamp", WebConfig.getTimeStamp(), hasParams);
-            hasParams = true;
-            session.setAttribute("_timestamp", new HashSet());
-        }
         String tempStr = (String)request.getAttribute(WebflowConstants.SOURCE_CHUNK_NAME);
         if ( tempStr != null )
         {
@@ -604,8 +594,13 @@ public class PageDispatcher {
                 logger.debug("Append param needCheckSessionTimeOut to action path");
             }
             appendParam(results, "_needCheckSessionTimeOut", "true", hasParams);
+            hasParams = true;
         }
-
+        if ( logger.isDebugEnabled() )
+        {
+            logger.debug("Append param timestamp to action path");
+        }
+        appendParam(results, "_timestamp", WebConfig.getTimeStamp(), hasParams);
         return response.encodeURL(results.toString());
     }
     

@@ -11,7 +11,7 @@
 <%@ page import="org.shaolin.bmdp.i18n.ResourceUtil" %>
 <%
     // clear timestamp set
-    session.setAttribute("_timestamp", new HashSet());
+    session.removeAttribute("_timestamp");
 
 WebflowErrors errors = (WebflowErrors)request.getAttribute(WebflowConstants.ERROR_KEY);
 if(errors != null && !errors.empty())

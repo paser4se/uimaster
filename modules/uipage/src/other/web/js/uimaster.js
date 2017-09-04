@@ -308,7 +308,7 @@ UIMaster.pageInitFunctions.push(function() {//handle back button event and reloa
 		}
 		var frameprefix = f.attr("_frameprefix");
 		if (frameprefix == undefined) {//only for main page.
-		    var opts = {async:true,url:AJAX_SERVICE_URL,
+		    var opts = {async:true,url:AJAX_SERVICE_URL+"/old",
 				data:{serviceName:'pagestatesync',r:Math.random(),_chunkname:path,_nodename:node,_frameprefix:frameprefix},
 				success:function(data){
 					if(data == '0')
@@ -596,7 +596,7 @@ UIMaster.util.forwardToPage = function(link, newpage){
 };
 UIMaster.util.invokeWebService = function(service, name, parameters){
 	//parameters
-	var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"webservice",_serviceName:(service +"."+name), param: parameters,_framePrefix:UIMaster.getFramePrefix()}};
+	var opts = {url:AJAX_SERVICE_URL+"/old",async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"webservice",_serviceName:(service +"."+name), param: parameters,_framePrefix:UIMaster.getFramePrefix()}};
 	if (MobileAppMode) {
 	   _mobContext.ajax(JSON.stringify(opts));
     } else {
@@ -766,7 +766,7 @@ UIMaster.parseCurrency = function(locale, format, text){
     var r;
 	var opts = {
         async:false,
-        url:AJAX_SERVICE_URL,
+        url:AJAX_SERVICE_URL + "/old",
         data:{serviceName:'CurrencyFormatService',_locale:locale,_format:format,_text:text},
         success:function(data){
             r=data;
@@ -790,7 +790,7 @@ UIMaster.formatCurrency = function(locale, format, number){
     var r;
 	var opts = {
         async:false,
-        url:AJAX_SERVICE_URL,
+        url:AJAX_SERVICE_URL + "/old",
         data:{serviceName:'CurrencyFormatService',_locale:locale,_format:format,_number:number},
         success:function(data){
             r=data;
@@ -915,7 +915,7 @@ function UIMaster_getI18NInfo(keyInfo, param, languageType){
     var v = UIMaster_getI18NInfo.get(keyInfo);
     if (param == undefined && v)
         return v;
-    var object = new UIMaster_AjaxClient(AJAX_SERVICE_URL);
+    var object = new UIMaster_AjaxClient(AJAX_SERVICE_URL+"/old");
     object.append('serviceName','I18NService').append('KEYINFO',keyInfo);
     if(param != null && param != "")
         if( param.length > 0 ){
@@ -938,7 +938,7 @@ UIMaster_getI18NInfo.put=function(key,value){
     return value;
 };
 function UIMaster_getFormattedDate(format, datetype, date, datestring){
-    var object = new UIMaster_AjaxClient(AJAX_SERVICE_URL);
+    var object = new UIMaster_AjaxClient(AJAX_SERVICE_URL+"/old");
     object.append('serviceName','DateFormatService');
     if (date && date instanceof Date) object.append('DATE',date.getTime());
     return object.append('FORMAT',format).append('DATETYPE',datetype).append('DATESTRING',datestring).append('OFFSET', date?date.getTimezoneOffset():new Date().getTimezoneOffset()).submitAsString().replace(/^\s+|\s+$/g,"");

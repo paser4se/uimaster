@@ -74,13 +74,13 @@ public class SpringBootstrapper extends SpringBootServletInitializer implements 
 		registry.initRegistry();
 		
 		List<String> cacheItems = registry.getNodeChildren("/System/caches");
-    	for (String cacheName: cacheItems) {
-    		Map<String, String> config = registry.getNodeItems("/System/caches/" + cacheName);
-    		String maxSizeStr = config.get("maxSize");
-    		String minutesStr = config.get("refreshTimeInMinutes");
-    		String description = config.get("description");
-    		int maxSize;
-    		long minutes;
+	    	for (String cacheName: cacheItems) {
+	    		Map<String, String> config = registry.getNodeItems("/System/caches/" + cacheName);
+	    		String maxSizeStr = config.get("maxSize");
+	    		String minutesStr = config.get("refreshTimeInMinutes");
+	    		String description = config.get("description");
+	    		int maxSize;
+	    		long minutes;
 			try {
 				maxSize = Integer.parseInt(maxSizeStr);
 			} catch (NumberFormatException e) {
@@ -93,11 +93,11 @@ public class SpringBootstrapper extends SpringBootServletInitializer implements 
 				minutes = -1;
 				logger.warn("refresh interval error, now use the default -1");
 			}
-    		ICache<String, ConcurrentHashMap> cache = CacheManager.getInstance().getCache(
-    						cacheName, maxSize, false, String.class, ConcurrentHashMap.class);
-    		cache.setRefreshInterval(minutes);
-    		cache.setDescription(description);
-    	}
+	    		ICache<String, ConcurrentHashMap> cache = CacheManager.getInstance().getCache(
+	    						cacheName, maxSize, false, String.class, ConcurrentHashMap.class);
+	    		cache.setRefreshInterval(minutes);
+	    		cache.setDescription(description);
+	    	}
 	}
 
     public static void main(String[] args) {

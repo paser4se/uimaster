@@ -100,7 +100,11 @@ public class MasterInstanceListener implements ServletContextListener, ILifeCycl
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
 		if (IServerServiceManager.INSTANCE != null) {
-			IServerServiceManager.INSTANCE.stopLifeCycleProviders();
+			try {
+				IServerServiceManager.INSTANCE.stopLifeCycleProviders();
+			} catch (Exception e) {
+				//meaningless.
+			}
 		}
 	}
 
