@@ -437,6 +437,10 @@ public class WebflowController {
 
 	private void handleFlowException(HttpServletRequest request, HttpServletResponse response, WebNode destNode,
 			WebFlowContext flowContext, Throwable ex) {
+		if (destNode == null) {
+			logger.error("*******webflow access error!", ex);
+			return;
+		}
 		if(ex instanceof NoWebflowAPException)
 		{
 		    String key = destNode.getChunk().getEntityName() + ".access.error";

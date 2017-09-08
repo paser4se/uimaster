@@ -110,8 +110,7 @@ public class AjaxController {
 	@RequestMapping("/ajaxservice")
 	public void doAjaxService(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value="_ajaxUserEvent", required=true) String _ajaxUserEvent,
-			@RequestParam(value="_uiid", required=true) String _uiid,
-			@RequestParam(value="_framePrefix", required=true) String _framePrefix
+			@RequestParam(value="_framePrefix", required=false) String _framePrefix
 			) throws IOException
     {
 		if (request.getProtocol().compareTo("HTTP/1.0") == 0) {
@@ -186,9 +185,9 @@ public class AjaxController {
 //	            dataItem.setParent(ex.getMessage());
 				JSONException json = new JSONException(ex);
 				String uiid = request.getParameter("_uiid");
-	    		String errorMsgTitle = "Error Action";
-	    		String errorMsgBody = ex.getMessage(); 
-	    		String exceptionTrace = json.toString(); 
+		    		String errorMsgTitle = "Error Action";
+		    		String errorMsgBody = ex.getMessage(); 
+		    		String exceptionTrace = json.toString(); 
 	            String image = "/images/Error.png";
 	            String jsSnippet = "";
 	            String html = null;
