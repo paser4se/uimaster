@@ -355,8 +355,6 @@ public class WebflowController {
                 	WebFlowContext flowContext = new WebFlowContext(srcNode, request, response);
                 	//validate and convert the output data of DisplayNode srcNode
                 srcNode.prepareOutputData(flowContext);
-                
-                HibernateUtil.releaseSession(true);
             }
             catch (Throwable ex)
             {

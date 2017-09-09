@@ -79,8 +79,8 @@ public class LogicNode extends WebNode {
 					inContext.commitTransaction();
 				}
 			}
-			InvokeWorkflowOpsType invokeworkflowOps = type.getInvokeworkflowOps();
-			if (invokeworkflowOps != null) {
+//			InvokeWorkflowOpsType invokeworkflowOps = type.getInvokeworkflowOps();
+//			if (invokeworkflowOps != null) {
 				//TODO:
 //				Boolean passed = (Boolean)invokeworkflowOps.().evaluate(inContext);
 //				if (passed) {
@@ -92,7 +92,7 @@ public class LogicNode extends WebNode {
 //					EventProcessor processor = AppContext.get().getService(EventProcessor.class);
 //					processor.process(e);
 //				}
-			}
+//			} 
 		} catch (Exception ex) {
 			rollbackTransaction(inContext);
 			if (ex instanceof ServletException) {

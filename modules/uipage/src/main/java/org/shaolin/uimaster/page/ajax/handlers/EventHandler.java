@@ -133,9 +133,9 @@ public class EventHandler implements IAjaxHandler {
 					try {
 						value = callAjaxOp.getExp().evaluate(context);
 						// the user transaction could happen in JAVACC expression.
-						HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+						HibernateUtil.releaseSession(true);
 					} catch (Throwable ex) {
-						HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
+						HibernateUtil.releaseSession(false);
 						if (context.isInvalidEventSource()) {
 							break;
 						}
@@ -181,10 +181,9 @@ public class EventHandler implements IAjaxHandler {
 								log.debug("Workflow action failed result: " + obj);
 							}
 						}
-						// the user transaction could happen in JAVACC expression.
-						HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+						// worklow controls the JTA session.
+						// HibernateUtil.releaseSession(true);
 					} catch (Throwable ex) {
-						HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
 						if (context.isInvalidEventSource()) {
 							break;
 						}

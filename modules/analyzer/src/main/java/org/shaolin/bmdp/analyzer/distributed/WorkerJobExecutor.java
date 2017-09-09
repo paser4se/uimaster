@@ -135,7 +135,7 @@ public class WorkerJobExecutor implements IJobExecutor<IJavaCCJob> {
                     logger.debug("done execute job [" + task.getId() + "]");
                 }
             } catch (Exception e) {
-            	HibernateUtil.releaseSession(HibernateUtil.getSession(), false);
+            	HibernateUtil.releaseSession(false);
                 logger.warn("Error occurred while executing JavaCC job!", e);
             } finally {
                 executingJobList.remove(task.getId());
