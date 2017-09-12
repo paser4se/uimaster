@@ -340,7 +340,7 @@ public class HTMLUtil
 
     public static void includeJsFiles(String entityName, Map<String, String> jsIncludeMap, List<String> jsIncludeList, boolean includeCommon)
     {
-    	if (includeCommon) {
+    		if (includeCommon) {
 	        String[] commons = WebConfig.getCommonJs();
 	        for (String common: commons)
 	        {
@@ -355,7 +355,7 @@ public class HTMLUtil
 	            jsIncludeMap.put(common, importJSCode);
 	            jsIncludeList.add(common);
 	        }
-    	}
+    		}
         String[] singleCommons = WebConfig.getSingleCommonJS(entityName);
         for (String single: singleCommons)
         {
@@ -379,7 +379,7 @@ public class HTMLUtil
     
     public static void includeMobJsFiles(String entityName, Map<String, String> jsIncludeMap, List<String> jsIncludeList, boolean includeCommon)
     {
-    	if (includeCommon) {
+    		if (includeCommon) {
 	        String[] commons = WebConfig.getCommonMobJs();
 	        for (String common: commons)
 	        {
@@ -393,8 +393,12 @@ public class HTMLUtil
 	            jsIncludeMap.put(common, importJSCode);
 	            jsIncludeList.add(common);
 	        }
-    	}
+    		}
         String[] singleCommons = WebConfig.getSingleCommonAppJS(entityName);
+        if (singleCommons == null || singleCommons.length == 0) {
+        		// imports from Web page directly.
+        	 	singleCommons = WebConfig.getSingleCommonJS(entityName);
+        }
         for (String single: singleCommons)
         {
         	String importJSCode = null;

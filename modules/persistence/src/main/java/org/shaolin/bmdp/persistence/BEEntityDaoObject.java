@@ -143,9 +143,10 @@ public class BEEntityDaoObject {
 		}
 		
 		// dirty data check!
-		if (!exist(entity.getId(), entity.getCas(), entity.getClass())) {
-			throw new RuntimeException("A dirty record found! update failed: " + entity.toString());
-		}
+		// this case won't work for JTA transaction scenario due to multiple resources commitment.
+//		if (!exist(entity.getId(), entity.getCas(), entity.getClass())) {
+//			throw new RuntimeException("A dirty record found! update failed: " + entity.toString());
+//		}
 		
 		Session session = HibernateUtil.getSession();
 		try {

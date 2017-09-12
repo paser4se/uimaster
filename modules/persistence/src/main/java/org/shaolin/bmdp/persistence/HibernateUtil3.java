@@ -4,6 +4,8 @@ import java.util.Hashtable;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.transaction.NotSupportedException;
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
@@ -14,46 +16,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import bitronix.tm.BitronixTransactionManager;
+
 /**
  * We use JTA Solution: Springboot + Hibernate + Bitronix.
  * 
  * @author wushaol
  * 
  */
-public class HibernateUtil {
+public class HibernateUtil3 {
 
-	private static final Logger logger = LoggerFactory.getLogger(HibernateUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(HibernateUtil3.class);
 	
 	// we used sessionFactoryTL to improve the 'CurrentSession' behaviours.
 	private static final ThreadLocal<Session> sessionFactoryTL = new ThreadLocal<Session>();
-	// the user transaction is a singleton object in bitronix. so we only access once at here.
-	private static UserTransaction userTansaction = getUserTransaction();
+	private static final ThreadLocal<UserTransaction> userTransactionTL = new ThreadLocal<UserTransaction>();
 	
-	/**
-	 * Get user transaction directly.
-	 * @return
-	 */
-	public static UserTransaction getUserTransaction() {
-		if (userTansaction != null) {
-			//TODO: check whether transaction is committed or not.
-			return userTansaction;
-		}
-		try {
-			Hashtable<String, String> prop = new Hashtable<String, String>();
-			prop.put(Context.INITIAL_CONTEXT_FACTORY, "bitronix.tm.jndi.BitronixInitialContextFactory");
-			prop.put(Context.URL_PKG_PREFIXES, "bitronix.tm.jndi");
-			Context context = new InitialContext(prop);
-			userTansaction = (UserTransaction) context.lookup("java:comp/UserTransaction");
-//			if (userTansaction instanceof BitronixTransactionManager) {
-//			BitronixTransactionManager txManager = (BitronixTransactionManager)userTransactionTL.get();
-//			txManager.getStatus();
-//		}
-			return userTansaction;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+	private static UserTransaction getUserTransaction0() throws NamingException {
+		Hashtable<String, String> prop = new Hashtable<String, String>();
+		prop.put(Context.INITIAL_CONTEXT_FACTORY, "bitronix.tm.jndi.BitronixInitialContextFactory");
+		prop.put(Context.URL_PKG_PREFIXES, "bitronix.tm.jndi");
+		Context context = new InitialContext(prop);
+		return (UserTransaction) context.lookup("java:comp/UserTransaction");
 	}
-
+	
 	/**
 	 * Get the session of the read only database for boosting access performance.
 	 * 
@@ -74,6 +60,33 @@ public class HibernateUtil {
 	}
 	
 	/**
+	 * Get user transaction directly.
+	 * @return
+	 */
+	public static UserTransaction getUserTransaction() {
+		if (userTransactionTL.get() != null) {
+			//TODO: check whether transaction is committed or not.
+			return userTransactionTL.get();
+		}
+		try {
+			UserTransaction tx = getUserTransaction0();
+			tx.begin();
+			userTransactionTL.set(tx);
+			return tx;
+		} catch (Exception e) {
+			if (e instanceof NotSupportedException) {
+				// nested transactions not supported!
+				try {
+					BitronixTransactionManager txManager = (BitronixTransactionManager)getUserTransaction0();
+					txManager.rollback();
+				} catch (Exception e1) {
+				}
+			}
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
 	 * Get DB session with user transaction.
 	 * 
 	 * @return
@@ -83,11 +96,7 @@ public class HibernateUtil {
 		if (sessionFactoryTL.get() != null) {
 			return sessionFactoryTL.get();
 		}
-		try {
-			userTansaction.begin();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		getUserTransaction();
 		SessionFactory sessionFactory = IServerServiceManager.INSTANCE.getService(SessionFactory.class);
 		Session session = sessionFactory.getCurrentSession(); 
 		sessionFactoryTL.set(session);
@@ -107,35 +116,42 @@ public class HibernateUtil {
 	 */
 	public static void releaseSession(boolean isCommit) {
 		if (sessionFactoryTL.get() == null) {
-			try {
-				if (userTansaction.getStatus() != Status.STATUS_NO_TRANSACTION) {
-					userTansaction.rollback();
+			if (userTransactionTL.get() != null) {
+				try {
+					userTransactionTL.get().rollback();
+				} catch (Exception e) {
 				}
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			} 
+				userTransactionTL.set(null);
+			}
+			return;
+		}
+		if (userTransactionTL.get() == null) {
+			sessionFactoryTL.set(null);
 			return;
 		}
 		Session session = sessionFactoryTL.get();
 		if (logger.isDebugEnabled()) {
-			logger.debug("Transaction: isCommit-{}, user transaction-{}", 
-					new Object[] { isCommit, userTansaction.toString()});
+			logger.debug("End Hibernate Transaction: isCommit-{},collections-{},entities-{}", 
+					new Object[] { isCommit, session.getStatistics().getCollectionCount(), 
+									session.getStatistics().getEntityCount()});
 		}
 		try {
-			if (userTansaction.getStatus() != Status.STATUS_NO_TRANSACTION) {
+			if (userTransactionTL.get() != null 
+					&& userTransactionTL.get().getStatus() != Status.STATUS_NO_TRANSACTION) {
 				if (isCommit) {
 					// JTASessionContext being used with JDBCTransactionFactory; 
 					// auto-flush will not operate correctly with getCurrentSession()
 					session.flush();
-					userTansaction.commit();
+					userTransactionTL.get().commit();
 				} else {
-					userTansaction.rollback();
+					userTransactionTL.get().rollback();
 				}
 			}
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		} finally {
 			sessionFactoryTL.set(null);
+			userTransactionTL.set(null);
 		}
 	}
 	
@@ -146,35 +162,45 @@ public class HibernateUtil {
 									session.getStatistics().getEntityCount()});
 		}
 		try {
-			if (userTansaction.getStatus() != Status.STATUS_NO_TRANSACTION) {
+			if (userTransactionTL.get() != null 
+					&& userTransactionTL.get().getStatus() != Status.STATUS_NO_TRANSACTION) {
 				if (isCommit) {
 					// JTASessionContext being used with JDBCTransactionFactory; 
 					// auto-flush will not operate correctly with getCurrentSession()
 					session.flush();
-					userTansaction.commit();
+					userTransactionTL.get().commit();
 				} else {
-					userTansaction.rollback();
+					userTransactionTL.get().rollback();
 				}
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
 			sessionFactoryTL.set(null);
+			userTransactionTL.set(null);
 		}
 	}
 	
 	public static void releaseTransaction(boolean isCommit) {
+		if (userTransactionTL.get() == null) {
+			return;
+		}
 		try {
-			if (userTansaction.getStatus() != Status.STATUS_NO_TRANSACTION) {
+//			if (userTransactionTL.get() instanceof BitronixTransactionManager) {
+//				BitronixTransactionManager txManager = (BitronixTransactionManager)userTransactionTL.get();
+//				txManager.getStatus();
+//			}
+			if (userTransactionTL.get().getStatus() != Status.STATUS_NO_TRANSACTION) {
 				if (isCommit) {
-					userTansaction.commit();
+					userTransactionTL.get().commit();
 				} else {
-					userTansaction.rollback();
+					userTransactionTL.get().rollback();
 				}
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
+			userTransactionTL.set(null);
 		}
 	}
 	

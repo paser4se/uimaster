@@ -86,6 +86,25 @@ public class TransactionTest extends SpringBootTestRoot {
 	}
 	
 	@Test
+	public void testMultipleThread() {
+		for(int i=0; i<20; i++) {
+			new Thread(new Runnable() {
+				public void run() {
+					try {
+						UserTransaction tx = getUserTransaction();
+						System.out.println(tx.hashCode() + "--" + tx.toString());
+						tx.begin();
+						tx.commit();
+					} catch (Exception e) {
+						e.printStackTrace();
+						Assert.fail();
+					}
+				}
+			}).start();
+		}
+	}
+	
+	@Test
 	public void testNestedTransaction() throws Exception {
 		UserTransaction tx = getUserTransaction();
 		tx.begin();
