@@ -181,7 +181,7 @@ public class HTMLImageType extends HTMLTextWidgetType
             if (oneditable == null || oneditable.toString().equalsIgnoreCase("false")){
             	return null;
             }
-    	}
+		}
 		
 		Image image = new Image(getName(), Layout.NULL);
 

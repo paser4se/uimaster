@@ -188,7 +188,13 @@ UIMaster.registerHandler("fadeOut", function(data,win){
 }).registerHandler("updateSingle",function(data,win){
     //D + data.uiid + style? + data.attr = data.value
 }).registerHandler("table_update",function(data,win){
-	var tdata = win.eval("("+data.data+")"),id = data.uiid,uitable,i;
+    var id = data.uiid;
+    var uitable,i,tdata;
+    if (data.data == "" || data.data == null) {
+       tdata = [];
+    } else {
+	   tdata = win.eval("("+data.data+")");
+    }
     for (i in win.elementList)
         if (i == id)
         	uitable = win.elementList[i];
@@ -3070,9 +3076,11 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			$(this).find(".swiper-slide").each(function() {
 				$(this).remove();
 			});
-			for(var i=0;i<json.rows.length;i++){
-				this.appendSlide(decodeHTML(json.rows[i].value));
-			}
+            if (json.rows != undefined) {
+    			for(var i=0;i<json.rows.length;i++){
+    				this.appendSlide(decodeHTML(json.rows[i].value));
+    			}
+            }
 			this.refreshMobList();
 			return;
 		}

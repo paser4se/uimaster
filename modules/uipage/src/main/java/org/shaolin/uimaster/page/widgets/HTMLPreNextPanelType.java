@@ -259,25 +259,24 @@ public class HTMLPreNextPanelType extends HTMLContainerType
     
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-    	ExpressionType previousAction = (ExpressionType)this.removeAttribute("previousAction");
-    	ExpressionType nextAction = (ExpressionType)this.removeAttribute("nextAction");
-    	
-    	PreNextPanel panel = new PreNextPanel(getName(), selectedIndex, new CellLayout());
-    	panel.setPreviousAction(previousAction);
-    	panel.setNextAction(nextAction);
+	    	ExpressionType previousAction = (ExpressionType)this.removeAttribute("previousAction");
+	    	ExpressionType nextAction = (ExpressionType)this.removeAttribute("nextAction");
+	    	
+	    	PreNextPanel panel = new PreNextPanel(getName(), selectedIndex, new CellLayout());
+	    	panel.setPreviousAction(previousAction);
+	    	panel.setNextAction(nextAction);
         //panel.setReadOnly(isReadOnly());
         panel.setUIEntityName(getUIEntityName());
         
         List<HTMLReferenceEntityType> createdRefEntities = new ArrayList<HTMLReferenceEntityType>();
         List<UITabPaneItemType> tabs = (List<UITabPaneItemType>)this.getAttribute("tabPaneItems");
-        for(int i = 0, n = tabs.size(); i < n; i++){
-        	UITabPaneItemType tab = tabs.get(i);
+        for (int i = 0, n = tabs.size(); i < n; i++) {
+        		UITabPaneItemType tab = tabs.get(i);
             if (tab.getRefEntity() != null) {
-            	UIReferenceEntityType itemRef = (UIReferenceEntityType)tab.getRefEntity();
-            	String UIID = itemRef.getUIID();
+	            	UIReferenceEntityType itemRef = (UIReferenceEntityType)tab.getRefEntity();
+	            	String UIID = itemRef.getUIID();
                 String type = itemRef.getReferenceEntity().getEntityName();
                 HTMLReferenceEntityType refEntity = new HTMLReferenceEntityType(UIID, type);
-                
                 JSONObject newWidget = refEntity.createJsonModel(ee);
                 try {
 					UserRequestContext.UserContext.get().addAjaxWidget(refEntity.getName(), newWidget);
@@ -286,13 +285,14 @@ public class HTMLPreNextPanelType extends HTMLContainerType
 				}
                 createdRefEntities.add(refEntity);
             } else {
-            	createdRefEntities.add(HTMLReferenceEntityType.EMPTY);
+            		createdRefEntities.add(HTMLReferenceEntityType.EMPTY);
             }
         }
         this.addAttribute("createdRefEntities", createdRefEntities);
         //panel.setListened(true);
-        return super.createJsonModel(ee);
-
+        JSONObject json = super.createJsonModel(ee);
+        panel.toJSON(json);
+        return json;
     }
 
 }

@@ -360,6 +360,10 @@ public class PreNextPanel extends Container implements Serializable
 		json.put("selectedIndex", selectedIndex);
 		return json;
 	}
+    
+    public void toJSON(JSONObject json) throws JSONException {
+	    	json.put("selectedIndex", this.selectedIndex);
+    }
 	
 	@SuppressWarnings("unchecked")
 	public void fromJSON(JSONObject json) throws Exception {

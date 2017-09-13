@@ -824,64 +824,68 @@ public abstract class HTMLWidgetType implements Serializable
 	
 	public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException {
 		JSONObject json = new JSONObject();
-    	json.put("type", Widget.mappingAjaxWidgetName(this.getClass()));
-    	json.put("entity", this.getUIEntityName());
-    	json.put("uiid", this.getName());
-    	if (AjaxContextHelper.getAjaxContext() != null){
-    		json.put("finfo", AjaxContextHelper.getAjaxContext().getFrameId());
-    	} else if (UserRequestContext.UserContext.get() != null) {
-    		json.put("finfo", UserRequestContext.UserContext.get().getFrameInfo());
-    	}
-    	if (!json.has("finfo")) {
-    		json.put("finfo", "");
-    	}
-    	Boolean readOnly = isReadOnly();
-    	if (readOnly != null && readOnly.booleanValue()) {
-    		json.put("readOnly", true);
-    	}
-    	if (!isVisible()) {
-    		json.put("visible", false);
-    	}
-    	
-    	JSONObject attrJson = null;
-    	if (this.attributeMap != null) {
-    		attrJson = new JSONObject();
-    		// only get value for json model;
-    		if (this.attributeMap.containsKey("value")) {
-    			attrJson.put("value", this.attributeMap.get("value"));
-    		}
-    		if (this.attributeMap.containsKey("values")) {
-    			attrJson.put("values", this.attributeMap.get("values"));
-    		}
-    	}
-    	if (UserRequestContext.UserContext.get() != null 
-    			&& UserRequestContext.UserContext.get().hasAttribute(this.getName())) {
-    		if (attrJson == null) {
-    			attrJson = new JSONObject();
-    		}
-    		Map<String, Object> dyanmicValues = UserRequestContext.UserContext.get().getAttribute(this.getName());
-    		Set<Map.Entry<String, Object>> entries = dyanmicValues.entrySet();
-    		for (Map.Entry<String, Object> entry : entries) {
-    			if (entry.getValue() != null) {
-    				attrJson.put(entry.getKey(), entry.getValue());
-    			}
-    		}
-    		if (attrJson.has("layout")) {
-    			attrJson.remove("layout");
-    		}
-    		if (attrJson.has("UIStyle")) {
-    			attrJson.remove("UIStyle");
-    		}
-    		if (attrJson.has("readOnly")) {
-    			attrJson.remove("readOnly");
-    		}
-    		json.put("attrMap", attrJson);
-    	}
-    	if (UserRequestContext.UserContext.get() != null 
-    			&& UserRequestContext.UserContext.get().hasStyle(this.getName())) {
-    		json.put("styleMap", new JSONObject(new HashMap(UserRequestContext.UserContext.get().getStyle(this.getName()))));
-    	}
-    	return json;
+	    	json.put("type", Widget.mappingAjaxWidgetName(this.getClass()));
+	    	json.put("entity", this.getUIEntityName());
+	    	json.put("uiid", this.getName());
+	    	if (AjaxContextHelper.getAjaxContext() != null){
+	    		json.put("finfo", AjaxContextHelper.getAjaxContext().getFrameId());
+	    	} else if (UserRequestContext.UserContext.get() != null) {
+	    		json.put("finfo", UserRequestContext.UserContext.get().getFrameInfo());
+	    	}
+	    	if (!json.has("finfo")) {
+	    		json.put("finfo", "");
+	    	}
+	    	Boolean readOnly = isReadOnly();
+	    	if (readOnly != null && readOnly.booleanValue()) {
+	    		json.put("readOnly", true);
+	    	}
+	    	if (!isVisible()) {
+	    		json.put("visible", false);
+	    	}
+	    	
+	    	JSONObject attrJson = null;
+	    	if (this.attributeMap != null) {
+	    		attrJson = new JSONObject();
+	    		// only get value for json model;
+	    		if (this.attributeMap.containsKey("value")) {
+	    			attrJson.put("value", this.attributeMap.get("value"));
+	    		}
+	    		if (this.attributeMap.containsKey("values")) {
+	    			attrJson.put("values", this.attributeMap.get("values"));
+	    		}
+	    	}
+	    	if (UserRequestContext.UserContext.get() != null 
+	    			&& UserRequestContext.UserContext.get().hasAttribute(this.getName())) {
+	    		if (attrJson == null) {
+	    			attrJson = new JSONObject();
+	    		}
+	    		Map<String, Object> dyanmicValues = UserRequestContext.UserContext.get().getAttribute(this.getName());
+	    		Set<Map.Entry<String, Object>> entries = dyanmicValues.entrySet();
+	    		for (Map.Entry<String, Object> entry : entries) {
+	    			if (entry.getValue() != null) {
+	    				attrJson.put(entry.getKey(), entry.getValue());
+	    			}
+	    		}
+	    		if (attrJson.has("layout")) {
+	    			attrJson.remove("layout");
+	    		}
+	    		if (attrJson.has("UIStyle")) {
+	    			attrJson.remove("UIStyle");
+	    		}
+	    		if (attrJson.has("readOnly")) {
+	    			attrJson.remove("readOnly");
+	    		}
+	    		if (attrJson.has("createdRefEntities")) {
+	    			//remove HTML pre-next panel.
+	    			attrJson.remove("createdRefEntities");
+	    		}
+	    		json.put("attrMap", attrJson);
+	    	}
+	    	if (UserRequestContext.UserContext.get() != null 
+	    			&& UserRequestContext.UserContext.get().hasStyle(this.getName())) {
+	    		json.put("styleMap", new JSONObject(new HashMap(UserRequestContext.UserContext.get().getStyle(this.getName()))));
+	    	}
+	    	return json;
 	}
 	
 	public String toString() {
