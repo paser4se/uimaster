@@ -100,7 +100,7 @@ public class HibernateMappingGenerator implements IEntityEventListener<TableType
 			String tableName = table.getEntityName();
 			tableName = tableName.substring(tableName.lastIndexOf('.') + 1);
 			out.print(tableName);
-			out.write("\">\n");
+			out.write("\" dynamic-update=\"true\">\n");
 			
 			List<FieldMappingType> fieldMappings = mapping.getFieldMappings();
 			if (table.getPrimaryKeies() != null) {

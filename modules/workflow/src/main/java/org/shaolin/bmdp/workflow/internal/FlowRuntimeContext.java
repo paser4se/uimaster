@@ -577,20 +577,24 @@ public final class FlowRuntimeContext extends TransOpsExecuteContext implements 
     }
 
     public void bindSession(final ITaskEntity entity) {
-    	if (entity.getId() == 0) {
-    		//CoordinatorModel.INSTANCE.create(entity);
-    		throw new WorkflowVarException("Workflow task must be a persistent entity! " + entity.toString());
-    	}
-    	
-    	String sessionId = this.getSession().getID();
-    	if (entity.getSessionId() != null && entity.getSessionId().length() > 0) {
+	    	if (entity.getId() == 0) {
+	    		//CoordinatorModel.INSTANCE.create(entity);
+	    		throw new WorkflowVarException("Workflow task must be a persistent entity! " + entity.toString());
+	    	}
+	    	
+	    	String sessionId = this.getSession().getID();
+	    	if (entity.getSessionId() != null && entity.getSessionId().length() > 0) {
 			if (!entity.getSessionId().equals(sessionId)) {
 				logger.debug("Session id {} has already set!", entity.getSessionId());
 			}
 			return;
 		} 
-    	entity.setSessionId(sessionId);
-    	CoordinatorModel.INSTANCE.update(entity);
+	    	entity.setSessionId(sessionId);
+	    	if (entity.getId() > 0) {
+	    		CoordinatorModel.INSTANCE.update(entity);
+	    	} else {
+	    		CoordinatorModel.INSTANCE.create(entity);
+	    	}
     }
     
     @Override
