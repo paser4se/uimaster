@@ -42,7 +42,7 @@ public class EntityValidationMojo extends AbstractMojo {
     /**
      * The maven project.
      * 
-     * @parameter expression="${project}"
+     * @parameter property="project"
      * @readonly
      */
     private MavenProject project;
@@ -50,63 +50,63 @@ public class EntityValidationMojo extends AbstractMojo {
 	/**
      * project/target/classes
      * 
-     * @parameter expression="${project.build.outputDirectory}"
+     * @parameter property="project.build.outputDirectory"
      */
     private File targetClasses;
 	
     /**
      * project/src/main/java
      * 
-     * @parameter expression="${project.build.sourceDirectory}"
+     * @parameter property="project.build.sourceDirectory"
      */
     private File srcDirectory;
     
     /**
      * project/src/test/java
      * 
-     * @parameter expression="${basedir}/src/test/java"
+     * @parameter default-value="${basedir}/src/test/java"
      */
     private File testDirectory;
     
     /**
      * 
-     * @parameter expression="${generate-entity.systemEntityPath}"
+     * @parameter property="generate-entity.systemEntityPath"
      */
     private String systemEntityPath;
     
     /**
      * 
-     * @parameter expression="${basedir}/src/main/resources/entities"
+     * @parameter default-value="${basedir}/src/main/resources/entities"
      */
     private File entitiesDirectory;
     
     /**
      * 
-     * @parameter expression="${basedir}/src/main/resources"
+     * @parameter default-value="${basedir}/src/main/resources"
      */
     private File resourcesDir;
     
     /**
      * 
-     * @parameter expression="${basedir}/src/other/web"
+     * @parameter default-value="${basedir}/src/other/web"
      */
     private File webDirectory;
     
     /**
      * 
-     * @parameter expression="${basedir}/src/other/sql"
+     * @parameter default-value="${basedir}/src/other/sql"
      */
     private File sqlDirectory;
     
     /**
      * 
-     * @parameter expression="${basedir}/src/main/resources/hbm"
+     * @parameter default-value="${basedir}/src/main/resources/hbm"
      */
     private File hbmDirectory;
 
     /**
      * 
-     * @parameter expression="${generate-entity.genUIComponents}" default-value="true"
+     * @parameter property="generate-entity.genUIComponents" default-value="true"
      */
     private boolean genUIComponents = true;
     
@@ -114,7 +114,7 @@ public class EntityValidationMojo extends AbstractMojo {
     /**
      * The project's classpath.
      * 
-     * @parameter expression="${project.compileClasspathElements}"
+     * @parameter property="project.compileClasspathElements"
      * @readonly
      */
     private List<String> classpathElements;

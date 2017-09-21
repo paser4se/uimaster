@@ -64,9 +64,8 @@ public class PersistentConfig {
 
 	@Bean
 	public javax.sql.DataSource dataSource() {
-		// TODO: make it as configurable
 		PoolingDataSource dataSource0 = new PoolingDataSource();
-		dataSource0.setClassName("com.mysql.jdbc.jdbc2.optional.MysqlXADataSource");
+		dataSource0.setClassName(this.getDataSource().getClassName());
 		try {
 			//Each datasource must be assigned a unique name. This is required for distributed crash recovery.
 			dataSource0.setUniqueName(InetAddress.getLocalHost().getHostAddress());
@@ -180,6 +179,8 @@ public class PersistentConfig {
 	@Configuration
 	@ConfigurationProperties("persistentConstant.datasource")
 	public static class DataSource {
+		private String className = "com.mysql.jdbc.jdbc2.optional.MysqlXADataSource";
+		
 		private String driver = "com.mysql.jdbc.Driver";
 
 		private String password = "uimaster";
@@ -220,6 +221,14 @@ public class PersistentConfig {
 			this.username = username;
 		}
 
+		public String getClassName() {
+			return className;
+		}
+
+		public void setClassName(String className) {
+			this.className = className;
+		}
+		
 	}
 	
 	@Configuration

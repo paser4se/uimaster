@@ -55,13 +55,16 @@ public abstract class SpringBootstrapperMojo extends AbstractMojo implements Com
 	// read-only parameters ---------------------------------------------------
     /**
      * The maven project.
-     * 
-     * @parameter expression="${project}"
-     * @readonly
+     * @parameter property="project"
+     * @required
      */
-    private MavenProject project;
+    protected MavenProject project;
 	
-    /**
+    public void setProject(MavenProject project) {
+		this.project = project;
+	}
+
+	/**
      * Gets the Maven project.
      * 
      * @return the project

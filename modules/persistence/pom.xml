@@ -4,7 +4,7 @@
     <artifactId>persistence</artifactId>
     <packaging>jar</packaging>
     <name>UI Master Persistence</name>
-    <version>${uimaster.version}</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <parent>
         <artifactId>build.modules</artifactId>
