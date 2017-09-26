@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
@@ -66,17 +65,17 @@ public class PersistentConfig {
 	public javax.sql.DataSource dataSource() {
 		PoolingDataSource dataSource0 = new PoolingDataSource();
 		dataSource0.setClassName(this.getDataSource().getClassName());
-		try {
-			//Each datasource must be assigned a unique name. This is required for distributed crash recovery.
-			dataSource0.setUniqueName(InetAddress.getLocalHost().getHostAddress());
-		} catch (UnknownHostException e) {
-		}
 		dataSource0.setAutomaticEnlistingEnabled(true);
 		dataSource0.setAllowLocalTransactions(true);
 		dataSource0.setShareTransactionConnections(true);
 		dataSource0.setUseTmJoin(true);
 		dataSource0.setMinPoolSize(1);
 		dataSource0.setMaxPoolSize(100);
+		try {
+			dataSource0.setUniqueName("Unique:" + InetAddress.getLocalHost().getHostAddress() + ":" + (Math.random() * 10000));
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
 		
 		Properties driverProperties = new Properties();
 		driverProperties.put("url", this.getDataSource().getUrl());

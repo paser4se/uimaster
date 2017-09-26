@@ -75,11 +75,14 @@ public abstract class SpringBootstrapperMojo extends AbstractMojo implements Com
     
     public void execute() throws MojoExecutionException, MojoFailureException {
     	contextObject.set(this);
-    	
-    	SpringApplication app = new SpringApplication(SpringBootstrapperMojo.class);
-    	app.setWebEnvironment(false);
-    	app.setBannerMode(Banner.Mode.CONSOLE);
-        app.run(new String[0]);
+    	try {
+	    	SpringApplication app = new SpringApplication(SpringBootstrapperMojo.class);
+	    	app.setWebEnvironment(false);
+	    	app.setBannerMode(Banner.Mode.CONSOLE);
+	        app.run(new String[0]);
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
     }
 	
     @Bean
