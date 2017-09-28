@@ -1774,7 +1774,7 @@ abstract public class Widget<T> implements Serializable
     	}
     	json.put("entity", this.getUIEntityName());
     	json.put("uiid", this.id);
-    	json.put("finfo", this.frameInfo);
+    	json.put("_framePrefix", this.frameInfo);
     	if (readOnly != null && readOnly.booleanValue()) {
     		json.put("readOnly", true);
     	}
@@ -1796,7 +1796,7 @@ abstract public class Widget<T> implements Serializable
     public void fromJSON(JSONObject json) throws Exception {
     	this.id = json.getString("uiid");
     	this.setUIEntityName(json.getString("entity"));
-    	this.frameInfo = json.getString("finfo");
+    	this.frameInfo = json.getString("_framePrefix");
     	if (json.has("readOnly")) {
     		this.readOnly = true;
     	}
@@ -1810,6 +1810,10 @@ abstract public class Widget<T> implements Serializable
     		if (attributeMap.containsKey("secure")) {
     			this.isSecure = Boolean.valueOf(attributeMap.get("secure").toString());
         	}
+    		// refresh all customized attributes.
+    		for (String key : this.attributeMap.keySet()) {
+    			this.addAttribute(key, this.attributeMap.get(key), false);
+    		}
     	}
     	if (json.has("styleMap")) {
     		JSONObject items = json.getJSONObject("styleMap");

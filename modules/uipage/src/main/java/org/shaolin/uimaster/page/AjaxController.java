@@ -28,6 +28,7 @@ import org.shaolin.bmdp.i18n.LocaleContext;
 import org.shaolin.bmdp.json.JSONArray;
 import org.shaolin.bmdp.json.JSONException;
 import org.shaolin.bmdp.json.JSONObject;
+import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.Registry;
 import org.shaolin.bmdp.runtime.security.UserContext;
@@ -90,9 +91,11 @@ public class AjaxController {
 				PrintWriter out = response.getWriter();
 				out.print(result.toString());
 			}
+			HibernateUtil.releaseSession(true);
 		} 
 		catch (Throwable ex) 
 		{
+			HibernateUtil.releaseSession(false);
 			logger.error(ex.getMessage(), ex);
 
 			StringBuilder sb = new StringBuilder();
@@ -175,9 +178,11 @@ public class AjaxController {
 					PrintWriter out = response.getWriter();
 					out.print(ajxProcessor.execute());
 				}
+				HibernateUtil.releaseSession(true);
 			} 
 			catch (Throwable ex) 
 			{
+				HibernateUtil.releaseSession(false);
 				error = true;
 				logger.error(ex.getMessage(), ex);
 //				JSONException json = new JSONException(ex);			

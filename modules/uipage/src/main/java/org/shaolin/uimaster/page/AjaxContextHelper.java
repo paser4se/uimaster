@@ -41,6 +41,18 @@ public class AjaxContextHelper {
 
 	private static final ThreadLocal<AjaxContext> threadLocal = new ThreadLocal<AjaxContext>();
 
+	// the client ui widgets store here while requesting.
+	private static final ThreadLocal<Map<String, JSONObject>> clientUIWidgets = new ThreadLocal<Map<String, JSONObject>>();
+	
+	public static void setClientUIWidget(Map<String, JSONObject> uiwidgets) {
+		clientUIWidgets.set(uiwidgets);
+	}
+	
+	public static Map<String, JSONObject> getClientUIWidget() {
+		Map<String, JSONObject> widgets = clientUIWidgets.get();
+		return widgets != null ? widgets : Collections.emptyMap();
+	}
+	
 	/**
 	 * create ajax context.
 	 * 

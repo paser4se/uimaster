@@ -2,6 +2,7 @@ package org.shaolin.bmdp.persistence;
 
 import java.util.Hashtable;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -87,6 +88,7 @@ public class TransactionTest extends SpringBootTestRoot {
 	
 	@Test
 	public void testMultipleThread() {
+		final CountDownLatch latch = new CountDownLatch(20);
 		for(int i=0; i<20; i++) {
 			new Thread(new Runnable() {
 				public void run() {
@@ -95,6 +97,7 @@ public class TransactionTest extends SpringBootTestRoot {
 						System.out.println(tx.hashCode() + "--" + tx.toString());
 						tx.begin();
 						tx.commit();
+						latch.countDown();
 					} catch (Exception e) {
 						e.printStackTrace();
 						Assert.fail();
@@ -102,6 +105,11 @@ public class TransactionTest extends SpringBootTestRoot {
 				}
 			}).start();
 		}
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+		}
+		HibernateUtil.printThreadCounter();
 	}
 	
 	@Test
@@ -161,6 +169,8 @@ public class TransactionTest extends SpringBootTestRoot {
 		HibernateUtil.getSession();
 		HibernateUtil.getSession();
 		HibernateUtil.releaseSession(true);
+		
+		HibernateUtil.printThreadCounter();
 	}
 	
 	/**
@@ -173,6 +183,14 @@ public class TransactionTest extends SpringBootTestRoot {
 	 */
 	public void testTransactionTimeOut() throws InterruptedException {
 		HibernateUtil.getSession();
+		
+		BEEntityDaoObject daoService = new BEEntityDaoObject();
+		
+		OrganizationImpl org = new OrganizationImpl();
+		org.setName("test" + (int)(Math.random()*1000));
+		org.setDescription("test org for testOnlyBeginTx()!");
+		daoService.create(org);
+		
 		Thread.sleep(12000);
 		HibernateUtil.releaseSession(true);
 		HibernateUtil.releaseSession(true);
@@ -230,6 +248,7 @@ public class TransactionTest extends SpringBootTestRoot {
 		} catch (Exception e) {
 			throw e;
 		} finally {
+			HibernateUtil.printThreadCounter();
 		}
 	}
 	

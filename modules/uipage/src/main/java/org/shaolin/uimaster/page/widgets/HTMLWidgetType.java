@@ -828,12 +828,12 @@ public abstract class HTMLWidgetType implements Serializable
 	    	json.put("entity", this.getUIEntityName());
 	    	json.put("uiid", this.getName());
 	    	if (AjaxContextHelper.getAjaxContext() != null){
-	    		json.put("finfo", AjaxContextHelper.getAjaxContext().getFrameId());
+	    		json.put("_framePrefix", AjaxContextHelper.getAjaxContext().getFrameId());
 	    	} else if (UserRequestContext.UserContext.get() != null) {
-	    		json.put("finfo", UserRequestContext.UserContext.get().getFrameInfo());
+	    		json.put("_framePrefix", UserRequestContext.UserContext.get().getFrameInfo());
 	    	}
-	    	if (!json.has("finfo")) {
-	    		json.put("finfo", "");
+	    	if (!json.has("_framePrefix")) {
+	    		json.put("_framePrefix", "");
 	    	}
 	    	Boolean readOnly = isReadOnly();
 	    	if (readOnly != null && readOnly.booleanValue()) {

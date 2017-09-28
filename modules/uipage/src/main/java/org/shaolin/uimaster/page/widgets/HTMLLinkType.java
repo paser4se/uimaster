@@ -137,26 +137,15 @@ public class HTMLLinkType extends HTMLLabelType
     
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-    	if (!needAjaxSupport()) {
-    		Object oneditable = this.getAttribute("oneditable");
-            if (oneditable == null || oneditable.toString().equalsIgnoreCase("false")){
-            	return null;
-            }
-    	}
-    	
-//        Link link = new Link(getName(), null);
-//
-//        link.setReadOnly(isReadOnly());
-//        link.setUIEntityName(getUIEntityName());
-//
-//        link.setValue(getValue());
-//        link.setDisplayValue(getDisplayValue());
-//
-//        link.setHref(getHref());
-//
-//        link.setListened(true);
+	    	if (!needAjaxSupport()) {
+	    		Object oneditable = this.getAttribute("oneditable");
+	            if (oneditable == null || oneditable.toString().equalsIgnoreCase("false")){
+	            	return null;
+	            }
+	    	}
 
-        return super.createJsonModel(ee);
+//        return super.createJsonModel(ee);
+	    	return null;
     }
 
     private static final long serialVersionUID = 8101449149686235427L;

@@ -16,6 +16,7 @@
 package org.shaolin.uimaster.page.ajax;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -246,11 +247,12 @@ abstract public class Choice<T> extends Widget<T>
 			json.getJSONObject("attrMap").remove("optionValue");
 		}
 		if (this.ceName != null && this.ceName.length() > 0) {
-			json.put("ce", this.ceName);
-			json.put("expLevel", this.expendlevels);
+			json.getJSONObject("attrMap").put("ce", this.ceName);
+			json.getJSONObject("attrMap").put("expLevel", this.expendlevels);
 		} else {
 			// normal list
-			json.put("optValues", new JSONArray(this.getOptionValues()));
+			json.getJSONObject("attrMap").put("optValues", new JSONArray(this.getOptionValues()));
+			json.getJSONObject("attrMap").put("value", this.getValue());
 			//json.put("optDvalues", new JSONArray(this.getOptionDisplayValues()));
 		}
 		return json;
@@ -259,12 +261,13 @@ abstract public class Choice<T> extends Widget<T>
 	@SuppressWarnings("unchecked")
 	public void fromJSON(JSONObject json) throws Exception {
 		super.fromJSON(json);
-		if (json.has("ce")) {
-			this.ceName = json.getString("ce");
-			this.expendlevels = json.getInt("expLevel");
+		JSONObject attrMap = json.getJSONObject("attrMap");
+		if (attrMap != null && attrMap.has("ce")) {
+			this.ceName = attrMap.getString("ce");
+			this.expendlevels = attrMap.getInt("expLevel");
 			if (this.expendlevels <= 1) {
 				//set the optValues and Display Values from CE
-				Map<Integer, String> items = CEUtil.getAllConstants(json.getString("ce"));
+				Map<Integer, String> items = CEUtil.getAllConstants(attrMap.getString("ce"));
 				Iterator<Map.Entry<Integer,String>> i = items.entrySet().iterator();
 				while (i.hasNext()) {
 					Map.Entry<Integer,String> entry = i.next();
@@ -273,11 +276,16 @@ abstract public class Choice<T> extends Widget<T>
 				}
 			} else {
 				CEUtil.getCEItems(this.expendlevels, this.optionValues, this.optionDisplayValues, 
-						AppContext.get().getConstantService().getConstantEntity(json.getString("ce")));
+						AppContext.get().getConstantService().getConstantEntity(attrMap.getString("ce")));
 			}
 		} else {
-			this.optionValues = json.getJSONArray("optValues").toList();
-			this.optionDisplayValues = this.optionValues;
+			if (attrMap.has("optValues")) {
+				this.optionValues = attrMap.getJSONArray("optValues").toList();
+				this.optionDisplayValues = attrMap.getJSONArray("optDisplayValues").toList();
+			} else {
+				this.optionValues = Collections.emptyList();
+				this.optionDisplayValues = Collections.emptyList();
+			}
 		}
 	}
 }

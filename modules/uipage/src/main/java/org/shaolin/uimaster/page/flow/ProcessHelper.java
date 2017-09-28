@@ -46,7 +46,8 @@ import org.slf4j.LoggerFactory;
 
 public class ProcessHelper
 {
-    //log4j
+    private static final String ATTR_MAP = "attrMap";
+	//log4j
     private static Logger logger = LoggerFactory.getLogger(ProcessHelper.class);
 
     /**
@@ -674,47 +675,48 @@ public class ProcessHelper
      */
     public static void processSyncValues(HttpServletRequest request) throws  AjaxException 
     {
+    		AjaxContextHelper.setClientUIWidget(null);
         String syncData = request.getParameter("_sync");
         if (syncData != null && !syncData.trim().isEmpty())
         {
             try{
-            	Map<String, JSONObject> map = AjaxContextHelper.getFrameMap(request);
-                AjaxContext ajaxContext = new AjaxContext(map, null);
-                ajaxContext.setHttpRequest(request);
-                AjaxContextHelper.createAjaxContext(ajaxContext);
+            		Map<String, JSONObject> map = AjaxContextHelper.getFrameMap(request);
                 JSONArray syncSets = new JSONArray(syncData);
+                Map<String, JSONObject> clientWidgets = new HashMap<String, JSONObject>();
                 for (int i = 0; i < syncSets.length(); i++)
                 {
                     JSONObject attr = syncSets.getJSONObject(i);
-                    String uiid = attr.getString("_uiid");
-                    String valueName = attr.getString("_valueName");
-                    String value = attr.getString("_value");
-                    String framePrefix = attr.getString("_framePrefix");
-                    framePrefix = (framePrefix == null || framePrefix.equals("null")) ? "" : framePrefix;
-                    if (map.containsKey(uiid)) {
-                    	JSONObject attrMap = map.get(uiid).getJSONObject("attrMap");
-                    	if (!attrMap.has("disabled") || "false".equals(attrMap.getString("disabled"))) {
-                    		attrMap.put(valueName, value);
-                    		//TODO: constraint check is necessary.
-                    		// component.checkConstraint();
-                    	}
+                    String uiid = attr.getString("uiid");
+                    JSONObject attrValues = attr.has(ATTR_MAP)? new JSONObject(attr.getString(ATTR_MAP)) : null;
+                    if (map.containsKey(uiid) && attrValues != null) {
+	                    	JSONObject attrMap = map.get(uiid).getJSONObject(ATTR_MAP);
+	                    	if (!attrMap.has("disabled") || "false".equalsIgnoreCase(attrMap.getString("disabled"))) {
+	                    		Iterator<String> keys = attrValues.keys();
+	                    		while (keys.hasNext()) {
+	                    			String key = keys.next();
+	                    			attrMap.put(key, attrValues.get(key));
+	                    		}
+	                    		//TODO: constraint check is necessary.
+	                    		// component.checkConstraint();
+	                    	}
                     } else {
-                    	if (uiid != null && uiid.toLowerCase().indexOf("label") == -1) { //hide label log.
-                    		if (logger.isDebugEnabled()) {
-                    			logger.debug("Component not found while synchronizing values: uiid=" + uiid +
-                    				", framePrefix=" + framePrefix + ", ignored the value!");
-                    		}
-                    	}
+                    		attrValues.put("fromClient", true);
+                    		attr.put("entity", request.getParameter("_actionPage"));
+                    		attr.put(ATTR_MAP, attrValues);
+                    		clientWidgets.put(uiid, attr);
                     }
                 }
+                AjaxContextHelper.setClientUIWidget(clientWidgets);
+//                if (logger.isDebugEnabled()) {
+//	        			String framePrefix = attr.getString("_framePrefix");
+//	                    framePrefix = (framePrefix == null || framePrefix.equals("null")) ? "" : framePrefix;
+//	        			logger.debug("Component not found while synchronizing values: uiid=" + uiid +
+//	        				", framePrefix=" + framePrefix + ", ignored the value!");
+//	        		}
             }
             catch(JSONException ex)
             {
                 throw new AjaxException("Synchronizing attributes are not working correctly. Error thrown: " + ex.getMessage(), ex);
-            }
-            finally
-            {
-                AjaxContextHelper.removeAjaxContext();
             }
         }
     }

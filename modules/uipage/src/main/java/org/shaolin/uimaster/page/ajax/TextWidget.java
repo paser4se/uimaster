@@ -66,7 +66,7 @@ abstract public class TextWidget extends Widget<TextWidget> implements Serializa
         }
         
         AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
-        if (ajaxContext == null || !ajaxContext.existElement(this))
+        if (ajaxContext == null)
         {
             return;
         }

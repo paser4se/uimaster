@@ -89,32 +89,16 @@ public class EventHandler implements IAjaxHandler {
 		UIFormObject currentUIForm = PageCacheManager.getUIForm(context.getEntityName());
 		String eventSourceId = context.getRequestData().getUiid();
 		Widget w = context.getEventSource(eventSourceId);
-		if (w == null) {
-			// the event source could not be found from session 
-			// if it's Button, Link, Panel and any unbind session widgets.
-			HTMLWidgetType htmlWidget = null;
-			if (eventSourceId.indexOf('.') != -1) {
-				htmlWidget = currentUIForm.getHTMLComponent(eventSourceId.substring(eventSourceId.lastIndexOf('.') + 1));
-			} else {
-				htmlWidget = currentUIForm.getHTMLComponent(eventSourceId);
+		if (w != null) {
+			if ( w.getClass() == Button.class) {
+				context.setEventSource((Button)w);
 			}
-			if (htmlWidget == null) {
-				Dialog.showMessageDialog("\u4E8B\u4EF6\u6E90\u4E0D\u5B58\u5728\uFF01", "", Dialog.WARNING_MESSAGE, null);
-				return context.getDataAsJSON();
-			} else {
-				// the event source object is temporary on request scope now.
-				htmlWidget.addAttribute("needAjaxSupport", true);
-				w = Widget.covertFromJSON(htmlWidget.createJsonModel(null));
+			if (!w.isVisible()) {
+				return "{'value': 'event source does not have the privilege.'}"; 
 			}
-		}
-		if (w.getClass() == Button.class) {
-			context.setEventSource((Button)w);
-		}
-		if (!w.isVisible()) {
-			return "{'value': 'event source does not have the privilege.'}"; 
-		}
-		if (w.getAttribute("disabled") != null && "true".equals(w.getAttribute("disabled"))) {
-			return "{'value': 'event source does not have the privilege.'}"; 
+			if (w.getAttribute("disabled") != null && "true".equals(w.getAttribute("disabled"))) {
+				return "{'value': 'event source does not have the privilege.'}"; 
+			}
 		}
 		if (log.isDebugEnabled()) {
 			log.debug("executing the function of ajax call: " + actionName);
@@ -195,7 +179,7 @@ public class EventHandler implements IAjaxHandler {
 		}
 
 		context.synchVariables();
-		if (w.getClass() == Button.class) {
+		if (w != null && w.getClass() == Button.class) {
 			if (context.isInvalidEventSource()) {
 				//((Button)w).setValue(((Button)w).getValue() + " Invalid!");
 			} else {

@@ -17,7 +17,10 @@ package org.shaolin.uimaster.page.widgets;
 
 import java.io.IOException;
 
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.uimaster.page.UserRequestContext;
+import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 
 public abstract class HTMLTextWidgetType extends HTMLWidgetType
 {
@@ -115,5 +118,9 @@ public abstract class HTMLTextWidgetType extends HTMLWidgetType
         addAttribute("currencyFormat", format == null ? "" : format);
     }
 
+    public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException
+    {
+    		return null;
+    }
     private static final long serialVersionUID = 1705497534002626203L;
 }

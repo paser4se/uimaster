@@ -77,20 +77,7 @@ public class HTMLHiddenType extends HTMLTextWidgetType
 
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-//        Hidden hidden = new Hidden(getName(), Layout.NULL);
-//
-//        hidden.setReadOnly(isReadOnly());
-//        hidden.setUIEntityName(getUIEntityName());
-//
-//        if (this.getAttribute("secure") != null) {
-//        	hidden.setIsSecure(Boolean.valueOf(this.getAttribute("secure").toString()));
-//        }
-//        hidden.setValue(getValue());
-//        
-//        hidden.setListened(true);
-//
-//        return hidden;
-        return super.createJsonModel(ee);
+        return null; //super.createJsonModel(ee);
     }
     
     private static final long serialVersionUID = 1875046878985040938L;

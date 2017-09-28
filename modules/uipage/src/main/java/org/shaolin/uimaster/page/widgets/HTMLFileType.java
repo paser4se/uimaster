@@ -61,9 +61,9 @@ public class HTMLFileType extends HTMLTextWidgetType
             		("true".equals(this.getAttribute("isMultiple")) || Boolean.TRUE == this.getAttribute("isMultiple"))) {
             	context.generateHTML("multiple=\"multiple\" ");
             }
-        	context.generateHTML("suffix=\"");
-        	context.generateHTML(this.getAttribute("suffix").toString());
-        	context.generateHTML("\" ");
+	        	context.generateHTML("suffix=\"");
+	        	context.generateHTML(this.getAttribute("suffix").toString());
+	        	context.generateHTML("\" ");
             context.generateHTML("/ class=\"uimaster_button\">");
             HTMLUtil.generateTab(context, depth + 2);
             context.generateHTML("<div class=\"uimaster_file_hints\">");
@@ -98,6 +98,9 @@ public class HTMLFileType extends HTMLTextWidgetType
     
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
+    	    if (isReadOnly()) {
+    	    		return null;
+    	    }
         AFile file = new AFile(getName(), Layout.NULL);
 
         file.setReadOnly(isReadOnly());
@@ -135,7 +138,8 @@ public class HTMLFileType extends HTMLTextWidgetType
         
         file.setListened(true);
 
-    	return file.toJSON();
+        return file.toJSON();
+//        return null;
     }
 
 }

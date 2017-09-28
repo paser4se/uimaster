@@ -55,6 +55,9 @@ public class HTMLRadioButtonGroupType extends HTMLSingleChoiceType
             {
                 displayOptions = options;
             }
+            if (this.getAttribute("cename") != null) {
+	        		addAttribute("ce", this.getAttribute("cename"));
+	        }
             if ("false".equals((String)getAttribute("visible")))
             {
                 context.generateHTML("<p style=\"display:none\">");
@@ -206,21 +209,8 @@ public class HTMLRadioButtonGroupType extends HTMLSingleChoiceType
     
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-//        RadioButtonGroup radioButtonGroup = new RadioButtonGroup(getName(), Layout.NULL);
-//        radioButtonGroup.setRealValueType(this.getRealValueDataType());
-//        radioButtonGroup.setReadOnly(isReadOnly());
-//        radioButtonGroup.setUIEntityName(getUIEntityName());
-//
-//        radioButtonGroup.setOptions(getOptionDisplayValues(), getOptionValues());
-//        radioButtonGroup.setValue(getValue());
-//
-//        setAJAXConstraints(radioButtonGroup);
-//        setAJAXAttributes(UserRequestContext.UserContext.get(), radioButtonGroup);
-//        
-//        radioButtonGroup.setListened(true);
-//
-//        return radioButtonGroup;
-        return super.createJsonModel(ee);
+//        return super.createJsonModel(ee);
+    		return null;
     }
 
     private static final long serialVersionUID = 7005909032482454931L;

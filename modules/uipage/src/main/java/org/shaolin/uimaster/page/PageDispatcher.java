@@ -483,10 +483,11 @@ public class PageDispatcher {
                 }
                 else
                 {
-                	AjaxContextHelper.addCachePage(session, frameTarget);
-                	ajaxWidgetMap.put(frameTarget, pageComponentMap);
+	                	AjaxContextHelper.addCachePage(session, frameTarget);
+	                	ajaxWidgetMap.put(frameTarget, pageComponentMap);
                 }
             }
+            
             session.setAttribute(AjaxContext.AJAX_COMP_MAP, ajaxWidgetMap);
             if (superPrefix != null)
             {

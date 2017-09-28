@@ -177,32 +177,29 @@ public class HTMLImageType extends HTMLTextWidgetType
     {
 		boolean hasGallery = this.getAttribute("isGallery") != null && ("true".equals(String.valueOf(this.getAttribute("isGallery"))));
 		if (!needAjaxSupport() && !hasGallery) {
-    		Object oneditable = this.getAttribute("oneditable");
+    			Object oneditable = this.getAttribute("oneditable");
             if (oneditable == null || oneditable.toString().equalsIgnoreCase("false")){
             	return null;
             }
 		}
 		
-		Image image = new Image(getName(), Layout.NULL);
-
-		image.setReadOnly(isReadOnly());
-		image.setUIEntityName(getUIEntityName());
-
-		if (getValue() != null && !"".equals(getValue())) {
-			image.setSrc(getValue());
-		} else {
-			image.setSrc((String) getAttribute("src"));
-		}
-		image.setIsGallery(hasGallery);
-		image.setListened(true);
-
-//		Object expr = this.removeAttribute("selectedImageExpr");
-//		if (expr != null) {
-//			image.setSelectedImageExpr((ExpressionType)expr);
+//		Image image = new Image(getName(), Layout.NULL);
+//
+//		image.setReadOnly(isReadOnly());
+//		image.setUIEntityName(getUIEntityName());
+//
+//		if (getValue() != null && !"".equals(getValue())) {
+//			image.setSrc(getValue());
+//		} else {
+//			image.setSrc((String) getAttribute("src"));
 //		}
-		JSONObject json = super.createJsonModel(ee);
-		image.toJSON(json);
-		return json;
+//		image.setIsGallery(hasGallery);
+//		image.setListened(true);
+
+//		JSONObject json = super.createJsonModel(ee);
+//		image.toJSON(json);
+//		return json;
+		return null;
 	}
 	
 	public static String generateSimple(HttpServletRequest request, String srcs, int width, int height) {

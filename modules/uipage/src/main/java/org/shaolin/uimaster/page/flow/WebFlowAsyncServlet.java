@@ -601,15 +601,15 @@ public class WebFlowAsyncServlet extends HttpServlet implements RejectedExecutio
             	
                 try
                 {
-                	WebFlowContext flowContext = new WebFlowContext(srcNode, request, response);
-                	//validate and convert the output data of DisplayNode srcNode
+                		WebFlowContext flowContext = new WebFlowContext(srcNode, request, response);
+                		//validate and convert the output data of DisplayNode srcNode
                     srcNode.prepareOutputData(flowContext);
                     
                     HibernateUtil.releaseSession(true);
                 }
                 catch (Throwable ex)
                 {
-                	HibernateUtil.releaseSession(false);
+                		HibernateUtil.releaseSession(false);
                     if (ex instanceof ParsingException)
                     {
                         logger.error("ParsingException when  prepare OutputData for node "

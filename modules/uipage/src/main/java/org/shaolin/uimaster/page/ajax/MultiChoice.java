@@ -19,6 +19,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.shaolin.bmdp.json.JSONObject;
+
 abstract public class MultiChoice extends Choice<MultiChoice> implements Serializable
 {
     private static final long serialVersionUID = 3779890420561677855L;

@@ -71,16 +71,8 @@ public class HTMLPasswordFieldType extends HTMLTextFieldType
     @Override
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-//        PasswordField password = new PasswordField(getName(), Layout.NULL);
-//
-//        password.setReadOnly(isReadOnly());
-//        password.setUIEntityName(getUIEntityName());
-//
-//        password.setValue(getValue());
-//
-//        password.setListened(true);
-
-        return super.createJsonModel(ee);
+//        return super.createJsonModel(ee);
+    		return null;
     }
 
 }

@@ -90,20 +90,8 @@ public class HTMLCheckBoxType extends HTMLSelectComponentType
     }
 
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException {
-//        CheckBox checkBox = new CheckBox(getName(), null);
-//
-//        checkBox.setReadOnly(isReadOnly());
-//        checkBox.setUIEntityName(getUIEntityName());
-//
-//        checkBox.setLabel(getLabel());
-//        checkBox.setSelected(getValue());
-//        setAJAXConstraints(checkBox);
-//        setAJAXAttributes(UserRequestContext.UserContext.get(), checkBox);
-//        
-//        checkBox.setListened(true);
-//
-//        return checkBox;
-    	return super.createJsonModel(ee);
+//    		return super.createJsonModel(ee);
+    		return null;
     }
     
     private static final long serialVersionUID = -6662073300811877694L;

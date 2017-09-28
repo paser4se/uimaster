@@ -61,6 +61,7 @@ public abstract class HTMLSingleChoiceType extends HTMLChoiceType
 	
 	public void setRealValueDataType(Class realValueDataType) {
 		this.realValueDataType = realValueDataType;
+		addAttribute("realVType", realValueDataType.getName());
 	}
 	
 	public Class getRealValueDataType() {
@@ -69,9 +70,10 @@ public abstract class HTMLSingleChoiceType extends HTMLChoiceType
 	
 	public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-		JSONObject json = super.createJsonModel(ee);
-		json.put("realVType", realValueDataType.getName());
-		return json;
+//		JSONObject json = super.createJsonModel(ee);
+//		json.put("realVType", realValueDataType.getName());
+//		return json;
+		return null;
     }
 
 }

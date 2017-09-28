@@ -291,13 +291,13 @@ public class RefForm extends Container implements Serializable
 
     String buildUpRefEntity()
     {
-    	if (this.getId() == null) {
-    		throw new IllegalStateException("Please make sure you are using the right refform object!");
-    	}
-    	UserRequestContext orginalUserContext = UserRequestContext.UserContext.get();
+	    	if (this.getId() == null) {
+	    		throw new IllegalStateException("Please make sure you are using the right refform object!");
+	    	}
+    		UserRequestContext orginalUserContext = UserRequestContext.UserContext.get();
         try
         {
-        	AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
+        		AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         	
             StringWriter writer = new StringWriter();
             UserRequestContext htmlContext = new UserRequestContext(ajaxContext.getRequest(), writer);
@@ -372,17 +372,17 @@ public class RefForm extends Container implements Serializable
             }
             AjaxContextHelper.updateFrameMap(ajaxContext.getRequest(), htmlContext.getPageAjaxWidgets());
             
-            // append the dynamic js files.
-            StringWriter jswriter = new StringWriter();
-            UserRequestContext jsContext = new UserRequestContext(ajaxContext.getRequest(), jswriter);
-        	UIFormObject formObject = PageCacheManager.getUIFormObject(this.getUIEntityName());
-        	formObject.getJSPathSet(jsContext, Collections.emptyMap(), true);
-        	String data = jswriter.getBuffer().toString();
-        	IDataItem dataItem = AjaxContextHelper.createLoadJS(getId(), data);
-            dataItem.setFrameInfo(getFrameInfo());
-            ajaxContext.addDataItem(dataItem);
-            htmlContext.resetCurrentFormInfo();
-            
+			// append the dynamic js files.
+			StringWriter jswriter = new StringWriter();
+			UserRequestContext jsContext = new UserRequestContext(ajaxContext.getRequest(), jswriter);
+			UIFormObject formObject = PageCacheManager.getUIFormObject(this.getUIEntityName());
+			formObject.getJSPathSet(jsContext, Collections.emptyMap(), true);
+			String data = jswriter.getBuffer().toString();
+			IDataItem dataItem = AjaxContextHelper.createLoadJS(getId(), data);
+			dataItem.setFrameInfo(getFrameInfo());
+			ajaxContext.addDataItem(dataItem);
+			htmlContext.resetCurrentFormInfo();
+
             return writer.getBuffer().toString();
         }
         catch (Exception ex)

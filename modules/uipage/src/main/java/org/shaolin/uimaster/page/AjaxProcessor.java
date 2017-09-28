@@ -138,7 +138,7 @@ public class AjaxProcessor implements Serializable
             AjaxContext context;
             if (EVENT_TYPE_CHECK_PROPERTY.equals(eventType))
             {
-            	Map<String, JSONObject> uiMap = AjaxContextHelper.getFrameMap(request);
+            		Map<String, JSONObject> uiMap = AjaxContextHelper.getFrameMap(request);
                 context = new AjaxContext(uiMap, requestData);
             } 
             else if (EVENT_WEBSERVICE.equals(eventType))

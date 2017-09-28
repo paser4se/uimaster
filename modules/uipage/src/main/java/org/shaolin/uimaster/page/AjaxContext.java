@@ -345,14 +345,16 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
      */
     public String getDataAsJSON() throws Exception
     {
-    	Map<String, JSONObject> ajaxMap = AjaxContextHelper.getFrameMap(this.getRequest());
-    	// sync json model.
-    	for (Map.Entry<String, Widget> entries: ajaxWidgetMap.entrySet()) {
-    		ajaxMap.put(entries.getKey(), entries.getValue().toJSON());
-    	}
-    	ajaxWidgetMap.clear();
-    	
-    	AjaxContextHelper.updateFrameMap(this.getRequest(), ajaxMap);
+	    	Map<String, JSONObject> ajaxMap = AjaxContextHelper.getFrameMap(this.getRequest());
+	    	// sync json model.
+	    	for (Map.Entry<String, Widget> entries: ajaxWidgetMap.entrySet()) {
+	    		if (!entries.getValue().hasAttribute("fromClient")) {
+	    			ajaxMap.put(entries.getKey(), entries.getValue().toJSON());
+	    		}
+	    	}
+	    	ajaxWidgetMap.clear();
+	    	
+	    	AjaxContextHelper.updateFrameMap(this.getRequest(), ajaxMap);
     	
         JSONArray json = new JSONArray();
         for (int i = 0; i < dataItems.size(); i++)
@@ -422,18 +424,21 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
      */
     public boolean existElement(String uiid)
     {
-    	if (uiid == null) {
-    		return false;
-    	}
-    	if (uiid.equals(this.getEntityUiid())) {
-    		return ajaxJsonMap.containsKey(uiid);
-    	}
-    	String realUiid = uiid;
-    	if (this.entityPrefix != null && !this.entityPrefix.isEmpty()) {
-    		if (!uiid.startsWith(this.entityPrefix)) {
-    			realUiid = this.entityPrefix + uiid;
-    		}
-    	}
+	    	if (uiid == null) {
+	    		return false;
+	    	}
+	    	if (uiid.equals(this.getEntityUiid())) {
+	    		return ajaxJsonMap.containsKey(uiid);
+	    	}
+	    	String realUiid = uiid;
+	    	if (this.entityPrefix != null && !this.entityPrefix.isEmpty()) {
+	    		if (!uiid.startsWith(this.entityPrefix)) {
+	    			realUiid = this.entityPrefix + uiid;
+	    		}
+	    	}
+	    	if (AjaxContextHelper.getClientUIWidget().containsKey(realUiid)) {
+	    		return true;
+	    	}
         return ajaxJsonMap.containsKey(realUiid);
     }
 
@@ -447,17 +452,13 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
      */
     public boolean existElement(Widget<?> comp)
     {
-    	if (comp == null) {
-    		return false;
-    	}
-//    	if (eventSourceUIMap.containsKey(comp.getId())) {
-//	        try {
-//				return comp.getClass().getSimpleName().equals(eventSourceUIMap.get(comp.getId()).getString("type"));
-//			} catch (JSONException e) {
-//				return false;
-//			}
-//    	}
-    	return ajaxJsonMap.containsKey(comp.getId());
+	    	if (comp == null) {
+	    		return false;
+	    	}
+	    	if (AjaxContextHelper.getClientUIWidget().containsKey(comp.getId())) {
+	    		return true;
+	    	}
+	    	return ajaxJsonMap.containsKey(comp.getId());
     }
 
     public boolean existElmByAbstId(String absoluteUiid)
@@ -479,23 +480,29 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
      */
     public boolean existElmByAbsoluteId(final String absoluteUiid, final String frameName)
     {
+	    	if (AjaxContextHelper.getClientUIWidget().containsKey(absoluteUiid)) {
+	    		return true;
+	    	}
 		return ajaxJsonMap.containsKey(absoluteUiid);
     }
 
     public Widget getEventSource(String uiid)
     {
-    	if (uiid == null) {
-    		throw new IllegalArgumentException("The ui widget id can be null.");
-    	}
-    	String realUiid = uiid;
-    	if (!uiid.equals(this.getEntityUiid())) {
-    		if (this.entityPrefix != null && !this.entityPrefix.isEmpty()) {
-    			if (!uiid.startsWith(this.entityPrefix)) {
-    				realUiid = this.entityPrefix + uiid;
-    			}
-    		}
-    	}
-        JSONObject comp = ajaxJsonMap.get(realUiid);
+	    	if (uiid == null) {
+	    		throw new IllegalArgumentException("The ui widget id can be null.");
+	    	}
+	    	String realUiid = uiid;
+	    	if (!uiid.equals(this.getEntityUiid())) {
+	    		if (this.entityPrefix != null && !this.entityPrefix.isEmpty()) {
+	    			if (!uiid.startsWith(this.entityPrefix)) {
+	    				realUiid = this.entityPrefix + uiid;
+	    			}
+	    		}
+	    	}
+	    	JSONObject comp = AjaxContextHelper.getClientUIWidget().get(realUiid);
+	    	if (comp == null) {
+	    		comp = ajaxJsonMap.get(realUiid);
+	    	}
         if (comp == null) {
             comp = ajaxJsonMap.get(uiid);
         }
@@ -522,53 +529,61 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
      */
     public Widget getElement(String uiid)
     {
-    	if (uiid == null) {
-    		throw new IllegalArgumentException("The ui widget id can be null.");
-    	}
-    	String realUiid = uiid;
-    	if (!uiid.equals(this.getEntityUiid())) {
-    		if (this.entityPrefix != null && !this.entityPrefix.isEmpty()) {
-    			if (!uiid.startsWith(this.entityPrefix)) {
-    				realUiid = this.entityPrefix + uiid;
-    			}
-    		}
-    	}
-        JSONObject comp = ajaxJsonMap.get(realUiid);
+	    	if (uiid == null) {
+	    		throw new IllegalArgumentException("The ui widget id can be null.");
+	    	}
+	    	String realUiid = uiid;
+	    	if (!uiid.equals(this.getEntityUiid())) {
+	    		if (this.entityPrefix != null && !this.entityPrefix.isEmpty()) {
+	    			if (!uiid.startsWith(this.entityPrefix)) {
+	    				realUiid = this.entityPrefix + uiid;
+	    			}
+	    		}
+	    	}
+	    	JSONObject comp = AjaxContextHelper.getClientUIWidget().get(realUiid);
+	    	if (comp == null) {
+	    		comp = ajaxJsonMap.get(realUiid);
+	    	}
         if (comp == null) {
-            logger.debug("The ui widget can not be found by this " + realUiid + " id. try to use the original id: "+uiid);
+        		if (logger.isDebugEnabled()) {
+        			logger.debug("The ui widget can not be found by this " + realUiid + " id. try to use the original id: "+uiid);
+        		}
             comp = ajaxJsonMap.get(uiid);
             if (comp == null) {
-            	logger.warn("The ui widget can not be found by either " + realUiid + " or "+ uiid);
+        			logger.warn("The ui widget can not be found by either " + realUiid + " or "+ uiid);
             }
         }
         if (comp != null) {
-        	try {
-	        	String id = comp.getString("uiid");
+	        	try {
+		        	String id = comp.getString("uiid");
 				if (!ajaxWidgetMap.containsKey(id)) {
-        			ajaxWidgetMap.put(id, Widget.covertFromJSON(comp));
+	        			ajaxWidgetMap.put(id, Widget.covertFromJSON(comp));
+		        	}
+		        	return ajaxWidgetMap.get(id);
+	        	} catch (Exception e) {
+	        		throw new IllegalArgumentException("The ui widget can not be created by " + comp, e);
 	        	}
-	        	return ajaxWidgetMap.get(id);
-        	} catch (Exception e) {
-        		throw new IllegalArgumentException("The ui widget can not be created by " + comp, e);
-        	}
         }
         throw new IllegalArgumentException("The ui widget can not be created by " + realUiid);
     }
 
     public Widget getElementByAbsoluteId(String absoluteUiid)
     {
-    	if (!ajaxJsonMap.containsKey(absoluteUiid)) {
-    		logger.warn("The ui widget can not be found by absolute id: " + absoluteUiid);
-    		return null;
-    	}
 		if (!ajaxWidgetMap.containsKey(absoluteUiid)) {
-    		try {
-    			ajaxWidgetMap.put(absoluteUiid, Widget.covertFromJSON(ajaxJsonMap.get(absoluteUiid)));
+    			try {
+	    			if (AjaxContextHelper.getClientUIWidget().containsKey(absoluteUiid)) {
+	    	    			ajaxWidgetMap.put(absoluteUiid, Widget.covertFromJSON(AjaxContextHelper.getClientUIWidget().get(absoluteUiid)));
+		    	    	} else if (ajaxJsonMap.containsKey(absoluteUiid)) {
+		    	    		ajaxWidgetMap.put(absoluteUiid, Widget.covertFromJSON(ajaxJsonMap.get(absoluteUiid)));
+		    	    	} else {
+		    	    		logger.warn("The ui widget can not be found by absolute id: " + absoluteUiid);
+		    	    		return null;
+		    	    	}
 			} catch (Exception e) {
 				logger.warn("The ui widget can not be created by " + ajaxJsonMap.get(absoluteUiid));
 			}
-    	}
-    	return ajaxWidgetMap.get(absoluteUiid);
+	    	}
+	    	return ajaxWidgetMap.get(absoluteUiid);
     }
     
     public boolean addElement(Widget comp)
@@ -588,33 +603,33 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
     }
     public Widget removeElement(String uiid)
     {
-    	if (uiid.equals(this.getEntityUiid())) {
-    		ajaxJsonMap.remove(uiid);
-    		return (Widget)ajaxWidgetMap.remove(uiid);
-    	}
-    	String realUiid = uiid;
-    	if (this.entityPrefix != null && !this.entityPrefix.isEmpty()) {
-    		if (!uiid.startsWith(this.entityPrefix)) {
-    			realUiid = this.entityPrefix + uiid;
-    		}
-    	}
-    	if (ajaxJsonMap.containsKey(realUiid)) {
-	    	ajaxJsonMap.remove(realUiid);
-	        return (Widget)ajaxWidgetMap.remove(realUiid);
-    	}
-    	// final check
-        if (ajaxJsonMap.containsKey(uiid)) { 
-    		ajaxJsonMap.remove(uiid);
-            return (Widget)ajaxWidgetMap.remove(uiid);
-    	}
+	    	if (uiid.equals(this.getEntityUiid())) {
+	    		ajaxJsonMap.remove(uiid);
+	    		return (Widget)ajaxWidgetMap.remove(uiid);
+	    	}
+	    	String realUiid = uiid;
+	    	if (this.entityPrefix != null && !this.entityPrefix.isEmpty()) {
+	    		if (!uiid.startsWith(this.entityPrefix)) {
+	    			realUiid = this.entityPrefix + uiid;
+	    		}
+	    	}
+	    	if (ajaxJsonMap.containsKey(realUiid)) {
+		    	ajaxJsonMap.remove(realUiid);
+		        return (Widget)ajaxWidgetMap.remove(realUiid);
+	    	}
+	    	// final check
+	        if (ajaxJsonMap.containsKey(uiid)) { 
+	    		ajaxJsonMap.remove(uiid);
+	            return (Widget)ajaxWidgetMap.remove(uiid);
+	    	}
         return null;
     }
 
     public void removeFramePage(String frameId) {
-    	logger.info("Close the frame page: " + frameId);
-    	Map ajaxComponentMap = AjaxContextHelper.getAjaxWidgetMap(request.getSession());
-    	ajaxComponentMap.remove(frameId);
-    	AjaxContextHelper.removeCachedPage(request.getSession(), frameId);
+	    	logger.info("Close the frame page: " + frameId);
+	    	Map ajaxComponentMap = AjaxContextHelper.getAjaxWidgetMap(request.getSession());
+	    	ajaxComponentMap.remove(frameId);
+	    	AjaxContextHelper.removeCachedPage(request.getSession(), frameId);
     }
     
     public RefForm removeForm(String uiid) {

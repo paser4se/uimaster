@@ -477,22 +477,6 @@ UIMaster.groupAssign = function(obj, nv){
  */
 UIMaster.i18nmsg = UIMaster_getI18NInfo;
 /**
- * @description Synchronize widget attribute to the server. This method is synchronized.
- * @param {String} uiid ID of the element.
- * @param {String} name Name of the attribute.
- * @param {String} value Value of the attribute.
- */
-UIMaster.synAttr = function(uiid, name, value){
-    var opts = {url:AJAX_SERVICE_URL,
-            asnyc:false,
-            data:{_ajaxUserEvent:false,_uiid:uiid,_valueName:name,_value:value,_framePrefix:UIMaster.getFramePrefix()}};
-    if (MobileAppMode) {
-       _mobContext.ajax(JSON.stringify(opts));
-    } else {
-       $.ajax(opts);
-	}
-};
-/**
  * @description Extend a class with configurations.
  * @param {Function} sp Super Class.
  * @param {Object} c Configuration items.
@@ -659,7 +643,13 @@ UIMaster.closeHints = function(e){
 UIMaster.clearErrMsg = function() {
     $(".err-page-warn").remove();
 };
-function syncAll() {
+function syncAll(subref) {
+    if (subref && subref.indexOf('.') > -1) {
+        var root = eval("defaultname."+subref.substring(0, subref.indexOf('.')));
+        if (root && root.sync)
+            root.sync();
+        return;
+    }
     if (defaultname.sync)
         defaultname.sync();
     else
@@ -680,7 +670,7 @@ UIMaster.triggerServerEvent = function(uiid,actionName,data,entityName,action,as
 		elementList[uiid].disable();
 	}
     UIMaster.ui.mask.open();
-    syncAll();
+    syncAll(uiid);
     //(typeof(async) != "undefined")?async:false,
     var opt = {
             async: true,

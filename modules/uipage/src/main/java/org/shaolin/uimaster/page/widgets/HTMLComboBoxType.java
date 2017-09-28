@@ -52,6 +52,9 @@ public class HTMLComboBoxType extends HTMLSingleChoiceType
             {
                 displayOptions = options;
             }
+            if (this.getAttribute("cename") != null) {
+            		addAttribute("ce", this.getAttribute("cename"));
+            }
             generateWidget(context);
             if (displayOptions != null && options != null)
             {
@@ -189,21 +192,8 @@ public class HTMLComboBoxType extends HTMLSingleChoiceType
     
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-//        ComboBox comboBox = new ComboBox(getName(), Layout.NULL);
-//        comboBox.setRealValueType(this.getRealValueDataType());
-//        comboBox.setReadOnly(isReadOnly());
-//        comboBox.setUIEntityName(getUIEntityName());
-//
-//        comboBox.setOptions(getOptionDisplayValues(), getOptionValues());
-//        comboBox.setValue(getValue());
-//
-//        setAJAXConstraints(comboBox);
-//        setAJAXAttributes(UserRequestContext.UserContext.get(), comboBox);
-//        
-//        comboBox.setListened(true);
-//
-//        return comboBox;
-    	return super.createJsonModel(ee);
+//    		return super.createJsonModel(ee);
+    		return null;
     }
     
     private static final long serialVersionUID = -7717716729284638113L;
