@@ -356,13 +356,12 @@ public class PreNextPanel extends Container implements Serializable
     }
 
     public JSONObject toJSON() throws JSONException {
-		JSONObject json = super.toJSON();
-		json.put("selectedIndex", selectedIndex);
-		return json;
+		this.addAttribute("selectedIndex", selectedIndex, false);
+		return super.toJSON();
 	}
     
     public void toJSON(JSONObject json) throws JSONException {
-	    	json.put("selectedIndex", this.selectedIndex);
+	    	json.getJSONObject("attrMap").put("selectedIndex", this.selectedIndex);
     }
 	
 	@SuppressWarnings("unchecked")
@@ -373,7 +372,6 @@ public class PreNextPanel extends Container implements Serializable
 		this.previousAction = (ExpressionType)attributes.get("previousAction");
 		this.nextAction = (ExpressionType)attributes.get("nextAction");
 		this.uiid = this.getId();
-		this.selectedIndex = json.getInt("selectedIndex");
 		//createdRefEntities
 		super.fromJSON(json);
 	}

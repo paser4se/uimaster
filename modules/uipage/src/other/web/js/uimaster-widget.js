@@ -3937,7 +3937,8 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
         	currTitle.attr("ajaxload", null);
         }
         UIMaster.syncAll(this.id);
-        var opts = {url:AJAX_SERVICE_URL, method:'POST', async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"tabpane",_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix(), _sync: UIMaster.ui.sync()}};
+        var entity = UIMaster.findEntityName(this);
+        var opts = {url:AJAX_SERVICE_URL, method:'POST', async:false,success: UIMaster.cmdHandler,data:{entity:entity, _ajaxUserEvent:"tabpane",_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix(), _sync: UIMaster.ui.sync()}};
         if (MobileAppMode) {
             _mobContext.ajax(JSON.stringify(opts));
         } else {
@@ -4083,7 +4084,9 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 			   }
 			   if(!othis.validate0()) return;
 			   if(!othis.setTab(parseInt($(this).attr("index")))) return;
-			   UIMaster.ui.sync.set({uiid:othis.id,"type":"PreNextPanel","attrMap":JSON.stringify({"selectedIndex":othis.selectedIndex}),_framePrefix:UIMaster.getFramePrefix(this)});
+               /**
+               var entity = UIMaster.findEntityName(othis);
+			   UIMaster.ui.sync.set({entity: entity, uiid:othis.id,"type":"PreNextPanel","attrMap":JSON.stringify({"selectedIndex":othis.selectedIndex}),_framePrefix:UIMaster.getFramePrefix(this)});
 			   var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
 				{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"nextbtn",_framePrefix:UIMaster.getFramePrefix(),_sync:UIMaster.ui.sync()}};
 			   if (MobileAppMode) {
@@ -4091,6 +4094,7 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 			   } else {
 				  $.ajax(opts);
 			   }
+               */
 			});
 		});
 		this.bodyContainer.children().each(function(i){
@@ -4196,8 +4200,10 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 		if (currTitle.attr("ajaxload") != null && currTitle.attr("ajaxload") == "true"){
         	currTitle.attr("ajaxload", null);
         } 
+        var entity = UIMaster.findEntityName(this);
+        UIMaster.ui.sync.set({entity: entity, uiid:this.id,"type":"PreNextPanel","attrMap":JSON.stringify({"selectedIndex":currTitle.attr("index")}),_framePrefix:UIMaster.getFramePrefix(this)});
 		var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
-		{_ajaxUserEvent:"prenextpanel",_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix()}};
+		{_ajaxUserEvent:"prenextpanel",_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix(),_sync:UIMaster.ui.sync()}};
 		if (MobileAppMode) {
 		  _mobContext.ajax(JSON.stringify(opts));
 	    } else {

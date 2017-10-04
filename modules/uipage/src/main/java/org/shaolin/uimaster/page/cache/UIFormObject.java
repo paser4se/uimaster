@@ -227,6 +227,7 @@ public class UIFormObject implements java.io.Serializable
         		logger.error("UI Form description parsing error: " + e.getMessage(), e);
         	}
         }
+        uientity.setEntityName(name);
         parseUI(parsingContext, uientity, null);
         HTMLUtil.includeJsFiles(name, jsIncludeMap, jsIncludeList, !WebConfig.skipCommonJs(name));
         HTMLUtil.includeMobJsFiles(name, jsMobIncludeMap, jsMobIncludeList, !WebConfig.skipCommonJs(name));
@@ -359,9 +360,9 @@ public class UIFormObject implements java.io.Serializable
         htmlComponent.setAttribute(propMap);
         htmlComponent.setUIEntityName(this.name);
         if (htmlComponent instanceof HTMLReferenceEntityType) {
-        	HTMLReferenceEntityType referObject = (HTMLReferenceEntityType)htmlComponent;
-        	Map<String, Object> propMap1 = this.getComponentProperty(referObject.getUIID());
-    		referObject.setEntityName((String)propMap1.get("referenceEntity"));
+	        	HTMLReferenceEntityType referObject = (HTMLReferenceEntityType)htmlComponent;
+	        	Map<String, Object> propMap1 = this.getComponentProperty(referObject.getUIID());
+	    		referObject.setEntityName((String)propMap1.get("referenceEntity"));
 			createRefEntity("", referObject);
 		} else if (htmlComponent instanceof HTMLTabPaneType) {
 			HTMLTabPaneType tabPane = (HTMLTabPaneType)htmlComponent;
@@ -393,7 +394,7 @@ public class UIFormObject implements java.io.Serializable
     
     private void parseUI(OOEEContext parsingContext, UIEntity entity, Map extraInfo) throws EntityNotFoundException, UIPageException
     {
-    	this.clear();
+    		this.clear();
 		if (logger.isDebugEnabled()) {
 			logger.debug("parse reconfigurable for form: " + name);
 		}
@@ -403,6 +404,12 @@ public class UIFormObject implements java.io.Serializable
 			logger.debug("parse body of form: " + name);
 		}
         UIContainerType body = entity.getBody();
+        PropertyType item = new PropertyType();
+        item.setName("entity");
+        StringPropertyType p = new StringPropertyType();
+        p.setValue(entity.getEntityName());
+        item.setValue(p);
+        body.getProperties().add(item);
         bodyName = body.getUIID();
         parseComponent(body, parsingContext);
         bodyLayout = new HTMLCellLayout((UIPanelType)body, this);

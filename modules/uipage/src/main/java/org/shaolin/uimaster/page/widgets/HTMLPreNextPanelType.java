@@ -290,9 +290,10 @@ public class HTMLPreNextPanelType extends HTMLContainerType
         }
         this.addAttribute("createdRefEntities", createdRefEntities);
         //panel.setListened(true);
-        JSONObject json = super.createJsonModel(ee);
-        panel.toJSON(json);
-        return json;
+//        JSONObject json = super.createJsonModel(ee);
+//        panel.toJSON(json);
+//        return json;
+        return null;
     }
 
 }

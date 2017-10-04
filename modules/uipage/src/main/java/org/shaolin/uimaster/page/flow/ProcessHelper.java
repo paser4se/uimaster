@@ -679,12 +679,17 @@ public class ProcessHelper
         String syncData = request.getParameter("_sync");
         if (syncData != null && !syncData.trim().isEmpty())
         {
-            try{
-            		Map<String, JSONObject> map = AjaxContextHelper.getFrameMap(request);
-                JSONArray syncSets = new JSONArray(syncData);
-                Map<String, JSONObject> clientWidgets = new HashMap<String, JSONObject>();
-                for (int i = 0; i < syncSets.length(); i++)
-                {
+        		Map<String, JSONObject> map = AjaxContextHelper.getFrameMap(request);
+            JSONArray syncSets = null;
+			try {
+				syncSets = new JSONArray(syncData);
+			} catch (JSONException e) {
+				logger.warn("Failed to parse sync data: " + syncData);
+				return;
+			}
+            Map<String, JSONObject> clientWidgets = new HashMap<String, JSONObject>();
+            for (int i = 0; i < syncSets.length(); i++) {
+                	try {
                     JSONObject attr = syncSets.getJSONObject(i);
                     String uiid = attr.getString("uiid");
                     JSONObject attrValues = attr.has(ATTR_MAP)? new JSONObject(attr.getString(ATTR_MAP)) : null;
@@ -696,29 +701,26 @@ public class ProcessHelper
 	                    			String key = keys.next();
 	                    			attrMap.put(key, attrValues.get(key));
 	                    		}
-	                    		//TODO: constraint check is necessary.
-	                    		// component.checkConstraint();
 	                    	}
                     } else {
                     		attrValues.put("fromClient", true);
                     		//FIXME: all sub ref-entities have different names!
-                    		attr.put("entity", request.getParameter("_actionPage"));
+                    		if (!attr.has("entity")) {
+                    			attr.put("entity", request.getParameter("_actionPage"));
+                    		}
                     		attr.put(ATTR_MAP, attrValues);
                     		clientWidgets.put(uiid, attr);
                     }
+                	}
+                catch(JSONException ex) {
+                    try {
+						logger.warn("Synchronizing attributes are not working correctly. Error thrown: " 
+								+ ex.getMessage() + ", JSON: " + syncSets.getJSONObject(i));
+					} catch (JSONException e) {
+					}
                 }
-                AjaxContextHelper.setClientUIWidget(clientWidgets);
-//                if (logger.isDebugEnabled()) {
-//	        			String framePrefix = attr.getString("_framePrefix");
-//	                    framePrefix = (framePrefix == null || framePrefix.equals("null")) ? "" : framePrefix;
-//	        			logger.debug("Component not found while synchronizing values: uiid=" + uiid +
-//	        				", framePrefix=" + framePrefix + ", ignored the value!");
-//	        		}
             }
-            catch(JSONException ex)
-            {
-                throw new AjaxException("Synchronizing attributes are not working correctly. Error thrown: " + ex.getMessage(), ex);
-            }
+            AjaxContextHelper.setClientUIWidget(clientWidgets);
         }
     }
 

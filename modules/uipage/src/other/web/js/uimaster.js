@@ -643,6 +643,13 @@ UIMaster.closeHints = function(e){
 UIMaster.clearErrMsg = function() {
     $(".err-page-warn").remove();
 };
+UIMaster.findEntityName = function(elm){
+    if(elm && elm.getAttribute("entity") != null)
+        return elm.getAttribute("entity");
+    while (elm && elm.getAttribute("entity")==null)
+        elm = elm.parentNode;
+    return elm.getAttribute("entity");
+};
 UIMaster.syncAll = function(subref) {
     if (subref && subref.indexOf('.') > -1) {
         var root = eval("defaultname."+subref.substring(0, subref.indexOf('.')));
