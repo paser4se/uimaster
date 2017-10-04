@@ -39,7 +39,7 @@ public class TreeCallBack implements CallBack {
 	}
 	
 	public void execute(Object... objects) {
-		Tree tree = (Tree)AjaxContextHelper.getAjaxContext().getElementByAbsoluteId(entityPrefix + uiid);
+		Tree tree = (Tree)AjaxContextHelper.getAjaxContext().getElementByAbsoluteId(entityPrefix + uiid, Tree.class);
 		tree.refresh();
 	}
 	

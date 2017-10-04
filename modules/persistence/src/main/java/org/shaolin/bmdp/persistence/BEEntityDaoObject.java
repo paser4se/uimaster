@@ -548,11 +548,14 @@ public class BEEntityDaoObject {
 		long start = System.currentTimeMillis();
 		try {
 			// mobile pulling data supported.
-			if (UserContext.isMobileRequest() && UserContext.getUserContext() != null 
-					&& UserContext.getUserContext().getPullId() > 0) {
+			if (UserContext.isMobileRequest() && UserContext.getUserContext() != null) {
 				if (UserContext.getUserContext().isPullNew()) {
 					criteria.add(createCriterion(Operator.GREATER_THAN, criteria.getAlias() + ".id", UserContext.getUserContext().getPullId()));
 				} else if (UserContext.getUserContext().isPullHistory()) {
+					if (UserContext.getUserContext().getPullId() <= 0) {
+						// reached the beginning.
+						return Collections.emptyList();
+					}
 					criteria.add(createCriterion(Operator.LESS_THAN, criteria.getAlias() + ".id", UserContext.getUserContext().getPullId()));
 				}
 				if (count > 0) {

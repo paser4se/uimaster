@@ -40,9 +40,9 @@ public class TableCallBack implements CallBack {
 	}
 	
 	public void execute(Object... objects) {
-        Table table = (Table)AjaxContextHelper.getAjaxContext().getElementByAbsoluteId(entityPrefix + uiid);
+        Table table = (Table)AjaxContextHelper.getAjaxContext().getElementByAbsoluteId(entityPrefix + uiid, Table.class);
         if (table == null) {
-        	table = (Table)AjaxContextHelper.getAjaxContext().getElementByAbsoluteId(uiid);
+        	table = (Table)AjaxContextHelper.getAjaxContext().getElementByAbsoluteId(uiid, Table.class);
         }
         if (table != null) {
 	        if (table.isSliderMode()) {

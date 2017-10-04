@@ -1795,7 +1795,9 @@ abstract public class Widget<T> implements Serializable
     
     public void fromJSON(JSONObject json) throws Exception {
     	this.id = json.getString("uiid");
-    	this.setUIEntityName(json.getString("entity"));
+    	if (json.has("entity")) {
+    		this.setUIEntityName(json.getString("entity"));
+    	}
     	this.frameInfo = json.getString("_framePrefix");
     	if (json.has("readOnly")) {
     		this.readOnly = true;

@@ -367,7 +367,6 @@ public class PreNextPanel extends Container implements Serializable
 	
 	@SuppressWarnings("unchecked")
 	public void fromJSON(JSONObject json) throws Exception {
-		super.fromJSON(json);
 		String entityName = json.getString("entity");
 		UIFormObject formObject = PageCacheManager.getUIForm(entityName);
 		Map<String, Object> attributes = formObject.getComponentProperty(this.getId(), true);
@@ -376,5 +375,6 @@ public class PreNextPanel extends Container implements Serializable
 		this.uiid = this.getId();
 		this.selectedIndex = json.getInt("selectedIndex");
 		//createdRefEntities
+		super.fromJSON(json);
 	}
 }

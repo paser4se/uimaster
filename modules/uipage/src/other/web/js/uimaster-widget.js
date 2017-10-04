@@ -461,15 +461,18 @@ UIMaster.ui.sync = function(){
             a.push(quote(k)+':'+quote(typeof v[k] == "string" ? v[k] :String(v[k])));
         return '{'+a.join(',')+'}';
     }
+    /**
     try{
         r = window.top.UIMaster ? window.top.UIMaster.syncList : [];
         window.top.UIMaster && (window.top.UIMaster.syncList = []);
     }catch(e){r = [];};
-    var set = getR(window.top);
+    var set = getR(window.top);*/
+    var r = [], set = UIMaster.syncList;
     r = r.length ? r.concat(set) : (set.length ? set.concat(r) : []);
     for (i = 0; i < r.length; i++)
         p[i] = str(r[i]) || 'null';
     v = p.length === 0 ? '[]' : '[' + p.join(',') + ']';
+    UIMaster.syncList = [];
     return v;
 };
 /**
@@ -479,7 +482,7 @@ UIMaster.ui.sync = function(){
 UIMaster.ui.sync.set = function(data){
     if (data.uiid) {
         for (var i=0; i<UIMaster.syncList.length; i++) {
-            if (UIMaster.syncList[i].uiid == data.uiid) {
+            if (UIMaster.syncList[i].uiid == data.uiid && UIMaster.syncList[i].type != "Table") {
                 UIMaster.syncList.splice(i,1);
                 break;
             }
@@ -1296,7 +1299,7 @@ UIMaster.ui.checkboxgroup = UIMaster.extend(UIMaster.ui.field, /** @lends UIMast
             if (this.ce && this.ce != null && this.ce.length > 0) {
             UIMaster.ui.sync.set({uiid:UIMaster.getObject(e).name,"type":"CheckBoxGroup","attrMap":JSON.stringify({"values":obj.getValue().join(","), "ce": this.ce, "expLevel": this.expLevel}),_framePrefix:UIMaster.getFramePrefix(UIMaster.getObject(e))});
             } else {
-            UIMaster.ui.sync.set({uiid:UIMaster.getObject(e).name,"type":"CheckBoxGroup","attrMap":JSON.stringify({"values":obj.getValue().join(","), "optValues": this.optValues}),_framePrefix:UIMaster.getFramePrefix(UIMaster.getObject(e))});    
+            UIMaster.ui.sync.set({uiid:UIMaster.getObject(e).name,"type":"CheckBoxGroup","attrMap":JSON.stringify({"values":obj.getValue().join(",")}),_framePrefix:UIMaster.getFramePrefix(UIMaster.getObject(e))});    
             }
             obj._v = v;
         }
@@ -1387,8 +1390,9 @@ UIMaster.ui.checkboxgroup = UIMaster.extend(UIMaster.ui.field, /** @lends UIMast
             }
         }
 
-        this.ce=eval(g(this,"ce"));
+        this.ce=g(this,"ce");
         this.expLevel=g(this,"expLevel");
+        if(!this.expLevel || this.expLevel==null) {this.expLevel =1;}
         this.optValues=g(this,"optValues");
         //if(v1)this.mustCheck=(v1=="true");
         //if(v2)this.mustCheckText=v2;
@@ -1455,7 +1459,7 @@ UIMaster.ui.radiobuttongroup = UIMaster.extend(UIMaster.ui.checkboxgroup, /** @l
             if (this.ce && this.ce != null && this.ce.length > 0) {
                 UIMaster.ui.sync.set({uiid:uiid,"type":"RadioButtonGroup","attrMap":JSON.stringify({"value":obj.getValue(),"realVType":this.realVType, "ce": this.ce, "expLevel": this.expLevel}),_framePrefix:UIMaster.getFramePrefix(rBtn)});
             } else {
-                UIMaster.ui.sync.set({uiid:uiid,"type":"RadioButtonGroup","attrMap":JSON.stringify({"value":obj.getValue(),"realVType":this.realVType, "optValues": this.optValues}),_framePrefix:UIMaster.getFramePrefix(rBtn)});
+                UIMaster.ui.sync.set({uiid:uiid,"type":"RadioButtonGroup","attrMap":JSON.stringify({"value":obj.getValue(),"realVType":this.realVType}),_framePrefix:UIMaster.getFramePrefix(rBtn)});
             }
             obj._v = obj.getValue();
         }
@@ -1574,7 +1578,7 @@ UIMaster.ui.combobox = UIMaster.extend(UIMaster.ui.field, /** @lends UIMaster.ui
             if (this.ce && this.ce != null && this.ce.length > 0) {
             UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"ComboBox","attrMap":JSON.stringify({"value":obj.getValue(),"realVType":this.realVType, "ce": this.ce, "expLevel": this.expLevel}),_framePrefix:UIMaster.getFramePrefix(obj)});
             } else {
-            UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"ComboBox","attrMap":JSON.stringify({"value":obj.getValue(),"realVType":this.realVType, "optValues": this.optValues}),_framePrefix:UIMaster.getFramePrefix(obj)});    
+            UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"ComboBox","attrMap":JSON.stringify({"value":obj.getValue(),"realVType":this.realVType}),_framePrefix:UIMaster.getFramePrefix(obj)});    
             }
         }
     },
@@ -1587,8 +1591,9 @@ UIMaster.ui.combobox = UIMaster.extend(UIMaster.ui.field, /** @lends UIMaster.ui
 
         var v1=eval(g(this,"allowBlank"));
         var v2=g(this,"allowBlankText");
-        this.ce=eval(g(this,"ce"));
+        this.ce=g(this,"ce");
         this.expLevel=g(this,"expLevel");
+        if(!this.expLevel || this.expLevel==null) {this.expLevel =1;}
         this.optValues=g(this,"optValues");
         //var v3=g(this,"selectValue");
         //var v4=g(this,"selectValueText");
@@ -1664,7 +1669,7 @@ UIMaster.ui.list = UIMaster.extend(UIMaster.ui.combobox, {
 		    if (this.ce && this.ce != null && this.ce.length > 0) {
             this.syncedValue = {uiid:UIMaster.getUIID(obj),"type":"AList","attrMap":JSON.stringify({"values":obj.getValue().join(";"), "ce": this.ce, "expLevel": this.expLevel}),_framePrefix:UIMaster.getFramePrefix(obj)};    
             } else {
-            this.syncedValue = {uiid:UIMaster.getUIID(obj),"type":"AList","attrMap":JSON.stringify({"values":obj.getValue().join(";"), "optValues": this.optValues}),_framePrefix:UIMaster.getFramePrefix(obj)};    
+            this.syncedValue = {uiid:UIMaster.getUIID(obj),"type":"AList","attrMap":JSON.stringify({"values":obj.getValue().join(";")}),_framePrefix:UIMaster.getFramePrefix(obj)};    
             }
             UIMaster.ui.sync.set(this.syncedValue);
 	    }
@@ -2124,6 +2129,7 @@ UIMaster.ui.hidden = UIMaster.extend(UIMaster.ui, /** @lends UIMaster.`*/{
         $(this).bind('propertychange', this.n).bind('DOMAttrModified',this.n);
         this.parentDiv = this;
         this._v = this.value;
+        this.uiType = "Hidden";
     }
 });
 /**
@@ -2571,7 +2577,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	hideLoader:function(){},
 	loadNewSlides: function(pullaction){
 	    var othis = this;
-	    var opts = {url:AJAX_SERVICE_URL,async:false,
+        UIMaster.syncAll(othis.id);
+	    var opts = {url:AJAX_SERVICE_URL,async:false, method:'POST',
 			data:{_ajaxUserEvent:"table",_uiid:othis.id,_actionName:"pull",_value:pullaction,_framePrefix:UIMaster.getFramePrefix(),_sync: UIMaster.ui.sync()},
 			success: function(data){
 		     //$($(othis.pageInfoPanel).children()[0]).text("1/"+data.totalCount);
@@ -3149,8 +3156,9 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	    pageNumber = parseInt(pageNumber);
 		if (isNaN(pageNumber))
 			pageNumber = 1;
+        UIMaster.syncAll(this.id);
 		var s = this.dtable.api().settings()[0];
-		s.ajax.data={_ajaxUserEvent: "table", uiid: this.id, _actionName: "pull", _framePrefix: UIMaster.getFramePrefix(UIMaster.El(this.id).get(0)),
+		s.ajax.data={_ajaxUserEvent: "table", method:'POST', uiid: this.id, _actionName: "pull", _framePrefix: UIMaster.getFramePrefix(UIMaster.El(this.id).get(0)),
             _actionPage: this.parentEntity.__entityName, _selectedIndex: this.selectedIndex, _sync: UIMaster.ui.sync()};
 		if (pageNumber != undefined) {
 			this.dtable.fnPageChange(pageNumber, true);
@@ -3320,9 +3328,8 @@ UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
 	sync:function(){
 		var obj = UIMaster.getObject(this);
 		if (this._selectedNodeId && this._selectedNodeId != "") {
-			UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"Tree","attrMap":JSON.stringify({"selectedNode":this._selectedNodeId}),_framePrefix:UIMaster.getFramePrefix(obj)});
-			UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"Tree","attrMap":JSON.stringify({"selectedParentNode":this._selectedParentNodeId}),_framePrefix:UIMaster.getFramePrefix(obj)});
-			UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"Tree","attrMap":JSON.stringify({"selectedNodeName":this._selectedNodeName}),_framePrefix:UIMaster.getFramePrefix(obj)});
+			UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"Tree","attrMap":JSON.stringify({"selectedNode":this._selectedNodeId, 
+                "selectedParentNode":this._selectedParentNodeId, "selectedNodeName":this._selectedNodeName}),_framePrefix:UIMaster.getFramePrefix(obj)});
 		}
 	},
 	refresh:function(children){
@@ -3929,7 +3936,8 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
 		if (currTitle.attr("ajaxload") != null && currTitle.attr("ajaxload") == "true") {
         	currTitle.attr("ajaxload", null);
         }
-        var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"tabpane",_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix()}};
+        UIMaster.syncAll(this.id);
+        var opts = {url:AJAX_SERVICE_URL, method:'POST', async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"tabpane",_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix(), _sync: UIMaster.ui.sync()}};
         if (MobileAppMode) {
             _mobContext.ajax(JSON.stringify(opts));
         } else {
@@ -4260,10 +4268,9 @@ UIMaster.ui.matrix=UIMaster.extend(UIMaster.ui,{
 				 $(this).removeClass("ui-state-hover");
 			  });
 			  $(this).addClass("ui-state-hover");
-			  UIMaster.ui.sync.set({uiid:othis.id,"type":"Matrix","attrMap":JSON.stringify({"selectedNodeId":$(this).children().attr("nodeid")}),_framePrefix:UIMaster.getFramePrefix(othis)});
-			  UIMaster.ui.sync.set({uiid:othis.id,"type":"Matrix","attrMap":JSON.stringify({"selectedNode":$(this).children().attr("alt")}),_framePrefix:UIMaster.getFramePrefix(othis)});
-			  UIMaster.ui.sync.set({uiid:othis.id,"type":"Matrix","attrMap":JSON.stringify({"selectedX":$(this).attr("j")}),_framePrefix:UIMaster.getFramePrefix(othis)});
-			  UIMaster.ui.sync.set({uiid:othis.id,"type":"Matrix","attrMap":JSON.stringify({"selectedY":$($(this).parent()).attr("i")}),_framePrefix:UIMaster.getFramePrefix(othis)});
+			  UIMaster.ui.sync.set({uiid:othis.id,"type":"Matrix","attrMap":JSON.stringify( {"selectedNodeId":$(this).children().attr("nodeid"),
+                "selectedNode":$(this).children().attr("alt"),"selectedX":$(this).attr("j"),"selectedY":$($(this).parent()).attr("i")} ),
+                 _framePrefix:UIMaster.getFramePrefix(othis)});
 		   });
 		});
     }

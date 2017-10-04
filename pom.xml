@@ -9,10 +9,10 @@
 
     <properties>
         <uimaster.version>1.0.0-SNAPSHOT</uimaster.version>
-		<uimaster.package>../deploy</uimaster.package>
-		<uimaster.commonjar>../deploy/apache-tomcat-8.0.9/webapps/uimaster/WEB-INF/lib</uimaster.commonjar>
-		<uimaster.entitydir>../deploy/apache-tomcat-8.0.9/webapps/uimaster/WEB-INF/classes</uimaster.entitydir>
-		<uimaster.webapp>../deploy/apache-tomcat-8.0.9/webapps/uimaster</uimaster.webapp>
+		<uimaster.package>/Users/shaolinwu/Documents/workspace/deploy</uimaster.package>
+		<uimaster.commonjar>/Users/shaolinwu/Documents/workspace/deploy/apache-tomcat-8.0.9/webapps/uimaster/WEB-INF/lib</uimaster.commonjar>
+		<uimaster.entitydir>/Users/shaolinwu/Documents/workspace/deploy/apache-tomcat-8.0.9/webapps/uimaster/WEB-INF/classes</uimaster.entitydir>
+		<uimaster.webapp>/Users/shaolinwu/Documents/workspace/deploy/apache-tomcat-8.0.9/webapps/uimaster</uimaster.webapp>
 		<java.version>1.8</java.version>
     </properties>
 

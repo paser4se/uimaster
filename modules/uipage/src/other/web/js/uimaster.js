@@ -643,7 +643,7 @@ UIMaster.closeHints = function(e){
 UIMaster.clearErrMsg = function() {
     $(".err-page-warn").remove();
 };
-function syncAll(subref) {
+UIMaster.syncAll = function(subref) {
     if (subref && subref.indexOf('.') > -1) {
         var root = eval("defaultname."+subref.substring(0, subref.indexOf('.')));
         if (root && root.sync)
@@ -670,7 +670,7 @@ UIMaster.triggerServerEvent = function(uiid,actionName,data,entityName,action,as
 		elementList[uiid].disable();
 	}
     UIMaster.ui.mask.open();
-    syncAll(uiid);
+    UIMaster.syncAll(uiid);
     //(typeof(async) != "undefined")?async:false,
     var opt = {
             async: true,

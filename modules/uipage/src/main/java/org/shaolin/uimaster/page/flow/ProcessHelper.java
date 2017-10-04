@@ -701,6 +701,7 @@ public class ProcessHelper
 	                    	}
                     } else {
                     		attrValues.put("fromClient", true);
+                    		//FIXME: all sub ref-entities have different names!
                     		attr.put("entity", request.getParameter("_actionPage"));
                     		attr.put(ATTR_MAP, attrValues);
                     		clientWidgets.put(uiid, attr);

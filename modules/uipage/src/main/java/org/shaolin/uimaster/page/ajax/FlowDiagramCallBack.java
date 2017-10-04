@@ -39,7 +39,7 @@ public class FlowDiagramCallBack implements CallBack {
 	}
 	
 	public void execute(Object... objects) {
-		WorkFlowDiagram table = (WorkFlowDiagram)AjaxContextHelper.getAjaxContext().getElementByAbsoluteId(entityPrefix + uiid);
+		WorkFlowDiagram table = (WorkFlowDiagram)AjaxContextHelper.getAjaxContext().getElementByAbsoluteId(entityPrefix + uiid, WorkFlowDiagram.class);
 		table.refreshModel();
 	}
 	

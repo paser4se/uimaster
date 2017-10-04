@@ -350,6 +350,9 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
 	    	for (Map.Entry<String, Widget> entries: ajaxWidgetMap.entrySet()) {
 	    		if (!entries.getValue().hasAttribute("fromClient")) {
 	    			ajaxMap.put(entries.getKey(), entries.getValue().toJSON());
+	    		} else {
+	    			// remove it from server side if marked as from client.
+	    			ajaxMap.remove(entries.getKey());
 	    		}
 	    	}
 	    	ajaxWidgetMap.clear();
@@ -567,7 +570,7 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
         throw new IllegalArgumentException("The ui widget can not be created by " + realUiid);
     }
 
-    public Widget getElementByAbsoluteId(String absoluteUiid)
+    public Widget getElementByAbsoluteId(String absoluteUiid, Class uiwidgetType)
     {
 		if (!ajaxWidgetMap.containsKey(absoluteUiid)) {
     			try {
@@ -576,11 +579,22 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
 		    	    	} else if (ajaxJsonMap.containsKey(absoluteUiid)) {
 		    	    		ajaxWidgetMap.put(absoluteUiid, Widget.covertFromJSON(ajaxJsonMap.get(absoluteUiid)));
 		    	    	} else {
-		    	    		logger.warn("The ui widget can not be found by absolute id: " + absoluteUiid);
-		    	    		return null;
+		    	    		logger.warn("The ui widget can not be found by absolute id: " + absoluteUiid + "! created an temporary object instead.");
+		    	    		JSONObject tempJson = new JSONObject();
+		    	    		//{"uiid":"cityListForm.parentUI","type":"Hidden","attrMap":"{\"value\":\"searchBar.citiesCbxUI\"}","_framePrefix":"onlineOrderList"}
+		    	    		tempJson.put("uiid", absoluteUiid);
+		    	    		tempJson.put("type", uiwidgetType.getSimpleName());
+		    	    		tempJson.put("entity", this.getEntityName());
+		    	    		tempJson.put("attrMap", new JSONObject());
+		    	    		((JSONObject)tempJson.get("attrMap")).put("fromClient", true);
+		    	    		tempJson.put("_framePrefix", this.entityPrefix);
+		    	    		
+		    	    		ajaxJsonMap.put(absoluteUiid, tempJson);
+		    	    		ajaxWidgetMap.put(absoluteUiid, Widget.covertFromJSON(ajaxJsonMap.get(absoluteUiid)));
 		    	    	}
 			} catch (Exception e) {
-				logger.warn("The ui widget can not be created by " + ajaxJsonMap.get(absoluteUiid));
+				logger.warn("The ui widget can not be created by " + ajaxJsonMap.get(absoluteUiid), e);
+				return null;
 			}
 	    	}
 	    	return ajaxWidgetMap.get(absoluteUiid);

@@ -187,7 +187,6 @@ public class Tree extends Widget<Tree> implements Serializable {
 	
 	@SuppressWarnings("unchecked")
 	public void fromJSON(JSONObject json) throws Exception {
-		super.fromJSON(json);
 		String entityName = json.getString("entity");
 		UIFormObject formObject = PageCacheManager.getUIForm(entityName);
 		Map<String, Object> attributes = formObject.getComponentProperty(this.getId(), true);
@@ -195,5 +194,6 @@ public class Tree extends Widget<Tree> implements Serializable {
 		this.dataModel = json.getJSONArray("dataModel").toList();
 		this.selectedNodeName = json.has("selectedNode") ? json.getString("selectedNode") : null;
 		this.selectedParentNode = json.has("selectedPNode") ? json.getString("selectedPNode") : null;
+		super.fromJSON(json);
 	}
 }

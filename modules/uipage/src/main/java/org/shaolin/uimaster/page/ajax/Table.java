@@ -518,6 +518,12 @@ public class Table extends Widget<Table> implements Serializable {
 					} else if (conditions.getPullAction().equals("history") && (value > id)) {
 						value = id; //get the smallest id
 					}
+				} else if (be instanceof Long) {
+					if (conditions.getPullAction().equals("new") && (value < (Long)be)) {
+						value = (Long)be; //get the biggest id
+					} else if (conditions.getPullAction().equals("history") && (value > (Long)be)) {
+						value = (Long)be; //get the smallest id
+					}
 				}
 			}
 			isMobPulling = true;
@@ -939,7 +945,6 @@ public class Table extends Widget<Table> implements Serializable {
 	
 	@SuppressWarnings("unchecked")
 	public void fromJSON(JSONObject json) throws Exception {
-		super.fromJSON(json);
 		String entityName = json.getString("entity");
 		UIFormObject formObject = PageCacheManager.getUIForm(entityName);
 		Map<String, Object> attributes = formObject.getComponentProperty(this.getId(), true);
@@ -952,19 +957,20 @@ public class Table extends Widget<Table> implements Serializable {
 		this.listData = json.getJSONArray("allRows").toList();
 		if (json.has("persistType")) {
 			persistObjectClass = Class.forName(json.getString("persistType"));
-    	}
+	    	}
 		if (json.has("json")) {
-    		this.isAppendRowMode = true;
-    	}
+	    		this.isAppendRowMode = true;
+	    	}
 		if (json.has("isEditableCell")) {
-    		this.isEditableCell = true;
-    	}
+	    		this.isEditableCell = true;
+	    	}
 		if (json.has("isSliderMode")) {
-    		this.isSliderMode = true;
-    	}
+	    		this.isSliderMode = true;
+	    	}
 		if (json.has("disableRefreshClear")) {
-    		this.disableRefreshClear = true;
-    	}
+	    		this.disableRefreshClear = true;
+	    	}
+		super.fromJSON(json);
 	}
 
 }
