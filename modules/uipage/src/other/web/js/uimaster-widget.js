@@ -2758,7 +2758,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			url: AJAX_SERVICE_URL+"?r="+Math.random(),
 			type: 'POST',
 			data:{_ajaxUserEvent: "table",
-				uiid: this.id,
+				_uiid: this.id,
 				_actionName: "pull",
 				_framePrefix: UIMaster.getFramePrefix(UIMaster.El(this.id).get(0)),
 				_actionPage: this.parentEntity.__entityName
@@ -3158,7 +3158,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			pageNumber = 1;
         UIMaster.syncAll(this.id);
 		var s = this.dtable.api().settings()[0];
-		s.ajax.data={_ajaxUserEvent: "table", method:'POST', uiid: this.id, _actionName: "pull", _framePrefix: UIMaster.getFramePrefix(UIMaster.El(this.id).get(0)),
+		s.ajax.data={_ajaxUserEvent: "table", method:'POST', _uiid: this.id, _actionName: "pull", _framePrefix: UIMaster.getFramePrefix(UIMaster.El(this.id).get(0)),
             _actionPage: this.parentEntity.__entityName, _selectedIndex: this.selectedIndex, _sync: UIMaster.ui.sync()};
 		if (pageNumber != undefined) {
 			this.dtable.fnPageChange(pageNumber, true);
