@@ -1,14 +1,28 @@
-spring.jta.enabled: true
-spring.jta.log-dir: C/Users/shaolinwu/Documents/workspace/logs
-spring.jta.transaction-manager-id: uimaster0
+spring:
+   jta:
+     enabled: true
+     log-dir: C/Users/shaolinwu/Documents/workspace/logs
+     transaction-manager-id: uimaster0
 
 persistentConstant:
-  hbmRoot: /Users/shaolinwu/Documents/workspace/uimaster/modules/persistence/src/test/resources/hbm
-  datasource:
-   url: jdbc:mysql://localhost:3306/uimaster
-   username: uimaster
-   password: uimaster
-   driver: com.mysql.jdbc.Driver
-   className: com.mysql.jdbc.jdbc2.optional.MysqlXADataSource
-  hibernate:
-   dialect: org.hibernate.dialect.MySQLInnoDBDialect
+   dataSources:
+    - name: dataSource
+      hbmRoot: /Users/shaolinwu/Documents/workspace/uimaster/modules/persistence/src/test/resources/hbm
+      url: jdbc:mysql://localhost:3306/uimaster
+      username: uimaster
+      password: uimaster
+      driver: com.mysql.jdbc.Driver
+      className: com.mysql.jdbc.jdbc2.optional.MysqlXADataSource
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLInnoDBDialect
+        packagesToScan: org.shaolin.bmdp.persistence.be
+    - name: dataSource1
+      hbmRoot: /Users/shaolinwu/Documents/workspace/uimaster/modules/persistence/src/test/resources/hbm2
+      url: jdbc:mysql://localhost:3306/uimaster_order
+      username: uimaster
+      password: uimaster
+      driver: com.mysql.jdbc.Driver
+      className: com.mysql.jdbc.jdbc2.optional.MysqlXADataSource
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLInnoDBDialect
+        packagesToScan: org.shaolin.bmdp.persistence.be2
