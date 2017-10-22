@@ -376,7 +376,13 @@ public final class EntityManager implements IEntityManager {
 						}
 						if (!letgo) {
 							String entityName = f.getAbsolutePath().substring(0, f.getAbsolutePath().lastIndexOf('.'));
-							entityName = entityName.substring(entityName.indexOf("org"));
+							if (entityName.indexOf("org") != -1) {
+								entityName = entityName.substring(entityName.indexOf("org"));
+							} else if (entityName.indexOf("com") != -1) {
+								entityName = entityName.substring(entityName.indexOf("com"));
+							} else {
+								logger.error("Unsupported package rule of " + entityName);
+							}
 							entityName = entityName.replace(File.separatorChar, '.');
 							lazyLoadingScanFiles.put(entityName, f);
 							//TODO: support more type.

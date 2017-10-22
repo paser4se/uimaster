@@ -6,15 +6,17 @@ spring:
     transaction-manager-id: uimaster0
 
 persistentConstant:
-  hbmRoot: 
-  datasource:
-   url: jdbc:h2:~/test
-   username: sa
-   password: 
-   driver: org.h2.Driver
-   className: org.h2.jdbcx.JdbcDataSource
-  hibernate:
-   dialect: org.hibernate.dialect.H2Dialect
+  dataSources:
+    - name: dataSource
+      hbmRoot: 
+      url: jdbc:h2:~/test
+      username: sa
+      password: 
+      driver: org.h2.Driver
+      className: org.h2.jdbcx.JdbcDataSource
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        packagesToScan: org.shaolin
 
 webConstant:
   runningMode: Dev

@@ -154,7 +154,7 @@ public class DaoGenerator implements IEntityEventListener<TableType, RDBDiagram>
 		out.write(" INSTANCE = new ");
 		out.print(javaName);
 		out.write("();\n\n");
-		out.write("    private ");
+		out.write("    public ");
 		out.write(javaName);
 		out.write("() {\n");
 		/**
