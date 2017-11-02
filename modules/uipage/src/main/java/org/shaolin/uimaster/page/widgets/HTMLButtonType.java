@@ -100,10 +100,9 @@ public class HTMLButtonType extends HTMLTextWidgetType
     
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException
     {
-	    	if (!needAjaxSupport()) {
-	        	return null;
+	    	if (needAjaxSupport()) {
+	        	return super.createJsonModel(ee);
 	    	}
-//	    	return super.createJsonModel(ee);
 	    return null;
     }
 

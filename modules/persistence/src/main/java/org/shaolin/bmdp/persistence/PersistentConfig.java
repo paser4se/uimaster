@@ -66,38 +66,47 @@ public class PersistentConfig {
 			if (ds.getName().equals(DEFAULT_DATASOURCE)) {
 				continue;
 			}
-			// register all data sources except the default.
-			PoolingDataSource dataSource0 = new PoolingDataSource();
-			dataSource0.setClassName(ds.getClassName());
-			dataSource0.setAutomaticEnlistingEnabled(true);
-			dataSource0.setAllowLocalTransactions(true);
-			dataSource0.setShareTransactionConnections(true);
-			dataSource0.setUseTmJoin(true);
-			dataSource0.setMinPoolSize(1);
-			dataSource0.setMaxPoolSize(100);
-			dataSource0.setUniqueName("jdbc/"+ ds.getName());
-			
-			Properties driverProperties = new Properties();
-			driverProperties.put("url", ds.getUrl());
-			driverProperties.put("user", ds.getUsername());
-			driverProperties.put("password", ds.getPassword());
-			driverProperties.put("password", ds.getPassword());
-//			driverProperties.put("journal", this.getDataSource().getPassword());
-//			driverProperties.put("log-part1-filename", "btm1.tlog");
-//			driverProperties.put("log-part2-filename", "btm2.tlog");
-			
-			dataSource0.setDriverProperties(driverProperties);
-			dataSource0.init();
 			ConfigurableApplicationContext configurableApplicationContext = (ConfigurableApplicationContext) springContext;  
 			DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory) configurableApplicationContext  
 			        .getBeanFactory();  
-			defaultListableBeanFactory.registerSingleton(ds.getName(), dataSource0);
-			
+			// register all data sources except the default.
+			DataSource dataSource = null;
+			if (ds.getClassName().equals("org.apache.commons.dbcp.BasicDataSource")) {
+				//design-time case supported!
+				org.apache.commons.dbcp.BasicDataSource derbyDataSource = new org.apache.commons.dbcp.BasicDataSource(); 
+				derbyDataSource.setDriverClassName(ds.getDriver());
+				derbyDataSource.setUrl(ds.getUrl());
+				derbyDataSource.setUsername(ds.getUsername());
+				derbyDataSource.setPassword(ds.getPassword());
+				dataSource = derbyDataSource;
+			} else {
+				PoolingDataSource dataSource0 = new PoolingDataSource();
+				dataSource0.setClassName(ds.getClassName());
+				dataSource0.setAutomaticEnlistingEnabled(true);
+				dataSource0.setAllowLocalTransactions(true);
+				dataSource0.setShareTransactionConnections(true);
+				dataSource0.setUseTmJoin(true);
+				dataSource0.setMinPoolSize(1);
+				dataSource0.setMaxPoolSize(100);
+				dataSource0.setUniqueName("jdbc/"+ ds.getName());
+				Properties driverProperties = new Properties();
+				driverProperties.put("url", ds.getUrl());
+				driverProperties.put("user", ds.getUsername());
+				driverProperties.put("password", ds.getPassword());
+	//			driverProperties.put("journal", this.getDataSource().getPassword());
+	//			driverProperties.put("log-part1-filename", "btm1.tlog");
+	//			driverProperties.put("log-part2-filename", "btm2.tlog");
+				
+				dataSource0.setDriverProperties(driverProperties);
+				dataSource0.init();
+				defaultListableBeanFactory.registerSingleton(ds.getName(), dataSource0);
+				dataSource = dataSource0;
+			}
 			HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
 			vendorAdapter.setGenerateDdl(true);
 			LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
 			factory.setJpaVendorAdapter(vendorAdapter);
-			factory.setDataSource(dataSource0);
+			factory.setDataSource(dataSource);
 			factory.setPackagesToScan(ds.getHibernate().getPackagesToScan());
 //				factory.setPersistenceUnitManager(persistenceUnitManager);
 //				factory.setMappingResources(mappingResources);
@@ -105,7 +114,7 @@ public class PersistentConfig {
 			defaultListableBeanFactory.registerSingleton(ds.getName() + "EntityManagerFactory", factory.getObject());
 				
 			LocalSessionFactoryBean sessionFactoryBean = new LocalSessionFactoryBean();
-			sessionFactoryBean.setDataSource(dataSource0);
+			sessionFactoryBean.setDataSource(dataSource);
 			sessionFactoryBean.setJtaTransactionManager(txManager());
 			sessionFactoryBean.setPackagesToScan(ds.getHibernate().getPackagesToScan());
 			Properties hibernateProperties = new Properties();
@@ -155,28 +164,37 @@ public class PersistentConfig {
 		for (DataSourceConfig ds : this.getDataSources()) {
 			if (ds.getName().equals(DEFAULT_DATASOURCE)) {
 				// register the default data source.
-				PoolingDataSource dataSource0 = new PoolingDataSource();
-				dataSource0.setClassName(ds.getClassName());
-				dataSource0.setAutomaticEnlistingEnabled(true);
-				dataSource0.setAllowLocalTransactions(true);
-				dataSource0.setShareTransactionConnections(true);
-				dataSource0.setUseTmJoin(true);
-				dataSource0.setMinPoolSize(1);
-				dataSource0.setMaxPoolSize(100);
-				dataSource0.setUniqueName("jdbc/"+ ds.getName());
-				
-				Properties driverProperties = new Properties();
-				driverProperties.put("url", ds.getUrl());
-				driverProperties.put("user", ds.getUsername());
-				driverProperties.put("password", ds.getPassword());
-				driverProperties.put("password", ds.getPassword());
-//				driverProperties.put("journal", this.getDataSource().getPassword());
-//				driverProperties.put("log-part1-filename", "btm1.tlog");
-//				driverProperties.put("log-part2-filename", "btm2.tlog");
-				
-				dataSource0.setDriverProperties(driverProperties);
-				dataSource0.init();
-				return dataSource0;
+				if (ds.getClassName().equals("org.apache.commons.dbcp.BasicDataSource")) {
+					org.apache.commons.dbcp.BasicDataSource derbyDataSource = new org.apache.commons.dbcp.BasicDataSource(); 
+					derbyDataSource.setDriverClassName(ds.getDriver());
+					derbyDataSource.setUrl(ds.getUrl());
+					derbyDataSource.setUsername(ds.getUsername());
+					derbyDataSource.setPassword(ds.getPassword());
+					return derbyDataSource;
+				} else {
+					PoolingDataSource dataSource0 = new PoolingDataSource();
+					dataSource0.setClassName(ds.getClassName());
+					dataSource0.setAutomaticEnlistingEnabled(true);
+					dataSource0.setAllowLocalTransactions(true);
+					dataSource0.setShareTransactionConnections(true);
+					dataSource0.setUseTmJoin(true);
+					dataSource0.setMinPoolSize(1);
+					dataSource0.setMaxPoolSize(100);
+					dataSource0.setUniqueName("jdbc/"+ ds.getName());
+					
+					Properties driverProperties = new Properties();
+					driverProperties.put("url", ds.getUrl());
+					driverProperties.put("user", ds.getUsername());
+					driverProperties.put("password", ds.getPassword());
+					driverProperties.put("password", ds.getPassword());
+	//				driverProperties.put("journal", this.getDataSource().getPassword());
+	//				driverProperties.put("log-part1-filename", "btm1.tlog");
+	//				driverProperties.put("log-part2-filename", "btm2.tlog");
+					
+					dataSource0.setDriverProperties(driverProperties);
+					dataSource0.init();
+					return dataSource0;
+				}
 			}
 		}
 		throw new IllegalStateException("Default data source does not configure!");
@@ -247,7 +265,7 @@ public class PersistentConfig {
 	
 	@Bean
 	@Primary
-	@ConditionalOnBean(name = "entityManagerFactory")
+	@ConditionalOnBean(name = "dataSource")
 	public EntityManagerFactory entityManagerFactory() {
 		DataSourceConfig ds0 = null;
 		for (DataSourceConfig ds : this.getDataSources()) {
@@ -268,6 +286,11 @@ public class PersistentConfig {
 		factory.setDataSource((DataSource)springContext.getBean(DEFAULT_DATASOURCE));
 //		factory.setPersistenceUnitManager(persistenceUnitManager);
 //		factory.setMappingResources(mappingResources);
+		if (ds0.getClassName().equals("org.apache.commons.dbcp.BasicDataSource")) {
+			Properties hibernateProperties = new Properties();
+			hibernateProperties.put("hibernate.dialect", ds0.getHibernate().getDialect());
+			factory.setJpaProperties(hibernateProperties);
+		}
 		factory.afterPropertiesSet();
 
 		return factory.getObject();

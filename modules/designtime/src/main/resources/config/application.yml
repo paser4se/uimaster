@@ -9,13 +9,13 @@ persistentConstant:
   dataSources:
     - name: dataSource
       hbmRoot: 
-      url: jdbc:h2:~/test
-      username: sa
-      password: 
-      driver: org.h2.Driver
-      className: org.h2.jdbcx.JdbcDataSource
+      url: jdbc:derby:/Users/shaolinwu/TESTDB;create=true
+      username: test
+      password: test
+      driver: org.apache.derby.jdbc.EmbeddedDriver
+      className: org.apache.commons.dbcp.BasicDataSource
       hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
+        dialect: org.hibernate.dialect.DerbyDialect
         packagesToScan: org.shaolin
 
 webConstant:

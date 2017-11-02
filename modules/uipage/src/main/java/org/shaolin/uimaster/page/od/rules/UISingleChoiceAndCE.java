@@ -229,12 +229,15 @@ public class UISingleChoiceAndCE implements IODMappingConverter {
 	public void pushDataToWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
 			this.uisingleChoice.setCeName(this.ceType);
-			if (this.ceValue != null) {
-				this.uisingleChoice.setValue(String.valueOf(this.ceValue.getIntValue()));
-			}
 			if (this.expendlevels < 1) {
+				if (this.ceValue != null) {
+					this.uisingleChoice.setValue(String.valueOf(this.ceValue.getIntValue()));
+				}
 				callChoiceOptionWithCE(true, htmlContext);
 			} else {
+				if (this.ceValue != null) {
+					this.uisingleChoice.setValue(this.ceValue.getEntityName() +","+ this.ceValue.getIntValue());
+				}
 				List<String> optionValues = new ArrayList<String>();
 				List<String> optionDisplayValues = new ArrayList<String>();
 				CEUtil.getCEItems(this.expendlevels, optionValues, optionDisplayValues, 

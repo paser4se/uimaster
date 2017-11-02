@@ -139,6 +139,11 @@ public class EntityValidationMojo extends AbstractMojo {
     	if (!entitiesDirectory.exists()) {
     		return;
     	}
+    	if (true) {
+    		//TODO:
+    		return;
+    	}
+    	
     	
     	this.getLog().info("EntitiesDirectory: " + entitiesDirectory.getAbsolutePath());
     	this.getLog().info("WebDirectory: " + webDirectory.getAbsolutePath());

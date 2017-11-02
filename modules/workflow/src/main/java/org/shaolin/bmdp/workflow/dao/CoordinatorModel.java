@@ -16,15 +16,19 @@ import org.hibernate.criterion.Projections;
 import org.shaolin.bmdp.persistence.BEEntityDaoObject;
 import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.persistence.query.operator.Operator;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * This code is generated automatically, any change will be replaced after rebuild.
  */
+@Repository
+@Transactional
 public class CoordinatorModel extends BEEntityDaoObject {
 
     public static final CoordinatorModel INSTANCE = new CoordinatorModel();
 
-    private CoordinatorModel() {
+    public CoordinatorModel() {
     }
 
     public List<org.shaolin.bmdp.workflow.be.ITask> searchTasks(org.shaolin.bmdp.workflow.be.TaskImpl scFlow,

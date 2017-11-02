@@ -217,16 +217,23 @@ public class UIMultipleChoiceAndCE implements IODMappingConverter {
 	public void pushDataToWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
 			this.uiMultipleChoice.setCeName(this.ceType);
-			if (this.ceValues != null) {
-				List<String> values = new ArrayList<String>();
-				for (IConstantEntity item : this.ceValues) {
-					values.add(item.getValue());
-				}
-				this.uiMultipleChoice.setValues(values);
-			}
 			if (this.expendlevels < 1) {
+				if (this.ceValues != null) {
+					List<String> values = new ArrayList<String>();
+					for (IConstantEntity item : this.ceValues) {
+						values.add(item.getValue());
+					}
+					this.uiMultipleChoice.setValues(values);
+				}
 				callChoiceOptionWithCE(true, htmlContext);
 			} else {
+				if (this.ceValues != null) {
+					List<String> values = new ArrayList<String>();
+					for (IConstantEntity item : this.ceValues) {
+						values.add(item.getEntityName() +","+ item.getValue());
+					}
+					this.uiMultipleChoice.setValues(values);
+				}
 				List<String> optionValues = new ArrayList<String>();
 				List<String> optionDisplayValues = new ArrayList<String>();
 				CEUtil.getCEItems(this.expendlevels, optionValues, optionDisplayValues, 

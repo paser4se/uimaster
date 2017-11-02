@@ -21,9 +21,19 @@
     </developers>
     <dependencies>
         <dependency>
+		    <groupId>commons-dbcp</groupId>
+		    <artifactId>commons-dbcp</artifactId>
+		</dependency>
+        <dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+		</dependency>
+		<!-- 
+        <dependency>
 		    <groupId>com.h2database</groupId>
 		    <artifactId>h2</artifactId>
 		</dependency>
+		 -->
         <dependency>
 			<groupId>org.shaolin.bmdp</groupId>
 			<artifactId>common</artifactId>

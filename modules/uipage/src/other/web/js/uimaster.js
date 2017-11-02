@@ -675,6 +675,7 @@ UIMaster.triggerServerEvent = function(uiid,actionName,data,entityName,action,as
 	if (elementList[uiid] != null && elementList[uiid].type 
 		&& elementList[uiid].type == "button" && elementList[uiid].disable) {
 		elementList[uiid].disable();
+        UIMaster.ui.sync.set({"uiid":uiid,"type":"Button","attrMap":"{}",_framePrefix:""});
 	}
     UIMaster.ui.mask.open();
     UIMaster.syncAll(uiid);
