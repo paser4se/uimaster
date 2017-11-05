@@ -1147,6 +1147,9 @@ public class JSONObject implements Serializable
      */
     public JSONObject put(String key, byte[] values) throws JSONException
     {
+    	    if (values == null) {
+    	    		return this;
+    	    }
         put(key, new String(values, Charset.defaultCharset()));
         return this;
     }
