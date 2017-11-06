@@ -18,10 +18,11 @@ package org.shaolin.bmdp.workflow.internal;
 import java.util.List;
 import java.util.Set;
 
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.workflow.internal.type.NodeInfo;
 import org.shaolin.bmdp.workflow.spi.IWorkflowService;
-import org.shaolin.bmdp.workflow.spi.WorkflowSession;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
 
 /**
@@ -34,33 +35,33 @@ public final class FlowState implements java.io.Serializable {
 
 	private static final long serialVersionUID = -6527068273849323236L;
 
-	private final String appName;
-	private final String flowName;
-	private final String nodeName;
-	transient NodeInfo currentNode;
-	DefaultEvaluationContext globalVariables;
-	DefaultEvaluationContext localVariables;
-	final List<String> globalVarNames;
-	final Set<String> globalVarNamesSet;
+	private String appName;
+	private String flowName;
+	private String nodeName;
+	public transient NodeInfo startNode;
+	public transient NodeInfo currentNode;
+	public transient NodeInfo eventNode;
 
-	long taskId;
-	WorkflowSession session;
-	String sessionId;
-	String engineId;
-	String eventId;
-	String eventConsumer;
-	boolean waitResponse;
-	boolean responseBack;
-	boolean recoverable;
+	public List<String> globalVarNames;
+	public Set<String> globalVarNamesSet;
+
+	public long taskId;
+	public String sessionId;
+	public String engineId;
+	public String eventId;
+	public String eventConsumer;
+	public boolean waitResponse;
+	public boolean responseBack;
+	public boolean recoverable;
 	private String sappName;
 	private String sflowName;
 	private String snodeName;
-	transient NodeInfo startNode;
 	private String eappName;
 	private String eflowName;
 	private String enodeName;
-	transient NodeInfo eventNode;
-
+	
+	public FlowState() {}
+	
 	public FlowState(NodeInfo currnode, List<String> globalVarNames,
 			Set<String> globalVarNamesSet,
 			DefaultEvaluationContext globalVariables) {
@@ -70,7 +71,7 @@ public final class FlowState implements java.io.Serializable {
 		this.flowName = currnode.getFlow().getName();
 		this.globalVarNames = globalVarNames;
 		this.globalVarNamesSet = globalVarNamesSet;
-		this.globalVariables = globalVariables;
+//		this.globalVariables = globalVariables;
 	}
 
 	public void ready() {
@@ -86,7 +87,20 @@ public final class FlowState implements java.io.Serializable {
 		}
 	}
 
-	public void recover() {
+	public void recover(final JSONObject json) throws JSONException {
+		this.nodeName = json.getString("nodeName");
+		this.appName = json.getString("appName");
+		this.flowName = json.getString("flowName");
+		if (json.has("snodeName")) {
+			this.snodeName = json.getString("snodeName");
+			this.sappName = json.getString("sappName");
+			this.sflowName = json.getString("sflowName");
+		}
+		if (json.has("enodeName")) {
+			this.enodeName = json.getString("enodeName");
+			this.eappName = json.getString("eappName");
+			this.eflowName = json.getString("eflowName");
+		}
 		IWorkflowService service = AppContext.get().getService(
 				IWorkflowService.class);
 		try {
@@ -104,4 +118,156 @@ public final class FlowState implements java.io.Serializable {
 			throw new IllegalStateException("a NPE issue found: appName=" + appName + ", flowName=" + flowName + ", nodeName=" + nodeName);
 		}
 	}
+	
+	void recover0() {
+		IWorkflowService service = AppContext.get().getService(
+				IWorkflowService.class);
+		try {
+			this.currentNode = service.getFlowObject(appName).getNode(appName,
+					flowName, nodeName);
+			if (this.snodeName != null) {
+				this.startNode = service.getFlowObject(sappName).getNode(sappName,
+						sflowName, snodeName);
+			}
+			if (this.enodeName != null) {
+				this.eventNode = service.getFlowObject(eappName).getNode(eappName,
+						eflowName, enodeName);
+			}
+		} catch (Exception e) {
+			throw new IllegalStateException("a NPE issue found: appName=" + appName + ", flowName=" + flowName + ", nodeName=" + nodeName);
+		}
+	}
+
+	public long getTaskId() {
+		return taskId;
+	}
+
+	public void setTaskId(long taskId) {
+		this.taskId = taskId;
+	}
+
+	public String getSessionId() {
+		return sessionId;
+	}
+
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
+	}
+
+	public String getEngineId() {
+		return engineId;
+	}
+
+	public void setEngineId(String engineId) {
+		this.engineId = engineId;
+	}
+
+	public String getEventId() {
+		return eventId;
+	}
+
+	public void setEventId(String eventId) {
+		this.eventId = eventId;
+	}
+
+	public String getEventConsumer() {
+		return eventConsumer;
+	}
+
+	public void setEventConsumer(String eventConsumer) {
+		this.eventConsumer = eventConsumer;
+	}
+
+	public boolean isWaitResponse() {
+		return waitResponse;
+	}
+
+	public void setWaitResponse(boolean waitResponse) {
+		this.waitResponse = waitResponse;
+	}
+
+	public boolean isResponseBack() {
+		return responseBack;
+	}
+
+	public void setResponseBack(boolean responseBack) {
+		this.responseBack = responseBack;
+	}
+
+	public boolean isRecoverable() {
+		return recoverable;
+	}
+
+	public void setRecoverable(boolean recoverable) {
+		this.recoverable = recoverable;
+	}
+
+	public String getSappName() {
+		return sappName;
+	}
+
+	public void setSappName(String sappName) {
+		this.sappName = sappName;
+	}
+
+	public String getSflowName() {
+		return sflowName;
+	}
+
+	public void setSflowName(String sflowName) {
+		this.sflowName = sflowName;
+	}
+
+	public String getSnodeName() {
+		return snodeName;
+	}
+
+	public void setSnodeName(String snodeName) {
+		this.snodeName = snodeName;
+	}
+
+	public String getEappName() {
+		return eappName;
+	}
+
+	public void setEappName(String eappName) {
+		this.eappName = eappName;
+	}
+
+	public String getEflowName() {
+		return eflowName;
+	}
+
+	public void setEflowName(String eflowName) {
+		this.eflowName = eflowName;
+	}
+
+	public String getEnodeName() {
+		return enodeName;
+	}
+
+	public void setEnodeName(String enodeName) {
+		this.enodeName = enodeName;
+	}
+
+	public String getAppName() {
+		return appName;
+	}
+
+	public String getFlowName() {
+		return flowName;
+	}
+
+	public String getNodeName() {
+		return nodeName;
+	}
+
+	public List<String> getGlobalVarNames() {
+		return globalVarNames;
+	}
+
+	public Set<String> getGlobalVarNamesSet() {
+		return globalVarNamesSet;
+	}
+	
 }

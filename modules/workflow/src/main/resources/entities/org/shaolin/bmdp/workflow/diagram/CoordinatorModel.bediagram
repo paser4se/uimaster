@@ -49,9 +49,9 @@
 	    <!-- flow instances, the FlowRuntimeContext will be stored in this table. -->
 	    <bediagram:member>
 	        <bediagram:name>flowState</bediagram:name>
-	            <bediagram:type xsi:type="bediagram:BinaryType">
+	            <bediagram:type xsi:type="bediagram:StringType">
 	            <!-- javax.sql.rowset.serial.SerialBlob 
-	            <bediagram:targetJava name="byte[]"></bediagram:targetJava>
+	            <bediagram:type xsi:type="bediagram:BinaryType">
 	            -->
 	        </bediagram:type>
 	    </bediagram:member>

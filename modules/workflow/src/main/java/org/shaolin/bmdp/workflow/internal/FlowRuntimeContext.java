@@ -15,6 +15,7 @@
 */
 package org.shaolin.bmdp.workflow.internal;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Deque;
@@ -26,14 +27,19 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.shaolin.bmdp.datamodel.common.NameExpressionType;
+import org.shaolin.bmdp.json.JSONObject;
+import org.shaolin.bmdp.persistence.HibernateUtil;
 import org.shaolin.bmdp.runtime.AppContext;
 import org.shaolin.bmdp.runtime.be.ITaskEntity;
 import org.shaolin.bmdp.runtime.spi.Event;
 import org.shaolin.bmdp.runtime.spi.FlowEvent;
 import org.shaolin.bmdp.runtime.spi.IServiceProvider;
 import org.shaolin.bmdp.utils.SerializeUtil;
+import org.shaolin.bmdp.workflow.be.ITask;
+import org.shaolin.bmdp.workflow.be.TaskImpl;
 import org.shaolin.bmdp.workflow.dao.CoordinatorModel;
 import org.shaolin.bmdp.workflow.exception.WorkflowVarException;
+import org.shaolin.bmdp.workflow.internal.DefaultFlowSessionService.DefaultWorkflowSession;
 import org.shaolin.bmdp.workflow.internal.type.NodeInfo;
 import org.shaolin.bmdp.workflow.spi.IWorkflowService;
 import org.shaolin.bmdp.workflow.spi.WorkflowSession;
@@ -194,27 +200,42 @@ public final class FlowRuntimeContext extends TransOpsExecuteContext implements 
         flowContextInfo.setWaitingNode(currentNode);
     }
     
-    public static byte[] marshall(FlowRuntimeContext context) throws Exception {
-    	FlowState state = new FlowState(context.currentNode, context.globalVarNames,
-    			 context.globalVarNamesSet, null);
-    	state.session = context.session;
-    	state.sessionId = context.session.getID();
-    	state.eventConsumer = context.event.getEventConsumer();
-    	state.eventId = context.event.getId();
-    	state.engineId = context.engine.getEngineName();
-    	state.startNode = context.startNode;
-    	state.eventNode = context.eventNode;
-    	state.waitResponse = context.waitResponse;
-    	state.responseBack = context.responseBack;
-    	state.recoverable = context.recoverable;
-    	state.taskId = context.taskId;
-    	state.ready();
-    	return SerializeUtil.serializeData(state); 
+    public static String marshall(FlowRuntimeContext context) throws Exception {
+	    	FlowState state = new FlowState(context.currentNode, context.globalVarNames,
+	    			 context.globalVarNamesSet, null);
+	    	state.sessionId = context.sessionId;
+	    	state.eventConsumer = context.event.getEventConsumer();
+	    	state.eventId = context.event.getId();
+	    	state.engineId = context.engine.getEngineName();
+	    	state.startNode = context.startNode;
+	    	state.eventNode = context.eventNode;
+	    	state.waitResponse = context.waitResponse;
+	    	state.responseBack = context.responseBack;
+	    	state.recoverable = context.recoverable;
+	    	state.taskId = context.taskId;
+	    	state.ready();
+	    	return new JSONObject(state).toString(); 
     }
     
-    public static FlowRuntimeContext unmarshall(byte[] bytes) throws Exception {
-		FlowState state = SerializeUtil.readData(bytes, FlowState.class);
-		state.recover();
+//    private static void convert() throws Exception {
+//    		TaskImpl condition = new TaskImpl();
+//    		List<ITask> result = CoordinatorModel.INSTANCE.searchTasks(condition, null, 0, -1);
+//    		for (ITask task : result) {
+//    			try {
+//		    		FlowState state = SerializeUtil.readData(task.getFlowState1(), FlowState.class);
+//		    		state.recover0();
+//		    		task.setFlowState((new JSONObject(state)).toString());
+//		    		CoordinatorModel.INSTANCE.update(task);
+//    			} catch (Exception e) {
+//    				
+//    			}
+//    		}
+//    		HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+//    }
+    
+    public static FlowRuntimeContext unmarshall(String json) throws Exception {
+		FlowState state = new FlowState();
+		state.recover(new JSONObject(json));
 		
 		WorkflowLifecycleServiceImpl wfservice = (WorkflowLifecycleServiceImpl)AppContext.get().getService(IWorkflowService.class);
 		FlowEngine flowEngine = wfservice.getFlowContainer().getFlowEngine(state.engineId);
@@ -229,7 +250,7 @@ public final class FlowRuntimeContext extends TransOpsExecuteContext implements 
 		context.globalVarNames = state.globalVarNames;
 		context.globalVarNamesSet = state.globalVarNamesSet; 
 		
-		context.session = state.session;
+		context.session = new DefaultWorkflowSession(context.sessionId);
 		context.sessionId = state.sessionId;
 		context.startNode = state.startNode;
 		context.eventNode = state.eventNode;
