@@ -21,6 +21,7 @@ import java.util.Set;
 import org.shaolin.bmdp.json.JSONException;
 import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.AppContext;
+import org.shaolin.bmdp.workflow.internal.cache.FlowObject;
 import org.shaolin.bmdp.workflow.internal.type.NodeInfo;
 import org.shaolin.bmdp.workflow.spi.IWorkflowService;
 import org.shaolin.javacc.context.DefaultEvaluationContext;
@@ -88,15 +89,23 @@ public final class FlowState implements java.io.Serializable {
 	}
 
 	public void recover(final JSONObject json) throws JSONException {
+		this.engineId = json.getString("engineId");
+		this.eventConsumer = json.getString("eventConsumer");
+		this.eventId  = json.getString("eventId");
+		this.sessionId = json.getString("sessionId");
+		this.taskId = json.getLong("taskId");
 		this.nodeName = json.getString("nodeName");
 		this.appName = json.getString("appName");
 		this.flowName = json.getString("flowName");
-		if (json.has("snodeName")) {
+		this.responseBack = json.getBoolean("responseBack");
+		this.recoverable = json.getBoolean("recoverable");
+		this.waitResponse = json.getBoolean("waitResponse");
+		if (json.has("snodeName") && json.getString("snodeName") != null && !json.getString("snodeName").equals("null")) {
 			this.snodeName = json.getString("snodeName");
 			this.sappName = json.getString("sappName");
 			this.sflowName = json.getString("sflowName");
 		}
-		if (json.has("enodeName")) {
+		if (json.has("enodeName") && json.getString("enodeName") != null && !json.getString("enodeName").equals("null")) {
 			this.enodeName = json.getString("enodeName");
 			this.eappName = json.getString("eappName");
 			this.eflowName = json.getString("eflowName");
@@ -106,35 +115,19 @@ public final class FlowState implements java.io.Serializable {
 		try {
 			this.currentNode = service.getFlowObject(appName).getNode(appName,
 					flowName, nodeName);
-			if (this.snodeName != null) {
+			if (this.snodeName != null && this.sappName != null) {
 				this.startNode = service.getFlowObject(sappName).getNode(sappName,
 						sflowName, snodeName);
 			}
-			if (this.enodeName != null) {
-				this.eventNode = service.getFlowObject(eappName).getNode(eappName,
-						eflowName, enodeName);
+			if (this.enodeName != null && this.eappName != null) {
+				FlowObject flowObject = service.getFlowObject(eappName);
+				if (flowObject != null) {
+					this.eventNode = flowObject.getNode(eappName,
+							eflowName, enodeName);
+				}
 			}
 		} catch (NullPointerException e) {
-			throw new IllegalStateException("a NPE issue found: appName=" + appName + ", flowName=" + flowName + ", nodeName=" + nodeName);
-		}
-	}
-	
-	void recover0() {
-		IWorkflowService service = AppContext.get().getService(
-				IWorkflowService.class);
-		try {
-			this.currentNode = service.getFlowObject(appName).getNode(appName,
-					flowName, nodeName);
-			if (this.snodeName != null) {
-				this.startNode = service.getFlowObject(sappName).getNode(sappName,
-						sflowName, snodeName);
-			}
-			if (this.enodeName != null) {
-				this.eventNode = service.getFlowObject(eappName).getNode(eappName,
-						eflowName, enodeName);
-			}
-		} catch (Exception e) {
-			throw new IllegalStateException("a NPE issue found: appName=" + appName + ", flowName=" + flowName + ", nodeName=" + nodeName);
+			throw new IllegalStateException("an NPE issue found: appName=" + appName + ", flowName=" + flowName + ", nodeName=" + nodeName + ", json: "+ json, e);
 		}
 	}
 

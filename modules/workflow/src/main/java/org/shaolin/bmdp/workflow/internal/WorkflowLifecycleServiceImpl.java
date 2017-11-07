@@ -80,8 +80,8 @@ public class WorkflowLifecycleServiceImpl implements ILifeCycleProvider, IServic
 
 			@Override
 			public void notifyAllLoadFinish() {
-				flowContainer.updateService(allFlows);
-				allFlows.clear();
+//				flowContainer.updateService(allFlows);
+//				allFlows.clear();
 			}
 
 			@Override
@@ -170,7 +170,7 @@ public class WorkflowLifecycleServiceImpl implements ILifeCycleProvider, IServic
 	}
 	
 	/**
-	 * Import data from data base, all constant entities can be overrided.
+	 * Import data from data base, all constant entities can be overridden.
 	 * 
 	 * @param constants
 	 */
