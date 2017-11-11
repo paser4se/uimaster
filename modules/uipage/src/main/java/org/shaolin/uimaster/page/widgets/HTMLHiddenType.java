@@ -77,7 +77,11 @@ public class HTMLHiddenType extends HTMLTextWidgetType
 
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-        return null; //super.createJsonModel(ee);
+    		if (getAttribute("secure") != null) {
+    			this.addAttribute("needAjaxSupport", true);
+    			return super.createJsonModel(ee);
+    		}
+    		return null;
     }
     
     private static final long serialVersionUID = 1875046878985040938L;

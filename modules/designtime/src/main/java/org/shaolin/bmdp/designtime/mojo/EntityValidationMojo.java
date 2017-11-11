@@ -2,12 +2,8 @@ package org.shaolin.bmdp.designtime.mojo;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
@@ -136,19 +132,14 @@ public class EntityValidationMojo extends AbstractMojo {
     
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-    	if (!entitiesDirectory.exists()) {
-    		return;
-    	}
-    	if (true) {
-    		//TODO:
-    		return;
-    	}
+	    	if (!entitiesDirectory.exists()) {
+	    		return;
+	    	}
+	    	
+	    	this.getLog().info("EntitiesDirectory: " + entitiesDirectory.getAbsolutePath());
+	    	this.getLog().info("WebDirectory: " + webDirectory.getAbsolutePath());
     	
-    	
-    	this.getLog().info("EntitiesDirectory: " + entitiesDirectory.getAbsolutePath());
-    	this.getLog().info("WebDirectory: " + webDirectory.getAbsolutePath());
-    	
-    	// initialize registry
+	    	// initialize registry
 		Registry.getInstance().initRegistry();
     	
 		GeneratorOptions options = new GeneratorOptions(project.getGroupId(),
@@ -164,18 +155,6 @@ public class EntityValidationMojo extends AbstractMojo {
 		try {
 			AppContext.register(new AppServiceManagerImpl("build_app", currentCL));
 			
-			// merge the compiled classes to current class loader.
-			Set<URL> urls = new HashSet<>();
-		    List<String> elements = project.getCompileClasspathElements();
-		    for (String element : elements) {
-		        urls.add(new File(element).toURI().toURL());
-		    }
-		    this.getLog().debug("CompileClasspathElements: " + elements);
-		    ClassLoader contextClassLoader = URLClassLoader.newInstance(
-		            urls.toArray(new URL[0]),
-		            Thread.currentThread().getContextClassLoader());
-		    Thread.currentThread().setContextClassLoader(contextClassLoader);
-			
 			// Classloader will be switched in designtime
 		    List<IEntityEventListener<? extends EntityType, ?>> listeners 
 				= new ArrayList<IEntityEventListener<? extends EntityType, ?>>();
@@ -189,6 +168,7 @@ public class EntityValidationMojo extends AbstractMojo {
 			}
 			listeners.add(new WebServiceValidator(options));
 			IEntityManager entityManager = IServerServiceManager.INSTANCE.getEntityManager();
+			entityManager.cleanEventListeners();
 			entityManager.addListeners(listeners);
 			ArrayList<File> files = new ArrayList<File>();
 			if (systemEntityPath != null) {
@@ -206,8 +186,6 @@ public class EntityValidationMojo extends AbstractMojo {
 			}
 			entityManager.reloadDir(entitiesDirectory, new String[] {"websvis", "pageflow", "page", "form", "workflow"});
 		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (DependencyResolutionRequiredException e) {
 			e.printStackTrace();
 		} finally {
 			Thread.currentThread().setContextClassLoader(currentCL);

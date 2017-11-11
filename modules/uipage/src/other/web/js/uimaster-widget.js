@@ -2248,8 +2248,10 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 	intialized:false,
 	enableSelectSync:true,
 	isGallery:true,
+    selectedImage:null,
 	init:function(skip){
 		var t = this;
+        this.uiType = "Image";
 		if (skip) {
 		  t.init0();
 		} else {
@@ -2321,6 +2323,7 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 	},
 	clickImage:function(image){
 	   if (!this.enableSelectSync) {return;}
+       this.selectedImage = $(image).attr("src");
 	   var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"false",_uiid:this.id,"type":"Image","attrMap":JSON.stringify({"selectedImage":$(image).attr("src")}),_framePrefix:UIMaster.getFramePrefix()}};
        if (MobileAppMode) {
           _mobContext.ajax(JSON.stringify(opts));
@@ -2362,7 +2365,10 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 	   } else {
 		   $(this).next().attr("src", RESOURCE_CONTEXTPATH + decodeHTML(newContent) + "?t="+Math.random());
 	   }
-	}
+	},
+    sync:function(){
+        UIMaster.ui.sync.set({uiid:this.id,"type":this.uiType,"attrMap":JSON.stringify({"selectedImage":this.selectedImage}),_framePrefix:UIMaster.getFramePrefix()});
+    },
 });
 UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 	disableSearch:false,

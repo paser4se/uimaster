@@ -49,9 +49,8 @@ public class Hidden extends TextWidget implements Serializable
 
     public String getValue()
     {
-    	if (this.isSecure()) {
-    		
-    	}
+	    	if (this.isSecure()) {
+	    	}
         return (String)this.getAttribute("value");
     }
     
@@ -69,8 +68,8 @@ public class Hidden extends TextWidget implements Serializable
     
     public String generateHTML()
     {
-    	StringBuilder html = DisposableBfString.getBuffer();
-    	try {
+	    	StringBuilder html = DisposableBfString.getBuffer();
+	    	try {
 	        html.append("<input type=\"hidden\" name=\"");
 	        html.append(getId());
 	        html.append("\"");

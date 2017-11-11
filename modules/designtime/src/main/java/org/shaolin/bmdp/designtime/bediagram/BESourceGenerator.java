@@ -909,7 +909,13 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 				out.write(" ");
 				out.print(attrName);
 				out.write(") {");
+				if (member.isPk()) {
+					out.write("\n    if(this." + attrName + " == 0) {");
+				}
 				generateSetBody(beEntity, attrTypeString, attrName, out);
+				if (member.isPk()) {
+					out.write("    }\n");
+				}
 				if (member.getType() instanceof CEObjRefType)  {
 					String intAttrName = attrName + "Int";
 					

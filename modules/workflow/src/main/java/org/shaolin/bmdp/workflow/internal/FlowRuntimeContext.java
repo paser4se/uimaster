@@ -250,7 +250,7 @@ public final class FlowRuntimeContext extends TransOpsExecuteContext implements 
 		context.globalVarNames = state.globalVarNames;
 		context.globalVarNamesSet = state.globalVarNamesSet; 
 		
-		context.session = new DefaultWorkflowSession(context.sessionId);
+		context.session = new DefaultWorkflowSession(state.sessionId);
 		context.sessionId = state.sessionId;
 		context.startNode = state.startNode;
 		context.eventNode = state.eventNode;

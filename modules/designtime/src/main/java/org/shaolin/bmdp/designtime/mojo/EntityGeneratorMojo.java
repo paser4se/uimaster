@@ -11,6 +11,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -303,10 +304,22 @@ public class EntityGeneratorMojo extends SpringBootstrapperMojo {
 		
 		ClassLoader loader = Thread.currentThread().getContextClassLoader();
 		try {
-	    	AppContext.register(new AppServiceManagerImpl("build_app", loader));
-	    	//IServerServiceManager.INSTANCE = IServerServiceManager.createMockServiceManager();
-			// Classloader will be switched in designtime
-	    	EntityManager entityManager = (EntityManager)IServerServiceManager.INSTANCE.getEntityManager();
+			// merge the compiled classes to current class loader.
+			Set<URL> urls = new HashSet<>();
+		    List<String> elements = project.getRuntimeClasspathElements();
+		    for (String element : elements) {
+		        urls.add(new File(element).toURI().toURL());
+		    }
+		    this.getLog().info("CompileClasspathElements: " + elements);
+		    ClassLoader contextClassLoader = URLClassLoader.newInstance(
+		            urls.toArray(new URL[urls.size()]),
+		            Thread.currentThread().getContextClassLoader());
+		    Thread.currentThread().setContextClassLoader(contextClassLoader);
+		    
+		    	AppContext.register(new AppServiceManagerImpl("build_app", loader));
+		    	//IServerServiceManager.INSTANCE = IServerServiceManager.createMockServiceManager();
+				// Classloader will be switched in designtime
+		    	EntityManager entityManager = (EntityManager)IServerServiceManager.INSTANCE.getEntityManager();
 			if (systemEntityPath != null) {
 				ArrayList<File> files = new ArrayList<File>();
 				if (systemEntityPath.indexOf(";") != -1) {

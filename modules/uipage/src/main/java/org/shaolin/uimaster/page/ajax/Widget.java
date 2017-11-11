@@ -306,11 +306,11 @@ abstract public class Widget<T> implements Serializable
     
     public boolean isSecure() 
     {
-    	return this.isSecure;
+    		return this.isSecure;
     }
     
     public void setIsSecure(boolean v) {
-    	this.isSecure = v;
+    		this.isSecure = v;
     }
 
     /**

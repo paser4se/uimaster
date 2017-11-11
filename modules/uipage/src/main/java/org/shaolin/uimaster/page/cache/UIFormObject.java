@@ -1895,10 +1895,13 @@ public class UIFormObject implements java.io.Serializable
     	} else {
     		if (componentID.indexOf('.') != -1) {// bug fix.
     			//remove parent prefix.
-    			String uiid = componentID.substring(componentID.lastIndexOf('.') + 1);
+    			String uiid = componentID.substring(componentID.indexOf('.') + 1);
     			if (attributesMap.containsKey(uiid)) {
-    	    		return attributesMap.get(uiid);
-    	    	} 
+	    	    		return attributesMap.get(uiid);
+	    	    	} 
+    			if (uiid.indexOf('.') != -1) {
+    				throw new IllegalArgumentException(componentID + " ui-widget is not supported this way of accessing ui widget!");
+    			}
     		}
     		if (needException) {
     			throw new IllegalArgumentException(componentID + " ui-widget does not exist!");

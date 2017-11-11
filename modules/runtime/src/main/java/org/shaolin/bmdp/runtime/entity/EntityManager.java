@@ -858,19 +858,27 @@ public final class EntityManager implements IEntityManager {
 				new Object[]{name});
 	}
 	
+	@Override
 	public void addEventListener(IEntityEventListener<? extends EntityType, ?> listener) {
 		listener.setEntityManager(this);
 		listeners.add(listener);
 	}
 
+	@Override
 	public void removeEventListener(IEntityEventListener<? extends EntityType, ?> listener) {
 		listeners.remove(listener);
+	}
+	
+	@Override
+	public void cleanEventListeners() {
+		listeners.clear();
 	}
 	
 	/**
 	 * Release the useless caches after startup.
 	 * 
 	 */
+	@Override
 	public void offUselessCaches() {
 		CacheManager.getInstance().getCache("__sys_entity_be", String.class, BusinessEntityType.class).clear();
 		CacheManager.getInstance().getCache("__sys_entity_ce", String.class, ConstantEntityType.class).clear();

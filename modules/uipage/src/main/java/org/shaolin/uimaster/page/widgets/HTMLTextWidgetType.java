@@ -120,6 +120,9 @@ public abstract class HTMLTextWidgetType extends HTMLWidgetType
 
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException
     {
+    		if (this.needAjaxSupport()) {
+			return super.createJsonModel(ee);
+		}
     		return null;
     }
     private static final long serialVersionUID = 1705497534002626203L;
