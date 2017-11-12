@@ -39,6 +39,7 @@ import org.shaolin.uimaster.page.ajax.handlers.TableEventHandler;
 import org.shaolin.uimaster.page.ajax.handlers.TreeEventHandler;
 import org.shaolin.uimaster.page.ajax.handlers.WebServiceHandler;
 import org.shaolin.uimaster.page.ajax.json.IRequestData;
+import org.shaolin.uimaster.page.cache.PageCacheManager;
 import org.shaolin.uimaster.page.exception.AjaxException;
 import org.shaolin.uimaster.page.exception.AjaxInitializedException;
 
@@ -153,29 +154,20 @@ public class AjaxProcessor implements Serializable
 				} else {
 					htmlContext.setCurrentFormInfo(requestData.getEntityName(), "", "");
 				}
-//              Don't check the event source here.
-//                JSONObject comp = uiMap.get(requestData.getUiid());
-//                if (comp == null)
-//                    throw new AjaxInitializedException("Can not find this component["
-//                            + requestData.getUiid() + "] in the UI map!");
-//                if (!comp.has("entity"))
-//                {
-//                	JSONObject entityComp = (JSONObject)uiMap.get(requestData.getEntityUiid());
-//                    if (entityComp == null) {
-//                        entityComp = (JSONObject)uiMap.get("Form");
-//                    }
-//                    comp.put("entity", entityComp.getString("entity"));
-//                }
-//                String entityName = comp.getString("entity");
-//                entityName = requestData.getEntityName();
-//                requestData.setEntityName(entityName);
 				Map<String, JSONObject> uiMap = AjaxContextHelper.getFrameMap(request);
+				if (uiMap.containsKey(requestData.getEntityUiid())) {
+					 JSONObject json = uiMap.get(requestData.getEntityUiid());
+					 if (json.getString("type").equals("RefForm") && json.getString("entity").equals(requestData.getEntityName())) {
+						 // this is the ref-form access.
+						 // PageCacheManager.getUIFormObject(requestData.getEntityName());
+					 }
+				}
                 context = new AjaxContext(uiMap, requestData);
                 context.initData();
             }
             return context;
         }
-        catch (EvaluationException e)
+        catch (Exception e)
         {
             throw new AjaxInitializedException("Fail to load uiid[" + requestData.getUiid()
                     + "], exception cause: " + e.getMessage());

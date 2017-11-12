@@ -155,7 +155,7 @@ public class AjaxContext extends TransOpsExecuteContext implements Serializable
      * only for serialization support.
      */
     public AjaxContext() {
-    	this.ajaxJsonMap = null;
+    		this.ajaxJsonMap = null;
         this.dataItems = null;
         this.requestData = null;
     }

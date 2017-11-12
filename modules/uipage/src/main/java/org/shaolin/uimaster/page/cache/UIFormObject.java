@@ -1893,9 +1893,9 @@ public class UIFormObject implements java.io.Serializable
     	if (attributesMap.containsKey(componentID)) {
     		return attributesMap.get(componentID);
     	} else {
-    		if (componentID.indexOf('.') != -1) {// bug fix.
+    		if (componentID.lastIndexOf('.') != -1) {// bug fix.
     			//remove parent prefix.
-    			String uiid = componentID.substring(componentID.indexOf('.') + 1);
+    			String uiid = componentID.substring(componentID.lastIndexOf('.') + 1);
     			if (attributesMap.containsKey(uiid)) {
 	    	    		return attributesMap.get(uiid);
 	    	    	} 

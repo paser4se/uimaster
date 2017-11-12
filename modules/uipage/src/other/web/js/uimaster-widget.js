@@ -2470,7 +2470,7 @@ UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 			}
 			
 			var _framePrefix = UIMaster.getFramePrefix(UIMaster.El(fileUI).get(0));
-			var uploadUrl = UPLOAD_CONTEXTPATH+'?uiid='+fileUI.name+'&_framePrefix='+_framePrefix;
+			var uploadUrl = UPLOAD_CONTEXTPATH+'?_uiid='+fileUI.name+'&_framePrefix='+_framePrefix;
 			//encodeURI(fileUI.uploadName || fileUI.name)
 			if (MobileAppMode){ 
 			   fileUI.options.beforeSend();

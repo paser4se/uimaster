@@ -176,30 +176,27 @@ public class HTMLImageType extends HTMLTextWidgetType
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
 		boolean hasGallery = this.getAttribute("isGallery") != null && ("true".equals(String.valueOf(this.getAttribute("isGallery"))));
-		if (!needAjaxSupport() && !hasGallery) {
-    			Object oneditable = this.getAttribute("oneditable");
-            if (oneditable == null || oneditable.toString().equalsIgnoreCase("false")){
-            	return null;
-            }
+		if (!hasGallery) {
+            return null;
 		}
 		
-//		Image image = new Image(getName(), Layout.NULL);
-//
-//		image.setReadOnly(isReadOnly());
-//		image.setUIEntityName(getUIEntityName());
-//
-//		if (getValue() != null && !"".equals(getValue())) {
-//			image.setSrc(getValue());
-//		} else {
-//			image.setSrc((String) getAttribute("src"));
-//		}
-//		image.setIsGallery(hasGallery);
-//		image.setListened(true);
+		Image image = new Image(getName(), Layout.NULL);
 
-//		JSONObject json = super.createJsonModel(ee);
-//		image.toJSON(json);
-//		return json;
-		return null;
+		image.setReadOnly(isReadOnly());
+		image.setUIEntityName(getUIEntityName());
+
+		if (getValue() != null && !"".equals(getValue())) {
+			image.setSrc(getValue());
+		} else {
+			image.setSrc((String) getAttribute("src"));
+		}
+		image.setIsGallery(hasGallery);
+		image.setListened(true);
+
+		this.addAttribute("needAjaxSupport", true);
+		JSONObject json = super.createJsonModel(ee);
+		image.toJSON(json);
+		return json;
 	}
 	
 	public static String generateSimple(HttpServletRequest request, String srcs, int width, int height) {
