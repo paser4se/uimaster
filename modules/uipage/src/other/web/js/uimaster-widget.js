@@ -2367,8 +2367,8 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 	   }
 	},
     sync:function(){
-        UIMaster.ui.sync.set({uiid:this.id,"type":this.uiType,"attrMap":JSON.stringify({"selectedImage":this.selectedImage}),_framePrefix:UIMaster.getFramePrefix()});
-    },
+        UIMaster.ui.sync.set({uiid:this.name,"type":this.uiType,"attrMap":JSON.stringify({"selectedImage":this.selectedImage}),_framePrefix:UIMaster.getFramePrefix()});
+    }
 });
 UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 	disableSearch:false,
