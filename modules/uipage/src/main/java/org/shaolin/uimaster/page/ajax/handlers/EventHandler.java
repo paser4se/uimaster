@@ -171,7 +171,7 @@ public class EventHandler implements IAjaxHandler {
 						if (context.isInvalidEventSource()) {
 							break;
 						}
-						log.warn("This statement can not be evaluated: \n"+ wfOp.getExpression().getExpressionString(), ex);
+						log.warn("This("+context.getEntityName() + "." + actionName+") statement can not be evaluated: \n"+ wfOp.getExpression().getExpressionString(), ex);
 						Dialog.showMessageDialog("\u64CD\u4F5C\u5F02\u5E38\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\u91CD\u8BD5\u3002", "", Dialog.WARNING_MESSAGE, null);
 						//TODO: log error to alarm!
 					}

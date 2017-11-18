@@ -548,8 +548,14 @@ public class Table extends Widget<Table> implements Serializable {
 			ooeeContext.setEvaluationContextObject(ODContext.GLOBAL_TAG, evaContext);
 			
 			List<Object> rows = (List<Object>)queryExpr.evaluate(ooeeContext);
-			if (rows == null) {
+			if (rows == null || rows.size() == 0) {
 				rows = Collections.emptyList();
+			}
+			for (Object obj : rows) {
+				if (obj instanceof IPersistentEntity && ((IPersistentEntity)obj).getId() > 0) {
+					this.persistObjectClass = ((IPersistentEntity)obj).getClass();
+					break;
+				}
 			}
 			if (isMobPulling) {
 				//TODO:
