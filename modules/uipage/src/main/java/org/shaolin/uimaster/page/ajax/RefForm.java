@@ -196,12 +196,12 @@ public class RefForm extends Container implements Serializable
 	
     public Map ui2Data()
     {
-    	return ui2Data(this.inputParams);
+    		return ui2Data(this.inputParams);
     }
     
     public Map ui2Data(Map inputParams)
     {
-    	UserRequestContext orginalUserContext = UserRequestContext.UserContext.get();
+    		UserRequestContext orginalUserContext = UserRequestContext.UserContext.get();
         try {
             if(logger.isDebugEnabled())
             {
@@ -210,7 +210,7 @@ public class RefForm extends Container implements Serializable
             
             AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
             UserRequestContext htmlContext = new UserRequestContext(ajaxContext.getRequest());
-            htmlContext.setCurrentFormInfo(this.getUIEntityName(), "", "");
+            htmlContext.setCurrentFormInfo(this.getUIEntityName(), this.uiid + ".", "");
             htmlContext.setIsDataToUI(false);//Don't set prefix in here.
             htmlContext.setAjaxWidgetMap(AjaxContextHelper.getFrameMap(ajaxContext.getRequest()));
             
@@ -221,7 +221,7 @@ public class RefForm extends Container implements Serializable
             htmlContext.setODMapperData(inputParams);
             UserRequestContext.UserContext.set(htmlContext);
             
-            ODProcessor processor = new ODProcessor(htmlContext, this.getUIEntityName(), -1);
+            ODProcessor processor = new ODProcessor(htmlContext, this.getUIEntityName(), this.uiid, -1);
             ODEntityContext odContext = processor.process();
     		if (ajaxContext.getEventSource() != null) {
     			// this check is supposed to be in UI to Data stage.
@@ -401,7 +401,7 @@ public class RefForm extends Container implements Serializable
         if (logger.isDebugEnabled())
             logger.debug("callODMapper odmapper name: " + odmapperName);
         
-        ODProcessor processor = new ODProcessor(htmlContext, odmapperName, -1);
+        ODProcessor processor = new ODProcessor(htmlContext, odmapperName, this.uiid, -1);
         processor.process();
     }
     

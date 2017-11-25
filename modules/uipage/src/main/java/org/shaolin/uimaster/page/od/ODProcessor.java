@@ -44,12 +44,15 @@ public class ODProcessor
 
 	private String odEntityName;
 	
+	private String uiid;// the ui widget id defined in parent form or page.
+	
 	private int deepLevel;
 	
-	public ODProcessor(UserRequestContext context, String odEntityName, int deepLevel) 
+	public ODProcessor(UserRequestContext context, String odEntityName, String uiid, int deepLevel) 
 	{
 		this.requestContext = context;
 		this.odEntityName = odEntityName;
+		this.uiid = uiid;
 		this.deepLevel = deepLevel;
 	}
 
@@ -61,25 +64,22 @@ public class ODProcessor
 //			IODEntityPlugin plugger = new ODEntityPlugin(); 
 			ODEntityContext odContext = new ODEntityContext(odEntityName, requestContext);
 			odContext.setDeepLevel(++deepLevel);//next deep level.
-			
 			if (logger.isDebugEnabled()) {
 				logger.debug("\n\n");
 				logger.debug("Start od entity processor( **[the depth of level is " + odContext.getDeepLevel() + ".]** ).");
 			}
 			
-			LocaleContext.pushDataLocale(odContext.evalDataLocale());
-			odContext.initContext();
-			
-			if (orignalHtmlPrefix != null && orignalHtmlPrefix.length() > 0) {
-				String formPrefix = odContext.getUiEntity().getUIID() + ".";
-				if (orignalHtmlPrefix.equals(formPrefix)) {
-					requestContext.setCurrentFormInfo(odEntityName, orignalHtmlPrefix, "");
+			if (orignalHtmlPrefix != null && orignalHtmlPrefix.trim().length() > 0) {
+				if (orignalHtmlPrefix.equals(this.uiid + ".")) {
+					//do nothing.
 				} else {
-					requestContext.setCurrentFormInfo(odEntityName, orignalHtmlPrefix + odContext.getUiEntity().getUIID() + ".", "");
+					requestContext.setCurrentFormInfo(odEntityName, orignalHtmlPrefix + this.uiid + ".", "");
 				}
 			} else {
-				requestContext.setCurrentFormInfo(odEntityName, odContext.getUiEntity().getUIID() + ".", "");
+				requestContext.setCurrentFormInfo(odEntityName, this.uiid + ".", "");
 			}
+			LocaleContext.pushDataLocale(odContext.evalDataLocale());
+			odContext.initContext();
 			
 			if (odContext.isDataToUI())
 			{
@@ -94,20 +94,20 @@ public class ODProcessor
 				UIFormObject formObject = odContext.getUIFormObject();
 				// only search for current level excluding sub ref-entity.
 	            List<String> componentIds = formObject.getAllComponentID();
-	    		for(String compId : componentIds) {
-	    			Map propMap = formObject.getComponentProperty(compId);
-	    			Map i18nMap = formObject.getComponentI18N(compId);
-	    			Map expMap = formObject.getComponentExpression(compId);
-	    			Map<String, Object> tempMap = new HashMap<String, Object>();
-	    			if (expMap != null && expMap.size() > 0) {
-	    				HTMLUtil.evaluateExpression(propMap, expMap, tempMap, ee);
-	    			}
-	    			if (i18nMap != null && i18nMap.size() > 0) {
-	    				HTMLUtil.internationalization(propMap, i18nMap, tempMap, requestContext);
-	    			}
-	    			// added the combined dynamic attributes for ui widget.
-	    			// so, we can access these value through HTMLWidgetType.getAttribute(name);
-	    			String uiid = requestContext.getHTMLPrefix() + compId;
+		    		for(String compId : componentIds) {
+		    			Map propMap = formObject.getComponentProperty(compId);
+		    			Map i18nMap = formObject.getComponentI18N(compId);
+		    			Map expMap = formObject.getComponentExpression(compId);
+		    			Map<String, Object> tempMap = new HashMap<String, Object>();
+		    			if (expMap != null && expMap.size() > 0) {
+		    				HTMLUtil.evaluateExpression(propMap, expMap, tempMap, ee);
+		    			}
+		    			if (i18nMap != null && i18nMap.size() > 0) {
+		    				HTMLUtil.internationalization(propMap, i18nMap, tempMap, requestContext);
+		    			}
+		    			// added the combined dynamic attributes for ui widget.
+		    			// so, we can access these value through HTMLWidgetType.getAttribute(name);
+		    			String uiid = requestContext.getHTMLPrefix() + compId;
 					requestContext.addAttribute(uiid, tempMap);
 					HTMLWidgetType htmlWidget = formObject.getHTMLComponent(compId);
 					if (htmlWidget.getClass() == HTMLPanelType.class && ((HTMLPanelType)htmlWidget).hasDynamicUI()) {
@@ -118,11 +118,11 @@ public class ODProcessor
 			        	((HTMLPanelType)htmlWidget).setDynamicItems(dynamicItems);
 			        } 
 					
-	    			JSONObject newAjax = htmlWidget.createJsonModel(ee);
+	    				JSONObject newAjax = htmlWidget.createJsonModel(ee);
 	                if (newAjax != null) {
 	                	requestContext.addAjaxWidget(htmlWidget.getName(), newAjax);
 	                }
-	    		}
+		    		}
 			}
 			else 
 			{
