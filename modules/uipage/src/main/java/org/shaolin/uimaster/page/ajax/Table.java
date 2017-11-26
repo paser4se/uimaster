@@ -266,6 +266,15 @@ public class Table extends Widget<Table> implements Serializable {
 		if (listData == null) {
 			listData = new ArrayList<Object>();
 		}
+		if (persistObjectClass != null && listData.size() > 0) {
+			//check Long to Object;
+			for (int i=0; i<listData.size(); i++) {
+				if (listData.get(i) instanceof Long) {
+					Object be = BEEntityDaoObject.DAOOBJECT.get((Long)listData.get(i), persistObjectClass);
+					listData.set(i, be);
+				}
+			}
+		}
 		return listData;
 	}
 
