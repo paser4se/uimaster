@@ -680,6 +680,10 @@ public class ProcessHelper
         if (syncData != null && !syncData.trim().isEmpty())
         {
         		Map<String, JSONObject> map = AjaxContextHelper.getFrameMap(request);
+        		if (map == null) {
+        			logger.warn("User session is not existing currently. Please login again.");
+        			return;
+        		}
             JSONArray syncSets = null;
 			try {
 				syncSets = new JSONArray(syncData);
@@ -693,13 +697,16 @@ public class ProcessHelper
                     JSONObject attr = syncSets.getJSONObject(i);
                     String uiid = attr.getString("uiid");
                     JSONObject attrValues = attr.has(ATTR_MAP)? new JSONObject(attr.getString(ATTR_MAP)) : null;
-                    if (map.containsKey(uiid) && attrValues != null) {
+                    if (map.containsKey(uiid) && attrValues != null && attrValues.length() > 0) {
 	                    	JSONObject attrMap = map.get(uiid).getJSONObject(ATTR_MAP);
 	                    	if (!attrMap.has("disabled") || "false".equalsIgnoreCase(attrMap.getString("disabled"))) {
 	                    		Iterator<String> keys = attrValues.keys();
 	                    		while (keys.hasNext()) {
 	                    			String key = keys.next();
-	                    			attrMap.put(key, attrValues.get(key));
+	                    			Object value = attrValues.get(key);
+	                    			if (value != null && !"null".equals(value) && value.toString().length() > 0) {
+	                    				attrMap.put(key, value);
+	                    			}
 	                    		}
 	                    	}
                     } else {
@@ -711,8 +718,7 @@ public class ProcessHelper
                     		attr.put(ATTR_MAP, attrValues);
                     		clientWidgets.put(uiid, attr);
                     }
-                	}
-                catch(JSONException ex) {
+                	} catch(JSONException ex) {
                     try {
 						logger.warn("Synchronizing attributes are not working correctly. Error thrown: " 
 								+ ex.getMessage() + ", JSON: " + syncSets.getJSONObject(i));

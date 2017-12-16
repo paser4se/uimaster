@@ -422,28 +422,44 @@ public class HTMLUtil
     
     public static void includeMobAppJsFiles(String entityName, Map<String, String> jsIncludeMap, List<String> jsIncludeList, boolean includeCommon)
     {
-    	if (includeCommon) {
+      	if (includeCommon) {
 	        String[] commons = WebConfig.getCommonMobAppJs();
 	        for (String common: commons)
 	        {
-	            String importJSCode = "<script type=\"text/javascript\" src=\"" + common
+		        	String importJSCode = null;
+		        	if (common.startsWith("http") || common.startsWith("https")) {
+		        		importJSCode = "<script type=\"text/javascript\" src=\"" + common;
+		        	} else {
+		        		importJSCode = "<script type=\"text/javascript\" src=\"" + common
 	                    + "?_timestamp=";
+		        	}
 	            jsIncludeMap.put(common, importJSCode);
 	            jsIncludeList.add(common);
 	        }
-    	}
+     	}
         String[] singleCommons = WebConfig.getSingleCommonAppJS(entityName);
+        if (singleCommons == null || singleCommons.length == 0) {
+    		    // imports from Web page directly.
+    	 	    singleCommons = WebConfig.getSingleCommonJS(entityName);
+    	 	    if (singleCommons != null) {
+    	 	    	    for (int i=0; i<singleCommons.length; i++) {
+    	 	    	    	   if (!singleCommons[i].startsWith("http") 
+    	 	    	    			   && !singleCommons[i].startsWith("https")
+    	 	    	    			   && !singleCommons[i].startsWith(WebConfig.APP_ROOT_VAR)) {
+    	 	    	    	      singleCommons[i] = WebConfig.APP_ROOT_VAR + singleCommons[i];
+    	 	    	    	   }
+    	 	    	    }
+    	 	    }
+        }
         for (String single: singleCommons)
         {
-            String importJSCode = "<script type=\"text/javascript\" src=\"" + single
-                    + "?_timestamp=";
+            String importJSCode = "<script type=\"text/javascript\" src=\"" + single;
             jsIncludeMap.put(single, importJSCode);
             jsIncludeList.add(single);
         }
         
         String jsFileName = WebConfig.getImportAppJS(entityName);
-        String importJSCode = "<script type=\"text/javascript\" src=\"" + jsFileName
-                + "?_timestamp=";
+        String importJSCode = "<script type=\"text/javascript\" src=\"" + jsFileName;
         jsIncludeMap.put(jsFileName, importJSCode);
         jsIncludeList.add(jsFileName);
     }

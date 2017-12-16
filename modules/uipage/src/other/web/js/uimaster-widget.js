@@ -2367,7 +2367,8 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 	   }
 	},
     sync:function(){
-        UIMaster.ui.sync.set({uiid:this.name,"type":this.uiType,"attrMap":JSON.stringify({"selectedImage":this.selectedImage}),_framePrefix:UIMaster.getFramePrefix()});
+        var uiid0 = (this.name && this.name.length > 0) ? this.name : this.id;
+        UIMaster.ui.sync.set({uiid: uiid0,"type":this.uiType,"attrMap":JSON.stringify({"selectedImage":this.selectedImage}),_framePrefix:UIMaster.getFramePrefix()});
     }
 });
 UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
@@ -2522,6 +2523,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	tbody:null,
 	tfoot:null,
 	disableScrollY:false,
+    disableActionBarFloating:false,
 	callSelectedFunc: null,
 	initMobileView:function(){
 	  var i=0;
@@ -2548,6 +2550,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	  });
 	},
 	showActionBar:function() {
+        if (this.disableActionBarFloating) {return;}
 		var _scrollTop = document.body.scrollTop; 
 		var _scrollHeight = document.body.scrollHeight; 
 		var _height = document.body.clientHeight; 
@@ -3109,7 +3112,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				this.syncButtonGroup(false);
 			} else {
 				$(c[0]).addClass('selected');
-				$($(c[0]).children()[0]).children()[0].checked=true;
+				if($($(c[0]).children()[0]).children()[0]) 
+                    $($(c[0]).children()[0]).children()[0].checked=true;
 	            this.selectedIndex = 0;
 				this.selectedIndexs.push(0);
 	            othis.syncButtonGroup(true);
@@ -3119,7 +3123,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				$(c[this.selectedIndex]).addClass('selected');
 			} else {
 				$(c[0]).addClass('selected');
-				$($(c[0]).children()[0]).children()[0].checked=true;
+                if($($(c[0]).children()[0]).children()[0])
+				    $($(c[0]).children()[0]).children()[0].checked=true;
 				this.selectedIndex = 0;
 				this.selectedIndexs.push(0);
 			}
