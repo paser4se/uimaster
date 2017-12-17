@@ -2108,6 +2108,9 @@ UIMaster.ui.hidden = UIMaster.extend(UIMaster.ui, /** @lends UIMaster.`*/{
     },
     notifyChange:function(e){
         var obj = UIMaster.getObject(e);
+        if (this.uiType == "Label" && obj._v == obj.value) {
+            return;
+        }
         UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":this.uiType,"attrMap":JSON.stringify({"value":obj.value}),_framePrefix:UIMaster.getFramePrefix(obj)});
         obj._v = obj.value;
     },
