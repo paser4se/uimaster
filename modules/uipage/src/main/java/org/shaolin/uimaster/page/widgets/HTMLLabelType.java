@@ -201,12 +201,12 @@ public class HTMLLabelType extends HTMLTextWidgetType
     {
 	    	if (!needAjaxSupport()) {
 	    		Object oneditable = this.getAttribute("oneditable");
-            if (oneditable == null || oneditable.toString().equalsIgnoreCase("false")) {
-            		return null;
+            if (oneditable != null && oneditable.toString().equalsIgnoreCase("true")) {
+            		return super.createJsonModel(ee);
             }
+            return null;
 	    	}
-//        return super.createJsonModel(ee);
-    		return null;
+        return super.createJsonModel(ee);
     }
     
     private static final long serialVersionUID = 4001953636235186944L;

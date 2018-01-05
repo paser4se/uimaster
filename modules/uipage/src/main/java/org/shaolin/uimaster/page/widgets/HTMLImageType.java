@@ -176,7 +176,8 @@ public class HTMLImageType extends HTMLTextWidgetType
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
 		boolean hasGallery = this.getAttribute("isGallery") != null && ("true".equals(String.valueOf(this.getAttribute("isGallery"))));
-		if (!hasGallery) {
+		boolean needAjaxSupport = this.getAttribute("needAjaxSupport") != null && ("true".equals(String.valueOf(this.getAttribute("needAjaxSupport"))));
+		if (!hasGallery && !needAjaxSupport) {
             return null;
 		}
 		

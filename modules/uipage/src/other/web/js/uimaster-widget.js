@@ -2883,7 +2883,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		});
 	},
 	rowEmpty:function(){
-		return this.tbody.find("td[class='dataTables_empty']").length == 1;
+		return this.ui && ($(this.ui).find(".dataTables_empty").length == 1 
+               || $(this.ui).find(".dataTables_empty").length == 1) ;
 	},
 	getTDIndex:function(td){
 		var i=0;
@@ -2980,7 +2981,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
             UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"Table","attrMap":JSON.stringify({"selectedIndex":this.selectedIndex}),_framePrefix:UIMaster.getFramePrefix(obj)});
 			obj._selectedIndex = this.selectedIndex;
         //}
-		if (this.isMultipleSelection) {
+		if (this.isMultipleSelection && this.selectedIndexs.length > 0) {
 		    UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"Table","attrMap":JSON.stringify({"selectedIndexs":this.selectedIndexs.join(",")}),_framePrefix:UIMaster.getFramePrefix(obj)});
 		}
 		if (this.editablecell) {
@@ -2999,7 +3000,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				} 
 			}
 		});
-		UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"Table","attrMap":JSON.stringify({"conditions":conditions}),_framePrefix:UIMaster.getFramePrefix(obj)});
+        if (conditions.length > 0)
+		   UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"Table","attrMap":JSON.stringify({"conditions":conditions}),_framePrefix:UIMaster.getFramePrefix(obj)});
 	},
 	syncBodyDataToServer:function(){
 		if (this.editablecell) {

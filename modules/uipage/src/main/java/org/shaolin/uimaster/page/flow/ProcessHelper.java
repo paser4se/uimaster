@@ -694,6 +694,8 @@ public class ProcessHelper
             Map<String, JSONObject> clientWidgets = new HashMap<String, JSONObject>();
             for (int i = 0; i < syncSets.length(); i++) {
                 	try {
+                		//{"uiid":"organizationInfoTable","type":"Table","attrMap":"{\"conditions\":
+                		//[{\"name\":\"rowBE.orgCode\",\"value\":\"4\"},{\"name\":\"rowBE.type\",\"value\":\"3\"}]}
                     JSONObject attr = syncSets.getJSONObject(i);
                     String uiid = attr.getString("uiid");
                     JSONObject attrValues = attr.has(ATTR_MAP)? new JSONObject(attr.getString(ATTR_MAP)) : null;
