@@ -249,6 +249,14 @@
         </bediagram:member>
         <!-- user area broadcast -->
         <bediagram:member>
+            <bediagram:name>needBroadcast</bediagram:name>
+            <bediagram:type xsi:type="bediagram:BooleanType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>city</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
+        <bediagram:member>
             <bediagram:name>longitude</bediagram:name>
             <bediagram:type xsi:type="bediagram:DoubleType" />
         </bediagram:member>

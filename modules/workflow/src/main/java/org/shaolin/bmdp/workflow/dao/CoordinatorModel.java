@@ -264,6 +264,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
             if (scFlow.getSessionId() != null && scFlow.getSessionId().length() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sessionId", scFlow.getSessionId()));
             }
+            if (scFlow.getCity() != null && scFlow.getCity().length() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.city", scFlow.getCity()));
+            }
 
         inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));
 
@@ -282,6 +285,9 @@ public class CoordinatorModel extends BEEntityDaoObject {
             }
             if (scFlow.getSessionId() != null && scFlow.getSessionId().length() > 0) {
                 inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.sessionId", scFlow.getSessionId()));
+            }
+            if (scFlow.getCity() != null && scFlow.getCity().length() > 0) {
+                inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow.city", scFlow.getCity()));
             }
 
         inFlowCriteria.add(createCriterion(Operator.EQUALS, "inFlow._enable", scFlow.isEnabled()));

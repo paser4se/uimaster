@@ -100,7 +100,7 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
        o.nodesocket.on('notifyhistory', function(e) {
             for (var i=0;i<e.length;i++) {
 	            var row = "<div class=\"uimaster_noti_item "+((i%2==0)?"uimaster_chat_item_even":"uimaster_chat_item_old")+"\"><div><div class=\"uimaster_chat_time\">"
-					 + e[i].CREATEDATE + "</div><div class=\"uimaster_chat_subject\"> " + (e[i].SUBJECT == null ? "": e[i].SUBJECT) + "</div><div class=\"uimaster_chat_message\"> " + e[i].DESCRIPTION + "</div></div></div>"
+					 + e[i].CREATEDATE + "</div><div class=\"uimaster_chat_subject\"> " + e[i].SUBJECT + "</div><div class=\"uimaster_chat_message\"> " + e[i].DESCRIPTION + "</div></div></div>"
 	            $(row).appendTo(msgContainer);
             }
             o.msgCounter = o.msgCounter + e.length;
@@ -109,7 +109,7 @@ function org_shaolin_bmdp_workflow_form_NotificationBoard(json)
        o.nodesocket.on('notifySingleItem', function(e) {
             for (var i=0;i<e.length;i++) {
 	            var row = "<div class=\"uimaster_noti_item "+((i%2==0)?"uimaster_chat_item_even":"uimaster_chat_item_old")+"\"><div><div class=\"uimaster_chat_time\">"
-					 + e[i].CREATEDATE + "</div><div class=\"uimaster_chat_subject\"> " + (e[i].SUBJECT == null ? "": e[i].SUBJECT) + "</div><div class=\"uimaster_chat_message\"> " + e[i].DESCRIPTION + "</div></div></div>"
+					 + e[i].CREATEDATE + "</div><div class=\"uimaster_chat_subject\"> " + e[i].SUBJECT + "</div><div class=\"uimaster_chat_message\"> " + e[i].DESCRIPTION + "</div></div></div>"
 	            $(row).appendTo(msgContainer);
             }
             o.msgCounter = o.msgCounter + e.length;

@@ -161,7 +161,7 @@ io.on('connection', function(socket){
 		}
 	    try {
 	      pool.getConnection(function(err, connection) {
-			  connection.query("SELECT ID,PARTYID,SESSIONID,SUBJECT,DESCRIPTION,DATE_FORMAT(CREATEDATE, '%Y-%m-%d %h:%i:%s %p') as CREATEDATE FROM wf_notification WHERE partyid=? ORDER BY createdate ASC", [parseInt(obj.partyId)], function(err, results, fields) {
+			  connection.query("SELECT ID,PARTYID,SESSIONID,SUBJECT,DESCRIPTION,DATE_FORMAT(CREATEDATE, '%Y-%m-%d %h:%i:%s %p') as CREATEDATE FROM wf_notification WHERE partyid=? ORDER BY createdate DESC", [parseInt(obj.partyId)], function(err, results, fields) {
 					connection.release();
 					if (err) {
 						if (err.code === 'PROTOCOL_CONNECTION_LOST') {
