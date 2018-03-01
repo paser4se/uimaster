@@ -4,11 +4,13 @@ spring:
     enabled: true
     log-dir: C/Users/shaolinwu/Documents/workspace/logs
     transaction-manager-id: uimaster0
-
+  session:
+    store-type: none
+    
 persistentConstant:
   dataSources:
     - name: dataSource
-      hbmRoot: 
+      hbmRoot:
       url: jdbc:derby:/Users/shaolinwu/TESTDB;create=true
       username: test
       password: test
@@ -47,7 +49,7 @@ webConstant:
   timeoutPage: /uimaster/jsp/common/sessionTimeout.jsp
   nopermissionPage: /uimaster/jsp/common/noPermission.jsp
   ajaxHandlingError: true
-  syncLoadJs: 
+  syncLoadJs:
    - jquery.js
    - jquery-ui.js
    - jquery-mobile.js
@@ -96,19 +98,19 @@ webConstant:
    - $APPROOT/js/jquery-jstree.js
    - $APPROOT/js/uimaster.js
    - $APPROOT/js/uimaster-widget.js
-  singleCommonCss: 
+  singleCommonCss:
    org_shaolin_CustomerManagementTest: /uimaster/css/test1.css
-  singleCommonAppCss: 
+  singleCommonAppCss:
    org_shaolin_CustomerManagementTest_mob: /uimaster/css/test1.css
   singleCommonJs:
    org_shaolin_CustomerManagementTest: https://api.map.baidu.com/api?v=2.0&amp;ak=kT8czcw0fydHdXiGPGBOckX1
-   org_shaolin_GlobalStatisticTest: 
+   org_shaolin_GlobalStatisticTest:
     /uimaster/js/controls/map/raphael-min.js,
     /uimaster/js/controls/map/chinaMapConfig.js,
     /uimaster/js/controls/map/map.js
   singleCommonAppJs:
    org_shaolin_CustomerManagementTest_mob: https://api.map.baidu.com/api?v=2.0&amp;ak=kT8czcw0fydHdXiGPGBOckX1
-   org_shaolin_GlobalStatisticTest_mob: 
+   org_shaolin_GlobalStatisticTest_mob:
      $APPROOT/js/controls/map/raphael-min.js,
      $APPROOT/js/controls/map/chinaMapConfig.js,
      $APPROOT/js/controls/map/map.js

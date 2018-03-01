@@ -20,6 +20,8 @@ import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration
 import org.springframework.boot.autoconfigure.jdbc.JndiDataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.XADataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.boot.autoconfigure.session.SessionAutoConfiguration;
+import org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -27,31 +29,33 @@ import org.springframework.context.annotation.Profile;
 
 /**
  * SpringBootstrapper Mojo
- * 
+ *
  * @author Shaolin
  */
-@SpringBootApplication(scanBasePackages={"org.shaolin.*"}, 
+@SpringBootApplication(scanBasePackages={"org.shaolin.*"},
 		exclude={HibernateJpaAutoConfiguration.class,
 				XADataSourceAutoConfiguration.class,
 				JdbcTemplateAutoConfiguration.class,
 				JndiDataSourceAutoConfiguration.class,
-				DataSourceAutoConfiguration.class, 
-				DataSourceTransactionManagerAutoConfiguration.class})
+				DataSourceAutoConfiguration.class,
+				DataSourceTransactionManagerAutoConfiguration.class,
+				SessionAutoConfiguration.class,
+			  RedisHttpSessionConfiguration.class})
 @EnableAutoConfiguration(
 		exclude={HibernateJpaAutoConfiguration.class,
 				XADataSourceAutoConfiguration.class,
 				JdbcTemplateAutoConfiguration.class,
 				JndiDataSourceAutoConfiguration.class,
-				DataSourceAutoConfiguration.class, 
+				DataSourceAutoConfiguration.class,
 				DataSourceTransactionManagerAutoConfiguration.class})
 @ComponentScan(basePackages = {"org.shaolin.*"})
 @Profile("default")
 public abstract class SpringBootstrapperMojo extends AbstractMojo implements CommandLineRunner {
-	
+
 	protected static final ThreadLocal<SpringBootstrapperMojo> contextObject = new ThreadLocal<SpringBootstrapperMojo>();
-	
+
 	protected ApplicationContext ctx;
-	
+
 	// read-only parameters ---------------------------------------------------
     /**
      * The maven project.
@@ -59,20 +63,20 @@ public abstract class SpringBootstrapperMojo extends AbstractMojo implements Com
      * @required
      */
     protected MavenProject project;
-	
+
     public void setProject(MavenProject project) {
 		this.project = project;
 	}
 
 	/**
      * Gets the Maven project.
-     * 
+     *
      * @return the project
      */
     protected MavenProject getProject() {
         return project;
     }
-    
+
     public void execute() throws MojoExecutionException, MojoFailureException {
     	contextObject.set(this);
     	try {
@@ -84,13 +88,13 @@ public abstract class SpringBootstrapperMojo extends AbstractMojo implements Com
     		e.printStackTrace();
     	}
     }
-	
+
     @Bean
     public CommandLineRunner commandLineRunner(final ApplicationContext ctx) {
 		this.ctx = ctx;
         return this;
     }
-    
+
     @Override
 	public void run(String... args) throws Exception {
     	// initialize registry
@@ -102,6 +106,6 @@ public abstract class SpringBootstrapperMojo extends AbstractMojo implements Com
 		WebConfig.setSpringInstance(instance);
     	contextObject.get().invoke();
     }
-	
+
     public abstract void invoke() throws Exception;
 }
