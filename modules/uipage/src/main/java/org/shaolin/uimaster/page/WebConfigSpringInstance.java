@@ -40,6 +40,7 @@ public class WebConfigSpringInstance {
 	private String resourceServer;
 	private String uploadServer;
 	private String websocketServer;
+	private String jsWebsocketServer;
 	private String resourcePath;
 	private String contextRoot;
 	private String runningMode;
@@ -101,6 +102,14 @@ public class WebConfigSpringInstance {
 
 	public void setWebsocketServer(String websocketServer) {
 		this.websocketServer = websocketServer;
+	}
+	
+	public String getJsWebsocketServer() {
+		return jsWebsocketServer;
+	}
+
+	public void setJsWebsocketServer(String jsWebsocketServer) {
+		this.jsWebsocketServer = jsWebsocketServer;
 	}
 
 	public String getUploadServer() {

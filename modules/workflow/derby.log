@@ -1,6 +1,6 @@
 ----------------------------------------------------------------
-Fri Nov 10 19:32:14 CST 2017:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.13.1.1 - (1765088): instance a816c00e-015f-a5b3-a265-00000fc7daf8 
+Sat Mar 24 22:31:28 CST 2018:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.13.1.1 - (1765088): instance a816c00e-0162-586b-e2e8-0000117b8d58 
 on database directory /Users/shaolinwu/TESTDB with class loader ClassRealm[plugin>org.shaolin.bmdp:designtime:1.0.0-SNAPSHOT, parent: sun.misc.Launcher$AppClassLoader@55f96302] 
 Loaded from file:/Users/shaolinwu/Documents/workspace/apache-maven-2.2.1/localrepository/org/apache/derby/derby/10.13.1.1/derby-10.13.1.1.jar
 java.vendor=Oracle Corporation
