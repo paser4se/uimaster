@@ -1,4 +1,4 @@
-# uimaster
+# uimaster （加工达人开发平台）
 UI Master is a light weight J2EE development platform which fully defines all components in XML templates and uses in the most efficient way.
 
 Platform Features:<br>
