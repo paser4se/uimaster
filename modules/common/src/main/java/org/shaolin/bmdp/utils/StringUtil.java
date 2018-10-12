@@ -1635,7 +1635,10 @@ public class StringUtil
 					Element subElement = body.addElement(key);
 					map2xml((Map) value, subElement);
 				} else {
-					body.addElement(key).setText(value.toString());
+					Element e = body.addElement(key);
+					if (value != null) {
+					    e.setText(value.toString());
+					}
 				}
 			}
 		}

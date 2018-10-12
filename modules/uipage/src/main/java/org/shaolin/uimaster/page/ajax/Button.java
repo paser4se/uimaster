@@ -100,8 +100,13 @@ public class Button extends TextWidget implements Serializable
     	if (this.getAttribute("skipSetAsEnabled") == null) {
     		StringBuilder sb = new  StringBuilder();
             sb.append("{'name':'disabled','value':'false'}");
-            IDataItem dataItem = AjaxContextHelper.updateAttrItem(
-            		AjaxContextHelper.getAjaxContext().getEntityPrefix() + this.getId(), sb.toString());
+            String uiid = null;
+            if (this.getId().startsWith(AjaxContextHelper.getAjaxContext().getEntityPrefix())) {
+            		uiid = this.getId();
+            } else {
+            		uiid = AjaxContextHelper.getAjaxContext().getEntityPrefix() + this.getId();
+            }
+            IDataItem dataItem = AjaxContextHelper.updateAttrItem(uiid, sb.toString());
             dataItem.setFrameInfo(getFrameInfo());
             AjaxContextHelper.getAjaxContext().addDataItem(dataItem);
     	}

@@ -368,16 +368,23 @@ public class SimpleComponentMapping extends ComponentMapping {
 			}
 			long start = System.currentTimeMillis();
 			if (!odContext.isDataToUI()) {
-				String uiid = odMapperData.get(IODMappingConverter.UI_WIDGET_ID).toString();
-				JSONObject json = null;
 				try {
-					json = AjaxContextHelper.getCachedAjaxWidget(uiid, htmlContext);
+					String uiid = this.type.getUIComponents().get(0).getComponentPath();
+					String prefix = htmlContext.getHTMLPrefix();
+					if (prefix != null && prefix.trim().length() > 0) {
+						uiid = prefix + uiid;
+					}
+					if (logger.isDebugEnabled()) {
+						logger.debug("[UItoDATA]real form uiid: " + uiid);
+					}
+					JSONObject json = AjaxContextHelper.getCachedAjaxWidget(uiid, htmlContext);
 					odMapperData.put(uiDataParam.getParamName(), RefForm.getCopyType(json));
 				} catch (Exception e) {
 					throw new ODException("Failed to get UIform: " + e.getMessage(), e);
 				}
 			}
-			ODProcessor processor = new ODProcessor(htmlContext, odmapperName, odContext.getDeepLevel());
+			ODProcessor processor = new ODProcessor(htmlContext, odmapperName, 
+					this.type.getUIComponents().get(0).getComponentPath(), odContext.getDeepLevel());
 			ODEntityContext result = processor.process();
 			
 			long end = System.currentTimeMillis();

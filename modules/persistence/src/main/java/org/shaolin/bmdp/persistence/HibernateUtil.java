@@ -1,10 +1,14 @@
 package org.shaolin.bmdp.persistence;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
@@ -25,35 +29,20 @@ public class HibernateUtil {
 
 	private static final Logger logger = LoggerFactory.getLogger(HibernateUtil.class);
 	
+	private static final HashMap<String, AtomicInteger> threadCounters = new HashMap<String, AtomicInteger>();
+	private static final HashMap<String, SessionFactory> sessionFactories = new HashMap<String, SessionFactory>();
+	public static final String DEFAULT_SESSION = "DEFAULT_SESSION";
+	
 	// we used sessionFactoryTL to improve the 'CurrentSession' behaviours.
-	private static final ThreadLocal<Session> sessionFactoryTL = new ThreadLocal<Session>();
-	private static final ThreadLocal<UserTransaction> userTransactionTL = new ThreadLocal<UserTransaction>();
+	private static final ThreadLocal<HashMap<String, Session>> sessionFactoryTL = new ThreadLocal<HashMap<String, Session>>();
+	// the user transaction is a singleton object in bitronix. so we only access once at here.
+	private static UserTransaction userTansaction = getUserTransaction();
 	
-	private static UserTransaction getUserTransaction0() throws NamingException {
-		Hashtable<String, String> prop = new Hashtable<String, String>();
-		prop.put(Context.INITIAL_CONTEXT_FACTORY, "bitronix.tm.jndi.BitronixInitialContextFactory");
-		prop.put(Context.URL_PKG_PREFIXES, "bitronix.tm.jndi");
-		Context context = new InitialContext(prop);
-		return (UserTransaction) context.lookup("java:comp/UserTransaction");
-	}
-	
-	/**
-	 * Get the session of the read only database for boosting access performance.
-	 * 
-	 * @return
-	 */
-	public static Session getReadOnlySession() {
-		return getSession();
-	}
-	
-	/**
-	 * Open session without transaction directly.
-	 * 
-	 * @return
-	 */
-	public static Session openSession() {
-		SessionFactory sessionFactory = IServerServiceManager.INSTANCE.getService(SessionFactory.class);
-		return sessionFactory.openSession(); 
+	static void addSessionFactory(String packageDomain, SessionFactory factory) {
+		if (sessionFactories.containsKey(packageDomain)) {
+			throw new IllegalArgumentException("This domain "+ packageDomain +" of session factory has already been existing!");
+		}
+		sessionFactories.put(packageDomain, factory);
 	}
 	
 	/**
@@ -61,18 +50,52 @@ public class HibernateUtil {
 	 * @return
 	 */
 	public static UserTransaction getUserTransaction() {
-		if (userTransactionTL.get() != null) {
+		if (userTansaction != null) {
 			//TODO: check whether transaction is committed or not.
-			return userTransactionTL.get();
+			return userTansaction;
 		}
 		try {
-			UserTransaction tx = getUserTransaction0();
-			tx.begin();
-			userTransactionTL.set(tx);
-			return tx;
+			Hashtable<String, String> prop = new Hashtable<String, String>();
+			prop.put(Context.INITIAL_CONTEXT_FACTORY, "bitronix.tm.jndi.BitronixInitialContextFactory");
+			prop.put(Context.URL_PKG_PREFIXES, "bitronix.tm.jndi");
+			Context context = new InitialContext(prop);
+			userTansaction = (UserTransaction) context.lookup("java:comp/UserTransaction");
+//			if (userTansaction instanceof BitronixTransactionManager) {
+//			BitronixTransactionManager txManager = (BitronixTransactionManager)userTransactionTL.get();
+//			txManager.getStatus();
+//		}
+			return userTansaction;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public static void releaseTransaction(boolean isCommit) {
+		try {
+			if (userTansaction.getStatus() != Status.STATUS_NO_TRANSACTION) {
+				if (isCommit) {
+					userTansaction.commit();
+				} else {
+					userTansaction.rollback();
+				}
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+		}
+	}
+
+	/**
+	 * Get the session of the read only database for boosting access performance.
+	 * 
+	 * @return
+	 */
+	public static Session getReadOnlySession() {
+		return getSession(DEFAULT_SESSION);
+	}
+	
+	public static Session getSession() {
+		return getSession(DEFAULT_SESSION);
 	}
 	
 	/**
@@ -81,14 +104,34 @@ public class HibernateUtil {
 	 * @return
 	 */
 	@Transactional
-	public static Session getSession() {
-		if (sessionFactoryTL.get() != null) {
-			return sessionFactoryTL.get();
+	public static Session getSession(String packageDomain) {
+		if (!threadCounters.containsKey(Thread.currentThread().getName())) {
+			threadCounters.put(Thread.currentThread().getName(), new AtomicInteger());
 		}
-		getUserTransaction();
-		SessionFactory sessionFactory = IServerServiceManager.INSTANCE.getService(SessionFactory.class);
+		threadCounters.get(Thread.currentThread().getName()).incrementAndGet();
+		
+		if (sessionFactoryTL.get() != null && sessionFactoryTL.get().containsKey(packageDomain)) {
+			return sessionFactoryTL.get().get(packageDomain);
+		}
+		if (sessionFactoryTL.get() == null) {
+			try {
+				userTansaction.begin();
+			} catch (Exception e) {
+				printThreadCounter();
+				throw new RuntimeException(e);
+			}
+		}
+		SessionFactory sessionFactory = (sessionFactories.containsKey(packageDomain)) ? 
+				sessionFactories.get(packageDomain) : sessionFactories.get(DEFAULT_SESSION); 
+		// IServerServiceManager.INSTANCE.getService(SessionFactory.class);
+		if (sessionFactory == null) {
+			logger.warn(packageDomain + " does not exist in key sets: " + sessionFactories.keySet().toString());
+		}
 		Session session = sessionFactory.getCurrentSession(); 
-		sessionFactoryTL.set(session);
+		if (sessionFactoryTL.get() == null) {
+			sessionFactoryTL.set(new HashMap<String, Session>());
+		}
+		sessionFactoryTL.get().put(packageDomain, session);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Start Hibernate Transaction: collections-{},entities-{}", 
 					new Object[] { session.getStatistics().getCollectionCount(), 
@@ -105,45 +148,55 @@ public class HibernateUtil {
 	 */
 	public static void releaseSession(boolean isCommit) {
 		if (sessionFactoryTL.get() == null) {
-			if (userTransactionTL.get() != null) {
-				try {
-					userTransactionTL.get().rollback();
-				} catch (Exception e) {
+			try {
+				if (userTansaction.getStatus() != Status.STATUS_NO_TRANSACTION) {
+					userTansaction.rollback();
 				}
-				userTransactionTL.set(null);
-			}
+			} catch (Exception e) {
+				printThreadCounter();
+				throw new RuntimeException(e);
+			} 
 			return;
 		}
-		if (userTransactionTL.get() == null) {
-			sessionFactoryTL.set(null);
-			return;
-		}
-		Session session = sessionFactoryTL.get();
 		if (logger.isDebugEnabled()) {
-			logger.debug("End Hibernate Transaction: isCommit-{},collections-{},entities-{}", 
-					new Object[] { isCommit, session.getStatistics().getCollectionCount(), 
-									session.getStatistics().getEntityCount()});
+			logger.debug("Transaction: isCommit-{}, user transaction-{}", 
+					new Object[] { isCommit, userTansaction.toString()});
 		}
 		try {
-			if (userTransactionTL.get() != null 
-					&& userTransactionTL.get().getStatus() != Status.STATUS_NO_TRANSACTION) {
+			if (userTansaction.getStatus() != Status.STATUS_NO_TRANSACTION) {
 				if (isCommit) {
+					Collection<Session> sessions = sessionFactoryTL.get().values();
 					// JTASessionContext being used with JDBCTransactionFactory; 
 					// auto-flush will not operate correctly with getCurrentSession()
-					session.flush();
-					userTransactionTL.get().commit();
+					for (Session s: sessions) {
+						s.flush();
+					}
+					userTansaction.commit();
 				} else {
-					userTransactionTL.get().rollback();
+					userTansaction.rollback();
 				}
 			}
 		} catch (Throwable e) {
+			printThreadCounter();
 			throw new RuntimeException(e);
 		} finally {
 			sessionFactoryTL.set(null);
-			userTransactionTL.set(null);
+			if (threadCounters.containsKey(Thread.currentThread().getName())) {
+				threadCounters.get(Thread.currentThread().getName()).set(0);
+			}
 		}
 	}
 	
+	/**
+	 * Open session without transaction directly.
+	 * 
+	 * @return
+	 */
+	public static Session openSession() {
+		SessionFactory sessionFactory = IServerServiceManager.INSTANCE.getService(SessionFactory.class);
+		return sessionFactory.openSession(); 
+	}
+
 	public static void releaseSession(Session session, boolean isCommit) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("End Hibernate Transaction: isCommit-{},collections-{},entities-{}", 
@@ -151,46 +204,34 @@ public class HibernateUtil {
 									session.getStatistics().getEntityCount()});
 		}
 		try {
-			if (userTransactionTL.get() != null 
-					&& userTransactionTL.get().getStatus() != Status.STATUS_NO_TRANSACTION) {
+			if (userTansaction.getStatus() != Status.STATUS_NO_TRANSACTION) {
 				if (isCommit) {
 					// JTASessionContext being used with JDBCTransactionFactory; 
 					// auto-flush will not operate correctly with getCurrentSession()
 					session.flush();
-					userTransactionTL.get().commit();
+					userTansaction.commit();
 				} else {
-					userTransactionTL.get().rollback();
+					userTansaction.rollback();
 				}
 			}
 		} catch (Exception e) {
+			printThreadCounter();
 			throw new RuntimeException(e);
 		} finally {
 			sessionFactoryTL.set(null);
-			userTransactionTL.set(null);
-		}
-	}
-	
-	public static void releaseTransaction(boolean isCommit) {
-		if (userTransactionTL.get() == null) {
-			return;
-		}
-		try {
-//			if (userTransactionTL.get() instanceof BitronixTransactionManager) {
-//				BitronixTransactionManager txManager = (BitronixTransactionManager)userTransactionTL.get();
-//				txManager.getStatus();
-//			}
-			if (userTransactionTL.get().getStatus() != Status.STATUS_NO_TRANSACTION) {
-				if (isCommit) {
-					userTransactionTL.get().commit();
-				} else {
-					userTransactionTL.get().rollback();
-				}
+			if (threadCounters.containsKey(Thread.currentThread().getName())) {
+				threadCounters.get(Thread.currentThread().getName()).set(0);
 			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		} finally {
-			userTransactionTL.set(null);
 		}
 	}
 	
+	public static void printThreadCounter() {
+		//bitronix.tm.BitronixTransaction
+		logger.info("-------------Print Thread Counters-------------");
+		Set<Entry<String, AtomicInteger>> entries = threadCounters.entrySet();
+		for (Entry<String, AtomicInteger> entry: entries) {
+			logger.info(entry.getKey() + "-- counts: " + entry.getValue().get());
+		}
+		logger.info("-------------Print Thread Counters End-------------");
+	}
 }

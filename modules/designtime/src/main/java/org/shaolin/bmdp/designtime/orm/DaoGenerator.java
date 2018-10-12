@@ -115,6 +115,8 @@ public class DaoGenerator implements IEntityEventListener<TableType, RDBDiagram>
 		out.write("import org.shaolin.bmdp.persistence.BEEntityDaoObject;\n");
 		out.write("import org.shaolin.bmdp.persistence.HibernateUtil;\n");
 		out.write("import org.shaolin.bmdp.persistence.query.operator.Operator;\n");
+		out.write("import org.springframework.stereotype.Repository;\n");
+		out.write("import org.springframework.transaction.annotation.Transactional;\n");
 		
 		for (TableType table : diagram.getTables()) {
 			ClassMappingType mapping = table.getMapping();
@@ -142,6 +144,8 @@ public class DaoGenerator implements IEntityEventListener<TableType, RDBDiagram>
 		out.write("/**\n");
 		out.write(" * This code is generated automatically, any change will be replaced after rebuild.\n");
 		out.write(" */\n");
+		out.write("@Repository\n");
+		out.write("@Transactional\n");
 		out.write("public class ");
 		out.write(javaName);
 		out.write(" extends BEEntityDaoObject {\n\n");
@@ -150,7 +154,7 @@ public class DaoGenerator implements IEntityEventListener<TableType, RDBDiagram>
 		out.write(" INSTANCE = new ");
 		out.print(javaName);
 		out.write("();\n\n");
-		out.write("    private ");
+		out.write("    public ");
 		out.write(javaName);
 		out.write("() {\n");
 		/**

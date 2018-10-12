@@ -97,10 +97,10 @@ public class ODPageContext extends ODContext
 		
 		uiEntity = new HTMLReferenceEntityType(htmlPrefix, uiEntityName);
 		
-		DefaultEvaluationContext defaultEContext = new DefaultEvaluationContext();
-    	defaultEContext.setVariableValue("context", requestContext);
-    	defaultEContext.setVariableValue("odContext", this);
-    	this.setDefaultEvaluationContext(defaultEContext);
+        DefaultEvaluationContext defaultEContext = new DefaultEvaluationContext();
+	    	defaultEContext.setVariableValue("context", requestContext);
+	    	defaultEContext.setVariableValue("odContext", this);
+	    	this.setDefaultEvaluationContext(defaultEContext);
 		this.setExternalEvaluationContext(this);
 		
 		DefaultEvaluationContext localEContext = odPageEntityObject.getLocalEContext();

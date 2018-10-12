@@ -28,26 +28,26 @@ public class HtmlGeneratorMojo extends AbstractMojo {
     /**
      * The maven project.
      * 
-     * @parameter expression="${project}"
+     * @parameter property="project"
      * @readonly
      */
     private MavenProject project;
 
     /**
-     * 
-     * @parameter expression="${basedir}/src/main/resources/entities/"
+     * @parameter default-value="${basedir}/src/main/resources/entities/"
+     * @readonly
      */
     private File entitiesDirectory;
     
     /**
-     * 
-     * @parameter expression="${basedir}/src/other/web/html"
+     * @parameter default-value="${basedir}/src/other/web/html"
+     * @readonly
      */
     private File htmlDirectory;
     
     /**
-     * 
-     * @parameter expression="${pageName}"
+     * @parameter property="pageName"
+     * @readonly
      */
     private String pageName;
 

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+  <class name="org.shaolin.bmdp.persistence.be2.OrganizationImpl2" table="TEST_ORGANIZATION1">
+    <id name="id" column="ID">
+      <generator class="native" />
+    </id>
+    <property name="parentId" column="PARENTID"/>
+    <property name="orgCode" column="ORGCODE"/>
+    <property name="name" column="NAME"/>
+    <property name="description" column="DESCRIPTION"/>
+    <property name="verifierId" column="VERIFIER"/>
+    <property name="createDate" type="timestamp" column="CREATEDATE"/>
+    <property name="_enable" type="boolean" column="_enable"/>
+    <property name="_cas" type="long" column="_cas"/>
+  </class>
+</hibernate-mapping>

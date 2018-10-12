@@ -196,12 +196,12 @@ public class RefForm extends Container implements Serializable
 	
     public Map ui2Data()
     {
-    	return ui2Data(this.inputParams);
+    		return ui2Data(this.inputParams);
     }
     
     public Map ui2Data(Map inputParams)
     {
-    	UserRequestContext orginalUserContext = UserRequestContext.UserContext.get();
+    		UserRequestContext orginalUserContext = UserRequestContext.UserContext.get();
         try {
             if(logger.isDebugEnabled())
             {
@@ -210,7 +210,7 @@ public class RefForm extends Container implements Serializable
             
             AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
             UserRequestContext htmlContext = new UserRequestContext(ajaxContext.getRequest());
-            htmlContext.setCurrentFormInfo(this.getUIEntityName(), "", "");
+            htmlContext.setCurrentFormInfo(this.getUIEntityName(), this.uiid + ".", "");
             htmlContext.setIsDataToUI(false);//Don't set prefix in here.
             htmlContext.setAjaxWidgetMap(AjaxContextHelper.getFrameMap(ajaxContext.getRequest()));
             
@@ -221,7 +221,7 @@ public class RefForm extends Container implements Serializable
             htmlContext.setODMapperData(inputParams);
             UserRequestContext.UserContext.set(htmlContext);
             
-            ODProcessor processor = new ODProcessor(htmlContext, this.getUIEntityName(), -1);
+            ODProcessor processor = new ODProcessor(htmlContext, this.getUIEntityName(), this.uiid, -1);
             ODEntityContext odContext = processor.process();
     		if (ajaxContext.getEventSource() != null) {
     			// this check is supposed to be in UI to Data stage.
@@ -291,13 +291,13 @@ public class RefForm extends Container implements Serializable
 
     String buildUpRefEntity()
     {
-    	if (this.getId() == null) {
-    		throw new IllegalStateException("Please make sure you are using the right refform object!");
-    	}
-    	UserRequestContext orginalUserContext = UserRequestContext.UserContext.get();
+	    	if (this.getId() == null) {
+	    		throw new IllegalStateException("Please make sure you are using the right refform object!");
+	    	}
+    		UserRequestContext orginalUserContext = UserRequestContext.UserContext.get();
         try
         {
-        	AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
+        		AjaxContext ajaxContext = AjaxContextHelper.getAjaxContext();
         	
             StringWriter writer = new StringWriter();
             UserRequestContext htmlContext = new UserRequestContext(ajaxContext.getRequest(), writer);
@@ -372,17 +372,17 @@ public class RefForm extends Container implements Serializable
             }
             AjaxContextHelper.updateFrameMap(ajaxContext.getRequest(), htmlContext.getPageAjaxWidgets());
             
-            // append the dynamic js files.
-            StringWriter jswriter = new StringWriter();
-            UserRequestContext jsContext = new UserRequestContext(ajaxContext.getRequest(), jswriter);
-        	UIFormObject formObject = PageCacheManager.getUIFormObject(this.getUIEntityName());
-        	formObject.getJSPathSet(jsContext, Collections.emptyMap(), true);
-        	String data = jswriter.getBuffer().toString();
-        	IDataItem dataItem = AjaxContextHelper.createLoadJS(getId(), data);
-            dataItem.setFrameInfo(getFrameInfo());
-            ajaxContext.addDataItem(dataItem);
-            htmlContext.resetCurrentFormInfo();
-            
+			// append the dynamic js files.
+			StringWriter jswriter = new StringWriter();
+			UserRequestContext jsContext = new UserRequestContext(ajaxContext.getRequest(), jswriter);
+			UIFormObject formObject = PageCacheManager.getUIFormObject(this.getUIEntityName());
+			formObject.getJSPathSet(jsContext, Collections.emptyMap(), true);
+			String data = jswriter.getBuffer().toString();
+			IDataItem dataItem = AjaxContextHelper.createLoadJS(getId(), data);
+			dataItem.setFrameInfo(getFrameInfo());
+			ajaxContext.addDataItem(dataItem);
+			htmlContext.resetCurrentFormInfo();
+
             return writer.getBuffer().toString();
         }
         catch (Exception ex)
@@ -401,7 +401,7 @@ public class RefForm extends Container implements Serializable
         if (logger.isDebugEnabled())
             logger.debug("callODMapper odmapper name: " + odmapperName);
         
-        ODProcessor processor = new ODProcessor(htmlContext, odmapperName, -1);
+        ODProcessor processor = new ODProcessor(htmlContext, odmapperName, this.uiid, -1);
         processor.process();
     }
     
@@ -428,16 +428,23 @@ public class RefForm extends Container implements Serializable
     }
     
     public void openInWindows(String title, CallBack callBack, int width, int height, boolean showCloseBtn, boolean autoResize) {
-    	window = new ModalWindow(this.getUiid() + "-Dialog", title, this);
+        window = new ModalWindow(this.getUiid() + "-Dialog", title, this);
         window.setFixable(true);
         window.setShowCloseBtn(showCloseBtn);
         window.setAutoResize(autoResize);
+        window.openInBottomDialog(openInBottomDialog);
         if (width > 0) {
-        	window.setBounds(-1, -1, width, height);
+        	   window.setBounds(-1, -1, width, height);
         }
         window.open();
         
         this.callBack = callBack;
+    }
+    
+    private boolean openInBottomDialog;
+    
+    public void openInBottomDialog() {
+    		openInBottomDialog = true;
     }
     
     public void addWindowsClosedCallBack(CallBack caller) {

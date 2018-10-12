@@ -4,7 +4,7 @@
     <artifactId>persistence</artifactId>
     <packaging>jar</packaging>
     <name>UI Master Persistence</name>
-    <version>${uimaster.version}</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <parent>
         <artifactId>build.modules</artifactId>
@@ -21,6 +21,10 @@
     </developers>
     <dependencies>
         <dependency>
+		   <groupId>commons-dbcp</groupId>
+		   <artifactId>commons-dbcp</artifactId>
+		</dependency>
+        <dependency>
 	       <groupId>org.springframework.boot</groupId>
 	       <artifactId>spring-boot-starter-data-jpa</artifactId>
 	    </dependency>
@@ -32,6 +36,12 @@
 		   <groupId>org.codehaus.btm</groupId>
 		   <artifactId>btm</artifactId>
 		</dependency>
+		<!-- 
+		<dependency>
+	        <groupId>com.alibaba</groupId>
+	        <artifactId>druid</artifactId>
+	    </dependency>
+	     -->
         <dependency>
 			<groupId>org.shaolin.bmdp</groupId>
 			<artifactId>common</artifactId>

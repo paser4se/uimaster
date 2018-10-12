@@ -62,7 +62,7 @@ public class BEEntityDaoObject {
 			return;
 		}
 		
-		Session session = HibernateUtil.getSession();
+		Session session = HibernateUtil.getSession(entity.getClass().getPackage().getName());
 		session.save(entity);
 		//session.persiste(entity) does not save immediately.
 		//this will cause the issue with generated PK entity dependencies.
@@ -100,7 +100,7 @@ public class BEEntityDaoObject {
 			return;
 		}
 
-		Session session = HibernateUtil.getSession();
+		Session session = HibernateUtil.getSession(entity.getClass().getPackage().getName());
 		session.delete(entity);
 		
 		if (commit) {
@@ -143,11 +143,12 @@ public class BEEntityDaoObject {
 		}
 		
 		// dirty data check!
-		if (!exist(entity.getId(), entity.getCas(), entity.getClass())) {
-			throw new RuntimeException("A dirty record found! update failed: " + entity.toString());
-		}
+		// this case won't work for JTA transaction scenario due to multiple resources commitment.
+//		if (!exist(entity.getId(), entity.getCas(), entity.getClass())) {
+//			throw new RuntimeException("A dirty record found! update failed: " + entity.toString());
+//		}
 		
-		Session session = HibernateUtil.getSession();
+		Session session = HibernateUtil.getSession(entity.getClass().getPackage().getName());
 		try {
 			entity.setCas(System.currentTimeMillis());
 			session.update(entity);
@@ -193,7 +194,7 @@ public class BEEntityDaoObject {
 		if (testMode) {
 			return;
 		}
-		Session session = HibernateUtil.getSession();
+		Session session = HibernateUtil.getSession(entity.getClass().getPackage().getName());
 		session.load(entity, entity.getId());
 	}
 
@@ -207,7 +208,7 @@ public class BEEntityDaoObject {
 		if (testMode) {
 			return;
 		}
-		Session session = HibernateUtil.getSession();
+		Session session = HibernateUtil.getSession(entity.getClass().getPackage().getName());
 		session.merge(entity);
 	}
 
@@ -230,7 +231,7 @@ public class BEEntityDaoObject {
 		if (testMode) {
 			return;
 		}
-		Session session = HibernateUtil.getSession();
+		Session session = HibernateUtil.getSession(entities.get(0).getClass().getPackage().getName());
 		for (IPersistentEntity entity : entities) {
 			if (entity.getCreateDate() == null) {
 				entity.setCreateDate(new Date());
@@ -267,7 +268,7 @@ public class BEEntityDaoObject {
 		if (testMode) {
 			return;
 		}
-		Session session = HibernateUtil.getSession();
+		Session session = HibernateUtil.getSession(entities.get(0).getClass().getPackage().getName());
 		for (IPersistentEntity entity : entities) {
 			if (entity.getId() == 0) {
 				session.save(entity);
@@ -299,7 +300,7 @@ public class BEEntityDaoObject {
 		if (testMode) {
 			return;
 		}
-		Session session = HibernateUtil.getSession();
+		Session session = HibernateUtil.getSession(entities.get(0).getClass().getPackage().getName());
 		for (IPersistentEntity entity : entities) {
 			if (entity.getId() > 0) {
 				session.delete(entity);
@@ -322,7 +323,7 @@ public class BEEntityDaoObject {
 		if (testMode) {
 			return;
 		}
-		Session session = HibernateUtil.getSession();
+		Session session = HibernateUtil.getSession(entity.getClass().getPackage().getName());
 		entity.setEnabled(false);
 		session.update(entity);
 	}
@@ -339,7 +340,7 @@ public class BEEntityDaoObject {
 		if (testMode) {
 			return;
 		}
-		Session session = HibernateUtil.getSession();
+		Session session = HibernateUtil.getSession(entity.getClass().getPackage().getName());
 
 		entity.setEnabled(true);
 		session.update(entity);
@@ -356,7 +357,7 @@ public class BEEntityDaoObject {
 	@SuppressWarnings("unchecked")
 	public <T> List<T> listStatistic(String table, int offset, int count,
 			Map<String, Object> conditions) {
-		Session session = HibernateUtil.getReadOnlySession();
+		Session session = HibernateUtil.getSession(this.getClass().getPackage().getName());
 		return session.createSQLQuery("select * from " + table).list();
 	}
 
@@ -369,7 +370,7 @@ public class BEEntityDaoObject {
 		sb.append("SELECT ORGID, COUNT(1) FROM " + table
 				+ " WHERE CREATEDATE between '" + day + " 00-00-00' and '"
 				+ day + " 23:59:59' GROUP BY ORGID");
-		Session session = HibernateUtil.getReadOnlySession();
+		Session session = HibernateUtil.getSession(this.getClass().getPackage().getName());
 		return session.createSQLQuery(sb.toString()).list();
 	}
 	
@@ -382,7 +383,7 @@ public class BEEntityDaoObject {
 		sb.append("SELECT COUNT(1) FROM " + table
 				+ " WHERE CREATEDATE between '" + day + " 00-00-00' and '"
 				+ day + " 23:59:59' GROUP BY DAY(CREATEDATE)");
-		Session session = HibernateUtil.getReadOnlySession();
+		Session session = HibernateUtil.getSession(this.getClass().getPackage().getName());
 		return session.createSQLQuery(sb.toString()).list();
 	}
 
@@ -457,7 +458,7 @@ public class BEEntityDaoObject {
 			count = PERQUERY_MAXRECORD;
 		}
 		long start = System.currentTimeMillis();
-		Session session = HibernateUtil.getReadOnlySession();
+		Session session = HibernateUtil.getSession(persistentType.getPackage().getName());
 		try {
 			Criteria criteria = null;
 			if (alias != null) {
@@ -500,7 +501,7 @@ public class BEEntityDaoObject {
 	 * @return
 	 */
 	protected Criteria _createCriteria(Class<?> persistentType, String alias) {
-		Session session = HibernateUtil.getReadOnlySession();
+		Session session = HibernateUtil.getSession(persistentType.getPackage().getName());
 		return session.createCriteria(persistentType, alias);
 	}
 
@@ -547,11 +548,14 @@ public class BEEntityDaoObject {
 		long start = System.currentTimeMillis();
 		try {
 			// mobile pulling data supported.
-			if (UserContext.isMobileRequest() && UserContext.getUserContext() != null 
-					&& UserContext.getUserContext().getPullId() > 0) {
+			if (UserContext.isMobileRequest() && UserContext.getUserContext() != null) {
 				if (UserContext.getUserContext().isPullNew()) {
 					criteria.add(createCriterion(Operator.GREATER_THAN, criteria.getAlias() + ".id", UserContext.getUserContext().getPullId()));
 				} else if (UserContext.getUserContext().isPullHistory()) {
+					if (UserContext.getUserContext().getPullId() <= 0) {
+						// reached the beginning.
+						return Collections.emptyList();
+					}
 					criteria.add(createCriterion(Operator.LESS_THAN, criteria.getAlias() + ".id", UserContext.getUserContext().getPullId()));
 				}
 				if (count > 0) {
@@ -637,7 +641,7 @@ public class BEEntityDaoObject {
 	 * @return
 	 */
 	public long countStatistic(String table, Map<String, Object> condition) {
-		Session session = HibernateUtil.getReadOnlySession();
+		Session session = HibernateUtil.getSession(this.getClass().getPackage().getName());
 		return (Long) session.createSQLQuery("select count(1) from " + table)
 				.uniqueResult();
 	}
@@ -651,7 +655,7 @@ public class BEEntityDaoObject {
 	 */
 	public long count(Class<?> persistentType, String alias,
 			List<Criterion> criterions) {
-		Session session = HibernateUtil.getReadOnlySession();
+		Session session = HibernateUtil.getSession(persistentType.getPackage().getName());
 		Criteria criteria = null;
 		if (alias != null) {
 			criteria = session.createCriteria(persistentType, alias);
@@ -678,7 +682,7 @@ public class BEEntityDaoObject {
 	 */
 	public <T> List<T> sqlList(int offset, int count, StringBuffer sql,
 			List<Object> condition, List<SQLTableInfo> tableInfo) {
-		Session session = HibernateUtil.getSession();
+		Session session = HibernateUtil.getSession(this.getClass().getPackage().getName());
 		SQLQuery sqlQuery = session.createSQLQuery(sql.toString());
 		sqlQuery.setFirstResult(offset);
 		sqlQuery.setMaxResults(count);
@@ -715,7 +719,7 @@ public class BEEntityDaoObject {
 	 * @return
 	 */
 	public long sqlCount(StringBuffer sql, List<Object> condition) {
-		Session session = HibernateUtil.getSession();
+		Session session = HibernateUtil.getSession(this.getClass().getPackage().getName());
 		SQLQuery sqlQuery = session.createSQLQuery(sql.toString());
 
 		for (int i = 0; i < condition.size(); i++) {

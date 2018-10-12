@@ -4,7 +4,7 @@
     <artifactId>uipage</artifactId>
     <packaging>jar</packaging>
     <name>UI Master Page</name>
-    <version>${uimaster.version}</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <parent>
         <artifactId>build.modules</artifactId>
@@ -20,6 +20,22 @@
         </developer>
     </developers>
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session</artifactId>
+        </dependency>
+        <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.session</groupId>
+			<artifactId>spring-session-data-redis</artifactId>
+		</dependency>
+		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

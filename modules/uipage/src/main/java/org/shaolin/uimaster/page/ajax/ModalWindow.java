@@ -64,6 +64,8 @@ public class ModalWindow extends Container implements Serializable
 
 	private boolean autoResize = false;
 	
+	private boolean openInBottomDialog = false;
+	
 	private String frameInfo;
     
 	public ModalWindow(String uiid, RefForm refEntity) {
@@ -211,6 +213,10 @@ public class ModalWindow extends Container implements Serializable
 		this.autoResize = autoResize;
 	}
     
+	public void openInBottomDialog(boolean openInBottomDialog) {
+		this.openInBottomDialog = openInBottomDialog;
+    }
+	
     private IDataItem createOpenData(AjaxContext ajaxContext)
     {
         IDataItem dataItem = AjaxContextHelper.createDataItem();
@@ -238,6 +244,7 @@ public class ModalWindow extends Container implements Serializable
         map.put("fixable", String.valueOf(this.fixable));
         map.put("isMin", String.valueOf(this.isMin));
         map.put("isOnlyShowCloseBtn", String.valueOf(this.isOnlyShowCloseBtn));
+        map.put("openInBottomDialog", String.valueOf(this.openInBottomDialog));
         map.put("id", this.getId());
 
         return (new JSONObject(map)).toString();

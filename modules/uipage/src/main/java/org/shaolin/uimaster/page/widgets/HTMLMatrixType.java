@@ -26,9 +26,6 @@ import org.shaolin.bmdp.runtime.ce.CEUtil;
 import org.shaolin.bmdp.runtime.ce.IConstantEntity;
 import org.shaolin.javacc.exception.EvaluationException;
 import org.shaolin.uimaster.page.UserRequestContext;
-import org.shaolin.uimaster.page.ajax.Layout;
-import org.shaolin.uimaster.page.ajax.Matrix;
-import org.shaolin.uimaster.page.ajax.Widget;
 import org.shaolin.uimaster.page.cache.UIFormObject;
 import org.shaolin.uimaster.page.javacc.VariableEvaluator;
 import org.slf4j.Logger;
@@ -179,23 +176,20 @@ public class HTMLMatrixType extends HTMLTextWidgetType
     
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-    	if (this.containsAttribute("initExpr")) {
-	    	try {
+	    	if (this.containsAttribute("initExpr")) {
+		    	try {
 				ExpressionType initQueryExpr = (ExpressionType)this.removeAttribute("initExpr");
 				Object initResult = ee.evaluateExpression(initQueryExpr);
 				
 				this.addAttribute("init", initResult);
-	    	} catch (EvaluationException e) {
+		    	} catch (EvaluationException e) {
 				throw new IllegalStateException(e);
 			}
-    	}
-//    	
-//    	Matrix matrix = new Matrix(getName(), Layout.NULL);
-//    	matrix.setUIEntityName(getUIEntityName());
-//    	matrix.setListened(true);
-		JSONObject json = super.createJsonModel(ee);
-		json.getJSONObject("attrMap").remove("init");
-		return json;
+	    	}
+//		JSONObject json = super.createJsonModel(ee);
+//		json.getJSONObject("attrMap").remove("init");
+//		return json;
+	    	return null;
     }
 
     public static class DataMode implements Serializable {

@@ -1,5 +1,5 @@
 $.ajaxSetup({'cache':true});//disable JQuery add number at the end of js url.
-var MobileAppMode = (typeof(_mobContext) != undefined && typeof(_mobContext) != "undefined"); 
+var MobileAppMode = (typeof(_mobContext) != undefined && typeof(_mobContext) != "undefined");
 if (MobileAppMode) {
     var LANG = "zh-CN";
     var USER_CONSTRAINT_IMG="/images/uimaster_constraint.gif";
@@ -18,7 +18,7 @@ var elementList = new Array();
  * @param {Function} handler Function handler. <br/> There will be two parameters passed to the handler. First one is the data passed from the server, the second one is the window object of that operation.
  * @returns {UIMaster} UIMaster object.
  */
-var scriptCaches_ = new Array(); 
+var scriptCaches_ = new Array();
 var DATA_FORMAT_SERVICE_URL = "/jsp/common/DataFormatService.jsp";
 function isWeiXinBrowser(){var ua = window.navigator.userAgent.toLowerCase(); return ua.indexOf('MicroMessenger') != -1;}
 function isSafariBrowser(){return UIMaster.browser.safari;}
@@ -52,12 +52,12 @@ Array.prototype.remove=function(dx){
 function dPageLink(link,uipanel){
     if (link != null) {
 	    parent.defaultname.functionTree.clickUiPanel = uipanel;
-		var t = parent.defaultname.functionTree._treeObj; 
+		var t = parent.defaultname.functionTree._treeObj;
 		t.deselect_node(t.get_selected()); t.select_node(link);
 	}
 };
 function dPageLinkOnPage(clickRemembered){
-    if (!clickRemembered || clickRemembered == "null" || clickRemembered == "") 
+    if (!clickRemembered || clickRemembered == "null" || clickRemembered == "")
 	    return;
     if (clickRemembered.indexOf(",") != -1) {
        var ids = clickRemembered.split(",");
@@ -308,7 +308,7 @@ UIMaster.pageInitFunctions.push(function() {//handle back button event and reloa
 		}
 		var frameprefix = f.attr("_frameprefix");
 		if (frameprefix == undefined) {//only for main page.
-		    var opts = {async:true,url:AJAX_SERVICE_URL,
+		    var opts = {async:true,url:AJAX_SERVICE_URL+"/old",
 				data:{serviceName:'pagestatesync',r:Math.random(),_chunkname:path,_nodename:node,_frameprefix:frameprefix},
 				success:function(data){
 					if(data == '0')
@@ -477,22 +477,6 @@ UIMaster.groupAssign = function(obj, nv){
  */
 UIMaster.i18nmsg = UIMaster_getI18NInfo;
 /**
- * @description Synchronize widget attribute to the server. This method is synchronized.
- * @param {String} uiid ID of the element.
- * @param {String} name Name of the attribute.
- * @param {String} value Value of the attribute.
- */
-UIMaster.synAttr = function(uiid, name, value){
-    var opts = {url:AJAX_SERVICE_URL,
-            asnyc:false,
-            data:{_ajaxUserEvent:false,_uiid:uiid,_valueName:name,_value:value,_framePrefix:UIMaster.getFramePrefix()}};
-    if (MobileAppMode) {
-       _mobContext.ajax(JSON.stringify(opts));
-    } else {
-       $.ajax(opts);
-	}
-};
-/**
  * @description Extend a class with configurations.
  * @param {Function} sp Super Class.
  * @param {Object} c Configuration items.
@@ -596,7 +580,7 @@ UIMaster.util.forwardToPage = function(link, newpage){
 };
 UIMaster.util.invokeWebService = function(service, name, parameters){
 	//parameters
-	var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"webservice",_serviceName:(service +"."+name), param: parameters,_framePrefix:UIMaster.getFramePrefix()}};
+	var opts = {url:AJAX_SERVICE_URL+"/old",async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"webservice",_serviceName:(service +"."+name), param: parameters,_framePrefix:UIMaster.getFramePrefix()}};
 	if (MobileAppMode) {
 	   _mobContext.ajax(JSON.stringify(opts));
     } else {
@@ -650,7 +634,7 @@ UIMaster.getHints = function(obj, link){
 UIMaster.closeHints = function(e){
 	$($(e).parent()).css("display","none");
 	event.stopPropagation();
-	return false; 
+	return false;
 };
 /**
  * @description Clear page error message.
@@ -659,7 +643,20 @@ UIMaster.closeHints = function(e){
 UIMaster.clearErrMsg = function() {
     $(".err-page-warn").remove();
 };
-function syncAll() {
+UIMaster.findEntityName = function(elm){
+    if(elm && elm.getAttribute("entity") != null)
+        return elm.getAttribute("entity");
+    while (elm && elm.getAttribute("entity")==null)
+        elm = elm.parentNode;
+    return elm.getAttribute("entity");
+};
+UIMaster.syncAll = function(subref) {
+    if (subref && subref.indexOf('.') > -1) {
+        var root = eval("defaultname."+subref.substring(0, subref.indexOf('.')));
+        if (root && root.sync)
+            root.sync();
+        return;
+    }
     if (defaultname.sync)
         defaultname.sync();
     else
@@ -675,12 +672,13 @@ UIMaster.actionComment = null;//for taking a simple note of each action for inst
  * @param {String} entityName The UIEntity name of the action.
  */
 UIMaster.triggerServerEvent = function(uiid,actionName,data,entityName,action,async){
-	if (elementList[uiid] != null && elementList[uiid].type 
+	if (elementList[uiid] != null && elementList[uiid].type
 		&& elementList[uiid].type == "button" && elementList[uiid].disable) {
 		elementList[uiid].disable();
+        UIMaster.ui.sync.set({"uiid":uiid,"type":"Button","attrMap":"{}",_framePrefix:""});
 	}
     UIMaster.ui.mask.open();
-    syncAll();
+    UIMaster.syncAll(uiid);
     //(typeof(async) != "undefined")?async:false,
     var opt = {
             async: true,
@@ -699,11 +697,11 @@ UIMaster.triggerServerEvent = function(uiid,actionName,data,entityName,action,as
 
     var opt2 = {};
     if (typeof data.asyncAttr != "undefined") {
-        opt2.async = data.asyncAttr; 
+        opt2.async = data.asyncAttr;
     }
 
     if (typeof data.completeHandler != "undefined") {
-        opt2.complete = data.completeHandler; 
+        opt2.complete = data.completeHandler;
     }
     if (MobileAppMode) {
         _mobContext.ajax(JSON.stringify(opt));
@@ -766,7 +764,7 @@ UIMaster.parseCurrency = function(locale, format, text){
     var r;
 	var opts = {
         async:false,
-        url:AJAX_SERVICE_URL,
+        url:AJAX_SERVICE_URL + "/old",
         data:{serviceName:'CurrencyFormatService',_locale:locale,_format:format,_text:text},
         success:function(data){
             r=data;
@@ -790,7 +788,7 @@ UIMaster.formatCurrency = function(locale, format, number){
     var r;
 	var opts = {
         async:false,
-        url:AJAX_SERVICE_URL,
+        url:AJAX_SERVICE_URL + "/old",
         data:{serviceName:'CurrencyFormatService',_locale:locale,_format:format,_number:number},
         success:function(data){
             r=data;
@@ -915,7 +913,7 @@ function UIMaster_getI18NInfo(keyInfo, param, languageType){
     var v = UIMaster_getI18NInfo.get(keyInfo);
     if (param == undefined && v)
         return v;
-    var object = new UIMaster_AjaxClient(AJAX_SERVICE_URL);
+    var object = new UIMaster_AjaxClient(AJAX_SERVICE_URL+"/old");
     object.append('serviceName','I18NService').append('KEYINFO',keyInfo);
     if(param != null && param != "")
         if( param.length > 0 ){
@@ -938,7 +936,7 @@ UIMaster_getI18NInfo.put=function(key,value){
     return value;
 };
 function UIMaster_getFormattedDate(format, datetype, date, datestring){
-    var object = new UIMaster_AjaxClient(AJAX_SERVICE_URL);
+    var object = new UIMaster_AjaxClient(AJAX_SERVICE_URL+"/old");
     object.append('serviceName','DateFormatService');
     if (date && date instanceof Date) object.append('DATE',date.getTime());
     return object.append('FORMAT',format).append('DATETYPE',datetype).append('DATESTRING',datestring).append('OFFSET', date?date.getTimezoneOffset():new Date().getTimezoneOffset()).submitAsString().replace(/^\s+|\s+$/g,"");
@@ -960,21 +958,27 @@ UIMaster.setCookie = function(name, value){
 	var Days = 30;
 	var exp = new Date();
 	exp.setTime(exp.getTime() + Days*24*60*60*1000);
-	document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+  try {
+	   document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+  } catch (e) {}
 }
 UIMaster.getCookie = function(name){
-	var arr,reg = new RegExp("(^| )"+name+"=([^;]*)(;|$)");
-	if(arr = document.cookie.match(reg))
-		return unescape(arr[2]);
-	else
-		return null;
+  try {
+  	var arr,reg = new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+  	if(arr = document.cookie.match(reg))
+  		return unescape(arr[2]);
+  } catch (e) {}
+  return null;
 }
 UIMaster.deleteCookie = function(name){
 	var exp = new Date();
 	exp.setTime(exp.getTime() - 1);
 	var cval = getCookie(name);
-	if(cval != null)
+	if(cval != null) {
+    try {
 		document.cookie= name + "="+cval+";expires="+exp.toGMTString();
+    } catch (e) {}
+  }
 }
 function getFormElementList(formName){
     getElementListSingle(document.forms[formName]);
@@ -998,7 +1002,7 @@ function establishWebsocket(eventType, onOpen, onMessage, onError) {
     if (MobileAppMode) {
 	    webSocket = _mobContext.getWebSocket();
 	} else {
-	    var phead = ('https:' == window.location.protocol) ? "wss://" : "ws://"; 
+	    var phead = ('https:' == window.location.protocol) ? "wss://" : "ws://";
         webSocket = new WebSocket(phead+window.location.host+WEB_CONTEXTPATH+eventType);
 	}
     webSocket.onerror = function(event) {
@@ -1075,7 +1079,7 @@ function disableFormDoubleSubmitInternal(formNode){
             tf.append(appendHidden('_portletId',form._portletId.value));
         if (target)
             tf.append(appendHidden('_frameTarget',target));
-            
+
         var k = $("#_htmlkey");
         if(k.length>0)	// if this request just for fetch result
             tf.append(appendHidden('_htmlkey',k.attr("value")));
@@ -1086,9 +1090,9 @@ function disableFormDoubleSubmitInternal(formNode){
             else {
                 s=UIMaster.ui.sync();
                 if (s) tf.append(appendHidden('_sync',s));
-            }  
+            }
         }
-        
+
         tf.appendTo(form.parentNode);
         tf.submit();
     }

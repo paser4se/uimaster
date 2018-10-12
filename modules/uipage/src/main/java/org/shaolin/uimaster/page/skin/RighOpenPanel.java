@@ -29,7 +29,7 @@ public class RighOpenPanel extends BaseSkin implements IUISkin {
 		context.generateHTML(panelId);
 		context.generateHTML("\" class=\"ui-icon ui-icon-carat-1-e uimaster-rightopenpanel\" style=\"display:none;\" onclick=\"javascript:defaultname.");
 		context.generateHTML(context.getHTMLPrefix() + this.getParam("openAction"));
-		context.generateHTML("(defaultname." + uiid + ", event)\">");
+		context.generateHTML("(defaultname." + context.getHTMLPrefix() + uiid + ", event)\">");
 		context.generateHTML("</div>");
 		context.generateHTML("<script>");
 		context.generateHTML("UIMaster.pageInitFunctions.push(function(){\n");

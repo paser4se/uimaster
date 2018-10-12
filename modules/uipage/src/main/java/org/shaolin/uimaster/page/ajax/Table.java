@@ -266,6 +266,15 @@ public class Table extends Widget<Table> implements Serializable {
 		if (listData == null) {
 			listData = new ArrayList<Object>();
 		}
+		if (persistObjectClass != null && listData.size() > 0) {
+			//check Long to Object;
+			for (int i=0; i<listData.size(); i++) {
+				if (listData.get(i) instanceof Long) {
+					Object be = BEEntityDaoObject.DAOOBJECT.get((Long)listData.get(i), persistObjectClass);
+					listData.set(i, be);
+				}
+			}
+		}
 		return listData;
 	}
 
@@ -518,6 +527,12 @@ public class Table extends Widget<Table> implements Serializable {
 					} else if (conditions.getPullAction().equals("history") && (value > id)) {
 						value = id; //get the smallest id
 					}
+				} else if (be instanceof Long) {
+					if (conditions.getPullAction().equals("new") && (value < (Long)be)) {
+						value = (Long)be; //get the biggest id
+					} else if (conditions.getPullAction().equals("history") && (value > (Long)be)) {
+						value = (Long)be; //get the smallest id
+					}
 				}
 			}
 			isMobPulling = true;
@@ -542,8 +557,14 @@ public class Table extends Widget<Table> implements Serializable {
 			ooeeContext.setEvaluationContextObject(ODContext.GLOBAL_TAG, evaContext);
 			
 			List<Object> rows = (List<Object>)queryExpr.evaluate(ooeeContext);
-			if (rows == null) {
+			if (rows == null || rows.size() == 0) {
 				rows = Collections.emptyList();
+			}
+			for (Object obj : rows) {
+				if (obj instanceof IPersistentEntity && ((IPersistentEntity)obj).getId() > 0) {
+					this.persistObjectClass = ((IPersistentEntity)obj).getClass();
+					break;
+				}
 			}
 			if (isMobPulling) {
 				//TODO:
@@ -570,9 +591,9 @@ public class Table extends Widget<Table> implements Serializable {
 		}
 	}
 	
-	private String refreshPull0(final List rows) {
-		if (rows == null || rows.size() == 0) {
-			return "";
+	private String refreshPull0(List rows) {
+		if (rows == null) {
+			rows = Collections.EMPTY_LIST;
 		}
 		try {
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
@@ -593,15 +614,14 @@ public class Table extends Widget<Table> implements Serializable {
 					realRows.add(BEEntityDaoObject.DAOOBJECT.get((Long)id, persistObjectClass));
 				}
 			}
-			Object firstItem = realRows.get(0);
-			if (firstItem instanceof IBusinessEntity) {
-				Object v = ((IBusinessEntity)firstItem).get_extField().get("count");
-				totalCount = (v == null? 0 : (long)v);
-			} else {
-				totalCount = rows.size();
-			}
-			if (totalCount == 0) {
-				totalCount = rows.size();
+			if (realRows.size() > 0) {
+				Object firstItem = realRows.get(0);
+				if (firstItem instanceof IBusinessEntity) {
+					Object v = ((IBusinessEntity)firstItem).get_extField().get("count");
+					totalCount = (v == null? 0 : (long)v);
+				} else {
+					totalCount = rows.size();
+				}
 			}
 			
 			StringBuilder sb = DisposableBfString.getBuffer();
@@ -612,58 +632,58 @@ public class Table extends Widget<Table> implements Serializable {
 	        sb.append("\"rows\":[");
 	        int count = 0;
 	        for (Object be : realRows) {
-	        	evaContext.setVariableValue("rowBE", be);
-	        	evaContext.setVariableValue("index", count);
-        		StringBuilder imageSB = new StringBuilder();
-        		StringBuilder attrsSB = new StringBuilder();
-        		StringBuilder htmlAttrsSB = new StringBuilder();
-        		StringBuilder swiperSB = new StringBuilder();
-        		swiperSB.append("<div class='swiper-slide'>");
-        		for (UITableColumnType col : columns) {
-        			if ("Image".equalsIgnoreCase(col.getUiType().getType())) {
-        				imageSB.append("<div class='p'>");
-        				Object value = col.getRowExpression().getExpression().evaluate(
-								ooeeContext);
-		        		if (value == null) {
-							value = "";
-						}
-		        		value = HTMLImageType.generateSimple(
-		        				AjaxContextHelper.getAjaxContext().getRequest(), value.toString(), 100, 100);
-		        		imageSB.append(value);
-		        		imageSB.append("</div>");
-        			} else if ("HTML".equalsIgnoreCase(col.getUiType().getType())
-        					|| "HTMLItem".equals(col.getUiType().getType())) {
-        				htmlAttrsSB.append("<div class='d'>");
-        				Object value = col.getRowExpression().getExpression().evaluate(
-								ooeeContext);
-		        		if (value == null) {
-							value = "";
-						}
-		        		value = value.toString();
-		        		htmlAttrsSB.append(value);
-		        		htmlAttrsSB.append("</div>");
-        			} else {
-		        		Object value = col.getRowExpression().getExpression().evaluate(
-								ooeeContext);
-		        		if (value == null) {
-							value = "";
-						}
-		        		attrsSB.append("<div class='di'>");
-		        		attrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle())).append(":").append(value);
-		        		attrsSB.append("</div>");
-        			}
-	        	}
-        		swiperSB.append(imageSB.toString());
-        		if (attrsSB.length() > 0) {
-        			swiperSB.append("<div class=\"d\">");
-        			swiperSB.append(attrsSB.toString());
-        			swiperSB.append("</div>");
-    			}
-        		swiperSB.append(htmlAttrsSB.toString());
-        		swiperSB.append("</div>");
-        		sb.append("{\"value\":\"").append(StringUtil.escapeHtmlToBytes(swiperSB.toString())).append("\"},");
-	        	
-	        	count++;
+		        	evaContext.setVariableValue("rowBE", be);
+		        	evaContext.setVariableValue("index", count);
+	        		StringBuilder imageSB = new StringBuilder();
+	        		StringBuilder attrsSB = new StringBuilder();
+	        		StringBuilder htmlAttrsSB = new StringBuilder();
+	        		StringBuilder swiperSB = new StringBuilder();
+	        		swiperSB.append("<div class='swiper-slide'>");
+	        		for (UITableColumnType col : columns) {
+	        			if ("Image".equalsIgnoreCase(col.getUiType().getType())) {
+	        				imageSB.append("<div class='p'>");
+	        				Object value = col.getRowExpression().getExpression().evaluate(
+									ooeeContext);
+			        		if (value == null) {
+								value = "";
+							}
+			        		value = HTMLImageType.generateSimple(
+			        				AjaxContextHelper.getAjaxContext().getRequest(), value.toString(), 100, 100);
+			        		imageSB.append(value);
+			        		imageSB.append("</div>");
+	        			} else if ("HTML".equalsIgnoreCase(col.getUiType().getType())
+	        					|| "HTMLItem".equals(col.getUiType().getType())) {
+	        				htmlAttrsSB.append("<div class='d'>");
+	        				Object value = col.getRowExpression().getExpression().evaluate(
+									ooeeContext);
+			        		if (value == null) {
+								value = "";
+							}
+			        		value = value.toString();
+			        		htmlAttrsSB.append(value);
+			        		htmlAttrsSB.append("</div>");
+	        			} else {
+			        		Object value = col.getRowExpression().getExpression().evaluate(
+									ooeeContext);
+			        		if (value == null) {
+								value = "";
+							}
+			        		attrsSB.append("<div class='di'>");
+			        		attrsSB.append(UIVariableUtil.getI18NProperty(col.getTitle())).append(":").append(value);
+			        		attrsSB.append("</div>");
+	        			}
+		        	}
+	        		swiperSB.append(imageSB.toString());
+	        		if (attrsSB.length() > 0) {
+	        			swiperSB.append("<div class=\"d\">");
+	        			swiperSB.append(attrsSB.toString());
+	        			swiperSB.append("</div>");
+	    			}
+	        		swiperSB.append(htmlAttrsSB.toString());
+	        		swiperSB.append("</div>");
+	        		sb.append("{\"value\":\"").append(StringUtil.escapeHtmlToBytes(swiperSB.toString())).append("\"},");
+		        	
+		        	count++;
 	        }
 	        if (realRows.size() > 0) {
 	        	sb.deleteCharAt(sb.length()-1);
@@ -677,16 +697,16 @@ public class Table extends Widget<Table> implements Serializable {
 		} catch (Exception e) {
 			logger.error("error occurrs while refreshing table: " + this.getId(), e);
 		}
-		return "";
+		return "{}";
 	}
 	
 	/**
 	 * After when called addRow,removeRow,removeAll,updateRow, we have to call
 	 * this method refreshing data set.
 	 */
-	private String refreshTable0(final List rows) {
-		if (rows == null || rows.size() == 0) {
-			return "";
+	private String refreshTable0(List rows) {
+		if (rows == null) {
+			rows = Collections.EMPTY_LIST;
 		}
 		try {
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
@@ -707,13 +727,15 @@ public class Table extends Widget<Table> implements Serializable {
 				}
 			}
 			
-			Object firstItem = rows.get(0);
-			if (firstItem instanceof IBusinessEntity) {
-				Object v = ((IBusinessEntity)firstItem).get_extField().get("count");
-				totalCount = (v == null? 0 : (long)v);
-			} else {
-				totalCount = rows.size();
-			}
+			if (rows.size() > 0) {
+				Object firstItem = rows.get(0);
+				if (firstItem instanceof IBusinessEntity) {
+					Object v = ((IBusinessEntity)firstItem).get_extField().get("count");
+					totalCount = (v == null? 0 : (long)v);
+				} else {
+					totalCount = rows.size();
+				}
+			} 
 			
 			StringBuilder sb = DisposableBfString.getBuffer();
 			try {
@@ -729,36 +751,36 @@ public class Table extends Widget<Table> implements Serializable {
 	        sb.append("\"data\":[");
 	        int count = 0;
 	        for (Object be : realRows) {
-	        	evaContext.setVariableValue("rowBE", be);
-	        	evaContext.setVariableValue("index", count);
-	        	
-	        	sb.append("[");
-	        	if (this.selectMode == UITableSelectModeType.MULTIPLE) {
-	        		sb.append("\"checkbox,"+count+"\",");
-	        	} else if (this.selectMode == UITableSelectModeType.SINGLE) {
-	        		sb.append("\"radio,"+count+"\",");
-	        	} else {
-	        		sb.append("\"\",");
-	        	}
-	        	for (UITableColumnType col : columns) {
-	        		Object value = col.getRowExpression().getExpression().evaluate(
-							ooeeContext);
-	        		if (value == null) {
-						value = "";
-					}
-	        		sb.append("\"");
-	        		if ("Image".equalsIgnoreCase(col.getUiType().getType())) {
-    					sb.append(StringUtil.escapeHtmlToBytes(HTMLImageType.generateSimple(
-    							AjaxContextHelper.getAjaxContext().getRequest(), value.toString(), 60, 60)));
-	        		} else {
-	        			sb.append(StringUtil.escapeHtmlToBytes(value.toString()));
-	        		}
-	        		sb.append("\",");
-	        	}
-	        	sb.deleteCharAt(sb.length()-1);
-	        	sb.append("],");
-	        	
-	        	count++;
+		        	evaContext.setVariableValue("rowBE", be);
+		        	evaContext.setVariableValue("index", count);
+		        	
+		        	sb.append("[");
+		        	if (this.selectMode == UITableSelectModeType.MULTIPLE) {
+		        		sb.append("\"checkbox,"+count+"\",");
+		        	} else if (this.selectMode == UITableSelectModeType.SINGLE) {
+		        		sb.append("\"radio,"+count+"\",");
+		        	} else {
+		        		sb.append("\"\",");
+		        	}
+		        	for (UITableColumnType col : columns) {
+		        		Object value = col.getRowExpression().getExpression().evaluate(
+								ooeeContext);
+		        		if (value == null) {
+							value = "";
+						}
+		        		sb.append("\"");
+		        		if ("Image".equalsIgnoreCase(col.getUiType().getType())) {
+	    					sb.append(StringUtil.escapeHtmlToBytes(HTMLImageType.generateSimple(
+	    							AjaxContextHelper.getAjaxContext().getRequest(), value.toString(), 60, 60)));
+		        		} else {
+		        			sb.append(StringUtil.escapeHtmlToBytes(value.toString()));
+		        		}
+		        		sb.append("\",");
+		        	}
+		        	sb.deleteCharAt(sb.length()-1);
+		        	sb.append("],");
+		        	
+		        	count++;
 	        }
 	        if (realRows.size() > 0) {
 	        	sb.deleteCharAt(sb.length()-1);
@@ -939,7 +961,6 @@ public class Table extends Widget<Table> implements Serializable {
 	
 	@SuppressWarnings("unchecked")
 	public void fromJSON(JSONObject json) throws Exception {
-		super.fromJSON(json);
 		String entityName = json.getString("entity");
 		UIFormObject formObject = PageCacheManager.getUIForm(entityName);
 		Map<String, Object> attributes = formObject.getComponentProperty(this.getId(), true);
@@ -952,19 +973,20 @@ public class Table extends Widget<Table> implements Serializable {
 		this.listData = json.getJSONArray("allRows").toList();
 		if (json.has("persistType")) {
 			persistObjectClass = Class.forName(json.getString("persistType"));
-    	}
+	    	}
 		if (json.has("json")) {
-    		this.isAppendRowMode = true;
-    	}
+	    		this.isAppendRowMode = true;
+	    	}
 		if (json.has("isEditableCell")) {
-    		this.isEditableCell = true;
-    	}
+	    		this.isEditableCell = true;
+	    	}
 		if (json.has("isSliderMode")) {
-    		this.isSliderMode = true;
-    	}
+	    		this.isSliderMode = true;
+	    	}
 		if (json.has("disableRefreshClear")) {
-    		this.disableRefreshClear = true;
-    	}
+	    		this.disableRefreshClear = true;
+	    	}
+		super.fromJSON(json);
 	}
 
 }

@@ -139,7 +139,23 @@ public final class EntityManager implements IEntityManager {
 	private final Map<String, LinkedList<File>> scanningFiles = 
 			new LinkedHashMap<String, LinkedList<File>>();
 	
-	private String[] filters = null;
+	private final Map<String, File> lazyLoadingScanFiles = 
+			new LinkedHashMap<String, File>();
+	
+	/**
+	 * specify only scanning some paths.
+	 */
+	private String[] entityPathFilters = null;
+	
+	/**
+	 * specify only scanning some types which is useful for performance optimization.
+	 */
+	private String[] scanTypes = new String[0];
+	
+	/**
+	 * specify the lazy-loading types which purposes on perf-optimization.
+	 */
+	private String[] lazyLoadingTypes = new String[0];
 	
 	private boolean initialized = false;
 	
@@ -168,7 +184,27 @@ public final class EntityManager implements IEntityManager {
 	 * 
 	 */
 	public void initRuntime() {
+		//diagrams are useless in runtime & forms are setting into lazy-loading mode.
+		if (extSequence.size() > 0) {
+			String[] extTypes = new String[extSequence.size()];
+			extSequence.toArray(extTypes);
+			String[] types = new String[] {"pageflow", "page", "form", "websvis", "workflow", "flow"};
+			String[] scanTypes = new String[extTypes.length + types.length];
+			int i = 0;
+			for (;i<extTypes.length;i++) {
+				scanTypes[i] = extTypes[i];
+			}
+			for (;i<types.length;i++) {
+				scanTypes[i] = types[i];
+			}
+			this.scanTypes = scanTypes;
+		} else {
+			this.scanTypes = new String[] {"pageflow", "page", "form", "websvis", "workflow", "flow"};
+		}
+		this.lazyLoadingTypes = new String[] {"form"};
 		init(null, null);
+		//then we don't need it anymore.
+		this.lazyLoadingTypes = new String[0];
 	}
 	
 	/**
@@ -186,7 +222,7 @@ public final class EntityManager implements IEntityManager {
 				}
 				this.listeners.addAll(listeners);
 			}
-			this.filters = filters;
+			this.entityPathFilters = filters;
 			
 			scan();
 			load(false);
@@ -221,7 +257,7 @@ public final class EntityManager implements IEntityManager {
 			}
 	
 			this.listeners.addAll(listeners);
-			this.filters = filters;
+			this.entityPathFilters = filters;
 			
 			scan();
 			try {
@@ -258,9 +294,9 @@ public final class EntityManager implements IEntityManager {
 				if (logger.isInfoEnabled()) {
 					logger.info("Entities directory: " + path);
 				}
-				if (filters != null) {
+				if (entityPathFilters != null) {
 					boolean letGo = false;
-					for (String filter : filters) {
+					for (String filter : entityPathFilters) {
 						if (path.indexOf(filter) != -1) {
 							letGo = true;
 							break;
@@ -311,8 +347,52 @@ public final class EntityManager implements IEntityManager {
 				}
 				if (scanningFiles.containsKey(type)) {
 					LinkedList<File> files = scanningFiles.get(type);
+					LinkedList<File> filterFiles = new LinkedList<File>();
 					for (File f : files) {
-						loadEntityFromDir(f, reload);
+						boolean letgo = false;
+						for (String t: this.scanTypes) {
+							if (f.getName().endsWith(t)) {
+								letgo = true;
+								break;
+							}
+						}
+						if (letgo || this.scanTypes.length == 0) {
+							filterFiles.add(f);
+						} else {
+							if (logger.isInfoEnabled()) {
+								logger.info("Skip this file {} due to it's not any of scanning types for runtime.", f.getName());
+							}
+						}
+					}
+					for (File f : filterFiles) {
+						String lltype;
+						boolean letgo = true;
+						for (String lltype0: this.lazyLoadingTypes) {
+							if (f.getName().endsWith(lltype0)) {
+								lltype = lltype0;
+								letgo = false;
+								break;
+							}
+						}
+						if (!letgo) {
+							String entityName = f.getAbsolutePath().substring(0, f.getAbsolutePath().lastIndexOf('.'));
+							if (entityName.indexOf("org") != -1) {
+								entityName = entityName.substring(entityName.indexOf("org"));
+							} else if (entityName.indexOf("com") != -1) {
+								entityName = entityName.substring(entityName.indexOf("com"));
+							} else {
+								logger.error("Unsupported package rule of " + entityName);
+							}
+							entityName = entityName.replace(File.separatorChar, '.');
+							lazyLoadingScanFiles.put(entityName, f);
+							//TODO: support more type.
+							sysEntityCache.get(UIEntity.class).remove(entityName);
+							if (logger.isDebugEnabled()) {
+								logger.debug("lazy loading this file {}, entityname {}", f.getName(), entityName);
+							}
+						} else {
+							loadEntityFromDir(f, reload);
+						}
 					}
 					scanningFiles.remove(type);
 				}
@@ -755,41 +835,50 @@ public final class EntityManager implements IEntityManager {
 	
 	@SuppressWarnings("unchecked")
 	public <T> T getEntity(String name, Class<T> type) throws EntityNotFoundException {
-		if (appName != null) {
-			// if this is application, try to access whether has a customized entity or not.
-			if (appEntityCache.containsKey(type)) {
-				if (appEntityCache.get(type).containsKey(name)) {
-					return (T) appEntityCache.get(type).get(name);
-				}
-			}
-		}
-		
 		if (sysEntityCache.containsKey(type)) {
 			if (sysEntityCache.get(type).containsKey(name)) {
 				return (T) sysEntityCache.get(type).get(name);
-			} else {
-				throw new EntityNotFoundException(ExceptionConstants.UIMASTER_ODMAPPER_056,
-						new Object[]{name});
+			} 
+		} 
+		if (lazyLoadingScanFiles.containsKey(name)) {
+			File f = lazyLoadingScanFiles.remove(name);
+			try {
+				loadEntityFromDir(f, true);
+			} catch (IOException e) {
+				logger.error("Failed to load this file " +f.getAbsolutePath() +". Cause: "
+						+ e.getMessage(), e);
 			}
-		} else {
-			throw new EntityNotFoundException(ExceptionConstants.UIMASTER_ODMAPPER_056,
-					new Object[]{name});
+			if (sysEntityCache.containsKey(type)) {
+				if (sysEntityCache.get(type).containsKey(name)) {
+					return (T) sysEntityCache.get(type).get(name);
+				} 
+			} 
 		}
+		throw new EntityNotFoundException(ExceptionConstants.UIMASTER_ODMAPPER_056,
+				new Object[]{name});
 	}
 	
+	@Override
 	public void addEventListener(IEntityEventListener<? extends EntityType, ?> listener) {
 		listener.setEntityManager(this);
 		listeners.add(listener);
 	}
 
+	@Override
 	public void removeEventListener(IEntityEventListener<? extends EntityType, ?> listener) {
 		listeners.remove(listener);
+	}
+	
+	@Override
+	public void cleanEventListeners() {
+		listeners.clear();
 	}
 	
 	/**
 	 * Release the useless caches after startup.
 	 * 
 	 */
+	@Override
 	public void offUselessCaches() {
 		CacheManager.getInstance().getCache("__sys_entity_be", String.class, BusinessEntityType.class).clear();
 		CacheManager.getInstance().getCache("__sys_entity_ce", String.class, ConstantEntityType.class).clear();

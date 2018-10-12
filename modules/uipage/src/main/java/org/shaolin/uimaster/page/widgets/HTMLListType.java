@@ -47,6 +47,10 @@ public class HTMLListType extends HTMLMultiChoiceType
     {
         try
         {
+        		List<String> options = getOptionValues();
+        		if (this.getAttribute("cename") != null) {
+            		addAttribute("ce", this.getAttribute("cename"));
+            }
             generateWidget(context);
             context.generateHTML("<select name=\"");
             context.generateHTML(getName());
@@ -59,7 +63,6 @@ public class HTMLListType extends HTMLMultiChoiceType
             context.generateHTML(">");
 
             List<String> displayOptions = getOptionDisplayValues();
-            List<String> options = getOptionValues();
             if (displayOptions == null)
             {
                 displayOptions = options;
@@ -137,20 +140,8 @@ public class HTMLListType extends HTMLMultiChoiceType
     
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-//        AList list = new AList(getName(), null);
-//
-//        list.setReadOnly(isReadOnly());
-//        list.setUIEntityName(getUIEntityName());
-//
-//        list.setOptions(getOptionDisplayValues(), getOptionValues());
-//        list.setValues(getValue());
-//
-//        setAJAXConstraints(list);
-//        setAJAXAttributes(UserRequestContext.UserContext.get(), list);
-//        
-//        list.setListened(true);
-
-        return super.createJsonModel(ee);
+        //return super.createJsonModel(ee);
+    		return null;
     }
 
     private static final long serialVersionUID = -7867495752450617201L;

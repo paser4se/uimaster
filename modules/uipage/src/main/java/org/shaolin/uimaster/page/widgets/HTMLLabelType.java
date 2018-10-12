@@ -199,23 +199,13 @@ public class HTMLLabelType extends HTMLTextWidgetType
 
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-    	if (!needAjaxSupport()) {
-    		Object oneditable = this.getAttribute("oneditable");
-            if (oneditable == null || oneditable.toString().equalsIgnoreCase("false")){
-            	return null;
+	    	if (!needAjaxSupport()) {
+	    		Object oneditable = this.getAttribute("oneditable");
+            if (oneditable != null && oneditable.toString().equalsIgnoreCase("true")) {
+            		return super.createJsonModel(ee);
             }
-    	}
-//    	
-//        Label label = new Label(getName(), Layout.NULL);
-//
-//        label.setReadOnly(isReadOnly());
-//        label.setUIEntityName(getUIEntityName());
-//
-//        label.setValue(getValue());
-//        label.setDisplayValue(getDisplayValue());
-//
-//        label.setListened(true);
-
+            return null;
+	    	}
         return super.createJsonModel(ee);
     }
     

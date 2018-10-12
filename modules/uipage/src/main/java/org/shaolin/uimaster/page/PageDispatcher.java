@@ -126,17 +126,9 @@ public class PageDispatcher {
                         + (realReadOnly == null ? "null" : realReadOnly.toString()));
             }
 
-            HTMLWidgetType htmlComponent = null;
+            HTMLWidgetType htmlComponent = formObject.getHTMLComponent(formObject.getBodyName());
             if (parent != null) {
-            	try {
-            		//context.getHTMLPrefix() + 
-            		htmlComponent = context.getHtmlWidget(formObject.getBodyName());
-            	} catch (UIComponentNotFoundException e) {
-            		String formId = parent.getName() + "." + formObject.getBodyName();
-            		throw new IllegalStateException("Make sure the od mapping is invoked for this form: " + formId, e);
-            	}
-            	htmlComponent.setHTMLLayout(parent.getHTMLLayout());
-
+	            	htmlComponent.setHTMLLayout(parent.getHTMLLayout());
                 String visible = (String)parent.getAttribute("visible");
                 if (visible != null) {
 					if ("true".equalsIgnoreCase(visible)) {
@@ -144,9 +136,7 @@ public class PageDispatcher {
 					}
                     htmlComponent.addAttribute("visible", visible);
                 }
-            } else {
-            	htmlComponent = context.getHtmlWidget(formObject.getBodyName());
-            }
+            } 
             
             if (UserContext.isMobileRequest() && parent == null) {
             	// jquery mobile page supported.
@@ -274,7 +264,7 @@ public class PageDispatcher {
             	context.generateHTML(WebConfig.getResourceContextRoot());
             }
             context.generateHTML("/js/html5support.js\"></script>\n");
-        	context.generateHTML("<![endif]-->\n");
+            context.generateHTML("<![endif]-->\n");
             context.generateHTML("<script type=\"text/javascript\">\nvar defaultname;\nvar USER_CONSTRAINT_IMG=\"");
             context.generateHTML((String)constraintStyleMap.get("constraintSymbol"));
             context.generateHTML("\";\nvar USER_CONSTRAINT_LEFT=");
@@ -483,10 +473,11 @@ public class PageDispatcher {
                 }
                 else
                 {
-                	AjaxContextHelper.addCachePage(session, frameTarget);
-                	ajaxWidgetMap.put(frameTarget, pageComponentMap);
+	                	AjaxContextHelper.addCachePage(session, frameTarget);
+	                	ajaxWidgetMap.put(frameTarget, pageComponentMap);
                 }
             }
+            
             session.setAttribute(AjaxContext.AJAX_COMP_MAP, ajaxWidgetMap);
             if (superPrefix != null)
             {
@@ -566,16 +557,6 @@ public class PageDispatcher {
 
         boolean hasParams = ( actionPath.indexOf("?") != -1 );
         HttpSession session = request.getSession(false);
-        if ( session != null )
-        {
-            if ( logger.isDebugEnabled() )
-            {
-                logger.debug("Append param timestamp to action path");
-            }
-            appendParam(results, "_timestamp", WebConfig.getTimeStamp(), hasParams);
-            hasParams = true;
-            session.setAttribute("_timestamp", new HashSet());
-        }
         String tempStr = (String)request.getAttribute(WebflowConstants.SOURCE_CHUNK_NAME);
         if ( tempStr != null )
         {
@@ -604,8 +585,13 @@ public class PageDispatcher {
                 logger.debug("Append param needCheckSessionTimeOut to action path");
             }
             appendParam(results, "_needCheckSessionTimeOut", "true", hasParams);
+            hasParams = true;
         }
-
+        if ( logger.isDebugEnabled() )
+        {
+            logger.debug("Append param timestamp to action path");
+        }
+        appendParam(results, "_timestamp", WebConfig.getTimeStamp(), hasParams);
         return response.encodeURL(results.toString());
     }
     

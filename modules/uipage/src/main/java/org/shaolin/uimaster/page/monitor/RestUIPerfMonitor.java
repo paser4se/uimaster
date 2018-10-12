@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -18,18 +16,11 @@ import org.shaolin.bmdp.runtime.perf.SingleKPI;
 import org.shaolin.bmdp.runtime.perf.StatisticUnit;
 import org.shaolin.bmdp.runtime.perf.ThroughputStats;
 import org.shaolin.bmdp.runtime.perf.TimeRangeStats;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-//import javax.ws.rs.DefaultValue;  
-//import javax.ws.rs.GET;  
-//import javax.ws.rs.Path;  
-//import javax.ws.rs.PathParam;  
-//import javax.ws.rs.Produces;  
-//import javax.ws.rs.QueryParam;  
-//import javax.ws.rs.core.MediaType;  
-//import javax.ws.rs.core.Response;  
-//
-//@Path("/uiperf")  
-public final class RestUIPerfMonitor extends HttpServlet {
+@RestController
+public final class RestUIPerfMonitor {
 	
 	public static final String PAGE_DATA_TO_UI_TPS = "PageDataToUI-TPS";
 	public static final String PAGE_DATA_TO_UI_COUNT = "PageDataToUI-Count";
@@ -88,18 +79,9 @@ public final class RestUIPerfMonitor extends HttpServlet {
 		collectors.add(coll);
 	}
 	
-	public void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException {
-		process(request, response);
-	}
-
-	public void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException {
-		process(request, response);
-	}
+	private static final String charset = "UTF-8";
 	
-	private String charset = "UTF-8";
-	
+	@RequestMapping("/perf")
 	protected void process(HttpServletRequest request, HttpServletResponse response) throws IOException
     {
 		if (request.getProtocol().compareTo("HTTP/1.0") == 0) {

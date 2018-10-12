@@ -152,6 +152,9 @@ public class UserRequestContext implements Serializable
     
     public JSONObject getAjaxWidget(String compID)
     {
+    		if (AjaxContextHelper.getClientUIWidget().containsKey(compID)) {
+    			return AjaxContextHelper.getClientUIWidget().get(compID);
+    		}
         return ajaxJsonMap.get(compID);
     }
     

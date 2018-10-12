@@ -49,9 +49,9 @@
 	    <!-- flow instances, the FlowRuntimeContext will be stored in this table. -->
 	    <bediagram:member>
 	        <bediagram:name>flowState</bediagram:name>
-	            <bediagram:type xsi:type="bediagram:BinaryType">
+	            <bediagram:type xsi:type="bediagram:StringType">
 	            <!-- javax.sql.rowset.serial.SerialBlob 
-	            <bediagram:targetJava name="byte[]"></bediagram:targetJava>
+	            <bediagram:type xsi:type="bediagram:BinaryType">
 	            -->
 	        </bediagram:type>
 	    </bediagram:member>
@@ -248,6 +248,14 @@
             <bediagram:type xsi:type="bediagram:BooleanType" />
         </bediagram:member>
         <!-- user area broadcast -->
+        <bediagram:member>
+            <bediagram:name>needBroadcast</bediagram:name>
+            <bediagram:type xsi:type="bediagram:BooleanType" />
+        </bediagram:member>
+        <bediagram:member>
+            <bediagram:name>city</bediagram:name>
+            <bediagram:type xsi:type="bediagram:StringType" />
+        </bediagram:member>
         <bediagram:member>
             <bediagram:name>longitude</bediagram:name>
             <bediagram:type xsi:type="bediagram:DoubleType" />

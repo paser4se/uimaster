@@ -679,6 +679,9 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		}
 		@Override
 		public void run() {
+			if (message.getNeedBroadcast()) {
+				//TODO:
+			}
 			if (NotificationService.push(message, message.getPartyId())) {
 				message.setRead(true);
 			}

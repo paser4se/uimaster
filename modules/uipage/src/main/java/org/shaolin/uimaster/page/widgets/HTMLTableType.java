@@ -599,8 +599,8 @@ public class HTMLTableType extends HTMLContainerType {
         context.generateHTML("<div class=\"swiper-wrapper0\">");
         
         if ((listData == null || listData.size() ==0) && this.getAttribute("skipEmptyRawMessage") == null) {
-        	HTMLUtil.generateTab(context, depth + 3);
-			context.generateHTML("<div class=\"swiper-slide\">\u6CA1\u6709\u6570\u636E</div>");
+        	    HTMLUtil.generateTab(context, depth + 3);
+			context.generateHTML("<div class=\"swiper-slide dataTables_empty\">\u6CA1\u6709\u6570\u636E</div>");
 			HTMLUtil.generateTab(context, depth + 3);
         }
         

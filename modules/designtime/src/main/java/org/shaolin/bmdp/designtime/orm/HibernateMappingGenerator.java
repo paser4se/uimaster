@@ -100,7 +100,7 @@ public class HibernateMappingGenerator implements IEntityEventListener<TableType
 			String tableName = table.getEntityName();
 			tableName = tableName.substring(tableName.lastIndexOf('.') + 1);
 			out.print(tableName);
-			out.write("\">\n");
+			out.write("\" dynamic-update=\"true\">\n");
 			
 			List<FieldMappingType> fieldMappings = mapping.getFieldMappings();
 			if (table.getPrimaryKeies() != null) {
@@ -146,11 +146,6 @@ public class HibernateMappingGenerator implements IEntityEventListener<TableType
 						out.print(listMapping.getColumnName());
 						out.write("\" unique=\"true\" not-null=\"true\" lazy=\"false\" insert=\"false\" update=\"false\"/>\n");
 					} else if ("One-to-Many".equals(listMapping.getMappingType())) {
-						// A unidirectional one-to-many association on a foreign key is an 
-						// unusual case, and is not recommended.
-						// You should instead use a join table for this kind of association.
-						// A unidirectional one-to-many association on a join table is the preferred option. 
-						// Specifying unique="true", changes the multiplicity from many-to-many to one-to-many.
 						String targetBEClass =  BEUtil.getBEImplementClassName(listMapping.getCollectionElement());
 						JoinTableType joinTable = getJoinTable(diagram, listMapping.getAssociationName());
 						out.write("    <set name=\"");
@@ -162,15 +157,18 @@ public class HibernateMappingGenerator implements IEntityEventListener<TableType
 						//TODO: cascading decision is difficult here.
 						out.write("\" cascade=\"all-delete-orphan\" lazy=\"true\" fetch=\"select\">\n");
 						out.write("        <key column=\"");
-						out.print(joinTable.getSrcPKColumn());
-						out.write("\"/>\n");
-						out.write("        <many-to-many column=\"");
 						out.print(joinTable.getTarPKColumn());
-						out.write("\" unique=\"true\" class=\"");
+						out.write("\"/>\n");
+						out.write("        <one-to-many class=\"");
 						out.print(targetBEClass);
 						out.write("\"/>\n");
 						out.write("    </set>\n");
 					} else if ("Many-to-Many".equals(listMapping.getMappingType())) {
+						// A unidirectional one-to-many association on a foreign key is an 
+						// unusual case, and is not recommended.
+						// You should instead use a join table for this kind of association.
+						// A unidirectional one-to-many association on a join table is the preferred option. 
+						// Specifying unique="true", changes the multiplicity from many-to-many to one-to-many.
 						String targetBEClass =  BEUtil.getBEImplementClassName(listMapping.getCollectionElement());
 						JoinTableType joinTable = getJoinTable(diagram, listMapping.getAssociationName());
 						out.write("    <list name=\"");

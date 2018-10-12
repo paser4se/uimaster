@@ -223,7 +223,11 @@ public class UISingleChoice implements IODMappingConverter {
 				return;
 			}
 			JSONObject attrMap = selectComp.getJSONObject("attrMap");
-			this.value = SingleChoice.getRealValue(attrMap, selectComp.getString("realVType"));
+			if (attrMap.has("realVType")) {
+				this.value = SingleChoice.getRealValue(attrMap, attrMap.getString("realVType"));
+			} else {
+				this.value = SingleChoice.getRealValue(attrMap, String.class.getName());
+			}
 			if (this.value != null && "null".equals(this.value)) {
 				this.value = null;
 			}

@@ -51,6 +51,7 @@ import org.shaolin.uimaster.page.widgets.HTMLListType;
 import org.shaolin.uimaster.page.widgets.HTMLMatrixType;
 import org.shaolin.uimaster.page.widgets.HTMLPanelType;
 import org.shaolin.uimaster.page.widgets.HTMLPasswordFieldType;
+import org.shaolin.uimaster.page.widgets.HTMLPreNextPanelType;
 import org.shaolin.uimaster.page.widgets.HTMLRadioButtonGroupType;
 import org.shaolin.uimaster.page.widgets.HTMLRadioButtonType;
 import org.shaolin.uimaster.page.widgets.HTMLReferenceEntityType;
@@ -305,11 +306,11 @@ abstract public class Widget<T> implements Serializable
     
     public boolean isSecure() 
     {
-    	return this.isSecure;
+    		return this.isSecure;
     }
     
     public void setIsSecure(boolean v) {
-    	this.isSecure = v;
+    		this.isSecure = v;
     }
 
     /**
@@ -1773,7 +1774,7 @@ abstract public class Widget<T> implements Serializable
     	}
     	json.put("entity", this.getUIEntityName());
     	json.put("uiid", this.id);
-    	json.put("finfo", this.frameInfo);
+    	json.put("_framePrefix", this.frameInfo);
     	if (readOnly != null && readOnly.booleanValue()) {
     		json.put("readOnly", true);
     	}
@@ -1794,8 +1795,10 @@ abstract public class Widget<T> implements Serializable
     
     public void fromJSON(JSONObject json) throws Exception {
     	this.id = json.getString("uiid");
-    	this.setUIEntityName(json.getString("entity"));
-    	this.frameInfo = json.getString("finfo");
+    	if (json.has("entity")) {
+    		this.setUIEntityName(json.getString("entity"));
+    	}
+    	this.frameInfo = json.getString("_framePrefix");
     	if (json.has("readOnly")) {
     		this.readOnly = true;
     	}
@@ -1809,6 +1812,10 @@ abstract public class Widget<T> implements Serializable
     		if (attributeMap.containsKey("secure")) {
     			this.isSecure = Boolean.valueOf(attributeMap.get("secure").toString());
         	}
+    		// refresh all customized attributes.
+    		for (String key : this.attributeMap.keySet()) {
+    			this.addAttribute(key, this.attributeMap.get(key), false);
+    		}
     	}
     	if (json.has("styleMap")) {
     		JSONObject items = json.getJSONObject("styleMap");
@@ -1835,84 +1842,86 @@ abstract public class Widget<T> implements Serializable
      * @throws InstantiationException 
      */
     public static Widget<?> covertFromJSON(final JSONObject json) throws Exception {
-    	String type = json.getString("type");
+    		String type = json.getString("type");
 		if (!WIDGET_CLASS.containsKey(type)) {
 			if (type.indexOf('.') != -1) {//full package class
 				WIDGET_CLASS.put(type, Class.forName(type));
 			} else {
 				WIDGET_CLASS.put(type, Class.forName(AJAX_WIDGET_PACKAGE + type));
 			}
-    	} 
+		} 
 		Widget<?> w = null;
 		if (type.equals(RefForm.class.getSimpleName())) {
 			w = (Widget<?>)WIDGET_CLASS.get(type).getConstructor(new Class[]{String.class, String.class})
 		    		.newInstance(new Object[]{ json.getString("uiid"), json.getString("entity") });
 		} else {
-	    	w = (Widget<?>)WIDGET_CLASS.get(type).getConstructor(new Class[]{String.class, Layout.class})
-	    		.newInstance(new Object[]{ json.getString("uiid"), Layout.NULL });
+		    	w = (Widget<?>)WIDGET_CLASS.get(type).getConstructor(new Class[]{String.class, Layout.class})
+		    		.newInstance(new Object[]{ json.getString("uiid"), Layout.NULL });
 		}
-    	w.fromJSON(json);
-    	if (json.has("attrMap")) {
+	    	w.fromJSON(json);
+	    	if (json.has("attrMap")) {
 			Set<Map.Entry<String, Object>> set = json.getJSONObject("attrMap").toMap().entrySet();
 			for (Map.Entry<String, Object> entry : set) {
 				w.addAttribute(entry.getKey(), entry.getValue(), false);
 			}
 		}
-    	w.setListened(true);
-    	w.checkConstraint();
-    	return w;
+	    	w.setListened(true);
+	    	w.checkConstraint();
+	    	return w;
     }
     
     public static String mappingAjaxWidgetName(Class htmlClass) {
-    	if (HTMLListType.class == htmlClass) {
-    		return AList.class.getSimpleName();
-    	} else if (HTMLCheckBoxGroupType.class == htmlClass) {
-    		return CheckBoxGroup.class.getSimpleName();
-    	} else if (HTMLComboBoxType.class == htmlClass) {
-    		return ComboBox.class.getSimpleName();
-    	} else if (HTMLRadioButtonGroupType.class == htmlClass) {
-    		return RadioButtonGroup.class.getSimpleName();
-    	} else if (HTMLPanelType.class == htmlClass) {
-    		return Panel.class.getSimpleName();
-    	} else if (HTMLReferenceEntityType.class == htmlClass) {
-    		return RefForm.class.getSimpleName();
-    	} else if (HTMLTabPaneType.class == htmlClass) {
-    		return TabPane.class.getSimpleName();
-    	} else if (HTMLEmptyType.class == htmlClass) {
-    		return Empty.class.getSimpleName();
-    	} else if (HTMLMatrixType.class == htmlClass) {
-    		return Matrix.class.getSimpleName();
-    	} else if (HTMLCheckBoxType.class == htmlClass) {
-    		return CheckBox.class.getSimpleName();
-    	} else if (HTMLRadioButtonType.class == htmlClass) {
-    		return RadioButton.class.getSimpleName();
-    	} else if (HTMLTableType.class == htmlClass) {
-    		return Table.class.getSimpleName();
-    	} else if (HTMLButtonType.class == htmlClass) {
-    		return Button.class.getSimpleName();
-    	} else if (HTMLLinkType.class == htmlClass) {
-    		return Link.class.getSimpleName();
-    	} else if (HTMLLabelType.class == htmlClass) {
-    		return Label.class.getSimpleName();
-    	} else if (HTMLPasswordFieldType.class == htmlClass) {
-    		return PasswordField.class.getSimpleName();
-    	} else if (HTMLHiddenType.class == htmlClass) {
-    		return Hidden.class.getSimpleName();
-    	} else if (HTMLImageType.class == htmlClass) {
-    		return Image.class.getSimpleName();
-    	} else if (HTMLTextAreaType.class == htmlClass) {
-    		return TextArea.class.getSimpleName();
-    	} else if (HTMLTextFieldType.class == htmlClass) {
-    		return TextField.class.getSimpleName();
-    	} else if (HTMLDateType.class == htmlClass) {
-    		return Calendar.class.getSimpleName();
-    	} else if (HTMLWebTreeType.class == htmlClass) {
-    		return Tree.class.getSimpleName();
-    	} else if (htmlClass.isAssignableFrom(HTMLChartSuper.class)) {
-    		return Chart.class.getSimpleName();
-    	} else {
-    		return htmlClass.getSimpleName();
-    	}
+	    	if (HTMLListType.class == htmlClass) {
+	    		return AList.class.getSimpleName();
+	    	} else if (HTMLCheckBoxGroupType.class == htmlClass) {
+	    		return CheckBoxGroup.class.getSimpleName();
+	    	} else if (HTMLComboBoxType.class == htmlClass) {
+	    		return ComboBox.class.getSimpleName();
+	    	} else if (HTMLRadioButtonGroupType.class == htmlClass) {
+	    		return RadioButtonGroup.class.getSimpleName();
+	    	} else if (HTMLPanelType.class == htmlClass) {
+	    		return Panel.class.getSimpleName();
+	    	} else if (HTMLReferenceEntityType.class == htmlClass) {
+	    		return RefForm.class.getSimpleName();
+	    	} else if (HTMLTabPaneType.class == htmlClass) {
+	    		return TabPane.class.getSimpleName();
+	    	} else if (HTMLPreNextPanelType.class == htmlClass) {
+	    		return PreNextPanel.class.getSimpleName();
+	    	} else if (HTMLEmptyType.class == htmlClass) {
+	    		return Empty.class.getSimpleName();
+	    	} else if (HTMLMatrixType.class == htmlClass) {
+	    		return Matrix.class.getSimpleName();
+	    	} else if (HTMLCheckBoxType.class == htmlClass) {
+	    		return CheckBox.class.getSimpleName();
+	    	} else if (HTMLRadioButtonType.class == htmlClass) {
+	    		return RadioButton.class.getSimpleName();
+	    	} else if (HTMLTableType.class == htmlClass) {
+	    		return Table.class.getSimpleName();
+	    	} else if (HTMLButtonType.class == htmlClass) {
+	    		return Button.class.getSimpleName();
+	    	} else if (HTMLLinkType.class == htmlClass) {
+	    		return Link.class.getSimpleName();
+	    	} else if (HTMLLabelType.class == htmlClass) {
+	    		return Label.class.getSimpleName();
+	    	} else if (HTMLPasswordFieldType.class == htmlClass) {
+	    		return PasswordField.class.getSimpleName();
+	    	} else if (HTMLHiddenType.class == htmlClass) {
+	    		return Hidden.class.getSimpleName();
+	    	} else if (HTMLImageType.class == htmlClass) {
+	    		return Image.class.getSimpleName();
+	    	} else if (HTMLTextAreaType.class == htmlClass) {
+	    		return TextArea.class.getSimpleName();
+	    	} else if (HTMLTextFieldType.class == htmlClass) {
+	    		return TextField.class.getSimpleName();
+	    	} else if (HTMLDateType.class == htmlClass) {
+	    		return Calendar.class.getSimpleName();
+	    	} else if (HTMLWebTreeType.class == htmlClass) {
+	    		return Tree.class.getSimpleName();
+	    	} else if (htmlClass.isAssignableFrom(HTMLChartSuper.class)) {
+	    		return Chart.class.getSimpleName();
+	    	} else {
+	    		return htmlClass.getSimpleName();
+	    	}
     }
     
     private static final HashMap<String, Class<?>> WIDGET_CLASS = new HashMap<String, Class<?>>();

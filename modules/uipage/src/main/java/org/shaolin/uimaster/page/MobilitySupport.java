@@ -5,6 +5,9 @@ public class MobilitySupport {
 	public static final String MOB_PAGE_SUFFIX = "_mob";
 	
 	public static boolean isMobileRequest(String userAgent) {
+		if (userAgent == null) {
+			return false;
+		}
 		userAgent = userAgent.toLowerCase();
 		if (userAgent.indexOf("okhttp") != -1
 		 || userAgent.indexOf("android") != -1

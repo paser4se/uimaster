@@ -188,7 +188,13 @@ UIMaster.registerHandler("fadeOut", function(data,win){
 }).registerHandler("updateSingle",function(data,win){
     //D + data.uiid + style? + data.attr = data.value
 }).registerHandler("table_update",function(data,win){
-	var tdata = win.eval("("+data.data+")"),id = data.uiid,uitable,i;
+    var id = data.uiid;
+    var uitable,i,tdata;
+    if (data.data == "" || data.data == null) {
+       tdata = [];
+    } else {
+	   tdata = win.eval("("+data.data+")");
+    }
     for (i in win.elementList)
         if (i == id)
         	uitable = win.elementList[i];
@@ -455,15 +461,18 @@ UIMaster.ui.sync = function(){
             a.push(quote(k)+':'+quote(typeof v[k] == "string" ? v[k] :String(v[k])));
         return '{'+a.join(',')+'}';
     }
+    /**
     try{
         r = window.top.UIMaster ? window.top.UIMaster.syncList : [];
         window.top.UIMaster && (window.top.UIMaster.syncList = []);
     }catch(e){r = [];};
-    var set = getR(window.top);
+    var set = getR(window.top);*/
+    var r = [], set = UIMaster.syncList;
     r = r.length ? r.concat(set) : (set.length ? set.concat(r) : []);
     for (i = 0; i < r.length; i++)
         p[i] = str(r[i]) || 'null';
     v = p.length === 0 ? '[]' : '[' + p.join(',') + ']';
+    UIMaster.syncList = [];
     return v;
 };
 /**
@@ -471,6 +480,14 @@ UIMaster.ui.sync = function(){
  * @param {Object} data Data to be synchronized.
  */
 UIMaster.ui.sync.set = function(data){
+    if (data.uiid) {
+        for (var i=0; i<UIMaster.syncList.length; i++) {
+            if (UIMaster.syncList[i].uiid == data.uiid && UIMaster.syncList[i].type != "Table") {
+                UIMaster.syncList.splice(i,1);
+                break;
+            }
+        }
+    }
     UIMaster.syncList.push(data);
 };
 /**
@@ -617,6 +634,7 @@ UIMaster.ui.textfield = UIMaster.extend(UIMaster.ui.field, /** @lends UIMaster.u
      * @type String
      */
     lengthText: '',
+    uiType: "TextField",
     //private
     needErrMsg : true,
     /**
@@ -689,9 +707,9 @@ UIMaster.ui.textfield = UIMaster.extend(UIMaster.ui.field, /** @lends UIMaster.u
     notifyChange: function(e){
         var obj = UIMaster.getObject(e);
         this.needErrMsg = true;
-        if (obj._v == obj.value) return;
+        //if (obj._v == obj.value) return;
         if (!(obj.validate ? obj.validate() : false)){
-            UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"value",_value:obj.value,_framePrefix:UIMaster.getFramePrefix(obj)});
+            UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":this.uiType,"attrMap":JSON.stringify({"value":obj.value}),_framePrefix:UIMaster.getFramePrefix(obj)});
             obj._v = obj.value;
         }
     },
@@ -775,6 +793,7 @@ UIMaster.ui.textarea = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 		    return;
 		this.initialized = true;
 		UIMaster.ui.textarea.superclass.init.call(this);
+        this.uiType = "TextArea";
 		if ($(this).attr("htmlsupport")=="true") {
 		   this.initHtmlContent();
 		}
@@ -882,6 +901,7 @@ UIMaster.ui.calendar = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 	dateType: "date",
 	init: function(){
 		UIMaster.ui.calendar.superclass.init.call(this);
+        this.uiType = "Calendar";
 		this.selectDate = this.ui.nextElementSibling;
         if (this.className.toLowerCase().indexOf("readonly")>0) {
         	this.editableFlag = false;
@@ -1021,9 +1041,9 @@ UIMaster.ui.calendar = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
 	notifyChange: function(e){
         var obj = UIMaster.getObject(e);
         this.needErrMsg = true;
-        if (obj._v == obj.value) return;
+        //if (obj._v == obj.value) return;
         if (!(obj.validate ? obj.validate() : false)){
-            UIMaster.ui.sync.set({_uiid:this.name,_valueName:"value",_value:obj.value,_framePrefix:UIMaster.getFramePrefix(obj)});
+            UIMaster.ui.sync.set({uiid:this.name,"type":"Calendar","attrMap":JSON.stringify({"value":obj.value}),_framePrefix:UIMaster.getFramePrefix(obj)});
             obj._v = obj.value;
         }
     },
@@ -1091,7 +1111,12 @@ UIMaster.ui.calendar = UIMaster.extend(UIMaster.ui.textfield, /** @lends UIMaste
  * @extends UIMaster.ui.textfield
  * @constructor
  */
-UIMaster.ui.passwordfield = UIMaster.extend(UIMaster.ui.textfield);
+UIMaster.ui.passwordfield = UIMaster.extend(UIMaster.ui.textfield, {
+    init: function(){
+        UIMaster.ui.passwordfield.superclass.init.call(this);
+        this.uiType = "PasswordField";
+    }
+});
 //SingleChoice
 /**
  * @description Checkbox class.
@@ -1136,14 +1161,15 @@ UIMaster.ui.checkbox = UIMaster.extend(UIMaster.ui.field, {
     },
     notifyChange: function(e){
         var obj = UIMaster.getObject(e);
-        if(!!obj._v == !!obj.checked)return;
+        //if(!!obj._v == !!obj.checked)return;
         if (!(obj.validate ? obj.validate() : false)){
-            UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"selected",_value:obj.checked,_framePrefix:UIMaster.getFramePrefix(obj)});
+            UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"CheckBox","attrMap":JSON.stringify({"selected":obj.checked}),_framePrefix:UIMaster.getFramePrefix(obj)});
             obj._v = obj.checked;
         }
     },
     init: function(){
         UIMaster.ui.checkbox.superclass.init.call(this);
+        this.uiType = "CheckBox";
         this._v = this.checked;
         var f = this.onclick;
         this.onclick = null;
@@ -1167,10 +1193,10 @@ UIMaster.ui.checkbox = UIMaster.extend(UIMaster.ui.field, {
 UIMaster.ui.radiobutton = UIMaster.extend(UIMaster.ui.checkbox,{
     notifyChange: function(e){
         var obj = UIMaster.getObject(e);
-        if(obj._v == obj.checked)return;
+        //if(obj._v == obj.checked)return;
         var uiid = obj.inList?obj.name+"["+obj.value+"]":obj.name;
         if (!(obj.validate ? obj.validate() : false)){
-            UIMaster.ui.sync.set({_uiid:uiid,_valueName:"selected",_value:obj.checked,_framePrefix:UIMaster.getFramePrefix(obj)});
+            UIMaster.ui.sync.set({uiid:uiid,"type":"RadioButton","attrMap":JSON.stringify({"selected":obj.checked}),_framePrefix:UIMaster.getFramePrefix(obj)});
             obj._v = obj.checked;
         }
     }
@@ -1187,6 +1213,8 @@ UIMaster.ui.radiobutton = UIMaster.extend(UIMaster.ui.checkbox,{
 UIMaster.ui.checkboxgroup = UIMaster.extend(UIMaster.ui.field, /** @lends UIMaster.ui.checkboxgroup */{
     mustCheck: null,
     mustCheckText: '',
+    ce: null,
+    expLevel: null,
     /**
      * @description Enable/disable the checkboxgroup.
      * @param {Boolean} v Value to set.
@@ -1266,9 +1294,13 @@ UIMaster.ui.checkboxgroup = UIMaster.extend(UIMaster.ui.field, /** @lends UIMast
     },
     notifyChange: function(e){
         var obj = eval(D + UIMaster.getObject(e).name), v = obj.getValue().join(",")
-        if(obj._v == v)return;
+        //if(obj._v == v)return;
         if (!(obj.validate ? obj.validate() : false)){
-            UIMaster.ui.sync.set({_uiid:UIMaster.getObject(e).name,_valueName:"values",_value:obj.getValue().join(","),_framePrefix:UIMaster.getFramePrefix(UIMaster.getObject(e))});
+            if (this.ce && this.ce != null && this.ce.length > 0) {
+            UIMaster.ui.sync.set({uiid:UIMaster.getObject(e).name,"type":"CheckBoxGroup","attrMap":JSON.stringify({"values":obj.getValue().join(","), "ce": this.ce, "expLevel": this.expLevel}),_framePrefix:UIMaster.getFramePrefix(UIMaster.getObject(e))});
+            } else {
+            UIMaster.ui.sync.set({uiid:UIMaster.getObject(e).name,"type":"CheckBoxGroup","attrMap":JSON.stringify({"values":obj.getValue().join(",")}),_framePrefix:UIMaster.getFramePrefix(UIMaster.getObject(e))});    
+            }
             obj._v = v;
         }
     },
@@ -1358,8 +1390,10 @@ UIMaster.ui.checkboxgroup = UIMaster.extend(UIMaster.ui.field, /** @lends UIMast
             }
         }
 
-        //var v1=eval(g(this,"mustCheck"));
-        //var v2=g(this,"mustCheckText");
+        this.ce=g(this,"ce");
+        this.expLevel=g(this,"expLevel");
+        if(!this.expLevel || this.expLevel==null) {this.expLevel =1;}
+        this.optValues=g(this,"optValues");
         //if(v1)this.mustCheck=(v1=="true");
         //if(v2)this.mustCheckText=v2;
     }
@@ -1419,15 +1453,20 @@ UIMaster.ui.radiobuttongroup = UIMaster.extend(UIMaster.ui.checkboxgroup, /** @l
     },
     notifyChange: function(e){
         var rBtn = UIMaster.getObject(e), obj = eval(D + rBtn.name);
-        if(e == undefined || obj._v == obj.getValue())return;
+        //if(e == undefined || obj._v == obj.getValue())return;
         var uiid = obj.inList?rBtn.name.lastIndexOf(']')!=rBtn.name.length-1 ? rBtn.value == "on"?rBtn.name:rBtn.name+"["+rBtn.value+"]" : rBtn.name:rBtn.name;
         if (!(obj.validate ? obj.validate() : false)){
-            UIMaster.ui.sync.set({_uiid:uiid,_valueName:"value",_value:obj.getValue(),_framePrefix:UIMaster.getFramePrefix(rBtn)});
+            if (this.ce && this.ce != null && this.ce.length > 0) {
+                UIMaster.ui.sync.set({uiid:uiid,"type":"RadioButtonGroup","attrMap":JSON.stringify({"value":obj.getValue(),"realVType":this.realVType, "ce": this.ce, "expLevel": this.expLevel}),_framePrefix:UIMaster.getFramePrefix(rBtn)});
+            } else {
+                UIMaster.ui.sync.set({uiid:uiid,"type":"RadioButtonGroup","attrMap":JSON.stringify({"value":obj.getValue(),"realVType":this.realVType}),_framePrefix:UIMaster.getFramePrefix(rBtn)});
+            }
             obj._v = obj.getValue();
         }
     },
     initV:function(){
         this._v = this.getDefaultValue();
+        this.realVType = g(this,"realVType");
     }
 });
 //SelectComponent
@@ -1536,7 +1575,11 @@ UIMaster.ui.combobox = UIMaster.extend(UIMaster.ui.field, /** @lends UIMaster.ui
     notifyChange: function(e,t){
         var obj = UIMaster.getObject(e);
         if (!(obj.validate ? obj.validate() : false)||t) {
-            UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"value",_value:obj.getValue(),_framePrefix:UIMaster.getFramePrefix(obj)});
+            if (this.ce && this.ce != null && this.ce.length > 0) {
+            UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"ComboBox","attrMap":JSON.stringify({"value":obj.getValue(),"realVType":this.realVType, "ce": this.ce, "expLevel": this.expLevel}),_framePrefix:UIMaster.getFramePrefix(obj)});
+            } else {
+            UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"ComboBox","attrMap":JSON.stringify({"value":obj.getValue(),"realVType":this.realVType}),_framePrefix:UIMaster.getFramePrefix(obj)});    
+            }
         }
     },
     init: function(){
@@ -1548,6 +1591,10 @@ UIMaster.ui.combobox = UIMaster.extend(UIMaster.ui.field, /** @lends UIMaster.ui
 
         var v1=eval(g(this,"allowBlank"));
         var v2=g(this,"allowBlankText");
+        this.ce=g(this,"ce");
+        this.expLevel=g(this,"expLevel");
+        if(!this.expLevel || this.expLevel==null) {this.expLevel =1;}
+        this.optValues=g(this,"optValues");
         //var v3=g(this,"selectValue");
         //var v4=g(this,"selectValueText");
         this.allowBlank= v1 == null ? this.allowBlank : v1;
@@ -1555,7 +1602,7 @@ UIMaster.ui.combobox = UIMaster.extend(UIMaster.ui.field, /** @lends UIMaster.ui
         !this.allowBlank && this.allowBlankText === '' && (this.allowBlankText = UIMaster.i18nmsg(C+"||ALLOW_BLANK"));
         //if(v3)this.selectValue=v3;
         //if(v4)this.selectValueText=v4;
-
+        this.realVType = g(this,"realVType");
         //begin comboBox tool tip
         $('option', $(this)).each(function(i){
             $(this).attr('title', $(this).text());
@@ -1619,7 +1666,11 @@ UIMaster.ui.list = UIMaster.extend(UIMaster.ui.combobox, {
 			      UIMaster.syncList.splice(i,1);
 			   }
 			}
-		    this.syncedValue = {_uiid:UIMaster.getUIID(obj),_valueName:"values",_value:obj.getValue().join(";"),_framePrefix:UIMaster.getFramePrefix(obj)};    
+		    if (this.ce && this.ce != null && this.ce.length > 0) {
+            this.syncedValue = {uiid:UIMaster.getUIID(obj),"type":"AList","attrMap":JSON.stringify({"values":obj.getValue().join(";"), "ce": this.ce, "expLevel": this.expLevel}),_framePrefix:UIMaster.getFramePrefix(obj)};    
+            } else {
+            this.syncedValue = {uiid:UIMaster.getUIID(obj),"type":"AList","attrMap":JSON.stringify({"values":obj.getValue().join(";")}),_framePrefix:UIMaster.getFramePrefix(obj)};    
+            }
             UIMaster.ui.sync.set(this.syncedValue);
 	    }
     }
@@ -2052,12 +2103,15 @@ UIMaster.ui.button = UIMaster.extend(UIMaster.ui,{
 UIMaster.ui.hidden = UIMaster.extend(UIMaster.ui, /** @lends UIMaster.`*/{
     intialized: false,
     sync:function(){
-        if(this.value!=this._v)
-            this.notifyChange(this);
+        //if(this.value!=this._v)
+        this.notifyChange(this);
     },
     notifyChange:function(e){
         var obj = UIMaster.getObject(e);
-        UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"value",_value:obj.value,_framePrefix:UIMaster.getFramePrefix(obj)});
+        if (this.uiType == "Label" && obj._v == obj.value) {
+            return;
+        }
+        UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":this.uiType,"attrMap":JSON.stringify({"value":obj.value}),_framePrefix:UIMaster.getFramePrefix(obj)});
         obj._v = obj.value;
     },
     n:function(e){
@@ -2078,6 +2132,7 @@ UIMaster.ui.hidden = UIMaster.extend(UIMaster.ui, /** @lends UIMaster.`*/{
         $(this).bind('propertychange', this.n).bind('DOMAttrModified',this.n);
         this.parentDiv = this;
         this._v = this.value;
+        this.uiType = "Hidden";
     }
 });
 /**
@@ -2118,6 +2173,7 @@ UIMaster.ui.label = UIMaster.extend(UIMaster.ui.hidden, /** @lends UIMaster.ui.l
 		    return;
 		this.intialized = true;
         UIMaster.ui.label.superclass.init.call(this);
+        this.uiType = "Label";
         this.parentDiv = this.parentNode.parentNode.parentNode;
 		if (this.captureScreen) {
 		    $(this).click(function(){
@@ -2176,6 +2232,7 @@ UIMaster.ui.label = UIMaster.extend(UIMaster.ui.hidden, /** @lends UIMaster.ui.l
 UIMaster.ui.link = UIMaster.extend(UIMaster.ui.hidden,{
 	init:function(){
         UIMaster.ui.link.superclass.init.call(this);
+        this.uiType = "Link";
         this.parentDiv = this.parentNode;
     }
 });
@@ -2194,8 +2251,10 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 	intialized:false,
 	enableSelectSync:true,
 	isGallery:true,
+    selectedImage:null,
 	init:function(skip){
 		var t = this;
+        this.uiType = "Image";
 		if (skip) {
 		  t.init0();
 		} else {
@@ -2267,7 +2326,8 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 	},
 	clickImage:function(image){
 	   if (!this.enableSelectSync) {return;}
-	   var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"false",_uiid:this.id,_valueName:"selectedImage",_value:$(image).attr("src"),_framePrefix:UIMaster.getFramePrefix()}};
+       this.selectedImage = $(image).attr("src");
+	   var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"false",_uiid:this.id,"type":"Image","attrMap":JSON.stringify({"selectedImage":$(image).attr("src")}),_framePrefix:UIMaster.getFramePrefix()}};
        if (MobileAppMode) {
           _mobContext.ajax(JSON.stringify(opts));
        } else {
@@ -2308,7 +2368,11 @@ UIMaster.ui.image = UIMaster.extend(UIMaster.ui, {
 	   } else {
 		   $(this).next().attr("src", RESOURCE_CONTEXTPATH + decodeHTML(newContent) + "?t="+Math.random());
 	   }
-	}
+	},
+    sync:function(){
+        var uiid0 = (this.name && this.name.length > 0) ? this.name : this.id;
+        UIMaster.ui.sync.set({uiid: uiid0,"type":this.uiType,"attrMap":JSON.stringify({"selectedImage":this.selectedImage}),_framePrefix:UIMaster.getFramePrefix()});
+    }
 });
 UIMaster.ui.file = UIMaster.extend(UIMaster.ui, {
 	disableSearch:false,
@@ -2462,6 +2526,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	tbody:null,
 	tfoot:null,
 	disableScrollY:false,
+    disableActionBarFloating:false,
 	callSelectedFunc: null,
 	initMobileView:function(){
 	  var i=0;
@@ -2488,6 +2553,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	  });
 	},
 	showActionBar:function() {
+        if (this.disableActionBarFloating) {return;}
 		var _scrollTop = document.body.scrollTop; 
 		var _scrollHeight = document.body.scrollHeight; 
 		var _height = document.body.clientHeight; 
@@ -2503,19 +2569,19 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	},
 	pullRefresh:function() {
 	  var obj = UIMaster.getObject(this);
-	  UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"pull",_value:"filter",_framePrefix:UIMaster.getFramePrefix(obj)});
+	  UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"Table","attrMap":JSON.stringify({"pull":"filter"}),_framePrefix:UIMaster.getFramePrefix(obj)});
 	  this.showLoader(true);
 	  this.loadNewSlides("filter");
     },
 	pullNew:function() {
 	  var obj = UIMaster.getObject(this);
-	  UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"pull",_value:"new",_framePrefix:UIMaster.getFramePrefix(obj)});
+	  UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"Table","attrMap":JSON.stringify({"pull":"new"}),_framePrefix:UIMaster.getFramePrefix(obj)});
 	  this.showLoader(true);
 	  this.loadNewSlides("new");
     },
 	pullHistory:function() {
 	  var obj = UIMaster.getObject(this);
-	  UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"pull",_value:"history",_framePrefix:UIMaster.getFramePrefix(obj)});
+	  UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"Table","attrMap":JSON.stringify({"pull":"history"}),_framePrefix:UIMaster.getFramePrefix(obj)});
 	  this.showLoader(false);
 	  this.loadNewSlides("history");
     },
@@ -2523,7 +2589,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	hideLoader:function(){},
 	loadNewSlides: function(pullaction){
 	    var othis = this;
-	    var opts = {url:AJAX_SERVICE_URL,async:false,
+        UIMaster.syncAll(othis.id);
+	    var opts = {url:AJAX_SERVICE_URL,async:false, method:'POST',
 			data:{_ajaxUserEvent:"table",_uiid:othis.id,_actionName:"pull",_value:pullaction,_framePrefix:UIMaster.getFramePrefix(),_sync: UIMaster.ui.sync()},
 			success: function(data){
 		     //$($(othis.pageInfoPanel).children()[0]).text("1/"+data.totalCount);
@@ -2572,7 +2639,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			if (selectedRow.length > 0) {
 				if ($(selectedRow).attr('_rowindex') == $(this).attr('_rowindex')) {
 				   var obj = UIMaster.getObject(othis);
-				   UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"selectedIndex",_value:othis.selectedIndex,_framePrefix:UIMaster.getFramePrefix(obj)});
+				   UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"Table","attrMap":JSON.stringify({"selectedIndex":othis.selectedIndex}),_framePrefix:UIMaster.getFramePrefix(obj)});
 				   var id = othis.id.replace(/\./g,"_");
 				   if (IS_MOBILEVIEW && $('#'+id+"_openItem")[0]) { eval($('#'+id+"_openItem")[0].href);}
 				   else {$('#'+id+"_openItem").trigger('click');}
@@ -2600,7 +2667,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	saveMobFilter: function(){
 	    var obj = UIMaster.getObject(this);
         if (obj._selectedIndex != this.selectedIndex) {
-            UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"selectedIndex",_value:this.selectedIndex,_framePrefix:UIMaster.getFramePrefix(obj)});
+            UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"Table","attrMap":JSON.stringify({"selectedIndex":this.selectedIndex}),_framePrefix:UIMaster.getFramePrefix(obj)});
 			obj._selectedIndex = this.selectedIndex;
         }
 		var conditions = new Array();
@@ -2612,7 +2679,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			}
 		});
 		if (conditions.length > 0) {
-		   UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"conditions",_value:JSON.stringify(conditions),_framePrefix:UIMaster.getFramePrefix(obj)});
+		   UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"Table","attrMap":JSON.stringify({"conditions":conditions}),_framePrefix:UIMaster.getFramePrefix(obj)});
 		   this.loadNewSlides("filter");
 		}
 		this.filterPanel.dialog("close");
@@ -2816,7 +2883,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 		});
 	},
 	rowEmpty:function(){
-		return this.tbody.find("td[class='dataTables_empty']").length == 1;
+		return this.ui && ($(this.ui).find(".dataTables_empty").length == 1 
+               || $(this.ui).find(".dataTables_empty").length == 1) ;
 	},
 	getTDIndex:function(td){
 		var i=0;
@@ -2909,12 +2977,12 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	},
 	sync:function(){
 		var obj = UIMaster.getObject(this);
-        if (obj._selectedIndex != this.selectedIndex) {
-            UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"selectedIndex",_value:this.selectedIndex,_framePrefix:UIMaster.getFramePrefix(obj)});
+        //if (obj._selectedIndex != this.selectedIndex) {
+            UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"Table","attrMap":JSON.stringify({"selectedIndex":this.selectedIndex}),_framePrefix:UIMaster.getFramePrefix(obj)});
 			obj._selectedIndex = this.selectedIndex;
-        }
-		if (this.isMultipleSelection) {
-		    UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"selectedIndexs",_value:this.selectedIndexs.join(","),_framePrefix:UIMaster.getFramePrefix(obj)});
+        //}
+		if (this.isMultipleSelection && this.selectedIndexs.length > 0) {
+		    UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"Table","attrMap":JSON.stringify({"selectedIndexs":this.selectedIndexs.join(",")}),_framePrefix:UIMaster.getFramePrefix(obj)});
 		}
 		if (this.editablecell) {
 			return;//the editable cell and the filters are mutual exclusive.
@@ -2932,7 +3000,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				} 
 			}
 		});
-		UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"conditions",_value:JSON.stringify(conditions),_framePrefix:UIMaster.getFramePrefix(obj)});
+        if (conditions.length > 0)
+		   UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"Table","attrMap":JSON.stringify({"conditions":conditions}),_framePrefix:UIMaster.getFramePrefix(obj)});
 	},
 	syncBodyDataToServer:function(){
 		if (this.editablecell) {
@@ -2951,7 +3020,7 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				bodydata.push(row);
 			});
 			var obj = UIMaster.getObject(this);
-			UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"bodyJson",_value:JSON.stringify(bodydata),_framePrefix:UIMaster.getFramePrefix(obj)});
+			UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"Table","attrMap":JSON.stringify({"bodyJson":bodydata}),_framePrefix:UIMaster.getFramePrefix(obj)});
 			return;
 		}
 	},
@@ -3048,7 +3117,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				this.syncButtonGroup(false);
 			} else {
 				$(c[0]).addClass('selected');
-				$($(c[0]).children()[0]).children()[0].checked=true;
+				if($($(c[0]).children()[0]).children()[0]) 
+                    $($(c[0]).children()[0]).children()[0].checked=true;
 	            this.selectedIndex = 0;
 				this.selectedIndexs.push(0);
 	            othis.syncButtonGroup(true);
@@ -3058,7 +3128,8 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 				$(c[this.selectedIndex]).addClass('selected');
 			} else {
 				$(c[0]).addClass('selected');
-				$($(c[0]).children()[0]).children()[0].checked=true;
+                if($($(c[0]).children()[0]).children()[0])
+				    $($(c[0]).children()[0]).children()[0].checked=true;
 				this.selectedIndex = 0;
 				this.selectedIndexs.push(0);
 			}
@@ -3070,9 +3141,11 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 			$(this).find(".swiper-slide").each(function() {
 				$(this).remove();
 			});
-			for(var i=0;i<json.rows.length;i++){
-				this.appendSlide(decodeHTML(json.rows[i].value));
-			}
+            if (json.rows != undefined) {
+    			for(var i=0;i<json.rows.length;i++){
+    				this.appendSlide(decodeHTML(json.rows[i].value));
+    			}
+            }
 			this.refreshMobList();
 			return;
 		}
@@ -3099,8 +3172,9 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	    pageNumber = parseInt(pageNumber);
 		if (isNaN(pageNumber))
 			pageNumber = 1;
+        UIMaster.syncAll(this.id);
 		var s = this.dtable.api().settings()[0];
-		s.ajax.data={_ajaxUserEvent: "table", _uiid: this.id, _actionName: "pull", _framePrefix: UIMaster.getFramePrefix(UIMaster.El(this.id).get(0)),
+		s.ajax.data={_ajaxUserEvent: "table", method:'POST', _uiid: this.id, _actionName: "pull", _framePrefix: UIMaster.getFramePrefix(UIMaster.El(this.id).get(0)),
             _actionPage: this.parentEntity.__entityName, _selectedIndex: this.selectedIndex, _sync: UIMaster.ui.sync()};
 		if (pageNumber != undefined) {
 			this.dtable.fnPageChange(pageNumber, true);
@@ -3120,14 +3194,14 @@ UIMaster.ui.objectlist = UIMaster.extend(UIMaster.ui, {
 	},
 	exportData:function(){
 		var s = this.dtable.api().settings()[0];
-		var data = "_ajaxUserEvent=table&_uiid="+this.id+"&_actionName=exportTable&_framePrefix="
+		var data = "_ajaxUserEvent=table&uiid="+this.id+"&_actionName=exportTable&_framePrefix="
 					 +UIMaster.getFramePrefix(UIMaster.El(this.id).get(0))+"&_actionPage="+this.parentEntity.__entityName;
 		var form = $('<form action='+AJAX_SERVICE_URL+"?r="+Math.random()+'&'+data+' method=post target=_blank></form>');
 		$(form).submit(); 
 	},
 	statistic: function(){
 		var opts ={url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,
-		          data:{_ajaxUserEvent: "table", _uiid: this.id, _actionName: "chart", _framePrefix: UIMaster.getFramePrefix(UIMaster.El(this.id).get(0)),
+		          data:{_ajaxUserEvent: "table", uiid: this.id, _actionName: "chart", _framePrefix: UIMaster.getFramePrefix(UIMaster.El(this.id).get(0)),
                         _actionPage: this.parentEntity.__entityName, _selectedIndex: this.selectedIndex, _sync: {}}};
 		if (MobileAppMode) {
             _mobContext.ajax(JSON.stringify(opts));
@@ -3195,7 +3269,7 @@ UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
 			  'data': function(node) {
 				return {'nodeid' : node.id, 
 					'_ajaxUserEvent': "tree",
-	                '_uiid': t.id,
+	                'uiid': t.id,
 	                '_actionName': "expand",
 	                '_framePrefix': UIMaster.getFramePrefix(UIMaster.El(t.id).get(0)),
 	                '_actionPage': t.parentEntity.__entityName,
@@ -3270,12 +3344,8 @@ UIMaster.ui.webtree = UIMaster.extend(UIMaster.ui, {
 	sync:function(){
 		var obj = UIMaster.getObject(this);
 		if (this._selectedNodeId && this._selectedNodeId != "") {
-			UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"selectedNode",
-								  _value:this._selectedNodeId,_framePrefix:UIMaster.getFramePrefix(obj)});
-			UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"selectedParentNode",
-				  				  _value:this._selectedParentNodeId,_framePrefix:UIMaster.getFramePrefix(obj)});
-			UIMaster.ui.sync.set({_uiid:UIMaster.getUIID(obj),_valueName:"selectedNodeName",
-				                  _value:this._selectedNodeName,_framePrefix:UIMaster.getFramePrefix(obj)});
+			UIMaster.ui.sync.set({uiid:UIMaster.getUIID(obj),"type":"Tree","attrMap":JSON.stringify({"selectedNode":this._selectedNodeId, 
+                "selectedParentNode":this._selectedParentNodeId, "selectedNodeName":this._selectedNodeName}),_framePrefix:UIMaster.getFramePrefix(obj)});
 		}
 	},
 	refresh:function(children){
@@ -3788,14 +3858,14 @@ function showMobileFrame(link, name) {
 		    fc.attr("src","about:blank");
 		},
 		close: function() {//no need app ajax support.
-		  $.ajax({url:AJAX_SERVICE_URL,async:true,data:{serviceName:"closepage",_framePrefix:UIMaster.getFramePrefix()}});
+		  $.ajax({url:AJAX_SERVICE_URL+"/old",async:true,data:{serviceName:"closepage",_framePrefix:UIMaster.getFramePrefix()}});
 		}
 		//buttons: [{text:"\u5173\u95ED", open:function(){$(this).addClass('uimaster_button');}, click:function(){d.dialog("close");}}]
 		});
 	d.dialog("open");
 }
 UIMaster.goBack = function(e){//app close page in here!
-	$.ajax({url:AJAX_SERVICE_URL,async:false,data:{serviceName:"closepage",_framePrefix:UIMaster.getFramePrefix()}});
+	$.ajax({url:AJAX_SERVICE_URL+"/old",async:false,data:{serviceName:"closepage",_framePrefix:UIMaster.getFramePrefix()}});
 };
 /**
  * @description UI Tab class. Need more information.
@@ -3882,7 +3952,9 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
 		if (currTitle.attr("ajaxload") != null && currTitle.attr("ajaxload") == "true") {
         	currTitle.attr("ajaxload", null);
         }
-        var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:{_ajaxUserEvent:"tabpane",_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix()}};
+        UIMaster.syncAll(this.id);
+        var entity = UIMaster.findEntityName(this);
+        var opts = {url:AJAX_SERVICE_URL, method:'POST', async:false,success: UIMaster.cmdHandler,data:{entity:entity, _ajaxUserEvent:"tabpane",_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix(), _sync: UIMaster.ui.sync()}};
         if (MobileAppMode) {
             _mobContext.ajax(JSON.stringify(opts));
         } else {
@@ -3964,7 +4036,7 @@ UIMaster.ui.tab=UIMaster.extend(UIMaster.ui,{
 		var c = $(selectedBody).children();
 		if (c.length > 0 && c[0].tagName.toLowerCase() == "iframe") { 
 			var obj = othis.ui;
-			var opts = {url:AJAX_SERVICE_URL,async:true,data:{serviceName:"closepage",_framePrefix:$(c[0]).attr("name")}};
+			var opts = {url:AJAX_SERVICE_URL+"/old",async:true,data:{serviceName:"closepage",_framePrefix:$(c[0]).attr("name")}};
 			if (MobileAppMode) {
 				_mobContext.ajax(JSON.stringify(opts));
 			} else {
@@ -4028,7 +4100,9 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 			   }
 			   if(!othis.validate0()) return;
 			   if(!othis.setTab(parseInt($(this).attr("index")))) return;
-			   UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedIndex",_value:othis.selectedIndex,_framePrefix:UIMaster.getFramePrefix(this)});
+               /**
+               var entity = UIMaster.findEntityName(othis);
+			   UIMaster.ui.sync.set({entity: entity, uiid:othis.id,"type":"PreNextPanel","attrMap":JSON.stringify({"selectedIndex":othis.selectedIndex}),_framePrefix:UIMaster.getFramePrefix(this)});
 			   var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
 				{_ajaxUserEvent:"prenextpanel",_uiid:othis.id,_valueName:"nextbtn",_framePrefix:UIMaster.getFramePrefix(),_sync:UIMaster.ui.sync()}};
 			   if (MobileAppMode) {
@@ -4036,6 +4110,7 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 			   } else {
 				  $.ajax(opts);
 			   }
+               */
 			});
 		});
 		this.bodyContainer.children().each(function(i){
@@ -4141,8 +4216,10 @@ UIMaster.ui.prenextpanel=UIMaster.extend(UIMaster.ui,{
 		if (currTitle.attr("ajaxload") != null && currTitle.attr("ajaxload") == "true"){
         	currTitle.attr("ajaxload", null);
         } 
+        var entity = UIMaster.findEntityName(this);
+        UIMaster.ui.sync.set({entity: entity, uiid:this.id,"type":"PreNextPanel","attrMap":JSON.stringify({"selectedIndex":currTitle.attr("index")}),_framePrefix:UIMaster.getFramePrefix(this)});
 		var opts = {url:AJAX_SERVICE_URL,async:false,success: UIMaster.cmdHandler,data:
-		{_ajaxUserEvent:"prenextpanel",_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix()}};
+		{_ajaxUserEvent:"prenextpanel",_uiid:this.id,_valueName:"selectedIndex",_value:currTitle.attr("index"),_framePrefix:UIMaster.getFramePrefix(),_sync:UIMaster.ui.sync()}};
 		if (MobileAppMode) {
 		  _mobContext.ajax(JSON.stringify(opts));
 	    } else {
@@ -4213,10 +4290,9 @@ UIMaster.ui.matrix=UIMaster.extend(UIMaster.ui,{
 				 $(this).removeClass("ui-state-hover");
 			  });
 			  $(this).addClass("ui-state-hover");
-			  UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedNodeId",_value:$(this).children().attr("nodeid"),_framePrefix:UIMaster.getFramePrefix(othis)});
-			  UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedNode",_value:$(this).children().attr("alt"),_framePrefix:UIMaster.getFramePrefix(othis)});
-			  UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedX",_value:$(this).attr("j"),_framePrefix:UIMaster.getFramePrefix(othis)});
-			  UIMaster.ui.sync.set({_uiid:othis.id,_valueName:"selectedY",_value:$($(this).parent()).attr("i"),_framePrefix:UIMaster.getFramePrefix(othis)});
+			  UIMaster.ui.sync.set({uiid:othis.id,"type":"Matrix","attrMap":JSON.stringify( {"selectedNodeId":$(this).children().attr("nodeid"),
+                "selectedNode":$(this).children().attr("alt"),"selectedX":$(this).attr("j"),"selectedY":$($(this).parent()).attr("i")} ),
+                 _framePrefix:UIMaster.getFramePrefix(othis)});
 		   });
 		});
     }

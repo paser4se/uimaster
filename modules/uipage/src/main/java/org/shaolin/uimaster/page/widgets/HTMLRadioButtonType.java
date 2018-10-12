@@ -95,17 +95,8 @@ public class HTMLRadioButtonType extends HTMLSelectComponentType
 
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-//        RadioButton radioButton = new RadioButton(getName(), Layout.NULL);
-//
-//        radioButton.setReadOnly(isReadOnly());
-//        radioButton.setUIEntityName(getUIEntityName());
-//
-//        radioButton.setLabel(getLabel());
-//
-//        radioButton.setListened(true);
-//        radioButton.setSelected(getValue());
-
-        return super.createJsonModel(ee);
+//        return super.createJsonModel(ee);
+    		return null;
     }
     
     private static final long serialVersionUID = -4405215152580918889L;

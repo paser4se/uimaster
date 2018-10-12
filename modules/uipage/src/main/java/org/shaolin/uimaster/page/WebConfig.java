@@ -154,6 +154,10 @@ public final class WebConfig {
 		return instance.getWebsocketServer();
 	}
 	
+	public static String getJsWebSocketServer() {
+		return instance.getJsWebsocketServer();
+	}
+	
 	/**
 	 * Andriod or IOS app context root.
 	 * 

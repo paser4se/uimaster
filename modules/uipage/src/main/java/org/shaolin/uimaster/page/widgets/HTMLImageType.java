@@ -176,12 +176,10 @@ public class HTMLImageType extends HTMLTextWidgetType
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
 		boolean hasGallery = this.getAttribute("isGallery") != null && ("true".equals(String.valueOf(this.getAttribute("isGallery"))));
-		if (!needAjaxSupport() && !hasGallery) {
-    		Object oneditable = this.getAttribute("oneditable");
-            if (oneditable == null || oneditable.toString().equalsIgnoreCase("false")){
-            	return null;
-            }
-    	}
+		boolean needAjaxSupport = this.getAttribute("needAjaxSupport") != null && ("true".equals(String.valueOf(this.getAttribute("needAjaxSupport"))));
+		if (!hasGallery && !needAjaxSupport) {
+            return null;
+		}
 		
 		Image image = new Image(getName(), Layout.NULL);
 
@@ -196,10 +194,7 @@ public class HTMLImageType extends HTMLTextWidgetType
 		image.setIsGallery(hasGallery);
 		image.setListened(true);
 
-//		Object expr = this.removeAttribute("selectedImageExpr");
-//		if (expr != null) {
-//			image.setSelectedImageExpr((ExpressionType)expr);
-//		}
+		this.addAttribute("needAjaxSupport", true);
 		JSONObject json = super.createJsonModel(ee);
 		image.toJSON(json);
 		return json;

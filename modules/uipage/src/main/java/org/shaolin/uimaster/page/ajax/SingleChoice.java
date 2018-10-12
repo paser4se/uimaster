@@ -67,6 +67,12 @@ abstract public class SingleChoice<T> extends Choice<T> implements Serializable
         {
             return;
         }
+        if (this.optionValues.isEmpty()) {
+        		// allow setting the value if the options is empty as agreed.
+        		addAttribute("value", value);
+            this.notifyChange();
+            return;
+        }
         if (checkValueExist(value))
         {
             addAttribute("value", value);
@@ -131,13 +137,22 @@ abstract public class SingleChoice<T> extends Choice<T> implements Serializable
     
     public JSONObject toJSON() throws JSONException {
 		JSONObject json = super.toJSON();
-		json.put("realVType", realValueDataType.getName());
+		json.getJSONObject("attrMap").put("realVType", realValueDataType.getName());
+		json.getJSONObject("attrMap").put("value", this.getValue());
 		return json;
 	}
 	
 	public void fromJSON(JSONObject json) throws Exception {
 		super.fromJSON(json);
-		this.realValueDataType = Class.forName(json.getString("realVType"));
+		if (json.getJSONObject("attrMap").has("realVType")) {
+			this.realValueDataType = Class.forName(json.getJSONObject("attrMap").getString("realVType"));
+		} else {
+			this.realValueDataType = String.class;
+		}
+		
+		if (json.getJSONObject("attrMap").has("value")) {
+			addAttribute("value", json.getJSONObject("attrMap").getString("value"));
+		}
 	}
 
 }

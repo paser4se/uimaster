@@ -27,6 +27,8 @@ import org.shaolin.bmdp.datamodel.workflow.HandlerType;
 import org.shaolin.bmdp.datamodel.workflow.SessionServiceType;
 import org.shaolin.bmdp.datamodel.workflow.StartNodeType;
 import org.shaolin.bmdp.datamodel.workflow.Workflow;
+import org.shaolin.bmdp.json.JSONException;
+import org.shaolin.bmdp.json.JSONObject;
 import org.shaolin.bmdp.runtime.entity.EntityUtil;
 import org.shaolin.bmdp.utils.CloseUtil;
 import org.shaolin.javacc.statement.BlockCompilationUnit;
@@ -131,7 +133,7 @@ public class GeneratorFlowTest {
 		
 	}
 	
-	public void testMarshalUnmarshall() {
+	public void testMarshalUnmarshall() throws JSONException {
 		URL url = GeneratorFlowTest.class.getClassLoader().getResource(
 				"LoginFlows.workflow");
 		InputStream in = null;
@@ -145,6 +147,20 @@ public class GeneratorFlowTest {
 		} finally {
 			CloseUtil.close(in);
 		}
+		
 	}
+	
+	@Test
+	public void testRecoverState() throws JSONException {
+		String json = "{\"nodeName\":\"offerPrice\",\"eventId\":\"PublishMachiningOrder[0]\",\"appName\":\"org.shaolin.vogerp.ecommercial."
+				+ "diagram.MachiningOrderFlows\",\"eappName\":null,\"responseBack\":true,\"sappName\":\"org.shaolin.vogerp.ecommercial."
+						+ "diagram.MachiningOrderFlows\",\"recoverable\":false,\"eflowName\":null,\"snodeName\":\"init\","
+						+ "\"sessionId\":\"WSID-1497798918111-0\",\"flowName\":\"PublishMachiningOrder\",\"globalVarNames\":[],"
+						+ "\"eventConsumer\":\"PublishMachiningOrder\",\"waitResponse\":false,\"taskId\":302,\"sflowName\":\"PublishMachiningOrder\","
+						+ "\"globalVarNamesSet\":[],\"engineId\":\"org.shaolin.vogerp.ecommercial.diagram.MachiningOrderFlows\",\"enodeName\":null}";
+		FlowState state = new FlowState();
+		state.recover(new JSONObject(json));
+		System.out.println(new JSONObject(state));
+	} 
 	
 }

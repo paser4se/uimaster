@@ -11,6 +11,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,7 +20,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.apache.maven.model.Dependency;
-import org.apache.maven.project.MavenProject;
 import org.shaolin.bmdp.datamodel.common.EntityType;
 import org.shaolin.bmdp.designtime.bediagram.BESourceGenerator;
 import org.shaolin.bmdp.designtime.bediagram.CESourceGenerator;
@@ -48,80 +48,70 @@ import org.shaolin.bmdp.utils.CloseUtil;
 public class EntityGeneratorMojo extends SpringBootstrapperMojo {
 	
 	// read-only parameters ---------------------------------------------------
-    /**
-     * The maven project.
-     * 
-     * @parameter expression="${project}"
-     * @readonly
-     */
-    private MavenProject project;
 
 	/**
-     * project/target/classes
-     * 
-     * @parameter expression="${project.build.outputDirectory}"
+	 * @parameter property="project.build.outputDirectory"
+     * @readonly
      */
     private File targetClasses;
 	
     /**
-     * project/src/main/java
-     * 
-     * @parameter expression="${project.build.sourceDirectory}"
+     * @parameter property="project.build.sourceDirectory"
+     * @readonly
      */
     private File srcDirectory;
     
     /**
-     * project/src/test/java
-     * 
-     * @parameter expression="${basedir}/src/test/java"
+     * @parameter default-value="${basedir}/src/test/java"
+     * @readonly
      */
     private File testDirectory;
     
     /**
-     * 
-     * @parameter expression="${basedir}/src/main/resources/entities"
+     * @parameter default-value="${basedir}/src/main/resources/entities"
+     * @readonly
      */
     private File entitiesDirectory;
     
     /**
-     * 
-     * @parameter expression="${generate-entity.systemEntityPath}"
+     * @parameter property="generate-entity.systemEntityPath"
+     * @readonly
      */
     private String systemEntityPath;
     
     /**
-     * 
-     * @parameter expression="${settings.localRepository}"
+     * @parameter property="settings.localRepository"
+     * @readonly
      */
     private File localRepository;
     
     /**
-     * 
-     * @parameter expression="${basedir}/src/main/resources"
+     * @parameter default-value="${basedir}/src/main/resources"
+     * @readonly
      */
     private File resourcesDir;
     
     /**
-     * 
-     * @parameter expression="${basedir}/src/other/web"
+     * @parameter default-value="${basedir}/src/other/web"
+     * @readonly
      */
     private File webDirectory;
     
     /**
-     * 
-     * @parameter expression="${basedir}/src/other/sql"
+     * @parameter default-value="${basedir}/src/other/sql"
+     * @readonly
      */
     private File sqlDirectory;
     
     /**
-     * 
-     * @parameter expression="${basedir}/src/other/hbm"
+     * @parameter default-value="${basedir}/src/other/hbm"
+     * @readonly
      */
     private File hbmDirectory;
 
     /**
-     * 
-     * @parameter expression="${generate-entity.genUIComponents}" default-value="true"
+     * @parameter property="generate-entity.genUIComponents"
+     * @readonly
      */
     private boolean genUIComponents = true;
     
@@ -129,27 +119,110 @@ public class EntityGeneratorMojo extends SpringBootstrapperMojo {
     /**
      * The project's classpath.
      * 
-     * @parameter expression="${project.compileClasspathElements}"
+     * @parameter property="project.compileClasspathElements"
      * @readonly
      */
     private List<String> classpathElements;
 
     // AbstractAptMojo methods ------------------------------------------------
-
+    
     protected List<String> getClasspathElements() {
         return classpathElements;
     }
-	
-    /**
-     * Gets the Maven project.
-     * 
-     * @return the project
-     */
-    protected MavenProject getProject() {
-        return project;
-    }
     
-    @Override
+    public File getTargetClasses() {
+		return targetClasses;
+	}
+
+	public void setTargetClasses(File targetClasses) {
+		this.targetClasses = targetClasses;
+	}
+
+	public File getSrcDirectory() {
+		return srcDirectory;
+	}
+
+	public void setSrcDirectory(File srcDirectory) {
+		this.srcDirectory = srcDirectory;
+	}
+
+	public File getTestDirectory() {
+		return testDirectory;
+	}
+
+	public void setTestDirectory(File testDirectory) {
+		this.testDirectory = testDirectory;
+	}
+
+	public File getEntitiesDirectory() {
+		return entitiesDirectory;
+	}
+
+	public void setEntitiesDirectory(File entitiesDirectory) {
+		this.entitiesDirectory = entitiesDirectory;
+	}
+
+	public String getSystemEntityPath() {
+		return systemEntityPath;
+	}
+
+	public void setSystemEntityPath(String systemEntityPath) {
+		this.systemEntityPath = systemEntityPath;
+	}
+
+	public File getLocalRepository() {
+		return localRepository;
+	}
+
+	public void setLocalRepository(File localRepository) {
+		this.localRepository = localRepository;
+	}
+
+	public File getResourcesDir() {
+		return resourcesDir;
+	}
+
+	public void setResourcesDir(File resourcesDir) {
+		this.resourcesDir = resourcesDir;
+	}
+
+	public File getWebDirectory() {
+		return webDirectory;
+	}
+
+	public void setWebDirectory(File webDirectory) {
+		this.webDirectory = webDirectory;
+	}
+
+	public File getSqlDirectory() {
+		return sqlDirectory;
+	}
+
+	public void setSqlDirectory(File sqlDirectory) {
+		this.sqlDirectory = sqlDirectory;
+	}
+
+	public File getHbmDirectory() {
+		return hbmDirectory;
+	}
+
+	public void setHbmDirectory(File hbmDirectory) {
+		this.hbmDirectory = hbmDirectory;
+	}
+
+	public boolean isGenUIComponents() {
+		return genUIComponents;
+	}
+
+	public void setGenUIComponents(boolean genUIComponents) {
+		this.genUIComponents = genUIComponents;
+	}
+
+	public void setClasspathElements(List<String> classpathElements) {
+		this.classpathElements = classpathElements;
+	}
+
+	@Override
 	public void invoke() throws Exception {
     	if (!entitiesDirectory.exists()) {
     		return;
@@ -231,10 +304,22 @@ public class EntityGeneratorMojo extends SpringBootstrapperMojo {
 		
 		ClassLoader loader = Thread.currentThread().getContextClassLoader();
 		try {
-	    	AppContext.register(new AppServiceManagerImpl("build_app", loader));
-	    	//IServerServiceManager.INSTANCE = IServerServiceManager.createMockServiceManager();
-			// Classloader will be switched in designtime
-	    	EntityManager entityManager = (EntityManager)IServerServiceManager.INSTANCE.getEntityManager();
+			// merge the compiled classes to current class loader.
+			Set<URL> urls = new HashSet<>();
+		    List<String> elements = project.getRuntimeClasspathElements();
+		    for (String element : elements) {
+		        urls.add(new File(element).toURI().toURL());
+		    }
+		    this.getLog().info("CompileClasspathElements: " + elements);
+		    ClassLoader contextClassLoader = URLClassLoader.newInstance(
+		            urls.toArray(new URL[urls.size()]),
+		            Thread.currentThread().getContextClassLoader());
+		    Thread.currentThread().setContextClassLoader(contextClassLoader);
+		    
+		    	AppContext.register(new AppServiceManagerImpl("build_app", loader));
+		    	//IServerServiceManager.INSTANCE = IServerServiceManager.createMockServiceManager();
+				// Classloader will be switched in designtime
+		    	EntityManager entityManager = (EntityManager)IServerServiceManager.INSTANCE.getEntityManager();
 			if (systemEntityPath != null) {
 				ArrayList<File> files = new ArrayList<File>();
 				if (systemEntityPath.indexOf(";") != -1) {

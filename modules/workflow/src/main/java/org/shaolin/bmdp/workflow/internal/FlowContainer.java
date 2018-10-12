@@ -73,75 +73,77 @@ public class FlowContainer {
     }
     
     public FlowEngine getFlowEngine(String key) {
+    		if (!allEngines.containsKey(key)) {
+    			throw new IllegalArgumentException("Unable to find this flow engine"
+    					+ key + ". existing engines: " + allEngines.keySet().toString());
+    		}
         return allEngines.get(key);
     }
 
     void restartService(Workflow appInfo) {
-    	FlowObject flowInfo = new FlowObject(new AppInfo(appInfo));
-    	if (appInfo.getConf().isBootable() != null && appInfo.getConf().isBootable()) {
-    		WorkFlowEventProcessor processor = AppContext.get().getService(WorkFlowEventProcessor.class);
-    		
-    		logger.info("Recreate workflow engine: {}",  flowInfo.getAppInfo().getName());
-    		FlowEngine engine = initFlowEngine(flowInfo, false);
-    		logger.info("Start workflow engine: {}", engine.getEngineName());
-    		engine.start(processor.getConsumers());
-    		allEngines.put(engine.getEngineName(), engine);
-    	}
-    	appflowCache.put(appInfo.getEntityName(), flowInfo);
+	    	FlowObject flowInfo = new FlowObject(new AppInfo(appInfo));
+	    	if (appInfo.getConf().isBootable() != null && appInfo.getConf().isBootable()) {
+	    		WorkFlowEventProcessor processor = AppContext.get().getService(WorkFlowEventProcessor.class);
+	    		
+	    		logger.info("Recreate workflow engine: {}",  flowInfo.getAppInfo().getName());
+	    		FlowEngine engine = initFlowEngine(flowInfo, false);
+	    		logger.info("Start workflow engine: {}", engine.getEngineName());
+	    		engine.start(processor.getConsumers());
+	    		allEngines.put(engine.getEngineName(), engine);
+	    	}
+	    	appflowCache.put(appInfo.getEntityName(), flowInfo);
     }
-    
+	    
     void startService(List<Workflow> appInfos) {
-    	allEngines.clear();
-    	
         List<FlowObject> activeFlows = new ArrayList<FlowObject>();
         for (Workflow flow : appInfos) {
-        	FlowObject flowInfo = new FlowObject(new AppInfo(flow));
-        	// add to cache, but not initialized.
-        	appflowCache.putIfAbsent(flow.getEntityName(), flowInfo);
+	        	FlowObject flowInfo = new FlowObject(new AppInfo(flow));
+	        	// add to cache, but not initialized.
+	        	appflowCache.putIfAbsent(flow.getEntityName(), flowInfo);
             
             if (flow.getConf().isBootable() != null && flow.getConf().isBootable()) {
-            	activeFlows.add(flowInfo);
+            		activeFlows.add(flowInfo);
             }
         }
         
         Map<String, FlowEngine> engineMap = new HashMap<String, FlowEngine>();
         for (FlowObject flowInfo: activeFlows) {
-        	logger.info("Create workflow engine: {}",  flowInfo.getAppInfo().getName());
-        	FlowEngine engine = initFlowEngine(flowInfo, false);
-        	engineMap.put(flowInfo.getAppInfo().getName(), engine);
+	        	logger.info("Create workflow engine: {}",  flowInfo.getAppInfo().getName());
+	        	FlowEngine engine = initFlowEngine(flowInfo, false);
+	        	engineMap.put(flowInfo.getAppInfo().getName(), engine);
         }
 
         startFlowEngines(engineMap);
     }
     
     void updateService(List<Workflow> appInfos) {
-    	if (appInfos == null || appInfos.size() == 0) {
-    		return;
-    	}
+	    	if (appInfos == null || appInfos.size() == 0) {
+	    		return;
+	    	}
         List<FlowObject> activeFlows = new ArrayList<FlowObject>();
         for (Workflow flow : appInfos) {
-        	FlowObject flowInfo = new FlowObject(new AppInfo(flow));
-        	// add to cache, but not initialized.
-        	appflowCache.put(flow.getEntityName(), flowInfo);
+	        	FlowObject flowInfo = new FlowObject(new AppInfo(flow));
+	        	// add to cache, but not initialized.
+	        	appflowCache.put(flow.getEntityName(), flowInfo);
             
             if (flow.getConf().isBootable() != null && flow.getConf().isBootable()) {
-            	activeFlows.add(flowInfo);
+            		activeFlows.add(flowInfo);
             }
         }
         
         Map<String, FlowEngine> engineMap = new HashMap<String, FlowEngine>();
         for (FlowObject flowInfo: activeFlows) {
-        	logger.info("Update workflow engine: {}",  flowInfo.getAppInfo().getName());
-        	FlowEngine engine = initFlowEngine(flowInfo, false);
-        	engineMap.put(flowInfo.getAppInfo().getName(), engine);
+	        	logger.info("Update workflow engine: {}",  flowInfo.getAppInfo().getName());
+	        	FlowEngine engine = initFlowEngine(flowInfo, false);
+	        	engineMap.put(flowInfo.getAppInfo().getName(), engine);
         }
 
         startFlowEngines(engineMap);
     }
     
     void stopService() {
-    	allEngines.clear();
-    	appflowCache.clear();
+	    	allEngines.clear();
+	    	appflowCache.clear();
     }
 
     /**
@@ -161,12 +163,13 @@ public class FlowContainer {
         }
 
         if (AppContext.get().hasService(WorkFlowEventProcessor.class)) {
-        	WorkFlowEventProcessor processor = AppContext.get().getService(WorkFlowEventProcessor.class);
+        		WorkFlowEventProcessor processor = AppContext.get().getService(WorkFlowEventProcessor.class);
 	        processor.addConsumers(tempProcessors);
         } else {
-        	WorkFlowEventProcessor eventProcessor = new WorkFlowEventProcessor(tempProcessors);
-        	AppContext.get().register(eventProcessor);
+	        	WorkFlowEventProcessor eventProcessor = new WorkFlowEventProcessor(tempProcessors);
+	        	AppContext.get().register(eventProcessor);
         }
+        logger.info("all started workflow engines: {}", allEngines.keySet().toString());
     }
 
     public void runTask(final WorkFlowEventProcessor timeoutEventProcessor, final TimeoutEvent event) {

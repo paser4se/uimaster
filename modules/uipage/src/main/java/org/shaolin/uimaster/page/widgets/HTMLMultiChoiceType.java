@@ -70,6 +70,7 @@ public abstract class HTMLMultiChoiceType extends HTMLChoiceType
 
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
 	{
-    	return super.createJsonModel(ee);
+    		//return super.createJsonModel(ee);
+    		return null;
 	}
 }

@@ -100,28 +100,14 @@ public class HTMLButtonType extends HTMLTextWidgetType
     
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException
     {
-    	if (!needAjaxSupport()) {
-        	return null;
-    	}
-    	// we don't need the button element by default!
-//      Button button = new Button(getName(), Layout.NULL);
-//
-//      button.setButtonType(getButtonType());
-//
-//      button.setReadOnly(isReadOnly());
-//      button.setUIEntityName(getUIEntityName());
-//
-//      button.setValue(getValue());
-//
-//      setAJAXAttributes(UserRequestContext.UserContext.get(), button);
-//
-//      button.setListened(true);
-    	
-    	return super.createJsonModel(ee);
+	    	if (needAjaxSupport()) {
+	        	return super.createJsonModel(ee);
+	    	}
+	    return null;
     }
 
     public JSONObject createJsonEventSource() throws JSONException {
-    	return super.createJsonModel(null);
+    		return super.createJsonModel(null);
     }
     
 }

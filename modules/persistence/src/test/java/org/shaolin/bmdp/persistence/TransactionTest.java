@@ -2,6 +2,7 @@ package org.shaolin.bmdp.persistence;
 
 import java.util.Hashtable;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -15,6 +16,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.shaolin.bmdp.persistence.be.OrganizationImpl;
 import org.shaolin.bmdp.persistence.be.PersonalInfoImpl;
+import org.shaolin.bmdp.persistence.be2.OrganizationImpl2;
+import org.shaolin.bmdp.persistence.be2.PersonalInfoImpl2;
 import org.shaolin.bmdp.persistence.query.operator.Operator;
 import org.shaolin.bmdp.runtime.SpringBootTestRoot;
 
@@ -86,6 +89,32 @@ public class TransactionTest extends SpringBootTestRoot {
 	}
 	
 	@Test
+	public void testMultipleThread() {
+		final CountDownLatch latch = new CountDownLatch(20);
+		for(int i=0; i<20; i++) {
+			new Thread(new Runnable() {
+				public void run() {
+					try {
+						UserTransaction tx = getUserTransaction();
+						System.out.println(tx.hashCode() + "--" + tx.toString());
+						tx.begin();
+						tx.commit();
+						latch.countDown();
+					} catch (Exception e) {
+						e.printStackTrace();
+						Assert.fail();
+					}
+				}
+			}).start();
+		}
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+		}
+		HibernateUtil.printThreadCounter();
+	}
+	
+	@Test
 	public void testNestedTransaction() throws Exception {
 		UserTransaction tx = getUserTransaction();
 		tx.begin();
@@ -126,14 +155,23 @@ public class TransactionTest extends SpringBootTestRoot {
 		tx.rollback();
 		System.out.println("after rollback: " + tx.getStatus());
 		
+	}
+	
+	@Test
+	public void testGetSessions() throws Exception {
 		//case 1
 		HibernateUtil.getSession();
+		HibernateUtil.getSession(OrganizationImpl.class.getPackage().getName());
+		HibernateUtil.getSession(OrganizationImpl.class.getPackage().getName());
+		HibernateUtil.getSession(OrganizationImpl2.class.getPackage().getName());
 		HibernateUtil.releaseSession(true);
 		//again.
 		HibernateUtil.releaseSession(true);
 		
 		//case 2
 		HibernateUtil.getSession();
+		HibernateUtil.getSession(OrganizationImpl.class.getPackage().getName());
+		HibernateUtil.getSession(OrganizationImpl2.class.getPackage().getName());
 		HibernateUtil.releaseSession(false);
 		//again.
 		HibernateUtil.releaseSession(false);
@@ -142,6 +180,8 @@ public class TransactionTest extends SpringBootTestRoot {
 		HibernateUtil.getSession();
 		HibernateUtil.getSession();
 		HibernateUtil.releaseSession(true);
+		
+		HibernateUtil.printThreadCounter();
 	}
 	
 	/**
@@ -154,12 +194,19 @@ public class TransactionTest extends SpringBootTestRoot {
 	 */
 	public void testTransactionTimeOut() throws InterruptedException {
 		HibernateUtil.getSession();
+		
+		BEEntityDaoObject daoService = new BEEntityDaoObject();
+		
+		OrganizationImpl org = new OrganizationImpl();
+		org.setName("test" + (int)(Math.random()*1000));
+		org.setDescription("test org for testOnlyBeginTx()!");
+		daoService.create(org);
+		
 		Thread.sleep(12000);
 		HibernateUtil.releaseSession(true);
 		HibernateUtil.releaseSession(true);
 	}
 	
-	@Test
 	public void testOnlyBeginTx() throws Exception {
 		try {
 			BEEntityDaoObject daoService = new BEEntityDaoObject();
@@ -170,7 +217,7 @@ public class TransactionTest extends SpringBootTestRoot {
 			daoService.create(org);
 			
 			Assert.assertTrue(org.getId() > 0);
-			Assert.assertNull(daoService.get(org.getId(), OrganizationImpl.class));
+			Assert.assertNotNull(daoService.get(org.getId(), OrganizationImpl.class));
 		} catch (Exception e) {
 			throw e;
 		} finally {
@@ -178,7 +225,7 @@ public class TransactionTest extends SpringBootTestRoot {
 	}
 	
 	@Test
-	public void testMultiStepsForCommit() throws Exception {
+	public void testMultiStepsFor2DBCommit() throws Exception {
 		UserTransaction tx = HibernateUtil.getUserTransaction();
 		try {
 			BEEntityDaoObject daoService = new BEEntityDaoObject();
@@ -207,15 +254,40 @@ public class TransactionTest extends SpringBootTestRoot {
             Assert.assertEquals("update for test", ((PersonalInfoImpl)result.get(0)).getDiscription());
             System.out.println("result: " + result);
             
+            OrganizationImpl2 org2 = new OrganizationImpl2();
+			org2.setName("test" + (int)(Math.random()*1000));
+			org2.setDescription("test org!");
+			daoService.create(org2);
+			
+			Assert.assertTrue(org2.getId() > 0);
+			System.out.println("org.getId(): " + org2.getId());
+			
+			PersonalInfoImpl2 info2 = new PersonalInfoImpl2();
+			info2.setOrgId(org2.getId());
+			info2.setFirstName("test" + (int)(Math.random()*1000));
+			info2.setLastName("aaaaa" + info2.getFirstName());
+			daoService.create(info2);
+			
+			info2.setDiscription("update for test");
+			daoService.update(info2);
+			
+			Criteria criteria1 = daoService._createCriteria(PersonalInfoImpl2.class, "inFlow");
+			criteria1.add(daoService.createCriterion(Operator.START_WITH_RIGHT, "inFlow.firstName", info2.getFirstName()));
+            List result1 = daoService._list(0, -1, criteria1);
+            Assert.assertTrue(result1.size() > 0);
+            Assert.assertEquals("update for test", ((PersonalInfoImpl2)result1.get(0)).getDiscription());
+            System.out.println("result: " + result1);
+            
 			tx.commit();
 		} catch (Exception e) {
 			throw e;
 		} finally {
+			HibernateUtil.printThreadCounter();
 		}
 	}
 	
 	@Test
-	public void testMultiStepsForRollback() throws Exception {
+	public void testMultiStepsFor2DBRollback() throws Exception {
 		UserTransaction tx = HibernateUtil.getUserTransaction();
 		try {
 			BEEntityDaoObject daoService = new BEEntityDaoObject();
@@ -235,18 +307,19 @@ public class TransactionTest extends SpringBootTestRoot {
 			info.setLastName("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 			daoService.create(info);
 			
+			OrganizationImpl2 org2 = new OrganizationImpl2();
+			org2.setName("test" + (int)(Math.random()*1000));
+			org2.setDescription("test org!");
+			daoService.create(org2);
+			
 			tx.commit();
 			Assert.fail();
 			//HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 		} catch (Throwable e) {
 			tx.rollback();
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		} finally {
 		}
 	}
 	
-	@Test
-	public void testCascadeLoading() throws Exception {
-		//TODO:
-	}
 }

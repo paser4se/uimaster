@@ -43,46 +43,42 @@ import org.shaolin.uimaster.page.exception.UIPageException;
 import org.shaolin.uimaster.page.od.mappings.ComponentMapping;
 import org.shaolin.uimaster.page.widgets.HTMLReferenceEntityType;
 
-public class ODEntityContext extends ODContext 
-{
+public class ODEntityContext extends ODContext {
 	private static Logger logger = Logger.getLogger(ODEntityContext.class);
-	
+
 	/**
-     * OD component meta-info.
-     */
-    private ODMappingType odDescriptor;
-    
-    private ODFormObject odEntityObject;
-    
-    private UIFormObject uiFromObject;
-    
-    public ODEntityContext( String odEntityName, UserRequestContext htmlContext )
-    {
-        super( htmlContext, false );
-        this.odEntityName = odEntityName;
-        
-    }
-    
-    /**
-     * 
-     * @throws EvaluationException
-     * @throws ParsingException
-     * @throws BusinessOperationException
-     * @throws RepositoryException
-     * @throws ClassNotFoundException
-     * @throws AjaxException 
-     * @throws UIPageException 
-     * @throws EntityNotFoundException 
-     */
-    public void initContext() throws EvaluationException, ParsingException, 
-    	BusinessOperationException, ClassNotFoundException, AjaxException, EntityNotFoundException, UIPageException
-    {
-    	if(logger.isInfoEnabled())
-    		logger.info("Initialize UI Form: " + odEntityName + 
-    				",htmlPrefix: " + requestContext.getHTMLPrefix());	
-		
-    	this.odEntityObject = PageCacheManager.getODFormObject(odEntityName);
-    	this.uiFromObject = PageCacheManager.getUIFormObject(odEntityName);
+	 * OD component meta-info.
+	 */
+	private ODMappingType odDescriptor;
+
+	private ODFormObject odEntityObject;
+
+	private UIFormObject uiFromObject;
+
+	public ODEntityContext(String odEntityName, UserRequestContext htmlContext) {
+		super(htmlContext, false);
+		this.odEntityName = odEntityName;
+
+	}
+
+	/**
+	 * 
+	 * @throws EvaluationException
+	 * @throws ParsingException
+	 * @throws BusinessOperationException
+	 * @throws RepositoryException
+	 * @throws ClassNotFoundException
+	 * @throws AjaxException
+	 * @throws UIPageException
+	 * @throws EntityNotFoundException
+	 */
+	public void initContext() throws EvaluationException, ParsingException, BusinessOperationException,
+			ClassNotFoundException, AjaxException, EntityNotFoundException, UIPageException {
+		if (logger.isInfoEnabled())
+			logger.info("Initialize UI Form: " + odEntityName + ",htmlPrefix: " + requestContext.getHTMLPrefix());
+
+		this.odEntityObject = PageCacheManager.getODFormObject(odEntityName);
+		this.uiFromObject = PageCacheManager.getUIFormObject(odEntityName);
 		this.uiEntityName = odEntityObject.getUIEntityName();
 		this.isODBaseRule = odEntityObject.isODBaseRule();
 		this.isODBaseType = odEntityObject.isODBaseType();
@@ -91,40 +87,38 @@ public class ODEntityContext extends ODContext
 		if (inputParamValues == null) {
 			inputParamValues = Collections.emptyMap();
 		}
-    	int debugCount = 0;
-    	DefaultEvaluationContext localEContext = odEntityObject.getLocalEContext();
-    	if( !inputParamValues.isEmpty() )
-    	{
-    		if(logger.isDebugEnabled())
-    			logger.info("----->The 'page in' is receiving values from web flow parameters:");
-    		String[] keys = odEntityObject.getParamKeys();
+		int debugCount = 0;
+		DefaultEvaluationContext localEContext = odEntityObject.getLocalEContext();
+		if (!inputParamValues.isEmpty()) {
+			if (logger.isDebugEnabled())
+				logger.info("----->The 'page in' is receiving values from web flow parameters:");
+			String[] keys = odEntityObject.getParamKeys();
 			for (String keyName : keys) {
 				if (inputParamValues.containsKey(keyName) && inputParamValues.get(keyName) != null) {
-    				localEContext.setVariableValue(keyName, inputParamValues.get(keyName));
-    				if(logger.isDebugEnabled())
-    				{
-    					Object obj = inputParamValues.get(keyName);
-    					StringBuffer sb = new StringBuffer();
-    					sb.append("Input parameter[");
-    					sb.append(debugCount);
-    					sb.append("]: ");
-    					sb.append(keyName);
-    					sb.append(", value: ");
-    					sb.append(obj);
-    					sb.append(", class: ");
-    					sb.append(obj.getClass());
-    					logger.debug(sb.toString());
-    					debugCount++;
-    				}
-    			}
-    		}
-    	}
-    	
+					localEContext.setVariableValue(keyName, inputParamValues.get(keyName));
+					if (logger.isDebugEnabled()) {
+						Object obj = inputParamValues.get(keyName);
+						StringBuffer sb = new StringBuffer();
+						sb.append("Input parameter[");
+						sb.append(debugCount);
+						sb.append("]: ");
+						sb.append(keyName);
+						sb.append(", value: ");
+						sb.append(obj);
+						sb.append(", class: ");
+						sb.append(obj.getClass());
+						logger.debug(sb.toString());
+						debugCount++;
+					}
+				}
+			}
+		}
+
 		Set keySet = inputParamValues.keySet();
-		for (Object key: keySet) {
+		for (Object key : keySet) {
 			Object value = inputParamValues.get(key);
 			if (value instanceof HTMLReferenceEntityType) {
-				uiEntity = (HTMLReferenceEntityType)value;
+				uiEntity = (HTMLReferenceEntityType) value;
 				if (uiEntityName.equals(uiEntity.getReferenceEntity())) {
 					break;
 				}
@@ -132,72 +126,65 @@ public class ODEntityContext extends ODContext
 		}
 		if (uiEntity == null || !UserRequestContext.isInstance(uiEntityName, uiEntity)) {
 			throw new ODProcessException(ExceptionConstants.UIMASTER_ODMAPPER_049,
-					new Object[]{uiEntity.getUIEntityName(), uiEntityName});
+					new Object[] { uiEntity.getUIEntityName(), uiEntityName });
 		}
-    	if(logger.isDebugEnabled()) {
-            logger.debug("UI Reference Entity uiid: " + this.uiEntity.getId());
-    	}
-    	DefaultEvaluationContext defaultEContext = new DefaultEvaluationContext();
-    	defaultEContext.setVariableValue("context", requestContext);
-    	defaultEContext.setVariableValue("odContext", this);
-    	this.setEvaluationContextObject(GLOBAL_TAG, defaultEContext);
-    	
-    	this.setDefaultEvaluationContext(localEContext);
-    	this.setEvaluationContextObject(LOCAL_TAG, localEContext);
-    	this.setExternalEvaluationContext(this);
-    	if( !isDataToUI )
-    	{
-    		DefaultEvaluationContext globalContext = new DefaultEvaluationContext();
-    		globalContext.setVariableValue("context", requestContext);
-    		globalContext.setVariableValue("odContext", this);
-    		String uiid = requestContext.getHTMLPrefix() + uiEntity.getUIID();
-    		if (AjaxContextHelper.getAjaxContext() != null) {
-    			globalContext.setVariableValue(AJAX_UICOMP_NAME, 
-    					AjaxContextHelper.getAjaxContext());
-    		} else {
-    			globalContext.setVariableValue(AJAX_UICOMP_NAME, 
-    					AjaxContextHelper.createUI2DataAjaxContext(uiid, 
-    							uiEntityName, requestContext.getRequest()));
-    		}
-    		this.setEvaluationContextObject(GLOBAL_TAG, globalContext);
-    	}
-    	if(logger.isInfoEnabled())
-		{
+		if (logger.isDebugEnabled()) {
+			logger.debug("UI Reference Entity uiid: " + this.uiEntity.getId());
+		}
+		DefaultEvaluationContext defaultEContext = new DefaultEvaluationContext();
+		defaultEContext.setVariableValue("context", requestContext);
+		defaultEContext.setVariableValue("odContext", this);
+		this.setEvaluationContextObject(GLOBAL_TAG, defaultEContext);
+
+		this.setDefaultEvaluationContext(localEContext);
+		this.setEvaluationContextObject(LOCAL_TAG, localEContext);
+		this.setExternalEvaluationContext(this);
+		if (!isDataToUI) {
+			DefaultEvaluationContext globalContext = new DefaultEvaluationContext();
+			globalContext.setVariableValue("context", requestContext);
+			globalContext.setVariableValue("odContext", this);
+			String uiid = requestContext.getHTMLPrefix() + uiEntity.getUIID();
+			if (AjaxContextHelper.getAjaxContext() != null) {
+				globalContext.setVariableValue(AJAX_UICOMP_NAME, AjaxContextHelper.getAjaxContext());
+			} else {
+				globalContext.setVariableValue(AJAX_UICOMP_NAME,
+						AjaxContextHelper.createUI2DataAjaxContext(uiid, uiEntityName, requestContext.getRequest()));
+			}
+			this.setEvaluationContextObject(GLOBAL_TAG, globalContext);
+		}
+		if (logger.isInfoEnabled()) {
 			String[] keys = odEntityObject.getParamKeys();
-			if(keys != null)
-			{
+			if (keys != null) {
 				EvaluationContext dEContext = this.getEvaluationContextObject(ODContext.LOCAL_TAG);
-				for (int i = 0; i < keys.length; i++ )
-				{
-					try
-					{
+				for (int i = 0; i < keys.length; i++) {
+					try {
 						Object variableValue = dEContext.getVariableValue(keys[i]);
-						if(variableValue == null) {
+						if (variableValue == null) {
 							if (logger.isDebugEnabled()) {
-								logger.debug("Local variable["+keys[i]+"] value is null.");
+								logger.debug("Local variable[" + keys[i] + "] value is null.");
 							}
 						}
-					}catch(Exception e){}
+					} catch (Exception e) {
+					}
 				}
 			}
 		}
-    }
-	
-	public String evalDataLocale() throws EvaluationException
-	{
-		//TODO:
-//	    return ODContextHelper.evalDataLocale(getPageInDescritpor().getDataLocale(),
-//	            this, ODContext.GLOBAL_TAG, odPageEntityObject.getPageInLocaleConfigs());
+	}
+
+	public String evalDataLocale() throws EvaluationException {
+		// TODO:
+		// return ODContextHelper.evalDataLocale(getPageInDescritpor().getDataLocale(),
+		// this, ODContext.GLOBAL_TAG, odPageEntityObject.getPageInLocaleConfigs());
 		return "";
 	}
-	
+
 	public void executeAllMappings() throws ODException {
 		List<ComponentMapping> mappings = odEntityObject.getAllMappings();
-		for (ComponentMapping mapping: mappings) {
+		for (ComponentMapping mapping : mappings) {
 			mapping.execute(this);
 		}
 	}
-	
+
 	public void executeMapping(String name) throws ODException {
 		List<ComponentMapping> mappings = odEntityObject.getAllMappings();
 		for (ComponentMapping mapping : mappings) {
@@ -206,31 +193,27 @@ public class ODEntityContext extends ODContext
 			}
 		}
 	}
-	
+
 	public String getUIParamName() {
 		return odEntityObject.getUiParamName();
 	}
-	
-	public void executeDataToUI() throws EvaluationException
-	{
+
+	public void executeDataToUI() throws EvaluationException {
 		odDescriptor.getDataToUIMappingOperation().evaluate(this);
 	}
-	
-	public void executeUITOData() throws EvaluationException
-	{
+
+	public void executeUITOData() throws EvaluationException {
 		odDescriptor.getUIToDataMappingOperation().evaluate(this);
 	}
-	
-	public DefaultParsingContext getLocalPContext() 
-    {
-    	return odEntityObject.getLocalPContext();
-    }
-    
-	public ODObject getODObject() 
-	{
+
+	public DefaultParsingContext getLocalPContext() {
+		return odEntityObject.getLocalPContext();
+	}
+
+	public ODObject getODObject() {
 		return odEntityObject;
 	}
-	
+
 	public UIFormObject getUIFormObject() {
 		return uiFromObject;
 	}

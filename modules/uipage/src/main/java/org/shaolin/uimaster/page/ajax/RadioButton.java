@@ -45,7 +45,7 @@ public class RadioButton extends SelectWidget implements Serializable
                     int count = 0;
                     RadioButton radio = null;
                     while ((radio = (RadioButton)AjaxContextHelper.getAjaxContext()
-                            .getElementByAbsoluteId(startId + "[" + count + "]")) != null)
+                            .getElementByAbsoluteId(startId + "[" + count + "]", RadioButton.class)) != null)
                     {
                         if (!radio.getId().equals(this.getId()))
                         {

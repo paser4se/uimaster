@@ -53,6 +53,9 @@ public class HTMLCheckBoxGroupType extends HTMLMultiChoiceType
             {
                 displayOptions = options;
             }
+            if (this.getAttribute("cename") != null) {
+	        		addAttribute("ce", this.getAttribute("cename"));
+	        }
             if ("false".equals((String) getAttribute("visible")))
             {
                 context.generateHTML("<p style=\"display:none\">");
@@ -165,19 +168,7 @@ public class HTMLCheckBoxGroupType extends HTMLMultiChoiceType
 
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException
     {
-//        CheckBoxGroup checkBoxGroup = new CheckBoxGroup(getName(), Layout.NULL);
-//        
-//        checkBoxGroup.setReadOnly(isReadOnly());
-//        checkBoxGroup.setUIEntityName(getUIEntityName());
-//
-//        checkBoxGroup.setOptions(getOptionDisplayValues(), getOptionValues());
-//        checkBoxGroup.setValues(getValue());
-//
-//        setAJAXConstraints(checkBoxGroup);
-//        setAJAXAttributes(UserRequestContext.UserContext.get(), checkBoxGroup);
-//        
-//        checkBoxGroup.setListened(true);
-
-    	return super.createJsonModel(ee);
+    		//return super.createJsonModel(ee);
+    		return null;
     }
 }

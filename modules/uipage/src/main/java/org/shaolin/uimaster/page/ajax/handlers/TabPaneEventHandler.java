@@ -74,12 +74,12 @@ public class TabPaneEventHandler implements IAjaxHandler {
 			if(!comp.loadContent(Integer.valueOf(index))) {
 				comp.syncSelectedAction(context);
 			}
-			
+			HibernateUtil.releaseSession(true);
 			return AjaxContextHelper.getAjaxContext().getDataAsJSON();
 		} catch (Exception e) {
+			HibernateUtil.releaseSession(false);
 			throw new AjaxHandlerException("Error", e);
 		} finally {
-			HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
 			AjaxContextHelper.removeAjaxContext();
 		}
 	}

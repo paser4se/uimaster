@@ -182,30 +182,17 @@ public class HTMLTextAreaType extends HTMLTextWidgetType implements Consumer<Str
 
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException 
     {
-    	JSONObject json = super.createJsonModel(ee);
-//        TextArea textArea = new TextArea(getName(), Layout.NULL);
-//
-//        textArea.setReadOnly(isReadOnly());
-//        textArea.setUIEntityName(getUIEntityName());
-//
-//        // we don't expect to anything except the pure value 
-//        // what we really need in the backend.
-//        textArea.setValue(getValue());
-        if (this.getAttribute("htmlSupport") != null && 
-        		"true".equals(this.getAttribute("htmlSupport").toString())) {
-        	json.put("htmlSupport", true);
-        	if (this.getAttribute("viewMode") != null && 
-            		"true".equals(this.getAttribute("viewMode").toString())) {
-        		json.put("viewMode", true);
-        	}
-        }
-//        
-//        setAJAXConstraints(textArea);
-//        setAJAXAttributes(UserRequestContext.UserContext.get(), textArea);
-//        
-//        textArea.setListened(true);
-
-    	return json;
+//    	  JSONObject json = super.createJsonModel(ee);
+//        if (this.getAttribute("htmlSupport") != null && 
+//        		"true".equals(this.getAttribute("htmlSupport").toString())) {
+//	        	json.put("htmlSupport", true);
+//	        	if (this.getAttribute("viewMode") != null && 
+//	            		"true".equals(this.getAttribute("viewMode").toString())) {
+//	        		json.put("viewMode", true);
+//	        	}
+//        }
+//    	  return json;
+    		return null;
     }
     
 }

@@ -118,6 +118,7 @@ public class UISingleChoiceAndCE implements IODMappingConverter {
 		HashMap<String, Class<?>> dataClassInfo = new LinkedHashMap<String, Class<?>>();
 
 		dataClassInfo.put("CEValue", IConstantEntity.class);
+		dataClassInfo.put("CEStrValue", String.class);
 		dataClassInfo.put("CEType", String.class);
 		dataClassInfo.put("Expendlevels", Integer.class);
 		dataClassInfo.put("ContainsNotSpecified", Boolean.TYPE);
@@ -170,6 +171,9 @@ public class UISingleChoiceAndCE implements IODMappingConverter {
 					this.ceValue = CEUtil.toCEValue(paramValue.get("CEValue").toString());
 				}
 			}
+			if (paramValue.containsKey("CEStrValue") && paramValue.get("CEStrValue") != null) {
+				this.ceValue = CEUtil.toCEValue(paramValue.get("CEStrValue").toString());
+			}
 			if (paramValue.containsKey("CEType")) {
 				this.ceType = ((String) paramValue.get("CEType"));
 			}
@@ -208,6 +212,9 @@ public class UISingleChoiceAndCE implements IODMappingConverter {
 			paramValue.put("ExcludeValue", this.excludeValue);
 			paramValue.put("CEType", this.ceType);
 			paramValue.put("CEValue", this.ceValue);
+			if (this.ceValue != null) {
+				paramValue.put("CEStrValue", this.ceValue.getEntityName()+","+this.ceValue.getIntValue());
+			}
 			paramValue.put("ContainsNotSpecified",Boolean.valueOf(this.containsNotSpecified));
 			paramValue.put("NotSpecifiedDisplayValue",this.notSpecifiedDisplayValue);
 		} catch (Throwable t) {
@@ -229,12 +236,15 @@ public class UISingleChoiceAndCE implements IODMappingConverter {
 	public void pushDataToWidget(UserRequestContext htmlContext) throws UIConvertException {
 		try {
 			this.uisingleChoice.setCeName(this.ceType);
-			if (this.ceValue != null) {
-				this.uisingleChoice.setValue(String.valueOf(this.ceValue.getIntValue()));
-			}
 			if (this.expendlevels < 1) {
+				if (this.ceValue != null) {
+					this.uisingleChoice.setValue(String.valueOf(this.ceValue.getIntValue()));
+				}
 				callChoiceOptionWithCE(true, htmlContext);
 			} else {
+				if (this.ceValue != null) {
+					this.uisingleChoice.setValue(this.ceValue.getEntityName() +","+ this.ceValue.getIntValue());
+				}
 				List<String> optionValues = new ArrayList<String>();
 				List<String> optionDisplayValues = new ArrayList<String>();
 				CEUtil.getCEItems(this.expendlevels, optionValues, optionDisplayValues, 
@@ -261,9 +271,14 @@ public class UISingleChoiceAndCE implements IODMappingConverter {
 				return;
 			}
 			JSONObject attrMap = selectComp.getJSONObject("attrMap");
-			this.ceValue = CEUtil.getConstantEntity(attrMap.getString("value"), this.ceType);
-			if (this.ceValue != null) {
-				this.ceType = this.ceValue.getEntityName();
+			String value = attrMap.getString("value");
+			if (value.indexOf(",") == -1) {
+				this.ceValue = CEUtil.getConstantEntity(value, this.ceType);
+				if (this.ceValue != null) {
+					this.ceType = this.ceValue.getEntityName();
+				}
+			} else {
+				this.ceValue = CEUtil.toCEValue(value);
 			}
 		} catch (Throwable t) {
 			if (t instanceof UIConvertException) {

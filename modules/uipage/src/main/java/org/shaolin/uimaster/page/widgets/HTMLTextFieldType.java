@@ -158,24 +158,8 @@ public class HTMLTextFieldType extends HTMLTextWidgetType
 
     public JSONObject createJsonModel(VariableEvaluator ee) throws JSONException
     {
-//        TextField textField = new TextField(getName(), Layout.NULL);
-//
-//        textField.setReadOnly(isReadOnly());
-//        textField.setUIEntityName(getUIEntityName());
-//
-//        // we don't expect to anything except the pure value 
-//        // what we really need in the backend.
-//        textField.setValue(getValue());
-//        if (this.getAttribute("secure") != null) {
-//        	textField.setIsSecure(Boolean.valueOf(this.getAttribute("secure").toString()));
-//        }
-//        // add necessary attribute especially the server side constraint check.
-//        setAJAXConstraints(textField);
-//        setAJAXAttributes(UserRequestContext.UserContext.get(), textField);
-//        
-//        textField.setListened(true);
-
-        return super.createJsonModel(ee);
+//        return super.createJsonModel(ee);
+    		return null;
     }
 
     

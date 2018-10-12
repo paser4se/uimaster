@@ -4,7 +4,7 @@
     <artifactId>designtime</artifactId>
     <packaging>maven-plugin</packaging>
     <name>UI Master Design Tool</name>
-    <version>${uimaster.version}</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <parent>
         <artifactId>build.modules</artifactId>
@@ -20,6 +20,20 @@
         </developer>
     </developers>
     <dependencies>
+        <dependency>
+		    <groupId>commons-dbcp</groupId>
+		    <artifactId>commons-dbcp</artifactId>
+		</dependency>
+        <dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+		</dependency>
+		<!-- 
+        <dependency>
+		    <groupId>com.h2database</groupId>
+		    <artifactId>h2</artifactId>
+		</dependency>
+		 -->
         <dependency>
 			<groupId>org.shaolin.bmdp</groupId>
 			<artifactId>common</artifactId>
@@ -57,7 +71,13 @@
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-project</artifactId>
+			<version>3.0-alpha-2</version>
 		</dependency>
+		<dependency>
+		    <groupId>org.apache.maven.plugin-tools</groupId>
+		    <artifactId>maven-plugin-annotations</artifactId>
+		    <version>3.2</version>
+	    </dependency>
 		<dependency>
 		    <groupId>com.google.code.javaparser</groupId>
 		    <artifactId>javaparser</artifactId>
@@ -69,4 +89,19 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+	<build>  
+	  <plugins>  
+		<plugin>  
+		  <groupId>org.apache.maven.plugins</groupId>  
+		  <artifactId>maven-plugin-plugin</artifactId>  
+		  <version>3.5</version>  
+		  <executions>  
+		  </executions>  
+		  <configuration>  
+			<!-- Need to skip the error if found -->  
+			<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>  
+		  </configuration>  
+		</plugin>  
+	  </plugins>  
+	</build> 
 </project>

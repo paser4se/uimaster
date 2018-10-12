@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+  <class name="org.shaolin.bmdp.persistence.be2.PersonalInfoImpl2" table="TEST_PERSONINFO1">
+    <id name="id" column="ID">
+      <generator class="native" />
+    </id>
+    <property name="orgCode" column="ORGCODE"/>
+    <property name="orgId" type="long" column="ORGID"/>
+    <property name="empLevelInt" type="integer" column="EMPLEVEL"/>
+    <property name="firstName" column="FIRSTNAME"/>
+    <property name="lastName" column="LASTNAME"/>
+    <property name="married" column="MARRIED"/>
+    <property name="identityCardId" column="IDENTITYCARDID"/>
+    <property name="discription" column="DISCRIPTION"/>
+    <property name="languageInt" type="integer" column="LANGUAGE"/>
+    <property name="educationInt" type="integer" column="EDUCATION"/>
+    <property name="comment" column="COMMENT"/>
+    <property name="createDate" type="timestamp" column="CREATEDATE"/>
+    <property name="_enable" type="boolean" column="_enable"/>
+    <many-to-one name="organization" column="ORGID" unique="true" not-null="true" lazy="false" insert="false" update="false"/>
+    <property name="_cas" type="long" column="_cas"/>
+  </class>
+</hibernate-mapping>

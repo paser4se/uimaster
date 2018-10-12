@@ -42,14 +42,14 @@ public class FetchPageRelationshipMojo extends AbstractMojo {
     /**
      * The maven project.
      * 
-     * @parameter expression="${project}"
+     * @parameter property="project"
      * @readonly
      */
     private MavenProject project;
 
     /**
      * 
-     * @parameter expression="frontendpage.info"
+     * @parameter default-value="frontendpage.info"
      */
     private File frontendPageInfo;
     
@@ -57,7 +57,7 @@ public class FetchPageRelationshipMojo extends AbstractMojo {
     
     /**
      * 
-     * @parameter expression="entities/"
+     * @parameter default-value="entities/"
      */
     private File entitiesDirectory;
     

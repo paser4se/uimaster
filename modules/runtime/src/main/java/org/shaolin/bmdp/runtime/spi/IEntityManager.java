@@ -65,6 +65,11 @@ public interface IEntityManager {
 	void addListeners(List<IEntityEventListener<? extends EntityType, ?>> listeners);
 	
 	/**
+	 * clean all event listeners.
+	 */
+	void cleanEventListeners();
+	
+	/**
 	 * post-initial entity manager listener. this listener is not stored to the entity manager.
 	 * 
 	 * @param listeners

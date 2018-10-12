@@ -73,7 +73,7 @@ public class TableEventHandler implements IAjaxHandler {
 			try {
 				return comp.refresh0();
 			} finally {
-				HibernateUtil.releaseSession(HibernateUtil.getSession(), true);
+				HibernateUtil.releaseSession(true);
 				try {
 					context.getDataAsJSON();
 				} catch (Exception e) {

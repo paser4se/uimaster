@@ -356,21 +356,23 @@ public class PreNextPanel extends Container implements Serializable
     }
 
     public JSONObject toJSON() throws JSONException {
-		JSONObject json = super.toJSON();
-		json.put("selectedIndex", selectedIndex);
-		return json;
+		this.addAttribute("selectedIndex", selectedIndex, false);
+		return super.toJSON();
 	}
+    
+    public void toJSON(JSONObject json) throws JSONException {
+	    	json.getJSONObject("attrMap").put("selectedIndex", this.selectedIndex);
+    }
 	
 	@SuppressWarnings("unchecked")
 	public void fromJSON(JSONObject json) throws Exception {
-		super.fromJSON(json);
 		String entityName = json.getString("entity");
 		UIFormObject formObject = PageCacheManager.getUIForm(entityName);
 		Map<String, Object> attributes = formObject.getComponentProperty(this.getId(), true);
 		this.previousAction = (ExpressionType)attributes.get("previousAction");
 		this.nextAction = (ExpressionType)attributes.get("nextAction");
 		this.uiid = this.getId();
-		this.selectedIndex = json.getInt("selectedIndex");
 		//createdRefEntities
+		super.fromJSON(json);
 	}
 }
