@@ -320,61 +320,51 @@ public class MockHttpRequest implements HttpServletRequest {
 
 	@Override
 	public Part getPart(String arg0) throws IOException, ServletException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Collection<Part> getParts() throws IOException, ServletException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getPathInfo() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getPathTranslated() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getQueryString() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getRemoteUser() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getRequestURI() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public StringBuffer getRequestURL() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getRequestedSessionId() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getServletPath() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -390,55 +380,46 @@ public class MockHttpRequest implements HttpServletRequest {
 
 	@Override
 	public Principal getUserPrincipal() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean isRequestedSessionIdFromCookie() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isRequestedSessionIdFromURL() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isRequestedSessionIdFromUrl() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isRequestedSessionIdValid() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isUserInRole(String arg0) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void login(String arg0, String arg1) throws ServletException {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void logout() throws ServletException {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void upgrade(ProtocolHandler arg0) throws IOException {
-		// TODO Auto-generated method stub
 		
 	}
 
