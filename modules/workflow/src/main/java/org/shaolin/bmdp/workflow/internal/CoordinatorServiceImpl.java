@@ -369,7 +369,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 			if (task.getPeriodicType() == PeriodicType.WEEKLY) {
 				initialDelay = initialDelay + (7 * 12);
 			} else if (task.getPeriodicType() == PeriodicType.MONTHLY) {
-				//TODO: Bug on the accuracy
 				initialDelay = initialDelay + (30 * 12);
 			}
 			ScheduledFuture<?> f = scheduler.scheduleAtFixedRate(task.getPeriodicJob(), initialDelay, period, TimeUnit.HOURS);
@@ -609,7 +608,7 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		if (testCaseFlag) {
 			return;
 		}
-		// TODO: must be optimized by nodejs.
+		
 		// load all pending tasks when system up.
 		/**
 		TaskImpl condition = new TaskImpl();
@@ -680,7 +679,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 		@Override
 		public void run() {
 			if (message.getNeedBroadcast()) {
-				//TODO:
 			}
 			if (NotificationService.push(message, message.getPartyId())) {
 				message.setRead(true);
@@ -710,13 +708,11 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	
 	@Override
 	public void addServerNode(String ipAddress, int port) {
-		// TODO Auto-generated method stub
 		
 	}
 	
 	@Override
 	public void removeServerNode(String ipAddress, int port) {
-		// TODO Auto-generated method stub
 		
 	}
 	
@@ -749,7 +745,6 @@ public class CoordinatorServiceImpl implements ILifeCycleProvider, ICoordinatorS
 	}
 
 	public static String toURL(IServerNodeInfo serverNode) {
-		//TODO: whether is the http or http configured
 		return serverNode.getProtocol() + serverNode.getIpAddress() + ":" + serverNode.getPort() + serverNode.getDomain();
 	} 
 	
