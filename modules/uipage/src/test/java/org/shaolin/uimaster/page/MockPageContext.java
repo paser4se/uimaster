@@ -37,19 +37,16 @@ public class MockPageContext extends PageContext {
 
 	@Override
 	public void release() {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public HttpSession getSession() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object getPage() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -65,108 +62,91 @@ public class MockPageContext extends PageContext {
 
 	@Override
 	public Exception getException() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ServletConfig getServletConfig() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ServletContext getServletContext() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void forward(String relativeUrlPath) throws ServletException,
 			IOException {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void include(String relativeUrlPath) throws ServletException,
 			IOException {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void include(String relativeUrlPath, boolean flush)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void handlePageException(Exception e) throws ServletException,
 			IOException {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void handlePageException(Throwable t) throws ServletException,
 			IOException {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void setAttribute(String name, Object value) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void setAttribute(String name, Object value, int scope) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public Object getAttribute(String name) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object getAttribute(String name, int scope) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object findAttribute(String name) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void removeAttribute(String name) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void removeAttribute(String name, int scope) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public int getAttributesScope(String name) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public Enumeration<String> getAttributeNamesInScope(int scope) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -177,19 +157,16 @@ public class MockPageContext extends PageContext {
 
 	@Override
 	public ExpressionEvaluator getExpressionEvaluator() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public VariableResolver getVariableResolver() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ELContext getELContext() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
