@@ -28,43 +28,36 @@ public class QuatzJobTest {
 	    	
             @Override
             public int getRunLevel() {
-                // TODO Auto-generated method stub
                 return 0;
             }
 
             @Override
             public boolean readyToStop() {
-                // TODO Auto-generated method stub
                 return false;
             }
 
             @Override
             public void reload() {
-                // TODO Auto-generated method stub
                 
             }
 
             @Override
             public void startService() {
-                // TODO Auto-generated method stub
                 
             }
 
             @Override
             public void stopService() {
-                // TODO Auto-generated method stub
                 
             }
 
             @Override
             public void loadAllJobs() {
-                // TODO Auto-generated method stub
                 
             }
 
             @Override
             public void scheduleJobs() {
-                // TODO Auto-generated method stub
                 
             }
 
@@ -78,31 +71,26 @@ public class QuatzJobTest {
 
             @Override
             public String getCronExpressionFromJobInfo(IJavaCCJob jobInfo) {
-                // TODO Auto-generated method stub
                 return null;
             }
 
             @Override
             public String getJobNameFromJobInfo(IJavaCCJob jobInfo) {
-                // TODO Auto-generated method stub
                 return null;
             }
 
             @Override
             public String getTriggerNameFromJobInfo(IJavaCCJob jobInfo) {
-                // TODO Auto-generated method stub
                 return null;
             }
 
             @Override
             public void startScheduleJob(IJavaCCJob job) {
-                // TODO Auto-generated method stub
                 
             }
 
             @Override
             public void cancelScheduleJob(IJavaCCJob job) {
-                // TODO Auto-generated method stub
                 
             }
 	        
