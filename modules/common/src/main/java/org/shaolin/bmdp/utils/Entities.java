@@ -448,7 +448,6 @@ class Entities {
         /**
          * {@inheritDoc}
          */
-        // TODO not thread-safe as there is a window between changing the two maps
         public void add(String name, int value) {
             mapNameToValue.put(name, new Integer(value));
             mapValueToName.put(value, name);
@@ -535,7 +534,6 @@ class Entities {
     }
 
     static class LookupEntityMap extends PrimitiveEntityMap {
-        // TODO this class is not thread-safe
         private String[] lookupTable;
 
         private static final int LOOKUP_TABLE_SIZE = 256;
@@ -578,7 +576,6 @@ class Entities {
     }
 
     static class ArrayEntityMap implements EntityMap {
-        // TODO this class is not thread-safe
         protected final int growBy;
 
         protected int size = 0;
@@ -664,7 +661,6 @@ class Entities {
 
     static class BinaryEntityMap extends ArrayEntityMap {
 
-        // TODO - not thread-safe, because parent is not. Also references size.
 
         /**
          * Constructs a new instance of <code>BinaryEntityMap</code>.
