@@ -275,7 +275,7 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			generateSetDeclaration(businessEntity, out);
 
 			if (genExtension) {
-				// TODO:
+		
 			}
 
 			out.write("\n\n}\n\n        ");
@@ -314,7 +314,7 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			out.write("\n    }\n    \n    ");
 
 			if (genExtension) {
-				// TODO:
+			
 			}
 
 			out.write("\n    ");
@@ -341,7 +341,7 @@ public final class BESourceGenerator implements IEntityEventListener<BusinessEnt
 			out.write("();\n    }\n    ");
 
 			if (genExtension) {
-				// TODO:
+			
 			}
 			out.write("\n}\n\n        ");
 
