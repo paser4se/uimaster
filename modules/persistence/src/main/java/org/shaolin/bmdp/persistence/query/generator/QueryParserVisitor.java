@@ -132,7 +132,6 @@ public class QueryParserVisitor implements IOQLNodeVisitor
 
     public void visitBinaryExpressionOp(String op) throws QueryParsingException
     {
-        //TODO
         //SearchConstants.CONCAT | SearchConstants.PLUS ?
         writer.print(SQLConstants.SPACE + op + SQLConstants.SPACE);
     }
@@ -541,7 +540,6 @@ public class QueryParserVisitor implements IOQLNodeVisitor
                     //1. Only int to String conversion is supported
                     //   by ConvertFieldDescriptor now. So we just use
                     //   database TO_CHAR routine here
-                    //   TODO: support other data types' conversion
                     columnName = DBMSProviderFactory.getProvider().getToCharFunction(columnName);
                 }
             }
@@ -610,7 +608,6 @@ public class QueryParserVisitor implements IOQLNodeVisitor
             //1. Only int to String conversion is supported
             //   by ConvertFieldDescriptor now. So we just use
             //   database TO_CHAR routine here
-            //   TODO: support other data types' conversion
             columnName = DBMSProviderFactory.getProvider().getToCharFunction(columnName);
         }
 
