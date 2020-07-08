@@ -540,6 +540,11 @@ public class FlowEngine {
                 sessionService.rollbackSession(session);
                 stopTransaction(false, session);
                 break;
+	    //missing default case
+            default:
+            	// add default case
+            	break;
+
         }
     }
 
