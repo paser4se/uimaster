@@ -412,7 +412,6 @@ public class HTMLUtil
             jsIncludeList.add(single);
         }
         
-        //TODO: add -mob suffix for the customized js.
         String jsFileName = WebConfig.getImportJS(entityName);
         String importJSCode = "<script type=\"text/javascript\" src=\"" + jsFileName
                 + "?_timestamp=";
@@ -988,7 +987,6 @@ public class HTMLUtil
     {
         logger.debug("check whether the user owns the editpmerission: " + editPermission);
 //        return SecurityUtil.checkFunctionOrJAASRole(editPermission);
-        //TODO:
         return true;
     }
 
