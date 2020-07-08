@@ -154,7 +154,6 @@ public class WorkersNodeListener implements DataListener {
      */
     @Override
     public void onNodeCreated(ZData zData) {
-        // TODO Auto-generated method stub
 
     }
 
@@ -166,7 +165,6 @@ public class WorkersNodeListener implements DataListener {
      */
     @Override
     public void onNodeDelete(ZData arg0) {
-        // TODO Auto-generated method stub
 
     }
 
@@ -178,7 +176,6 @@ public class WorkersNodeListener implements DataListener {
      */
     @Override
     public void onNodeUpdate(ZData zData) {
-        // TODO Auto-generated method stub
 
     }
 
