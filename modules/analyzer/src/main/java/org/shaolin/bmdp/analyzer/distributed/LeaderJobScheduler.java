@@ -57,7 +57,6 @@ public class LeaderJobScheduler implements IJobDispatcher {
     public static final String PATH = "path";
     public static final String STAT2 = "Stat";
 
-    // TODO: set properties configuration.
     private final SchedulerFactory scheduleFactory = new StdSchedulerFactory();
 
     private final Queue<IJavaCCJob> jobQueue = new ConcurrentLinkedQueue<IJavaCCJob>();
@@ -103,7 +102,6 @@ public class LeaderJobScheduler implements IJobDispatcher {
         zookeeper.getChildren(ZKDistributedJobEngine.NODES_PATH, watcher, new ChildrenCallback() {
             @Override
             public void processResult(int rc, String path, Object ctx, List<String> children) {
-                // TODO Auto-generated method stub
             }
 
         }, null);
