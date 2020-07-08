@@ -41,7 +41,6 @@ public class SiblingNodeListener implements DataListener {
      */
     @Override
     public void onNodeUpdate(ZData data) {
-        // TODO Auto-generated method stub
 
     }
 
@@ -66,7 +65,6 @@ public class SiblingNodeListener implements DataListener {
      */
     @Override
     public void onNodeCreated(ZData data) {
-        // TODO Auto-generated method stub
 
     }
 
@@ -79,7 +77,6 @@ public class SiblingNodeListener implements DataListener {
      */
     @Override
     public void onChildChanged(ZData data) {
-        // TODO Auto-generated method stub
 
     }
 
