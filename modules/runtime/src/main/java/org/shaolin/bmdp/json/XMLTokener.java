@@ -227,6 +227,11 @@ public class XMLTokener extends JSONTokener
                         case '\'':
                             back();
                             return Boolean.TRUE;
+                        //missing default case
+                        default:
+                            // add default case
+                            break;
+
                     }
                 }
         }
@@ -323,6 +328,10 @@ public class XMLTokener extends JSONTokener
                         case '"':
                         case '\'':
                             throw syntaxError("Bad character in a name");
+                        //missing default case
+                        default:
+                            // add default case
+                            break;
                     }
                 }
         }
