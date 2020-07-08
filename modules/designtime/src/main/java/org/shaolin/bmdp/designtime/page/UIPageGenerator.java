@@ -601,7 +601,7 @@ public final class UIPageGenerator implements IEntityEventListener<BusinessEntit
 		funcCall.setFunctionName("Search");
 		click.setHandler(funcCall);
 		function.setFunctionName("Search");
-		function.getOps();//TODO:
+		function.getOps();
 		function.getVars();
 		searchButton.getEventListeners().add(click);
 		uiEntity.getEventHandlers().add(function);
@@ -612,7 +612,6 @@ public final class UIPageGenerator implements IEntityEventListener<BusinessEntit
 		resultPanel.setUIID("resultPanel");
 		UITableType uiTable = new UITableType();
 		uiTable.setUIID("beUITable");
-		//TODO: more details in table widget.
 		resultPanel.getComponents().add(uiTable);
 		UIPageUtil.createLayout(resultPanel, 1, 1);
 		
