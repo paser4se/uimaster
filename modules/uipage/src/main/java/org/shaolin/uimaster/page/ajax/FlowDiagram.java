@@ -182,14 +182,12 @@ public class FlowDiagram extends Widget<FlowDiagram> implements Serializable {
 	}
 	
 	public void updateNode(String nodeName) {
-		//TODO:
 	}
 
 	public void addNode(String nodeId, String nodeName, String description) {
 		if (nodeName == null || nodeName.trim().isEmpty()) {
 			return;
 		}
-		//TODO: support multiple types.
 		RectangleNodeType node = new RectangleNodeType();
 		node.setId(nodeId);
 		node.setName(nodeName);
@@ -261,7 +259,6 @@ public class FlowDiagram extends Widget<FlowDiagram> implements Serializable {
 	
 	public String refresh() {
 		try {
-			//TODO
 			OOEEContext ooeeContext = OOEEContextFactory.createOOEEContext();
 			DefaultEvaluationContext evaContext = new DefaultEvaluationContext();
 			ooeeContext.setDefaultEvaluationContext(evaContext);
