@@ -70,7 +70,6 @@ public class NodeDataListener implements DataListener {
      */
     @Override
     public void onNodeDelete(ZData data) {
-        // TODO Auto-generated method stub
 
     }
 
@@ -79,7 +78,6 @@ public class NodeDataListener implements DataListener {
      */
     @Override
     public void onNodeCreated(ZData data) {
-        // TODO Auto-generated method stub
 
     }
 
@@ -88,7 +86,6 @@ public class NodeDataListener implements DataListener {
      */
     @Override
     public void onChildChanged(ZData data) {
-        // TODO Auto-generated method stub
 
     }
 
