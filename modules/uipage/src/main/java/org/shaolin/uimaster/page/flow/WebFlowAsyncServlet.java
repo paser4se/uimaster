@@ -1019,13 +1019,11 @@ public class WebFlowAsyncServlet extends HttpServlet implements RejectedExecutio
 
     private static boolean checkChunkPermission(WebChunk chunk)
     {
-    	//TODO
         return true;
     }
     
     private static boolean checkNodePermission(WebNode node)
     {
-    	//TODO
         return true;
     }
 
