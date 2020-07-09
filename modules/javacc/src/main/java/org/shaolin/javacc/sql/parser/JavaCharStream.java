@@ -51,6 +51,11 @@ public class JavaCharStream
        case 'f' :
        case 'F' :
           return 15;
+       //missing default case
+       default:
+            // add default case
+           break;
+
     }
 
     throw new java.io.IOException(); // Should never come here
