@@ -74,6 +74,11 @@ public class DataMonitor implements Watcher, StatCallback {
                 dead = true;
                 listener.closing(KeeperException.Code.SessionExpired);
                 break;
+            //missing default case
+            default:
+                // add default case
+                break;
+
             }
         } else {
             if (path != null && path.equals(znode)) {
